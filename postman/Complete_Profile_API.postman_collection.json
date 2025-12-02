@@ -1,0 +1,275 @@
+{
+	"info": {
+		"_postman_id": "complete-profile-api-collection",
+		"name": "LMS - Complete Profile API",
+		"description": "Complete Profile endpoint for student registration in LMS",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. Get All Programs",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/v1/programs",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"programs"
+					]
+				},
+				"description": "Get list of available programs (diplomas and training courses)"
+			},
+			"response": []
+		},
+		{
+			"name": "2. Complete Profile (Create/Update)",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "name",
+							"value": "Ahmed Ali Mohammed",
+							"type": "text",
+							"description": "Full name (required)"
+						},
+						{
+							"key": "national_id",
+							"value": "1234567890",
+							"type": "text",
+							"description": "National ID - exactly 10 digits (required)"
+						},
+						{
+							"key": "date_of_birth",
+							"value": "1995-05-15",
+							"type": "text",
+							"description": "Date of birth in YYYY-MM-DD format (required)"
+						},
+						{
+							"key": "gender",
+							"value": "male",
+							"type": "text",
+							"description": "Gender: male or female (required)"
+						},
+						{
+							"key": "email",
+							"value": "ahmed.ali@example.com",
+							"type": "text",
+							"description": "Email address (required)"
+						},
+						{
+							"key": "phone",
+							"value": "+966501234567",
+							"type": "text",
+							"description": "Phone number 10-20 digits (required)"
+						},
+						{
+							"key": "type",
+							"value": "diploma",
+							"type": "text",
+							"description": "Type: diploma or training (required)"
+						},
+						{
+							"key": "program_id",
+							"value": "1",
+							"type": "text",
+							"description": "Program ID from programs table (required)"
+						},
+						{
+							"key": "date_of_register",
+							"value": "2025-12-02",
+							"type": "text",
+							"description": "Registration date in YYYY-MM-DD format (optional, defaults to today)"
+						},
+						{
+							"key": "is_terms",
+							"value": "1",
+							"type": "text",
+							"description": "Accept terms and conditions: 1, true, yes, or on (required)"
+						},
+						{
+							"key": "is_confirm_user",
+							"value": "1",
+							"type": "text",
+							"description": "Confirm user information: 1, true, yes, or on (required)"
+						},
+						{
+							"key": "national_id_file",
+							"type": "file",
+							"description": "National ID document (PDF, JPG, PNG, max 5MB) (required)",
+							"src": []
+						},
+						{
+							"key": "certificate_file",
+							"type": "file",
+							"description": "Academic certificate (PDF, JPG, PNG, max 5MB) (required)",
+							"src": []
+						},
+						{
+							"key": "payment_billing_file",
+							"type": "file",
+							"description": "Payment billing document (PDF, JPG, PNG, max 5MB) (required)",
+							"src": []
+						}
+					]
+				},
+				"url": {
+					"raw": "{{base_url}}/api/v1/profile/complete",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"profile",
+						"complete"
+					]
+				},
+				"description": "Complete or update student profile with all required information and documents. This endpoint supports create and update operations."
+			},
+			"response": [
+				{
+					"name": "Success Response",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/profile/complete",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"profile",
+								"complete"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [],
+					"cookie": [],
+					"body": "{\n    \"data\": {\n        \"id\": 1,\n        \"name\": \"Ahmed Ali Mohammed\",\n        \"email\": \"ahmed.ali@example.com\",\n        \"phone\": \"+966501234567\",\n        \"national_id\": \"1234567890\",\n        \"date_of_birth\": \"1995-05-15\",\n        \"gender\": \"male\",\n        \"type\": \"diploma\",\n        \"program_id\": 1,\n        \"program\": {\n            \"id\": 1,\n            \"name\": \"Diploma in Information Technology\",\n            \"code\": \"DIT-2025\",\n            \"description\": \"Comprehensive diploma program covering IT fundamentals, programming, and system administration.\",\n            \"type\": \"diploma\",\n            \"duration_months\": 24,\n            \"price\": \"15000.00\",\n            \"status\": \"active\",\n            \"created_at\": \"2025-12-02T10:00:00.000000Z\",\n            \"updated_at\": \"2025-12-02T10:00:00.000000Z\"\n        },\n        \"date_of_register\": \"2025-12-02\",\n        \"is_terms\": true,\n        \"is_confirm_user\": true,\n        \"role\": \"student\",\n        \"status\": \"pending\",\n        \"profile_photo\": null,\n        \"bio\": null,\n        \"email_verified_at\": null,\n        \"phone_verified_at\": \"2025-12-02T09:00:00+00:00\",\n        \"nafath_verified_at\": \"2025-12-02T09:30:00+00:00\",\n        \"profile_completed_at\": \"2025-12-02T10:15:00+00:00\",\n        \"documents\": [\n            {\n                \"id\": 1,\n                \"user_id\": 1,\n                \"document_type\": \"national_id\",\n                \"file_path\": \"documents/1/national_id/1733140500_abc123.pdf\",\n                \"original_name\": \"national_id.pdf\",\n                \"file_size\": 245678,\n                \"mime_type\": \"application/pdf\",\n                \"status\": \"pending\",\n                \"rejection_reason\": null,\n                \"reviewed_by\": null,\n                \"reviewed_at\": null,\n                \"created_at\": \"2025-12-02T10:15:00.000000Z\",\n                \"updated_at\": \"2025-12-02T10:15:00.000000Z\"\n            },\n            {\n                \"id\": 2,\n                \"user_id\": 1,\n                \"document_type\": \"certificate\",\n                \"file_path\": \"documents/1/certificate/1733140500_def456.pdf\",\n                \"original_name\": \"certificate.pdf\",\n                \"file_size\": 345678,\n                \"mime_type\": \"application/pdf\",\n                \"status\": \"pending\",\n                \"rejection_reason\": null,\n                \"reviewed_by\": null,\n                \"reviewed_at\": null,\n                \"created_at\": \"2025-12-02T10:15:00.000000Z\",\n                \"updated_at\": \"2025-12-02T10:15:00.000000Z\"\n            },\n            {\n                \"id\": 3,\n                \"user_id\": 1,\n                \"document_type\": \"payment_billing\",\n                \"file_path\": \"documents/1/payment_billing/1733140500_ghi789.pdf\",\n                \"original_name\": \"payment_receipt.pdf\",\n                \"file_size\": 123456,\n                \"mime_type\": \"application/pdf\",\n                \"status\": \"pending\",\n                \"rejection_reason\": null,\n                \"reviewed_by\": null,\n                \"reviewed_at\": null,\n                \"created_at\": \"2025-12-02T10:15:00.000000Z\",\n                \"updated_at\": \"2025-12-02T10:15:00.000000Z\"\n            }\n        ],\n        \"created_at\": \"2025-12-02T08:00:00+00:00\"\n    }\n}"
+				},
+				{
+					"name": "Validation Error",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/profile/complete",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"profile",
+								"complete"
+							]
+						}
+					},
+					"status": "Unprocessable Entity",
+					"code": 422,
+					"_postman_previewlanguage": "json",
+					"header": [],
+					"cookie": [],
+					"body": "{\n    \"message\": \"The national id field must be exactly 10 digits. (and 3 more errors)\",\n    \"errors\": {\n        \"national_id\": [\n            \"National ID must be exactly 10 digits.\"\n        ],\n        \"is_terms\": [\n            \"You must accept the terms and conditions.\"\n        ],\n        \"national_id_file\": [\n            \"The national id file field is required.\"\n        ],\n        \"certificate_file\": [\n            \"The certificate file field is required.\"\n        ]\n    }\n}"
+				}
+			]
+		},
+		{
+			"name": "3. Get User Profile",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/v1/profile",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"profile"
+					]
+				},
+				"description": "Get current authenticated user profile with program and documents"
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8000",
+			"type": "string"
+		},
+		{
+			"key": "access_token",
+			"value": "your_access_token_here",
+			"type": "string"
+		}
+	]
+}

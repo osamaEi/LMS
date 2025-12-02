@@ -17,6 +17,10 @@ use Illuminate\Support\Facades\Route;
 // API Version 1
 Route::prefix('v1')->group(function () {
 
+    // Public Routes
+    Route::get('/programs', [App\Http\Controllers\Api\V1\ProgramController::class, 'index']);
+    Route::get('/programs/{program}', [App\Http\Controllers\Api\V1\ProgramController::class, 'show']);
+
     // Authentication Routes (Public)
     Route::prefix('auth')->group(function () {
         Route::post('/register', [App\Http\Controllers\Api\V1\Auth\RegisterController::class, 'register']);
@@ -37,7 +41,8 @@ Route::prefix('v1')->group(function () {
             Route::post('/logout', [App\Http\Controllers\Api\V1\Auth\LoginController::class, 'logout']);
         });
 
-        // Profile Route
+        // Profile Routes
         Route::get('/profile', [App\Http\Controllers\Api\V1\Auth\LoginController::class, 'profile']);
+        Route::post('/profile/complete', [App\Http\Controllers\Api\V1\ProfileController::class, 'completeProfile']);
     });
 });

@@ -25,6 +25,13 @@ class User extends Authenticatable
         'password',
         'phone',
         'national_id',
+        'date_of_birth',
+        'gender',
+        'type',
+        'program_id',
+        'date_of_register',
+        'is_terms',
+        'is_confirm_user',
         'role',
         'status',
         'profile_photo',
@@ -52,6 +59,11 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'phone_verified_at' => 'datetime',
             'nafath_verified_at' => 'datetime',
+            'profile_completed_at' => 'datetime',
+            'date_of_birth' => 'date',
+            'date_of_register' => 'date',
+            'is_terms' => 'boolean',
+            'is_confirm_user' => 'boolean',
             'password' => 'hashed',
         ];
     }
@@ -131,5 +143,10 @@ class User extends Authenticatable
     public function tickets()
     {
         return $this->hasMany(\App\Models\Ticket::class);
+    }
+
+    public function program()
+    {
+        return $this->belongsTo(\App\Models\Program::class);
     }
 }
