@@ -29,6 +29,8 @@ class User extends Authenticatable
         'gender',
         'type',
         'program_id',
+        'track_id',
+        'current_term_number',
         'date_of_register',
         'is_terms',
         'is_confirm_user',
@@ -36,6 +38,7 @@ class User extends Authenticatable
         'status',
         'profile_photo',
         'bio',
+        'specialization',
     ];
 
     /**
@@ -120,6 +123,16 @@ class User extends Authenticatable
      * Relationships
      */
 
+    public function program()
+    {
+        return $this->belongsTo(\App\Models\Program::class);
+    }
+
+    public function track()
+    {
+        return $this->belongsTo(\App\Models\Track::class);
+    }
+
     public function documents()
     {
         return $this->hasMany(\App\Models\StudentDocument::class);
@@ -143,10 +156,5 @@ class User extends Authenticatable
     public function tickets()
     {
         return $this->hasMany(\App\Models\Ticket::class);
-    }
-
-    public function program()
-    {
-        return $this->belongsTo(\App\Models\Program::class);
     }
 }

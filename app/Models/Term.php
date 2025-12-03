@@ -13,6 +13,7 @@ class Term extends Model
 
     protected $fillable = [
         'program_id',
+        'track_id',
         'term_number',
         'name',
         'start_date',
@@ -36,6 +37,11 @@ class Term extends Model
     public function program(): BelongsTo
     {
         return $this->belongsTo(Program::class);
+    }
+
+    public function track(): BelongsTo
+    {
+        return $this->belongsTo(Track::class);
     }
 
     public function subjects(): HasMany

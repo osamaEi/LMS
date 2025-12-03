@@ -1,0 +1,473 @@
+{
+	"info": {
+		"_postman_id": "lms-student-api-2025",
+		"name": "LMS Student API",
+		"description": "Complete API collection for Student Dashboard with Tracks, Terms, Subjects, Units, and Sessions",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Login Student",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set(\"auth_token\", jsonData.data.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"student1@lms.com\",\n  \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/auth/login",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "auth", "login"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login Teacher",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set(\"auth_token\", jsonData.data.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"teacher1@lms.com\",\n  \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/auth/login",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "auth", "login"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/auth/logout",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "auth", "logout"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Profile",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/profile",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "profile"]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Student Dashboard",
+			"item": [
+				{
+					"name": "Get Dashboard",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/student/dashboard",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "student", "dashboard"]
+						},
+						"description": "Get student dashboard with current term subjects, teacher info, and progress"
+					},
+					"response": []
+				},
+				{
+					"name": "Get My Subjects",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/student/my-subjects",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "student", "my-subjects"]
+						},
+						"description": "Get all subjects enrolled by the student"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Subjects",
+			"item": [
+				{
+					"name": "Get Subject Details",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/student/subjects/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "student", "subjects", "1"]
+						},
+						"description": "Get complete subject details with units, sessions, teacher, and student progress"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Subject 2 Details",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/student/subjects/2",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "student", "subjects", "2"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Subject 3 Details",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/student/subjects/3",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "student", "subjects", "3"]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Units",
+			"item": [
+				{
+					"name": "Get Unit Details",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/student/units/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "student", "units", "1"]
+						},
+						"description": "Get unit details with all sessions and student attendance"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Unit 2 Details",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/student/units/2",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "student", "units", "2"]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Tracks Management",
+			"item": [
+				{
+					"name": "Get All Tracks",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/tracks",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "tracks"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Track Details",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/tracks/1?with_terms=true",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "tracks", "1"],
+							"query": [
+								{
+									"key": "with_terms",
+									"value": "true"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Track Terms",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/tracks/1/terms",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "tracks", "1", "terms"]
+						},
+						"description": "Get all 10 terms for a track"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Track",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"program_id\": 1,\n  \"name\": \"مسار الأمن السيبراني\",\n  \"code\": \"CYBER-TRACK-01\",\n  \"description\": \"مسار متخصص في الأمن السيبراني\",\n  \"total_terms\": 10,\n  \"duration_months\": 30,\n  \"status\": \"active\",\n  \"auto_create_terms\": true,\n  \"term_duration_months\": 3\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/tracks",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "tracks"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Assign Student to Track",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"student_id\": 1,\n  \"term_number\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/tracks/1/assign-student",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "tracks", "1", "assign-student"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Promote Student to Next Term",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"student_id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/tracks/promote-student",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "tracks", "promote-student"]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Programs",
+			"item": [
+				{
+					"name": "Get All Programs",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/programs",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "programs"]
+						},
+						"description": "Public endpoint - No authentication required"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Program Details",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/programs/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "programs", "1"]
+						},
+						"description": "Public endpoint - No authentication required"
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [""]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [""]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8000",
+			"type": "string"
+		},
+		{
+			"key": "auth_token",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

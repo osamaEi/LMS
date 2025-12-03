@@ -1,0 +1,1166 @@
+{
+	"info": {
+		"_postman_id": "lms-super-admin-api-2025",
+		"name": "LMS Super Admin API",
+		"description": "Complete API collection for Super Admin to manage all LMS components",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Login as Super Admin",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set(\"admin_token\", jsonData.data.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"admin@lms.com\",\n  \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/auth/login",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "auth", "login"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Users Management",
+			"item": [
+				{
+					"name": "Get All Users",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/admin/users",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "admin", "users"]
+						}
+					}
+				},
+				{
+					"name": "Get Students Only",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/admin/users?role=student",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "admin", "users"],
+							"query": [
+								{
+									"key": "role",
+									"value": "student"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Teachers Only",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/admin/users?role=teacher",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "admin", "users"],
+							"query": [
+								{
+									"key": "role",
+									"value": "teacher"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Search Users",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/admin/users?search=ahmed",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "admin", "users"],
+							"query": [
+								{
+									"key": "search",
+									"value": "ahmed"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get User Statistics",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/admin/users/stats",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "admin", "users", "stats"]
+						}
+					}
+				},
+				{
+					"name": "Get User Details",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/admin/users/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "admin", "users", "1"]
+						}
+					}
+				},
+				{
+					"name": "Create New User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"New Student\",\n  \"email\": \"newstudent@lms.com\",\n  \"password\": \"password123\",\n  \"role\": \"student\",\n  \"phone\": \"0501234567\",\n  \"program_id\": 1,\n  \"track_id\": 1,\n  \"current_term_number\": 1,\n  \"status\": \"active\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/admin/users",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "admin", "users"]
+						}
+					}
+				},
+				{
+					"name": "Create New Teacher",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"د. محمد السعيد\",\n  \"email\": \"mohammed@lms.com\",\n  \"password\": \"password123\",\n  \"role\": \"teacher\",\n  \"specialization\": \"علوم الحاسب\",\n  \"bio\": \"خبرة 10 سنوات في التدريس الجامعي\",\n  \"status\": \"active\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/admin/users",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "admin", "users"]
+						}
+					}
+				},
+				{
+					"name": "Update User",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Updated Name\",\n  \"status\": \"active\",\n  \"current_term_number\": 2\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/admin/users/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "admin", "users", "1"]
+						}
+					}
+				},
+				{
+					"name": "Delete User",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/admin/users/10",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "admin", "users", "10"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Programs Management",
+			"item": [
+				{
+					"name": "Get All Programs",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/admin/programs",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "admin", "programs"]
+						}
+					}
+				},
+				{
+					"name": "Get Program Details",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/admin/programs/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "admin", "programs", "1"]
+						}
+					}
+				},
+				{
+					"name": "Create Program",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Bachelor of Computer Science\",\n  \"code\": \"BCS-2025\",\n  \"description\": \"Complete computer science program\",\n  \"duration_months\": 48,\n  \"type\": \"diploma\",\n  \"status\": \"active\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/admin/programs",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "admin", "programs"]
+						}
+					}
+				},
+				{
+					"name": "Update Program",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Updated Program Name\",\n  \"status\": \"active\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/admin/programs/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "admin", "programs", "1"]
+						}
+					}
+				},
+				{
+					"name": "Delete Program",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/admin/programs/5",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "admin", "programs", "5"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Tracks Management",
+			"item": [
+				{
+					"name": "Get All Tracks",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/tracks",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "tracks"]
+						}
+					}
+				},
+				{
+					"name": "Get Track Details",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/tracks/1?with_terms=true",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "tracks", "1"],
+							"query": [
+								{
+									"key": "with_terms",
+									"value": "true"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Track",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"program_id\": 1,\n  \"name\": \"مسار الذكاء الاصطناعي\",\n  \"code\": \"AI-TRACK-01\",\n  \"description\": \"مسار متخصص في الذكاء الاصطناعي والتعلم الآلي\",\n  \"total_terms\": 10,\n  \"duration_months\": 30,\n  \"status\": \"active\",\n  \"auto_create_terms\": true,\n  \"term_duration_months\": 3\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/tracks",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "tracks"]
+						}
+					}
+				},
+				{
+					"name": "Update Track",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Updated Track Name\",\n  \"status\": \"active\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/tracks/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "tracks", "1"]
+						}
+					}
+				},
+				{
+					"name": "Assign Student to Track",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"student_id\": 6,\n  \"term_number\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/tracks/1/assign-student",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "tracks", "1", "assign-student"]
+						}
+					}
+				},
+				{
+					"name": "Promote Student",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"student_id\": 6\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/tracks/promote-student",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "tracks", "promote-student"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Subjects Management",
+			"item": [
+				{
+					"name": "Get All Subjects",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/admin/subjects",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "admin", "subjects"]
+						}
+					}
+				},
+				{
+					"name": "Get Subject Details",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/admin/subjects/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "admin", "subjects", "1"]
+						}
+					}
+				},
+				{
+					"name": "Create Subject",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"term_id\": 1,\n  \"teacher_id\": 3,\n  \"name\": \"البرمجة المتقدمة\",\n  \"code\": \"CS201\",\n  \"description\": \"تعلم البرمجة المتقدمة وأنماط التصميم\",\n  \"credits\": 4,\n  \"total_hours\": 48,\n  \"max_students\": 30,\n  \"status\": \"active\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/admin/subjects",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "admin", "subjects"]
+						}
+					}
+				},
+				{
+					"name": "Update Subject",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Updated Subject Name\",\n  \"total_hours\": 50\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/admin/subjects/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "admin", "subjects", "1"]
+						}
+					}
+				},
+				{
+					"name": "Delete Subject",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/admin/subjects/10",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "admin", "subjects", "10"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Units Management",
+			"item": [
+				{
+					"name": "Get All Units",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/admin/units",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "admin", "units"]
+						}
+					}
+				},
+				{
+					"name": "Get Unit Details",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/admin/units/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "admin", "units", "1"]
+						}
+					}
+				},
+				{
+					"name": "Create Unit",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"subject_id\": 1,\n  \"title\": \"الوحدة الرابعة: المشاريع\",\n  \"description\": \"بناء مشاريع كاملة\",\n  \"unit_number\": 4,\n  \"duration_hours\": 15,\n  \"learning_objectives\": \"تطبيق جميع المفاهيم في مشروع عملي\",\n  \"status\": \"published\",\n  \"order\": 4\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/admin/units",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "admin", "units"]
+						}
+					}
+				},
+				{
+					"name": "Update Unit",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Updated Unit Title\",\n  \"status\": \"published\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/admin/units/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "admin", "units", "1"]
+						}
+					}
+				},
+				{
+					"name": "Delete Unit",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/admin/units/10",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "admin", "units", "10"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Sessions Management",
+			"item": [
+				{
+					"name": "Get All Sessions",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/admin/sessions",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "admin", "sessions"]
+						}
+					}
+				},
+				{
+					"name": "Get Session Details",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/admin/sessions/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "admin", "sessions", "1"]
+						}
+					}
+				},
+				{
+					"name": "Create Session",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"subject_id\": 1,\n  \"unit_id\": 1,\n  \"title\": \"الجلسة الثالثة: التطبيق\",\n  \"description\": \"تطبيق عملي على المفاهيم\",\n  \"session_number\": 3,\n  \"type\": \"mixed\",\n  \"scheduled_at\": \"2025-12-10T18:00:00Z\",\n  \"duration_minutes\": 120,\n  \"status\": \"scheduled\",\n  \"is_mandatory\": true\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/admin/sessions",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "admin", "sessions"]
+						}
+					}
+				},
+				{
+					"name": "Update Session",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Updated Session Title\",\n  \"status\": \"completed\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/admin/sessions/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "admin", "sessions", "1"]
+						}
+					}
+				},
+				{
+					"name": "Delete Session",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/admin/sessions/10",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "admin", "sessions", "10"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Enrollments Management",
+			"item": [
+				{
+					"name": "Get All Enrollments",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/admin/enrollments",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "admin", "enrollments"]
+						}
+					}
+				},
+				{
+					"name": "Get Enrollment Details",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/admin/enrollments/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "admin", "enrollments", "1"]
+						}
+					}
+				},
+				{
+					"name": "Create Enrollment",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"student_id\": 6,\n  \"subject_id\": 1,\n  \"status\": \"active\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/admin/enrollments",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "admin", "enrollments"]
+						}
+					}
+				},
+				{
+					"name": "Update Enrollment",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"completed\",\n  \"final_grade\": 95,\n  \"grade_letter\": \"A\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/admin/enrollments/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "admin", "enrollments", "1"]
+						}
+					}
+				},
+				{
+					"name": "Delete Enrollment",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/admin/enrollments/10",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "admin", "enrollments", "10"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Attendance Management",
+			"item": [
+				{
+					"name": "Get All Attendance",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/admin/attendances",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "admin", "attendances"]
+						}
+					}
+				},
+				{
+					"name": "Get Attendance Details",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/admin/attendances/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "admin", "attendances", "1"]
+						}
+					}
+				},
+				{
+					"name": "Create Attendance",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"student_id\": 6,\n  \"session_id\": 1,\n  \"attended\": true,\n  \"watch_percentage\": 100,\n  \"video_completed\": true,\n  \"joined_at\": \"2025-12-04T18:00:00Z\",\n  \"duration_minutes\": 45\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/admin/attendances",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "admin", "attendances"]
+						}
+					}
+				},
+				{
+					"name": "Update Attendance",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"attended\": true,\n  \"watch_percentage\": 100\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/admin/attendances/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "admin", "attendances", "1"]
+						}
+					}
+				},
+				{
+					"name": "Delete Attendance",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/admin/attendances/10",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "admin", "attendances", "10"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Evaluations Management",
+			"item": [
+				{
+					"name": "Get All Evaluations",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/admin/evaluations",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "admin", "evaluations"]
+						}
+					}
+				},
+				{
+					"name": "Get Evaluation Details",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/admin/evaluations/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "admin", "evaluations", "1"]
+						}
+					}
+				},
+				{
+					"name": "Create Evaluation",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"subject_id\": 1,\n  \"student_id\": 6,\n  \"type\": \"final_exam\",\n  \"title\": \"الاختبار النهائي\",\n  \"total_score\": 100,\n  \"earned_score\": 88,\n  \"percentage\": 88,\n  \"weight\": 50,\n  \"status\": \"graded\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/admin/evaluations",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "admin", "evaluations"]
+						}
+					}
+				},
+				{
+					"name": "Update Evaluation",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"earned_score\": 92,\n  \"percentage\": 92,\n  \"status\": \"graded\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/admin/evaluations/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "admin", "evaluations", "1"]
+						}
+					}
+				},
+				{
+					"name": "Delete Evaluation",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/admin/evaluations/10",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "admin", "evaluations", "10"]
+						}
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8000",
+			"type": "string"
+		},
+		{
+			"key": "admin_token",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

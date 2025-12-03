@@ -15,6 +15,7 @@ class Session extends Model
 
     protected $fillable = [
         'subject_id',
+        'unit_id',
         'title',
         'description',
         'session_number',
@@ -55,9 +56,19 @@ class Session extends Model
         return $this->belongsTo(Subject::class);
     }
 
+    public function unit(): BelongsTo
+    {
+        return $this->belongsTo(Unit::class);
+    }
+
     public function attendances(): HasMany
     {
         return $this->hasMany(Attendance::class);
+    }
+
+    public function files(): HasMany
+    {
+        return $this->hasMany(SessionFile::class)->orderBy('order', 'asc');
     }
 
     // Helper Methods

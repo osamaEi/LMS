@@ -17,7 +17,9 @@ class Subject extends Model
         'name',
         'code',
         'description',
+        'banner_photo',
         'credits',
+        'total_hours',
         'max_students',
         'status',
     ];
@@ -44,6 +46,11 @@ class Subject extends Model
     public function enrollments(): HasMany
     {
         return $this->hasMany(Enrollment::class);
+    }
+
+    public function units(): HasMany
+    {
+        return $this->hasMany(Unit::class)->orderBy('order', 'asc');
     }
 
     public function sessions(): HasMany

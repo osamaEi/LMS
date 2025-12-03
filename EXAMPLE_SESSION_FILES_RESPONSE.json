@@ -1,0 +1,92 @@
+{
+  "session": {
+    "id": 1,
+    "title": "محاضرة 1: المقدمة",
+    "description": "وصف الجلسة",
+    "type": "mixed",
+    "session_number": 1,
+    "scheduled_at": "2025-12-04T05:25:19.000000Z",
+    "duration_minutes": 45,
+    "status": "completed",
+    "is_mandatory": true,
+    "files": [
+      {
+        "id": 1,
+        "type": "video",
+        "title": "الفيديو التعليمي - الجزء الأول",
+        "description": "شرح المفاهيم النظرية",
+        "order": 1,
+        "is_mandatory": true,
+        "video": {
+          "url": "http://localhost:8000/storage/videos/session_1/part1.mp4",
+          "duration": 45,
+          "platform": "local",
+          "size": "100 MB"
+        }
+      },
+      {
+        "id": 2,
+        "type": "video",
+        "title": "الفيديو التعليمي - الجزء الثاني",
+        "description": "التطبيق العملي والأمثلة",
+        "order": 2,
+        "is_mandatory": true,
+        "video": {
+          "url": "https://www.youtube.com/watch?v=example0",
+          "duration": 60,
+          "platform": "youtube",
+          "size": "Unknown"
+        }
+      },
+      {
+        "id": 3,
+        "type": "pdf",
+        "title": "ملف الشرح والملاحظات",
+        "description": "ملف PDF يحتوي على ملاحظات الدرس والأمثلة",
+        "order": 3,
+        "is_mandatory": false,
+        "pdf": {
+          "url": "http://localhost:8000/storage/pdfs/session_1/notes.pdf",
+          "size": "5 MB"
+        }
+      },
+      {
+        "id": 4,
+        "type": "zoom",
+        "title": "جلسة مباشرة - النقاش والأسئلة",
+        "description": "جلسة مباشرة للنقاش والإجابة على الأسئلة",
+        "order": 4,
+        "is_mandatory": true,
+        "zoom": {
+          "join_url": "https://zoom.us/j/1234567801",
+          "meeting_id": "1234567801",
+          "password": "pass123",
+          "scheduled_at": "2025-12-04T18:00:00.000000Z",
+          "duration": "1:00 ساعة"
+        }
+      },
+      {
+        "id": 5,
+        "type": "zoom",
+        "title": "جلسة مباشرة - ورشة عمل",
+        "description": "ورشة عمل تطبيقية للمفاهيم",
+        "order": 5,
+        "is_mandatory": false,
+        "zoom": {
+          "join_url": "https://zoom.us/j/1234567802",
+          "meeting_id": "1234567802",
+          "password": "workshop123",
+          "scheduled_at": "2025-12-05T19:00:00.000000Z",
+          "duration": "1:30 ساعة"
+        }
+      }
+    ],
+    "my_attendance": {
+      "attended": true,
+      "watch_percentage": "95.00",
+      "video_completed": false,
+      "joined_at": "2025-12-01T05:26:19.000000Z",
+      "duration_minutes": 44
+    }
+  }
+}
