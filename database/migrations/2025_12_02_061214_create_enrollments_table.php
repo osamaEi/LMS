@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('enrollments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('student_id')->constrained('users')->cascadeOnDelete();
-            $table->foreignId('subject_id')->constrained('subjects')->cascadeOnDelete();
+            $table->foreignId('subject_id')->nullable()->constrained('subjects')->cascadeOnDelete();
             $table->timestamp('enrolled_at')->useCurrent();
             $table->enum('status', ['active', 'completed', 'withdrawn', 'failed'])->default('active');
             $table->decimal('final_grade', 5, 2)->nullable();
@@ -27,7 +27,6 @@ return new class extends Migration
             $table->index('student_id');
             $table->index('subject_id');
             $table->index('status');
-            $table->unique(['student_id', 'subject_id']);
         });
     }
 

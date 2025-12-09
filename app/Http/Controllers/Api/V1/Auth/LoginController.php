@@ -18,8 +18,12 @@ class LoginController extends Controller
     public function login(LoginRequest $request): JsonResponse
     {
         try {
-            // Find user by email
-            $user = User::where('email', $request->email)->first();
+            // Determine if identifier is email or national_id
+            $identifier = $request->identifier;
+            $field = filter_var($identifier, FILTER_VALIDATE_EMAIL) ? 'email' : 'national_id';
+
+            // Find user by email or national_id
+            $user = User::where($field, $identifier)->first();
 
             // Check if user exists and password is correct
             if (!$user || !Hash::check($request->password, $user->password)) {

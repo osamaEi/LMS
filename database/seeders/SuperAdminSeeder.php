@@ -18,6 +18,7 @@ class SuperAdminSeeder extends Seeder
             ['email' => 'admin@lms.com'],
             [
                 'name' => 'Super Admin',
+                'national_id' => '1234567890',
                 'password' => Hash::make('password123'),
                 'role' => 'super_admin',
                 'status' => 'active',
@@ -27,6 +28,7 @@ class SuperAdminSeeder extends Seeder
 
         $this->command->info('Super Admin created successfully!');
         $this->command->info('Email: admin@lms.com');
+        $this->command->info('National ID: 1234567890');
         $this->command->info('Password: password123');
     }
 }

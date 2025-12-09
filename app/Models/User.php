@@ -157,4 +157,50 @@ class User extends Authenticatable
     {
         return $this->hasMany(\App\Models\Ticket::class);
     }
+
+    // For teachers
+    public function subjects()
+    {
+        return $this->hasMany(\App\Models\Subject::class, 'teacher_id');
+    }
+
+    // For students - alias for enrollments
+    public function students()
+    {
+        return $this->hasMany(\App\Models\User::class, 'program_id');
+    }
+
+    // For teachers - courses taught by this teacher
+    public function courses()
+    {
+        return $this->hasMany(\App\Models\Course::class, 'teacher_id');
+    }
+
+    /**
+     * Get role display name in Arabic
+     */
+    public function getRoleDisplayName(): string
+    {
+        return match($this->role) {
+            'admin' => 'المدير',
+            'teacher' => 'أستاذ',
+            'student' => 'طالب',
+            'super_admin' => 'المدير العام',
+            default => 'مستخدم',
+        };
+    }
+
+    /**
+     * Get status display name in Arabic
+     */
+    public function getStatusDisplayName(): string
+    {
+        return match($this->status) {
+            'active' => 'نشط',
+            'inactive' => 'غير نشط',
+            'suspended' => 'موقوف',
+            'pending' => 'قيد المراجعة',
+            default => 'غير محدد',
+        };
+    }
 }

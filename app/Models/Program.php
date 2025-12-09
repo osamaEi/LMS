@@ -31,6 +31,11 @@ class Program extends Model
         return $this->hasMany(User::class);
     }
 
+    public function terms()
+    {
+        return $this->hasMany(Term::class);
+    }
+
     public function isActive(): bool
     {
         return $this->status === 'active';
