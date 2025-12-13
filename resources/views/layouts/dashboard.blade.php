@@ -16,7 +16,7 @@
         darkMode = JSON.parse(localStorage.getItem('darkMode'));
         $watch('darkMode', value => localStorage.setItem('darkMode', JSON.stringify(value)))"
     :class="{'dark bg-gray-900': darkMode === true}"
-    class="font-cairo"
+    class="font-sans"
 >
     <!-- Preloader -->
     <div

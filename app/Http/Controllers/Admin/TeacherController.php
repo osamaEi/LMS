@@ -44,6 +44,9 @@ class TeacherController extends Controller
 
     public function show(User $teacher)
     {
+        // Eager load relationships for better performance
+        $teacher->load(['subjects', 'courses']);
+
         return view('admin.teachers.show', compact('teacher'));
     }
 

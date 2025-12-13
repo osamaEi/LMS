@@ -12,6 +12,14 @@ Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/logout', [LogoutController::class, 'logout'])->name('logout');
 
+// Zoom OAuth Callback (for General App setup - not actively used)
+Route::get('/oauth/callback', function () {
+    return response()->json([
+        'message' => 'Zoom OAuth callback received',
+        'note' => 'This endpoint is only required for Zoom App configuration. The LMS uses SDK credentials for joining meetings.',
+    ]);
+})->name('zoom.oauth.callback');
+
 // Home route
 Route::get('/', function () {
     if (auth()->check()) {
@@ -62,6 +70,12 @@ Route::middleware(['auth', 'role:admin,super_admin'])->prefix('admin')->name('ad
     Route::resource('sessions', \App\Http\Controllers\Admin\SessionController::class);
     Route::delete('/session-files/{file}', [\App\Http\Controllers\Admin\SessionController::class, 'deleteFile'])
         ->name('sessions.files.delete');
+
+    // Zoom Integration
+    Route::post('/zoom/create-meeting', [\App\Http\Controllers\Api\V1\Admin\ZoomController::class, 'createMeeting'])
+        ->name('zoom.create-meeting');
+    Route::post('/zoom/generate-signature', [\App\Http\Controllers\Api\V1\Admin\ZoomController::class, 'generateSignature'])
+        ->name('zoom.generate-signature');
 
     // Reports
     Route::get('/reports', function () {

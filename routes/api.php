@@ -14,6 +14,9 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+// Zoom Webhook (No authentication - Zoom will call this)
+Route::post('/zoom/webhook', [App\Http\Controllers\Admin\ZoomWebhookController::class, 'handleWebhook']);
+
 // API Version 1
 Route::prefix('v1')->group(function () {
 
@@ -157,6 +160,13 @@ Route::prefix('v1')->group(function () {
 
             // Evaluations Management
             Route::apiResource('evaluations', App\Http\Controllers\Api\V1\Admin\EvaluationController::class);
+
+            // Zoom Management
+            Route::prefix('zoom')->group(function () {
+                Route::post('/create-meeting', [App\Http\Controllers\Api\V1\Admin\ZoomController::class, 'createMeeting']);
+                Route::get('/meeting/{meetingId}', [App\Http\Controllers\Api\V1\Admin\ZoomController::class, 'getMeeting']);
+                Route::delete('/meeting/{meetingId}', [App\Http\Controllers\Api\V1\Admin\ZoomController::class, 'deleteMeeting']);
+            });
         });
     });
 });

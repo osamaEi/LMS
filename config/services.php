@@ -35,4 +35,20 @@ return [
         ],
     ],
 
+    'zoom' => [
+        // Server-to-Server OAuth (for API)
+        'account_id' => env('ZOOM_ACCOUNT_ID'),
+        'client_id' => env('ZOOM_CLIENT_ID'),
+        'client_secret' => env('ZOOM_CLIENT_SECRET'),
+
+        // SDK App (for Web SDK)
+        'sdk_key' => env('ZOOM_SDK_KEY'),
+        'sdk_secret' => env('ZOOM_SDK_SECRET'),
+
+        // Legacy JWT support (not used)
+        'api_key' => env('ZOOM_API_KEY'),
+        'api_secret' => env('ZOOM_API_SECRET'),
+        'webhook_secret_token' => env('ZOOM_WEBHOOK_SECRET_TOKEN'),
+    ],
+
 ];

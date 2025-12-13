@@ -6,11 +6,20 @@ use App\Http\Controllers\Controller;
 use App\Models\Session;
 use App\Models\SessionFile;
 use App\Models\Subject;
+use App\Services\ZoomService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class SessionController extends Controller
 {
+    protected $zoomService;
+
+    public function __construct(ZoomService $zoomService)
+    {
+        $this->zoomService = $zoomService;
+    }
+
     public function index()
     {
         $sessions = Session::with(['subject.term.program'])
@@ -22,7 +31,7 @@ class SessionController extends Controller
 
     public function create()
     {
-        $subjects = Subject::with('term.program')->where('status', 'active')->get();
+        $subjects = Subject::with(['term.program', 'units'])->where('status', 'active')->get();
 
         return view('admin.sessions.create', compact('subjects'));
     }
@@ -31,6 +40,7 @@ class SessionController extends Controller
     {
         $validated = $request->validate([
             'subject_id' => 'required|exists:subjects,id',
+            'unit_id' => 'nullable|exists:units,id',
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'session_number' => 'required|integer|min:1',
@@ -44,6 +54,7 @@ class SessionController extends Controller
             'zoom_password' => 'nullable|string',
 
             // Video fields
+            'video_file' => 'nullable|file|mimes:mp4,avi,mov,mkv,wmv,flv|max:512000', // Max 500MB
             'video_url' => 'nullable|url',
             'video_platform' => 'nullable|in:youtube,vimeo,external,local',
 
@@ -54,14 +65,66 @@ class SessionController extends Controller
             'files.*' => 'nullable|file|max:10240',
         ]);
 
+        // Handle video file upload if present
+        if ($request->hasFile('video_file')) {
+            $videoFile = $request->file('video_file');
+            $path = $videoFile->store('session-videos', 'public');
+
+            $validated['video_path'] = $path;
+            $validated['video_platform'] = 'local';
+            $validated['video_size'] = $videoFile->getSize();
+        }
+
         // Filter out null values to avoid database constraint violations
         $validated = array_filter($validated, function($value) {
-            return $value !== null;
+            return $value !== null && $value !== '';
         });
 
         // Set default value for video_platform if video_url is provided but platform is not
         if (!empty($validated['video_url']) && empty($validated['video_platform'])) {
             $validated['video_platform'] = 'external';
+        }
+
+        // Remove video_file from validated data as it's already processed
+        unset($validated['video_file']);
+
+        // Automatically create Zoom meeting if type is live_zoom
+        if ($validated['type'] === 'live_zoom' && empty($validated['zoom_meeting_id'])) {
+            try {
+                $meetingData = [
+                    'topic' => $validated['title'],
+                    'type' => 2, // Scheduled meeting
+                    'start_time' => isset($validated['scheduled_at'])
+                        ? \Carbon\Carbon::parse($validated['scheduled_at'])->toIso8601String()
+                        : now()->addHour()->toIso8601String(),
+                    'duration' => $validated['duration_minutes'] ?? 60,
+                    'timezone' => 'Asia/Riyadh',
+                    'agenda' => $validated['description'] ?? '',
+                ];
+
+                $meeting = $this->zoomService->createMeeting($meetingData);
+
+                if ($meeting) {
+                    $validated['zoom_meeting_id'] = $meeting['id'];
+                    $validated['zoom_join_url'] = $meeting['join_url'];
+                    $validated['zoom_password'] = $meeting['password'] ?? null;
+
+                    Log::info('Zoom meeting created automatically', [
+                        'meeting_id' => $meeting['id'],
+                        'title' => $validated['title']
+                    ]);
+                } else {
+                    Log::error('Failed to auto-create Zoom meeting for session: ' . $validated['title']);
+                    return back()->withInput()->withErrors([
+                        'zoom' => 'فشل إنشاء اجتماع Zoom تلقائياً. يرجى التحقق من إعدادات Zoom API أو إنشاء الاجتماع يدوياً.'
+                    ]);
+                }
+            } catch (\Exception $e) {
+                Log::error('Zoom auto-creation exception: ' . $e->getMessage());
+                return back()->withInput()->withErrors([
+                    'zoom' => 'حدث خطأ أثناء إنشاء اجتماع Zoom: ' . $e->getMessage()
+                ]);
+            }
         }
 
         $session = Session::create($validated);
@@ -138,6 +201,84 @@ class SessionController extends Controller
             $validated['video_platform'] = 'external';
         }
 
+        // Automatically create Zoom meeting if type changed to live_zoom and no meeting exists
+        if ($validated['type'] === 'live_zoom' && empty($validated['zoom_meeting_id']) && empty($session->zoom_meeting_id)) {
+            try {
+                $meetingData = [
+                    'topic' => $validated['title'],
+                    'type' => 2, // Scheduled meeting
+                    'start_time' => isset($validated['scheduled_at'])
+                        ? \Carbon\Carbon::parse($validated['scheduled_at'])->toIso8601String()
+                        : now()->addHour()->toIso8601String(),
+                    'duration' => $validated['duration_minutes'] ?? 60,
+                    'timezone' => 'Asia/Riyadh',
+                    'agenda' => $validated['description'] ?? '',
+                ];
+
+                $meeting = $this->zoomService->createMeeting($meetingData);
+
+                if ($meeting) {
+                    $validated['zoom_meeting_id'] = $meeting['id'];
+                    $validated['zoom_join_url'] = $meeting['join_url'];
+                    $validated['zoom_password'] = $meeting['password'] ?? null;
+
+                    Log::info('Zoom meeting created automatically on update', [
+                        'meeting_id' => $meeting['id'],
+                        'session_id' => $session->id
+                    ]);
+                } else {
+                    Log::error('Failed to auto-create Zoom meeting for session: ' . $session->id);
+                    return back()->withInput()->withErrors([
+                        'zoom' => 'فشل إنشاء اجتماع Zoom تلقائياً. يرجى التحقق من إعدادات Zoom API أو إنشاء الاجتماع يدوياً.'
+                    ]);
+                }
+            } catch (\Exception $e) {
+                Log::error('Zoom auto-creation exception on update: ' . $e->getMessage());
+                return back()->withInput()->withErrors([
+                    'zoom' => 'حدث خطأ أثناء إنشاء اجتماع Zoom: ' . $e->getMessage()
+                ]);
+            }
+        }
+        // Update existing Zoom meeting if details changed
+        elseif ($validated['type'] === 'live_zoom' && !empty($session->zoom_meeting_id)) {
+            try {
+                $meetingData = [];
+
+                if (isset($validated['title']) && $validated['title'] !== $session->title) {
+                    $meetingData['topic'] = $validated['title'];
+                }
+
+                if (isset($validated['scheduled_at']) && $validated['scheduled_at'] !== $session->scheduled_at) {
+                    $meetingData['start_time'] = \Carbon\Carbon::parse($validated['scheduled_at'])->toIso8601String();
+                }
+
+                if (isset($validated['duration_minutes']) && $validated['duration_minutes'] !== $session->duration_minutes) {
+                    $meetingData['duration'] = $validated['duration_minutes'];
+                }
+
+                if (isset($validated['description']) && $validated['description'] !== $session->description) {
+                    $meetingData['agenda'] = $validated['description'];
+                }
+
+                // Only update if there are changes
+                if (!empty($meetingData)) {
+                    $updated = $this->zoomService->updateMeeting($session->zoom_meeting_id, $meetingData);
+
+                    if ($updated) {
+                        Log::info('Zoom meeting updated automatically', [
+                            'meeting_id' => $session->zoom_meeting_id,
+                            'session_id' => $session->id
+                        ]);
+                    } else {
+                        Log::warning('Failed to update Zoom meeting: ' . $session->zoom_meeting_id);
+                    }
+                }
+            } catch (\Exception $e) {
+                Log::error('Zoom auto-update exception: ' . $e->getMessage());
+                // Don't block the session update if Zoom update fails
+            }
+        }
+
         $session->update($validated);
 
         // Handle new file uploads
@@ -164,6 +305,24 @@ class SessionController extends Controller
 
     public function destroy(Session $session)
     {
+        // Delete Zoom meeting if exists
+        if ($session->zoom_meeting_id) {
+            try {
+                $deleted = $this->zoomService->deleteMeeting($session->zoom_meeting_id);
+                if ($deleted) {
+                    Log::info('Zoom meeting deleted automatically', [
+                        'meeting_id' => $session->zoom_meeting_id,
+                        'session_id' => $session->id
+                    ]);
+                } else {
+                    Log::warning('Failed to delete Zoom meeting: ' . $session->zoom_meeting_id);
+                }
+            } catch (\Exception $e) {
+                Log::error('Zoom deletion exception: ' . $e->getMessage());
+                // Don't block session deletion if Zoom deletion fails
+            }
+        }
+
         // Delete associated files
         foreach ($session->files as $file) {
             Storage::disk('public')->delete($file->file_path);

@@ -1,12 +1,8 @@
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@200..1000&display=swap');
+
 /*!********************************************************************************************************************************************************!*\
   !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].use[2]!./src/css/style.css (layer base) ***!
-  \********************************************************************************************************************************************************/
-@import url(https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap) layer(base);
-/*!***********************************************************************************************************************************************!*\
-  !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].use[2]!./src/css/style.css (1) ***!
-  \***********************************************************************************************************************************************/
-@import url(https://fonts.googleapis.com/css2?family=Tajawal:wght@200;300;400;500;700;800;900&display=swap);
-/*!***************************************************************************************************************************************************************************!*\
+
   !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].use[2]!./node_modules/jsvectormap/dist/jsvectormap.min.css ***!
   \***************************************************************************************************************************************************************************/
 svg{-ms-touch-action:none;touch-action:none}image,text,.jvm-zoomin,.jvm-zoomout{-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}.jvm-container{-ms-touch-action:none;touch-action:none;position:relative;overflow:hidden;height:100%;width:100%}.jvm-tooltip{border-radius:3px;background-color:#5c5cff;font-family:sans-serif,Verdana;font-size:smaller;-webkit-box-shadow:1px 2px 12px rgba(0,0,0,.2);box-shadow:1px 2px 12px rgba(0,0,0,.2);padding:3px 5px;white-space:nowrap;position:absolute;display:none;color:#fff}.jvm-tooltip.active{display:block}.jvm-zoom-btn{border-radius:3px;background-color:#292929;padding:3px;-webkit-box-sizing:border-box;box-sizing:border-box;position:absolute;line-height:10px;cursor:pointer;color:#fff;height:15px;width:15px;left:10px}.jvm-zoom-btn.jvm-zoomout{top:30px}.jvm-zoom-btn.jvm-zoomin{top:10px}.jvm-series-container{right:15px;position:absolute}.jvm-series-container.jvm-series-h{bottom:15px}.jvm-series-container.jvm-series-v{top:15px}.jvm-series-container .jvm-legend{background-color:#fff;border:1px solid #e5e7eb;margin-left:.75rem;border-radius:.25rem;border-color:#e5e7eb;padding:.6rem;-webkit-box-shadow:0 1px 2px 0 rgba(0,0,0,.05);box-shadow:0 1px 2px 0 rgba(0,0,0,.05);float:left}.jvm-series-container .jvm-legend .jvm-legend-title{line-height:1;border-bottom:1px solid #e5e7eb;padding-bottom:.5rem;margin-bottom:.575rem;text-align:left}.jvm-series-container .jvm-legend .jvm-legend-inner{overflow:hidden}.jvm-series-container .jvm-legend .jvm-legend-inner .jvm-legend-tick{overflow:hidden;min-width:40px}.jvm-series-container .jvm-legend .jvm-legend-inner .jvm-legend-tick:not(:first-child){margin-top:.575rem}.jvm-series-container .jvm-legend .jvm-legend-inner .jvm-legend-tick .jvm-legend-tick-sample{border-radius:4px;margin-right:.65rem;height:16px;width:16px;float:left}.jvm-series-container .jvm-legend .jvm-legend-inner .jvm-legend-tick .jvm-legend-tick-text{font-size:12px;text-align:center;float:left}.jvm-line[animation=true]{-webkit-animation:jvm-line-animation 10s linear forwards infinite;animation:jvm-line-animation 10s linear forwards infinite}@-webkit-keyframes jvm-line-animation{from{stroke-dashoffset:250}}@keyframes jvm-line-animation{from{stroke-dashoffset:250}}
@@ -103,7 +99,8 @@ svg{-ms-touch-action:none;touch-action:none}image,text,.jvm-zoomin,.jvm-zoomout{
     --default-mono-font-variation-settings: var(
       --font-mono--font-variation-settings
     );
-    --font-tajawal: Tajawal, Arial, sans-serif;
+    --font-sans: 'Cairo', ui-sans-serif, system-ui, sans-serif;
+    --font-tajawal: 'Cairo', Tajawal, Arial, sans-serif;
     --breakpoint-2xl: 1536px;
     --text-title-2xl: 72px;
     --text-title-2xl--line-height: 90px;
@@ -188,11 +185,12 @@ svg{-ms-touch-action:none;touch-action:none}image,text,.jvm-zoomin,.jvm-zoomout{
     -moz-tab-size: 4;
       -o-tab-size: 4;
          tab-size: 4;
-    font-family: var( --default-font-family, ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" );
+    font-family: 'Cairo', var( --default-font-family, ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" );
     -webkit-font-feature-settings: var(--default-font-feature-settings, normal);
             font-feature-settings: var(--default-font-feature-settings, normal);
     font-variation-settings: var( --default-font-variation-settings, normal );
     -webkit-tap-highlight-color: transparent;
+    font-size: 100%;
   }
   body {
     line-height: inherit;
@@ -3964,14 +3962,14 @@ svg{-ms-touch-action:none;touch-action:none}image,text,.jvm-zoomin,.jvm-zoomout{
     line-height: var(--tw-leading, var(--text-base--line-height));
     --tw-font-weight: var(--font-weight-medium);
     font-weight: var(--font-weight-medium);
-    font-family: 'Tajawal', Arial, sans-serif;
+    font-family: 'Cairo', 'Tajawal', Arial, sans-serif;
     font-weight: 500;
     line-height: 1.5;
     letter-spacing: 0%;
     text-align: right;
   }
   * {
-    font-family: 'Tajawal', Arial, sans-serif;
+    font-family: 'Cairo', 'Tajawal', Arial, sans-serif;
   }
 }
 @layer utilities {

@@ -8,13 +8,13 @@
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white">إدارة الطلاب</h1>
         <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">عرض وإدارة جميع الطلاب في النظام</p>
     </div>
-    <a href="{{ route('admin.students.create') }}"
+    <!-- <a href="{{ route('admin.students.create') }}"
        class="flex items-center gap-2 rounded-lg bg-brand-500 px-6 py-3 text-sm font-medium text-white hover:bg-brand-600">
         <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M10 5V15M5 10H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
         </svg>
         <span>إضافة طالب جديد</span>
-    </a>
+    </a> -->
 </div>
 
 @if(session('success'))

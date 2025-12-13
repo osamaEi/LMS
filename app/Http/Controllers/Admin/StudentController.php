@@ -44,6 +44,14 @@ class StudentController extends Controller
 
     public function show(User $student)
     {
+        // Eager load relationships for better performance
+        $student->load([
+            'program',
+            'track',
+            'enrollments.subject',
+            'enrollments.course'
+        ]);
+
         return view('admin.students.show', compact('student'));
     }
 
