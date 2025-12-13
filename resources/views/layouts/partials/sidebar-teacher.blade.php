@@ -9,8 +9,8 @@
     </a>
 </li>
 
-<!-- دوراتي -->
-<li>
+<!-- دوراتي - Disabled until route is created -->
+{{-- <li>
     <a href="{{ route('teacher.courses.index') }}"
        class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('teacher.courses.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
         <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -18,7 +18,7 @@
         </svg>
         <span>دوراتي</span>
     </a>
-</li>
+</li> --}}
 
 <!-- الجدول الدراسي -->
 <li>
@@ -42,47 +42,33 @@
     </a>
 </li>
 
-<!-- الحضور والغياب -->
+<!-- Disabled sections until routes are created -->
+{{--
 <li>
     <a href="{{ route('teacher.attendance.index') }}"
-       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('teacher.attendance.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
-        <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M10 0.833336C4.93333 0.833336 0.833333 4.93334 0.833333 10C0.833333 15.0667 4.93333 19.1667 10 19.1667C15.0667 19.1667 19.1667 15.0667 19.1667 10C19.1667 4.93334 15.0667 0.833336 10 0.833336ZM13.6167 12.85L9.16667 10.1667V5H10.8333V9.28334L14.5667 11.5167L13.6167 12.85Z" fill=""/>
-        </svg>
+       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium">
         <span>الحضور والغياب</span>
     </a>
 </li>
 
-<!-- الواجبات -->
 <li>
     <a href="{{ route('teacher.assignments.index') }}"
-       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('teacher.assignments.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
-        <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M17.5 3.75H2.5C1.57953 3.75 0.833333 4.49619 0.833333 5.41667V14.5833C0.833333 15.5038 1.57953 16.25 2.5 16.25H17.5C18.4205 16.25 19.1667 15.5038 19.1667 14.5833V5.41667C19.1667 4.49619 18.4205 3.75 17.5 3.75Z" fill=""/>
-        </svg>
+       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium">
         <span>الواجبات</span>
     </a>
 </li>
 
-<!-- التقييمات -->
 <li>
     <a href="{{ route('teacher.grades.index') }}"
-       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('teacher.grades.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
-        <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M2.5 16.25H17.5C17.9583 16.25 18.3333 16.625 18.3333 17.0833C18.3333 17.5417 17.9583 17.9167 17.5 17.9167H2.5C2.04167 17.9167 1.66667 17.5417 1.66667 17.0833C1.66667 16.625 2.04167 16.25 2.5 16.25Z" fill=""/>
-            <path d="M4.16667 13.75C3.70833 13.75 3.33333 13.375 3.33333 12.9167V7.08333C3.33333 6.625 3.70833 6.25 4.16667 6.25C4.625 6.25 5 6.625 5 7.08333V12.9167C5 13.375 4.625 13.75 4.16667 13.75Z" fill=""/>
-        </svg>
+       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium">
         <span>التقييمات</span>
     </a>
 </li>
 
-<!-- الملف الشخصي -->
 <li>
     <a href="{{ route('teacher.profile') }}"
-       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('teacher.profile') ? 'menu-item-active' : 'menu-item-inactive' }}">
-        <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M10.0002 0.625C4.8405 0.625 0.625195 4.84031 0.625195 10.0109C0.625195 15.1706 4.8405 19.3859 10.0002 19.3859C15.1599 19.3859 19.3752 15.1706 19.3752 10.0109C19.3752 4.84031 15.1599 0.625 10.0002 0.625ZM10.0002 4.375C11.6455 4.375 12.9689 5.69844 12.9689 7.34375C12.9689 8.98906 11.6455 10.3125 10.0002 10.3125C8.35488 10.3125 7.03145 8.98906 7.03145 7.34375C7.03145 5.69844 8.35488 4.375 10.0002 4.375ZM10.0002 17.1875C8.11426 17.1875 6.39551 16.4219 5.11738 15.1875C5.43488 13.8641 8.0405 13.125 10.0002 13.125C11.9599 13.125 14.5655 13.8641 14.883 15.1875C13.6049 16.4219 11.8861 17.1875 10.0002 17.1875Z" fill=""/>
-        </svg>
+       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium">
         <span>الملف الشخصي</span>
     </a>
 </li>
+--}}

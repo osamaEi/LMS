@@ -68,6 +68,8 @@ Route::middleware(['auth', 'role:admin,super_admin'])->prefix('admin')->name('ad
 
     // Session (Lesson) Management
     Route::resource('sessions', \App\Http\Controllers\Admin\SessionController::class);
+    Route::get('/sessions/{session}/zoom', [\App\Http\Controllers\Admin\SessionController::class, 'showZoom'])
+        ->name('sessions.zoom');
     Route::delete('/session-files/{file}', [\App\Http\Controllers\Admin\SessionController::class, 'deleteFile'])
         ->name('sessions.files.delete');
 
@@ -91,19 +93,16 @@ Route::middleware(['auth', 'role:admin,super_admin'])->prefix('admin')->name('ad
 // Teacher Routes
 Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')->group(function () {
     Route::get('/dashboard', [TeacherDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/subjects/{id}', [TeacherDashboardController::class, 'showSubject'])->name('subjects.show');
 
     // Courses (TODO: Create controller)
     // Route::resource('courses', \App\Http\Controllers\Teacher\CourseController::class);
 
     // Schedule
-    Route::get('/schedule', function () {
-        return view('teacher.schedule');
-    })->name('schedule');
+    Route::get('/schedule', [\App\Http\Controllers\Teacher\ScheduleController::class, 'index'])->name('schedule');
 
     // Students
-    Route::get('/students', function () {
-        return view('teacher.students.index');
-    })->name('students.index');
+    Route::get('/students', [\App\Http\Controllers\Teacher\StudentsController::class, 'index'])->name('students.index');
 
     // Attendance
     Route::get('/attendance', function () {
@@ -126,25 +125,11 @@ Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')
 
 // Student Routes
 Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')->group(function () {
-    Route::get('/dashboard', [StudentDashboardController::class, 'index'])->name('dashboard');
-
-    // Courses
-    Route::get('/courses', function () {
-        return view('student.courses.index');
-    })->name('courses.index');
-
-    Route::get('/courses/{course}', function ($course) {
-        return view('student.courses.show', compact('course'));
-    })->name('courses.show');
-
-    Route::get('/courses/browse', function () {
-        return view('student.courses.browse');
-    })->name('courses.browse');
+    Route::get('/dashboard', [\App\Http\Controllers\Student\DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/subjects/{id}', [\App\Http\Controllers\Student\DashboardController::class, 'showSubject'])->name('subjects.show');
 
     // Schedule
-    Route::get('/schedule', function () {
-        return view('student.schedule');
-    })->name('schedule');
+    Route::get('/schedule', [\App\Http\Controllers\Student\ScheduleController::class, 'index'])->name('schedule');
 
     // Assignments
     Route::get('/assignments', function () {
