@@ -5,214 +5,196 @@
     <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>تسجيل الدخول - نظام إدارة التعلم</title>
+    <title>تسجيل الدخول - ALERTIQA</title>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .gradient-bg {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-        .glass-effect {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-        }
-        .input-icon {
-            position: absolute;
-            right: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #9ca3af;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700;800&display=swap');
+
         body {
-            font-family: 'Cairo', sans-serif;
+            font-family: 'Almarai', 'IBM Plex Sans Arabic', sans-serif;
+        }
+
+        /* Alternative: If you want a more traditional Zaza-style font */
+        h1, h2, h3, .font-bold {
+            font-family: 'Almarai', sans-serif;
+            font-weight: 700;
         }
     </style>
 </head>
-<body class="gradient-bg min-h-screen">
+<body class="min-h-screen bg-gray-50">
+
+    <!-- ============================================ -->
+    <!-- PART 1: LEFT SIDE - BLUE BACKGROUND WITH LOGO -->
+    <!-- ============================================ -->
+
     <div class="min-h-screen flex">
-        <!-- Right Side - Branding -->
-        <div class="hidden lg:flex lg:w-1/2 relative overflow-hidden">
-            <div class="absolute inset-0 bg-gradient-to-br from-indigo-600/90 to-purple-700/90"></div>
+
+        <!-- Left Side: Image Background -->
+        <div class="hidden lg:flex lg:w-1/2 relative overflow-hidden"
+             style="background-image: url('{{ asset('images/logo/right.png') }}');
+                    background-size: cover;
+                    background-position: center;
+                    background-repeat: no-repeat;">
+
+            <!-- Dark overlay for better text visibility -->
+            <div class="absolute inset-0 bg-black bg-opacity-30"></div>
+
+            <!-- Content: Logo Only -->
             <div class="relative z-10 flex flex-col justify-center items-center text-white p-12 w-full">
-                <div class="max-w-md text-center">
-                    <div class="mb-8">
-                        <svg class="w-24 h-24 mx-auto mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                        </svg>
-                    </div>
-                    <h1 class="text-4xl font-bold mb-4">نظام إدارة التعلم</h1>
-                    <p class="text-xl text-indigo-100 mb-8">منصة متكاملة لإدارة العملية التعليمية بكفاءة وسهولة</p>
-                    <div class="grid grid-cols-3 gap-6 mt-12">
-                        <div class="text-center">
-                            <div class="bg-white/20 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-3">
-                                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                                </svg>
-                            </div>
-                            <p class="text-sm font-semibold">إدارة المستخدمين</p>
-                        </div>
-                        <div class="text-center">
-                            <div class="bg-white/20 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-3">
-                                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                </svg>
-                            </div>
-                            <p class="text-sm font-semibold">إدارة الدورات</p>
-                        </div>
-                        <div class="text-center">
-                            <div class="bg-white/20 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-3">
-                                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                                </svg>
-                            </div>
-                            <p class="text-sm font-semibold">التقارير والإحصائيات</p>
-                        </div>
-                    </div>
+                <div class="text-center">
+
+                  
+
                 </div>
             </div>
         </div>
 
-        <!-- Left Side - Login Form -->
-        <div class="w-full lg:w-1/2 flex items-center justify-center p-8">
+
+        <!-- ============================================ -->
+        <!-- PART 2: RIGHT SIDE - LOGIN FORM -->
+        <!-- ============================================ -->
+
+        <!-- Right Side: Login Form -->
+        <div class="w-full lg:w-1/2 flex items-center justify-center p-8 bg-white">
             <div class="w-full max-w-md">
-                <!-- Mobile Logo -->
-                <div class="lg:hidden text-center mb-8">
-                    <div class="inline-block bg-white/20 rounded-2xl p-4 mb-4">
-                        <svg class="w-16 h-16 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                        </svg>
-                    </div>
-                    <h2 class="text-2xl font-bold text-white">نظام إدارة التعلم</h2>
+
+                <!-- Logo at top -->
+                <div class="text-center mb-8">
+                    <img src="{{ asset('images/logo/logo.png') }}"
+                         alt="ALERTIQA"
+                         class="mx-auto mb-8"
+                         style="width: 80px; height: auto;">
+
+                    <h2 class="text-3xl font-bold text-gray-900 mb-3">تسجيل الدخول</h2>
+                    <p class="text-gray-600 text-sm">ادخل إلى حسابك باستخدام بيانات المعهد لمتابعة دوراتك وجدولاتك الدراسية</p>
                 </div>
 
-                <!-- Login Card -->
-                <div class="glass-effect rounded-2xl shadow-2xl p-8">
-                    <div class="text-center mb-8">
-                        <h3 class="text-2xl font-bold text-gray-800 mb-2">مرحباً بك</h3>
-                        <p class="text-gray-600">سجل دخولك للوصول إلى لوحة التحكم</p>
-                    </div>
+                <!-- Login Form -->
+                <form method="POST" action="{{ route('login') }}" class="space-y-5">
+                    @csrf
 
-                    <form method="POST" action="{{ route('login') }}" class="space-y-6">
-                        @csrf
-
-                        <!-- Email Input -->
-                        <div>
-                            <label for="email" class="block text-sm font-semibold text-gray-700 mb-2">
-                                البريد الإلكتروني
-                            </label>
-                            <div class="relative">
-                                <input
-                                    id="email"
-                                    name="email"
-                                    type="email"
-                                    autocomplete="email"
-                                    required
-                                    value="{{ old('email') }}"
-                                    class="w-full pr-12 pl-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-indigo-500 transition-colors @error('email') border-red-500 @enderror"
-                                    placeholder="example@email.com"
-                                >
-                                <svg class="input-icon w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
-                                </svg>
-                            </div>
-                            @error('email')
-                                <p class="mt-2 text-sm text-red-600 flex items-center">
-                                    <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
-                                    </svg>
-                                    {{ $message }}
-                                </p>
-                            @enderror
-                        </div>
-
-                        <!-- Password Input -->
-                        <div>
-                            <label for="password" class="block text-sm font-semibold text-gray-700 mb-2">
-                                كلمة المرور
-                            </label>
-                            <div class="relative">
-                                <input
-                                    id="password"
-                                    name="password"
-                                    type="password"
-                                    autocomplete="current-password"
-                                    required
-                                    class="w-full pr-12 pl-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-indigo-500 transition-colors @error('password') border-red-500 @enderror"
-                                    placeholder="••••••••"
-                                >
-                                <svg class="input-icon w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                                </svg>
-                            </div>
-                            @error('password')
-                                <p class="mt-2 text-sm text-red-600 flex items-center">
-                                    <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
-                                    </svg>
-                                    {{ $message }}
-                                </p>
-                            @enderror
-                        </div>
-
-                        <!-- Remember Me -->
-                        <div class="flex items-center">
-                            <input
-                                id="remember"
-                                name="remember"
-                                type="checkbox"
-                                class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-                            >
-                            <label for="remember" class="mr-3 block text-sm text-gray-700 font-medium">
-                                تذكرني
-                            </label>
-                        </div>
-
-                        <!-- Submit Button -->
-                        <button
-                            type="submit"
-                            class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold py-3 px-4 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200"
-                        >
-                            <span class="flex items-center justify-center">
-                                <span>تسجيل الدخول</span>
-                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
-                                </svg>
-                            </span>
-                        </button>
-                    </form>
-
-                    <!-- Test Credentials -->
-                    <div class="mt-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl">
-                        <div class="flex items-center mb-3">
-                            <svg class="w-5 h-5 text-blue-600 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    <!-- Email/ID Field -->
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+                            <svg class="w-4 h-4 inline ml-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
+                                <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
                             </svg>
-                            <p class="text-sm font-bold text-blue-800">بيانات الدخول التجريبية</p>
+                            رقم الهوية
+                        </label>
+                        <input
+                            id="email"
+                            name="email"
+                            type="email"
+                            required
+                            value="{{ old('email') }}"
+                            class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition @error('email') border-red-500 @enderror"
+                            placeholder=""
+                        >
+                        @error('email')
+                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <!-- Password Field -->
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
+                            <svg class="w-4 h-4 inline ml-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+                            </svg>
+                            كلمة المرور
+                        </label>
+                        <div class="relative">
+                            <input
+                                id="password"
+                                name="password"
+                                type="password"
+                                required
+                                class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition @error('password') border-red-500 @enderror"
+                                placeholder=""
+                            >
+                            <button type="button" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600" onclick="togglePassword()">
+                                <svg id="eye-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                </svg>
+                            </button>
                         </div>
-                        <div class="space-y-2 text-xs text-blue-700">
-                            <div class="flex items-center justify-between bg-white/60 rounded-lg p-2">
-                                <span class="font-semibold">مدير:</span>
-                                <span class="font-mono">admin@lms.com / password</span>
-                            </div>
-                            <div class="flex items-center justify-between bg-white/60 rounded-lg p-2">
-                                <span class="font-semibold">معلم:</span>
-                                <span class="font-mono">teacher@lms.com / password</span>
-                            </div>
-                            <div class="flex items-center justify-between bg-white/60 rounded-lg p-2">
-                                <span class="font-semibold">طالب:</span>
-                                <span class="font-mono">student@lms.com / password</span>
-                            </div>
-                        </div>
+                        <a href="#" class="inline-block mt-2 text-sm text-blue-600 hover:text-blue-700">نسيت كلمة المرور؟</a>
+                        @error('password')
+                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button
+                        type="submit"
+                        class="w-full py-3.5 px-4 text-white font-bold rounded-lg shadow-md transition-all duration-200"
+                        style="background-color: #0D6FA6;"
+                        onmouseover="this.style.backgroundColor='#0A5A86'"
+                        onmouseout="this.style.backgroundColor='#0D6FA6'"
+                    >
+                        إرسال رمز التحقق
+                    </button>
+                </form>
+
+                <!-- Divider -->
+                <div class="relative my-8">
+                    <div class="absolute inset-0 flex items-center">
+                        <div class="w-full border-t border-gray-200"></div>
+                    </div>
+                    <div class="relative flex justify-center text-sm">
+                        <span class="px-4 bg-white text-gray-500">أو</span>
                     </div>
                 </div>
 
-                <!-- Footer -->
-                <div class="text-center mt-6">
-                    <p class="text-sm text-white/90">
-                        جميع الحقوق محفوظة © 2025
-                    </p>
+                <!-- Bottom Buttons -->
+                <div class="grid grid-cols-2 gap-4">
+                    <!-- Nafath Button -->
+                    <button type="button" class="flex flex-col items-center justify-center gap-2 px-4 py-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
+                        <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="12" r="10" fill="#1F2937"/>
+                            <path d="M12 8v8M8 12h8" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        <span class="text-xs text-gray-600">أجابات إستفسارات ؟</span>
+                        <a href="#" class="text-sm font-medium text-blue-600 hover:text-blue-700">تواصل معنا</a>
+                    </button>
+
+                    <!-- Register Button -->
+                    <button type="button" class="flex flex-col items-center justify-center gap-2 px-4 py-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                        </svg>
+                        <span class="text-xs text-gray-600">ليس لديك حساب ؟</span>
+                        <a href="#" class="text-sm font-medium text-blue-600 hover:text-blue-700">سجل حساب جديد</a>
+                    </button>
                 </div>
+
             </div>
         </div>
+
     </div>
+
+    <script>
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const eyeIcon = document.getElementById('eye-icon');
+
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeIcon.innerHTML = `
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
+                `;
+            } else {
+                passwordInput.type = 'password';
+                eyeIcon.innerHTML = `
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                `;
+            }
+        }
+    </script>
+
 </body>
 </html>

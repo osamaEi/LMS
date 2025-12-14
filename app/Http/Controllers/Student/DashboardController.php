@@ -15,7 +15,7 @@ class DashboardController extends Controller
 
         // Get student's enrolled subjects with relationships
         $subjects = Subject::whereHas('enrollments', function($query) use ($student) {
-                $query->where('user_id', $student->id);
+                $query->where('student_id', $student->id);
             })
             ->with(['term.program', 'teacher'])
             ->withCount('sessions')
@@ -23,7 +23,7 @@ class DashboardController extends Controller
 
         // Get upcoming sessions for enrolled subjects
         $upcomingSessions = Session::whereHas('subject.enrollments', function($query) use ($student) {
-                $query->where('user_id', $student->id);
+                $query->where('student_id', $student->id);
             })
             ->where('status', 'scheduled')
             ->where('scheduled_at', '>', now())
@@ -34,7 +34,7 @@ class DashboardController extends Controller
 
         // Get recent sessions
         $recentSessions = Session::whereHas('subject.enrollments', function($query) use ($student) {
-                $query->where('user_id', $student->id);
+                $query->where('student_id', $student->id);
             })
             ->with(['subject'])
             ->orderBy('created_at', 'desc')
@@ -43,7 +43,7 @@ class DashboardController extends Controller
 
         // Get live sessions
         $liveSessions = Session::whereHas('subject.enrollments', function($query) use ($student) {
-                $query->where('user_id', $student->id);
+                $query->where('student_id', $student->id);
             })
             ->where('status', 'live')
             ->with(['subject'])
@@ -53,10 +53,10 @@ class DashboardController extends Controller
         $stats = [
             'subjects_count' => $subjects->count(),
             'total_sessions' => Session::whereHas('subject.enrollments', function($query) use ($student) {
-                $query->where('user_id', $student->id);
+                $query->where('student_id', $student->id);
             })->count(),
             'completed_sessions' => Session::whereHas('subject.enrollments', function($query) use ($student) {
-                $query->where('user_id', $student->id);
+                $query->where('student_id', $student->id);
             })->where('status', 'completed')->count(),
             'live_sessions' => $liveSessions->count(),
         ];
@@ -76,7 +76,7 @@ class DashboardController extends Controller
 
         // Get subject only if student is enrolled
         $subject = Subject::whereHas('enrollments', function($query) use ($student) {
-                $query->where('user_id', $student->id);
+                $query->where('student_id', $student->id);
             })
             ->with(['term.program', 'teacher'])
             ->findOrFail($id);

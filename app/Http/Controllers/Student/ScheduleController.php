@@ -14,7 +14,7 @@ class ScheduleController extends Controller
 
         // Get all sessions for student's enrolled subjects
         $sessions = Session::whereHas('subject.enrollments', function($query) use ($student) {
-                $query->where('user_id', $student->id);
+                $query->where('student_id', $student->id);
             })
             ->with('subject')
             ->get()

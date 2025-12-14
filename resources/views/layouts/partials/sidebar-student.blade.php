@@ -9,7 +9,7 @@
     </a>
 </li>
 
-<!-- دوراتي -->
+{{-- دوراتي - COMMENTED OUT (route not defined)
 <li>
     <a href="{{ route('student.courses.index') }}"
        class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('student.courses.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
@@ -19,6 +19,7 @@
         <span>دوراتي</span>
     </a>
 </li>
+--}}
 
 <!-- الجدول الدراسي -->
 <li>
