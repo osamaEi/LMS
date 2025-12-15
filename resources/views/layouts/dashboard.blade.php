@@ -7,17 +7,23 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'لوحة التحكم') - نظام إدارة التعلم</title>
 
+    <!-- Cairo Font -->
+   
+
     <link href="{{ asset('css/tailadmin.css') }}" rel="stylesheet">
     @stack('styles')
 </head>
-<body
-    x-data="{ page: '{{ $page ?? 'dashboard' }}', 'loaded': true, 'darkMode': false, 'stickyMenu': false, 'sidebarToggle': false, 'scrollTop': false }"
-    x-init="
-        darkMode = JSON.parse(localStorage.getItem('darkMode'));
-        $watch('darkMode', value => localStorage.setItem('darkMode', JSON.stringify(value)))"
-    :class="{'dark bg-gray-900': darkMode === true}"
-    class="font-sans"
->
+<body>
+
+<style>
+    body, * {
+     font-family: 'Cairo';
+            font-style: normal;
+            font-weight: 400;
+            src: url('/font/static/Cairo-Bold.ttf') format('truetype');
+}
+</style>
+
     <!-- Preloader -->
     <div
         x-show="loaded"

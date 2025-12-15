@@ -9,17 +9,7 @@
     </a>
 </li>
 
-{{-- دوراتي - COMMENTED OUT (route not defined)
-<li>
-    <a href="{{ route('student.courses.index') }}"
-       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('student.courses.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
-        <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M17.5 3.33334H2.5C1.58333 3.33334 0.833333 4.08334 0.833333 5V15C0.833333 15.9167 1.58333 16.6667 2.5 16.6667H17.5C18.4167 16.6667 19.1667 15.9167 19.1667 15V5C19.1667 4.08334 18.4167 3.33334 17.5 3.33334ZM17.5 15H2.5V5H17.5V15Z" fill=""/>
-        </svg>
-        <span>دوراتي</span>
-    </a>
-</li>
---}}
+
 
 <!-- الجدول الدراسي -->
 <li>
