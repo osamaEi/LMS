@@ -63,6 +63,31 @@ class Subject extends Model
         return $this->hasMany(Evaluation::class);
     }
 
+    public function surveys(): HasMany
+    {
+        return $this->hasMany(SatisfactionSurvey::class);
+    }
+
+    public function teacherRatings(): HasMany
+    {
+        return $this->hasMany(TeacherRating::class);
+    }
+
+    // Prerequisites relationships
+    public function prerequisites()
+    {
+        return $this->belongsToMany(Subject::class, 'subject_prerequisites', 'subject_id', 'prerequisite_id')
+                    ->withPivot('is_mandatory')
+                    ->withTimestamps();
+    }
+
+    public function dependentSubjects()
+    {
+        return $this->belongsToMany(Subject::class, 'subject_prerequisites', 'prerequisite_id', 'subject_id')
+                    ->withPivot('is_mandatory')
+                    ->withTimestamps();
+    }
+
     public function students()
     {
         return $this->belongsToMany(User::class, 'enrollments', 'subject_id', 'student_id')
@@ -104,5 +129,55 @@ class Subject extends Model
     public function getAvailableSeats(): int
     {
         return max(0, $this->max_students - $this->getEnrolledCount());
+    }
+
+    /**
+     * Check if student meets all prerequisites
+     */
+    public function studentMeetsPrerequisites(int $studentId): bool
+    {
+        $mandatoryPrereqs = $this->prerequisites()->wherePivot('is_mandatory', true)->get();
+
+        foreach ($mandatoryPrereqs as $prereq) {
+            $completed = Enrollment::where('student_id', $studentId)
+                                   ->where('subject_id', $prereq->id)
+                                   ->where('status', 'completed')
+                                   ->exists();
+            if (!$completed) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Get missing prerequisites for a student
+     */
+    public function getMissingPrerequisites(int $studentId): array
+    {
+        $missing = [];
+        $mandatoryPrereqs = $this->prerequisites()->wherePivot('is_mandatory', true)->get();
+
+        foreach ($mandatoryPrereqs as $prereq) {
+            $completed = Enrollment::where('student_id', $studentId)
+                                   ->where('subject_id', $prereq->id)
+                                   ->where('status', 'completed')
+                                   ->exists();
+            if (!$completed) {
+                $missing[] = $prereq;
+            }
+        }
+
+        return $missing;
+    }
+
+    /**
+     * Get teacher's average rating for this subject
+     */
+    public function getTeacherRatingForSubject(): float
+    {
+        $avg = $this->teacherRatings()->where('is_approved', true)->avg('overall_rating');
+        return round($avg ?? 0, 2);
     }
 }

@@ -158,6 +158,44 @@ class User extends Authenticatable
         return $this->hasMany(\App\Models\Ticket::class);
     }
 
+    public function assignedTickets()
+    {
+        return $this->hasMany(\App\Models\Ticket::class, 'assigned_to');
+    }
+
+    public function surveyResponses()
+    {
+        return $this->hasMany(\App\Models\SurveyResponse::class);
+    }
+
+    // For teachers - ratings received
+    public function ratingsReceived()
+    {
+        return $this->hasMany(\App\Models\TeacherRating::class, 'teacher_id');
+    }
+
+    // For students - ratings given
+    public function ratingsGiven()
+    {
+        return $this->hasMany(\App\Models\TeacherRating::class, 'student_id');
+    }
+
+    /**
+     * Get teacher's average rating
+     */
+    public function getAverageRating(): float
+    {
+        return \App\Models\TeacherRating::getTeacherAverageRating($this->id);
+    }
+
+    /**
+     * Get teacher's ratings breakdown
+     */
+    public function getRatingsBreakdown(): array
+    {
+        return \App\Models\TeacherRating::getTeacherRatingsBreakdown($this->id);
+    }
+
     // For teachers
     public function subjects()
     {

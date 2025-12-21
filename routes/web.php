@@ -70,6 +70,8 @@ Route::middleware(['auth', 'role:admin,super_admin'])->prefix('admin')->name('ad
     Route::resource('sessions', \App\Http\Controllers\Admin\SessionController::class);
     Route::get('/sessions/{session}/zoom', [\App\Http\Controllers\Admin\SessionController::class, 'showZoom'])
         ->name('sessions.zoom');
+    Route::get('/sessions/{session}/zoom-dashboard', [\App\Http\Controllers\Admin\SessionController::class, 'showZoomDashboard'])
+        ->name('sessions.zoom-dashboard');
     Route::delete('/session-files/{file}', [\App\Http\Controllers\Admin\SessionController::class, 'deleteFile'])
         ->name('sessions.files.delete');
 
@@ -88,6 +90,24 @@ Route::middleware(['auth', 'role:admin,super_admin'])->prefix('admin')->name('ad
     Route::get('/settings', function () {
         return view('admin.settings');
     })->name('settings');
+
+    // Surveys Management (NELC 1.2.11)
+    Route::resource('surveys', \App\Http\Controllers\Admin\SurveyController::class);
+    Route::get('/surveys/{survey}/report', [\App\Http\Controllers\Admin\SurveyController::class, 'report'])->name('surveys.report');
+
+    // Tickets/Support Management (NELC 1.3.3)
+    Route::resource('tickets', \App\Http\Controllers\Admin\TicketController::class)->only(['index', 'show']);
+    Route::post('/tickets/{ticket}/reply', [\App\Http\Controllers\Admin\TicketController::class, 'reply'])->name('tickets.reply');
+    Route::patch('/tickets/{ticket}/status', [\App\Http\Controllers\Admin\TicketController::class, 'updateStatus'])->name('tickets.status');
+    Route::patch('/tickets/{ticket}/assign', [\App\Http\Controllers\Admin\TicketController::class, 'assign'])->name('tickets.assign');
+    Route::patch('/tickets/{ticket}/priority', [\App\Http\Controllers\Admin\TicketController::class, 'updatePriority'])->name('tickets.priority');
+
+    // Teacher Ratings Management (NELC 2.4.9)
+    Route::get('/teacher-ratings', [\App\Http\Controllers\Admin\TeacherRatingController::class, 'index'])->name('teacher-ratings.index');
+    Route::get('/teacher-ratings/report', [\App\Http\Controllers\Admin\TeacherRatingController::class, 'report'])->name('teacher-ratings.report');
+    Route::get('/teacher-ratings/{teacher}', [\App\Http\Controllers\Admin\TeacherRatingController::class, 'show'])->name('teacher-ratings.show');
+    Route::post('/teacher-ratings/{rating}/approve', [\App\Http\Controllers\Admin\TeacherRatingController::class, 'approve'])->name('teacher-ratings.approve');
+    Route::delete('/teacher-ratings/{rating}/reject', [\App\Http\Controllers\Admin\TeacherRatingController::class, 'reject'])->name('teacher-ratings.reject');
 });
 
 // Teacher Routes
@@ -121,6 +141,15 @@ Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')
     Route::get('/profile', function () {
         return view('teacher.profile');
     })->name('profile');
+
+    // Surveys (NELC 1.2.11)
+    Route::get('/surveys', [\App\Http\Controllers\Teacher\SurveyController::class, 'index'])->name('surveys.index');
+    Route::get('/surveys/{survey}', [\App\Http\Controllers\Teacher\SurveyController::class, 'show'])->name('surveys.show');
+    Route::post('/surveys/{survey}', [\App\Http\Controllers\Teacher\SurveyController::class, 'submit'])->name('surveys.submit');
+
+    // Support Tickets (NELC 1.3.3)
+    Route::resource('tickets', \App\Http\Controllers\Teacher\TicketController::class)->only(['index', 'create', 'store', 'show']);
+    Route::post('/tickets/{ticket}/reply', [\App\Http\Controllers\Teacher\TicketController::class, 'reply'])->name('tickets.reply');
 });
 
 // Student Routes
@@ -150,4 +179,18 @@ Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')
     Route::get('/profile', function () {
         return view('student.profile');
     })->name('profile');
+
+    // Surveys (NELC 1.2.11)
+    Route::get('/surveys', [\App\Http\Controllers\Student\SurveyController::class, 'index'])->name('surveys.index');
+    Route::get('/surveys/{survey}', [\App\Http\Controllers\Student\SurveyController::class, 'show'])->name('surveys.show');
+    Route::post('/surveys/{survey}', [\App\Http\Controllers\Student\SurveyController::class, 'submit'])->name('surveys.submit');
+
+    // Support Tickets (NELC 1.3.3)
+    Route::resource('tickets', \App\Http\Controllers\Student\TicketController::class)->only(['index', 'create', 'store', 'show']);
+    Route::post('/tickets/{ticket}/reply', [\App\Http\Controllers\Student\TicketController::class, 'reply'])->name('tickets.reply');
+
+    // Teacher Ratings (NELC 2.4.9)
+    Route::get('/teacher-ratings', [\App\Http\Controllers\Student\TeacherRatingController::class, 'index'])->name('teacher-ratings.index');
+    Route::get('/teacher-ratings/{subject}/create', [\App\Http\Controllers\Student\TeacherRatingController::class, 'create'])->name('teacher-ratings.create');
+    Route::post('/teacher-ratings/{subject}', [\App\Http\Controllers\Student\TeacherRatingController::class, 'store'])->name('teacher-ratings.store');
 });

@@ -163,6 +163,13 @@ class SessionController extends Controller
         return view('admin.sessions.zoom', compact('session'));
     }
 
+    public function showZoomDashboard(Session $session)
+    {
+        $session->load(['subject.term.program']);
+
+        return view('admin.sessions.zoom-dashboard', compact('session'));
+    }
+
     public function edit(Session $session)
     {
         $subjects = Subject::with('term.program')->where('status', 'active')->get();

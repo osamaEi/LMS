@@ -86,6 +86,39 @@
     </a>
 </li>
 
+<!-- استبيانات الرضا (NELC 1.2.11) -->
+<li>
+    <a href="{{ route('admin.surveys.index') }}"
+       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('admin.surveys.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
+        <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M15.8333 2.5H4.16667C3.25 2.5 2.5 3.25 2.5 4.16667V15.8333C2.5 16.75 3.25 17.5 4.16667 17.5H15.8333C16.75 17.5 17.5 16.75 17.5 15.8333V4.16667C17.5 3.25 16.75 2.5 15.8333 2.5ZM8.33333 13.3333L5 10L6.175 8.825L8.33333 10.975L13.825 5.48333L15 6.66667L8.33333 13.3333Z" fill=""/>
+        </svg>
+        <span>استبيانات الرضا</span>
+    </a>
+</li>
+
+<!-- تذاكر الدعم (NELC 1.3.3) -->
+<li>
+    <a href="{{ route('admin.tickets.index') }}"
+       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('admin.tickets.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
+        <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M17.5 5H16.6667V3.33333C16.6667 2.41667 15.9167 1.66667 15 1.66667H5C4.08333 1.66667 3.33333 2.41667 3.33333 3.33333V5H2.5C1.58333 5 0.833333 5.75 0.833333 6.66667V15C0.833333 15.9167 1.58333 16.6667 2.5 16.6667H4.16667V18.3333H15.8333V16.6667H17.5C18.4167 16.6667 19.1667 15.9167 19.1667 15V6.66667C19.1667 5.75 18.4167 5 17.5 5ZM5 3.33333H15V5H5V3.33333ZM14.1667 15H5.83333V11.6667H14.1667V15ZM17.5 13.3333H15.8333V10H4.16667V13.3333H2.5V6.66667H17.5V13.3333Z" fill=""/>
+        </svg>
+        <span>الدعم الفني</span>
+    </a>
+</li>
+
+<!-- تقييم المدربين (NELC 2.4.9) -->
+<li>
+    <a href="{{ route('admin.teacher-ratings.index') }}"
+       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('admin.teacher-ratings.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
+        <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M10 1.66667L12.575 6.88334L18.3333 7.725L14.1667 11.7833L15.15 17.5167L10 14.8083L4.85 17.5167L5.83333 11.7833L1.66667 7.725L7.425 6.88334L10 1.66667Z" fill=""/>
+        </svg>
+        <span>تقييم المدربين</span>
+    </a>
+</li>
+
 <!-- التقارير والإحصائيات -->
 <li>
     <a href="{{ route('admin.reports') }}"

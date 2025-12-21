@@ -8,7 +8,40 @@
 <!-- Header -->
 <div class="mb-6">
     <h1 class="text-2xl font-bold text-gray-900 dark:text-white">لوحة التحكم</h1>
-    <p class="text-gray-600 dark:text-gray-400 mt-1">نظرة عامة على النظام</p>
+    <p class="text-gray-600 dark:text-gray-400 mt-1">نظرة عامة على النظام ومعايير NELC</p>
+</div>
+
+<!-- NELC Compliance Section -->
+<div class="bg-gradient-to-r from-blue-600 to-blue-800 rounded-lg shadow-lg p-6 mb-6 text-white">
+    <div class="flex items-center justify-between mb-4">
+        <div>
+            <h2 class="text-xl font-bold">التوافق مع معايير NELC</h2>
+            <p class="text-blue-100 text-sm">المركز الوطني للتعليم الإلكتروني</p>
+        </div>
+        <div class="text-center">
+            <div class="text-4xl font-bold">{{ $nelcStats['satisfaction_rate'] ?? 0 }}%</div>
+            <div class="text-sm text-blue-100">نسبة الرضا</div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+        <div class="bg-white/10 rounded-lg p-3 text-center">
+            <div class="text-2xl font-bold">{{ $nelcStats['avg_teacher_rating'] ?? 0 }}/5</div>
+            <div class="text-xs text-blue-100">تقييم المدربين</div>
+        </div>
+        <div class="bg-white/10 rounded-lg p-3 text-center">
+            <div class="text-2xl font-bold">{{ $nelcStats['attendance_rate'] ?? 0 }}%</div>
+            <div class="text-xs text-blue-100">معدل الحضور</div>
+        </div>
+        <div class="bg-white/10 rounded-lg p-3 text-center">
+            <div class="text-2xl font-bold">{{ $nelcStats['open_tickets'] ?? 0 }}</div>
+            <div class="text-xs text-blue-100">تذاكر مفتوحة</div>
+        </div>
+        <div class="bg-white/10 rounded-lg p-3 text-center">
+            <div class="text-2xl font-bold">{{ $nelcStats['active_surveys'] ?? 0 }}</div>
+            <div class="text-xs text-blue-100">استبيانات نشطة</div>
+        </div>
+    </div>
 </div>
 
 <!-- Stats Cards -->
@@ -76,6 +109,67 @@
     </div>
 </div>
 
+<!-- NELC Metrics Row -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+    <!-- Satisfaction Rate -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+        <div class="flex items-center justify-between mb-2">
+            <h4 class="text-sm font-medium text-gray-600 dark:text-gray-400">معدل الرضا</h4>
+            <span class="text-xs px-2 py-1 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300 rounded">NELC 1.2.11</span>
+        </div>
+        <div class="flex items-end gap-2">
+            <span class="text-3xl font-bold text-gray-900 dark:text-white">{{ $nelcStats['satisfaction_rate'] ?? 0 }}%</span>
+        </div>
+        <div class="mt-2 flex items-center text-xs text-gray-500 dark:text-gray-400">
+            <span>{{ $nelcStats['active_surveys'] ?? 0 }} استبيان نشط</span>
+        </div>
+    </div>
+
+    <!-- Support Response Time -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+        <div class="flex items-center justify-between mb-2">
+            <h4 class="text-sm font-medium text-gray-600 dark:text-gray-400">متوسط الرد</h4>
+            <span class="text-xs px-2 py-1 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300 rounded">NELC 1.3.3</span>
+        </div>
+        <div class="flex items-end gap-2">
+            <span class="text-3xl font-bold text-gray-900 dark:text-white">{{ $nelcStats['avg_response_time'] ?? 0 }}</span>
+            <span class="text-gray-500 dark:text-gray-400 mb-1">دقيقة</span>
+        </div>
+        <div class="mt-2 flex items-center text-xs text-gray-500 dark:text-gray-400">
+            <span>{{ $nelcStats['open_tickets'] ?? 0 }} تذكرة مفتوحة</span>
+        </div>
+    </div>
+
+    <!-- Teacher Rating -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+        <div class="flex items-center justify-between mb-2">
+            <h4 class="text-sm font-medium text-gray-600 dark:text-gray-400">تقييم المدربين</h4>
+            <span class="text-xs px-2 py-1 bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300 rounded">NELC 2.4.9</span>
+        </div>
+        <div class="flex items-end gap-2">
+            <span class="text-3xl font-bold text-gray-900 dark:text-white">{{ $nelcStats['avg_teacher_rating'] ?? 0 }}</span>
+            <span class="text-gray-500 dark:text-gray-400 mb-1">/5</span>
+        </div>
+        <div class="mt-2 flex items-center text-xs text-gray-500 dark:text-gray-400">
+            <span>{{ $pendingRatingsCount ?? 0 }} تقييم بانتظار الموافقة</span>
+        </div>
+    </div>
+
+    <!-- Attendance Rate -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+        <div class="flex items-center justify-between mb-2">
+            <h4 class="text-sm font-medium text-gray-600 dark:text-gray-400">معدل الحضور</h4>
+            <span class="text-xs px-2 py-1 bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300 rounded">NELC 1.2.5</span>
+        </div>
+        <div class="flex items-end gap-2">
+            <span class="text-3xl font-bold text-gray-900 dark:text-white">{{ $nelcStats['attendance_rate'] ?? 0 }}%</span>
+        </div>
+        <div class="mt-2 flex items-center text-xs text-gray-500 dark:text-gray-400">
+            <span>إجمالي الحضور</span>
+        </div>
+    </div>
+</div>
+
 <!-- Charts Row -->
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
     <!-- Users Growth Chart -->
@@ -86,11 +180,95 @@
         </div>
     </div>
 
-    <!-- Courses Status Chart -->
+    <!-- Satisfaction Trend Chart -->
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">حالة الدورات</h3>
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">اتجاه رضا المستفيدين</h3>
         <div style="height: 300px;">
-            <canvas id="coursesStatusChart"></canvas>
+            <canvas id="satisfactionChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Support & Ratings Row -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+    <!-- Recent Tickets -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">تذاكر الدعم الأخيرة</h3>
+            <a href="{{ route('admin.tickets.index') }}" class="text-sm text-blue-600 hover:underline">عرض الكل</a>
+        </div>
+        <div class="space-y-3">
+            @forelse($recentTickets ?? [] as $ticket)
+            <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                <div>
+                    <p class="text-sm font-medium text-gray-900 dark:text-white">{{ Str::limit($ticket->subject, 30) }}</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">{{ $ticket->user->name ?? 'غير معروف' }}</p>
+                </div>
+                <span class="text-xs px-2 py-1 rounded {{ $ticket->getStatusColor() }}">
+                    {{ $ticket->getStatusLabel() }}
+                </span>
+            </div>
+            @empty
+            <p class="text-center text-gray-500 dark:text-gray-400 py-4">لا توجد تذاكر</p>
+            @endforelse
+        </div>
+    </div>
+
+    <!-- Teacher Ratings Overview -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">أفضل المدربين تقييماً</h3>
+            <a href="{{ route('admin.teacher-ratings.index') }}" class="text-sm text-blue-600 hover:underline">عرض الكل</a>
+        </div>
+        <div class="space-y-3">
+            @forelse($topTeachers ?? [] as $teacher)
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <img src="https://ui-avatars.com/api/?name={{ urlencode($teacher->name) }}&background=0071AA&color=fff"
+                         alt="{{ $teacher->name }}"
+                         class="w-10 h-10 rounded-full">
+                    <div class="mr-3">
+                        <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $teacher->name }}</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">{{ $teacher->subjects_count ?? 0 }} مادة</p>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                    </svg>
+                    <span class="mr-1 text-sm font-medium text-gray-900 dark:text-white">{{ number_format($teacher->avg_rating ?? 0, 1) }}</span>
+                </div>
+            </div>
+            @empty
+            <p class="text-center text-gray-500 dark:text-gray-400 py-4">لا توجد تقييمات</p>
+            @endforelse
+        </div>
+    </div>
+
+    <!-- Survey Completion -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">استبيانات الرضا</h3>
+            <a href="{{ route('admin.surveys.index') }}" class="text-sm text-blue-600 hover:underline">عرض الكل</a>
+        </div>
+        <div class="space-y-4">
+            @forelse($activeSurveys ?? [] as $survey)
+            <div class="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                <div class="flex items-center justify-between mb-2">
+                    <p class="text-sm font-medium text-gray-900 dark:text-white">{{ Str::limit($survey->title, 25) }}</p>
+                    <span class="text-xs px-2 py-1 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300 rounded">نشط</span>
+                </div>
+                <div class="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+                    <span>{{ $survey->responses_count ?? 0 }} إجابة</span>
+                    <span>{{ number_format($survey->getAverageRating(), 1) }}/5</span>
+                </div>
+                <div class="mt-2 w-full bg-gray-200 rounded-full h-2 dark:bg-gray-600">
+                    <div class="bg-blue-600 h-2 rounded-full" style="width: {{ $survey->completion_rate ?? 0 }}%"></div>
+                </div>
+            </div>
+            @empty
+            <p class="text-center text-gray-500 dark:text-gray-400 py-4">لا توجد استبيانات نشطة</p>
+            @endforelse
         </div>
     </div>
 </div>
@@ -229,21 +407,21 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Courses Status Chart
-    const coursesStatusCtx = document.getElementById('coursesStatusChart').getContext('2d');
-    const coursesStatusData = @json($coursesStatus ?? []);
+    // Satisfaction Chart
+    const satisfactionCtx = document.getElementById('satisfactionChart').getContext('2d');
+    const satisfactionData = @json($satisfactionTrend ?? []);
 
-    new Chart(coursesStatusCtx, {
-        type: 'doughnut',
+    new Chart(satisfactionCtx, {
+        type: 'line',
         data: {
-            labels: Object.keys(coursesStatusData).map(status => {
-                return status === 'active' ? 'نشطة' :
-                       status === 'draft' ? 'مسودة' :
-                       status === 'inactive' ? 'غير نشطة' : 'مؤرشفة';
-            }),
+            labels: Object.keys(satisfactionData),
             datasets: [{
-                data: Object.values(coursesStatusData),
-                backgroundColor: ['#10b981', '#f59e0b', '#ef4444', '#6b7280']
+                label: 'معدل الرضا',
+                data: Object.values(satisfactionData),
+                borderColor: '#8b5cf6',
+                backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                tension: 0.3,
+                fill: true
             }]
         },
         options: {
@@ -251,7 +429,13 @@ document.addEventListener('DOMContentLoaded', function() {
             maintainAspectRatio: false,
             plugins: {
                 legend: {
-                    position: 'bottom'
+                    position: 'top'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 5
                 }
             }
         }

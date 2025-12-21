@@ -65,10 +65,16 @@
                 <div class="text-lg font-bold mb-1">🎥 اجتماع Zoom</div>
                 <div class="text-sm text-blue-100">Meeting ID: {{ $session->zoom_meeting_id }}</div>
             </div>
-            <a href="{{ route('admin.sessions.zoom', $session) }}"
-               class="px-8 py-3 bg-white text-blue-600 rounded-lg font-bold hover:bg-blue-50 transition text-lg">
-                الانضمام للاجتماع ←
-            </a>
+            <div class="flex gap-3">
+                <a href="{{ route('admin.sessions.zoom', $session) }}"
+                   class="px-8 py-3 bg-white text-blue-600 rounded-lg font-bold hover:bg-blue-50 transition text-lg">
+                    انضمام - شاشة كاملة
+                </a>
+                <a href="{{ route('admin.sessions.zoom-dashboard', $session) }}"
+                   class="px-8 py-3 bg-white text-blue-600 rounded-lg font-bold hover:bg-blue-50 transition text-lg">
+                    انضمام - مع لوحة التحكم
+                </a>
+            </div>
         </div>
     </div>
     @endif
