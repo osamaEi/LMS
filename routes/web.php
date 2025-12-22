@@ -22,10 +22,7 @@ Route::get('/oauth/callback', function () {
 
 // Home route
 Route::get('/', function () {
-    if (auth()->check()) {
-        return redirect('/dashboard');
-    }
-    return redirect('/login');
+return view('welcome');
 });
 
 // Redirect authenticated users to their role-specific dashboard
