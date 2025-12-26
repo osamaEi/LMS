@@ -3990,9 +3990,9 @@ svg{-ms-touch-action:none;touch-action:none}image,text,.jvm-zoomin,.jvm-zoomout{
   }
 }
 .sidebar:hover {
-  width: 290px;
+  /* width: 290px; */
 }
-.sidebar:hover .logo {
+.sidebar:hover .logo {i
   display: block;
 }
 .sidebar:hover .logo-icon {

@@ -1,15 +1,19 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="{{ app()->getLocale() }}" dir="{{ app()->getLocale() == 'ar' ? 'rtl' : 'ltr' }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>معهد الإرتقاء العالي للتدريب</title>
+    <title>{{ __('Al-Ertiqaa High Institute for Training') }}</title>
 
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="{{ asset('images/Vector.png') }}" />
 
     <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    @if(app()->getLocale() == 'ar')
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+    @else
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    @endif
 
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
@@ -35,12 +39,20 @@
 
         /* Global */
         * {
+            @if(app()->getLocale() == 'ar')
             font-family: 'Cairo', sans-serif !important;
+            @else
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+            @endif
             box-sizing: border-box;
         }
 
         body {
-            font-family: 'Cairo', sans-serif;
+            @if(app()->getLocale() == 'ar')
+            font-family: 'Cairo', sans-serif !important;
+            @else
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            @endif
             font-size: 16px;
             font-weight: 400;
             line-height: 1.5;
@@ -164,19 +176,19 @@
             display: none;
             position: fixed;
             top: 0;
-            right: 0;
+            {{ app()->getLocale() == 'ar' ? 'right' : 'left' }}: 0;
             width: 383px;
             height: 100vh;
             background: #fff;
             z-index: 9999;
             overflow-y: auto;
-            box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
+            box-shadow: {{ app()->getLocale() == 'ar' ? '-5px' : '5px' }} 0 15px rgba(0, 0, 0, 0.3);
             flex-direction: column;
         }
 
         .mobile-menu.active {
             display: flex;
-            padding-right: 117px;
+            {{ app()->getLocale() == 'ar' ? 'padding-right' : 'padding-left' }}: 117px;
         }
 
         .mobile-menu-header {
@@ -237,7 +249,7 @@
         .mobile-nav-list li a.active {
             background: #eaf5fb;
             color: var(--main-color);
-            padding-right: 25px;
+            {{ app()->getLocale() == 'ar' ? 'padding-right' : 'padding-left' }}: 25px;
         }
 
         .mobile-menu-buttons {
@@ -340,7 +352,7 @@
         .left-sec {
             position: relative;
             display: flex;
-            justify-content: end;
+            justify-content: {{ app()->getLocale() == 'ar' ? 'end' : 'start' }};
             align-items: center;
             min-height: 400px;
             margin-top: 30px;
@@ -354,7 +366,7 @@
         .abs-btn {
             position: absolute;
             top: clamp(40px, 15%, 80px);
-            right: 15%;
+            {{ app()->getLocale() == 'ar' ? 'right: 15%' : 'right: 15%' }};
             background-color: var(--main-color);
             color: white;
             padding: 7px 15px;
@@ -366,7 +378,7 @@
         .img-abs {
             position: absolute;
             top: 23%;
-            right: 40%;
+            {{ app()->getLocale() == 'ar' ? 'right: 40%' : 'right: 40%' }};
             max-width: clamp(30px, 5vw, 50px);
             height: auto;
         }
@@ -458,7 +470,7 @@
 
         /* How It Works Section */
         .content-wrapper {
-            flex-direction: row-reverse;
+            flex-direction: {{ app()->getLocale() == 'ar' ? 'row-reverse' : 'row' }};
             align-items: flex-start;
             gap: 20px;
         }
@@ -474,7 +486,7 @@
             content: "";
             position: absolute;
             top: 0;
-            right: -22px;
+            {{ app()->getLocale() == 'ar' ? 'right' : 'left' }}: -22px;
             width: 4px;
             height: 100%;
             background: linear-gradient(to bottom, #e5e7eb 0%, #e5e7eb 1%, var(--main-color) 1%, var(--main-color) 25%, #e5e7eb 25%, #e5e7eb 100%);
@@ -622,7 +634,7 @@
         .feedback .text .bi-quote {
             position: absolute;
             top: -110px;
-            right: -130px;
+            {{ app()->getLocale() == 'ar' ? 'right' : 'left' }}: {{ app()->getLocale() == 'ar' ? '-130px' : '-130px' }};
             color: rgba(189, 188, 188, 0.6);
             transform: rotate(180deg);
             font-size: 160px;
@@ -662,8 +674,7 @@
         }
 
         .accordion-button::after {
-            margin-left: 0;
-            margin-right: auto;
+            {{ app()->getLocale() == 'ar' ? 'margin-left: 0; margin-right: auto;' : 'margin-right: 0; margin-left: auto;' }}
         }
 
         .accordion-button:not(.collapsed) {
@@ -786,8 +797,8 @@
 
         .footer-section a:hover {
             opacity: 1;
-            transform: translateX(-5px);
-            padding-right: 5px;
+            transform: translateX({{ app()->getLocale() == 'ar' ? '-5px' : '5px' }});
+            {{ app()->getLocale() == 'ar' ? 'padding-right' : 'padding-left' }}: 5px;
         }
 
         .foot-foot {
@@ -895,7 +906,7 @@
             }
 
             .right-sec-steps::before {
-                right: -15px;
+                {{ app()->getLocale() == 'ar' ? 'right' : 'left' }}: -15px;
             }
 
             .image-container {
@@ -913,7 +924,7 @@
             }
 
             .feedback .text .bi-quote {
-                right: -20px;
+                {{ app()->getLocale() == 'ar' ? 'right' : 'left' }}: -20px;
                 top: -30px;
                 font-size: 40px;
             }
@@ -925,7 +936,7 @@
             .foot-foot {
                 flex-direction: column;
                 align-items: flex-start;
-                text-align: right;
+                text-align: {{ app()->getLocale() == 'ar' ? 'right' : 'left' }};
             }
 
             .footer-meta {
@@ -1011,7 +1022,7 @@
 
             .img-abs {
                 top: 130px;
-                right: 36%;
+                {{ app()->getLocale() == 'ar' ? 'right' : 'left' }}: 36%;
                 width: 40px;
             }
         }
@@ -1023,7 +1034,7 @@
         <!-- Container 1 -->
         <div class="container-fluid bg-gray d-flex justify-content-start gap-3 align-items-center top-bar">
             <img src="https://flagcdn.com/sa.svg" width="30" alt="Saudi Flag" />
-            <p class="top-text mb-0">موقع حكومي مسجل لدى هيئة الحكومة الرقمية</p>
+            <p class="top-text mb-0">{{ __('Official government site registered with the Digital Government Authority') }}</p>
         </div>
 
         <!-- Container 2 -->
@@ -1031,7 +1042,7 @@
             <div class="d-flex gap-4 info-section">
                 <div class="d-flex gap-1 align-items-center">
                     <i class="bi bi-cloud"></i>
-                    <p class="mb-0">غائم</p>
+                    <p class="mb-0">{{ __('Cloudy') }}</p>
                 </div>
                 <div class="d-flex gap-1 align-items-center">
                     <i class="bi bi-calendar"></i>
@@ -1043,16 +1054,11 @@
                 </div>
                 <div class="d-flex gap-1 align-items-center">
                     <i class="bi bi-geo-alt"></i>
-                    <p class="mb-0">الرياض</p>
+                    <p class="mb-0">{{ __('Riyadh') }}</p>
                 </div>
             </div>
 
-            <div class="d-flex gap-2 icons-section">
-                <i class="bi bi-eye"></i>
-                <i class="bi bi-zoom-in"></i>
-                <i class="bi bi-zoom-out"></i>
-                <i class="bi bi-mic"></i>
-            </div>
+          
         </div>
 
         <!-- Container 3 -->
@@ -1069,43 +1075,49 @@
             <div class="desktop-menu d-none d-lg-flex align-items-center justify-content-between flex-grow-1">
                 <ul class="navbar-nav d-flex flex-row mb-0">
                     <li class="nav-item">
-                        <a href="/" class="active">الرئيسية</a>
+                        <a href="{{ route('home') }}" class="active">{{ __('Home') }}</a>
                     </li>
                     <li class="nav-item">
-                        <a href="#">مسارات التدريب</a>
+                        <a href="{{ route('training-paths') }}">{{ __('Training Paths') }}</a>
                     </li>
                     <li class="nav-item">
-                        <a href="#">الدورات القصيرة</a>
+                        <a href="{{ route('short-courses') }}">{{ __('Short Courses') }}</a>
                     </li>
                     <li class="nav-item">
-                        <a href="#">عن المعهد</a>
+                        <a href="{{ route('about') }}">{{ __('About Us') }}</a>
                     </li>
                     <li class="nav-item">
-                        <a href="#">الأخبار</a>
+                        <a href="{{ route('news') }}">{{ __('News') }}</a>
                     </li>
                     <li class="nav-item">
-                        <a href="#">الأسئلة الشائعة</a>
+                        <a href="{{ route('faq') }}">{{ __('FAQ') }}</a>
                     </li>
                     <li class="nav-item">
-                        <a href="#">تواصل معنا</a>
+                        <a href="{{ route('contact') }}">{{ __('Contact Us') }}</a>
                     </li>
                 </ul>
 
                 <div class="d-flex gap-2">
                     <button class="btn btn-outline" type="button">
-                        <i class="bi bi-search"></i> Search
+                        <i class="bi bi-search"></i> {{ __('Search') }}
                     </button>
-                    <button type="button" class="btn btn-outline">
-                        <i class="bi bi-translate"></i> English
-                    </button>
+                    @if(app()->getLocale() == 'ar')
+                        <a href="{{ route('lang.switch', 'en') }}" class="btn btn-outline">
+                            <i class="bi bi-translate"></i> English
+                        </a>
+                    @else
+                        <a href="{{ route('lang.switch', 'ar') }}" class="btn btn-outline">
+                            <i class="bi bi-translate"></i> العربية
+                        </a>
+                    @endif
                     @if (Route::has('login'))
                         @auth
                             <a href="{{ url('/dashboard') }}" class="btn btn-outline">
-                                <i class="bi bi-person"></i> لوحة التحكم
+                                <i class="bi bi-person"></i> {{ __('Dashboard') }}
                             </a>
                         @else
                             <a href="{{ route('login') }}" class="btn btn-outline">
-                                <i class="bi bi-person"></i> تسجيل الدخول
+                                <i class="bi bi-person"></i> {{ __('Login') }}
                             </a>
                         @endauth
                     @endif
@@ -1129,29 +1141,35 @@
             </button>
         </div>
         <ul class="mobile-nav-list">
-            <li><a href="/" class="active">الرئيسية</a></li>
-            <li><a href="#">مسارات التدريب</a></li>
-            <li><a href="#">الدورات القصيرة</a></li>
-            <li><a href="#">عن المعهد</a></li>
-            <li><a href="#">الأخبار</a></li>
-            <li><a href="#">الأسئلة الشائعة</a></li>
-            <li><a href="#">تواصل معنا</a></li>
+            <li><a href="{{ route('home') }}" class="active">{{ __('Home') }}</a></li>
+            <li><a href="{{ route('training-paths') }}">{{ __('Training Paths') }}</a></li>
+            <li><a href="{{ route('short-courses') }}">{{ __('Short Courses') }}</a></li>
+            <li><a href="{{ route('about') }}">{{ __('About Us') }}</a></li>
+            <li><a href="{{ route('news') }}">{{ __('News') }}</a></li>
+            <li><a href="{{ route('faq') }}">{{ __('FAQ') }}</a></li>
+            <li><a href="{{ route('contact') }}">{{ __('Contact Us') }}</a></li>
         </ul>
         <div class="mobile-menu-buttons">
             <button class="btn btn-outline" type="button">
-                <i class="bi bi-search"></i> Search
+                <i class="bi bi-search"></i> {{ __('Search') }}
             </button>
-            <button type="button" class="btn btn-outline">
-                <i class="bi bi-translate"></i> English
-            </button>
+            @if(app()->getLocale() == 'ar')
+                <a href="{{ route('lang.switch', 'en') }}" class="btn btn-outline">
+                    <i class="bi bi-translate"></i> English
+                </a>
+            @else
+                <a href="{{ route('lang.switch', 'ar') }}" class="btn btn-outline">
+                    <i class="bi bi-translate"></i> العربية
+                </a>
+            @endif
             @if (Route::has('login'))
                 @auth
                     <a href="{{ url('/dashboard') }}" class="btn btn-outline">
-                        <i class="bi bi-person"></i> لوحة التحكم
+                        <i class="bi bi-person"></i> {{ __('Dashboard') }}
                     </a>
                 @else
                     <a href="{{ route('login') }}" class="btn btn-outline">
-                        <i class="bi bi-person"></i> تسجيل الدخول
+                        <i class="bi bi-person"></i> {{ __('Login') }}
                     </a>
                 @endauth
             @endif
@@ -1162,53 +1180,40 @@
     <section class="container-fluid section-wrapper">
         <div class="row section-content">
             <div class="col-sm-12 col-md-6 d-flex flex-column justify-content-center">
-                <p class="st-p">التدريب الذي يلبي احتياجاتك</p>
+                <p class="st-p">{{ __('Training That Meets Your Needs') }}</p>
                 <h1>
-                    تدريب متميّز يفتح لك أبواب
-                    <span style="color: var(--main-color);">الغد</span>
+                    {{ __('Distinguished training opens doors to') }}
+                    <span style="color: var(--main-color);">{{ __('tomorrow') }}</span>
                 </h1>
                 <p class="nd-p">
-                    بخبرة تمتد لأكثر من 10 أعوام، نصنع فرقًا حقيقيًا في حياة الأفراد والمؤسسات. نرشدك ببوصلة التدريب نحو تخصصك ومهنتك بثقة، لنكون بوابتك الأولى نحو مستقبل يواكب مستهدفات 2030.
+                    {{ __('With over 10 years of experience, we make a real difference in the lives of individuals and organizations. We guide you with the training compass towards your specialization and profession with confidence, to be your first gateway to a future that keeps pace with Vision 2030 targets.') }}
                 </p>
                 <div class="d-flex gap-3 flex-wrap">
-                    <button class="btn full-btn">ابدأ رحلتك التجريبية</button>
-                    <button class="btn notfull-btn">استكشف برامجنا</button>
+                    <button class="btn full-btn">{{ __('Start Your Trial Journey') }}</button>
+                    <button class="btn notfull-btn">{{ __('Explore Our Programs') }}</button>
                 </div>
             </div>
             <div class="col-sm-12 col-md-6 left-sec">
                 <img src="{{ asset('images/person.png') }}" alt="" class="main-img" />
-                <button class="abs-btn">ابدأ التعلم الآن</button>
+                <button class="abs-btn">{{ __('Start Learning Now') }}</button>
                 <img src="{{ asset('images/Figma Cursor.png') }}" class="img-abs" />
             </div>
         </div>
     </section>
 
     <!-- About Section -->
-    <section class="row container-fluid section-container align-items-center">
-        <div class="col-12 col-md-5">
-            <p class="st-p">التدريب الذي يلبي احتياجاتك</p>
-            <h1>من نحن</h1>
-            <p class="nd-p">
-                معهد الارتقاء العالي التدريبي هو جهة تدريبية معتمدة في المملكة العربية السعودية، نسعى لتقديم برامج تعليمية وتدريبية عالية الجودة تخدم احتياجات سوق العمل وتواكب التطور المهني والمعرفي.
-            </p>
-        </div>
-        <div class="col-12 col-md-7 left-sec">
-            <img src="{{ asset('images/Media.png') }}" class="main-img" />
-            <button class="abs-btn">ابدأ التعلم الآن</button>
-            <img src="{{ asset('images/Figma Cursor.png') }}" class="img-abs" />
-        </div>
-    </section>
+   
 
     <!-- Why Choose Us Section -->
     <section class="section-container">
         <div class="head text-center d-flex justify-content-center align-items-center flex-column position-relative">
-            <p class="st-p">التدريب الذي يلبي احتياجاتك</p>
-            <h1>لماذا تختارنا</h1>
+            <p class="st-p">{{ __('Training That Meets Your Needs') }}</p>
+            <h1>{{ __('Why Choose Us') }}</h1>
             <div>
                 <p class="nd-p">
-                    نقدّم منظومة تدريبية متكاملة تجمع بين الجودة، المرونة، والتقنيات الحديثة لضمان أفضل تجربة تعليمية.
+                    {{ __('We offer an integrated training system that combines quality, flexibility, and modern technologies to ensure the best educational experience.') }}
                 </p>
-                <button class="abs-btn d-none d-md-block">ابدأ التعلم الآن</button>
+                <button class="abs-btn d-none d-md-block">{{ __('Start Learning Now') }}</button>
                 <img src="{{ asset('images/Figma Cursor.png') }}" class="img-abs d-none d-md-block" />
             </div>
         </div>
@@ -1216,57 +1221,57 @@
             <div class="col-12 col-sm-6 col-md-4 col-lg-3">
                 <div class="card">
                     <i class="bi bi-shield-fill-check"></i>
-                    <h5>دعم مستمر</h5>
-                    <p>خدمة دعم فني على مدار الساعة تساعدك في تجاوز أي مشكلة تقنية.</p>
+                    <h5>{{ __('Continuous Support') }}</h5>
+                    <p>{{ __('24/7 technical support service helps you overcome any technical problem.') }}</p>
                 </div>
             </div>
             <div class="col-12 col-sm-6 col-md-4 col-lg-3">
                 <div class="card">
                     <i class="bi bi-shield-fill-check"></i>
-                    <h5>مدربون متخصصون</h5>
-                    <p>يتولى التدريب نخبة من المدربين المعتمدين وأصحاب الخبرة الأكاديمية والمهنية.</p>
+                    <h5>{{ __('Specialized Trainers') }}</h5>
+                    <p>{{ __('Training is conducted by elite certified trainers with academic and professional experience.') }}</p>
                 </div>
             </div>
             <div class="col-12 col-sm-6 col-md-4 col-lg-3">
                 <div class="card">
                     <i class="bi bi-shield-fill-check"></i>
-                    <h5>تعليم رقمي</h5>
-                    <p>تجربة تعليمية سلسة، آمنة، ومتوافقة مع احتياجات المتدربين.</p>
+                    <h5>{{ __('Digital Education') }}</h5>
+                    <p>{{ __('A smooth, secure educational experience compatible with trainees needs.') }}</p>
                 </div>
             </div>
             <div class="col-12 col-sm-6 col-md-4 col-lg-3">
                 <div class="card">
                     <i class="bi bi-shield-fill-check"></i>
-                    <h5>تدريب معتمد</h5>
-                    <p>معتمدة من الجهات الرسمية داخل المملكة، تضمن مسارًا موثوقًا لتطوير مهاراتك المهنية.</p>
+                    <h5>{{ __('Accredited Training') }}</h5>
+                    <p>{{ __('Accredited by official authorities within the Kingdom, ensuring a reliable path for developing your professional skills.') }}</p>
                 </div>
             </div>
             <div class="col-12 col-sm-6 col-md-4 col-lg-3">
                 <div class="card">
                     <i class="bi bi-shield-fill-check"></i>
-                    <h5>شهادات رسمية</h5>
-                    <p>يحصل المتدرب بعد إتمام البرامج على شهادات معتمدة رسميًا، تعزّز فرصه المهنية.</p>
+                    <h5>{{ __('Official Certificates') }}</h5>
+                    <p>{{ __('After completing programs, trainees receive officially accredited certificates that enhance their career opportunities.') }}</p>
                 </div>
             </div>
             <div class="col-12 col-sm-6 col-md-4 col-lg-3">
                 <div class="card">
                     <i class="bi bi-shield-fill-check"></i>
-                    <h5>طرق دفع متعددة</h5>
-                    <p>نوفر منظومة دفع مرنة تناسب جميع احتياجات المتدربين.</p>
+                    <h5>{{ __('Multiple Payment Methods') }}</h5>
+                    <p>{{ __('We provide a flexible payment system that suits all trainees needs.') }}</p>
                 </div>
             </div>
             <div class="col-12 col-sm-6 col-md-4 col-lg-3">
                 <div class="card">
                     <i class="bi bi-shield-fill-check"></i>
-                    <h5>محتوى تفاعلي</h5>
-                    <p>دروس فيديو، ملفات، تقييمات، واختبارات تعزز الفهم وتدعم مبدأ التعلّم بالممارسة.</p>
+                    <h5>{{ __('Interactive Content') }}</h5>
+                    <p>{{ __('Video lessons, files, assessments, and tests that enhance understanding and support learning by practice.') }}</p>
                 </div>
             </div>
             <div class="col-12 col-sm-6 col-md-4 col-lg-3">
                 <div class="card">
                     <i class="bi bi-shield-fill-check"></i>
-                    <h5>مسارات واضحة</h5>
-                    <p>خطط تعليمية مبنية على مسارات واضحة تمتد حتى 10 أرباع تدريبية.</p>
+                    <h5>{{ __('Clear Paths') }}</h5>
+                    <p>{{ __('Educational plans built on clear paths extending up to 10 training quarters.') }}</p>
                 </div>
             </div>
         </div>
@@ -1275,35 +1280,35 @@
     <!-- Training Paths Section -->
     <section class="container-fluid py-5" style="background: #f3f4f6">
         <div class="head d-flex justify-content-center align-items-center flex-column py-5 position-relative text-center">
-            <p class="st-p">التدريب الذي يلبي احتياجاتك</p>
-            <h1>مسارات تدريبية شاملة لبناء مستقبلك</h1>
-            <p class="phead">نوفر مسارات تدريبية تمتد لعامين ونصف عبر 10 أرباع تدريبية، إضافة إلى دورات قصيرة ومتخصصة تناسب مختلف الأهداف المهنية.</p>
-            <button class="abs-btn d-none d-md-block">ابدأ التعلم الآن</button>
+            <p class="st-p">{{ __('Training That Meets Your Needs') }}</p>
+            <h1>{{ __('Comprehensive training paths to build your future') }}</h1>
+            <p class="phead">{{ __('We provide training paths spanning two and a half years through 10 training quarters, plus short and specialized courses for various professional goals.') }}</p>
+            <button class="abs-btn d-none d-md-block">{{ __('Start Learning Now') }}</button>
             <img src="{{ asset('images/Figma Cursor.png') }}" class="img-abs d-none d-md-block" />
         </div>
         <div class="courses-container">
             @for ($i = 0; $i < 3; $i++)
             <div class="course-card card p-2">
                 <img src="{{ asset('images/course.jpg') }}" class="rounded" />
-                <h4 class="mt-2">تطوير المهارات الإدارية</h4>
-                <p>أساسيات الإدارة الحديثة: قيادة، تخطيط، واتخاذ القرار العملي.</p>
+                <h4 class="mt-2">{{ __('Management Skills Development') }}</h4>
+                <p>{{ __('Modern management fundamentals: leadership, planning, and practical decision-making.') }}</p>
                 <div class="marks my-1 d-flex gap-2 flex-wrap">
                     <div class="st">
                         <i class="bi bi-exclamation-triangle"></i>
-                        وسم
+                        {{ __('Tag') }}
                     </div>
                     <div class="nd">
                         <i class="bi bi-exclamation-triangle"></i>
-                        وسم
+                        {{ __('Tag') }}
                     </div>
                     <div class="th">
                         <i class="bi bi-exclamation-triangle"></i>
-                        وسم
+                        {{ __('Tag') }}
                     </div>
                 </div>
                 <div class="d-flex gap-2 w-100 flex-wrap flex-sm-nowrap mt-2">
-                    <button class="notfull-btn w-100">اطّلع على التفاصيل</button>
-                    <button class="full-btn w-100">سجّل الآن</button>
+                    <button class="notfull-btn w-100">{{ __('View Details') }}</button>
+                    <button class="full-btn w-100">{{ __('Register Now') }}</button>
                 </div>
             </div>
             @endfor
@@ -1313,36 +1318,36 @@
     <!-- Upcoming Courses Section -->
     <section class="container-fluid py-5">
         <div class="head d-flex justify-content-center align-items-center flex-column py-5 position-relative text-center">
-            <p class="st-p">التدريب الذي يلبي احتياجاتك</p>
-            <h2>دورات تبدأ قريبًا — احجز مقعدك</h2>
-            <p class="phead">اختر من بين مجموعة من الدورات المتخصصة التي تبدأ خلال الأسابيع القادمة.</p>
-            <button class="notfull-btn mt-3">عرض جميع الدورات</button>
-            <button class="abs-btn d-none d-md-block">ابدأ التعلم الآن</button>
+            <p class="st-p">{{ __('Training That Meets Your Needs') }}</p>
+            <h2>{{ __('Courses starting soon — Reserve your seat') }}</h2>
+            <p class="phead">{{ __('Choose from a variety of specialized courses starting in the coming weeks.') }}</p>
+            <button class="notfull-btn mt-3">{{ __('View All Courses') }}</button>
+            <button class="abs-btn d-none d-md-block">{{ __('Start Learning Now') }}</button>
             <img src="{{ asset('images/Figma Cursor.png') }}" class="img-abs d-none d-md-block" />
         </div>
         <div class="courses-container">
             @for ($i = 0; $i < 3; $i++)
             <div class="course-card card p-2">
                 <img src="{{ asset('images/course.jpg') }}" class="rounded" />
-                <h4 class="mt-2">تطوير المهارات الإدارية</h4>
-                <p>أساسيات الإدارة الحديثة: قيادة، تخطيط، واتخاذ القرار العملي.</p>
+                <h4 class="mt-2">{{ __('Management Skills Development') }}</h4>
+                <p>{{ __('Modern management fundamentals: leadership, planning, and practical decision-making.') }}</p>
                 <div class="marks my-1 d-flex gap-2 flex-wrap">
                     <div class="st">
                         <i class="bi bi-exclamation-triangle"></i>
-                        وسم
+                        {{ __('Tag') }}
                     </div>
                     <div class="nd">
                         <i class="bi bi-exclamation-triangle"></i>
-                        وسم
+                        {{ __('Tag') }}
                     </div>
                     <div class="th">
                         <i class="bi bi-exclamation-triangle"></i>
-                        وسم
+                        {{ __('Tag') }}
                     </div>
                 </div>
                 <div class="mt-2 d-flex gap-2 w-100 flex-wrap flex-sm-nowrap">
-                    <button class="notfull-btn w-100">اطّلع على التفاصيل</button>
-                    <button class="full-btn w-100">سجّل الآن</button>
+                    <button class="notfull-btn w-100">{{ __('View Details') }}</button>
+                    <button class="full-btn w-100">{{ __('Register Now') }}</button>
                 </div>
             </div>
             @endfor
@@ -1352,13 +1357,13 @@
     <!-- How It Works Section -->
     <section class="container-fluid py-5">
         <div class="head d-flex justify-content-center align-items-center flex-column py-5 position-relative text-center">
-            <p class="st-p">التدريب الذي يلبي احتياجاتك</p>
-            <h2>كيف تعمل منظومتنا التدريبية؟</h2>
+            <p class="st-p">{{ __('Training That Meets Your Needs') }}</p>
+            <h2>{{ __('How does our training system work?') }}</h2>
             <p>
-                نظام تدريبي متكامل يضمن رحلة تعليمية واضحة، منظمة، وذات نتائج قابلة للقياس. من التسجيل وحتى الحصول على الشهادة، صمّمنا منظومتنا لتكون بسيطة، فعّالة، ومتوافقة مع معايير التدريب الأهلي في المملكة.
+                {{ __('An integrated training system that ensures a clear, organized educational journey with measurable results. From registration to certification, we designed our system to be simple, effective, and compliant with private training standards in the Kingdom.') }}
             </p>
-            <button class="notfull-btn mt-3">عرض جميع الدورات</button>
-            <button class="abs-btn d-none d-md-block">ابدأ التعلم الآن</button>
+            <button class="notfull-btn mt-3">{{ __('View All Courses') }}</button>
+            <button class="abs-btn d-none d-md-block">{{ __('Start Learning Now') }}</button>
             <img src="{{ asset('images/Figma Cursor.png') }}" class="img-abs d-none d-md-block" />
         </div>
         <div class="d-flex container-fluid content-wrapper">
@@ -1367,36 +1372,30 @@
             </div>
             <div class="right-sec-steps">
                 <div class="section-item">
-                    <h4>التسجيل والبدء</h4>
+                    <h4>{{ __('Registration and Getting Started') }}</h4>
                     <p class="nd-p">
-                        ابدأ رحلتك التعليمية بسهولة عبر
-                        <a href="#" style="color: var(--main-color);">إنشاء حساب</a>
-                        أو
-                        <a href="#" style="color: var(--main-color);">تسجيل الدخول</a>
-                        من خلال
-                        <a href="#" style="color: var(--main-color);">نفاذ</a>
-                        ، ثم اكتشف البرامج والمسارات التي صُمّمت لتناسب أهدافك وطموحاتك.
+                        {{ __('Start your educational journey easily by creating an account or logging in through Nafath, then discover programs and paths designed to suit your goals and aspirations.') }}
                     </p>
                 </div>
 
                 <div class="section-item">
-                    <h4>اختيار البرنامج المناسب لك</h4>
+                    <h4>{{ __('Choosing the Right Program for You') }}</h4>
                     <p class="nd-p">
-                        سواء كنت تبحث عن مسار أكاديمي يمتد لعامين ونصف (10 أرباع)، أو دورة قصيرة تمتد لأسابيع أو شهور… ستجد ما يناسب أهدافك وطموحاتك المهنية.
+                        {{ __('Whether youre looking for an academic path spanning two and a half years (10 quarters), or a short course lasting weeks or months... you will find what suits your goals and professional aspirations.') }}
                     </p>
                 </div>
 
                 <div class="section-item">
-                    <h4>التعلّم والمتابعة</h4>
+                    <h4>{{ __('Learning and Follow-up') }}</h4>
                     <p class="nd-p">
-                        ادرس عبر محتوى مرئي ومنظم، مع نظام حضور وغياب، وتقدم تدريبي واضح، وتواصل مباشر مع المدربين، لضمان تجربة تعلم متكاملة وسلسة.
+                        {{ __('Study through visual and organized content, with an attendance system, clear training progress, and direct communication with trainers, ensuring an integrated and smooth learning experience.') }}
                     </p>
                 </div>
 
                 <div class="section-item">
-                    <h4>التقييم والحصول على الشهادة</h4>
+                    <h4>{{ __('Assessment and Certification') }}</h4>
                     <p class="nd-p">
-                        بعد إكمال متطلباتك التدريبية يتم تقييمك واعتماد إنجازك، ثم إصدار شهادتك الرقمية المعتمدة لتبدأ خطوتك المهنية بثقة.
+                        {{ __('After completing your training requirements, you will be evaluated and your achievement accredited, then your accredited digital certificate will be issued to start your professional step with confidence.') }}
                     </p>
                 </div>
             </div>
@@ -1407,10 +1406,10 @@
     <section class="container-fluid pt-5 pb-5 app-section">
         <div class="d-flex justify-content-between main-wrapper flex-wrap" style="max-width: 1400px; margin: 0 auto; gap: 2rem;">
             <div class="right-sec pe-3" style="flex: 1; min-width: 300px; padding: 3rem 0;">
-                <p class="st-p" style="background: white;">التدريب الذي يلبي احتياجاتك</p>
-                <h1>التطبيق الذي يرافقك في كل خطوة من رحلتك التدريبية</h1>
+                <p class="st-p" style="background: white;">{{ __('Training That Meets Your Needs') }}</p>
+                <h1>{{ __('The app that accompanies you at every step of your training journey') }}</h1>
                 <p class="nd-p">
-                    يقدّم تطبيقنا تجربة تعليمية متكاملة تتيح لك متابعة دوراتك، حضور المحاضرات، معرفة تقدمك، والتواصل مباشرة مع المدربين — كل ذلك من مكان واحد وبواجهة سهلة الاستخدام.
+                    {{ __('Our app provides a comprehensive educational experience that allows you to follow your courses, attend lectures, track your progress, and communicate directly with trainers — all from one place with an easy-to-use interface.') }}
                 </p>
                 <div class="store-buttons" dir="ltr">
                     <!-- Huawei AppGallery -->
@@ -1446,12 +1445,12 @@
                     </a>
                 </div>
             </div>
-            <div class="d-flex left-sec" style="flex: 1; min-width: 300px; position: relative;">
+            <div class="d-flex left-sec align-items-end" style="flex: 1; min-width: 300px; position: relative;">
                 <div class="st-mobile">
-                    <img src="{{ asset('images/phone1.png') }}" alt="" style="width: 250px; height: 500px; position: relative; z-index: 50; left: -140px;" />
+                    <img src="{{ asset('images/phone1.png') }}" alt="" style="width: 250px; height: 500px; position: relative; z-index: 50; {{ app()->getLocale() == 'ar' ? 'left: -140px;' : 'right: -140px;' }}" />
                 </div>
                 <div class="nd-mobile">
-                    <img src="{{ asset('images/phone2.png') }}" alt="" style="width: 250px; height: 400px; position: relative; top: 100px; z-index: 30;" />
+                    <img src="{{ asset('images/phone2.png') }}" alt="" style="width: 250px; height: 400px; position: relative; z-index: 30;" />
                 </div>
             </div>
         </div>
@@ -1460,12 +1459,12 @@
     <!-- Trainers Section -->
     <section class="container-fluid section-container p-5">
         <div class="head text-center d-flex justify-content-center align-items-center flex-column position-relative">
-            <p class="st-p">التدريب الذي يلبي احتياجاتك</p>
-            <h1>ارتقِ بمهاراتك مع أفضل المدربين المعتمدين</h1>
+            <p class="st-p">{{ __('Training That Meets Your Needs') }}</p>
+            <h1>{{ __('Elevate your skills with the best certified trainers') }}</h1>
             <p class="head-desc">
-                نقدّم لك منظومة تدريبية يشرف عليها نخبة من المدربين السعوديين أصحاب الخبرات الأكاديمية والمهنية، لتضمن تعلّمًا فعّالًا يُمكّنك من تحقيق أهدافك بثقة ومنهجية.
+                {{ __('We offer you a training system supervised by elite Saudi trainers with academic and professional expertise, to ensure effective learning that enables you to achieve your goals with confidence and methodology.') }}
             </p>
-            <button class="abs-btn d-none d-md-block">ابدأ التعلم الآن</button>
+            <button class="abs-btn d-none d-md-block">{{ __('Start Learning Now') }}</button>
             <img src="{{ asset('images/Figma Cursor.png') }}" class="img-abs d-none d-md-block" />
         </div>
 
@@ -1483,8 +1482,8 @@
                         </div>
                     </div>
                     <div class="text mt-3">
-                        <h4>خبرة تقودك للنجاح</h4>
-                        <p>كل مدرب يمتلك خبرة أكاديمية ومهنية في مجاله، لضمان جودة التدريب وعمق الفائدة.</p>
+                        <h4>{{ __('Experience leads you to success') }}</h4>
+                        <p>{{ __('Each trainer has academic and professional experience in their field, ensuring training quality and depth of benefit.') }}</p>
                     </div>
                 </div>
                 <div class="trainers-card">
@@ -1498,8 +1497,8 @@
                         </div>
                     </div>
                     <div class="text mt-3">
-                        <h4>محتوى تدريبي معتمد</h4>
-                        <p>برامج ومسارات مقدمة من مدربين معتمدين، مبنية على معايير التدريب الأهلي داخل المملكة.</p>
+                        <h4>{{ __('Accredited training content') }}</h4>
+                        <p>{{ __('Programs and paths provided by certified trainers, built on private training standards within the Kingdom.') }}</p>
                     </div>
                 </div>
             </div>
@@ -1511,8 +1510,8 @@
                         <img src="{{ asset('images/center.jpg') }}" alt="" />
                     </div>
                     <div class="btns d-flex gap-4 justify-content-center mt-4">
-                        <button class="full-btn">انضم كمدرب معنا</button>
-                        <button class="notfull-btn">شروط الانضمام</button>
+                        <button class="full-btn">{{ __('Join us as a trainer') }}</button>
+                        <button class="notfull-btn">{{ __('Joining requirements') }}</button>
                     </div>
                 </div>
             </div>
@@ -1530,8 +1529,8 @@
                         </div>
                     </div>
                     <div class="text mt-3">
-                        <h4>تعلم مرن ومتعدد الأساليب</h4>
-                        <p>محتوى مباشر ومسجّل، تم تصميمه ليواكب أنماط التعلم المختلفة ويمنحك مرونة كاملة.</p>
+                        <h4>{{ __('Flexible and diverse learning') }}</h4>
+                        <p>{{ __('Live and recorded content, designed to keep pace with different learning styles and give you complete flexibility.') }}</p>
                     </div>
                 </div>
                 <div class="trainers-card">
@@ -1545,8 +1544,8 @@
                         </div>
                     </div>
                     <div class="text mt-3">
-                        <h4>تفاعل مباشر مع المدربين</h4>
-                        <p>إمكانية التواصل، طرح الأسئلة، واستلام التغذية الراجعة لمساعدتك على التقدم بثقة.</p>
+                        <h4>{{ __('Direct interaction with trainers') }}</h4>
+                        <p>{{ __('Ability to communicate, ask questions, and receive feedback to help you progress confidently.') }}</p>
                     </div>
                 </div>
             </div>
@@ -1556,33 +1555,33 @@
     <!-- Success Stories Section -->
     <section class="container-fluid section-container p-4 feedback-section">
         <div class="head text-center d-flex justify-content-center align-items-center flex-column position-relative">
-            <p class="st-p">التدريب الذي يلبي احتياجاتك</p>
-            <h1>نجاحات نفتخر بها</h1>
+            <p class="st-p">{{ __('Training That Meets Your Needs') }}</p>
+            <h1>{{ __('Success Stories We Are Proud Of') }}</h1>
             <p class="head-desc">
-                مئات المتدربين طوروا مسيرتهم المهنية وانطلقوا نحو فرص جديدة بفضل برامجنا المعتمدة.
+                {{ __('Hundreds of trainees have developed their careers and launched into new opportunities thanks to our accredited programs.') }}
             </p>
-            <button class="notfull-btn">عرض جميع القصص</button>
-            <button class="abs-btn d-none d-md-block">ابدأ التعلم الآن</button>
+            <button class="notfull-btn">{{ __('View All Stories') }}</button>
+            <button class="abs-btn d-none d-md-block">{{ __('Start Learning Now') }}</button>
             <img src="{{ asset('images/Figma Cursor.png') }}" class="img-abs d-none d-md-block" />
         </div>
 
         <div class="feedback d-flex mt-5">
             <div class="img">
-                <img src="{{ asset('images/avatar.png') }}" />
+                <img id="mainTestimonialImg" src="{{ asset('images/avatar.png') }}" />
             </div>
-            <div class="text pt-5 me-5">
+            <div class="text pt-5 {{ app()->getLocale() == 'ar' ? 'me-5' : 'ms-5' }}">
                 <i class="bi bi-quote"></i>
-                <h3 class="fw-bold">
-                    رحلة تدريبية مميزة وواضحة من البداية للنهاية، متابعة التيرم والدروس كانت سهلة جدًا، والتطبيق ساعدني أتابع تقدمي بشكل يومي.
+                <h3 id="testimonialText" class="fw-bold">
+                    {{ __('A distinctive and clear training journey from beginning to end, following the term and lessons was very easy, and the app helped me track my progress daily.') }}
                 </h3>
-                <p class="nd-p">
-                    سلمان .م - مسار الحاسب وتقنية المعلومات
+                <p id="testimonialAuthor" class="nd-p">
+                    {{ __('Salman M. - Computer and IT Path') }}
                 </p>
                 <div class="imgs-av d-flex gap-3">
-                    <img src="{{ asset('images/avatar.png') }}" class="active" />
-                    <img src="{{ asset('images/person.png') }}" />
-                    <img src="{{ asset('images/right.png') }}" />
-                    <img src="{{ asset('images/Media.png') }}" />
+                    <img src="{{ asset('images/avatar.png') }}" class="active" data-index="0" onclick="changeTestimonial(0)" />
+                    <img src="{{ asset('images/person.png') }}" data-index="1" onclick="changeTestimonial(1)" />
+                    <img src="{{ asset('images/right.png') }}" data-index="2" onclick="changeTestimonial(2)" />
+                    <img src="{{ asset('images/Media.png') }}" data-index="3" onclick="changeTestimonial(3)" />
                 </div>
             </div>
         </div>
@@ -1591,61 +1590,61 @@
     <!-- FAQ Section -->
     <section class="container-fluid section-container p-5">
         <div class="head text-center d-flex justify-content-center align-items-center flex-column position-relative">
-            <p class="st-p">التدريب الذي يلبي احتياجاتك</p>
-            <h1>الأسئلة الأكثر شيوعًا حول برامجنا ومنصتنا</h1>
+            <p class="st-p">{{ __('Training That Meets Your Needs') }}</p>
+            <h1>{{ __('Frequently Asked Questions About Our Programs and Platform') }}</h1>
             <p class="head-desc">
-                نقدّم لك إجابات شاملة لأكثر الأسئلة التي قد تخطر على بالك حول التسجيل، البرامج، التيرمات، الدورات، والدعم الفني، لتسهيل تجربتك التعليمية معنا.
+                {{ __('We provide comprehensive answers to the most common questions about registration, programs, terms, courses, and technical support, to facilitate your educational experience with us.') }}
             </p>
-            <button class="notfull-btn">عرض جميع الأسئلة</button>
-            <button class="abs-btn d-none d-md-block">ابدأ التعلم الآن</button>
+            <button class="notfull-btn">{{ __('View All Questions') }}</button>
+            <button class="abs-btn d-none d-md-block">{{ __('Start Learning Now') }}</button>
             <img src="{{ asset('images/Figma Cursor.png') }}" class="img-abs d-none d-md-block" />
         </div>
         <div class="accordion mt-5" id="accordionExample">
             <div class="accordion-item">
                 <h2 class="accordion-header">
                     <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                        كيف أسجل في المعهد؟
+                        {{ __('How do I register at the institute?') }}
                     </button>
                 </h2>
                 <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionExample">
                     <div class="accordion-body">
-                        يمكنك التسجيل بسهولة عبر حساب نفاذ أو إنشاء حساب داخلي. بعد التسجيل، يمكنك اختيار المسار الأكاديمي أو الدورات القصيرة المناسبة لك.
+                        {{ __('You can easily register via Nafath account or create an internal account. After registration, you can choose the academic path or short courses that suit you.') }}
                     </div>
                 </div>
             </div>
             <div class="accordion-item">
                 <h2 class="accordion-header">
                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                        كيف أسجل في المعهد؟
+                        {{ __('What payment methods are available?') }}
                     </button>
                 </h2>
                 <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
                     <div class="accordion-body">
-                        يمكنك التسجيل بسهولة عبر حساب نفاذ أو إنشاء حساب داخلي. بعد التسجيل، يمكنك اختيار المسار الأكاديمي أو الدورات القصيرة المناسبة لك.
+                        {{ __('We provide several payment methods including: credit cards, Mada, bank transfer, and payment upon registration. We also offer installment options for long paths.') }}
                     </div>
                 </div>
             </div>
             <div class="accordion-item">
                 <h2 class="accordion-header">
                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                        كيف أسجل في المعهد؟
+                        {{ __('Are the certificates accredited?') }}
                     </button>
                 </h2>
                 <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
                     <div class="accordion-body">
-                        يمكنك التسجيل بسهولة عبر حساب نفاذ أو إنشاء حساب داخلي. بعد التسجيل، يمكنك اختيار المسار الأكاديمي أو الدورات القصيرة المناسبة لك.
+                        {{ __('Yes, all our certificates are accredited by the Technical and Vocational Training Corporation and recognized in the Saudi labor market.') }}
                     </div>
                 </div>
             </div>
             <div class="accordion-item">
                 <h2 class="accordion-header">
                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
-                        كيف أسجل في المعهد؟
+                        {{ __('Is there remote training?') }}
                     </button>
                 </h2>
                 <div id="collapseFour" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
                     <div class="accordion-body">
-                        يمكنك التسجيل بسهولة عبر حساب نفاذ أو إنشاء حساب داخلي. بعد التسجيل، يمكنك اختيار المسار الأكاديمي أو الدورات القصيرة المناسبة لك.
+                        {{ __('Yes, we provide remote training options for most of our courses and training paths, with all educational materials and resources available electronically.') }}
                     </div>
                 </div>
             </div>
@@ -1657,13 +1656,13 @@
         <div class="head-top">
             <div class="footer-intro">
                 <img src="{{ asset('images/footlogooo.png') }}" alt="" />
-                <h2>معهد الارتقاء العالي للتدريب</h2>
+                <h2>{{ __('Al-Ertiqaa High Institute for Training') }}</h2>
                 <p class="intro-text">
-                    معهد تدريبي معتمد يقدّم برامج تطوير مهني ومسارات تعليمية تمتدّ لأكثر من 10 سنوات، نساعد الطلاب والمتدربين على اكتساب مهارات المستقبل، وتقديم برامج معتمدة تتماشى مع رؤية المملكة 2030، بإشراف نخبة من المدربين والخبراء لضمان جودة التدريب ومخرجاته.
+                    {{ __('An accredited training institute offering professional development programs and educational paths for over 10 years. We help students and trainees acquire future skills, providing accredited programs aligned with Saudi Vision 2030, supervised by elite trainers and experts to ensure training quality and outcomes.') }}
                 </p>
             </div>
             <div class="mobile-apps">
-                <p class="apps-title">تطبيقات الجوال</p>
+                <p class="apps-title">{{ __('Mobile Apps') }}</p>
                 <div class="footer-store-buttons" dir="ltr">
                     <!-- Huawei AppGallery -->
                     <a href="#" class="footer-store-btn">
@@ -1702,34 +1701,34 @@
         <div class="foot-body">
             <div class="row">
                 <div class="col-lg-4 col-md-6 col-12 d-flex flex-column gap-3 footer-section">
-                    <h5>روابط مهمة</h5>
+                    <h5>{{ __('Important Links') }}</h5>
                     <hr />
-                    <a href="/">الرئيسية</a>
-                    <a href="#">عن المعهد</a>
-                    <a href="#">مسارات التدريب</a>
-                    <a href="#">الدورات القادمة</a>
-                    <a href="#">المدربين</a>
-                    <a href="#">الأخبار</a>
-                    <a href="#">تواصل معنا</a>
+                    <a href="{{ route('home') }}">{{ __('Home') }}</a>
+                    <a href="{{ route('about') }}">{{ __('About Us') }}</a>
+                    <a href="{{ route('training-paths') }}">{{ __('Training Paths') }}</a>
+                    <a href="{{ route('short-courses') }}">{{ __('Upcoming Courses') }}</a>
+                    <a href="#">{{ __('Trainers') }}</a>
+                    <a href="{{ route('news') }}">{{ __('News') }}</a>
+                    <a href="{{ route('contact') }}">{{ __('Contact Us') }}</a>
                 </div>
                 <div class="col-lg-4 col-md-6 col-12 d-flex flex-column gap-3 footer-section">
-                    <h5>خدمات المعهد</h5>
+                    <h5>{{ __('Institute Services') }}</h5>
                     <hr />
-                    <a href="#">نظام التيرمات والبرامج المهنية</a>
-                    <a href="#">الدورات القصيرة</a>
-                    <a href="#">التدريب عن بُعد</a>
-                    <a href="#">اعتماد الشهادات</a>
-                    <a href="#">تسجيل الطلاب</a>
-                    <a href="#">انضمام المدربين</a>
-                    <a href="#">الدعم الفني والمتابعة</a>
+                    <a href="#">{{ __('Term System and Professional Programs') }}</a>
+                    <a href="{{ route('short-courses') }}">{{ __('Short Courses') }}</a>
+                    <a href="#">{{ __('Remote Training') }}</a>
+                    <a href="#">{{ __('Certificate Accreditation') }}</a>
+                    <a href="#">{{ __('Student Registration') }}</a>
+                    <a href="#">{{ __('Trainer Enrollment') }}</a>
+                    <a href="{{ route('faq') }}">{{ __('Technical Support and Follow-up') }}</a>
                 </div>
                 <div class="col-lg-4 col-md-12 col-12 d-flex flex-column gap-3 footer-section">
-                    <h5>معلومات التواصل</h5>
+                    <h5>{{ __('Contact Information') }}</h5>
                     <hr />
                     <a href="#">
                         <div>
                             <i class="bi bi-telephone"></i>
-                            رقم الجوال
+                            {{ __('Phone Number') }}
                         </div>
                         <div>
                             9200343222
@@ -1739,7 +1738,7 @@
                     <a href="#">
                         <div>
                             <i class="bi bi-envelope"></i>
-                            البريد الإلكتروني
+                            {{ __('Email') }}
                         </div>
                         <div>
                             help@company.sa
@@ -1749,15 +1748,15 @@
                     <a href="#">
                         <div>
                             <i class="bi bi-geo-alt-fill"></i>
-                            الموقع
+                            {{ __('Location') }}
                         </div>
                         <div>
-                            الرياض
+                            {{ __('Riyadh') }}
                             <i class="bi bi-link-45deg"></i>
                         </div>
                     </a>
                     <a href="#">
-                        <div>تابعنا على</div>
+                        <div>{{ __('Follow Us') }}</div>
                         <div class="d-flex gap-3">
                             <i class="bi bi-instagram"></i>
                             <i class="bi bi-linkedin"></i>
@@ -1770,11 +1769,11 @@
 
         <div class="foot-foot">
             <div class="copyright">
-                <p>معهد الارتقاء العالي للتدريب. جميع الحقوق محفوظة &copy; 2024.</p>
+                <p>{{ __('Al-Ertiqaa High Institute for Training') }}. {{ __('All rights reserved') }} &copy; 2024.</p>
             </div>
             <div class="footer-meta">
-                <p>تاريخ آخر تعديل: 04/12/2020</p>
-                <p>تم تطويره وصيانته بواسطة [أدخل اسم الجهة]</p>
+                <p>{{ __('Last modified') }}: 04/12/2020</p>
+                <p>{{ __('Developed and maintained by Al-Ertiqaa') }}</p>
             </div>
         </div>
     </footer>
@@ -1783,24 +1782,46 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
+        // Get current locale
+        const currentLocale = '{{ app()->getLocale() }}';
+
         // Update date and time
         function updateDateTime() {
             const now = new Date();
-            const arabicMonths = [
-                "يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو",
-                "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"
-            ];
 
-            const day = now.getDate();
-            const month = arabicMonths[now.getMonth()];
-            const year = now.getFullYear();
-            document.getElementById('currentDate').textContent = `${day}-${month}-${year}`;
+            if (currentLocale === 'ar') {
+                const arabicMonths = [
+                    "يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو",
+                    "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"
+                ];
 
-            let hours = now.getHours();
-            const minutes = now.getMinutes().toString().padStart(2, '0');
-            const period = hours >= 12 ? 'مساءً' : 'صباحاً';
-            hours = hours % 12 || 12;
-            document.getElementById('currentTime').textContent = `${hours}:${minutes} ${period}`;
+                const day = now.getDate();
+                const month = arabicMonths[now.getMonth()];
+                const year = now.getFullYear();
+                document.getElementById('currentDate').textContent = `${day}-${month}-${year}`;
+
+                let hours = now.getHours();
+                const minutes = now.getMinutes().toString().padStart(2, '0');
+                const period = hours >= 12 ? 'مساءً' : 'صباحاً';
+                hours = hours % 12 || 12;
+                document.getElementById('currentTime').textContent = `${hours}:${minutes} ${period}`;
+            } else {
+                const englishMonths = [
+                    "January", "February", "March", "April", "May", "June",
+                    "July", "August", "September", "October", "November", "December"
+                ];
+
+                const day = now.getDate();
+                const month = englishMonths[now.getMonth()];
+                const year = now.getFullYear();
+                document.getElementById('currentDate').textContent = `${day}-${month}-${year}`;
+
+                let hours = now.getHours();
+                const minutes = now.getMinutes().toString().padStart(2, '0');
+                const period = hours >= 12 ? 'PM' : 'AM';
+                hours = hours % 12 || 12;
+                document.getElementById('currentTime').textContent = `${hours}:${minutes} ${period}`;
+            }
         }
 
         updateDateTime();
@@ -1830,6 +1851,99 @@
             if (e.key === 'Escape') {
                 closeMobileMenu();
             }
+        });
+
+        // Testimonial Data
+        const testimonials = currentLocale === 'ar' ? [
+            {
+                img: "{{ asset('images/avatar.png') }}",
+                text: "رحلة تدريبية مميزة وواضحة من البداية للنهاية، متابعة التيرم والدروس كانت سهلة جدًا، والتطبيق ساعدني أتابع تقدمي بشكل يومي.",
+                author: "سلمان .م - مسار الحاسب وتقنية المعلومات"
+            },
+            {
+                img: "{{ asset('images/person.png') }}",
+                text: "تجربتي مع المعهد كانت رائعة، المدربون محترفون والمحتوى التعليمي ممتاز. أنصح الجميع بالتسجيل في برامجهم التدريبية.",
+                author: "أحمد .ع - مسار إدارة الأعمال"
+            },
+            {
+                img: "{{ asset('images/right.png') }}",
+                text: "الدعم الفني متميز والاستجابة سريعة. البرنامج التدريبي ساعدني على تطوير مهاراتي المهنية بشكل ملحوظ.",
+                author: "محمد .ك - مسار التسويق الرقمي"
+            },
+            {
+                img: "{{ asset('images/Media.png') }}",
+                text: "شكراً لمعهد الارتقاء على هذه التجربة التعليمية المتميزة. الشهادة المعتمدة ساعدتني في الحصول على فرصة عمل جديدة.",
+                author: "خالد .س - مسار الأمن السيبراني"
+            }
+        ] : [
+            {
+                img: "{{ asset('images/avatar.png') }}",
+                text: "A distinctive and clear training journey from beginning to end, following the term and lessons was very easy, and the app helped me track my progress daily.",
+                author: "Salman M. - Computer and IT Path"
+            },
+            {
+                img: "{{ asset('images/person.png') }}",
+                text: "My experience with the institute was wonderful, the trainers are professional and the educational content is excellent. I recommend everyone to register in their training programs.",
+                author: "Ahmed A. - Business Administration Path"
+            },
+            {
+                img: "{{ asset('images/right.png') }}",
+                text: "The technical support is excellent and the response is fast. The training program helped me develop my professional skills significantly.",
+                author: "Mohammed K. - Digital Marketing Path"
+            },
+            {
+                img: "{{ asset('images/Media.png') }}",
+                text: "Thanks to Al-Ertiqaa Institute for this distinguished educational experience. The accredited certificate helped me get a new job opportunity.",
+                author: "Khalid S. - Cybersecurity Path"
+            }
+        ];
+
+        // Change Testimonial Function
+        function changeTestimonial(index) {
+            const testimonial = testimonials[index];
+
+            // Update main image with fade effect
+            const mainImg = document.getElementById('mainTestimonialImg');
+            mainImg.style.opacity = '0';
+            setTimeout(() => {
+                mainImg.src = testimonial.img;
+                mainImg.style.opacity = '1';
+            }, 200);
+
+            // Update text with fade effect
+            const textEl = document.getElementById('testimonialText');
+            const authorEl = document.getElementById('testimonialAuthor');
+
+            textEl.style.opacity = '0';
+            authorEl.style.opacity = '0';
+
+            setTimeout(() => {
+                textEl.textContent = testimonial.text;
+                authorEl.textContent = testimonial.author;
+                textEl.style.opacity = '1';
+                authorEl.style.opacity = '1';
+            }, 200);
+
+            // Update active state on thumbnails
+            const thumbnails = document.querySelectorAll('.imgs-av img');
+            thumbnails.forEach((thumb, i) => {
+                if (i === index) {
+                    thumb.classList.add('active');
+                } else {
+                    thumb.classList.remove('active');
+                }
+            });
+        }
+
+        // Add transition styles for smooth fade
+        document.addEventListener('DOMContentLoaded', function() {
+            const mainImg = document.getElementById('mainTestimonialImg');
+            const textEl = document.getElementById('testimonialText');
+            const authorEl = document.getElementById('testimonialAuthor');
+
+            if (mainImg) mainImg.style.transition = 'opacity 0.3s ease';
+            if (textEl) textEl.style.transition = 'opacity 0.3s ease';
+            if (authorEl) authorEl.style.transition = 'opacity 0.3s ease';
         });
     </script>
 </body>

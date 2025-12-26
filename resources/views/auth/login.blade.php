@@ -6,18 +6,39 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>تسجيل الدخول - ALERTIQA</title>
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700;800&display=swap');
-
-        body {
-            font-family: 'Almarai', 'IBM Plex Sans Arabic', sans-serif;
+        @font-face {
+            font-family: 'Cairo';
+            src: url('/font/static/Cairo-Regular.ttf') format('truetype');
+            font-weight: 400;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'Cairo';
+            src: url('/font/static/Cairo-Medium.ttf') format('truetype');
+            font-weight: 500;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'Cairo';
+            src: url('/font/static/Cairo-SemiBold.ttf') format('truetype');
+            font-weight: 600;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'Cairo';
+            src: url('/font/static/Cairo-Bold.ttf') format('truetype');
+            font-weight: 700;
+            font-style: normal;
         }
 
-        /* Alternative: If you want a more traditional Zaza-style font */
+        * {
+            font-family: 'Cairo', sans-serif;
+        }
+
         h1, h2, h3, .font-bold {
-            font-family: 'Almarai', sans-serif;
+            font-family: 'Cairo', sans-serif;
             font-weight: 700;
         }
     </style>

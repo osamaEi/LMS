@@ -1,15 +1,71 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="{{ app()->getLocale() }}" dir="{{ app()->getLocale() == 'ar' ? 'rtl' : 'ltr' }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>@yield('title', 'معهد الإرتقاء العالي للتدريب')</title>
+    <title>@yield('title', __('Al-Ertiqaa High Institute for Training'))</title>
 
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="{{ asset('images/Vector.png') }}" />
 
     <!-- Bootstrap CSS -->
+    @if(app()->getLocale() == 'ar')
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+    @else
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    @endif
+
+    <!-- Cairo Font - Local -->
+    <style>
+        @font-face {
+            font-family: 'Cairo';
+            src: url('/font/static/Cairo-Regular.ttf') format('truetype');
+            font-weight: 400;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'Cairo';
+            src: url('/font/static/Cairo-Medium.ttf') format('truetype');
+            font-weight: 500;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'Cairo';
+            src: url('/font/static/Cairo-SemiBold.ttf') format('truetype');
+            font-weight: 600;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'Cairo';
+            src: url('/font/static/Cairo-Bold.ttf') format('truetype');
+            font-weight: 700;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'Cairo';
+            src: url('/font/static/Cairo-ExtraBold.ttf') format('truetype');
+            font-weight: 800;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'Cairo';
+            src: url('/font/static/Cairo-Black.ttf') format('truetype');
+            font-weight: 900;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'Cairo';
+            src: url('/font/static/Cairo-Light.ttf') format('truetype');
+            font-weight: 300;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'Cairo';
+            src: url('/font/static/Cairo-ExtraLight.ttf') format('truetype');
+            font-weight: 200;
+            font-style: normal;
+        }
+    </style>
 
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
@@ -18,15 +74,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
 
     <style>
-        /* Cairo Local Font */
-        @font-face {
-            font-family: 'Cairo';
-            src: url('/fonts/Cairo-VariableFont_slnt,wght.ttf') format('truetype');
-            font-weight: 100 900;
-            font-style: normal;
-            font-display: swap;
-        }
-
         /* Colors */
         :root {
             --main-color: rgba(0, 113, 170, 1);
@@ -35,7 +82,6 @@
 
         /* Global */
         * {
-            font-family: 'Cairo', sans-serif !important;
             box-sizing: border-box;
         }
 
@@ -69,13 +115,11 @@
         }
 
         .top-bar {
-            padding: 0.25rem 1rem;
             border-bottom: 1px solid #d1d5db;
         }
 
         .middle-bar {
-            padding: 0.35rem 1rem;
-            border-bottom: 1px solid #d1d5db;
+            border-bottom: none;
         }
 
         .middle-bar .info-section {
@@ -164,19 +208,19 @@
             display: none;
             position: fixed;
             top: 0;
-            right: 0;
+            {{ app()->getLocale() == 'ar' ? 'right' : 'left' }}: 0;
             width: 383px;
             height: 100vh;
             background: #fff;
             z-index: 9999;
             overflow-y: auto;
-            box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
+            box-shadow: {{ app()->getLocale() == 'ar' ? '-5px' : '5px' }} 0 15px rgba(0, 0, 0, 0.3);
             flex-direction: column;
         }
 
         .mobile-menu.active {
             display: flex;
-            padding-right: 117px;
+            {{ app()->getLocale() == 'ar' ? 'padding-right' : 'padding-left' }}: 20px;
         }
 
         .mobile-menu-header {
@@ -237,7 +281,7 @@
         .mobile-nav-list li a.active {
             background: #eaf5fb;
             color: var(--main-color);
-            padding-right: 25px;
+            {{ app()->getLocale() == 'ar' ? 'padding-right: 25px;' : 'padding-left: 25px;' }}
         }
 
         .mobile-menu-buttons {
@@ -325,10 +369,17 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
         }
 
+        /* Main Content Wrapper */
+        .main-content {
+            padding-top: 2rem;
+        }
+
         /* Breadcrumb */
         .breadcrumb-section {
             background: #eaf5fb;
-            padding: 2rem 3rem;
+            padding: 2rem clamp(2rem, 5vw, 5rem);
+            margin: 0 clamp(1rem, 3vw, 3rem);
+            border-radius: 12px;
         }
 
         .breadcrumb-nav {
@@ -343,6 +394,34 @@
 
         .breadcrumb-nav span {
             color: rgba(157, 164, 174, 1);
+        }
+
+        /* Hero Section for inner pages */
+        .hero-section {
+            background: #eaf5fb;
+            padding: 3rem clamp(2rem, 5vw, 5rem);
+            margin: 0;
+            margin-bottom: 4rem;
+            border-radius: 0;
+        }
+
+        .hero-section h2 {
+            margin-bottom: 1rem;
+            font-weight: bold;
+        }
+
+        .hero-section p {
+            line-height: 1.8;
+            color: rgba(56, 66, 80, 1);
+        }
+
+        .hero-section .breadcrumb-nav {
+            margin-bottom: 1.5rem;
+        }
+
+        /* Content Section */
+        .content-section {
+            padding: 2rem clamp(1rem, 3vw, 3rem);
         }
 
         /* Cards */
@@ -363,6 +442,113 @@
         .bi-shield-fill-check {
             font-size: 75px;
             color: var(--main-color);
+        }
+
+        /* Search Modal */
+        .search-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 10000;
+            justify-content: center;
+            align-items: flex-start;
+            padding-top: 100px;
+        }
+
+        .search-modal-overlay.active {
+            display: flex;
+        }
+
+        .search-modal {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .search-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .search-modal-header h4 {
+            margin: 0;
+            color: var(--main-color);
+        }
+
+        .close-search-btn {
+            width: 35px;
+            height: 35px;
+            border: none;
+            background: #f0f0f0;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .close-search-btn:hover {
+            background: var(--main-color);
+            color: white;
+        }
+
+        .search-input-wrapper {
+            position: relative;
+        }
+
+        .search-input-wrapper input {
+            width: 100%;
+            padding: 15px 50px 15px 20px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .search-input-wrapper input:focus {
+            border-color: var(--main-color);
+        }
+
+        .search-input-wrapper .search-submit-btn {
+            position: absolute;
+            {{ app()->getLocale() == 'ar' ? 'left' : 'right' }}: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--main-color);
+            color: white;
+            border: none;
+            width: 35px;
+            height: 35px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .search-input-wrapper .search-submit-btn:hover {
+            background: #005a87;
         }
 
         /* Courses Container */
@@ -497,8 +683,20 @@
 
         .footer-section a:hover {
             opacity: 1;
-            transform: translateX(-5px);
-            padding-right: 5px;
+            transform: translateX({{ app()->getLocale() == 'ar' ? '-5px' : '5px' }});
+            {{ app()->getLocale() == 'ar' ? 'padding-right' : 'padding-left' }}: 5px;
+        }
+
+        /* Language Switcher */
+        .lang-switcher {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .lang-switcher a {
+            color: inherit;
+            text-decoration: none;
         }
 
         .foot-foot {
@@ -577,6 +775,13 @@
                 max-width: 100px;
             }
 
+            /* Hero section mobile */
+            .hero-section {
+                margin: 0;
+                margin-bottom: 2rem;
+                padding: 2rem 1.5rem;
+            }
+
             .footer-store-buttons {
                 grid-template-columns: 1fr;
             }
@@ -584,7 +789,7 @@
             .foot-foot {
                 flex-direction: column;
                 align-items: flex-start;
-                text-align: right;
+                text-align: {{ app()->getLocale() == 'ar' ? 'right' : 'left' }};
             }
 
             .footer-meta {
@@ -645,7 +850,7 @@
         <!-- Container 1 -->
         <div class="container-fluid bg-gray d-flex justify-content-start gap-3 align-items-center top-bar">
             <img src="https://flagcdn.com/sa.svg" width="30" alt="Saudi Flag" />
-            <p class="top-text mb-0">موقع حكومي مسجل لدى هيئة الحكومة الرقمية</p>
+            <p class="top-text mb-0">{{ __('Official government site registered with the Digital Government Authority') }}</p>
         </div>
 
         <!-- Container 2 -->
@@ -653,7 +858,7 @@
             <div class="d-flex gap-4 info-section">
                 <div class="d-flex gap-1 align-items-center">
                     <i class="bi bi-cloud"></i>
-                    <p class="mb-0">غائم</p>
+                    <p class="mb-0">{{ __('Cloudy') }}</p>
                 </div>
                 <div class="d-flex gap-1 align-items-center">
                     <i class="bi bi-calendar"></i>
@@ -665,7 +870,7 @@
                 </div>
                 <div class="d-flex gap-1 align-items-center">
                     <i class="bi bi-geo-alt"></i>
-                    <p class="mb-0">الرياض</p>
+                    <p class="mb-0">{{ __('Riyadh') }}</p>
                 </div>
             </div>
 
@@ -691,43 +896,48 @@
             <div class="desktop-menu d-none d-lg-flex align-items-center justify-content-between flex-grow-1">
                 <ul class="navbar-nav d-flex flex-row mb-0">
                     <li class="nav-item">
-                        <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}">الرئيسية</a>
+                        <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}">{{ __('Home') }}</a>
                     </li>
                     <li class="nav-item">
-                        <a href="{{ route('training-paths') }}" class="{{ request()->routeIs('training-paths') ? 'active' : '' }}">مسارات التدريب</a>
+                        <a href="{{ route('training-paths') }}" class="{{ request()->routeIs('training-paths') ? 'active' : '' }}">{{ __('Training Paths') }}</a>
                     </li>
                     <li class="nav-item">
-                        <a href="{{ route('short-courses') }}" class="{{ request()->routeIs('short-courses') ? 'active' : '' }}">الدورات القصيرة</a>
+                        <a href="{{ route('short-courses') }}" class="{{ request()->routeIs('short-courses') ? 'active' : '' }}">{{ __('Short Courses') }}</a>
                     </li>
                     <li class="nav-item">
-                        <a href="{{ route('about') }}" class="{{ request()->routeIs('about') ? 'active' : '' }}">عن المعهد</a>
+                        <a href="{{ route('about') }}" class="{{ request()->routeIs('about') ? 'active' : '' }}">{{ __('About Us') }}</a>
                     </li>
                     <li class="nav-item">
-                        <a href="{{ route('news') }}" class="{{ request()->routeIs('news') ? 'active' : '' }}">الأخبار</a>
+                        <a href="{{ route('news') }}" class="{{ request()->routeIs('news') ? 'active' : '' }}">{{ __('News') }}</a>
                     </li>
                     <li class="nav-item">
-                        <a href="{{ route('faq') }}" class="{{ request()->routeIs('faq') ? 'active' : '' }}">الأسئلة الشائعة</a>
+                        <a href="{{ route('faq') }}" class="{{ request()->routeIs('faq') ? 'active' : '' }}">{{ __('FAQ') }}</a>
                     </li>
                     <li class="nav-item">
-                        <a href="{{ route('contact') }}" class="{{ request()->routeIs('contact') ? 'active' : '' }}">تواصل معنا</a>
+                        <a href="{{ route('contact') }}" class="{{ request()->routeIs('contact') ? 'active' : '' }}">{{ __('Contact Us') }}</a>
                     </li>
                 </ul>
 
                 <div class="d-flex gap-2">
-                    <button class="btn btn-outline" type="button">
-                        <i class="bi bi-search"></i> Search
+                    <button class="btn btn-outline" type="button" onclick="openSearchModal()">
+                        <i class="bi bi-search"></i> {{ __('Search') }}
                     </button>
-                    <button type="button" class="btn btn-outline">
-                        <i class="bi bi-translate"></i> English
-                    </button>
+                    <div class="btn btn-outline lang-switcher">
+                        <i class="bi bi-translate"></i>
+                        @if(app()->getLocale() == 'ar')
+                            <a href="{{ route('lang.switch', 'en') }}">English</a>
+                        @else
+                            <a href="{{ route('lang.switch', 'ar') }}">العربية</a>
+                        @endif
+                    </div>
                     @if (Route::has('login'))
                         @auth
                             <a href="{{ url('/dashboard') }}" class="btn btn-outline">
-                                <i class="bi bi-person"></i> لوحة التحكم
+                                <i class="bi bi-person"></i> {{ __('Dashboard') }}
                             </a>
                         @else
                             <a href="{{ route('login') }}" class="btn btn-outline">
-                                <i class="bi bi-person"></i> تسجيل الدخول
+                                <i class="bi bi-person"></i> {{ __('Login') }}
                             </a>
                         @endauth
                     @endif
@@ -750,29 +960,34 @@
             </button>
         </div>
         <ul class="mobile-nav-list">
-            <li><a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}">الرئيسية</a></li>
-            <li><a href="{{ route('training-paths') }}" class="{{ request()->routeIs('training-paths') ? 'active' : '' }}">مسارات التدريب</a></li>
-            <li><a href="{{ route('short-courses') }}" class="{{ request()->routeIs('short-courses') ? 'active' : '' }}">الدورات القصيرة</a></li>
-            <li><a href="{{ route('about') }}" class="{{ request()->routeIs('about') ? 'active' : '' }}">عن المعهد</a></li>
-            <li><a href="{{ route('news') }}" class="{{ request()->routeIs('news') ? 'active' : '' }}">الأخبار</a></li>
-            <li><a href="{{ route('faq') }}" class="{{ request()->routeIs('faq') ? 'active' : '' }}">الأسئلة الشائعة</a></li>
-            <li><a href="{{ route('contact') }}" class="{{ request()->routeIs('contact') ? 'active' : '' }}">تواصل معنا</a></li>
+            <li><a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}">{{ __('Home') }}</a></li>
+            <li><a href="{{ route('training-paths') }}" class="{{ request()->routeIs('training-paths') ? 'active' : '' }}">{{ __('Training Paths') }}</a></li>
+            <li><a href="{{ route('short-courses') }}" class="{{ request()->routeIs('short-courses') ? 'active' : '' }}">{{ __('Short Courses') }}</a></li>
+            <li><a href="{{ route('about') }}" class="{{ request()->routeIs('about') ? 'active' : '' }}">{{ __('About Us') }}</a></li>
+            <li><a href="{{ route('news') }}" class="{{ request()->routeIs('news') ? 'active' : '' }}">{{ __('News') }}</a></li>
+            <li><a href="{{ route('faq') }}" class="{{ request()->routeIs('faq') ? 'active' : '' }}">{{ __('FAQ') }}</a></li>
+            <li><a href="{{ route('contact') }}" class="{{ request()->routeIs('contact') ? 'active' : '' }}">{{ __('Contact Us') }}</a></li>
         </ul>
         <div class="mobile-menu-buttons">
-            <button class="btn btn-outline" type="button">
-                <i class="bi bi-search"></i> Search
+            <button class="btn btn-outline" type="button" onclick="openSearchModal(); closeMobileMenu();">
+                <i class="bi bi-search"></i> {{ __('Search') }}
             </button>
-            <button type="button" class="btn btn-outline">
-                <i class="bi bi-translate"></i> English
-            </button>
+            <div class="btn btn-outline lang-switcher">
+                <i class="bi bi-translate"></i>
+                @if(app()->getLocale() == 'ar')
+                    <a href="{{ route('lang.switch', 'en') }}">English</a>
+                @else
+                    <a href="{{ route('lang.switch', 'ar') }}">العربية</a>
+                @endif
+            </div>
             @if (Route::has('login'))
                 @auth
                     <a href="{{ url('/dashboard') }}" class="btn btn-outline">
-                        <i class="bi bi-person"></i> لوحة التحكم
+                        <i class="bi bi-person"></i> {{ __('Dashboard') }}
                     </a>
                 @else
                     <a href="{{ route('login') }}" class="btn btn-outline">
-                        <i class="bi bi-person"></i> تسجيل الدخول
+                        <i class="bi bi-person"></i> {{ __('Login') }}
                     </a>
                 @endauth
             @endif
@@ -782,19 +997,39 @@
     <!-- Main Content -->
     @yield('content')
 
+    <!-- Search Modal -->
+    <div class="search-modal-overlay" id="searchModalOverlay" onclick="closeSearchModal(event)">
+        <div class="search-modal" onclick="event.stopPropagation()">
+            <div class="search-modal-header">
+                <h4>{{ __('Search') }}</h4>
+                <button class="close-search-btn" type="button" onclick="closeSearchModal()">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+            <form action="#" method="GET" class="search-form">
+                <div class="search-input-wrapper">
+                    <input type="text" name="q" id="searchInput" placeholder="{{ __('Search for courses, paths, news...') }}" autocomplete="off" />
+                    <button type="submit" class="search-submit-btn">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Footer -->
     <footer class="p-5 foot container-fluid">
         <div class="head-top">
             <div class="footer-intro">
                 <img src="{{ asset('images/footlogooo.png') }}" alt="" />
-                <h2>معهد الارتقاء العالي للتدريب</h2>
+                <h2>{{ __('Al-Ertiqaa High Institute for Training') }}</h2>
                 <p class="intro-text">
-                    معهد تدريبي معتمد يقدّم برامج تطوير مهني ومسارات تعليمية تمتدّ لأكثر من 10 سنوات، نساعد الطلاب والمتدربين على اكتساب مهارات المستقبل، وتقديم برامج معتمدة تتماشى مع رؤية المملكة 2030، بإشراف نخبة من المدربين والخبراء لضمان جودة التدريب ومخرجاته.
+                    {{ __('An accredited training institute offering professional development programs and educational paths for over 10 years. We help students and trainees acquire future skills, providing accredited programs aligned with Saudi Vision 2030, supervised by elite trainers and experts to ensure training quality and outcomes.') }}
                 </p>
             </div>
             <div class="mobile-apps">
-                <p class="apps-title">تطبيقات الجوال</p>
-                <div class="footer-store-buttons" dir="ltr">
+                <p class="apps-title">{{ __('Mobile Apps') }}</p>
+                <div class="footer-store-buttons">
                     <a href="#" class="footer-store-btn">
                         <img src="{{ asset('images/huawei-appgallery-thumb.png') }}" style="width: 40px; border-radius: 10px" />
                         <div class="text">
@@ -827,44 +1062,44 @@
         <div class="foot-body">
             <div class="row">
                 <div class="col-lg-4 col-md-6 col-12 d-flex flex-column gap-3 footer-section">
-                    <h5>روابط مهمة</h5>
+                    <h5>{{ __('Important Links') }}</h5>
                     <hr />
-                    <a href="{{ route('home') }}">الرئيسية</a>
-                    <a href="{{ route('about') }}">عن المعهد</a>
-                    <a href="{{ route('training-paths') }}">مسارات التدريب</a>
-                    <a href="{{ route('short-courses') }}">الدورات القادمة</a>
-                    <a href="#">المدربين</a>
-                    <a href="{{ route('news') }}">الأخبار</a>
-                    <a href="{{ route('contact') }}">تواصل معنا</a>
+                    <a href="{{ route('home') }}">{{ __('Home') }}</a>
+                    <a href="{{ route('about') }}">{{ __('About Us') }}</a>
+                    <a href="{{ route('training-paths') }}">{{ __('Training Paths') }}</a>
+                    <a href="{{ route('short-courses') }}">{{ __('Upcoming Courses') }}</a>
+                    <a href="#">{{ __('Trainers') }}</a>
+                    <a href="{{ route('news') }}">{{ __('News') }}</a>
+                    <a href="{{ route('contact') }}">{{ __('Contact Us') }}</a>
                 </div>
                 <div class="col-lg-4 col-md-6 col-12 d-flex flex-column gap-3 footer-section">
-                    <h5>خدمات المعهد</h5>
+                    <h5>{{ __('Institute Services') }}</h5>
                     <hr />
-                    <a href="#">نظام التيرمات والبرامج المهنية</a>
-                    <a href="{{ route('short-courses') }}">الدورات القصيرة</a>
-                    <a href="#">التدريب عن بُعد</a>
-                    <a href="#">اعتماد الشهادات</a>
-                    <a href="#">تسجيل الطلاب</a>
-                    <a href="#">انضمام المدربين</a>
-                    <a href="#">الدعم الفني والمتابعة</a>
+                    <a href="#">{{ __('Term System and Professional Programs') }}</a>
+                    <a href="{{ route('short-courses') }}">{{ __('Short Courses') }}</a>
+                    <a href="#">{{ __('Remote Training') }}</a>
+                    <a href="#">{{ __('Certificate Accreditation') }}</a>
+                    <a href="#">{{ __('Student Registration') }}</a>
+                    <a href="#">{{ __('Trainer Enrollment') }}</a>
+                    <a href="#">{{ __('Technical Support and Follow-up') }}</a>
                 </div>
                 <div class="col-lg-4 col-md-12 col-12 d-flex flex-column gap-3 footer-section">
-                    <h5>معلومات التواصل</h5>
+                    <h5>{{ __('Contact Information') }}</h5>
                     <hr />
                     <a href="#">
-                        <div><i class="bi bi-telephone"></i> رقم الجوال</div>
+                        <div><i class="bi bi-telephone"></i> {{ __('Phone Number') }}</div>
                         <div>9200343222 <i class="bi bi-copy"></i></div>
                     </a>
                     <a href="#">
-                        <div><i class="bi bi-envelope"></i> البريد الإلكتروني</div>
+                        <div><i class="bi bi-envelope"></i> {{ __('Email') }}</div>
                         <div>help@company.sa <i class="bi bi-copy"></i></div>
                     </a>
                     <a href="#">
-                        <div><i class="bi bi-geo-alt-fill"></i> الموقع</div>
-                        <div>الرياض <i class="bi bi-link-45deg"></i></div>
+                        <div><i class="bi bi-geo-alt-fill"></i> {{ __('Location') }}</div>
+                        <div>{{ __('Riyadh') }} <i class="bi bi-link-45deg"></i></div>
                     </a>
                     <a href="#">
-                        <div>تابعنا على</div>
+                        <div>{{ __('Follow Us') }}</div>
                         <div class="d-flex gap-3">
                             <i class="bi bi-instagram"></i>
                             <i class="bi bi-linkedin"></i>
@@ -876,11 +1111,11 @@
         </div>
         <div class="foot-foot">
             <div class="copyright">
-                <p>معهد الارتقاء العالي للتدريب. جميع الحقوق محفوظة &copy; {{ date('Y') }}.</p>
+                <p>{{ __('Al-Ertiqaa High Institute for Training') }}. {{ __('All rights reserved') }} &copy; {{ date('Y') }}.</p>
             </div>
             <div class="footer-meta">
-                <p>تاريخ آخر تعديل: {{ date('d/m/Y') }}</p>
-                <p>تم تطويره وصيانته بواسطة الارتقاء</p>
+                <p>{{ __('Last modified') }}: {{ date('d/m/Y') }}</p>
+                <p>{{ __('Developed and maintained by Al-Ertiqaa') }}</p>
             </div>
         </div>
     </footer>
@@ -889,24 +1124,44 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
+        // Current locale
+        const currentLocale = '{{ app()->getLocale() }}';
+
         // Update date and time
         function updateDateTime() {
             const now = new Date();
-            const arabicMonths = [
-                "يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو",
-                "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"
-            ];
 
-            const day = now.getDate();
-            const month = arabicMonths[now.getMonth()];
-            const year = now.getFullYear();
-            document.getElementById('currentDate').textContent = `${day}-${month}-${year}`;
+            if (currentLocale === 'ar') {
+                const arabicMonths = [
+                    "يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو",
+                    "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"
+                ];
+                const day = now.getDate();
+                const month = arabicMonths[now.getMonth()];
+                const year = now.getFullYear();
+                document.getElementById('currentDate').textContent = `${day}-${month}-${year}`;
 
-            let hours = now.getHours();
-            const minutes = now.getMinutes().toString().padStart(2, '0');
-            const period = hours >= 12 ? 'مساءً' : 'صباحاً';
-            hours = hours % 12 || 12;
-            document.getElementById('currentTime').textContent = `${hours}:${minutes} ${period}`;
+                let hours = now.getHours();
+                const minutes = now.getMinutes().toString().padStart(2, '0');
+                const period = hours >= 12 ? 'مساءً' : 'صباحاً';
+                hours = hours % 12 || 12;
+                document.getElementById('currentTime').textContent = `${hours}:${minutes} ${period}`;
+            } else {
+                const months = [
+                    "January", "February", "March", "April", "May", "June",
+                    "July", "August", "September", "October", "November", "December"
+                ];
+                const day = now.getDate();
+                const month = months[now.getMonth()];
+                const year = now.getFullYear();
+                document.getElementById('currentDate').textContent = `${month} ${day}, ${year}`;
+
+                let hours = now.getHours();
+                const minutes = now.getMinutes().toString().padStart(2, '0');
+                const period = hours >= 12 ? 'PM' : 'AM';
+                hours = hours % 12 || 12;
+                document.getElementById('currentTime').textContent = `${hours}:${minutes} ${period}`;
+            }
         }
 
         updateDateTime();
@@ -934,8 +1189,26 @@
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 closeMobileMenu();
+                closeSearchModal();
             }
         });
+
+        // Search Modal Functions
+        function openSearchModal() {
+            const searchModal = document.getElementById('searchModalOverlay');
+            searchModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            setTimeout(() => {
+                document.getElementById('searchInput').focus();
+            }, 100);
+        }
+
+        function closeSearchModal(event) {
+            if (event && event.target !== event.currentTarget) return;
+            const searchModal = document.getElementById('searchModalOverlay');
+            searchModal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
     </script>
 
     @yield('scripts')

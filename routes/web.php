@@ -22,8 +22,35 @@ Route::get('/oauth/callback', function () {
 
 // Home route
 Route::get('/', function () {
-return view('welcome');
-});
+    return view('welcome');
+})->name('home');
+
+// Front pages routes
+Route::get('/training-paths', function () {
+    return view('front.training-paths');
+})->name('training-paths');
+
+Route::get('/short-courses', function () {
+    return view('front.short-courses');
+})->name('short-courses');
+
+Route::get('/about', function () {
+    return view('front.about');
+})->name('about');
+
+Route::get('/news', function () {
+    return view('front.news');
+})->name('news');
+
+Route::get('/faq', function () {
+    return view('front.faq');
+})->name('faq');
+
+Route::get('/contact', [\App\Http\Controllers\Front\ContactController::class, 'index'])->name('contact');
+Route::post('/contact', [\App\Http\Controllers\Front\ContactController::class, 'store'])->name('contact.store');
+
+// Language Switch Route
+Route::get('/lang/{locale}', [\App\Http\Controllers\LangController::class, 'switch'])->name('lang.switch');
 
 // Redirect authenticated users to their role-specific dashboard
 Route::get('/dashboard', function () {

@@ -1,83 +1,13 @@
 @extends('layouts.front')
 
-@section('title', 'مسارات التدريب - معهد الإرتقاء العالي للتدريب')
+@section('title', __('Training Paths') . ' - ' . __('Al-Ertiqaa High Institute for Training'))
 
 @section('styles')
 <style>
-    .hero-section {
-        background: #eaf5fb;
-        padding: 2rem 3rem;
-    }
-
-    .breadcrumb-nav {
-        display: flex;
-        gap: 0.5rem;
-        margin-bottom: 1rem;
-    }
-
-    .breadcrumb-nav a {
-        color: rgba(56, 66, 80, 1);
-    }
-
-    .breadcrumb-nav span {
-        color: rgba(157, 164, 174, 1);
-    }
-
-    .hero-section h2 {
-        margin-bottom: 1rem;
-        font-weight: bold;
-    }
-
-    .hero-section p {
-        line-height: 1.8;
-        color: rgba(56, 66, 80, 1);
-        max-width: 85%;
-    }
-
-    /* Choose Path Section */
-    .choose-path-section {
-        padding: 3rem;
-    }
-
-    .choose-path-section .row {
-        align-items: center;
-    }
-
-    .left-sec {
-        position: relative;
-        text-align: left;
-        padding: 0 80px;
-    }
-
-    .left-sec img {
-        width: 75%;
-        border-radius: 15px;
-    }
-
-    .abs-btn {
-        position: absolute;
-        top: 30px;
-        right: 10%;
-        transform: translateX(20%);
-        background-color: var(--main-color);
-        color: white;
-        padding: 7px 15px;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-    }
-
-    .img-abs {
-        position: absolute;
-        top: 60px;
-        right: 27%;
-        transform: translateX(60%);
-    }
-
-    /* Third Section - Statistics */
+    /* Statistics Section */
     .stats-section {
         background: var(--second-color);
-        padding: 3rem;
+        padding: 2rem clamp(3rem, 7vw, 7rem);
     }
 
     .stat-item {
@@ -98,7 +28,7 @@
 
     /* Courses Section */
     .courses-section {
-        padding: 3rem;
+        padding: 2rem clamp(3rem, 7vw, 7rem);
     }
 
     .courses-section .head {
@@ -169,7 +99,7 @@
     /* Mockup Section */
     .mockup-section {
         background: linear-gradient(135deg, #1d6b8f 0%, #0071aa 100%);
-        padding: 4rem 3rem;
+        padding: 3rem clamp(3rem, 7vw, 7rem);
         color: white;
     }
 
@@ -212,7 +142,7 @@
 
     /* FAQ Section */
     .faq-section {
-        padding: 3rem;
+        padding: 2rem clamp(3rem, 7vw, 7rem);
     }
 
     .faq-section .head {
@@ -268,16 +198,10 @@
     }
 
     @media (max-width: 768px) {
-        .hero-section,
-        .choose-path-section,
         .stats-section,
         .courses-section,
         .faq-section {
-            padding: 2rem 1rem;
-        }
-
-        .hero-section p {
-            max-width: 100%;
+            padding: 1.5rem 1rem;
         }
     }
 </style>
@@ -287,40 +211,14 @@
     <!-- Hero Section -->
     <section class="hero-section">
         <div class="breadcrumb-nav">
-            <a href="{{ route('home') }}">الرئيسية</a>
-            <span><</span>
-            <span>مسارات التدريب</span>
+            <a href="{{ route('home') }}">{{ __('Home') }}</a>
+            <span>></span>
+            <span>{{ __('Training Paths') }}</span>
         </div>
-        <h2>مسارات تدريبية تصنع مستقبلك المهني بثقة</h2>
+        <h2>{{ __('Training Paths That Build Your Professional Future with Confidence') }}</h2>
         <p>
-            نوفّر في معهدنا منظومة تدريبية متكاملة مبنية على احتياجات سوق العمل السعودي وفق رؤية 2030،
-            عبر مسارات تدريبية تمتد على مدى عامين ونصف (10 أرباع تدريبية)، تهيّئ المتدرب بخبرات عملية
-            وعلمية تجعل رحلته التعليمية واضحة، قوية، وموجهة نحو مهن المستقبل. سواء كنت تبحث عن تأسيس
-            قوي في تخصص جديد، أو تطوير مهارة مهنية متقدمة، ستجد في مساراتنا ما يفتح لك أبواب المستقبل بثبات.
+            {{ __('At our institute, we provide an integrated training system based on the needs of the Saudi labor market in accordance with Vision 2030, through training paths spanning two and a half years (10 training quarters), preparing trainees with practical and scientific expertise that makes their educational journey clear, strong, and directed towards future careers.') }}
         </p>
-    </section>
-
-    <!-- Choose Path Section -->
-    <section class="choose-path-section">
-        <div class="row">
-            <div class="col-lg-5">
-                <p class="st-p">التدريب الذي يلبي احتياجاتك</p>
-                <h1>اختر مسارك التدريبي نحو الاحتراف</h1>
-                <p class="nd-p">
-                    نقدّم لك مسارات تدريبية واضحة تمتد لعامين ونصف (10 أرباع)، مصممة لتطوير مهاراتك
-                    بشكل تدريجي ومتكامل. كل مسار يحتوي على دورات قصيرة وطويلة لتتناسب مع أهدافك المهنية.
-                </p>
-                <div class="d-flex gap-3">
-                    <button class="full-btn">استعرض المسارات</button>
-                    <button class="notfull-btn">سجل الآن</button>
-                </div>
-            </div>
-            <div class="col-lg-7 left-sec">
-                <img src="{{ asset('images/media22.png') }}" alt="Training" onerror="this.src='{{ asset('images/course.jpg') }}'" />
-                <button class="abs-btn">إبدأ التعلم الآن</button>
-                <img src="{{ asset('images/Figma Cursor.png') }}" class="img-abs" alt="" />
-            </div>
-        </div>
     </section>
 
     <!-- Statistics Section -->
@@ -328,19 +226,19 @@
         <div class="row text-center">
             <div class="col-6 col-md-3 stat-item">
                 <div class="stat-number">10+</div>
-                <div class="stat-label">مسارات تدريبية</div>
+                <div class="stat-label">{{ __('Training Paths') }}</div>
             </div>
             <div class="col-6 col-md-3 stat-item">
                 <div class="stat-number">50+</div>
-                <div class="stat-label">دورة تدريبية</div>
+                <div class="stat-label">{{ __('Training Courses') }}</div>
             </div>
             <div class="col-6 col-md-3 stat-item">
                 <div class="stat-number">1000+</div>
-                <div class="stat-label">متدرب</div>
+                <div class="stat-label">{{ __('Trainees') }}</div>
             </div>
             <div class="col-6 col-md-3 stat-item">
                 <div class="stat-number">95%</div>
-                <div class="stat-label">نسبة الرضا</div>
+                <div class="stat-label">{{ __('Satisfaction Rate') }}</div>
             </div>
         </div>
     </section>
@@ -348,11 +246,10 @@
     <!-- Training Programs Section -->
     <section class="courses-section">
         <div class="head">
-            <p class="st-p mx-auto">التدريب الذي يلبي احتياجاتك</p>
-            <h2>برامجنا التدريبية والمسارات المتخصصة</h2>
+            <p class="st-p mx-auto">{{ __('Training That Meets Your Needs') }}</p>
+            <h2>{{ __('Our Training Programs and Specialized Paths') }}</h2>
             <p>
-                مجموعة متنوِّعة من البرامج التدريبية المعتمدة المصمَّمة لتلبية احتياجات سوق العمل.
-                اختر مسارك التدريبي وابدأ رحلة احترافية مدعومة بخبراء معتمدين ومنهجيات حديثة.
+                {{ __('A diverse range of accredited training programs designed to meet labor market needs. Choose your training path and start a professional journey supported by certified experts and modern methodologies.') }}
             </p>
         </div>
 
@@ -361,31 +258,30 @@
             <div class="course-card">
                 <img src="{{ asset('images/course.jpg') }}" alt="Course" />
                 <div class="card-body">
-                    <h5 class="card-title">مسار تطوير تطبيقات الويب</h5>
-                    <p class="card-text">تعلم أساسيات وتقنيات تطوير تطبيقات الويب الحديثة باستخدام أحدث التقنيات.</p>
+                    <h5 class="card-title">{{ __('Web Development Path') }}</h5>
+                    <p class="card-text">{{ __('Learn the fundamentals and techniques of modern web application development using the latest technologies.') }}</p>
                     <div class="course-meta">
-                        <span><i class="bi bi-clock"></i> 10 أرباع</span>
-                        <span class="course-price">2500 ر.س</span>
+                        <span><i class="bi bi-clock"></i> 10 {{ __('Quarters') }}</span>
+                        <span class="course-price">2500 {{ __('SAR') }}</span>
                     </div>
-                    <button class="full-btn mt-3 w-100">عرض التفاصيل</button>
+                    <button class="full-btn mt-3 w-100">{{ __('View Details') }}</button>
                 </div>
             </div>
             @endfor
         </div>
 
         <div class="text-center mt-4">
-            <button class="notfull-btn">عرض جميع المسارات</button>
+            <button class="notfull-btn">{{ __('View All Paths') }}</button>
         </div>
     </section>
 
     <!-- Similar Paths Section -->
     <section class="courses-section" style="background: #f9fafb;">
         <div class="head">
-            <p class="st-p mx-auto">التدريب الذي يلبي احتياجاتك</p>
-            <h2>مسارات مشابهة</h2>
+            <p class="st-p mx-auto">{{ __('Training That Meets Your Needs') }}</p>
+            <h2>{{ __('Similar Paths') }}</h2>
             <p>
-                استكشف المزيد من المسارات التي تناسب اهتماماتك وتطلعاتك المهنية. كل مسار مصمم لتطوير
-                مهاراتك بشكل عملي ومتدرج، مع اعتماد رسمي وشهادات معترف بها.
+                {{ __('Explore more paths that suit your interests and professional aspirations. Each path is designed to develop your skills practically and progressively, with official accreditation and recognized certificates.') }}
             </p>
         </div>
 
@@ -394,20 +290,20 @@
             <div class="course-card">
                 <img src="{{ asset('images/course.jpg') }}" alt="Course" />
                 <div class="card-body">
-                    <h5 class="card-title">مسار الأمن السيبراني</h5>
-                    <p class="card-text">تعلم أساسيات وتقنيات الأمن السيبراني لحماية البيانات والأنظمة الرقمية.</p>
+                    <h5 class="card-title">{{ __('Cybersecurity Path') }}</h5>
+                    <p class="card-text">{{ __('Learn the fundamentals and techniques of cybersecurity to protect data and digital systems.') }}</p>
                     <div class="course-meta">
-                        <span><i class="bi bi-clock"></i> 10 أرباع</span>
-                        <span class="course-price">3000 ر.س</span>
+                        <span><i class="bi bi-clock"></i> 10 {{ __('Quarters') }}</span>
+                        <span class="course-price">3000 {{ __('SAR') }}</span>
                     </div>
-                    <button class="full-btn mt-3 w-100">عرض التفاصيل</button>
+                    <button class="full-btn mt-3 w-100">{{ __('View Details') }}</button>
                 </div>
             </div>
             @endfor
         </div>
 
         <div class="text-center mt-4">
-            <button class="notfull-btn">عرض جميع الأسئلة</button>
+            <button class="notfull-btn">{{ __('View All Questions') }}</button>
         </div>
     </section>
 
@@ -416,13 +312,12 @@
         <div class="row align-items-center">
             <div class="col-lg-6">
                 <div class="content">
-                    <p class="st-p" style="background: rgba(255,255,255,0.2); color: white;">التدريب الذي يلبي احتياجاتك</p>
-                    <h2>حمّل تطبيقنا الآن وابدأ رحلتك التعليمية</h2>
+                    <p class="st-p" style="background: rgba(255,255,255,0.2); color: white;">{{ __('Training That Meets Your Needs') }}</p>
+                    <h2>{{ __('Download Our App Now and Start Your Learning Journey') }}</h2>
                     <p>
-                        تطبيق المعهد يتيح لك الوصول السريع والمباشر لجميع المسارات والدورات التدريبية.
-                        تابع تقدمك، احصل على إشعارات المحاضرات، وتواصل مع المدربين بسهولة من أي مكان.
+                        {{ __('Our institute app provides you with quick and direct access to all training paths and courses. Track your progress, receive lecture notifications, and communicate with trainers easily from anywhere.') }}
                     </p>
-                    <div class="store-buttons">
+                    <div class="store-buttons" dir="ltr">
                         <a href="#" class="store-btn">
                             <i class="bi bi-apple" style="font-size: 24px;"></i>
                             <div>
@@ -449,20 +344,20 @@
     <!-- FAQ Section -->
     <section class="faq-section">
         <div class="head">
-            <p class="st-p">التدريب الذي يلبي احتياجاتك</p>
-            <h2>الأسئلة الشائعة المختصة بالمسارات</h2>
+            <p class="st-p">{{ __('Training That Meets Your Needs') }}</p>
+            <h2>{{ __('Frequently Asked Questions About Paths') }}</h2>
         </div>
 
         <div class="accordion" id="faqAccordion" style="max-width: 900px; margin: 0 auto;">
             <div class="accordion-item">
                 <h2 class="accordion-header">
                     <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
-                        هل يمكنني الانتقال من مسار إلى مسار؟
+                        {{ __('Can I switch from one path to another?') }}
                     </button>
                 </h2>
                 <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
                     <div class="accordion-body">
-                        نعم، وفق شروط أكاديمية محددة وبعد مراجعة الساعات التدريبية المنجزة.
+                        {{ __('Yes, you can switch between paths according to specific academic conditions and after reviewing the completed training hours and coordinating with the academic administration.') }}
                     </div>
                 </div>
             </div>
@@ -470,13 +365,12 @@
             <div class="accordion-item">
                 <h2 class="accordion-header">
                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
-                        ما هو نظام التيرمات؟
+                        {{ __('What is the term system?') }}
                     </button>
                 </h2>
                 <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
                     <div class="accordion-body">
-                        نظام التيرمات هو نظام تقسيم المسار التدريبي إلى فترات زمنية محددة (أرباع) تمتد كل منها لفترة معينة،
-                        مما يساعد على تنظيم العملية التدريبية وتقييم تقدم المتدرب بشكل دوري.
+                        {{ __('The term system is a system of dividing the training path into specific time periods (quarters), each lasting a certain period, which helps organize the training process and periodically evaluate the trainee\'s progress.') }}
                     </div>
                 </div>
             </div>
@@ -484,13 +378,12 @@
             <div class="accordion-item">
                 <h2 class="accordion-header">
                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
-                        ما طرق الدفع المتاحة؟
+                        {{ __('What payment methods are available?') }}
                     </button>
                 </h2>
                 <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
                     <div class="accordion-body">
-                        نوفر عدة طرق للدفع تشمل: البطاقات الائتمانية، مدى، التحويل البنكي، والدفع عند التسجيل.
-                        كما نوفر خيارات التقسيط للمسارات الطويلة.
+                        {{ __('We provide several payment methods including: credit cards, Mada, bank transfer, and payment upon registration. We also offer installment options for long paths.') }}
                     </div>
                 </div>
             </div>
@@ -498,13 +391,12 @@
             <div class="accordion-item">
                 <h2 class="accordion-header">
                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
-                        ماذا لو احتجت دعمًا تقنيًا؟
+                        {{ __('What if I need technical support?') }}
                     </button>
                 </h2>
                 <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
                     <div class="accordion-body">
-                        فريق الدعم الفني متاح على مدار الساعة للرد على استفساراتك وحل أي مشكلات تقنية قد تواجهها.
-                        يمكنك التواصل معنا عبر الهاتف أو البريد الإلكتروني أو نظام التذاكر.
+                        {{ __('The technical support team is available around the clock to answer your inquiries and solve any technical problems you may encounter. You can contact us via phone, email, or ticket system.') }}
                     </div>
                 </div>
             </div>

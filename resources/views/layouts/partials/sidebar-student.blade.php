@@ -3,13 +3,33 @@
     <a href="{{ route('student.dashboard') }}"
        class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('student.dashboard') ? 'menu-item-active' : 'menu-item-inactive' }}">
         <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M9.99999 1.66666C5.39999 1.66666 1.66666 5.39999 1.66666 9.99999C1.66666 14.6 5.39999 18.3333 9.99999 18.3333C14.6 18.3333 18.3333 14.6 18.3333 9.99999C18.3333 5.39999 14.6 1.66666 9.99999 1.66666ZM9.99999 16.6667C6.31666 16.6667 3.33332 13.6833 3.33332 9.99999C3.33332 6.31666 6.31666 3.33332 9.99999 3.33332C13.6833 3.33332 16.6667 6.31666 16.6667 9.99999C16.6667 13.6833 13.6833 16.6667 9.99999 16.6667Z" fill=""/>
+            <path d="M3.33333 3.33334H8.33333V10H3.33333V3.33334ZM11.6667 3.33334H16.6667V6.66667H11.6667V3.33334ZM11.6667 10H16.6667V16.6667H11.6667V10ZM3.33333 13.3333H8.33333V16.6667H3.33333V13.3333Z" fill=""/>
         </svg>
         <span>لوحة التحكم</span>
     </a>
 </li>
 
+<!-- دوراتي -->
+<li>
+    <a href="{{ route('student.schedule') }}"
+       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('student.subjects.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
+        <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M16.6667 2.5H3.33333C2.41667 2.5 1.66667 3.25 1.66667 4.16667V15.8333C1.66667 16.75 2.41667 17.5 3.33333 17.5H16.6667C17.5833 17.5 18.3333 16.75 18.3333 15.8333V4.16667C18.3333 3.25 17.5833 2.5 16.6667 2.5ZM16.6667 15.8333H3.33333V4.16667H16.6667V15.8333ZM5 6.66667H10V11.6667H5V6.66667ZM11.6667 6.66667H15V8.33333H11.6667V6.66667ZM11.6667 9.16667H15V10.8333H11.6667V9.16667ZM5 13.3333H15V15H5V13.3333Z" fill=""/>
+        </svg>
+        <span>دوراتي</span>
+    </a>
+</li>
 
+<!-- المدفوعات -->
+<li>
+    <a href="#"
+       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('student.payments.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
+        <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M17.5 4.16667H2.5C1.57953 4.16667 0.833334 4.91286 0.833334 5.83333V14.1667C0.833334 15.0871 1.57953 15.8333 2.5 15.8333H17.5C18.4205 15.8333 19.1667 15.0871 19.1667 14.1667V5.83333C19.1667 4.91286 18.4205 4.16667 17.5 4.16667ZM17.5 14.1667H2.5V10H17.5V14.1667ZM17.5 7.5H2.5V5.83333H17.5V7.5Z" fill=""/>
+        </svg>
+        <span>المدفوعات</span>
+    </a>
+</li>
 
 <!-- الجدول الدراسي -->
 <li>
@@ -22,46 +42,46 @@
     </a>
 </li>
 
-<!-- الواجبات -->
+<!-- الإعلانات -->
 <li>
-    <a href="{{ route('student.assignments.index') }}"
-       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('student.assignments.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
+    <a href="#"
+       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('student.announcements.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
         <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M17.5 3.75H2.5C1.57953 3.75 0.833333 4.49619 0.833333 5.41667V14.5833C0.833333 15.5038 1.57953 16.25 2.5 16.25H17.5C18.4205 16.25 19.1667 15.5038 19.1667 14.5833V5.41667C19.1667 4.49619 18.4205 3.75 17.5 3.75Z" fill=""/>
+            <path d="M17.5 2.5H2.5C1.57953 2.5 0.833334 3.24619 0.833334 4.16667V15.8333C0.833334 16.7538 1.57953 17.5 2.5 17.5H17.5C18.4205 17.5 19.1667 16.7538 19.1667 15.8333V4.16667C19.1667 3.24619 18.4205 2.5 17.5 2.5ZM17.5 15.8333H2.5V6.66667L10 10.8333L17.5 6.66667V15.8333ZM10 9.16667L2.5 5V4.16667H17.5V5L10 9.16667Z" fill=""/>
         </svg>
-        <span>الواجبات</span>
+        <span>الإعلانات</span>
     </a>
 </li>
 
-<!-- الدرجات -->
+<!-- التقييم والشهادات -->
 <li>
     <a href="{{ route('student.grades.index') }}"
-       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('student.grades.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
+       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('student.grades.*') || request()->routeIs('student.certificates.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
         <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M2.5 16.25H17.5C17.9583 16.25 18.3333 16.625 18.3333 17.0833C18.3333 17.5417 17.9583 17.9167 17.5 17.9167H2.5C2.04167 17.9167 1.66667 17.5417 1.66667 17.0833C1.66667 16.625 2.04167 16.25 2.5 16.25Z" fill=""/>
+            <path d="M10 1.66667L2.5 5.83333V9.16667C2.5 13.7917 5.7 18.1167 10 19.1667C14.3 18.1167 17.5 13.7917 17.5 9.16667V5.83333L10 1.66667ZM15.8333 9.16667C15.8333 12.9 13.3333 16.3333 10 17.4167C6.66667 16.3333 4.16667 12.9 4.16667 9.16667V6.75L10 3.58333L15.8333 6.75V9.16667ZM6.175 10L5 11.175L8.33333 14.5L15 7.83333L13.825 6.65833L8.33333 12.15L6.175 10Z" fill=""/>
         </svg>
-        <span>الدرجات</span>
+        <span>التقييم والشهادات</span>
     </a>
 </li>
 
-<!-- الحضور -->
+<!-- الدعم والمساعدة -->
 <li>
-    <a href="{{ route('student.attendance.index') }}"
-       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('student.attendance.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
+    <a href=""
+       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('tickets.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
         <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M10 0.833336C4.93333 0.833336 0.833333 4.93334 0.833333 10C0.833333 15.0667 4.93333 19.1667 10 19.1667C15.0667 19.1667 19.1667 15.0667 19.1667 10C19.1667 4.93334 15.0667 0.833336 10 0.833336ZM13.6167 12.85L9.16667 10.1667V5H10.8333V9.28334L14.5667 11.5167L13.6167 12.85Z" fill=""/>
+            <path d="M10 0.833336C4.94167 0.833336 0.833336 4.94167 0.833336 10C0.833336 15.0583 4.94167 19.1667 10 19.1667C15.0583 19.1667 19.1667 15.0583 19.1667 10C19.1667 4.94167 15.0583 0.833336 10 0.833336ZM10.8333 15.8333H9.16667V14.1667H10.8333V15.8333ZM10.8333 12.5H9.16667C9.16667 9.375 12.5 9.58333 12.5 7.5C12.5 6.11667 11.3833 5 10 5C8.61667 5 7.5 6.11667 7.5 7.5H5.83333C5.83333 5.19167 7.69167 3.33333 10 3.33333C12.3083 3.33333 14.1667 5.19167 14.1667 7.5C14.1667 10.4167 10.8333 10.625 10.8333 12.5Z" fill=""/>
         </svg>
-        <span>الحضور</span>
+        <span>الدعم والمساعدة</span>
     </a>
 </li>
 
-<!-- الملف الشخصي -->
+<!-- الإعدادات -->
 <li>
     <a href="{{ route('student.profile') }}"
-       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('student.profile') ? 'menu-item-active' : 'menu-item-inactive' }}">
+       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('student.profile') || request()->routeIs('student.settings.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
         <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M10.0002 0.625C4.8405 0.625 0.625195 4.84031 0.625195 10.0109C0.625195 15.1706 4.8405 19.3859 10.0002 19.3859C15.1599 19.3859 19.3752 15.1706 19.3752 10.0109C19.3752 4.84031 15.1599 0.625 10.0002 0.625ZM10.0002 4.375C11.6455 4.375 12.9689 5.69844 12.9689 7.34375C12.9689 8.98906 11.6455 10.3125 10.0002 10.3125C8.35488 10.3125 7.03145 8.98906 7.03145 7.34375C7.03145 5.69844 8.35488 4.375 10.0002 4.375ZM10.0002 17.1875C8.11426 17.1875 6.39551 16.4219 5.11738 15.1875C5.43488 13.8641 8.0405 13.125 10.0002 13.125C11.9599 13.125 14.5655 13.8641 14.883 15.1875C13.6049 16.4219 11.8861 17.1875 10.0002 17.1875Z" fill=""/>
+            <path d="M17.1417 10.9417C17.175 10.6333 17.2 10.325 17.2 10C17.2 9.675 17.175 9.36667 17.1417 9.05833L19.15 7.48333C19.3333 7.34167 19.3833 7.075 19.2667 6.86667L17.3667 3.63333C17.2417 3.40833 16.9833 3.325 16.7583 3.40833L14.4 4.36667C13.8917 3.98333 13.35 3.65833 12.7583 3.40833L12.4 0.891667C12.3667 0.65 12.1583 0.5 11.9167 0.5H8.08333C7.84167 0.5 7.63333 0.65 7.6 0.891667L7.24167 3.40833C6.65 3.65833 6.10833 3.99167 5.6 4.36667L3.24167 3.40833C3.01667 3.31667 2.75833 3.40833 2.63333 3.63333L0.733333 6.86667C0.608333 7.08333 0.666667 7.34167 0.85 7.48333L2.85833 9.05833C2.825 9.36667 2.8 9.68333 2.8 10C2.8 10.3167 2.825 10.6333 2.85833 10.9417L0.85 12.5167C0.666667 12.6583 0.616667 12.925 0.733333 13.1333L2.63333 16.3667C2.75833 16.5917 3.01667 16.675 3.24167 16.5917L5.6 15.6333C6.10833 16.0167 6.65 16.3417 7.24167 16.5917L7.6 19.1083C7.63333 19.35 7.84167 19.5 8.08333 19.5H11.9167C12.1583 19.5 12.3667 19.35 12.4 19.1083L12.7583 16.5917C13.35 16.3417 13.8917 16.0083 14.4 15.6333L16.7583 16.5917C16.9833 16.6833 17.2417 16.5917 17.3667 16.3667L19.2667 13.1333C19.3917 12.9083 19.3333 12.6583 19.15 12.5167L17.1417 10.9417ZM10 13.5C8.06667 13.5 6.5 11.9333 6.5 10C6.5 8.06667 8.06667 6.5 10 6.5C11.9333 6.5 13.5 8.06667 13.5 10C13.5 11.9333 11.9333 13.5 10 13.5Z" fill=""/>
         </svg>
-        <span>الملف الشخصي</span>
+        <span>الإعدادات</span>
     </a>
 </li>

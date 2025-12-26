@@ -1,467 +1,276 @@
 @extends('layouts.dashboard')
 
-@section('title', 'لوحة الطالب')
+@section('title', 'لوحة تحكم الطالب')
 
 @section('content')
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Left Column - Profile & Payments -->
+    <div class="lg:col-span-1 space-y-6">
+        <!-- Student Profile Card -->
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm overflow-hidden">
+            <!-- Profile Header -->
+            <div class="bg-gradient-to-l from-cyan-400 to-cyan-500 p-6 text-center relative">
+                <!-- Print Button -->
+                <button class="absolute top-4 left-4 w-10 h-10 bg-white/20 hover:bg-white/30 rounded-lg flex items-center justify-center text-white transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+                    </svg>
+                </button>
 
-<div class="container mx-auto px-4 py-6 max-w-7xl">
+                <!-- Avatar -->
+                <div class="relative inline-block">
+                    <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}&background=0D6FA6&color=fff&size=120"
+                         alt="{{ auth()->user()->name }}"
+                         class="w-24 h-24 rounded-full border-4 border-white shadow-lg mx-auto" />
+                    <span class="absolute bottom-1 right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></span>
+                </div>
 
-    <div class="mb-6">
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">مرحباً {{ auth()->user()->name }}</h1>
-        <p class="text-gray-600 dark:text-gray-400 mt-1">لوحة تحكم الطالب - معايير NELC</p>
-    </div>
+                <!-- Name -->
+                <h2 class="text-xl font-bold text-white mt-4">{{ auth()->user()->name }}</h2>
+            </div>
 
-    <!-- Live Sessions Alert -->
-    @if($liveSessions->count() > 0)
-    <div class="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 p-6 mb-6 rounded-lg">
-        <div class="flex items-center">
-            <div class="flex-shrink-0">
-                <svg class="h-8 w-8 text-red-500 animate-pulse" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/>
+            <!-- Profile Info -->
+            <div class="p-5 space-y-4">
+                <div class="flex items-center gap-3 text-gray-600 dark:text-gray-300">
+                    <div class="w-8 h-8 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
+                        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <span class="text-sm text-gray-500 dark:text-gray-400">رقم الهوية</span>
+                        <p class="font-medium">{{ auth()->user()->national_id ?? '1023456789' }}</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3 text-gray-600 dark:text-gray-300">
+                    <div class="w-8 h-8 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
+                        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <span class="text-sm text-gray-500 dark:text-gray-400">تاريخ الالتحاق</span>
+                        <p class="font-medium">{{ auth()->user()->created_at->format('d') }} {{ __('سبتمبر') }} {{ auth()->user()->created_at->format('Y') }}</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3 text-gray-600 dark:text-gray-300">
+                    <div class="w-8 h-8 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
+                        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <span class="text-sm text-gray-500 dark:text-gray-400">البريد الإلكتروني</span>
+                        <p class="font-medium">{{ auth()->user()->email ?? '15 فبراير 2026' }}</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3 text-gray-600 dark:text-gray-300">
+                    <div class="w-8 h-8 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
+                        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <span class="text-sm text-gray-500 dark:text-gray-400">رقم الجوال</span>
+                        <p class="font-medium">{{ auth()->user()->phone ?? 'ST-2025-145' }}</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3 text-gray-600 dark:text-gray-300">
+                    <div class="w-8 h-8 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
+                        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <span class="text-sm text-gray-500 dark:text-gray-400">الجروب المنضم له</span>
+                        <p class="font-medium">{{ auth()->user()->group ?? 'التصميم الرقمي - G2' }}</p>
+                    </div>
+                </div>
+
+                <!-- Quarter End Date -->
+                <div class="mt-4 p-3 bg-cyan-50 dark:bg-cyan-900/20 rounded-xl border border-cyan-200 dark:border-cyan-800">
+                    <p class="text-sm text-cyan-700 dark:text-cyan-300 font-medium">
+                        انتهاء الربع الدراسي الحالي: <span class="font-bold">25 ديسمبر 2025</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payments Card -->
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-12 h-12 bg-cyan-100 dark:bg-cyan-900/30 rounded-xl flex items-center justify-center">
+                    <svg class="w-6 h-6 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white">المدفوعات</h3>
+            </div>
+
+            <div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl p-4 mb-4">
+                <p class="text-sm text-yellow-800 dark:text-yellow-300">
+                    لديك دفعة مستحقة بمبلغ <span class="font-bold">1,500 ريال</span>، آخر موعد للسداد: <span class="font-bold">20 أكتوبر 2025</span>
+                </p>
+            </div>
+
+            <div class="space-y-3">
+                <div class="flex items-center gap-3 text-gray-600 dark:text-gray-300">
+                    <div class="w-8 h-8 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
+                        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                        </svg>
+                    </div>
+                    <div class="flex-1">
+                        <span class="text-sm text-gray-500 dark:text-gray-400">خطة الدفع</span>
+                    </div>
+                    <span class="font-medium text-gray-900 dark:text-white">ربع سنوية</span>
+                </div>
+
+                <div class="flex items-center gap-3 text-gray-600 dark:text-gray-300">
+                    <div class="w-8 h-8 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
+                        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
+                        </svg>
+                    </div>
+                    <div class="flex-1">
+                        <span class="text-sm text-gray-500 dark:text-gray-400">طريقة السداد</span>
+                    </div>
+                    <span class="font-medium text-gray-900 dark:text-white">تحويل بنكي</span>
+                </div>
+            </div>
+
+            <button class="w-full mt-4 bg-cyan-500 hover:bg-cyan-600 text-white font-medium py-3 px-4 rounded-xl transition flex items-center justify-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
                 </svg>
-            </div>
-            <div class="mr-3 flex-1">
-                <h3 class="text-lg font-bold text-red-800 dark:text-red-300">جلسة مباشرة الآن!</h3>
-                <div class="mt-2 space-y-2">
-                    @foreach($liveSessions as $session)
-                    <div class="flex items-center justify-between bg-white dark:bg-gray-800 rounded p-3">
-                        <div>
-                            <div class="font-medium text-gray-900 dark:text-white">{{ $session->title }}</div>
-                            <div class="text-sm text-gray-600 dark:text-gray-400">{{ $session->subject->name }}</div>
-                        </div>
-                        <a href="{{ route('admin.sessions.show', $session->id) }}"
-                           class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium">
-                            انضم الآن
-                        </a>
-                    </div>
-                    @endforeach
-                </div>
-            </div>
-        </div>
-    </div>
-    @endif
-
-    <!-- Progress Card -->
-    <div class="bg-gradient-to-r from-green-600 to-green-800 rounded-lg shadow-lg p-6 mb-6 text-white">
-        <div class="flex items-center justify-between flex-wrap gap-4">
-            <div>
-                <h2 class="text-xl font-bold">تقدمك الأكاديمي</h2>
-                <p class="text-green-100 text-sm">معيار NELC 2.2.5 - تتبع التقدم</p>
-            </div>
-            <div class="text-center">
-                <div class="text-4xl font-bold">{{ $stats['overall_progress'] ?? 0 }}%</div>
-                <div class="text-sm text-green-100">نسبة الإكمال</div>
-            </div>
-        </div>
-
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
-            <div class="bg-white/10 rounded-lg p-3 text-center">
-                <div class="text-lg font-bold">{{ $stats['attendance_rate'] ?? 0 }}%</div>
-                <div class="text-xs text-green-100">معدل الحضور</div>
-            </div>
-            <div class="bg-white/10 rounded-lg p-3 text-center">
-                <div class="text-lg font-bold">{{ $stats['completed_sessions'] ?? 0 }}</div>
-                <div class="text-xs text-green-100">جلسات مكتملة</div>
-            </div>
-            <div class="bg-white/10 rounded-lg p-3 text-center">
-                <div class="text-lg font-bold">{{ $stats['average_grade'] ?? 'N/A' }}</div>
-                <div class="text-xs text-green-100">متوسط الدرجات</div>
-            </div>
-            <div class="bg-white/10 rounded-lg p-3 text-center">
-                <div class="text-lg font-bold">{{ $stats['pending_tasks'] ?? 0 }}</div>
-                <div class="text-xs text-green-100">مهام معلقة</div>
-            </div>
+                إرفاق وصل التحويل
+            </button>
         </div>
     </div>
 
-    <!-- Statistics -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-gray-600 dark:text-gray-400 text-sm">موادي</p>
-                    <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1">{{ $stats['subjects_count'] }}</p>
-                </div>
-                <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
-                    <svg class="w-6 h-6 text-blue-600 dark:text-blue-300" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"/>
+    <!-- Right Column - Schedule & Notifications -->
+    <div class="lg:col-span-2 space-y-6">
+        <!-- This Week's Schedule -->
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm">
+            <div class="p-5 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white">جدول هذا الأسبوع</h3>
+                <a href="{{ route('student.schedule') }}" class="text-cyan-600 hover:text-cyan-700 text-sm font-medium flex items-center gap-1">
+                    عرض الحضور الكامل
+                    <svg class="w-4 h-4 rtl:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                     </svg>
-                </div>
-            </div>
-        </div>
-
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-gray-600 dark:text-gray-400 text-sm">إجمالي الجلسات</p>
-                    <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1">{{ $stats['total_sessions'] }}</p>
-                </div>
-                <div class="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center">
-                    <svg class="w-6 h-6 text-green-600 dark:text-green-300" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zm12.553 1.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z"/>
-                    </svg>
-                </div>
-            </div>
-        </div>
-
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-gray-600 dark:text-gray-400 text-sm">جلسات مكتملة</p>
-                    <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1">{{ $stats['completed_sessions'] }}</p>
-                </div>
-                <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center">
-                    <svg class="w-6 h-6 text-purple-600 dark:text-purple-300" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                    </svg>
-                </div>
-            </div>
-        </div>
-
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-gray-600 dark:text-gray-400 text-sm">مباشر الآن</p>
-                    <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1">{{ $stats['live_sessions'] }}</p>
-                </div>
-                <div class="w-12 h-12 bg-red-100 dark:bg-red-900 rounded-lg flex items-center justify-center">
-                    <svg class="w-6 h-6 text-red-600 dark:text-red-300" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/>
-                    </svg>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Charts Row -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <!-- Progress Chart -->
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">تقدم المواد</h3>
-            <div style="height: 250px;">
-                <canvas id="progressChart"></canvas>
-            </div>
-        </div>
-
-        <!-- Attendance Chart -->
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">سجل الحضور (NELC 1.2.5)</h3>
-            <div style="height: 250px;">
-                <canvas id="attendanceChart"></canvas>
-            </div>
-        </div>
-    </div>
-
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- My Subjects -->
-        <div class="lg:col-span-2">
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
-                <div class="p-6 border-b dark:border-gray-700 flex items-center justify-between">
-                    <h2 class="text-lg font-bold text-gray-900 dark:text-white">موادي الدراسية</h2>
-                    <a href="{{ route('student.schedule') }}" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                        عرض الجدول
-                    </a>
-                </div>
-                <div class="p-6">
-                    @if($subjects->count() > 0)
-                        <div class="space-y-4">
-                            @foreach($subjects as $subject)
-                            <div class="border dark:border-gray-700 rounded-lg p-4 hover:border-blue-500 transition">
-                                <div class="flex items-center justify-between flex-wrap gap-4">
-                                    <div class="flex-1">
-                                        <div class="flex items-center gap-2">
-                                            <h3 class="font-bold text-gray-900 dark:text-white">{{ $subject->name }}</h3>
-                                            @if($subject->prerequisites_description)
-                                            <span class="text-xs px-2 py-1 bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300 rounded">متطلبات</span>
-                                            @endif
-                                        </div>
-                                        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                                            {{ $subject->term->program->name ?? '' }} - {{ $subject->term->name ?? '' }}
-                                        </p>
-                                        <div class="flex items-center gap-4 mt-2 text-sm text-gray-600 dark:text-gray-400">
-                                            <span>المعلم: {{ $subject->teacher->name ?? 'غير محدد' }}</span>
-                                            <span>{{ $subject->sessions_count }} جلسة</span>
-                                        </div>
-                                        <!-- Progress Bar -->
-                                        <div class="mt-3">
-                                            <div class="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mb-1">
-                                                <span>التقدم</span>
-                                                <span>{{ $subject->pivot->progress ?? 0 }}%</span>
-                                            </div>
-                                            <div class="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700">
-                                                <div class="bg-green-600 h-2 rounded-full" style="width: {{ $subject->pivot->progress ?? 0 }}%"></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="flex flex-col items-end gap-2">
-                                        <a href="{{ route('student.subjects.show', $subject->id) }}"
-                                           class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm whitespace-nowrap">
-                                            عرض التفاصيل
-                                        </a>
-                                        @if(isset($canRateTeacher[$subject->id]) && $canRateTeacher[$subject->id])
-                                        <a href="{{ route('teacher-ratings.create', ['subject' => $subject->id]) }}"
-                                           class="text-xs text-purple-600 hover:text-purple-800 dark:text-purple-400">
-                                            تقييم المدرب
-                                        </a>
-                                        @endif
-                                    </div>
-                                </div>
-                            </div>
-                            @endforeach
-                        </div>
-                    @else
-                        <div class="text-center py-12">
-                            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-                            </svg>
-                            <p class="mt-4 text-gray-600 dark:text-gray-400">لم يتم تسجيلك في أي مواد حتى الآن</p>
-                        </div>
-                    @endif
-                </div>
+                </a>
             </div>
 
-            <!-- Pending Tasks & Evaluations -->
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow mt-6">
-                <div class="p-6 border-b dark:border-gray-700">
-                    <h2 class="text-lg font-bold text-gray-900 dark:text-white">المهام والتقييمات المعلقة</h2>
-                </div>
-                <div class="p-6">
-                    @if(isset($pendingEvaluations) && $pendingEvaluations->count() > 0)
-                        <div class="space-y-3">
-                            @foreach($pendingEvaluations as $evaluation)
-                            <div class="flex items-center justify-between p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
-                                <div>
-                                    <div class="font-medium text-gray-900 dark:text-white">{{ $evaluation->title }}</div>
-                                    <div class="text-sm text-gray-600 dark:text-gray-400">{{ $evaluation->subject->name ?? '' }}</div>
-                                    <div class="text-xs text-yellow-600 dark:text-yellow-400 mt-1">
-                                        الموعد النهائي: {{ $evaluation->due_date ? $evaluation->due_date->format('Y/m/d') : 'غير محدد' }}
-                                    </div>
-                                </div>
-                                <span class="text-xs px-2 py-1 bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300 rounded">
-                                    {{ $evaluation->type === 'assignment' ? 'واجب' : ($evaluation->type === 'quiz' ? 'اختبار' : 'مهمة') }}
-                                </span>
-                            </div>
-                            @endforeach
-                        </div>
-                    @else
-                        <p class="text-gray-600 dark:text-gray-400 text-center py-4">لا توجد مهام معلقة</p>
-                    @endif
-                </div>
-            </div>
-        </div>
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50 dark:bg-gray-700/50">
+                        <tr>
+                            <th class="px-5 py-3 text-right text-sm font-semibold text-gray-600 dark:text-gray-300">اليوم</th>
+                            <th class="px-5 py-3 text-right text-sm font-semibold text-gray-600 dark:text-gray-300">المادة / الدورة</th>
+                            <th class="px-5 py-3 text-right text-sm font-semibold text-gray-600 dark:text-gray-300">نوع الجلسة</th>
+                            <th class="px-5 py-3 text-right text-sm font-semibold text-gray-600 dark:text-gray-300">الحالة</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+                        @php
+                        $scheduleData = [
+                            ['day' => 'الأحد', 'subject' => 'إدارة الأعمال', 'type' => 'حضوري', 'status' => 'attended'],
+                            ['day' => 'الاثنين', 'subject' => 'مهارات Excel للمحاسبين', 'type' => 'أونلاين', 'status' => 'pending'],
+                            ['day' => 'الثلاثاء', 'subject' => 'مراجعة الفيديوهات المسجلة', 'type' => 'مسجّلة', 'status' => 'watch'],
+                            ['day' => 'الأربعاء', 'subject' => 'محاسبة مالية 2', 'type' => 'مسجّلة', 'status' => 'absent'],
+                            ['day' => 'الخميس', 'subject' => 'مبادئ الاقتصاد', 'type' => 'أونلاين', 'status' => 'rating'],
+                        ];
+                        @endphp
 
-        <!-- Sidebar -->
-        <div>
-            <!-- Upcoming Sessions -->
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
-                <div class="p-6 border-b dark:border-gray-700">
-                    <h2 class="text-lg font-bold text-gray-900 dark:text-white">الجلسات القادمة</h2>
-                </div>
-                <div class="p-6">
-                    @if($upcomingSessions->count() > 0)
-                        <div class="space-y-4">
-                            @foreach($upcomingSessions as $session)
-                            <div class="border-r-4 border-blue-500 pr-4 py-2">
-                                <div class="font-medium text-gray-900 dark:text-white text-sm">{{ $session->title }}</div>
-                                <div class="text-xs text-gray-600 dark:text-gray-400 mt-1">{{ $session->subject->name }}</div>
-                                <div class="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-500 mt-1">
-                                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
-                                    </svg>
-                                    {{ \Carbon\Carbon::parse($session->scheduled_at)->format('Y-m-d H:i') }}
-                                </div>
-                                <div class="text-xs text-gray-500 dark:text-gray-500 mt-1">
-                                    {{ \Carbon\Carbon::parse($session->scheduled_at)->diffForHumans() }}
-                                </div>
-                            </div>
-                            @endforeach
-                        </div>
-                    @else
-                        <div class="text-center py-8">
-                            <svg class="mx-auto h-10 w-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                            </svg>
-                            <p class="mt-2 text-gray-600 dark:text-gray-400 text-sm">لا توجد جلسات قادمة</p>
-                        </div>
-                    @endif
-                </div>
-            </div>
-
-            <!-- Support Tickets (NELC 1.3.3) -->
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow mt-6">
-                <div class="p-6 border-b dark:border-gray-700">
-                    <div class="flex items-center justify-between">
-                        <h2 class="text-lg font-bold text-gray-900 dark:text-white">الدعم الفني</h2>
-                        <span class="text-xs px-2 py-1 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300 rounded">NELC 1.3.3</span>
-                    </div>
-                </div>
-                <div class="p-6">
-                    <div class="text-center mb-4">
-                        <a href="{{ route('tickets.create') }}" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">
-                            <svg class="w-4 h-4 ml-2" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/>
-                            </svg>
-                            طلب مساعدة
-                        </a>
-                    </div>
-                    @if(isset($myTickets) && $myTickets->count() > 0)
-                        <div class="space-y-3">
-                            @foreach($myTickets as $ticket)
-                            <a href="{{ route('tickets.show', $ticket->id) }}" class="block p-3 bg-gray-50 dark:bg-gray-700 rounded hover:bg-gray-100 dark:hover:bg-gray-600">
-                                <div class="flex items-center justify-between">
-                                    <div class="text-sm font-medium text-gray-900 dark:text-white">{{ Str::limit($ticket->subject, 20) }}</div>
-                                    <span class="text-xs px-2 py-1 rounded bg-{{ $ticket->getStatusColor() }}-100 text-{{ $ticket->getStatusColor() }}-800 dark:bg-{{ $ticket->getStatusColor() }}-900 dark:text-{{ $ticket->getStatusColor() }}-300">
-                                        {{ $ticket->getStatusLabel() }}
+                        @foreach($scheduleData as $item)
+                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition">
+                            <td class="px-5 py-4 text-sm font-medium text-gray-900 dark:text-white">{{ $item['day'] }}</td>
+                            <td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-300">{{ $item['subject'] }}</td>
+                            <td class="px-5 py-4">
+                                <span class="text-sm text-gray-600 dark:text-gray-300">{{ $item['type'] }}</span>
+                            </td>
+                            <td class="px-5 py-4">
+                                @if($item['status'] === 'attended')
+                                    <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
+                                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                        </svg>
+                                        تم الحضور
                                     </span>
-                                </div>
-                                <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ $ticket->created_at->diffForHumans() }}</div>
-                            </a>
-                            @endforeach
-                        </div>
-                    @else
-                        <p class="text-gray-600 dark:text-gray-400 text-center py-4 text-sm">لا توجد تذاكر سابقة</p>
-                    @endif
-                </div>
-            </div>
-
-            <!-- Pending Surveys (NELC 1.2.11) -->
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow mt-6">
-                <div class="p-6 border-b dark:border-gray-700">
-                    <div class="flex items-center justify-between">
-                        <h2 class="text-lg font-bold text-gray-900 dark:text-white">استبيانات الرضا</h2>
-                        <span class="text-xs px-2 py-1 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300 rounded">NELC 1.2.11</span>
-                    </div>
-                </div>
-                <div class="p-6">
-                    @if(isset($pendingSurveys) && $pendingSurveys->count() > 0)
-                        <div class="space-y-3">
-                            @foreach($pendingSurveys as $survey)
-                            <a href="{{ route('surveys.show', $survey->id) }}" class="block p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded hover:bg-yellow-100 dark:hover:bg-yellow-900/30">
-                                <div class="text-sm font-medium text-gray-900 dark:text-white">{{ $survey->title }}</div>
-                                <div class="text-xs text-yellow-600 dark:text-yellow-400 mt-1">
-                                    @if($survey->is_mandatory)
-                                    <span class="text-red-600 dark:text-red-400">إلزامي</span> -
-                                    @endif
-                                    مطلوب إكماله
-                                </div>
-                                @if($survey->ends_at)
-                                <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                    ينتهي: {{ $survey->ends_at->format('Y/m/d') }}
-                                </div>
+                                @elseif($item['status'] === 'pending')
+                                    <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400">
+                                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+                                        </svg>
+                                        لم يبدأ بعد
+                                    </span>
+                                @elseif($item['status'] === 'watch')
+                                    <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-400 cursor-pointer hover:bg-cyan-200 transition">
+                                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
+                                            <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/>
+                                        </svg>
+                                        شاهد الآن
+                                    </span>
+                                @elseif($item['status'] === 'absent')
+                                    <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">
+                                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                                        </svg>
+                                        غياب
+                                    </span>
+                                @elseif($item['status'] === 'rating')
+                                    <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400 cursor-pointer hover:bg-orange-200 transition">
+                                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                        </svg>
+                                        جاري التقييم
+                                    </span>
                                 @endif
-                            </a>
-                            @endforeach
-                        </div>
-                    @else
-                        <p class="text-gray-600 dark:text-gray-400 text-center py-4 text-sm">لا توجد استبيانات معلقة</p>
-                    @endif
-                </div>
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Current Notifications -->
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm">
+            <div class="p-5 border-b border-gray-100 dark:border-gray-700">
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white">تنبيهاتك الحالية</h3>
             </div>
 
-            <!-- Rate Teachers (NELC 2.4.9) -->
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow mt-6">
-                <div class="p-6 border-b dark:border-gray-700">
-                    <div class="flex items-center justify-between">
-                        <h2 class="text-lg font-bold text-gray-900 dark:text-white">تقييم المدربين</h2>
-                        <span class="text-xs px-2 py-1 bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300 rounded">NELC 2.4.9</span>
+            <div class="p-5 space-y-4">
+                @php
+                $notifications = [
+                    ['title' => 'تم إضافة دورة جديدة', 'desc' => 'دورة "مهارات التواصل المهني" أصبحت متاحة الآن.', 'time' => 'اليوم، الساعة 09:30 صباحاً', 'icon' => 'bell'],
+                    ['title' => 'تم إضافة دورة جديدة', 'desc' => 'دورة "مهارات التواصل المهني" أصبحت متاحة الآن.', 'time' => 'اليوم، الساعة 09:30 صباحاً', 'icon' => 'bell'],
+                    ['title' => 'تم إضافة دورة جديدة', 'desc' => 'دورة "مهارات التواصل المهني" أصبحت متاحة الآن.', 'time' => 'اليوم، الساعة 09:30 صباحاً', 'icon' => 'bell'],
+                ];
+                @endphp
+
+                @foreach($notifications as $notification)
+                <div class="flex items-start gap-4 p-4 bg-gray-50 dark:bg-gray-700/30 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700/50 transition cursor-pointer">
+                    <div class="w-10 h-10 bg-cyan-100 dark:bg-cyan-900/30 rounded-full flex items-center justify-center flex-shrink-0">
+                        <svg class="w-5 h-5 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                        </svg>
+                    </div>
+                    <div class="flex-1">
+                        <h4 class="font-semibold text-gray-900 dark:text-white">{{ $notification['title'] }}</h4>
+                        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">{{ $notification['desc'] }}</p>
+                        <p class="text-xs text-gray-400 dark:text-gray-500 mt-2">{{ $notification['time'] }}</p>
                     </div>
                 </div>
-                <div class="p-6">
-                    @if(isset($teachersToRate) && $teachersToRate->count() > 0)
-                        <div class="space-y-3">
-                            @foreach($teachersToRate as $item)
-                            <a href="{{ route('teacher-ratings.create', ['subject' => $item['subject']->id]) }}" class="block p-3 bg-purple-50 dark:bg-purple-900/20 rounded hover:bg-purple-100 dark:hover:bg-purple-900/30">
-                                <div class="text-sm font-medium text-gray-900 dark:text-white">{{ $item['teacher']->name }}</div>
-                                <div class="text-xs text-gray-600 dark:text-gray-400">{{ $item['subject']->name }}</div>
-                                <div class="text-xs text-purple-600 dark:text-purple-400 mt-1">قيّم الآن</div>
-                            </a>
-                            @endforeach
-                        </div>
-                    @else
-                        <p class="text-gray-600 dark:text-gray-400 text-center py-4 text-sm">لا توجد تقييمات معلقة</p>
-                    @endif
-                </div>
+                @endforeach
             </div>
         </div>
     </div>
 </div>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Progress Chart
-    const progressCtx = document.getElementById('progressChart').getContext('2d');
-    const progressData = @json($subjectsProgress ?? ['مادة 1' => 75, 'مادة 2' => 50, 'مادة 3' => 90]);
-
-    new Chart(progressCtx, {
-        type: 'bar',
-        data: {
-            labels: Object.keys(progressData),
-            datasets: [{
-                label: 'نسبة الإكمال',
-                data: Object.values(progressData),
-                backgroundColor: 'rgba(16, 185, 129, 0.8)',
-                borderRadius: 5
-            }]
-        },
-        options: {
-            indexAxis: 'y',
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false }
-            },
-            scales: {
-                x: {
-                    beginAtZero: true,
-                    max: 100,
-                    ticks: {
-                        callback: function(value) { return value + '%'; }
-                    }
-                }
-            }
-        }
-    });
-
-    // Attendance Chart
-    const attendanceCtx = document.getElementById('attendanceChart').getContext('2d');
-    let attendanceData = @json($weeklyAttendance ?? []);
-
-    // Default data if empty
-    if (Object.keys(attendanceData).length === 0) {
-        attendanceData = {'الأسبوع 1': 100, 'الأسبوع 2': 80, 'الأسبوع 3': 90, 'الأسبوع 4': 85};
-    }
-
-    new Chart(attendanceCtx, {
-        type: 'line',
-        data: {
-            labels: Object.keys(attendanceData),
-            datasets: [{
-                label: 'نسبة الحضور',
-                data: Object.values(attendanceData),
-                borderColor: '#3b82f6',
-                backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                tension: 0.3,
-                fill: true
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    max: 100,
-                    ticks: {
-                        callback: function(value) { return value + '%'; }
-                    }
-                }
-            }
-        }
-    });
-});
-</script>
 @endsection
