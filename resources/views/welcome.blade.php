@@ -377,12 +377,58 @@
 
         .img-abs {
             position: absolute;
-            top: 23%;
-            {{ app()->getLocale() == 'ar' ? 'right: 40%' : 'right: 40%' }};
+            top: 37%;
+
+            {{ app()->getLocale() == 'ar' ? 'right: 26%' : 'right: 30%' }};
             max-width: clamp(30px, 5vw, 50px);
             height: auto;
         }
+        .coming-abs {
+                top: {{ app()->getLocale() == 'ar' ? '37%' : '27%' }};
+               right: {{ app()->getLocale() == 'ar' ? '26%' : '28%' }};
 
+        }
+        .land-abs {
+            top: 30%;
+            right: 40%;
+        }
+        .train-abs{
+            top: 30%;
+
+        }
+        .How-abs{
+            top: {{ app()->getLocale() == 'ar' ? '20%' : '20%' }} ;
+            right:{{ app()->getLocale() == 'ar' ? '20%' : '15%' }} ;
+        }
+        .How-abs-btn{
+            top: {{ app()->getLocale() == 'ar' ? '5%' : '15%' }} ;
+            right: {{ app()->getLocale() == 'ar' ? '5%' : '2%' }};
+        }
+        .trainers-abs{
+            top: {{ app()->getLocale() == 'ar' ? '20%' : '23%' }};
+
+            right:{{ app()->getLocale() == 'ar' ? '17%' : '16%' }};
+        }
+        .trainers-abs-btn{
+            top: 2%;
+            right: {{ app()->getLocale() == 'ar' ? '5%' : '2%' }};
+        }
+        .faq-abs{
+            top: {{ app()->getLocale() == 'ar' ? '25%' : '17%' }};
+            right: {{ app()->getLocale() == 'ar' ? '19%' : '14%' }};
+        }
+        .faq-abs-btn{
+            top: {{ app()->getLocale() == 'ar' ? '5%' : '0%' }};
+            right: {{ app()->getLocale() == 'ar' ? '5%' : '0%' }};
+        }
+        .fedback-abs{
+            top: {{ app()->getLocale() == 'ar' ? '20%' : '15%' }};
+            right: {{ app()->getLocale() == 'ar' ? '22%' : '18%' }};
+        }
+        .fedback-abs-btn{
+            top: {{ app()->getLocale() == 'ar' ? '10%' : '5%' }};
+            right: {{ app()->getLocale() == 'ar' ? '7%' : '3%' }};
+        }
         /* Section Container */
         .section-container {
             padding: clamp(2rem, 5vw, 5rem) clamp(1rem, 3vw, 3rem);
@@ -1058,7 +1104,7 @@
                 </div>
             </div>
 
-          
+
         </div>
 
         <!-- Container 3 -->
@@ -1196,13 +1242,13 @@
             <div class="col-sm-12 col-md-6 left-sec">
                 <img src="{{ asset('images/person.png') }}" alt="" class="main-img" />
                 <button class="abs-btn">{{ __('Start Learning Now') }}</button>
-                <img src="{{ asset('images/Figma Cursor.png') }}" class="img-abs" />
+                <img src="{{ asset('images/Figma Cursor.png') }}" class="img-abs land-abs" />
             </div>
         </div>
     </section>
 
     <!-- About Section -->
-   
+
 
     <!-- Why Choose Us Section -->
     <section class="section-container">
@@ -1284,7 +1330,7 @@
             <h1>{{ __('Comprehensive training paths to build your future') }}</h1>
             <p class="phead">{{ __('We provide training paths spanning two and a half years through 10 training quarters, plus short and specialized courses for various professional goals.') }}</p>
             <button class="abs-btn d-none d-md-block">{{ __('Start Learning Now') }}</button>
-            <img src="{{ asset('images/Figma Cursor.png') }}" class="img-abs d-none d-md-block" />
+            <img src="{{ asset('images/Figma Cursor.png') }}" class="img-abs train-abs d-none d-md-block" />
         </div>
         <div class="courses-container">
             @for ($i = 0; $i < 3; $i++)
@@ -1323,7 +1369,7 @@
             <p class="phead">{{ __('Choose from a variety of specialized courses starting in the coming weeks.') }}</p>
             <button class="notfull-btn mt-3">{{ __('View All Courses') }}</button>
             <button class="abs-btn d-none d-md-block">{{ __('Start Learning Now') }}</button>
-            <img src="{{ asset('images/Figma Cursor.png') }}" class="img-abs d-none d-md-block" />
+            <img src="{{ asset('images/Figma Cursor.png') }}" class="img-abs coming-abs d-none d-md-block" />
         </div>
         <div class="courses-container">
             @for ($i = 0; $i < 3; $i++)
@@ -1355,7 +1401,7 @@
     </section>
 
     <!-- How It Works Section -->
-    <section class="container-fluid py-5">
+    <section class="container-fluid py-5 " >
         <div class="head d-flex justify-content-center align-items-center flex-column py-5 position-relative text-center">
             <p class="st-p">{{ __('Training That Meets Your Needs') }}</p>
             <h2>{{ __('How does our training system work?') }}</h2>
@@ -1363,43 +1409,47 @@
                 {{ __('An integrated training system that ensures a clear, organized educational journey with measurable results. From registration to certification, we designed our system to be simple, effective, and compliant with private training standards in the Kingdom.') }}
             </p>
             <button class="notfull-btn mt-3">{{ __('View All Courses') }}</button>
-            <button class="abs-btn d-none d-md-block">{{ __('Start Learning Now') }}</button>
-            <img src="{{ asset('images/Figma Cursor.png') }}" class="img-abs d-none d-md-block" />
+            <button class="abs-btn d-none d-md-block How-abs-btn">{{ __('Start Learning Now') }}</button>
+            <img src="{{ asset('images/Figma Cursor.png') }}" class="img-abs How-abs d-none d-md-block" />
         </div>
-        <div class="d-flex container-fluid content-wrapper">
-            <div class="image-container">
-                <img src="{{ asset('images/sixthMedia.png') }}" alt="" />
+        <div class="row container-fluid content-wrapper How-sec {{ app()->getLocale() == 'ar' ?  '': 'flex-row-reverse' }}">
+
+            <div class="col-sm-12 col-md-6 image-container">
+                    <img src="{{ asset('images/sixthMedia.png') }}" alt="" />
             </div>
-            <div class="right-sec-steps">
-                <div class="section-item">
-                    <h4>{{ __('Registration and Getting Started') }}</h4>
-                    <p class="nd-p">
-                        {{ __('Start your educational journey easily by creating an account or logging in through Nafath, then discover programs and paths designed to suit your goals and aspirations.') }}
-                    </p>
-                </div>
+            <div class="col-sm-12 col-md-6 right-sec-steps">
+                    <div class="section-item">
+                        <h4>{{ __('Registration and Getting Started') }}</h4>
+                        <p class="nd-p">
+                            {{ __('Start your educational journey easily by creating an account or logging in through Nafath, then discover programs and paths designed to suit your goals and aspirations.') }}
+                        </p>
+                    </div>
 
-                <div class="section-item">
-                    <h4>{{ __('Choosing the Right Program for You') }}</h4>
-                    <p class="nd-p">
-                        {{ __('Whether youre looking for an academic path spanning two and a half years (10 quarters), or a short course lasting weeks or months... you will find what suits your goals and professional aspirations.') }}
-                    </p>
-                </div>
+                    <div class="section-item">
+                        <h4>{{ __('Choosing the Right Program for You') }}</h4>
+                        <p class="nd-p">
+                            {{ __('Whether youre looking for an academic path spanning two and a half years (10 quarters), or a short course lasting weeks or months... you will find what suits your goals and professional aspirations.') }}
+                        </p>
+                    </div>
 
-                <div class="section-item">
-                    <h4>{{ __('Learning and Follow-up') }}</h4>
-                    <p class="nd-p">
-                        {{ __('Study through visual and organized content, with an attendance system, clear training progress, and direct communication with trainers, ensuring an integrated and smooth learning experience.') }}
-                    </p>
-                </div>
+                    <div class="section-item">
+                        <h4>{{ __('Learning and Follow-up') }}</h4>
+                        <p class="nd-p">
+                            {{ __('Study through visual and organized content, with an attendance system, clear training progress, and direct communication with trainers, ensuring an integrated and smooth learning experience.') }}
+                        </p>
+                    </div>
 
-                <div class="section-item">
-                    <h4>{{ __('Assessment and Certification') }}</h4>
-                    <p class="nd-p">
-                        {{ __('After completing your training requirements, you will be evaluated and your achievement accredited, then your accredited digital certificate will be issued to start your professional step with confidence.') }}
-                    </p>
-                </div>
+                    <div class="section-item">
+                        <h4>{{ __('Assessment and Certification') }}</h4>
+                        <p class="nd-p">
+                            {{ __('After completing your training requirements, you will be evaluated and your achievement accredited, then your accredited digital certificate will be issued to start your professional step with confidence.') }}
+                        </p>
+                    </div>
             </div>
+
+
         </div>
+
     </section>
 
     <!-- App Section -->
@@ -1464,8 +1514,8 @@
             <p class="head-desc">
                 {{ __('We offer you a training system supervised by elite Saudi trainers with academic and professional expertise, to ensure effective learning that enables you to achieve your goals with confidence and methodology.') }}
             </p>
-            <button class="abs-btn d-none d-md-block">{{ __('Start Learning Now') }}</button>
-            <img src="{{ asset('images/Figma Cursor.png') }}" class="img-abs d-none d-md-block" />
+            <button class="abs-btn d-none d-md-block trainers-abs-btn">{{ __('Start Learning Now') }}</button>
+            <img src="{{ asset('images/Figma Cursor.png') }}" class="img-abs trainers-abs d-none d-md-block" />
         </div>
 
         <div class="row mt-4">
@@ -1561,8 +1611,8 @@
                 {{ __('Hundreds of trainees have developed their careers and launched into new opportunities thanks to our accredited programs.') }}
             </p>
             <button class="notfull-btn">{{ __('View All Stories') }}</button>
-            <button class="abs-btn d-none d-md-block">{{ __('Start Learning Now') }}</button>
-            <img src="{{ asset('images/Figma Cursor.png') }}" class="img-abs d-none d-md-block" />
+            <button class="abs-btn d-none d-md-block fedback-abs-btn">{{ __('Start Learning Now') }}</button>
+            <img src="{{ asset('images/Figma Cursor.png') }}" class="img-abs fedback-abs d-none d-md-block" />
         </div>
 
         <div class="feedback d-flex mt-5">
@@ -1596,8 +1646,8 @@
                 {{ __('We provide comprehensive answers to the most common questions about registration, programs, terms, courses, and technical support, to facilitate your educational experience with us.') }}
             </p>
             <button class="notfull-btn">{{ __('View All Questions') }}</button>
-            <button class="abs-btn d-none d-md-block">{{ __('Start Learning Now') }}</button>
-            <img src="{{ asset('images/Figma Cursor.png') }}" class="img-abs d-none d-md-block" />
+            <button class="abs-btn d-none d-md-block faq-abs-btn">{{ __('Start Learning Now') }}</button>
+            <img src="{{ asset('images/Figma Cursor.png') }}" class="img-abs faq-abs d-none d-md-block" />
         </div>
         <div class="accordion mt-5" id="accordionExample">
             <div class="accordion-item">

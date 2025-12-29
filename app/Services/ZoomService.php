@@ -9,13 +9,13 @@ use Illuminate\Support\Facades\Log;
 
 class ZoomService
 {
-    private string $apiKey;
-    private string $apiSecret;
-    private string $accountId;
-    private string $clientId;
-    private string $clientSecret;
-    private string $sdkKey;
-    private string $sdkSecret;
+    private ?string $apiKey = null;
+    private ?string $apiSecret = null;
+    private ?string $accountId = null;
+    private ?string $clientId = null;
+    private ?string $clientSecret = null;
+    private ?string $sdkKey = null;
+    private ?string $sdkSecret = null;
     private string $baseUrl = 'https://api.zoom.us/v2';
     private ?string $accessToken = null;
 
