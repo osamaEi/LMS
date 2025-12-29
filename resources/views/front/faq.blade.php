@@ -22,7 +22,9 @@
         width: 50%;
         border-radius: 7px;
         border: 1px solid #ccc;
-        padding: 12px 15px 12px 45px;
+        padding-top: 12px;
+        padding-bottom: 12px;
+        {{ app()->getLocale() == 'ar' ? 'padding-right' : 'padding-left' }}: 45px;
         outline: none;
         background-color: rgba(230, 229, 229, 0.817);
     }
@@ -33,8 +35,9 @@
 
     .search-box .bi-search {
         position: absolute;
-        {{ app()->getLocale() == 'ar' ? 'right' : 'left' }}: 15px;
+        {{ app()->getLocale() == 'ar' ? 'right' : 'left' }}: 280px;
         top: 50%;
+
         transform: translateY(-50%);
         color: #666;
     }

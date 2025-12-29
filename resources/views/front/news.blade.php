@@ -146,7 +146,7 @@
     </section>
 
     <!-- News Section -->
-    <section class="news-section">
+    <section class="news-section container-fluid">
         <div class="news-grid">
             @php
             $newsItems = [

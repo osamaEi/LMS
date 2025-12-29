@@ -232,7 +232,7 @@
     </section>
 
     <!-- Courses Section 1 -->
-    <section class="courses-section">
+    <section class="courses-section mb-5">
         <div class="head">
             <p class="st-p mx-auto">{{ __('Training That Meets Your Needs') }}</p>
             <h2>{{ __('Choose the Right Short Course for You') }}</h2>
@@ -273,7 +273,7 @@
     </section>
 
     <!-- Featured Courses Section -->
-    <section class="courses-section" style="background: #f9fafb;">
+    <section class="courses-section pt-5 pb-5" style="background: #f9fafb;">
         <div class="head">
             <p class="st-p mx-auto">{{ __('Training That Meets Your Needs') }}</p>
             <h2>{{ __('Featured Courses to Boost Your Skills Quickly') }}</h2>
