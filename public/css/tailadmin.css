@@ -1,6 +1,6 @@
 @font-face {
     font-family: 'Cairo';
-    src: url('/font/static/Cairo-Bold.ttf') format('truetype');
+    src: url('/font/static/Cairo-SemiBold.ttf') format('truetype');
     font-weight: 900;
     font-style: normal;
 }

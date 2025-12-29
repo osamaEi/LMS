@@ -134,6 +134,44 @@
     </a>
 </li>
 
+<!-- فاصل - إدارة النظام -->
+<li class="mt-4 mb-2">
+    <span class="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider px-4">إدارة النظام</span>
+</li>
+
+<!-- إدارة المستخدمين -->
+<li>
+    <a href="{{ route('admin.users.index') }}"
+       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('admin.users.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
+        <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M10 0C4.48 0 0 4.48 0 10C0 15.52 4.48 20 10 20C15.52 20 20 15.52 20 10C20 4.48 15.52 0 10 0ZM10 3C11.66 3 13 4.34 13 6C13 7.66 11.66 9 10 9C8.34 9 7 7.66 7 6C7 4.34 8.34 3 10 3ZM10 17.2C7.5 17.2 5.29 15.92 4 13.98C4.03 11.99 8 10.9 10 10.9C11.99 10.9 15.97 11.99 16 13.98C14.71 15.92 12.5 17.2 10 17.2Z" fill=""/>
+        </svg>
+        <span>إدارة المستخدمين</span>
+    </a>
+</li>
+
+<!-- إدارة الأدوار -->
+<li>
+    <a href="{{ route('admin.roles.index') }}"
+       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('admin.roles.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
+        <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12ZM12 6C13.1 6 14 6.9 14 8C14 9.1 13.1 10 12 10C10.9 10 10 9.1 10 8C10 6.9 10.9 6 12 6ZM12 13C9.33 13 4 14.34 4 17V20H20V17C20 14.34 14.67 13 12 13ZM6 18C6.22 17.28 9.31 15 12 15C14.7 15 17.8 17.29 18 18H6ZM5 12C6.66 12 8 10.66 8 9C8 8.62 7.93 8.25 7.8 7.91L6.33 9.38C5.93 9.77 5.29 9.77 4.9 9.38C4.51 8.98 4.51 8.34 4.9 7.95L6.38 6.47C6.03 6.34 5.65 6.28 5.27 6.28C3.61 6.28 2.28 7.61 2.28 9.27C2.28 10.93 3.61 12.27 5.27 12.27L5 12Z" fill=""/>
+        </svg>
+        <span>الأدوار</span>
+    </a>
+</li>
+
+<!-- إدارة الصلاحيات -->
+<li>
+    <a href="{{ route('admin.permissions.index') }}"
+       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('admin.permissions.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
+        <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M10 1L3 5V9C3 13.55 5.99 17.74 10 19C14.01 17.74 17 13.55 17 9V5L10 1ZM10 9.99H15C14.47 13.11 12.54 15.87 10 16.9V10H5V6.3L10 3.69V9.99Z" fill=""/>
+        </svg>
+        <span>الصلاحيات</span>
+    </a>
+</li>
+
 <!-- الإعدادات -->
 <li>
     <a href="{{ route('admin.settings') }}"

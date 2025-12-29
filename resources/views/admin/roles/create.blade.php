@@ -1,0 +1,86 @@
+@extends('layouts.dashboard')
+
+@section('title', 'إنشاء دور جديد')
+
+@section('content')
+<div class="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <nav class="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-4">
+                <a href="{{ route('admin.dashboard') }}" class="hover:text-blue-600">الرئيسية</a>
+                <span class="mx-2">/</span>
+                <a href="{{ route('admin.roles.index') }}" class="hover:text-blue-600">الأدوار</a>
+                <span class="mx-2">/</span>
+                <span class="text-gray-900 dark:text-white">إنشاء دور جديد</span>
+            </nav>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">إنشاء دور جديد</h1>
+        </div>
+
+        <!-- Form -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
+            <form action="{{ route('admin.roles.store') }}" method="POST">
+                @csrf
+
+                <!-- Role Name -->
+                <div class="mb-6">
+                    <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        اسم الدور <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text"
+                           name="name"
+                           id="name"
+                           value="{{ old('name') }}"
+                           class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                           placeholder="مثال: editor, moderator, supervisor"
+                           required>
+                    @error('name')
+                    <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Permissions -->
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">
+                        الصلاحيات
+                    </label>
+
+                    @if($permissions->count() > 0)
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 max-h-96 overflow-y-auto p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                        @foreach($permissions as $permission)
+                        <label class="flex items-center gap-3 p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600 cursor-pointer hover:border-blue-500 transition">
+                            <input type="checkbox"
+                                   name="permissions[]"
+                                   value="{{ $permission->id }}"
+                                   {{ in_array($permission->id, old('permissions', [])) ? 'checked' : '' }}
+                                   class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                            <span class="text-sm text-gray-700 dark:text-gray-300">{{ $permission->name }}</span>
+                        </label>
+                        @endforeach
+                    </div>
+                    @else
+                    <div class="p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+                        <p class="text-sm text-yellow-700 dark:text-yellow-400">
+                            لا توجد صلاحيات متاحة.
+                            <a href="{{ route('admin.permissions.create') }}" class="underline hover:no-underline">أنشئ صلاحيات</a> أولاً.
+                        </p>
+                    </div>
+                    @endif
+                </div>
+
+                <!-- Actions -->
+                <div class="flex items-center gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
+                    <button type="submit"
+                            class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition">
+                        إنشاء الدور
+                    </button>
+                    <a href="{{ route('admin.roles.index') }}"
+                       class="px-6 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 font-medium rounded-lg transition">
+                        إلغاء
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@endsection
