@@ -21,7 +21,8 @@
             font-style: normal;
             font-weight: 400;
             src: url('/font/static/Cairo-Bold.ttf') format('truetype');
-}
+    }
+    [x-cloak] { display: none !important; }
 </style>
 
     <!-- Preloader -->

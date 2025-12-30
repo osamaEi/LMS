@@ -81,9 +81,6 @@ Route::middleware(['auth', 'role:admin,super_admin'])->prefix('admin')->name('ad
     // Students Management
     Route::resource('students', \App\Http\Controllers\Admin\StudentController::class);
 
-    // Courses Management
-    Route::resource('courses', \App\Http\Controllers\Admin\CourseController::class);
-
     // Program (Path) Management
     Route::resource('programs', \App\Http\Controllers\Admin\ProgramController::class);
 
@@ -114,9 +111,12 @@ Route::middleware(['auth', 'role:admin,super_admin'])->prefix('admin')->name('ad
     })->name('reports');
 
     // Settings
-    Route::get('/settings', function () {
-        return view('admin.settings');
-    })->name('settings');
+    Route::get('/settings', [\App\Http\Controllers\Admin\SettingController::class, 'index'])->name('settings');
+    Route::put('/settings', [\App\Http\Controllers\Admin\SettingController::class, 'update'])->name('settings.update');
+    Route::put('/settings/group/{group}', [\App\Http\Controllers\Admin\SettingController::class, 'updateGroup'])->name('settings.update-group');
+    Route::post('/settings/clear-cache', [\App\Http\Controllers\Admin\SettingController::class, 'clearCache'])->name('settings.clear-cache');
+    Route::post('/settings/test-email', [\App\Http\Controllers\Admin\SettingController::class, 'testEmail'])->name('settings.test-email');
+    Route::post('/settings/maintenance', [\App\Http\Controllers\Admin\SettingController::class, 'maintenance'])->name('settings.maintenance');
 
     // Surveys Management (NELC 1.2.11)
     Route::resource('surveys', \App\Http\Controllers\Admin\SurveyController::class);
@@ -155,9 +155,6 @@ Route::middleware(['auth', 'role:admin,super_admin'])->prefix('admin')->name('ad
 Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')->group(function () {
     Route::get('/dashboard', [TeacherDashboardController::class, 'index'])->name('dashboard');
     Route::get('/subjects/{id}', [TeacherDashboardController::class, 'showSubject'])->name('subjects.show');
-
-    // Courses (TODO: Create controller)
-    // Route::resource('courses', \App\Http\Controllers\Teacher\CourseController::class);
 
     // Schedule
     Route::get('/schedule', [\App\Http\Controllers\Teacher\ScheduleController::class, 'index'])->name('schedule');

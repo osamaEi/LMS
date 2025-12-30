@@ -152,10 +152,6 @@
                     <span class="text-xl font-bold text-brand-600 dark:text-brand-400">{{ $teacher->subjects->count() }}</span>
                 </div>
                 <div class="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 pb-3">
-                    <span class="text-gray-700 dark:text-gray-300">عدد الدورات</span>
-                    <span class="text-xl font-bold text-brand-600 dark:text-brand-400">{{ $teacher->courses->count() }}</span>
-                </div>
-                <div class="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 pb-3">
                     <span class="text-gray-700 dark:text-gray-300">حالة التحقق من البريد</span>
                     @if($teacher->email_verified_at)
                         <span class="inline-flex rounded-full bg-success-100 px-2 py-1 text-xs font-medium text-success-700 dark:bg-success-900 dark:text-success-200">
@@ -228,27 +224,6 @@
         </div>
         @endif
 
-        <!-- Courses List -->
-        @if($teacher->courses->count() > 0)
-        <div class="rounded-lg bg-white p-6 shadow dark:bg-gray-800">
-            <h4 class="mb-6 text-xl font-bold text-black dark:text-white">الدورات التدريبية</h4>
-            <div class="space-y-3">
-                @foreach($teacher->courses as $course)
-                <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-700">
-                    <div>
-                        <p class="font-medium text-black dark:text-white">{{ $course->name }}</p>
-                        @if($course->code)
-                        <p class="text-xs text-gray-500 dark:text-gray-400">{{ $course->code }}</p>
-                        @endif
-                    </div>
-                    <svg class="h-5 w-5 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
-                    </svg>
-                </div>
-                @endforeach
-            </div>
-        </div>
-        @endif
     </div>
 </div>
 @endsection

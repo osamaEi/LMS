@@ -58,12 +58,25 @@ class SettingController extends Controller
 
     public function updateGroup(Request $request, string $group)
     {
-        $settings = $request->except('_token', '_method');
+        $settingsData = $request->input('settings', []);
 
-        foreach ($settings as $key => $value) {
-            $setting = Setting::where('key', $key)->where('group', $group)->first();
+        foreach ($settingsData as $key => $value) {
+            $setting = Setting::where('key', $key)->first();
 
             if ($setting) {
+                // Handle file uploads
+                if ($setting->type === 'file' && $request->hasFile("settings.{$key}")) {
+                    $file = $request->file("settings.{$key}");
+                    $path = $file->store('settings', 'public');
+                    $value = $path;
+
+                    // Delete old file
+                    if ($setting->value && Storage::disk('public')->exists($setting->value)) {
+                        Storage::disk('public')->delete($setting->value);
+                    }
+                }
+
+                // Handle boolean values
                 if ($setting->type === 'boolean') {
                     $value = $value === 'on' || $value === '1' || $value === true ? '1' : '0';
                 }
@@ -91,17 +104,16 @@ class SettingController extends Controller
 
     public function testEmail(Request $request)
     {
-        $request->validate([
-            'test_email' => 'required|email',
-        ]);
-
         try {
-            \Mail::raw('هذا بريد تجريبي من نظام إدارة التعلم', function ($message) use ($request) {
-                $message->to($request->test_email)
+            // Get the admin's email or use a default
+            $testEmail = auth()->user()->email ?? Setting::get('contact_email', 'test@example.com');
+
+            \Mail::raw('هذا بريد تجريبي من نظام إدارة التعلم للتأكد من إعدادات البريد الإلكتروني.', function ($message) use ($testEmail) {
+                $message->to($testEmail)
                     ->subject('بريد تجريبي - نظام إدارة التعلم');
             });
 
-            return response()->json(['success' => true, 'message' => 'تم إرسال البريد التجريبي بنجاح']);
+            return response()->json(['success' => true, 'message' => 'تم إرسال البريد التجريبي بنجاح إلى ' . $testEmail]);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'فشل إرسال البريد: ' . $e->getMessage()], 500);
         }

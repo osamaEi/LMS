@@ -4,8 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use App\Models\Course;
+use App\Models\Subject;
 use App\Models\Term;
+use App\Models\Program;
 use App\Models\Enrollment;
 use App\Models\SatisfactionSurvey;
 use App\Models\SurveyResponse;
@@ -22,21 +23,20 @@ class DashboardController extends Controller
         // Basic counts
         $teachersCount = User::where('role', 'teacher')->count();
         $studentsCount = User::where('role', 'student')->count();
-        $coursesCount = Course::count();
+        $subjectsCount = Subject::count();
         $termsCount = Term::count();
+        $programsCount = Program::count();
 
         $stats = [
             'teachers_count' => $teachersCount,
             'students_count' => $studentsCount,
-            'courses_count' => $coursesCount,
+            'subjects_count' => $subjectsCount,
             'terms_count' => $termsCount,
-            'active_courses' => Course::where('status', 'active')->count(),
+            'programs_count' => $programsCount,
+            'active_subjects' => Subject::where('status', 'active')->count(),
             'active_terms' => Term::where('status', 'active')->count(),
             'total_users' => $teachersCount + $studentsCount + 1,
             'today_enrollments' => Enrollment::whereDate('created_at', today())->count(),
-            'avg_students_per_course' => $coursesCount > 0
-                ? round($studentsCount / $coursesCount, 1)
-                : 0,
         ];
 
         // NELC Compliance Stats
@@ -58,8 +58,8 @@ class DashboardController extends Controller
             ->orderBy('month')
             ->pluck('count', 'month');
 
-        // Chart data: Courses status distribution
-        $coursesStatus = Course::select('status', DB::raw('count(*) as count'))
+        // Chart data: Subjects status distribution
+        $subjectsStatus = Subject::select('status', DB::raw('count(*) as count'))
             ->groupBy('status')
             ->pluck('count', 'status');
 
@@ -86,9 +86,7 @@ class DashboardController extends Controller
             ->limit(5)
             ->get();
 
-        $recentCourses = Course::select('courses.id', 'courses.title', 'courses.description', 'courses.teacher_id', 'courses.status', 'courses.created_at')
-            ->with(['teacher:id,name'])
-            ->withCount('students')
+        $recentSubjects = Subject::with(['teacher:id,name', 'term:id,name'])
             ->latest()
             ->limit(4)
             ->get();
@@ -126,10 +124,10 @@ class DashboardController extends Controller
             'stats',
             'nelcStats',
             'recentTeachers',
-            'recentCourses',
+            'recentSubjects',
             'studentsPerMonth',
             'teachersPerMonth',
-            'coursesStatus',
+            'subjectsStatus',
             'termsStatus',
             'satisfactionTrend',
             'recentTickets',

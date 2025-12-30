@@ -209,11 +209,7 @@ class User extends Authenticatable
         return $this->hasMany(\App\Models\User::class, 'program_id');
     }
 
-    // For teachers - courses taught by this teacher
-    public function courses()
-    {
-        return $this->hasMany(\App\Models\Course::class, 'teacher_id');
-    }
+   
 
     /**
      * Get role display name in Arabic

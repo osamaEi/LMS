@@ -32,7 +32,7 @@ class SubjectController extends Controller
     {
         $validated = $request->validate([
             'term_id' => 'required|exists:terms,id',
-            'teacher_id' => 'required|exists:users,id',
+            'teacher_id' => 'nullable|exists:users,id',
             'name' => 'required|string|max:255',
             'code' => 'required|string|unique:subjects,code',
             'description' => 'nullable|string',
@@ -43,7 +43,14 @@ class SubjectController extends Controller
             'status' => 'required|in:active,inactive,completed',
         ]);
 
-        Subject::create($validated);
+        $subject = Subject::create($validated);
+
+        // If coming from program show page, redirect back there
+        if ($request->header('referer') && str_contains($request->header('referer'), 'programs')) {
+            $term = Term::find($request->term_id);
+            return redirect()->route('admin.programs.show', $term->program_id)
+                ->with('success', 'تم إضافة المادة بنجاح');
+        }
 
         return redirect()->route('admin.subjects.index')
             ->with('success', 'تم إضافة المادة بنجاح');

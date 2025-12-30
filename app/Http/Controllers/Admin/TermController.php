@@ -44,6 +44,12 @@ class TermController extends Controller
 
         Term::create($validated);
 
+        // If coming from program show page, redirect back there
+        if ($request->has('program_id') && $request->header('referer') && str_contains($request->header('referer'), 'programs')) {
+            return redirect()->route('admin.programs.show', $request->program_id)
+                ->with('success', 'تم إضافة الفصل الدراسي بنجاح');
+        }
+
         return redirect()->route('admin.terms.index')
             ->with('success', 'تم إضافة الفصل الدراسي بنجاح');
     }

@@ -48,8 +48,7 @@ class StudentController extends Controller
         $student->load([
             'program',
             'track',
-            'enrollments.subject',
-            'enrollments.course'
+            'enrollments.subject'
         ]);
 
         return view('admin.students.show', compact('student'));

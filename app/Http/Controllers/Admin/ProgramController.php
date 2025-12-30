@@ -14,7 +14,15 @@ class ProgramController extends Controller
             ->latest()
             ->paginate(15);
 
-        return view('admin.programs.index', compact('programs'));
+        $stats = [
+            'total' => Program::count(),
+            'active' => Program::where('status', 'active')->count(),
+            'inactive' => Program::where('status', 'inactive')->count(),
+            'diploma' => Program::where('type', 'diploma')->count(),
+            'training' => Program::where('type', 'training')->count(),
+        ];
+
+        return view('admin.programs.index', compact('programs', 'stats'));
     }
 
     public function create()

@@ -43,7 +43,7 @@
         </div>
     </div>
 
-    <!-- Courses -->
+    <!-- Subjects -->
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
         <div class="flex items-center">
             <div class="flex-shrink-0 bg-orange-100 dark:bg-orange-900 rounded-lg p-3">
@@ -52,9 +52,9 @@
                 </svg>
             </div>
             <div class="mr-4">
-                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">الدورات</p>
-                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ $stats['courses_count'] ?? 0 }}</p>
-                <p class="text-xs text-gray-500 dark:text-gray-400">نشطة: {{ $stats['active_courses'] ?? 0 }}</p>
+                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">المواد الدراسية</p>
+                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ $stats['subjects_count'] ?? 0 }}</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">نشطة: {{ $stats['active_subjects'] ?? 0 }}</p>
             </div>
         </div>
     </div>
@@ -145,44 +145,39 @@
                 <span class="text-lg font-bold text-gray-900 dark:text-white">{{ $stats['today_enrollments'] ?? 0 }}</span>
             </div>
             <div class="flex items-center justify-between">
-                <span class="text-sm text-gray-600 dark:text-gray-300">متوسط الطلاب</span>
-                <span class="text-lg font-bold text-gray-900 dark:text-white">{{ number_format($stats['avg_students_per_course'] ?? 0, 1) }}</span>
+                <span class="text-sm text-gray-600 dark:text-gray-300">البرامج التعليمية</span>
+                <span class="text-lg font-bold text-gray-900 dark:text-white">{{ $stats['programs_count'] ?? 0 }}</span>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Recent Courses -->
+<!-- Recent Subjects -->
 <div class="mt-6">
-    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4">أحدث الدورات</h2>
+    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4">أحدث المواد الدراسية</h2>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        @forelse($recentCourses ?? [] as $course)
+        @forelse($recentSubjects ?? [] as $subject)
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
-            <div class="h-40 bg-gray-200 dark:bg-gray-700">
-                @if($course->image)
-                    <img src="{{ asset('storage/' . $course->image) }}" alt="{{ $course->title }}" class="w-full h-full object-cover">
-                @else
-                    <div class="flex items-center justify-center h-full bg-brand-100 dark:bg-brand-900">
-                        <svg class="w-16 h-16 text-brand-500" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3z"></path>
-                        </svg>
-                    </div>
-                @endif
+            <div class="h-32 bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center">
+                <svg class="w-12 h-12 text-white/80" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"/>
+                </svg>
             </div>
             <div class="p-4">
-                <h3 class="font-semibold text-gray-900 dark:text-white mb-2">{{ $course->title }}</h3>
-                <p class="text-sm text-gray-600 dark:text-gray-400 mb-3 line-clamp-2">{{ $course->description }}</p>
+                <h3 class="font-semibold text-gray-900 dark:text-white mb-1">{{ $subject->name }}</h3>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">{{ $subject->code }}</p>
                 <div class="flex items-center justify-between">
-                    <span class="text-xs px-2 py-1 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300 rounded">
-                        {{ $course->status_display }}
+                    <span class="text-xs px-2 py-1 rounded
+                        {{ $subject->status === 'active' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300' }}">
+                        {{ $subject->status === 'active' ? 'نشطة' : 'غير نشطة' }}
                     </span>
-                    <span class="text-xs text-gray-600 dark:text-gray-400">{{ $course->students_count ?? 0 }} طالب</span>
+                    <span class="text-xs text-gray-600 dark:text-gray-400">{{ $subject->term->name ?? '' }}</span>
                 </div>
-                <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">{{ $course->teacher->name ?? 'غير محدد' }}</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">{{ $subject->teacher->name ?? 'غير محدد' }}</p>
             </div>
         </div>
         @empty
-        <div class="col-span-4 text-center py-8 text-gray-500 dark:text-gray-400">لا توجد دورات</div>
+        <div class="col-span-4 text-center py-8 text-gray-500 dark:text-gray-400">لا توجد مواد دراسية</div>
         @endforelse
     </div>
 </div>

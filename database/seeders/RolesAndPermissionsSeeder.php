@@ -25,12 +25,6 @@ class RolesAndPermissionsSeeder extends Seeder
             'edit-users',
             'delete-users',
 
-            // Courses Management
-            'view-courses',
-            'create-courses',
-            'edit-courses',
-            'delete-courses',
-
             // Sessions/Lessons Management
             'view-sessions',
             'create-sessions',
@@ -108,7 +102,6 @@ class RolesAndPermissionsSeeder extends Seeder
         $adminRole->givePermissionTo([
             'view-dashboard',
             'view-users', 'create-users', 'edit-users',
-            'view-courses', 'create-courses', 'edit-courses', 'delete-courses',
             'view-sessions', 'create-sessions', 'edit-sessions', 'delete-sessions',
             'view-subjects', 'create-subjects', 'edit-subjects', 'delete-subjects',
             'view-programs', 'create-programs', 'edit-programs', 'delete-programs',
@@ -125,7 +118,6 @@ class RolesAndPermissionsSeeder extends Seeder
         $teacherRole = Role::firstOrCreate(['name' => 'teacher', 'guard_name' => 'web']);
         $teacherRole->givePermissionTo([
             'view-dashboard',
-            'view-courses',
             'view-sessions', 'create-sessions', 'edit-sessions',
             'view-subjects',
             'view-enrollments',
@@ -139,7 +131,6 @@ class RolesAndPermissionsSeeder extends Seeder
         $studentRole = Role::firstOrCreate(['name' => 'student', 'guard_name' => 'web']);
         $studentRole->givePermissionTo([
             'view-dashboard',
-            'view-courses',
             'view-sessions',
             'view-subjects',
             'view-attendance',
@@ -151,7 +142,6 @@ class RolesAndPermissionsSeeder extends Seeder
         $contentManagerRole = Role::firstOrCreate(['name' => 'content-manager', 'guard_name' => 'web']);
         $contentManagerRole->givePermissionTo([
             'view-dashboard',
-            'view-courses', 'create-courses', 'edit-courses',
             'view-sessions', 'create-sessions', 'edit-sessions',
             'view-subjects', 'create-subjects', 'edit-subjects',
             'view-programs', 'edit-programs',

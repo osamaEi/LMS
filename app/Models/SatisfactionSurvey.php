@@ -13,7 +13,6 @@ class SatisfactionSurvey extends Model
 
     protected $fillable = [
         'subject_id',
-        'course_id',
         'title',
         'description',
         'type',
@@ -38,11 +37,6 @@ class SatisfactionSurvey extends Model
     public function subject(): BelongsTo
     {
         return $this->belongsTo(Subject::class);
-    }
-
-    public function course(): BelongsTo
-    {
-        return $this->belongsTo(Course::class);
     }
 
     public function questions(): HasMany

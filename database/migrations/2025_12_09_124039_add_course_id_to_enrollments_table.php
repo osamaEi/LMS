@@ -12,8 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('enrollments', function (Blueprint $table) {
-            $table->foreignId('course_id')->nullable()->after('subject_id')->constrained('courses')->cascadeOnDelete();
-            $table->integer('progress')->default(0)->after('status');
+            if (!Schema::hasColumn('enrollments', 'progress')) {
+                $table->integer('progress')->default(0)->after('status');
+            }
         });
     }
 
@@ -23,8 +24,9 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('enrollments', function (Blueprint $table) {
-            $table->dropForeign(['course_id']);
-            $table->dropColumn(['course_id', 'progress']);
+            if (Schema::hasColumn('enrollments', 'progress')) {
+                $table->dropColumn('progress');
+            }
         });
     }
 };

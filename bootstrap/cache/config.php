@@ -109,9 +109,9 @@
   array (
     'paths' => 
     array (
-      0 => 'C:\\Users\\de\\OneDrive\\Desktop\\AYA\\laravel\\LMS\\resources\\views',
+      0 => 'E:\\mostaql\\Lms\\resources\\views',
     ),
-    'compiled' => 'C:\\Users\\de\\OneDrive\\Desktop\\AYA\\laravel\\LMS\\storage\\framework\\views',
+    'compiled' => 'E:\\mostaql\\Lms\\storage\\framework\\views',
   ),
   'app' => 
   array (
@@ -122,11 +122,11 @@
     'frontend_url' => 'http://localhost:3000',
     'asset_url' => NULL,
     'timezone' => 'UTC',
-    'locale' => 'en',
+    'locale' => 'ar',
     'fallback_locale' => 'en',
     'faker_locale' => 'en_US',
     'cipher' => 'AES-256-CBC',
-    'key' => 'base64:BkX0X8dYX7UpZQKqLx8c5/F5nZpJN9K8Y2R6M3V4W5X=',
+    'key' => 'base64:e4T3EJBNELB9rirujOuNWQh4kWWJOYOU9Hz6PWZg4ow=',
     'previous_keys' => 
     array (
     ),
@@ -279,8 +279,8 @@
       'file' => 
       array (
         'driver' => 'file',
-        'path' => 'C:\\Users\\de\\OneDrive\\Desktop\\AYA\\laravel\\LMS\\storage\\framework/cache/data',
-        'lock_path' => 'C:\\Users\\de\\OneDrive\\Desktop\\AYA\\laravel\\LMS\\storage\\framework/cache/data',
+        'path' => 'E:\\mostaql\\Lms\\storage\\framework/cache/data',
+        'lock_path' => 'E:\\mostaql\\Lms\\storage\\framework/cache/data',
       ),
       'memcached' => 
       array (
@@ -328,14 +328,14 @@
   ),
   'database' => 
   array (
-    'default' => 'sqlite',
+    'default' => 'mysql',
     'connections' => 
     array (
       'sqlite' => 
       array (
         'driver' => 'sqlite',
         'url' => NULL,
-        'database' => 'C:\\Users\\de\\OneDrive\\Desktop\\AYA\\laravel\\LMS\\database\\database.sqlite',
+        'database' => 'lms4',
         'prefix' => '',
         'foreign_key_constraints' => true,
         'busy_timeout' => NULL,
@@ -349,7 +349,7 @@
         'url' => NULL,
         'host' => '127.0.0.1',
         'port' => '3306',
-        'database' => 'laravel',
+        'database' => 'lms4',
         'username' => 'root',
         'password' => '',
         'unix_socket' => '',
@@ -369,7 +369,7 @@
         'url' => NULL,
         'host' => '127.0.0.1',
         'port' => '3306',
-        'database' => 'laravel',
+        'database' => 'lms4',
         'username' => 'root',
         'password' => '',
         'unix_socket' => '',
@@ -388,8 +388,8 @@
         'driver' => 'pgsql',
         'url' => NULL,
         'host' => '127.0.0.1',
-        'port' => '5432',
-        'database' => 'laravel',
+        'port' => '3306',
+        'database' => 'lms4',
         'username' => 'root',
         'password' => '',
         'charset' => 'utf8',
@@ -402,9 +402,9 @@
       array (
         'driver' => 'sqlsrv',
         'url' => NULL,
-        'host' => 'localhost',
-        'port' => '1433',
-        'database' => 'laravel',
+        'host' => '127.0.0.1',
+        'port' => '3306',
+        'database' => 'lms4',
         'username' => 'root',
         'password' => '',
         'charset' => 'utf8',
@@ -462,7 +462,7 @@
       'local' => 
       array (
         'driver' => 'local',
-        'root' => 'C:\\Users\\de\\OneDrive\\Desktop\\AYA\\laravel\\LMS\\storage\\app/private',
+        'root' => 'E:\\mostaql\\Lms\\storage\\app/private',
         'serve' => true,
         'throw' => false,
         'report' => false,
@@ -470,7 +470,7 @@
       'public' => 
       array (
         'driver' => 'local',
-        'root' => 'C:\\Users\\de\\OneDrive\\Desktop\\AYA\\laravel\\LMS\\storage\\app/public',
+        'root' => 'E:\\mostaql\\Lms\\storage\\app/public',
         'url' => 'http://localhost/storage',
         'visibility' => 'public',
         'throw' => false,
@@ -492,7 +492,7 @@
     ),
     'links' => 
     array (
-      'C:\\Users\\de\\OneDrive\\Desktop\\AYA\\laravel\\LMS\\public\\storage' => 'C:\\Users\\de\\OneDrive\\Desktop\\AYA\\laravel\\LMS\\storage\\app/public',
+      'E:\\mostaql\\Lms\\public\\storage' => 'E:\\mostaql\\Lms\\storage\\app/public',
     ),
   ),
   'logging' => 
@@ -517,14 +517,14 @@
       'single' => 
       array (
         'driver' => 'single',
-        'path' => 'C:\\Users\\de\\OneDrive\\Desktop\\AYA\\laravel\\LMS\\storage\\logs/laravel.log',
+        'path' => 'E:\\mostaql\\Lms\\storage\\logs/laravel.log',
         'level' => 'debug',
         'replace_placeholders' => true,
       ),
       'daily' => 
       array (
         'driver' => 'daily',
-        'path' => 'C:\\Users\\de\\OneDrive\\Desktop\\AYA\\laravel\\LMS\\storage\\logs/laravel.log',
+        'path' => 'E:\\mostaql\\Lms\\storage\\logs/laravel.log',
         'level' => 'debug',
         'days' => 14,
         'replace_placeholders' => true,
@@ -589,7 +589,7 @@
       ),
       'emergency' => 
       array (
-        'path' => 'C:\\Users\\de\\OneDrive\\Desktop\\AYA\\laravel\\LMS\\storage\\logs/laravel.log',
+        'path' => 'E:\\mostaql\\Lms\\storage\\logs/laravel.log',
       ),
     ),
   ),
@@ -667,8 +667,50 @@
       'theme' => 'default',
       'paths' => 
       array (
-        0 => 'C:\\Users\\de\\OneDrive\\Desktop\\AYA\\laravel\\LMS\\resources\\views/vendor/mail',
+        0 => 'E:\\mostaql\\Lms\\resources\\views/vendor/mail',
       ),
+    ),
+  ),
+  'permission' => 
+  array (
+    'models' => 
+    array (
+      'permission' => 'Spatie\\Permission\\Models\\Permission',
+      'role' => 'Spatie\\Permission\\Models\\Role',
+    ),
+    'table_names' => 
+    array (
+      'roles' => 'roles',
+      'permissions' => 'permissions',
+      'model_has_permissions' => 'model_has_permissions',
+      'model_has_roles' => 'model_has_roles',
+      'role_has_permissions' => 'role_has_permissions',
+    ),
+    'column_names' => 
+    array (
+      'role_pivot_key' => NULL,
+      'permission_pivot_key' => NULL,
+      'model_morph_key' => 'model_id',
+      'team_foreign_key' => 'team_id',
+    ),
+    'register_permission_check_method' => true,
+    'register_octane_reset_listener' => false,
+    'events_enabled' => false,
+    'teams' => false,
+    'team_resolver' => 'Spatie\\Permission\\DefaultTeamResolver',
+    'use_passport_client_credentials' => false,
+    'display_permission_in_exception' => false,
+    'display_role_in_exception' => false,
+    'enable_wildcard_permission' => false,
+    'cache' => 
+    array (
+      'expiration_time' => 
+      \DateInterval::__set_state(array(
+         'from_string' => true,
+         'date_string' => '24 hours',
+      )),
+      'key' => 'spatie.permission.cache',
+      'store' => 'default',
     ),
   ),
   'queue' => 
@@ -721,13 +763,13 @@
     ),
     'batching' => 
     array (
-      'database' => 'sqlite',
+      'database' => 'mysql',
       'table' => 'job_batches',
     ),
     'failed' => 
     array (
       'driver' => 'database-uuids',
-      'database' => 'sqlite',
+      'database' => 'mysql',
       'table' => 'failed_jobs',
     ),
   ),
@@ -736,17 +778,13 @@
     'stateful' => 
     array (
       0 => 'localhost',
-      1 => 'localhost:3000',
-      2 => '127.0.0.1',
-      3 => '127.0.0.1:8000',
-      4 => '::1',
-      5 => 'localhost',
+      1 => '127.0.0.1',
     ),
     'guard' => 
     array (
       0 => 'web',
     ),
-    'expiration' => 43200,
+    'expiration' => '43200',
     'token_prefix' => '',
     'middleware' => 
     array (
@@ -781,14 +819,14 @@
     ),
     'zoom' => 
     array (
-      'account_id' => NULL,
-      'client_id' => NULL,
-      'client_secret' => NULL,
-      'sdk_key' => NULL,
-      'sdk_secret' => NULL,
-      'api_key' => NULL,
-      'api_secret' => NULL,
-      'webhook_secret_token' => NULL,
+      'account_id' => '4IiGyzxSS4qUwqT3u0VV3g',
+      'client_id' => 'c9hiCCeQQkKEVHVjGnvRKQ',
+      'client_secret' => 'Hyx87I4EM94rA355ThJ68xeOO1Ce8GQY',
+      'sdk_key' => 'ZSwh92_sSWOUjG2h3mUUZA',
+      'sdk_secret' => 'QDTS7idx7r17yriof1ZN9o7QCxecgF49',
+      'api_key' => '',
+      'api_secret' => '',
+      'webhook_secret_token' => '5uRZEK30Q1q5DylNsNheEw',
     ),
   ),
   'session' => 
@@ -797,7 +835,7 @@
     'lifetime' => 120,
     'expire_on_close' => false,
     'encrypt' => false,
-    'files' => 'C:\\Users\\de\\OneDrive\\Desktop\\AYA\\laravel\\LMS\\storage\\framework/sessions',
+    'files' => 'E:\\mostaql\\Lms\\storage\\framework/sessions',
     'connection' => NULL,
     'table' => 'sessions',
     'store' => NULL,

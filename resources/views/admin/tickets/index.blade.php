@@ -11,26 +11,71 @@
     </div>
 
     <!-- Stats -->
-    <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
-        <div class="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
-            <div class="text-2xl font-bold text-gray-900 dark:text-white">{{ $stats['total'] }}</div>
-            <div class="text-sm text-gray-600">إجمالي التذاكر</div>
+    <div class="flex flex-wrap gap-4">
+        <div class="flex-1 min-w-[180px] bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-200 dark:border-gray-700">
+            <div class="flex items-center justify-between">
+                <div>
+                    <div class="text-3xl font-bold text-gray-900 dark:text-white">{{ $stats['total'] }}</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">إجمالي التذاكر</div>
+                </div>
+                <div class="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+                    <svg class="w-6 h-6 text-gray-600 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                </div>
+            </div>
         </div>
-        <div class="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
-            <div class="text-2xl font-bold text-red-500">{{ $stats['open'] }}</div>
-            <div class="text-sm text-gray-600">مفتوحة</div>
+        <div class="flex-1 min-w-[180px] bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-200 dark:border-gray-700">
+            <div class="flex items-center justify-between">
+                <div>
+                    <div class="text-3xl font-bold text-red-500">{{ $stats['open'] }}</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">مفتوحة</div>
+                </div>
+                <div class="w-12 h-12 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+                    <svg class="w-6 h-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+            </div>
         </div>
-        <div class="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
-            <div class="text-2xl font-bold text-yellow-500">{{ $stats['in_progress'] }}</div>
-            <div class="text-sm text-gray-600">قيد المعالجة</div>
+        <div class="flex-1 min-w-[180px] bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-200 dark:border-gray-700">
+            <div class="flex items-center justify-between">
+                <div>
+                    <div class="text-3xl font-bold text-yellow-500">{{ $stats['in_progress'] }}</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">قيد المعالجة</div>
+                </div>
+                <div class="w-12 h-12 rounded-full bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center">
+                    <svg class="w-6 h-6 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+            </div>
         </div>
-        <div class="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
-            <div class="text-2xl font-bold text-green-500">{{ $stats['resolved'] }}</div>
-            <div class="text-sm text-gray-600">تم الحل</div>
+        <div class="flex-1 min-w-[180px] bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-200 dark:border-gray-700">
+            <div class="flex items-center justify-between">
+                <div>
+                    <div class="text-3xl font-bold text-green-500">{{ $stats['resolved'] }}</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">تم الحل</div>
+                </div>
+                <div class="w-12 h-12 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                    <svg class="w-6 h-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+            </div>
         </div>
-        <div class="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
-            <div class="text-2xl font-bold text-brand-500">{{ $stats['avg_response_time'] }}د</div>
-            <div class="text-sm text-gray-600">متوسط وقت الرد</div>
+        <div class="flex-1 min-w-[180px] bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-200 dark:border-gray-700">
+            <div class="flex items-center justify-between">
+                <div>
+                    <div class="text-3xl font-bold text-brand-500">{{ $stats['avg_response_time'] }}د</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">متوسط وقت الرد</div>
+                </div>
+                <div class="w-12 h-12 rounded-full bg-brand-100 dark:bg-brand-900/30 flex items-center justify-center">
+                    <svg class="w-6 h-6 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                </div>
+            </div>
         </div>
     </div>
 
