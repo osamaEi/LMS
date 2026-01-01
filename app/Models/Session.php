@@ -16,8 +16,10 @@ class Session extends Model
     protected $fillable = [
         'subject_id',
         'unit_id',
-        'title',
-        'description',
+        'title_ar',
+        'title_en',
+        'description_ar',
+        'description_en',
         'session_number',
         'type',
         'scheduled_at',
@@ -33,9 +35,25 @@ class Session extends Model
         'video_platform',
         'video_duration',
         'video_size',
-        'status',
-        'is_mandatory',
     ];
+
+    /**
+     * Get the localized title
+     */
+    public function getTitleAttribute(): string
+    {
+        $locale = app()->getLocale();
+        return $locale === 'en' ? ($this->title_en ?: $this->title_ar) : $this->title_ar;
+    }
+
+    /**
+     * Get the localized description
+     */
+    public function getDescriptionAttribute(): ?string
+    {
+        $locale = app()->getLocale();
+        return $locale === 'en' ? ($this->description_en ?: $this->description_ar) : $this->description_ar;
+    }
 
     protected function casts(): array
     {
@@ -46,7 +64,6 @@ class Session extends Model
             'duration_minutes' => 'integer',
             'video_duration' => 'integer',
             'video_size' => 'integer',
-            'is_mandatory' => 'boolean',
         ];
     }
 
@@ -82,48 +99,15 @@ class Session extends Model
         return $this->type === 'recorded_video';
     }
 
-    public function isScheduled(): bool
-    {
-        return $this->status === 'scheduled';
-    }
-
-    public function isLive(): bool
-    {
-        return $this->status === 'live';
-    }
-
-    public function isCompleted(): bool
-    {
-        return $this->status === 'completed';
-    }
-
-    public function isCancelled(): bool
-    {
-        return $this->status === 'cancelled';
-    }
-
-    public function isMandatory(): bool
-    {
-        return $this->is_mandatory;
-    }
-
     public function start(): void
     {
         $this->started_at = now();
-        $this->status = 'live';
         $this->save();
     }
 
     public function end(): void
     {
         $this->ended_at = now();
-        $this->status = 'completed';
-        $this->save();
-    }
-
-    public function cancel(): void
-    {
-        $this->status = 'cancelled';
         $this->save();
     }
 

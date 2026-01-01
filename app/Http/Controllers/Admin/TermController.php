@@ -5,14 +5,13 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Program;
 use App\Models\Term;
-use App\Models\Track;
 use Illuminate\Http\Request;
 
 class TermController extends Controller
 {
     public function index()
     {
-        $terms = Term::with(['program', 'track'])
+        $terms = Term::with(['program'])
             ->withCount('subjects')
             ->latest()
             ->paginate(15);
@@ -23,22 +22,19 @@ class TermController extends Controller
     public function create()
     {
         $programs = Program::where('status', 'active')->get();
-        $tracks = Track::where('status', 'active')->get();
 
-        return view('admin.terms.create', compact('programs', 'tracks'));
+        return view('admin.terms.create', compact('programs'));
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
             'program_id' => 'required|exists:programs,id',
-            'track_id' => 'nullable|exists:tracks,id',
             'term_number' => 'required|integer|min:1',
-            'name' => 'required|string|max:255',
+            'name_ar' => 'required|string|max:255',
+            'name_en' => 'required|string|max:255',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after:start_date',
-            'registration_start_date' => 'nullable|date',
-            'registration_end_date' => 'nullable|date|after:registration_start_date',
             'status' => 'required|in:upcoming,active,completed',
         ]);
 
@@ -56,7 +52,7 @@ class TermController extends Controller
 
     public function show(Term $term)
     {
-        $term->load(['program', 'track', 'subjects' => function($query) {
+        $term->load(['program', 'subjects' => function($query) {
             $query->withCount('sessions')->latest();
         }]);
 
@@ -66,22 +62,19 @@ class TermController extends Controller
     public function edit(Term $term)
     {
         $programs = Program::where('status', 'active')->get();
-        $tracks = Track::where('status', 'active')->get();
 
-        return view('admin.terms.edit', compact('term', 'programs', 'tracks'));
+        return view('admin.terms.edit', compact('term', 'programs'));
     }
 
     public function update(Request $request, Term $term)
     {
         $validated = $request->validate([
             'program_id' => 'required|exists:programs,id',
-            'track_id' => 'nullable|exists:tracks,id',
             'term_number' => 'required|integer|min:1',
-            'name' => 'required|string|max:255',
+            'name_ar' => 'required|string|max:255',
+            'name_en' => 'required|string|max:255',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after:start_date',
-            'registration_start_date' => 'nullable|date',
-            'registration_end_date' => 'nullable|date|after:registration_start_date',
             'status' => 'required|in:upcoming,active,completed',
         ]);
 

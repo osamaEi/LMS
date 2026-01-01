@@ -31,7 +31,6 @@ class DashboardController extends Controller
         $upcomingSessions = Session::whereHas('subject', function ($q) use ($teacher) {
                 $q->where('teacher_id', $teacher->id);
             })
-            ->where('status', 'scheduled')
             ->where('scheduled_at', '>', now())
             ->with(['subject:id,name', 'unit:id,title'])
             ->orderBy('scheduled_at', 'asc')
@@ -58,7 +57,6 @@ class DashboardController extends Controller
             'upcoming_sessions' => Session::whereHas('subject', function ($q) use ($teacher) {
                     $q->where('teacher_id', $teacher->id);
                 })
-                ->where('status', 'scheduled')
                 ->where('scheduled_at', '>', now())
                 ->count(),
             'pending_evaluations' => Evaluation::whereHas('subject', function ($q) use ($teacher) {

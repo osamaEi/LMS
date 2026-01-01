@@ -1,6 +1,6 @@
 @extends('layouts.dashboard')
 
-@section('title', 'إضافة مادة دراسية جديدة')
+@section('title', 'تعديل المادة الدراسية')
 
 @section('content')
 <div class="mb-6">
@@ -11,9 +11,9 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
             </svg>
         </a>
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">إضافة مادة دراسية جديدة</h1>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">تعديل المادة الدراسية</h1>
     </div>
-    <p class="text-sm text-gray-500 dark:text-gray-400">أدخل بيانات المادة الدراسية الجديدة</p>
+    <p class="text-sm text-gray-500 dark:text-gray-400">تعديل بيانات المادة الدراسية</p>
 </div>
 
 @if($errors->any())
@@ -26,8 +26,9 @@
 </div>
 @endif
 
-<form action="{{ route('admin.subjects.store') }}" method="POST" enctype="multipart/form-data">
+<form action="{{ route('admin.subjects.update', $subject) }}" method="POST" enctype="multipart/form-data">
     @csrf
+    @method('PUT')
 
     <div class="rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
         <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -41,7 +42,7 @@
                         class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
                     <option value="">اختر الفصل الدراسي</option>
                     @foreach($terms as $term)
-                        <option value="{{ $term->id }}" {{ old('term_id', request('term_id')) == $term->id ? 'selected' : '' }}>
+                        <option value="{{ $term->id }}" {{ old('term_id', $subject->term_id) == $term->id ? 'selected' : '' }}>
                             {{ $term->name }} - {{ $term->program->name ?? '' }} (الفصل {{ $term->term_number }})
                         </option>
                     @endforeach
@@ -58,7 +59,7 @@
                         class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
                     <option value="">اختر المعلم</option>
                     @foreach($teachers as $teacher)
-                        <option value="{{ $teacher->id }}" {{ old('teacher_id') == $teacher->id ? 'selected' : '' }}>
+                        <option value="{{ $teacher->id }}" {{ old('teacher_id', $subject->teacher_id) == $teacher->id ? 'selected' : '' }}>
                             {{ $teacher->name }}
                         </option>
                     @endforeach
@@ -72,7 +73,7 @@
                 </label>
                 <input type="text"
                        name="name_ar"
-                       value="{{ old('name_ar') }}"
+                       value="{{ old('name_ar', $subject->name_ar) }}"
                        required
                        class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
                        placeholder="مثال: مقدمة في البرمجة">
@@ -85,7 +86,7 @@
                 </label>
                 <input type="text"
                        name="name_en"
-                       value="{{ old('name_en') }}"
+                       value="{{ old('name_en', $subject->name_en) }}"
                        required
                        dir="ltr"
                        class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
@@ -99,7 +100,7 @@
                 </label>
                 <input type="text"
                        name="code"
-                       value="{{ old('code') }}"
+                       value="{{ old('code', $subject->code) }}"
                        required
                        class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
                        placeholder="مثال: CS101">
@@ -112,18 +113,23 @@
                 </label>
                 <input type="number"
                        name="credits"
-                       value="{{ old('credits') }}"
+                       value="{{ old('credits', $subject->credits) }}"
                        min="1"
                        class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
                        placeholder="مثال: 3">
             </div>
-
 
             <!-- صورة البانر -->
             <div class="md:col-span-2">
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     صورة البانر
                 </label>
+                @if($subject->banner_photo)
+                <div class="mb-3">
+                    <img src="{{ Storage::url($subject->banner_photo) }}" alt="صورة البانر الحالية" class="h-32 w-auto rounded-lg object-cover">
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">الصورة الحالية</p>
+                </div>
+                @endif
                 <input type="file"
                        name="banner_photo"
                        accept="image/*"
@@ -139,9 +145,9 @@
                 <select name="status"
                         required
                         class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
-                    <option value="active" {{ old('status', 'active') === 'active' ? 'selected' : '' }}>نشط</option>
-                    <option value="inactive" {{ old('status') === 'inactive' ? 'selected' : '' }}>غير نشط</option>
-                    <option value="completed" {{ old('status') === 'completed' ? 'selected' : '' }}>مكتمل</option>
+                    <option value="active" {{ old('status', $subject->status) === 'active' ? 'selected' : '' }}>نشط</option>
+                    <option value="inactive" {{ old('status', $subject->status) === 'inactive' ? 'selected' : '' }}>غير نشط</option>
+                    <option value="completed" {{ old('status', $subject->status) === 'completed' ? 'selected' : '' }}>مكتمل</option>
                 </select>
             </div>
 
@@ -153,7 +159,7 @@
                 <textarea name="description_ar"
                           rows="4"
                           class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-                          placeholder="وصف تفصيلي عن المادة الدراسية ومحتوياتها...">{{ old('description_ar') }}</textarea>
+                          placeholder="وصف تفصيلي عن المادة الدراسية ومحتوياتها...">{{ old('description_ar', $subject->description_ar) }}</textarea>
             </div>
 
             <!-- الوصف بالإنجليزي -->
@@ -165,7 +171,7 @@
                           rows="4"
                           dir="ltr"
                           class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-                          placeholder="Detailed description of the subject and its contents...">{{ old('description_en') }}</textarea>
+                          placeholder="Detailed description of the subject and its contents...">{{ old('description_en', $subject->description_en) }}</textarea>
             </div>
         </div>
 
@@ -177,7 +183,7 @@
             </a>
             <button type="submit"
                     class="rounded-lg bg-brand-500 px-6 py-2.5 text-sm font-medium text-white hover:bg-brand-600 transition-colors">
-                حفظ المادة
+                تحديث المادة
             </button>
         </div>
     </div>

@@ -31,9 +31,9 @@ class SessionController extends Controller
             });
         }
 
-        // Filter by status
-        if ($request->has('status')) {
-            $query->where('status', $request->status);
+        // Filter by type
+        if ($request->has('type')) {
+            $query->where('type', $request->type);
         }
 
         // Filter by date range

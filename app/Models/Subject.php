@@ -14,21 +14,38 @@ class Subject extends Model
     protected $fillable = [
         'term_id',
         'teacher_id',
-        'name',
+        'name_ar',
+        'name_en',
         'code',
-        'description',
+        'description_ar',
+        'description_en',
         'banner_photo',
         'credits',
-        'total_hours',
-        'max_students',
         'status',
     ];
+
+    /**
+     * Get the localized name
+     */
+    public function getNameAttribute(): string
+    {
+        $locale = app()->getLocale();
+        return $locale === 'en' ? ($this->name_en ?: $this->name_ar) : $this->name_ar;
+    }
+
+    /**
+     * Get the localized description
+     */
+    public function getDescriptionAttribute(): ?string
+    {
+        $locale = app()->getLocale();
+        return $locale === 'en' ? ($this->description_en ?: $this->description_ar) : $this->description_ar;
+    }
 
     protected function casts(): array
     {
         return [
             'credits' => 'integer',
-            'max_students' => 'integer',
         ];
     }
 
@@ -116,20 +133,6 @@ class Subject extends Model
         return $this->enrollments()->where('status', 'active')->count();
     }
 
-    public function hasCapacity(): bool
-    {
-        return $this->getEnrolledCount() < $this->max_students;
-    }
-
-    public function isFull(): bool
-    {
-        return !$this->hasCapacity();
-    }
-
-    public function getAvailableSeats(): int
-    {
-        return max(0, $this->max_students - $this->getEnrolledCount());
-    }
 
     /**
      * Check if student meets all prerequisites

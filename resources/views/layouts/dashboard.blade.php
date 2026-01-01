@@ -53,6 +53,7 @@
         </div>
     </div>
 
+    @stack('head-scripts')
     <script defer src="{{ asset('js/tailadmin.js') }}"></script>
     @stack('scripts')
 </body>

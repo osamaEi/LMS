@@ -13,15 +13,24 @@ class Term extends Model
 
     protected $fillable = [
         'program_id',
-        'track_id',
         'term_number',
-        'name',
+        'name_ar',
+        'name_en',
         'start_date',
         'end_date',
         'registration_start_date',
         'registration_end_date',
         'status',
     ];
+
+    /**
+     * Get the localized name
+     */
+    public function getNameAttribute(): string
+    {
+        $locale = app()->getLocale();
+        return $locale === 'en' ? ($this->name_en ?: $this->name_ar) : $this->name_ar;
+    }
 
     protected function casts(): array
     {

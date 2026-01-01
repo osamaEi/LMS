@@ -36,8 +36,7 @@ class SessionRepository extends BaseRepository implements SessionRepositoryInter
 
     public function getUpcomingSessions(int $subjectId = null): Collection
     {
-        $query = $this->model->where('status', 'scheduled')
-            ->where('scheduled_at', '>', now())
+        $query = $this->model->where('scheduled_at', '>', now())
             ->with('subject');
 
         if ($subjectId) {

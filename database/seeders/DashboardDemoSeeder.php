@@ -90,12 +90,13 @@ class DashboardDemoSeeder extends Seeder
         $program = Program::firstOrCreate(
             ['code' => 'PROG-001'],
             [
-                'name' => 'دبلوم البرمجة وتطوير الويب',
-                'type' => 'diploma',
+                'name_ar' => 'دبلوم البرمجة وتطوير الويب',
+                'name_en' => 'Web Development Diploma',
                 'duration_months' => 12,
                 'price' => 5000,
                 'status' => 'active',
-                'description' => 'برنامج شامل لتعلم البرمجة وتطوير الويب',
+                'description_ar' => 'برنامج شامل لتعلم البرمجة وتطوير الويب',
+                'description_en' => 'A comprehensive program to learn programming and web development',
             ]
         );
 
@@ -103,11 +104,10 @@ class DashboardDemoSeeder extends Seeder
         $term1 = Term::firstOrCreate(
             ['program_id' => $program->id, 'term_number' => 1],
             [
-                'name' => 'الفصل الأول',
+                'name_ar' => 'الفصل الأول',
+                'name_en' => 'First Semester',
                 'start_date' => now(),
                 'end_date' => now()->addMonths(4),
-                'registration_start_date' => now()->subMonth(),
-                'registration_end_date' => now()->addWeeks(2),
                 'status' => 'active',
             ]
         );
@@ -115,11 +115,10 @@ class DashboardDemoSeeder extends Seeder
         $term2 = Term::firstOrCreate(
             ['program_id' => $program->id, 'term_number' => 2],
             [
-                'name' => 'الفصل الثاني',
+                'name_ar' => 'الفصل الثاني',
+                'name_en' => 'Second Semester',
                 'start_date' => now()->addMonths(4),
                 'end_date' => now()->addMonths(8),
-                'registration_start_date' => now()->addMonths(3),
-                'registration_end_date' => now()->addMonths(4),
                 'status' => 'upcoming',
             ]
         );
@@ -128,33 +127,39 @@ class DashboardDemoSeeder extends Seeder
         $subject1 = Subject::firstOrCreate(
             ['code' => 'WEB101'],
             [
-                'name' => 'أساسيات تطوير الويب',
+                'name_ar' => 'أساسيات تطوير الويب',
+                'name_en' => 'Web Development Fundamentals',
                 'term_id' => $term1->id,
                 'teacher_id' => $teacher1->id,
                 'status' => 'active',
-                'description' => 'مقدمة في HTML, CSS و JavaScript',
+                'description_ar' => 'مقدمة في HTML, CSS و JavaScript',
+                'description_en' => 'Introduction to HTML, CSS and JavaScript',
             ]
         );
 
         $subject2 = Subject::firstOrCreate(
             ['code' => 'PHP101'],
             [
-                'name' => 'برمجة PHP',
+                'name_ar' => 'برمجة PHP',
+                'name_en' => 'PHP Programming',
                 'term_id' => $term1->id,
                 'teacher_id' => $teacher1->id,
                 'status' => 'active',
-                'description' => 'تعلم لغة PHP من الصفر',
+                'description_ar' => 'تعلم لغة PHP من الصفر',
+                'description_en' => 'Learn PHP from scratch',
             ]
         );
 
         $subject3 = Subject::firstOrCreate(
             ['code' => 'DB101'],
             [
-                'name' => 'قواعد البيانات',
+                'name_ar' => 'قواعد البيانات',
+                'name_en' => 'Database Management',
                 'term_id' => $term1->id,
                 'teacher_id' => $teacher2->id,
                 'status' => 'active',
-                'description' => 'تصميم وإدارة قواعد البيانات',
+                'description_ar' => 'تصميم وإدارة قواعد البيانات',
+                'description_en' => 'Database design and management',
             ]
         );
 

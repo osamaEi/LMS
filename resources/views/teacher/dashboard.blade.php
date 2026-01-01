@@ -12,44 +12,7 @@
         <p class="text-gray-600 dark:text-gray-400 mt-1">لوحة تحكم المعلم - معايير NELC</p>
     </div>
 
-    <!-- Teacher Rating Card (NELC 2.4.9) -->
-    <div class="bg-gradient-to-r from-purple-600 to-purple-800 rounded-lg shadow-lg p-6 mb-6 text-white">
-        <div class="flex items-center justify-between flex-wrap gap-4">
-            <div>
-                <h2 class="text-xl font-bold">تقييمك العام</h2>
-                <p class="text-purple-100 text-sm">معيار NELC 2.4.9 - تقييم المدربين</p>
-            </div>
-            <div class="text-center">
-                <div class="flex items-center gap-2">
-                    <svg class="w-10 h-10 text-yellow-300" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                    </svg>
-                    <span class="text-4xl font-bold">{{ number_format($teacherRating['overall'] ?? 0, 1) }}</span>
-                    <span class="text-xl text-purple-100">/5</span>
-                </div>
-                <div class="text-sm text-purple-100 mt-1">{{ $teacherRating['total_ratings'] ?? 0 }} تقييم</div>
-            </div>
-        </div>
 
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
-            <div class="bg-white/10 rounded-lg p-3 text-center">
-                <div class="text-lg font-bold">{{ number_format($teacherRating['teaching_quality'] ?? 0, 1) }}</div>
-                <div class="text-xs text-purple-100">جودة التدريس</div>
-            </div>
-            <div class="bg-white/10 rounded-lg p-3 text-center">
-                <div class="text-lg font-bold">{{ number_format($teacherRating['communication'] ?? 0, 1) }}</div>
-                <div class="text-xs text-purple-100">التواصل</div>
-            </div>
-            <div class="bg-white/10 rounded-lg p-3 text-center">
-                <div class="text-lg font-bold">{{ number_format($teacherRating['punctuality'] ?? 0, 1) }}</div>
-                <div class="text-xs text-purple-100">الالتزام بالمواعيد</div>
-            </div>
-            <div class="bg-white/10 rounded-lg p-3 text-center">
-                <div class="text-lg font-bold">{{ number_format($teacherRating['content_delivery'] ?? 0, 1) }}</div>
-                <div class="text-xs text-purple-100">توصيل المحتوى</div>
-            </div>
-        </div>
-    </div>
 
     <!-- Statistics -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
@@ -111,24 +74,7 @@
         </div>
     </div>
 
-    <!-- Charts Row -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <!-- Attendance Chart -->
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">معدل الحضور الأسبوعي</h3>
-            <div style="height: 250px;">
-                <canvas id="attendanceChart"></canvas>
-            </div>
-        </div>
 
-        <!-- Ratings Chart -->
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">توزيع التقييمات</h3>
-            <div style="height: 250px;">
-                <canvas id="ratingsChart"></canvas>
-            </div>
-        </div>
-    </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- My Subjects -->
@@ -258,7 +204,7 @@
                 </div>
                 <div class="p-6">
                     <div class="text-center mb-4">
-                        <a href="{{ route('tickets.create') }}" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">
+                        <a href="{{ route('teacher.tickets.create') }}" class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 text-sm">
                             <svg class="w-4 h-4 ml-2" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/>
                             </svg>
@@ -312,69 +258,75 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Attendance Chart
-    const attendanceCtx = document.getElementById('attendanceChart').getContext('2d');
-    let attendanceData = @json($weeklyAttendance ?? []);
+    const attendanceEl = document.getElementById('attendanceChart');
+    if (attendanceEl) {
+        const attendanceCtx = attendanceEl.getContext('2d');
+        let attendanceData = @json($weeklyAttendance ?? []);
 
-    // Default data if empty
-    if (Object.keys(attendanceData).length === 0) {
-        attendanceData = {'الأحد': 85, 'الإثنين': 90, 'الثلاثاء': 88, 'الأربعاء': 92, 'الخميس': 87};
-    }
+        // Default data if empty
+        if (Object.keys(attendanceData).length === 0) {
+            attendanceData = {'الأحد': 85, 'الإثنين': 90, 'الثلاثاء': 88, 'الأربعاء': 92, 'الخميس': 87};
+        }
 
-    new Chart(attendanceCtx, {
-        type: 'bar',
-        data: {
-            labels: Object.keys(attendanceData),
-            datasets: [{
-                label: 'نسبة الحضور',
-                data: Object.values(attendanceData),
-                backgroundColor: 'rgba(16, 185, 129, 0.8)',
-                borderRadius: 5
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false }
+        new Chart(attendanceCtx, {
+            type: 'bar',
+            data: {
+                labels: Object.keys(attendanceData),
+                datasets: [{
+                    label: 'نسبة الحضور',
+                    data: Object.values(attendanceData),
+                    backgroundColor: 'rgba(16, 185, 129, 0.8)',
+                    borderRadius: 5
+                }]
             },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    max: 100,
-                    ticks: {
-                        callback: function(value) { return value + '%'; }
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            callback: function(value) { return value + '%'; }
+                        }
                     }
                 }
             }
-        }
-    });
-
-    // Ratings Distribution Chart
-    const ratingsCtx = document.getElementById('ratingsChart').getContext('2d');
-    let ratingsData = @json($ratingsDistribution ?? []);
-
-    // Default data if empty
-    if (Object.keys(ratingsData).length === 0) {
-        ratingsData = {1: 2, 2: 5, 3: 15, 4: 30, 5: 48};
+        });
     }
 
-    new Chart(ratingsCtx, {
-        type: 'doughnut',
-        data: {
-            labels: ['1 نجمة', '2 نجمة', '3 نجوم', '4 نجوم', '5 نجوم'],
-            datasets: [{
-                data: Object.values(ratingsData),
-                backgroundColor: ['#ef4444', '#f97316', '#eab308', '#84cc16', '#22c55e']
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { position: 'bottom' }
-            }
+    // Ratings Distribution Chart
+    const ratingsEl = document.getElementById('ratingsChart');
+    if (ratingsEl) {
+        const ratingsCtx = ratingsEl.getContext('2d');
+        let ratingsData = @json($ratingsDistribution ?? []);
+
+        // Default data if empty
+        if (Object.keys(ratingsData).length === 0) {
+            ratingsData = {1: 2, 2: 5, 3: 15, 4: 30, 5: 48};
         }
-    });
+
+        new Chart(ratingsCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['1 نجمة', '2 نجمة', '3 نجوم', '4 نجوم', '5 نجوم'],
+                datasets: [{
+                    data: Object.values(ratingsData),
+                    backgroundColor: ['#ef4444', '#f97316', '#eab308', '#84cc16', '#22c55e']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom' }
+                }
+            }
+        });
+    }
 });
 </script>
 @endsection

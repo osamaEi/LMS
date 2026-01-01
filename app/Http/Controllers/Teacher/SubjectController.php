@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\Teacher;
 
 use App\Http\Controllers\Controller;
 use App\Models\Session;
@@ -11,7 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
-class SessionController extends Controller
+class SubjectController extends Controller
 {
     protected $zoomService;
 
@@ -20,26 +20,70 @@ class SessionController extends Controller
         $this->zoomService = $zoomService;
     }
 
+    /**
+     * Display teacher's subjects
+     */
     public function index()
     {
-        $sessions = Session::with(['subject.term.program'])
-            ->latest('scheduled_at')
-            ->paginate(15);
+        $teacher = auth()->user();
 
-        return view('admin.sessions.index', compact('sessions'));
+        $subjects = Subject::where('teacher_id', $teacher->id)
+            ->with(['term.program'])
+            ->withCount(['enrollments', 'sessions'])
+            ->orderBy(app()->getLocale() === 'en' ? 'name_en' : 'name_ar')
+            ->get();
+
+        return view('teacher.subjects.index', compact('subjects'));
     }
 
-    public function create()
+    /**
+     * Display subject details with sessions
+     */
+    public function show($id)
     {
-        $subjects = Subject::with(['term.program', 'units'])->where('status', 'active')->get();
+        $teacher = auth()->user();
 
-        return view('admin.sessions.create', compact('subjects'));
+        $subject = Subject::where('teacher_id', $teacher->id)
+            ->with(['term.program', 'units'])
+            ->withCount('enrollments')
+            ->findOrFail($id);
+
+        $sessions = Session::where('subject_id', $id)
+            ->with('unit')
+            ->orderBy('session_number', 'asc')
+            ->get();
+
+        return view('teacher.subjects.show', compact('subject', 'sessions'));
     }
 
-    public function store(Request $request)
+    /**
+     * Show session creation form
+     */
+    public function createSession($subjectId)
     {
+        $teacher = auth()->user();
+
+        $subject = Subject::where('teacher_id', $teacher->id)
+            ->with('units')
+            ->findOrFail($subjectId);
+
+        // Get next session number
+        $nextSessionNumber = Session::where('subject_id', $subjectId)->max('session_number') + 1;
+
+        return view('teacher.subjects.sessions.create', compact('subject', 'nextSessionNumber'));
+    }
+
+    /**
+     * Store a new session
+     */
+    public function storeSession(Request $request, $subjectId)
+    {
+        $teacher = auth()->user();
+
+        // Verify subject belongs to teacher
+        $subject = Subject::where('teacher_id', $teacher->id)->findOrFail($subjectId);
+
         $validated = $request->validate([
-            'subject_id' => 'required|exists:subjects,id',
             'unit_id' => 'nullable|exists:units,id',
             'title_ar' => 'required|string|max:255',
             'title_en' => 'required|string|max:255',
@@ -56,7 +100,7 @@ class SessionController extends Controller
             'zoom_password' => 'nullable|string',
 
             // Video fields
-            'video_file' => 'nullable|file|mimes:mp4,avi,mov,mkv,wmv,flv|max:512000', // Max 500MB
+            'video_file' => 'nullable|file|mimes:mp4,avi,mov,mkv,wmv,flv|max:512000',
             'video_url' => 'nullable|url',
             'video_platform' => 'nullable|in:youtube,vimeo,external,local',
 
@@ -64,7 +108,9 @@ class SessionController extends Controller
             'files.*' => 'nullable|file|max:10240',
         ]);
 
-        // Handle video file upload if present
+        $validated['subject_id'] = $subjectId;
+
+        // Handle video file upload
         if ($request->hasFile('video_file')) {
             $videoFile = $request->file('video_file');
             $path = $videoFile->store('session-videos', 'public');
@@ -74,25 +120,24 @@ class SessionController extends Controller
             $validated['video_size'] = $videoFile->getSize();
         }
 
-        // Filter out null values to avoid database constraint violations
+        // Filter out null values
         $validated = array_filter($validated, function($value) {
             return $value !== null && $value !== '';
         });
 
-        // Set default value for video_platform if video_url is provided but platform is not
+        // Set default video platform
         if (!empty($validated['video_url']) && empty($validated['video_platform'])) {
             $validated['video_platform'] = 'external';
         }
 
-        // Remove video_file from validated data as it's already processed
         unset($validated['video_file']);
 
-        // Automatically create Zoom meeting if type is live_zoom
+        // Create Zoom meeting if type is live_zoom
         if ($validated['type'] === 'live_zoom' && empty($validated['zoom_meeting_id'])) {
             try {
                 $meetingData = [
                     'topic' => $validated['title_ar'],
-                    'type' => 2, // Scheduled meeting
+                    'type' => 2,
                     'start_time' => isset($validated['scheduled_at'])
                         ? \Carbon\Carbon::parse($validated['scheduled_at'])->toIso8601String()
                         : now()->addHour()->toIso8601String(),
@@ -108,18 +153,18 @@ class SessionController extends Controller
                     $validated['zoom_join_url'] = $meeting['join_url'];
                     $validated['zoom_password'] = $meeting['password'] ?? null;
 
-                    Log::info('Zoom meeting created automatically', [
+                    Log::info('Zoom meeting created by teacher', [
                         'meeting_id' => $meeting['id'],
+                        'teacher_id' => $teacher->id,
                         'title' => $validated['title_ar']
                     ]);
                 } else {
-                    Log::error('Failed to auto-create Zoom meeting for session: ' . $validated['title_ar']);
                     return back()->withInput()->withErrors([
-                        'zoom' => 'فشل إنشاء اجتماع Zoom تلقائياً. يرجى التحقق من إعدادات Zoom API أو إنشاء الاجتماع يدوياً.'
+                        'zoom' => 'فشل إنشاء اجتماع Zoom تلقائياً. يرجى التحقق من إعدادات Zoom API.'
                     ]);
                 }
             } catch (\Exception $e) {
-                Log::error('Zoom auto-creation exception: ' . $e->getMessage());
+                Log::error('Zoom creation exception by teacher: ' . $e->getMessage());
                 return back()->withInput()->withErrors([
                     'zoom' => 'حدث خطأ أثناء إنشاء اجتماع Zoom: ' . $e->getMessage()
                 ]);
@@ -144,43 +189,42 @@ class SessionController extends Controller
             }
         }
 
-        return redirect()->route('admin.sessions.index')
-            ->with('success', 'تم إضافة الدرس بنجاح');
+        return redirect()->route('teacher.my-subjects.show', $subjectId)
+            ->with('success', 'تم إضافة الحصة بنجاح');
     }
 
-    public function show(Session $session)
+    /**
+     * Show session edit form
+     */
+    public function editSession($subjectId, $sessionId)
     {
-        $session->load(['subject.term.program', 'files']);
+        $teacher = auth()->user();
 
-        return view('admin.sessions.show', compact('session'));
+        $subject = Subject::where('teacher_id', $teacher->id)
+            ->with('units')
+            ->findOrFail($subjectId);
+
+        $session = Session::where('subject_id', $subjectId)
+            ->with('files')
+            ->findOrFail($sessionId);
+
+        return view('teacher.subjects.sessions.edit', compact('subject', 'session'));
     }
 
-    public function showZoom(Session $session)
+    /**
+     * Update session
+     */
+    public function updateSession(Request $request, $subjectId, $sessionId)
     {
-        $session->load(['subject.term.program']);
+        $teacher = auth()->user();
 
-        return view('admin.sessions.zoom', compact('session'));
-    }
+        // Verify subject belongs to teacher
+        Subject::where('teacher_id', $teacher->id)->findOrFail($subjectId);
 
-    public function showZoomDashboard(Session $session)
-    {
-        $session->load(['subject.term.program']);
+        $session = Session::where('subject_id', $subjectId)->findOrFail($sessionId);
 
-        return view('admin.sessions.zoom-dashboard', compact('session'));
-    }
-
-    public function edit(Session $session)
-    {
-        $subjects = Subject::with('term.program')->where('status', 'active')->get();
-        $session->load('files');
-
-        return view('admin.sessions.edit', compact('session', 'subjects'));
-    }
-
-    public function update(Request $request, Session $session)
-    {
         $validated = $request->validate([
-            'subject_id' => 'required|exists:subjects,id',
+            'unit_id' => 'nullable|exists:units,id',
             'title_ar' => 'required|string|max:255',
             'title_en' => 'required|string|max:255',
             'description_ar' => 'nullable|string',
@@ -196,6 +240,7 @@ class SessionController extends Controller
             'zoom_password' => 'nullable|string',
 
             // Video fields
+            'video_file' => 'nullable|file|mimes:mp4,avi,mov,mkv,wmv,flv|max:512000',
             'video_url' => 'nullable|url',
             'video_platform' => 'nullable|in:youtube,vimeo,external,local',
 
@@ -203,22 +248,38 @@ class SessionController extends Controller
             'files.*' => 'nullable|file|max:10240',
         ]);
 
-        // Filter out null values to avoid database constraint violations
+        // Handle video file upload
+        if ($request->hasFile('video_file')) {
+            // Delete old video if exists
+            if ($session->video_path) {
+                Storage::disk('public')->delete($session->video_path);
+            }
+
+            $videoFile = $request->file('video_file');
+            $path = $videoFile->store('session-videos', 'public');
+
+            $validated['video_path'] = $path;
+            $validated['video_platform'] = 'local';
+            $validated['video_size'] = $videoFile->getSize();
+        }
+
+        // Filter out null values
         $validated = array_filter($validated, function($value) {
             return $value !== null;
         });
 
-        // Set default value for video_platform if video_url is provided but platform is not
         if (!empty($validated['video_url']) && empty($validated['video_platform'])) {
             $validated['video_platform'] = 'external';
         }
 
-        // Automatically create Zoom meeting if type changed to live_zoom and no meeting exists
+        unset($validated['video_file']);
+
+        // Create Zoom meeting if switching to live_zoom
         if ($validated['type'] === 'live_zoom' && empty($validated['zoom_meeting_id']) && empty($session->zoom_meeting_id)) {
             try {
                 $meetingData = [
                     'topic' => $validated['title_ar'],
-                    'type' => 2, // Scheduled meeting
+                    'type' => 2,
                     'start_time' => isset($validated['scheduled_at'])
                         ? \Carbon\Carbon::parse($validated['scheduled_at'])->toIso8601String()
                         : now()->addHour()->toIso8601String(),
@@ -233,61 +294,16 @@ class SessionController extends Controller
                     $validated['zoom_meeting_id'] = $meeting['id'];
                     $validated['zoom_join_url'] = $meeting['join_url'];
                     $validated['zoom_password'] = $meeting['password'] ?? null;
-
-                    Log::info('Zoom meeting created automatically on update', [
-                        'meeting_id' => $meeting['id'],
-                        'session_id' => $session->id
-                    ]);
                 } else {
-                    Log::error('Failed to auto-create Zoom meeting for session: ' . $session->id);
                     return back()->withInput()->withErrors([
-                        'zoom' => 'فشل إنشاء اجتماع Zoom تلقائياً. يرجى التحقق من إعدادات Zoom API أو إنشاء الاجتماع يدوياً.'
+                        'zoom' => 'فشل إنشاء اجتماع Zoom تلقائياً.'
                     ]);
                 }
             } catch (\Exception $e) {
-                Log::error('Zoom auto-creation exception on update: ' . $e->getMessage());
+                Log::error('Zoom creation exception: ' . $e->getMessage());
                 return back()->withInput()->withErrors([
                     'zoom' => 'حدث خطأ أثناء إنشاء اجتماع Zoom: ' . $e->getMessage()
                 ]);
-            }
-        }
-        // Update existing Zoom meeting if details changed
-        elseif ($validated['type'] === 'live_zoom' && !empty($session->zoom_meeting_id)) {
-            try {
-                $meetingData = [];
-
-                if (isset($validated['title_ar']) && $validated['title_ar'] !== $session->title_ar) {
-                    $meetingData['topic'] = $validated['title_ar'];
-                }
-
-                if (isset($validated['scheduled_at']) && $validated['scheduled_at'] !== $session->scheduled_at) {
-                    $meetingData['start_time'] = \Carbon\Carbon::parse($validated['scheduled_at'])->toIso8601String();
-                }
-
-                if (isset($validated['duration_minutes']) && $validated['duration_minutes'] !== $session->duration_minutes) {
-                    $meetingData['duration'] = $validated['duration_minutes'];
-                }
-
-                if (isset($validated['description_ar']) && $validated['description_ar'] !== $session->description_ar) {
-                    $meetingData['agenda'] = $validated['description_ar'];
-                }
-
-                // Only update if there are changes
-                if (!empty($meetingData)) {
-                    $updated = $this->zoomService->updateMeeting($session->zoom_meeting_id, $meetingData);
-
-                    if ($updated) {
-                        Log::info('Zoom meeting updated automatically', [
-                            'meeting_id' => $session->zoom_meeting_id,
-                            'session_id' => $session->id
-                        ]);
-                    } else {
-                        Log::warning('Failed to update Zoom meeting: ' . $session->zoom_meeting_id);
-                    }
-                }
-            } catch (\Exception $e) {
-                Log::error('Zoom auto-update exception: ' . $e->getMessage());
-                // Don't block the session update if Zoom update fails
             }
         }
 
@@ -311,28 +327,34 @@ class SessionController extends Controller
             }
         }
 
-        return redirect()->route('admin.sessions.index')
-            ->with('success', 'تم تحديث الدرس بنجاح');
+        return redirect()->route('teacher.my-subjects.show', $subjectId)
+            ->with('success', 'تم تحديث الحصة بنجاح');
     }
 
-    public function destroy(Session $session)
+    /**
+     * Delete session
+     */
+    public function destroySession($subjectId, $sessionId)
     {
+        $teacher = auth()->user();
+
+        // Verify subject belongs to teacher
+        Subject::where('teacher_id', $teacher->id)->findOrFail($subjectId);
+
+        $session = Session::where('subject_id', $subjectId)->findOrFail($sessionId);
+
         // Delete Zoom meeting if exists
         if ($session->zoom_meeting_id) {
             try {
-                $deleted = $this->zoomService->deleteMeeting($session->zoom_meeting_id);
-                if ($deleted) {
-                    Log::info('Zoom meeting deleted automatically', [
-                        'meeting_id' => $session->zoom_meeting_id,
-                        'session_id' => $session->id
-                    ]);
-                } else {
-                    Log::warning('Failed to delete Zoom meeting: ' . $session->zoom_meeting_id);
-                }
+                $this->zoomService->deleteMeeting($session->zoom_meeting_id);
             } catch (\Exception $e) {
                 Log::error('Zoom deletion exception: ' . $e->getMessage());
-                // Don't block session deletion if Zoom deletion fails
             }
+        }
+
+        // Delete video if exists
+        if ($session->video_path) {
+            Storage::disk('public')->delete($session->video_path);
         }
 
         // Delete associated files
@@ -343,15 +365,57 @@ class SessionController extends Controller
 
         $session->delete();
 
-        return redirect()->route('admin.sessions.index')
-            ->with('success', 'تم حذف الدرس بنجاح');
+        return redirect()->route('teacher.my-subjects.show', $subjectId)
+            ->with('success', 'تم حذف الحصة بنجاح');
     }
 
-    public function deleteFile(SessionFile $file)
+    /**
+     * Delete session file
+     */
+    public function deleteSessionFile($subjectId, $sessionId, $fileId)
     {
+        $teacher = auth()->user();
+
+        Subject::where('teacher_id', $teacher->id)->findOrFail($subjectId);
+        Session::where('subject_id', $subjectId)->findOrFail($sessionId);
+
+        $file = SessionFile::where('session_id', $sessionId)->findOrFail($fileId);
+
         Storage::disk('public')->delete($file->file_path);
         $file->delete();
 
         return back()->with('success', 'تم حذف الملف بنجاح');
+    }
+
+    /**
+     * Show Zoom meeting page (fullscreen)
+     */
+    public function showZoom($subjectId, $sessionId)
+    {
+        $teacher = auth()->user();
+
+        Subject::where('teacher_id', $teacher->id)->findOrFail($subjectId);
+
+        $session = Session::where('subject_id', $subjectId)
+            ->with('subject')
+            ->findOrFail($sessionId);
+
+        return view('teacher.subjects.sessions.zoom', compact('session'));
+    }
+
+    /**
+     * Show Zoom meeting page (embedded in dashboard)
+     */
+    public function showZoomEmbedded($subjectId, $sessionId)
+    {
+        $teacher = auth()->user();
+
+        Subject::where('teacher_id', $teacher->id)->findOrFail($subjectId);
+
+        $session = Session::where('subject_id', $subjectId)
+            ->with('subject')
+            ->findOrFail($sessionId);
+
+        return view('teacher.subjects.sessions.zoom-embedded', compact('session'));
     }
 }

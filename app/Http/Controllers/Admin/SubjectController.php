@@ -33,15 +33,20 @@ class SubjectController extends Controller
         $validated = $request->validate([
             'term_id' => 'required|exists:terms,id',
             'teacher_id' => 'nullable|exists:users,id',
-            'name' => 'required|string|max:255',
+            'name_ar' => 'required|string|max:255',
+            'name_en' => 'required|string|max:255',
             'code' => 'required|string|unique:subjects,code',
-            'description' => 'nullable|string',
-            'banner_photo' => 'nullable|string',
+            'description_ar' => 'nullable|string',
+            'description_en' => 'nullable|string',
+            'banner_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'credits' => 'nullable|integer|min:1',
-            'total_hours' => 'nullable|integer|min:1',
-            'max_students' => 'nullable|integer|min:1',
             'status' => 'required|in:active,inactive,completed',
         ]);
+
+        // Handle image upload
+        if ($request->hasFile('banner_photo')) {
+            $validated['banner_photo'] = $request->file('banner_photo')->store('subjects', 'public');
+        }
 
         $subject = Subject::create($validated);
 
@@ -78,15 +83,20 @@ class SubjectController extends Controller
         $validated = $request->validate([
             'term_id' => 'required|exists:terms,id',
             'teacher_id' => 'required|exists:users,id',
-            'name' => 'required|string|max:255',
+            'name_ar' => 'required|string|max:255',
+            'name_en' => 'required|string|max:255',
             'code' => 'required|string|unique:subjects,code,' . $subject->id,
-            'description' => 'nullable|string',
-            'banner_photo' => 'nullable|string',
+            'description_ar' => 'nullable|string',
+            'description_en' => 'nullable|string',
+            'banner_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'credits' => 'nullable|integer|min:1',
-            'total_hours' => 'nullable|integer|min:1',
-            'max_students' => 'nullable|integer|min:1',
             'status' => 'required|in:active,inactive,completed',
         ]);
+
+        // Handle image upload
+        if ($request->hasFile('banner_photo')) {
+            $validated['banner_photo'] = $request->file('banner_photo')->store('subjects', 'public');
+        }
 
         $subject->update($validated);
 

@@ -156,6 +156,23 @@ Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')
     Route::get('/dashboard', [TeacherDashboardController::class, 'index'])->name('dashboard');
     Route::get('/subjects/{id}', [TeacherDashboardController::class, 'showSubject'])->name('subjects.show');
 
+    // My Subjects (Teacher's own subjects management)
+    Route::get('/my-subjects', [\App\Http\Controllers\Teacher\SubjectController::class, 'index'])->name('my-subjects.index');
+    Route::get('/my-subjects/{id}', [\App\Http\Controllers\Teacher\SubjectController::class, 'show'])->name('my-subjects.show');
+
+    // Sessions Management (under my-subjects)
+    Route::get('/my-subjects/{subjectId}/sessions/create', [\App\Http\Controllers\Teacher\SubjectController::class, 'createSession'])->name('my-subjects.sessions.create');
+    Route::post('/my-subjects/{subjectId}/sessions', [\App\Http\Controllers\Teacher\SubjectController::class, 'storeSession'])->name('my-subjects.sessions.store');
+    Route::get('/my-subjects/{subjectId}/sessions/{sessionId}/edit', [\App\Http\Controllers\Teacher\SubjectController::class, 'editSession'])->name('my-subjects.sessions.edit');
+    Route::put('/my-subjects/{subjectId}/sessions/{sessionId}', [\App\Http\Controllers\Teacher\SubjectController::class, 'updateSession'])->name('my-subjects.sessions.update');
+    Route::delete('/my-subjects/{subjectId}/sessions/{sessionId}', [\App\Http\Controllers\Teacher\SubjectController::class, 'destroySession'])->name('my-subjects.sessions.destroy');
+    Route::get('/my-subjects/{subjectId}/sessions/{sessionId}/zoom', [\App\Http\Controllers\Teacher\SubjectController::class, 'showZoom'])->name('my-subjects.sessions.zoom');
+    Route::get('/my-subjects/{subjectId}/sessions/{sessionId}/zoom-embedded', [\App\Http\Controllers\Teacher\SubjectController::class, 'showZoomEmbedded'])->name('my-subjects.sessions.zoom-embedded');
+    Route::delete('/my-subjects/{subjectId}/sessions/{sessionId}/files/{fileId}', [\App\Http\Controllers\Teacher\SubjectController::class, 'deleteSessionFile'])->name('my-subjects.sessions.files.destroy');
+
+    // Zoom signature generation for teachers
+    Route::post('/zoom/generate-signature', [\App\Http\Controllers\Api\V1\Admin\ZoomController::class, 'generateSignature'])->name('zoom.generate-signature');
+
     // Schedule
     Route::get('/schedule', [\App\Http\Controllers\Teacher\ScheduleController::class, 'index'])->name('schedule');
 

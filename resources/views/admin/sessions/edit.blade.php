@@ -51,14 +51,26 @@
                 </select>
             </div>
 
-            <!-- عنوان الدرس -->
-            <div class="md:col-span-2">
+            <!-- عنوان الدرس بالعربي -->
+            <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    عنوان الدرس <span class="text-error-500">*</span>
+                    عنوان الدرس (عربي) <span class="text-error-500">*</span>
                 </label>
                 <input type="text"
-                       name="title"
-                       value="{{ old('title', $session->title) }}"
+                       name="title_ar"
+                       value="{{ old('title_ar', $session->title_ar) }}"
+                       required
+                       class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
+            </div>
+
+            <!-- عنوان الدرس بالإنجليزي -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    عنوان الدرس (إنجليزي) <span class="text-error-500">*</span>
+                </label>
+                <input type="text"
+                       name="title_en"
+                       value="{{ old('title_en', $session->title_en) }}"
                        required
                        class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
             </div>
@@ -100,53 +112,27 @@
                        class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
             </div>
 
-            <!-- المدة بالدقائق -->
+            <!-- المدة بالدقائق - مخفي حالياً -->
+            <input type="hidden" name="duration_minutes" value="{{ old('duration_minutes', $session->duration_minutes) }}">
+
+            <!-- الوصف بالعربي -->
             <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    المدة بالدقائق
+                    وصف الدرس (عربي)
                 </label>
-                <input type="number"
-                       name="duration_minutes"
-                       value="{{ old('duration_minutes', $session->duration_minutes) }}"
-                       min="1"
-                       class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
-            </div>
-
-            <!-- الحالة -->
-            <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    الحالة <span class="text-error-500">*</span>
-                </label>
-                <select name="status"
-                        required
-                        class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
-                    <option value="scheduled" {{ old('status', $session->status) === 'scheduled' ? 'selected' : '' }}>مجدول</option>
-                    <option value="live" {{ old('status', $session->status) === 'live' ? 'selected' : '' }}>مباشر</option>
-                    <option value="completed" {{ old('status', $session->status) === 'completed' ? 'selected' : '' }}>مكتمل</option>
-                    <option value="cancelled" {{ old('status', $session->status) === 'cancelled' ? 'selected' : '' }}>ملغي</option>
-                </select>
-            </div>
-
-            <!-- إلزامي -->
-            <div>
-                <label class="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox"
-                           name="is_mandatory"
-                           value="1"
-                           {{ old('is_mandatory', $session->is_mandatory) ? 'checked' : '' }}
-                           class="rounded border-gray-300 text-brand-600 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800">
-                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">درس إلزامي</span>
-                </label>
-            </div>
-
-            <!-- الوصف -->
-            <div class="md:col-span-2">
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    وصف الدرس
-                </label>
-                <textarea name="description"
+                <textarea name="description_ar"
                           rows="3"
-                          class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white">{{ old('description', $session->description) }}</textarea>
+                          class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white">{{ old('description_ar', $session->description_ar) }}</textarea>
+            </div>
+
+            <!-- الوصف بالإنجليزي -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    وصف الدرس (إنجليزي)
+                </label>
+                <textarea name="description_en"
+                          rows="3"
+                          class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white">{{ old('description_en', $session->description_en) }}</textarea>
             </div>
         </div>
     </div>
@@ -240,7 +226,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                         </svg>
                         <div>
-                            <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $file->file_name }}</p>
+                            <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $file->title }}</p>
                             <p class="text-xs text-gray-500 dark:text-gray-400">{{ number_format($file->file_size / 1024, 2) }} KB</p>
                         </div>
                     </div>

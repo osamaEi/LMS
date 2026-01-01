@@ -31,7 +31,6 @@ class DashboardController extends Controller
         $upcomingSessions = Session::whereHas('subject.enrollments', function($query) use ($student) {
                 $query->where('student_id', $student->id);
             })
-            ->where('status', 'scheduled')
             ->where('scheduled_at', '>', now())
             ->with(['subject'])
             ->orderBy('scheduled_at', 'asc')
@@ -51,7 +50,9 @@ class DashboardController extends Controller
         $liveSessions = Session::whereHas('subject.enrollments', function($query) use ($student) {
                 $query->where('student_id', $student->id);
             })
-            ->where('status', 'live')
+            ->where('type', 'live_zoom')
+            ->whereNotNull('started_at')
+            ->whereNull('ended_at')
             ->with(['subject'])
             ->get();
 
@@ -63,7 +64,7 @@ class DashboardController extends Controller
             })->count(),
             'completed_sessions' => Session::whereHas('subject.enrollments', function($query) use ($student) {
                 $query->where('student_id', $student->id);
-            })->where('status', 'completed')->count(),
+            })->whereNotNull('ended_at')->count(),
             'live_sessions' => $liveSessions->count(),
         ];
 

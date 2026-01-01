@@ -30,7 +30,6 @@ class DashboardController extends Controller
         $upcomingSessions = Session::whereHas('subject', function($query) use ($teacher) {
                 $query->where('teacher_id', $teacher->id);
             })
-            ->where('status', 'scheduled')
             ->where('scheduled_at', '>', now())
             ->with('subject')
             ->orderBy('scheduled_at', 'asc')
@@ -55,7 +54,7 @@ class DashboardController extends Controller
             })->count(),
             'live_sessions' => Session::whereHas('subject', function($query) use ($teacher) {
                 $query->where('teacher_id', $teacher->id);
-            })->where('status', 'live')->count(),
+            })->where('type', 'live_zoom')->whereNotNull('started_at')->whereNull('ended_at')->count(),
         ];
 
         // NELC: Teacher ratings

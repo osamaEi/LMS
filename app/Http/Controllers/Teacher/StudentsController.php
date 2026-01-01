@@ -26,7 +26,7 @@ class StudentsController extends Controller
 
         // Get teacher's subjects for filtering
         $subjects = Subject::where('teacher_id', $teacher->id)
-            ->orderBy('name')
+            ->orderBy(app()->getLocale() === 'en' ? 'name_en' : 'name_ar')
             ->get();
 
         return view('teacher.students.index', compact('students', 'subjects'));

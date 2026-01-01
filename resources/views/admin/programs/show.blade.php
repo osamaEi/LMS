@@ -2,6 +2,15 @@
 
 @section('title', 'عرض المسار التعليمي')
 
+@push('head-scripts')
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.store('termModal', false);
+        Alpine.store('subjectModal', { open: false, termId: null, termName: '' });
+    });
+</script>
+@endpush
+
 @section('content')
 <div x-data="{}">
     <!-- Header -->
@@ -131,23 +140,6 @@
                             <div>
                                 <dt class="text-xs font-medium text-gray-500 dark:text-gray-400">كود المسار</dt>
                                 <dd class="text-sm font-semibold text-gray-900 dark:text-white">{{ $program->code }}</dd>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-4">
-                            <div class="w-10 h-10 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
-                                <svg class="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                                </svg>
-                            </div>
-                            <div>
-                                <dt class="text-xs font-medium text-gray-500 dark:text-gray-400">النوع</dt>
-                                <dd class="mt-0.5">
-                                    @if($program->type === 'diploma')
-                                        <span class="rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">دبلوم</span>
-                                    @else
-                                        <span class="rounded-full bg-purple-100 px-3 py-1 text-xs font-medium text-purple-600 dark:bg-purple-900/30 dark:text-purple-400">تدريبي</span>
-                                    @endif
-                                </dd>
                             </div>
                         </div>
                         @if($program->price)
@@ -487,12 +479,3 @@
 </template>
 
 @endsection
-
-@push('scripts')
-<script>
-document.addEventListener('alpine:init', () => {
-    Alpine.store('termModal', false);
-    Alpine.store('subjectModal', { open: false, termId: null, termName: '' });
-});
-</script>
-@endpush

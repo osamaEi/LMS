@@ -39,7 +39,7 @@
         <div class="rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
             @if($subject->banner_photo)
             <div class="h-48 rounded-t-xl overflow-hidden">
-                <img src="{{ $subject->banner_photo }}" alt="{{ $subject->name }}" class="w-full h-full object-cover">
+                <img src="{{ Storage::url($subject->banner_photo) }}" alt="{{ $subject->name }}" class="w-full h-full object-cover">
             </div>
             @endif
             <div class="p-6">
@@ -69,18 +69,6 @@
                     <div>
                         <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">الساعات المعتمدة</dt>
                         <dd class="mt-1 text-sm font-semibold text-gray-900 dark:text-white">{{ $subject->credits }} ساعة</dd>
-                    </div>
-                    @endif
-                    @if($subject->total_hours)
-                    <div>
-                        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">إجمالي الساعات</dt>
-                        <dd class="mt-1 text-sm font-semibold text-gray-900 dark:text-white">{{ $subject->total_hours }} ساعة</dd>
-                    </div>
-                    @endif
-                    @if($subject->max_students)
-                    <div>
-                        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">الحد الأقصى للطلاب</dt>
-                        <dd class="mt-1 text-sm font-semibold text-gray-900 dark:text-white">{{ $subject->max_students }} طالب</dd>
                     </div>
                     @endif
                 </dl>
@@ -186,12 +174,6 @@
                     <span class="text-sm text-gray-500 dark:text-gray-400">عدد الدروس</span>
                     <span class="text-lg font-bold text-gray-900 dark:text-white">{{ $subject->sessions->count() }}</span>
                 </div>
-                @if($subject->total_hours)
-                <div class="flex items-center justify-between">
-                    <span class="text-sm text-gray-500 dark:text-gray-400">إجمالي الساعات</span>
-                    <span class="text-lg font-bold text-gray-900 dark:text-white">{{ $subject->total_hours }}</span>
-                </div>
-                @endif
                 @if($subject->credits)
                 <div class="flex items-center justify-between">
                     <span class="text-sm text-gray-500 dark:text-gray-400">الساعات المعتمدة</span>

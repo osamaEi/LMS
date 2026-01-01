@@ -10,14 +10,33 @@ class Program extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'name',
+        'name_ar',
+        'name_en',
         'code',
-        'description',
-        'type',
+        'description_ar',
+        'description_en',
         'duration_months',
         'price',
         'status',
     ];
+
+    /**
+     * Get the localized name
+     */
+    public function getNameAttribute(): string
+    {
+        $locale = app()->getLocale();
+        return $locale === 'en' ? ($this->name_en ?: $this->name_ar) : $this->name_ar;
+    }
+
+    /**
+     * Get the localized description
+     */
+    public function getDescriptionAttribute(): ?string
+    {
+        $locale = app()->getLocale();
+        return $locale === 'en' ? ($this->description_en ?: $this->description_ar) : $this->description_ar;
+    }
 
     protected function casts(): array
     {

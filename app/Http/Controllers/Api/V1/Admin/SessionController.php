@@ -26,8 +26,13 @@ class SessionController extends Controller
             $query->where('type', $request->type);
         }
 
-        if ($request->has('status')) {
-            $query->where('status', $request->status);
+        // Filter by completed/ongoing status using ended_at
+        if ($request->has('completed')) {
+            if ($request->completed) {
+                $query->whereNotNull('ended_at');
+            } else {
+                $query->whereNull('ended_at');
+            }
         }
 
         $perPage = $request->get('per_page', 15);

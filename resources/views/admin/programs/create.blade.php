@@ -31,17 +31,31 @@
 
     <div class="rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
         <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
-            <!-- اسم المسار -->
-            <div class="md:col-span-2">
+            <!-- اسم المسار بالعربي -->
+            <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    اسم المسار <span class="text-error-500">*</span>
+                    اسم المسار (عربي) <span class="text-error-500">*</span>
                 </label>
                 <input type="text"
-                       name="name"
-                       value="{{ old('name') }}"
+                       name="name_ar"
+                       value="{{ old('name_ar') }}"
                        required
                        class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
                        placeholder="مثال: دبلوم البرمجة وتطوير الويب">
+            </div>
+
+            <!-- اسم المسار بالإنجليزي -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    اسم المسار (إنجليزي) <span class="text-error-500">*</span>
+                </label>
+                <input type="text"
+                       name="name_en"
+                       value="{{ old('name_en') }}"
+                       required
+                       dir="ltr"
+                       class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                       placeholder="Example: Web Development Diploma">
             </div>
 
             <!-- كود المسار -->
@@ -55,20 +69,6 @@
                        required
                        class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
                        placeholder="مثال: PROG-001">
-            </div>
-
-            <!-- نوع المسار -->
-            <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    نوع المسار <span class="text-error-500">*</span>
-                </label>
-                <select name="type"
-                        required
-                        class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
-                    <option value="">اختر النوع</option>
-                    <option value="diploma" {{ old('type') === 'diploma' ? 'selected' : '' }}>دبلوم</option>
-                    <option value="training" {{ old('type') === 'training' ? 'selected' : '' }}>تدريبي</option>
-                </select>
             </div>
 
             <!-- المدة بالأشهر -->
@@ -111,15 +111,27 @@
                 </select>
             </div>
 
-            <!-- الوصف -->
+            <!-- الوصف بالعربي -->
             <div class="md:col-span-2">
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    الوصف
+                    الوصف (عربي)
                 </label>
-                <textarea name="description"
-                          rows="4"
+                <textarea name="description_ar"
+                          rows="3"
                           class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-                          placeholder="وصف تفصيلي عن المسار التعليمي وأهدافه ومحتوياته...">{{ old('description') }}</textarea>
+                          placeholder="وصف تفصيلي عن المسار التعليمي وأهدافه ومحتوياته...">{{ old('description_ar') }}</textarea>
+            </div>
+
+            <!-- الوصف بالإنجليزي -->
+            <div class="md:col-span-2">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    الوصف (إنجليزي)
+                </label>
+                <textarea name="description_en"
+                          rows="3"
+                          dir="ltr"
+                          class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                          placeholder="Detailed description of the educational program, its objectives and content...">{{ old('description_en') }}</textarea>
             </div>
         </div>
 

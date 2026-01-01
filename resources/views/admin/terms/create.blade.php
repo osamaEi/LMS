@@ -42,23 +42,7 @@
                     <option value="">اختر المسار التعليمي</option>
                     @foreach($programs as $program)
                         <option value="{{ $program->id }}" {{ old('program_id', request('program_id')) == $program->id ? 'selected' : '' }}>
-                            {{ $program->name }} ({{ $program->code }})
-                        </option>
-                    @endforeach
-                </select>
-            </div>
-
-            <!-- المسار الفرعي (Track) -->
-            <div class="md:col-span-2">
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    المسار الفرعي (اختياري)
-                </label>
-                <select name="track_id"
-                        class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
-                    <option value="">لا يوجد مسار فرعي</option>
-                    @foreach($tracks as $track)
-                        <option value="{{ $track->id }}" {{ old('track_id') == $track->id ? 'selected' : '' }}>
-                            {{ $track->name }}
+                            {{ $program->name_ar }} ({{ $program->code }})
                         </option>
                     @endforeach
                 </select>
@@ -78,17 +62,45 @@
                        placeholder="مثال: 1">
             </div>
 
-            <!-- اسم الفصل -->
+            <!-- الحالة -->
             <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    اسم الفصل <span class="text-error-500">*</span>
+                    الحالة <span class="text-error-500">*</span>
+                </label>
+                <select name="status"
+                        required
+                        class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
+                    <option value="upcoming" {{ old('status') === 'upcoming' ? 'selected' : '' }}>قادم</option>
+                    <option value="active" {{ old('status') === 'active' ? 'selected' : '' }}>نشط</option>
+                    <option value="completed" {{ old('status') === 'completed' ? 'selected' : '' }}>مكتمل</option>
+                </select>
+            </div>
+
+            <!-- اسم الفصل بالعربي -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    اسم الفصل (عربي) <span class="text-error-500">*</span>
                 </label>
                 <input type="text"
-                       name="name"
-                       value="{{ old('name') }}"
+                       name="name_ar"
+                       value="{{ old('name_ar') }}"
                        required
                        class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
                        placeholder="مثال: الفصل الدراسي الأول">
+            </div>
+
+            <!-- اسم الفصل بالإنجليزي -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    اسم الفصل (إنجليزي) <span class="text-error-500">*</span>
+                </label>
+                <input type="text"
+                       name="name_en"
+                       value="{{ old('name_en') }}"
+                       required
+                       dir="ltr"
+                       class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                       placeholder="Example: First Semester">
             </div>
 
             <!-- تاريخ البدء -->
@@ -113,42 +125,6 @@
                        value="{{ old('end_date') }}"
                        required
                        class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
-            </div>
-
-            <!-- تاريخ بداية التسجيل -->
-            <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    تاريخ بداية التسجيل
-                </label>
-                <input type="date"
-                       name="registration_start_date"
-                       value="{{ old('registration_start_date') }}"
-                       class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
-            </div>
-
-            <!-- تاريخ نهاية التسجيل -->
-            <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    تاريخ نهاية التسجيل
-                </label>
-                <input type="date"
-                       name="registration_end_date"
-                       value="{{ old('registration_end_date') }}"
-                       class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
-            </div>
-
-            <!-- الحالة -->
-            <div class="md:col-span-2">
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    الحالة <span class="text-error-500">*</span>
-                </label>
-                <select name="status"
-                        required
-                        class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
-                    <option value="upcoming" {{ old('status') === 'upcoming' ? 'selected' : '' }}>قادم</option>
-                    <option value="active" {{ old('status') === 'active' ? 'selected' : '' }}>نشط</option>
-                    <option value="completed" {{ old('status') === 'completed' ? 'selected' : '' }}>مكتمل</option>
-                </select>
             </div>
         </div>
 

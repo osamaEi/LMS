@@ -33,7 +33,7 @@
                     <th class="px-6 py-4 text-right text-sm font-semibold text-gray-700 dark:text-gray-300">اسم المادة</th>
                     <th class="px-6 py-4 text-right text-sm font-semibold text-gray-700 dark:text-gray-300">المعلم</th>
                     <th class="px-6 py-4 text-right text-sm font-semibold text-gray-700 dark:text-gray-300">الفصل/المسار</th>
-                    <th class="px-6 py-4 text-right text-sm font-semibold text-gray-700 dark:text-gray-300">الساعات/الدروس</th>
+                    <th class="px-6 py-4 text-right text-sm font-semibold text-gray-700 dark:text-gray-300">الدروس</th>
                     <th class="px-6 py-4 text-right text-sm font-semibold text-gray-700 dark:text-gray-300">الحالة</th>
                     <th class="px-6 py-4 text-right text-sm font-semibold text-gray-700 dark:text-gray-300">الإجراءات</th>
                 </tr>
@@ -59,8 +59,9 @@
                         <div class="text-xs text-gray-500 dark:text-gray-400">{{ $subject->term->program->name ?? '-' }}</div>
                     </td>
                     <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">
-                        <div>{{ $subject->total_hours ?? 0 }} ساعة</div>
-                        <div class="text-xs text-gray-500">{{ $subject->sessions_count }} درس</div>
+                        <span class="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium dark:bg-gray-800">
+                            {{ $subject->sessions_count }} درس
+                        </span>
                     </td>
                     <td class="px-6 py-4 text-sm">
                         @if($subject->status === 'active')

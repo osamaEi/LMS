@@ -149,9 +149,8 @@ class SubjectController extends Controller
 
         // Get sessions
         $totalSessions = $subject->sessions()->count();
-        $completedSessions = $subject->sessions()->where('status', 'completed')->count();
+        $completedSessions = $subject->sessions()->whereNotNull('ended_at')->count();
         $upcomingSessions = $subject->sessions()
-            ->where('status', 'scheduled')
             ->where('scheduled_at', '>', now())
             ->count();
 

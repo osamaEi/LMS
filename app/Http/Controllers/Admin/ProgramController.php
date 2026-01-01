@@ -18,8 +18,6 @@ class ProgramController extends Controller
             'total' => Program::count(),
             'active' => Program::where('status', 'active')->count(),
             'inactive' => Program::where('status', 'inactive')->count(),
-            'diploma' => Program::where('type', 'diploma')->count(),
-            'training' => Program::where('type', 'training')->count(),
         ];
 
         return view('admin.programs.index', compact('programs', 'stats'));
@@ -33,10 +31,11 @@ class ProgramController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
+            'name_ar' => 'required|string|max:255',
+            'name_en' => 'required|string|max:255',
             'code' => 'required|string|unique:programs,code',
-            'description' => 'nullable|string',
-            'type' => 'required|in:diploma,training',
+            'description_ar' => 'nullable|string',
+            'description_en' => 'nullable|string',
             'duration_months' => 'nullable|integer|min:1',
             'price' => 'nullable|numeric|min:0',
             'status' => 'required|in:active,inactive',
@@ -65,10 +64,11 @@ class ProgramController extends Controller
     public function update(Request $request, Program $program)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
+            'name_ar' => 'required|string|max:255',
+            'name_en' => 'required|string|max:255',
             'code' => 'required|string|unique:programs,code,' . $program->id,
-            'description' => 'nullable|string',
-            'type' => 'required|in:diploma,training',
+            'description_ar' => 'nullable|string',
+            'description_en' => 'nullable|string',
             'duration_months' => 'nullable|integer|min:1',
             'price' => 'nullable|numeric|min:0',
             'status' => 'required|in:active,inactive',
