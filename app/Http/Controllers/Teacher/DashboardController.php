@@ -56,6 +56,10 @@ class DashboardController extends Controller
                 $query->where('teacher_id', $teacher->id);
             })->where('type', 'live_zoom')->whereNotNull('started_at')->whereNull('ended_at')->count(),
         ];
+        
+        // Get the preferred dashboard view from settings
+        // Default to 'teacher.dashboard' if not set
+        $dashboardView = \App\Models\Setting::get('teacher_dashboard_view', 'teacher.dashboard');
 
         // NELC: Teacher ratings
         $teacherRating = [
@@ -123,7 +127,12 @@ class DashboardController extends Controller
             })
             ->count();
 
-        return view('teacher.dashboard', compact(
+        // Use the dynamic view setting, verify it exists
+        if (!view()->exists($dashboardView)) {
+            $dashboardView = 'teacher.dashboard';
+        }
+
+        return view($dashboardView, compact(
             'subjects',
             'upcomingSessions',
             'recentSessions',

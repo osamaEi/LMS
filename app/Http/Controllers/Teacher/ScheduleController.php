@@ -16,7 +16,7 @@ class ScheduleController extends Controller
         $sessions = Session::whereHas('subject', function($query) use ($teacher) {
                 $query->where('teacher_id', $teacher->id);
             })
-            ->with('subject')
+            ->with(['subject', 'subject.teacher'])
             ->get()
             ->map(function($session) {
                 return [
@@ -26,12 +26,17 @@ class ScheduleController extends Controller
                     'end' => $session->scheduled_at ? \Carbon\Carbon::parse($session->scheduled_at)->addHours(2) : null,
                     'backgroundColor' => $this->getStatusColor($session->status),
                     'borderColor' => $this->getStatusColor($session->status),
-                    'url' => route('admin.sessions.show', $session->id),
+                    'textColor' => '#ffffff',
+                    'url' => route('teacher.my-subjects.show', $session->subject->id),
                     'extendedProps' => [
                         'subject' => $session->subject->name,
+                        'subject_id' => $session->subject->id,
+                        'teacher' => $session->subject->teacher->name,
+                        'teacher_id' => $session->subject->teacher_id,
                         'type' => $session->type,
-                        'status' => $session->status,
+                        'status' => $this->getStatusLabel($session->status),
                         'session_number' => $session->session_number,
+                        'description' => $session->description,
                     ]
                 ];
             });
@@ -42,10 +47,20 @@ class ScheduleController extends Controller
     private function getStatusColor($status)
     {
         return match($status) {
-            'live' => '#EF4444',      // Red
-            'completed' => '#10B981',  // Green
-            'scheduled' => '#3B82F6',  // Blue
-            default => '#6B7280',      // Gray
+            'live' => '#EF4444',      // Red - Live
+            'completed' => '#10B981',  // Green - Completed
+            'scheduled' => '#3B82F6',  // Blue - Scheduled
+            default => '#6B7280',      // Gray - Other
+        };
+    }
+
+    private function getStatusLabel($status)
+    {
+        return match($status) {
+            'live' => 'مباشر',
+            'completed' => 'مكتملة',
+            'scheduled' => 'مجدولة',
+            default => 'أخرى',
         };
     }
 }

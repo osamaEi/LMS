@@ -129,6 +129,10 @@ Route::prefix('v1')->group(function () {
             Route::get('/dashboard', [App\Http\Controllers\Api\V1\Admin\DashboardController::class, 'index']);
             Route::get('/dashboard/charts', [App\Http\Controllers\Api\V1\Admin\DashboardController::class, 'getChartData']);
             Route::get('/dashboard/overview', [App\Http\Controllers\Api\V1\Admin\DashboardController::class, 'getOverview']);
+            
+            // Dashboard View Configuration
+            Route::get('/dashboard-views', [App\Http\Controllers\Api\V1\Admin\DashboardViewController::class, 'getAvailableViews']);
+            Route::post('/dashboard-view/{role}', [App\Http\Controllers\Api\V1\Admin\DashboardViewController::class, 'updateDashboardView']);
 
             // Users Management
             Route::prefix('users')->group(function () {

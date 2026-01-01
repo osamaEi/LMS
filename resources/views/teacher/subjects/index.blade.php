@@ -15,7 +15,7 @@
 @endif
 
 <!-- Statistics Cards -->
-<div class="grid grid-cols-1 gap-4 sm:grid-cols-3 mb-6">
+<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-4 mb-6 w-full">
     <div class="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900">
         <div class="flex items-center gap-4">
             <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-50 dark:bg-brand-900">
@@ -60,7 +60,7 @@
 </div>
 
 <!-- Subjects Grid -->
-<div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
     @forelse($subjects as $subject)
     <div class="rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900 overflow-hidden hover:shadow-lg transition-shadow">
         <!-- Subject Banner -->
