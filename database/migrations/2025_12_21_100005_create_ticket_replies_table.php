@@ -14,7 +14,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->text('message');
             $table->string('attachment')->nullable();
-            $table->boolean('is_internal_note')->default(false); // For staff-only notes
+            $table->boolean('is_internal_note_note')->default(false); // For staff-only notes
             $table->timestamps();
 
             $table->index(['ticket_id', 'created_at']);

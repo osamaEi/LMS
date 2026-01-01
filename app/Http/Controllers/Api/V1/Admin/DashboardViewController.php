@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Setting;
 use Illuminate\Http\Request;
 
-class DashboardController extends Controller
+class DashboardViewController extends Controller
 {
     /**
      * Get available dashboard views

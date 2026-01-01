@@ -168,6 +168,7 @@ Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')
     Route::delete('/my-subjects/{subjectId}/sessions/{sessionId}', [\App\Http\Controllers\Teacher\SubjectController::class, 'destroySession'])->name('my-subjects.sessions.destroy');
     Route::get('/my-subjects/{subjectId}/sessions/{sessionId}/zoom', [\App\Http\Controllers\Teacher\SubjectController::class, 'showZoom'])->name('my-subjects.sessions.zoom');
     Route::get('/my-subjects/{subjectId}/sessions/{sessionId}/zoom-embedded', [\App\Http\Controllers\Teacher\SubjectController::class, 'showZoomEmbedded'])->name('my-subjects.sessions.zoom-embedded');
+    Route::get('/my-subjects/{subjectId}/sessions/{sessionId}/attendance', [\App\Http\Controllers\Teacher\SubjectController::class, 'sessionAttendance'])->name('my-subjects.sessions.attendance');
     Route::delete('/my-subjects/{subjectId}/sessions/{sessionId}/files/{fileId}', [\App\Http\Controllers\Teacher\SubjectController::class, 'deleteSessionFile'])->name('my-subjects.sessions.files.destroy');
 
     // Zoom signature generation for teachers
@@ -226,9 +227,22 @@ Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')
     })->name('grades.index');
 
     // Attendance
-    Route::get('/attendance', function () {
-        return view('student.attendance.index');
-    })->name('attendance.index');
+    Route::get('/attendance', [\App\Http\Controllers\Student\DashboardController::class, 'attendance'])->name('attendance');
+
+    // My Sessions (All sessions for enrolled subjects)
+    Route::get('/my-sessions', [\App\Http\Controllers\Student\DashboardController::class, 'mySessions'])->name('my-sessions');
+
+    // Upcoming Sessions & Zoom
+    Route::get('/upcoming-sessions', [\App\Http\Controllers\Student\DashboardController::class, 'upcomingSessions'])->name('upcoming-sessions');
+    Route::get('/sessions/{sessionId}/join-zoom', [\App\Http\Controllers\Student\DashboardController::class, 'joinZoom'])->name('sessions.join-zoom');
+    Route::post('/sessions/{sessionId}/leave-zoom', [\App\Http\Controllers\Student\DashboardController::class, 'leaveZoom'])->name('sessions.leave-zoom');
+
+    // Useful Links
+    Route::get('/links', [\App\Http\Controllers\Student\DashboardController::class, 'usefulLinks'])->name('links');
+
+    // My Program (البرنامج الدراسي)
+    Route::get('/my-program', [\App\Http\Controllers\Student\DashboardController::class, 'myProgram'])->name('my-program');
+    Route::post('/enroll-program', [\App\Http\Controllers\Student\DashboardController::class, 'enrollInProgram'])->name('enroll-program');
 
     // Profile
     Route::get('/profile', function () {

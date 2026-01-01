@@ -77,7 +77,7 @@
                 <textarea name="message" rows="4" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 dark:bg-gray-700 dark:text-white" placeholder="اكتب ردك هنا..."></textarea>
                 <div class="flex items-center justify-between mt-4">
                     <label class="inline-flex items-center gap-2">
-                        <input type="checkbox" name="is_internal" value="1" class="rounded border-gray-300 text-brand-500">
+                        <input type="checkbox" name="is_internal_note" value="1" class="rounded border-gray-300 text-brand-500">
                         <span class="text-sm text-gray-600 dark:text-gray-400">ملاحظة داخلية (لن تظهر للمستخدم)</span>
                     </label>
                     <button type="submit" class="px-6 py-2 text-white bg-brand-500 rounded-lg hover:bg-brand-600">إرسال الرد</button>

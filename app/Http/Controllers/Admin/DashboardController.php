@@ -86,7 +86,7 @@ class DashboardController extends Controller
             ->limit(5)
             ->get();
 
-        $recentSubjects = Subject::with(['teacher:id,name', 'term:id,name'])
+        $recentSubjects = Subject::with(['teacher:id,name', 'term:id,name_ar'])
             ->latest()
             ->limit(4)
             ->get();

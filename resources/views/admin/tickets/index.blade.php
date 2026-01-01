@@ -135,14 +135,10 @@
                             <span class="text-sm">{{ $ticket->getCategoryLabel() }}</span>
                         </td>
                         <td class="px-6 py-4">
-                            <span class="inline-flex px-2 py-1 text-xs font-medium rounded-full {{ $ticket->getPriorityColorClass() }}">
-                                {{ $ticket->getPriorityLabel() }}
-                            </span>
+                       
                         </td>
                         <td class="px-6 py-4">
-                            <span class="inline-flex px-2 py-1 text-xs font-medium rounded-full {{ $ticket->getStatusColorClass() }}">
-                                {{ $ticket->getStatusLabel() }}
-                            </span>
+                         
                         </td>
                         <td class="px-6 py-4 text-gray-600 dark:text-gray-400">{{ $ticket->assignedTo?->name ?? '-' }}</td>
                         <td class="px-6 py-4 text-gray-600 dark:text-gray-400 text-sm">{{ $ticket->created_at->diffForHumans() }}</td>

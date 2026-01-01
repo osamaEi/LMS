@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Teacher;
 
 use App\Http\Controllers\Controller;
+use App\Models\Attendance;
 use App\Models\Session;
 use App\Models\SessionFile;
 use App\Models\Subject;
@@ -417,5 +418,45 @@ class SubjectController extends Controller
             ->findOrFail($sessionId);
 
         return view('teacher.subjects.sessions.zoom-embedded', compact('session'));
+    }
+
+    /**
+     * Show session attendance
+     */
+    public function sessionAttendance($subjectId, $sessionId)
+    {
+        $teacher = auth()->user();
+
+        $subject = Subject::where('teacher_id', $teacher->id)
+            ->findOrFail($subjectId);
+
+        $session = Session::where('subject_id', $subjectId)
+            ->findOrFail($sessionId);
+
+        // Get all attendance records for this session with student info
+        $attendances = Attendance::where('session_id', $sessionId)
+            ->with('student')
+            ->orderBy('joined_at', 'desc')
+            ->get();
+
+        // Get enrolled students who haven't attended
+        $attendedStudentIds = $attendances->pluck('student_id')->toArray();
+        $absentStudents = $subject->enrollments()
+            ->with('student')
+            ->whereNotIn('student_id', $attendedStudentIds)
+            ->get()
+            ->pluck('student');
+
+        // Calculate statistics
+        $stats = [
+            'total_enrolled' => $subject->enrollments()->count(),
+            'attended' => $attendances->where('attended', true)->count(),
+            'absent' => $absentStudents->count(),
+            'attendance_rate' => $subject->enrollments()->count() > 0
+                ? round(($attendances->where('attended', true)->count() / $subject->enrollments()->count()) * 100, 1)
+                : 0,
+        ];
+
+        return view('teacher.subjects.sessions.attendance', compact('subject', 'session', 'attendances', 'absentStudents', 'stats'));
     }
 }

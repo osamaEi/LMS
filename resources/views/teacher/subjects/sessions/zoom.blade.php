@@ -671,6 +671,9 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                     </svg>
                 </a>
+                <div style="width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; margin-left: 12px; overflow: hidden; border: 2px solid rgba(255,255,255,0.2);">
+                    <img src="{{ asset('images/logo/logo.png') }}" alt="Logo" style="height: 28px; object-fit: contain;" />
+                </div>
                 <div class="header-title">
                     <h1>{{ $session->title }}</h1>
                     <p>{{ $session->subject->name ?? '' }}</p>
@@ -692,7 +695,14 @@
             <div class="video-area">
                 <!-- Pre-Join Screen -->
                 <div class="pre-join-screen" id="pre-join-screen">
-                    <div class="join-card">
+                    <!-- Logo in center above card -->
+                    <div style="position: absolute; top: 80px; left: 50%; transform: translateX(-50%); z-index: 20;">
+                        <div style="width: 100px; height: 100px; border-radius: 50%; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; border: 3px solid rgba(255,255,255,0.2); backdrop-filter: blur(10px);">
+                            <img src="{{ asset('images/logo/logo.png') }}" alt="Logo" style="height: 60px; object-fit: contain;" />
+                        </div>
+                    </div>
+
+                    <div class="join-card" style="margin-top: 120px;">
                         <div class="zoom-logo">
                             <svg width="40" height="40" viewBox="0 0 24 24" fill="white">
                                 <path d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>

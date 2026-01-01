@@ -65,6 +65,14 @@ Route::prefix('v1')->group(function () {
             // Dashboard
             Route::get('/dashboard', [App\Http\Controllers\Api\V1\Student\DashboardController::class, 'index']);
             Route::get('/my-subjects', [App\Http\Controllers\Api\V1\Student\DashboardController::class, 'mySubjects']);
+            Route::get('/statistics', [App\Http\Controllers\Api\V1\Student\DashboardController::class, 'statistics']);
+            Route::get('/upcoming-sessions', [App\Http\Controllers\Api\V1\Student\DashboardController::class, 'upcomingSessions']);
+            Route::get('/attendance', [App\Http\Controllers\Api\V1\Student\DashboardController::class, 'myAttendance']);
+            Route::get('/links', [App\Http\Controllers\Api\V1\Student\DashboardController::class, 'usefulLinks']);
+
+            // Zoom Sessions - Join and Leave with Attendance Tracking
+            Route::post('/sessions/{sessionId}/join-zoom', [App\Http\Controllers\Api\V1\Student\DashboardController::class, 'joinZoom']);
+            Route::post('/sessions/{sessionId}/leave-zoom', [App\Http\Controllers\Api\V1\Student\DashboardController::class, 'leaveZoom']);
 
             // Subjects
             Route::get('/subjects/{id}', [App\Http\Controllers\Api\V1\Student\SubjectController::class, 'show']);

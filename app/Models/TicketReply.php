@@ -12,13 +12,13 @@ class TicketReply extends Model
         'user_id',
         'message',
         'attachment',
-        'is_internal_note',
+        'is_internal_note_note',
     ];
 
     protected function casts(): array
     {
         return [
-            'is_internal_note' => 'boolean',
+            'is_internal_note_note' => 'boolean',
         ];
     }
 

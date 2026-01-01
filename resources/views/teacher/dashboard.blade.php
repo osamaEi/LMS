@@ -194,6 +194,84 @@
 
         <!-- Sidebar -->
         <div>
+            <!-- Mini Calendar -->
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-4 mb-6">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background-color: #8b5cf6;">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white">التقويم</h3>
+                </div>
+
+                @php
+                    $today = now();
+                    $currentMonth = $today->month;
+                    $currentYear = $today->year;
+                    $firstDayOfMonth = $today->copy()->startOfMonth();
+                    $lastDayOfMonth = $today->copy()->endOfMonth();
+                    $startDayOfWeek = $firstDayOfMonth->dayOfWeek;
+                    $daysInMonth = $lastDayOfMonth->day;
+
+                    // Get sessions for this month
+                    $sessionDates = $upcomingSessions->pluck('scheduled_at')->map(function($date) {
+                        return $date ? $date->format('Y-m-d') : null;
+                    })->filter()->toArray();
+
+                    $arabicMonths = ['', 'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                    $arabicDays = ['ح', 'ن', 'ث', 'ر', 'خ', 'ج', 'س'];
+                @endphp
+
+                <!-- Month Header -->
+                <div class="text-center mb-4">
+                    <h4 class="text-lg font-bold text-gray-900 dark:text-white">{{ $arabicMonths[$currentMonth] }} {{ $currentYear }}</h4>
+                </div>
+
+                <!-- Days Header -->
+                <div class="grid grid-cols-7 gap-1 mb-2">
+                    @foreach($arabicDays as $day)
+                        <div class="text-center text-sm font-bold text-gray-600 dark:text-gray-300 py-2">{{ $day }}</div>
+                    @endforeach
+                </div>
+
+                <!-- Calendar Grid -->
+                <div class="grid grid-cols-7 gap-1">
+                    @for($i = 0; $i < $startDayOfWeek; $i++)
+                        <div class="aspect-square"></div>
+                    @endfor
+
+                    @for($day = 1; $day <= $daysInMonth; $day++)
+                        @php
+                            $dateStr = $currentYear . '-' . str_pad($currentMonth, 2, '0', STR_PAD_LEFT) . '-' . str_pad($day, 2, '0', STR_PAD_LEFT);
+                            $isToday = $day === $today->day;
+                            $hasSession = in_array($dateStr, $sessionDates);
+                        @endphp
+                        <div class="aspect-square flex items-center justify-center rounded-lg text-sm relative
+                            {{ $isToday ? 'font-bold text-white' : 'text-gray-700 dark:text-gray-300' }}
+                            {{ $hasSession && !$isToday ? 'font-semibold' : '' }}"
+                            style="{{ $isToday ? 'background-color: #8b5cf6;' : '' }}">
+                            {{ $day }}
+                            @if($hasSession)
+                                <span class="absolute bottom-1 w-1.5 h-1.5 rounded-full" style="background-color: {{ $isToday ? '#ffffff' : '#8b5cf6' }};"></span>
+                            @endif
+                        </div>
+                    @endfor
+                </div>
+
+                <!-- Legend -->
+                <div class="flex items-center justify-center gap-4 mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <div class="flex items-center gap-2">
+                        <span class="w-3 h-3 rounded-full" style="background-color: #8b5cf6;"></span>
+                        <span class="text-xs text-gray-500 dark:text-gray-400">اليوم</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="w-1.5 h-1.5 rounded-full" style="background-color: #8b5cf6;"></span>
+                        <span class="text-xs text-gray-500 dark:text-gray-400">جلسة</span>
+                    </div>
+                </div>
+            </div>
+
             <!-- Upcoming Sessions -->
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
                 <div class="p-4 border-b dark:border-gray-700" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
