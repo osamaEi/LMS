@@ -3,19 +3,46 @@
 @section('title', 'الجدول الدراسي')
 
 @section('content')
-<div class="min-h-screen bg-gradient-to-br from-sky-100 via-sky-50 to-blue-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 py-8">
-    <div class="container mx-auto px-4 max-w-7xl">
+<div class="py-6">
+    <div class="mx-auto px-4 max-w-7xl">
 
-        <div class="mb-8">
-            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">الجدول الدراسي</h1>
-            <p class="text-gray-600 dark:text-gray-400 mt-2">عرض جميع الجلسات على التقويم</p>
+        <div class="mb-6 p-6 rounded-xl shadow-lg" style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);">
+            <h1 class="text-2xl font-bold text-white">الجدول الدراسي</h1>
+            <p class="mt-1" style="color: rgba(255,255,255,0.8);">عرض جميع الجلسات على التقويم</p>
         </div>
 
-        <!-- Main Grid: Calendar (Large) + Sidebar (Small) -->
+        <!-- Statistics Row - Above Calendar -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <!-- Statistics Card -->
+            <div class="rounded-lg p-5 shadow-lg" style="background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);">
+                <div class="flex justify-between items-center">
+                    <span class="text-sm text-white">إجمالي الجلسات</span>
+                    <span class="text-3xl font-bold text-white">{{ count($sessions) }}</span>
+                </div>
+            </div>
+
+            <!-- This Month Card -->
+            <div class="rounded-lg p-5 shadow-lg" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                <div class="flex justify-between items-center">
+                    <span class="text-sm text-white">جلسات هذا الشهر</span>
+                    <span class="text-3xl font-bold text-white">{{ count($sessions->where('start', '>=', now()->startOfMonth())) }}</span>
+                </div>
+            </div>
+
+            <!-- Upcoming Card -->
+            <div class="rounded-lg p-5 shadow-lg" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+                <div class="flex justify-between items-center">
+                    <span class="text-sm text-white">الجلسات القادمة</span>
+                    <span class="text-3xl font-bold text-white">{{ count($sessions->where('start', '>=', now())) }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Grid: Calendar + Legend -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        
+
         <!-- Calendar (9 columns) -->
-        <div class="lg:col-span-9">
+        <div class="lg:col-span-9 order-2 lg:order-1">
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
                 <div class="p-6">
                     <div id="calendar"></div>
@@ -23,84 +50,49 @@
             </div>
         </div>
 
-        <!-- Sidebar (3 columns) -->
-        <div class="lg:col-span-3">
-            <div class="space-y-6">
-                
+        <!-- Legend Sidebar (3 columns) -->
+        <div class="lg:col-span-3 order-1 lg:order-2">
+            <div class="space-y-4">
+
                 <!-- Legend Card -->
-                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 sticky top-24">
-                    <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-5 pb-3 border-b border-gray-200 dark:border-gray-700">المفتاح اللوني</h3>
-                    
-                    <div class="space-y-3">
+                <div class="rounded-lg shadow-lg p-5" style="background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%);">
+                    <h3 class="text-base font-bold text-white mb-4 pb-2" style="border-bottom: 1px solid rgba(255,255,255,0.2);">المفتاح اللوني</h3>
+
+                    <div class="space-y-2">
                         <div class="flex items-center gap-3">
-                            <div class="flex-shrink-0 w-5 h-5 rounded-lg bg-blue-500 shadow-sm"></div>
-                            <div>
-                                <p class="text-sm font-semibold text-gray-900 dark:text-white">مجدولة</p>
-                                <p class="text-xs text-gray-500 dark:text-gray-400">قادمة</p>
-                            </div>
+                            <div class="flex-shrink-0 w-4 h-4 rounded" style="background: #3b82f6;"></div>
+                            <span class="text-sm text-white">مجدولة (قادمة)</span>
                         </div>
 
                         <div class="flex items-center gap-3">
-                            <div class="flex-shrink-0 w-5 h-5 rounded-lg bg-red-500 shadow-sm"></div>
-                            <div>
-                                <p class="text-sm font-semibold text-gray-900 dark:text-white">مباشر</p>
-                                <p class="text-xs text-gray-500 dark:text-gray-400">جارية</p>
-                            </div>
+                            <div class="flex-shrink-0 w-4 h-4 rounded" style="background: #ef4444;"></div>
+                            <span class="text-sm text-white">مباشر (جارية)</span>
                         </div>
 
                         <div class="flex items-center gap-3">
-                            <div class="flex-shrink-0 w-5 h-5 rounded-lg bg-green-500 shadow-sm"></div>
-                            <div>
-                                <p class="text-sm font-semibold text-gray-900 dark:text-white">مكتملة</p>
-                                <p class="text-xs text-gray-500 dark:text-gray-400">منتهية</p>
-                            </div>
+                            <div class="flex-shrink-0 w-4 h-4 rounded" style="background: #10b981;"></div>
+                            <span class="text-sm text-white">مكتملة (منتهية)</span>
                         </div>
 
                         <div class="flex items-center gap-3">
-                            <div class="flex-shrink-0 w-5 h-5 rounded-lg bg-gray-400 shadow-sm"></div>
-                            <div>
-                                <p class="text-sm font-semibold text-gray-900 dark:text-white">أخرى</p>
-                                <p class="text-xs text-gray-500 dark:text-gray-400">حالات أخرى</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Statistics Card -->
-                <div class="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-lg p-6 border border-blue-200 dark:border-blue-700/50">
-                    <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">الإحصائيات</h3>
-                    
-                    <div class="space-y-3">
-                        <div class="flex justify-between items-center">
-                            <span class="text-sm text-gray-700 dark:text-gray-300">إجمالي الجلسات</span>
-                            <span class="text-2xl font-bold text-blue-600 dark:text-blue-400">{{ count($sessions) }}</span>
-                        </div>
-
-                        <div class="h-px bg-blue-200 dark:bg-blue-700/30"></div>
-
-                        <div class="flex justify-between items-center">
-                            <span class="text-sm text-gray-700 dark:text-gray-300">هذا الشهر</span>
-                            <span class="text-xl font-semibold text-gray-900 dark:text-white">{{ count($sessions->where('start', '>=', now()->startOfMonth())) }}</span>
-                        </div>
-
-                        <div class="flex justify-between items-center">
-                            <span class="text-sm text-gray-700 dark:text-gray-300">القادمة</span>
-                            <span class="text-xl font-semibold text-gray-900 dark:text-white">{{ count($sessions->where('start', '>=', now())) }}</span>
+                            <div class="flex-shrink-0 w-4 h-4 rounded" style="background: #9ca3af;"></div>
+                            <span class="text-sm text-white">أخرى</span>
                         </div>
                     </div>
                 </div>
 
                 <!-- Info Card -->
-                <div class="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-lg p-6 border border-green-200 dark:border-green-700/50">
-                    <h3 class="text-sm font-bold text-gray-900 dark:text-white mb-3">💡 نصيحة</h3>
-                    <p class="text-xs text-gray-700 dark:text-gray-300 leading-relaxed">
-                        انقر على أي جلسة لعرض التفاصيل الكاملة والانضمام إلى الجلسة المباشرة
+                <div class="rounded-lg p-5 shadow-lg" style="background: linear-gradient(135deg, #ec4899 0%, #be185d 100%);">
+                    <h3 class="text-sm font-bold text-white mb-2">💡 نصيحة</h3>
+                    <p class="text-xs leading-relaxed" style="color: rgba(255,255,255,0.9);">
+                        انقر على أي جلسة لعرض التفاصيل والانضمام للبث المباشر
                     </p>
                 </div>
 
             </div>
         </div>
 
+        </div>
     </div>
 </div>
 
@@ -111,135 +103,298 @@
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
 
 <style>
-    /* Calendar customization */
+    /* Calendar Container */
     .fc {
         direction: rtl;
         font-family: inherit;
+        background: white;
+        border-radius: 12px;
     }
 
-    .fc .fc-button {
-        background-color: #3B82F6;
-        border-color: #3B82F6;
-        color: white;
-        padding: 0.35rem 0.75rem;
-        font-size: 0.8rem;
-        border-radius: 0.4rem;
-        font-weight: 600;
-        text-transform: none;
-    }
-
-    .fc .fc-button:hover {
-        background-color: #2563EB;
-        border-color: #2563EB;
-    }
-
-    .fc .fc-button:disabled {
-        background-color: #9CA3AF;
-        border-color: #9CA3AF;
-        opacity: 0.6;
-    }
-
-    .fc .fc-button-active {
-        background-color: #1D4ED8 !important;
-        border-color: #1D4ED8 !important;
+    /* Header Toolbar */
+    .fc-toolbar {
+        padding: 1rem;
+        margin-bottom: 0 !important;
+        background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%);
+        border-radius: 12px 12px 0 0;
+        flex-wrap: wrap;
+        gap: 0.5rem;
     }
 
     .fc-toolbar-title {
-        font-size: 1.25rem !important;
+        font-size: 1.5rem !important;
         font-weight: 700 !important;
-        color: #1F2937;
+        color: #ffffff !important;
         margin: 0 !important;
     }
 
-    .fc-toolbar {
-        gap: 0.4rem;
-        padding: 0.6rem 0;
-        flex-wrap: wrap;
-    }
-
-    .fc-event {
-        border-radius: 0.3rem;
-        padding: 2px 3px;
-        cursor: pointer;
-        transition: all 0.2s;
+    /* Toolbar Buttons - Navigation Arrows */
+    .fc .fc-button {
+        background: linear-gradient(135deg, #3b82f6, #2563eb) !important;
         border: none !important;
-        font-size: 0.7rem;
-    }
-
-    .fc-event:hover {
-        transform: translateY(-1px);
-        opacity: 0.95;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-
-    .fc-daygrid-day-number {
-        color: #374151;
+        color: white !important;
+        padding: 0.6rem 1rem;
+        font-size: 0.875rem;
+        border-radius: 8px;
         font-weight: 600;
-        font-size: 0.8rem;
-        padding: 0.25rem;
+        text-transform: none;
+        transition: all 0.2s;
+        box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
     }
 
-    .fc-col-header-cell {
-        background-color: #F3F4F6;
-        font-weight: 700;
-        color: #374151;
-        font-size: 0.8rem;
-        padding: 0.4rem 0;
-        border-color: #E5E7EB;
+    .fc .fc-button:hover {
+        background: linear-gradient(135deg, #2563eb, #1d4ed8) !important;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
     }
 
-    .fc-day-today {
-        background-color: #DBEAFE !important;
+    .fc .fc-button-primary:disabled {
+        background: rgba(255,255,255,0.2) !important;
+        color: rgba(255,255,255,0.5) !important;
+        box-shadow: none;
+        cursor: not-allowed;
     }
 
-    .fc-daygrid-day-top {
+    .fc .fc-button-active,
+    .fc .fc-button-primary:not(:disabled).fc-button-active {
+        background: linear-gradient(135deg, #8b5cf6, #7c3aed) !important;
+        box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+    }
+
+    /* Today Button */
+    .fc .fc-today-button {
+        background: linear-gradient(135deg, #10b981, #059669) !important;
+        box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+    }
+
+    .fc .fc-today-button:hover {
+        background: linear-gradient(135deg, #059669, #047857) !important;
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+    }
+
+    .fc .fc-today-button:disabled {
+        background: rgba(255,255,255,0.2) !important;
+        color: rgba(255,255,255,0.5) !important;
+        box-shadow: none;
+    }
+
+    /* Navigation Prev/Next Buttons */
+    .fc .fc-prev-button,
+    .fc .fc-next-button {
+        background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+        box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+        min-width: 40px;
+        display: flex !important;
+        align-items: center;
         justify-content: center;
     }
 
-    .fc-daygrid-day {
-        min-height: 70px;
+    .fc .fc-prev-button:hover,
+    .fc .fc-next-button:hover {
+        background: linear-gradient(135deg, #d97706, #b45309) !important;
+        box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
     }
 
-    .fc-daygrid-day-cell {
-        border-color: #E5E7EB;
+    /* Ensure arrow icons are visible */
+    .fc .fc-prev-button .fc-icon,
+    .fc .fc-next-button .fc-icon,
+    .fc .fc-button .fc-icon {
+        color: white !important;
+        font-size: 1.2rem !important;
+        display: inline-block !important;
+    }
+
+    .fc .fc-icon-chevron-left:before,
+    .fc .fc-icon-chevron-right:before {
+        color: white !important;
+    }
+
+    /* View Buttons Group */
+    .fc .fc-button-group .fc-button {
+        background: rgba(255,255,255,0.15) !important;
+        border: 1px solid rgba(255,255,255,0.3) !important;
+        box-shadow: none;
+    }
+
+    .fc .fc-button-group .fc-button:hover {
+        background: rgba(255,255,255,0.25) !important;
+    }
+
+    .fc .fc-button-group .fc-button-active {
+        background: linear-gradient(135deg, #8b5cf6, #7c3aed) !important;
+        border-color: #8b5cf6 !important;
+        box-shadow: 0 2px 8px rgba(139, 92, 246, 0.4);
+    }
+
+    /* Column Headers (Days) */
+    .fc-col-header-cell {
+        background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+        font-weight: 700;
+        color: #1e3a5f;
+        font-size: 0.9rem;
+        padding: 0.75rem 0;
+        border-color: #e2e8f0;
+    }
+
+    .fc-col-header-cell-cushion {
+        color: #1e3a5f;
+        font-weight: 700;
+    }
+
+    /* Day Cells */
+    .fc-daygrid-day {
+        min-height: 90px;
+        transition: all 0.2s;
+    }
+
+    .fc-daygrid-day:hover {
+        background-color: #f8fafc;
     }
 
     .fc-daygrid-day-frame {
         height: auto;
+        padding: 4px;
+    }
+
+    .fc-daygrid-day-top {
+        justify-content: center;
+        padding: 4px;
+    }
+
+    .fc-daygrid-day-number {
+        color: #475569;
+        font-weight: 600;
+        font-size: 0.9rem;
+        padding: 4px 8px;
+        border-radius: 50%;
+        transition: all 0.2s;
+    }
+
+    .fc-daygrid-day:hover .fc-daygrid-day-number {
+        background: #e2e8f0;
+    }
+
+    /* Today */
+    .fc-day-today {
+        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%) !important;
+    }
+
+    .fc-day-today .fc-daygrid-day-number {
+        background: linear-gradient(135deg, #3b82f6, #2563eb);
+        color: white !important;
+        border-radius: 50%;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Grid Borders */
+    .fc-scrollgrid {
+        border: none !important;
+        border-radius: 0 0 12px 12px;
+        overflow: hidden;
+    }
+
+    .fc-scrollgrid td,
+    .fc-scrollgrid th {
+        border-color: #e2e8f0 !important;
+    }
+
+    /* Events */
+    .fc-event {
+        border-radius: 6px;
+        padding: 4px 8px;
+        margin: 2px 4px;
+        cursor: pointer;
+        transition: all 0.2s;
+        border: none !important;
+        font-size: 0.75rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .fc-event:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     }
 
     .fc-event-title {
-        font-size: 0.7rem;
+        font-size: 0.75rem;
         white-space: normal;
         font-weight: 600;
     }
 
     .fc-event-time {
-        font-size: 0.65rem;
+        font-size: 0.7rem;
         white-space: normal;
+        opacity: 0.9;
+    }
+
+    /* More Link */
+    .fc-daygrid-more-link {
+        color: #3b82f6;
+        font-weight: 600;
+        font-size: 0.75rem;
+    }
+
+    /* Previous Month Days */
+    .fc-day-other .fc-daygrid-day-number {
+        color: #cbd5e1;
+    }
+
+    /* Scrollbar */
+    .fc-scroller::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .fc-scroller::-webkit-scrollbar-track {
+        background: #f1f5f9;
+    }
+
+    .fc-scroller::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 3px;
     }
 
     /* Dark mode support */
+    .dark .fc {
+        background: #1f2937;
+    }
+
     .dark .fc-toolbar-title {
-        color: #F3F4F6;
+        color: #f9fafb !important;
     }
 
     .dark .fc-col-header-cell {
-        background-color: #374151;
-        color: #F3F4F6;
-        border-color: #4B5563;
+        background: linear-gradient(135deg, #374151, #1f2937);
+        color: #f9fafb;
+        border-color: #4b5563;
+    }
+
+    .dark .fc-col-header-cell-cushion {
+        color: #f9fafb;
     }
 
     .dark .fc-daygrid-day-number {
-        color: #E5E7EB;
+        color: #e5e7eb;
     }
 
     .dark .fc-day-today {
-        background-color: #1E40AF !important;
+        background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%) !important;
     }
 
-    .dark .fc-daygrid-day-cell {
-        border-color: #4B5563;
+    .dark .fc-scrollgrid td,
+    .dark .fc-scrollgrid th {
+        border-color: #4b5563 !important;
+    }
+
+    .dark .fc-daygrid-day:hover {
+        background-color: #374151;
+    }
+
+    .dark .fc-day-other .fc-daygrid-day-number {
+        color: #6b7280;
     }
 </style>
 

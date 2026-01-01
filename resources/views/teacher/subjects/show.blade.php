@@ -46,59 +46,59 @@
 @endif
 
 <!-- Statistics Cards -->
-<div class="grid grid-cols-1 gap-4 sm:grid-cols-4 mb-6">
-    <div class="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900">
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div class="rounded-xl shadow-lg p-5 transition-all duration-300 hover:shadow-xl" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
         <div class="flex items-center gap-4">
-            <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-50 dark:bg-brand-900">
-                <svg class="h-6 w-6 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div class="flex h-12 w-12 items-center justify-center rounded-xl" style="background: rgba(255,255,255,0.2);">
+                <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
                 </svg>
             </div>
             <div>
-                <p class="text-sm text-gray-500 dark:text-gray-400">الطلاب المسجلين</p>
-                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ $subject->enrollments_count }}</p>
+                <p class="text-sm" style="color: #a7f3d0;">الطلاب المسجلين</p>
+                <p class="text-2xl font-bold text-white">{{ $subject->enrollments_count }}</p>
             </div>
         </div>
     </div>
 
-    <div class="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900">
+    <div class="rounded-xl shadow-lg p-5 transition-all duration-300 hover:shadow-xl" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);">
         <div class="flex items-center gap-4">
-            <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 dark:bg-blue-900">
-                <svg class="h-6 w-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div class="flex h-12 w-12 items-center justify-center rounded-xl" style="background: rgba(255,255,255,0.2);">
+                <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                 </svg>
             </div>
             <div>
-                <p class="text-sm text-gray-500 dark:text-gray-400">إجمالي الحصص</p>
-                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ $sessions->count() }}</p>
+                <p class="text-sm" style="color: #bfdbfe;">إجمالي الحصص</p>
+                <p class="text-2xl font-bold text-white">{{ $sessions->count() }}</p>
             </div>
         </div>
     </div>
 
-    <div class="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900">
+    <div class="rounded-xl shadow-lg p-5 transition-all duration-300 hover:shadow-xl" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);">
         <div class="flex items-center gap-4">
-            <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-red-50 dark:bg-red-900">
-                <svg class="h-6 w-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div class="flex h-12 w-12 items-center justify-center rounded-xl" style="background: rgba(255,255,255,0.2);">
+                <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                 </svg>
             </div>
             <div>
-                <p class="text-sm text-gray-500 dark:text-gray-400">حصص مباشرة (Zoom)</p>
-                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ $sessions->where('type', 'live_zoom')->count() }}</p>
+                <p class="text-sm" style="color: #fecaca;">حصص مباشرة (Zoom)</p>
+                <p class="text-2xl font-bold text-white">{{ $sessions->where('type', 'live_zoom')->count() }}</p>
             </div>
         </div>
     </div>
 
-    <div class="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900">
+    <div class="rounded-xl shadow-lg p-5 transition-all duration-300 hover:shadow-xl" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
         <div class="flex items-center gap-4">
-            <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-green-50 dark:bg-green-900">
-                <svg class="h-6 w-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div class="flex h-12 w-12 items-center justify-center rounded-xl" style="background: rgba(255,255,255,0.2);">
+                <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z" />
                 </svg>
             </div>
             <div>
-                <p class="text-sm text-gray-500 dark:text-gray-400">حصص مسجلة</p>
-                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ $sessions->where('type', 'recorded_video')->count() }}</p>
+                <p class="text-sm" style="color: #ddd6fe;">حصص مسجلة</p>
+                <p class="text-2xl font-bold text-white">{{ $sessions->where('type', 'recorded_video')->count() }}</p>
             </div>
         </div>
     </div>
@@ -113,17 +113,17 @@
 
 @if($liveSessions->count() > 0)
 <div class="mb-6">
-    <div class="rounded-xl border-2 border-red-200 bg-gradient-to-r from-red-50 to-orange-50 dark:border-red-800 dark:from-red-900/20 dark:to-orange-900/20 p-6">
+    <div class="rounded-xl p-6" style="background: linear-gradient(135deg, #fef2f2 0%, #fff7ed 100%); border: 2px solid #fecaca;">
         <div class="flex items-center gap-3 mb-4">
             <div class="relative">
-                <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-red-500 text-white">
+                <div class="flex h-12 w-12 items-center justify-center rounded-xl text-white" style="background: #ef4444;">
                     <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                     </svg>
                 </div>
                 <span class="absolute -top-1 -right-1 flex h-4 w-4">
-                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                    <span class="relative inline-flex rounded-full h-4 w-4 bg-red-500"></span>
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style="background: #f87171;"></span>
+                    <span class="relative inline-flex rounded-full h-4 w-4" style="background: #ef4444;"></span>
                 </span>
             </div>
             <div>
@@ -146,15 +146,15 @@
                         </p>
                     </div>
                     @if($liveSession->started_at && !$liveSession->ended_at)
-                        <span class="inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-700 dark:bg-green-900 dark:text-green-300">
+                        <span class="inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium" style="background: #dcfce7; color: #15803d;">
                             <span class="relative flex h-2 w-2">
-                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                                <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style="background: #4ade80;"></span>
+                                <span class="relative inline-flex rounded-full h-2 w-2" style="background: #22c55e;"></span>
                             </span>
                             جارية الآن
                         </span>
                     @else
-                        <span class="inline-flex items-center gap-1 rounded-full bg-yellow-100 px-2 py-1 text-xs font-medium text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300">
+                        <span class="inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium" style="background: #fef9c3; color: #a16207;">
                             مجدولة
                         </span>
                     @endif
@@ -168,23 +168,16 @@
                 </div>
 
                 <div class="flex gap-2">
-                    <a href="{{ route('teacher.my-subjects.sessions.zoom-embedded', [$subject->id, $liveSession->id]) }}"
-                       class="flex-1 flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-red-500 to-red-600 px-4 py-2.5 text-sm font-semibold text-white hover:from-red-600 hover:to-red-700 transition-all shadow-sm hover:shadow-md">
+                    <a href="{{ route('teacher.my-subjects.sessions.zoom', [$subject->id, $liveSession->id]) }}"
+                       class="flex-1 flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition-all shadow-sm hover:shadow-md" style="background: linear-gradient(135deg, #1e3a5f, #0f172a);">
                         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                         </svg>
                         انضمام للبث
                     </a>
-                    <a href="{{ route('teacher.my-subjects.sessions.zoom', [$subject->id, $liveSession->id]) }}"
-                       class="flex items-center justify-center rounded-lg border border-gray-200 dark:border-gray-600 px-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                       title="ملء الشاشة">
-                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
-                        </svg>
-                    </a>
                     @if($liveSession->zoom_start_url)
                     <a href="{{ $liveSession->zoom_start_url }}" target="_blank"
-                       class="flex items-center justify-center rounded-lg border border-gray-200 dark:border-gray-600 px-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                       class="flex items-center justify-center rounded-lg px-3 py-2.5 text-sm font-medium transition-colors" style="border: 1px solid #e5e7eb; color: #374151; background: #f9fafb;"
                        title="فتح في تطبيق Zoom">
                         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />

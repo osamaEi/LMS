@@ -40,7 +40,7 @@ class TicketController extends Controller
             'subject' => $validated['subject'],
             'category' => $validated['category'],
             'priority' => $validated['priority'],
-            'message' => $validated['message'],
+            'description' => $validated['message'],
             'status' => 'open',
         ]);
 

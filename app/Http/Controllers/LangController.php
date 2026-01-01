@@ -12,7 +12,7 @@ class LangController extends Controller
     {
         // Validate locale
         if (!in_array($locale, ['en', 'ar'])) {
-            $locale = 'en';
+            $locale = config('app.locale', 'ar');
         }
 
         // Store in session
