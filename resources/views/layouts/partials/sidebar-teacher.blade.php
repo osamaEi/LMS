@@ -20,6 +20,18 @@
     </a>
 </li>
 
+<!-- الاختبارات -->
+<li>
+    <a href="#quizzes-section"
+       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('teacher.quizzes.*') ? 'menu-item-active' : 'menu-item-inactive' }}"
+       onclick="document.getElementById('quizzes-info-modal')?.classList.remove('hidden'); return false;">
+        <svg class="fill-current" style="fill: currentColor;" width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+            <path d="M15.8333 2.5H4.16667C3.24167 2.5 2.5 3.24167 2.5 4.16667V15.8333C2.5 16.7583 3.24167 17.5 4.16667 17.5H15.8333C16.7583 17.5 17.5 16.7583 17.5 15.8333V4.16667C17.5 3.24167 16.7583 2.5 15.8333 2.5ZM15.8333 15.8333H4.16667V4.16667H15.8333V15.8333ZM13.3333 6.66667H6.66667V8.33333H13.3333V6.66667ZM10 10H6.66667V11.6667H10V10ZM10 13.3333H6.66667V15H10V13.3333Z"/>
+        </svg>
+        <span>الاختبارات</span>
+        <span class="text-xs px-1.5 py-0.5 rounded-full ms-auto" style="background-color: #ddd6fe; color: #7c3aed;">اختر مادة</span>
+    </a>
+</li>
 
 <!-- الطلاب -->
 <li>

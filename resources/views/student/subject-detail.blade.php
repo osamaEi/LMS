@@ -7,8 +7,20 @@
 
     <div class="mb-6">
         <a href="{{ route('student.dashboard') }}" class="text-blue-600 hover:text-blue-800 text-sm mb-2 inline-block">← العودة</a>
-        <h1 class="text-2xl font-bold text-gray-900">{{ $subject->name }}</h1>
-        <p class="text-gray-600 mt-1">{{ $subject->term->program->name ?? '' }} - {{ $subject->term->name ?? '' }}</p>
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">{{ $subject->name }}</h1>
+                <p class="text-gray-600 mt-1">{{ $subject->term->program->name ?? '' }} - {{ $subject->term->name ?? '' }}</p>
+            </div>
+            <a href="{{ route('student.quizzes.index', $subject->id) }}"
+               class="inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-medium text-white transition-colors"
+               style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                </svg>
+                الاختبارات
+            </a>
+        </div>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">

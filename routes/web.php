@@ -206,6 +206,27 @@ Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')
     // Support Tickets (NELC 1.3.3)
     Route::resource('tickets', \App\Http\Controllers\Teacher\TicketController::class)->only(['index', 'create', 'store', 'show']);
     Route::post('/tickets/{ticket}/reply', [\App\Http\Controllers\Teacher\TicketController::class, 'reply'])->name('tickets.reply');
+
+    // Quizzes & Exams Management
+    Route::prefix('subjects/{subject}/quizzes')->name('quizzes.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Teacher\QuizController::class, 'index'])->name('index');
+        Route::get('/create', [\App\Http\Controllers\Teacher\QuizController::class, 'create'])->name('create');
+        Route::post('/', [\App\Http\Controllers\Teacher\QuizController::class, 'store'])->name('store');
+        Route::get('/{quiz}', [\App\Http\Controllers\Teacher\QuizController::class, 'show'])->name('show');
+        Route::get('/{quiz}/edit', [\App\Http\Controllers\Teacher\QuizController::class, 'edit'])->name('edit');
+        Route::put('/{quiz}', [\App\Http\Controllers\Teacher\QuizController::class, 'update'])->name('update');
+        Route::delete('/{quiz}', [\App\Http\Controllers\Teacher\QuizController::class, 'destroy'])->name('destroy');
+        Route::get('/{quiz}/results', [\App\Http\Controllers\Teacher\QuizController::class, 'results'])->name('results');
+        Route::get('/{quiz}/results/{attempt}', [\App\Http\Controllers\Teacher\QuizController::class, 'gradeAttempt'])->name('grade-attempt');
+        Route::post('/{quiz}/results/{attempt}/grade', [\App\Http\Controllers\Teacher\QuizController::class, 'submitGrade'])->name('submit-grade');
+
+        // Questions Management
+        Route::get('/{quiz}/questions/create', [\App\Http\Controllers\Teacher\QuizController::class, 'createQuestion'])->name('questions.create');
+        Route::post('/{quiz}/questions', [\App\Http\Controllers\Teacher\QuizController::class, 'storeQuestion'])->name('questions.store');
+        Route::get('/{quiz}/questions/{question}/edit', [\App\Http\Controllers\Teacher\QuizController::class, 'editQuestion'])->name('questions.edit');
+        Route::put('/{quiz}/questions/{question}', [\App\Http\Controllers\Teacher\QuizController::class, 'updateQuestion'])->name('questions.update');
+        Route::delete('/{quiz}/questions/{question}', [\App\Http\Controllers\Teacher\QuizController::class, 'destroyQuestion'])->name('questions.destroy');
+    });
 });
 
 // Student Routes
@@ -262,4 +283,14 @@ Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')
     Route::get('/teacher-ratings', [\App\Http\Controllers\Student\TeacherRatingController::class, 'index'])->name('teacher-ratings.index');
     Route::get('/teacher-ratings/{subject}/create', [\App\Http\Controllers\Student\TeacherRatingController::class, 'create'])->name('teacher-ratings.create');
     Route::post('/teacher-ratings/{subject}', [\App\Http\Controllers\Student\TeacherRatingController::class, 'store'])->name('teacher-ratings.store');
+
+    // Quizzes & Exams
+    Route::prefix('subjects/{subject}/quizzes')->name('quizzes.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Student\QuizController::class, 'index'])->name('index');
+        Route::get('/{quiz}', [\App\Http\Controllers\Student\QuizController::class, 'show'])->name('show');
+        Route::post('/{quiz}/start', [\App\Http\Controllers\Student\QuizController::class, 'start'])->name('start');
+        Route::get('/{quiz}/take', [\App\Http\Controllers\Student\QuizController::class, 'take'])->name('take');
+        Route::post('/{quiz}/submit', [\App\Http\Controllers\Student\QuizController::class, 'submit'])->name('submit');
+        Route::get('/{quiz}/result/{attempt}', [\App\Http\Controllers\Student\QuizController::class, 'result'])->name('result');
+    });
 });

@@ -133,7 +133,7 @@
             <div class="divide-y divide-gray-100 dark:divide-gray-700">
                 @foreach($sessions as $session)
                     <div class="p-6 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-                        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5">
+                        <div class="flex flex-col lg:flex-row-reverse lg:items-center lg:justify-between gap-5">
                             <div class="flex items-start gap-4">
                                 <!-- Session Icon -->
                                 <div class="relative flex-shrink-0">
@@ -260,6 +260,7 @@
                                         @elseif(!$session->ended_at && $session->zoom_meeting_id)
                                             {{-- Session has Zoom but not started yet --}}
                                             @if($session->scheduled_at && $session->scheduled_at > now())
+                                                {{-- Session time not yet - show countdown and disabled button --}}
                                                 <span class="text-sm font-semibold px-4 py-2 rounded-xl"
                                                     style="@if($session->scheduled_at->isToday()) background-color: #cffafe; color: #0e7490; @elseif($session->scheduled_at->isTomorrow()) background-color: #fef3c7; color: #b45309; @else background-color: #f3f4f6; color: #4b5563; @endif">
                                                     @if($session->scheduled_at->isToday())
@@ -270,15 +271,40 @@
                                                         {{ $session->scheduled_at->diffForHumans() }}
                                                     @endif
                                                 </span>
+                                                <button disabled
+                                                   class="inline-flex items-center px-5 py-2.5 font-bold rounded-xl cursor-not-allowed opacity-50"
+                                                   style="background-color: #9ca3af; color: #ffffff;"
+                                                   title="الجلسة لم تبدأ بعد">
+                                                    <svg class="w-5 h-5 me-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                                                    </svg>
+                                                    لم يحن الموعد
+                                                </button>
+                                            @elseif($session->scheduled_at && $session->scheduled_at->copy()->addHours(2) < now())
+                                                {{-- Session time passed by more than 2 hours - expired --}}
+                                                <span class="text-sm font-semibold px-4 py-2 rounded-xl" style="background-color: #fee2e2; color: #991b1b;">
+                                                    انتهى وقت الدخول
+                                                </span>
+                                                <button disabled
+                                                   class="inline-flex items-center px-5 py-2.5 font-bold rounded-xl cursor-not-allowed opacity-50"
+                                                   style="background-color: #9ca3af; color: #ffffff;"
+                                                   title="انتهى وقت الدخول للجلسة">
+                                                    <svg class="w-5 h-5 me-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                                    </svg>
+                                                    فات الموعد
+                                                </button>
+                                            @else
+                                                {{-- Session time has arrived and within 2 hours - allow access --}}
+                                                <a href="{{ route('student.sessions.join-zoom', $session->id) }}"
+                                                   class="inline-flex items-center px-5 py-2.5 text-white font-bold rounded-xl transition-all shadow-lg hover:shadow-xl"
+                                                   style="background-color: #06b6d4;">
+                                                    <svg class="w-5 h-5 me-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                                                    </svg>
+                                                    انضم للجلسة
+                                                </a>
                                             @endif
-                                            <a href="{{ route('student.sessions.join-zoom', $session->id) }}"
-                                               class="inline-flex items-center px-5 py-2.5 text-white font-bold rounded-xl transition-all shadow-lg hover:shadow-xl"
-                                               style="background-color: #06b6d4;">
-                                                <svg class="w-5 h-5 me-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
-                                                </svg>
-                                                انضم للجلسة
-                                            </a>
                                         @elseif($session->ended_at && $session->zoom_recording_url)
                                             {{-- Session ended but has recording --}}
                                             <a href="{{ $session->zoom_recording_url }}" target="_blank"
@@ -294,15 +320,39 @@
 
                                         {{-- External Zoom Link --}}
                                         @if($session->zoom_join_url && !$session->ended_at)
-                                            <a href="{{ $session->zoom_join_url }}" target="_blank"
-                                               class="inline-flex items-center px-4 py-2.5 text-white font-semibold rounded-xl transition-all"
-                                               style="background-color: #2563eb;"
-                                               title="فتح في تطبيق Zoom">
-                                                <svg class="w-4 h-4 me-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
-                                                </svg>
-                                                فتح Zoom
-                                            </a>
+                                            @if($session->scheduled_at && $session->scheduled_at > now())
+                                                {{-- Session time not yet - disable external link --}}
+                                                <button disabled
+                                                   class="inline-flex items-center px-4 py-2.5 font-semibold rounded-xl cursor-not-allowed opacity-50"
+                                                   style="background-color: #9ca3af; color: #ffffff;"
+                                                   title="الجلسة لم تبدأ بعد">
+                                                    <svg class="w-4 h-4 me-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                                                    </svg>
+                                                    فتح Zoom
+                                                </button>
+                                            @elseif($session->scheduled_at && $session->scheduled_at->copy()->addHours(2) < now())
+                                                {{-- Session time passed by more than 2 hours - disable external link --}}
+                                                <button disabled
+                                                   class="inline-flex items-center px-4 py-2.5 font-semibold rounded-xl cursor-not-allowed opacity-50"
+                                                   style="background-color: #9ca3af; color: #ffffff;"
+                                                   title="انتهى وقت الدخول للجلسة">
+                                                    <svg class="w-4 h-4 me-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                                                    </svg>
+                                                    فتح Zoom
+                                                </button>
+                                            @else
+                                                <a href="{{ $session->zoom_join_url }}" target="_blank"
+                                                   class="inline-flex items-center px-4 py-2.5 text-white font-semibold rounded-xl transition-all"
+                                                   style="background-color: #2563eb;"
+                                                   title="فتح في تطبيق Zoom">
+                                                    <svg class="w-4 h-4 me-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                                                    </svg>
+                                                    فتح Zoom
+                                                </a>
+                                            @endif
                                         @endif
                                     @endif
 

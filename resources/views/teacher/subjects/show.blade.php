@@ -29,13 +29,23 @@
                 @endif
             </p>
         </div>
-        <a href="{{ route('teacher.my-subjects.sessions.create', $subject->id) }}"
-           class="flex items-center gap-2 rounded-lg bg-brand-500 px-5 py-2.5 text-sm font-medium text-white hover:bg-brand-600 transition-colors">
-            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-            </svg>
-            إضافة حصة جديدة
-        </a>
+        <div class="flex items-center gap-3">
+            <a href="{{ route('teacher.quizzes.index', $subject->id) }}"
+               class="flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-medium text-white transition-colors"
+               style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                </svg>
+                الاختبارات
+            </a>
+            <a href="{{ route('teacher.my-subjects.sessions.create', $subject->id) }}"
+               class="flex items-center gap-2 rounded-lg bg-brand-500 px-5 py-2.5 text-sm font-medium text-white hover:bg-brand-600 transition-colors">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                إضافة حصة جديدة
+            </a>
+        </div>
     </div>
 </div>
 
