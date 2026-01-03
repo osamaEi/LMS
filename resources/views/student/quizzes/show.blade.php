@@ -107,8 +107,8 @@
                                 <td class="py-3 px-4 text-gray-900 dark:text-white">{{ $index + 1 }}</td>
                                 <td class="py-3 px-4 text-gray-600 dark:text-gray-400">{{ $attempt->started_at->format('Y/m/d H:i') }}</td>
                                 <td class="py-3 px-4">
-                                    @if($attempt->status === 'completed')
-                                        <span class="font-bold {{ $attempt->is_passed ? 'text-emerald-600' : 'text-red-600' }}">
+                                    @if($attempt->isCompleted())
+                                        <span class="font-bold {{ $attempt->passed ? 'text-emerald-600' : 'text-red-600' }}">
                                             {{ $attempt->score ?? '-' }} / {{ $quiz->total_marks }}
                                         </span>
                                     @else
@@ -116,11 +116,11 @@
                                     @endif
                                 </td>
                                 <td class="py-3 px-4">
-                                    @if($attempt->status === 'completed' && $attempt->is_passed)
+                                    @if($attempt->isCompleted() && $attempt->passed)
                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" style="background-color: #d1fae5; color: #065f46;">
                                             ناجح
                                         </span>
-                                    @elseif($attempt->status === 'completed')
+                                    @elseif($attempt->isCompleted())
                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" style="background-color: #fee2e2; color: #991b1b;">
                                             راسب
                                         </span>
@@ -131,7 +131,7 @@
                                     @endif
                                 </td>
                                 <td class="py-3 px-4">
-                                    @if($attempt->status === 'completed' && $quiz->show_results)
+                                    @if($attempt->isCompleted() && $quiz->show_results)
                                         <a href="{{ route('student.quizzes.result', [$subject->id, $quiz->id, $attempt->id]) }}"
                                            class="text-emerald-600 hover:text-emerald-700 text-sm font-medium">
                                             عرض النتيجة

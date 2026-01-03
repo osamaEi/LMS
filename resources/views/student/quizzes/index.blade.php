@@ -95,7 +95,7 @@
                             </div>
                             <div class="flex items-center gap-2 flex-shrink-0">
                                 @if($quiz->in_progress_attempt)
-                                    <a href="{{ route('student.quizzes.take', $quiz->in_progress_attempt->id) }}"
+                                    <a href="{{ route('student.quizzes.take', [$subject->id, $quiz->id]) }}"
                                        class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-white transition-all"
                                        style="background-color: #f59e0b;">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -105,7 +105,7 @@
                                         متابعة
                                     </a>
                                 @elseif($quiz->can_attempt)
-                                    <a href="{{ route('student.quizzes.show', $quiz->id) }}"
+                                    <a href="{{ route('student.quizzes.show', [$subject->id, $quiz->id]) }}"
                                        class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-white transition-all"
                                        style="background-color: #10b981;">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
