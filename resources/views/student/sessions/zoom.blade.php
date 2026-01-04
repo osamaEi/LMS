@@ -12,9 +12,9 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif !important; }
 
         :root {
-            --primary: #06b6d4;
-            --primary-dark: #0891b2;
-            --secondary: #7c3aed;
+            --primary: #0071AA;
+            --primary-dark: #005a88;
+            --secondary: #0071AA;
             --success: #10b981;
             --danger: #ef4444;
             --warning: #f59e0b;
@@ -180,7 +180,7 @@
             width: 56px;
             height: 56px;
             margin: 0 auto 12px;
-            background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+            background: linear-gradient(135deg, #0071AA 0%, #005a88 100%);
             border-radius: 14px;
             display: flex;
             align-items: center;
@@ -262,14 +262,14 @@
 
         .input-group input:focus {
             outline: none;
-            border-color: #06b6d4;
+            border-color: #0071AA;
             background: rgba(6, 182, 212, 0.1);
         }
 
         .join-btn {
             width: 100%;
             padding: 12px 18px;
-            background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+            background: linear-gradient(135deg, #0071AA 0%, #005a88 100%);
             border: none;
             border-radius: 10px;
             color: white;
@@ -377,7 +377,7 @@
             width: 100%;
             height: 100%;
             border: 4px solid transparent;
-            border-top-color: #06b6d4;
+            border-top-color: #0071AA;
             animation: spin 1s linear infinite;
         }
 

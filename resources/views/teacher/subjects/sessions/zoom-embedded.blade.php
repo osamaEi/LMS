@@ -51,7 +51,7 @@
             <!-- Compact Pre-Join Card -->
             <div id="pre-join-card" class="text-center p-5 rounded-xl max-w-sm w-full mx-3" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">
                 <!-- Icon -->
-                <div class="w-12 h-12 mx-auto mb-3 rounded-lg flex items-center justify-center" style="background: linear-gradient(135deg, #2563eb, #7c3aed);">
+                <div class="w-12 h-12 mx-auto mb-3 rounded-lg flex items-center justify-center" style="background: linear-gradient(135deg, #2563eb, #0071AA);">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
                         <path d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
                     </svg>
@@ -85,7 +85,7 @@
                     </div>
                     <button type="submit" id="join-btn"
                             class="w-full py-2.5 rounded-lg text-white font-bold text-sm flex items-center justify-center gap-2"
-                            style="background: linear-gradient(135deg, #2563eb, #7c3aed);">
+                            style="background: linear-gradient(135deg, #2563eb, #0071AA);">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
                         </svg>
