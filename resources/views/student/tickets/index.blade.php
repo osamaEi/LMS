@@ -12,7 +12,7 @@
         </div>
         <a href="{{ route('student.tickets.create') }}"
            class="inline-flex items-center px-5 py-2.5 text-white font-medium rounded-xl transition-all"
-           style="background-color: #4f46e5;">
+           style="background-color: #0071AA;">
             <svg class="w-5 h-5 me-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
             </svg>
@@ -60,7 +60,7 @@
                                     <div class="flex flex-wrap items-center gap-3 mt-2">
                                         <!-- Category -->
                                         <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium"
-                                            style="background-color: #e0e7ff; color: #4338ca;">
+                                            style="background-color: #e6f4fa; color: #0071AA;">
                                             @switch($ticket->category)
                                                 @case('technical') دعم فني @break
                                                 @case('academic') أكاديمي @break
@@ -131,7 +131,7 @@
                 <p class="mt-2 text-gray-500 dark:text-gray-400 max-w-sm mx-auto">لم تقم بإنشاء أي تذاكر دعم بعد</p>
                 <a href="{{ route('student.tickets.create') }}"
                    class="inline-flex items-center mt-6 px-5 py-2.5 text-white font-medium rounded-xl"
-                   style="background-color: #4f46e5;">
+                   style="background-color: #0071AA;">
                     <svg class="w-5 h-5 me-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                     </svg>

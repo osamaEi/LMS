@@ -1,12 +1,12 @@
 <aside
     :class="sidebarToggle ? 'translate-x-0' : 'translate-x-full'"
     class="sidebar fixed right-0 top-0 z-9999 flex h-screen w-[280px] flex-col overflow-y-hidden px-6 lg:static lg:translate-x-0"
-    style="background: linear-gradient(180deg, #1e3a5f 0%, #0f172a 100%);"
+    style="background: linear-gradient(180deg, #0071AA 0%, #005a88 100%);"
 >
     <!-- SIDEBAR HEADER -->
     <div class="flex items-center justify-between pt-8 pb-7">
         <a href="{{ route(auth()->user()->role . '.dashboard') }}">
-            <img src="{{ asset('images/logo/logo.png') }}" alt="Logo" class="h-12" />
+            <img src="{{ asset('images/logo/logo.png') }}" alt="Logo" class="h-12" style="filter: brightness(0) invert(1);" />
         </a>
     </div>
 

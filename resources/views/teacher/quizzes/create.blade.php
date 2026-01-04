@@ -5,7 +5,7 @@
 @section('content')
 <div class="space-y-6">
     <!-- Header -->
-    <div class="rounded-2xl p-6 text-white" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
+    <div class="rounded-2xl p-6 text-white" style="background: linear-gradient(135deg, #0071AA, #005a88);">
         <div class="flex items-center gap-4">
             <a href="{{ route('teacher.quizzes.index', $subject->id) }}"
                class="w-10 h-10 rounded-xl flex items-center justify-center transition-colors"
@@ -185,7 +185,7 @@
                 </a>
                 <button type="submit"
                         class="px-6 py-2.5 rounded-xl font-bold text-white transition-all"
-                        style="background-color: #8b5cf6;">
+                        style="background-color: #0071AA;">
                     إنشاء الاختبار
                 </button>
             </div>

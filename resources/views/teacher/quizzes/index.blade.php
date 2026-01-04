@@ -5,7 +5,7 @@
 @section('content')
 <div class="space-y-6">
     <!-- Header -->
-    <div class="rounded-2xl p-6 text-white" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
+    <div class="rounded-2xl p-6 text-white" style="background: linear-gradient(135deg, #0071AA, #005a88);">
         <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <div class="flex items-center gap-4">
                 <a href="{{ route('teacher.my-subjects.show', $subject->id) }}"
@@ -22,7 +22,7 @@
             </div>
             <a href="{{ route('teacher.quizzes.create', $subject->id) }}"
                class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold transition-all"
-               style="background-color: white; color: #7c3aed;">
+               style="background-color: white; color: #0071AA;">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                 </svg>
@@ -33,13 +33,13 @@
 
     <!-- Statistics -->
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5" style="border-right: 4px solid #8b5cf6;">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5" style="border-right: 4px solid #0071AA;">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm font-medium text-gray-500 dark:text-gray-400">إجمالي الاختبارات</p>
                     <p class="text-3xl font-bold text-gray-900 dark:text-white mt-1">{{ $quizzes->count() }}</p>
                 </div>
-                <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background-color: #8b5cf6;">
+                <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background-color: #0071AA;">
                     <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
                     </svg>
@@ -103,7 +103,7 @@
                         <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                             <div class="flex items-start gap-4">
                                 <div class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
-                                     style="background-color: {{ $quiz->type === 'exam' ? '#ef4444' : ($quiz->type === 'homework' ? '#f59e0b' : '#8b5cf6') }};">
+                                     style="background-color: {{ $quiz->type === 'exam' ? '#ef4444' : ($quiz->type === 'homework' ? '#f59e0b' : '#0071AA') }};">
                                     @if($quiz->type === 'exam')
                                         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
@@ -122,8 +122,8 @@
                                     <div class="flex items-center gap-2 flex-wrap">
                                         <h3 class="font-bold text-gray-900 dark:text-white text-lg">{{ $quiz->title_ar }}</h3>
                                         <span class="px-2 py-0.5 rounded-full text-xs font-medium"
-                                              style="background-color: {{ $quiz->type === 'exam' ? '#fee2e2' : ($quiz->type === 'homework' ? '#fef3c7' : '#ede9fe') }};
-                                                     color: {{ $quiz->type === 'exam' ? '#991b1b' : ($quiz->type === 'homework' ? '#92400e' : '#5b21b6') }};">
+                                              style="background-color: {{ $quiz->type === 'exam' ? '#fee2e2' : ($quiz->type === 'homework' ? '#fef3c7' : '#e6f4fa') }};
+                                                     color: {{ $quiz->type === 'exam' ? '#991b1b' : ($quiz->type === 'homework' ? '#92400e' : '#0071AA') }};">
                                             {{ $quiz->type_label }}
                                         </span>
                                         @if($quiz->is_active)
@@ -181,7 +181,7 @@
                                 </a>
                                 <a href="{{ route('teacher.quizzes.show', [$subject->id, $quiz->id]) }}"
                                    class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors"
-                                   style="background-color: #ede9fe; color: #5b21b6;">
+                                   style="background-color: #e6f4fa; color: #0071AA;">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
@@ -225,7 +225,7 @@
                 <p class="mt-2 text-gray-500 dark:text-gray-400">ابدأ بإنشاء اختبار جديد لهذه المادة</p>
                 <a href="{{ route('teacher.quizzes.create', $subject->id) }}"
                    class="inline-flex items-center gap-2 mt-4 px-5 py-2.5 rounded-xl font-bold transition-all text-white"
-                   style="background-color: #8b5cf6;">
+                   style="background-color: #0071AA;">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                     </svg>

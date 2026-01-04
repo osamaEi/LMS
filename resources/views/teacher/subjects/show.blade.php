@@ -32,7 +32,7 @@
         <div class="flex items-center gap-3">
             <a href="{{ route('teacher.quizzes.index', $subject->id) }}"
                class="flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-medium text-white transition-colors"
-               style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
+               style="background: linear-gradient(135deg, #0071AA, #005a88);">
                 <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
                 </svg>
@@ -99,7 +99,7 @@
         </div>
     </div>
 
-    <div class="rounded-xl shadow-lg p-5 transition-all duration-300 hover:shadow-xl" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
+    <div class="rounded-xl shadow-lg p-5 transition-all duration-300 hover:shadow-xl" style="background: linear-gradient(135deg, #0071AA 0%, #005a88 100%);">
         <div class="flex items-center gap-4">
             <div class="flex h-12 w-12 items-center justify-center rounded-xl" style="background: rgba(255,255,255,0.2);">
                 <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -107,7 +107,7 @@
                 </svg>
             </div>
             <div>
-                <p class="text-sm" style="color: #ddd6fe;">حصص مسجلة</p>
+                <p class="text-sm" style="color: #e6f4fa;">حصص مسجلة</p>
                 <p class="text-2xl font-bold text-white">{{ $sessions->where('type', 'recorded_video')->count() }}</p>
             </div>
         </div>
@@ -179,7 +179,7 @@
 
                 <div class="flex gap-2">
                     <a href="{{ route('teacher.my-subjects.sessions.zoom', [$subject->id, $liveSession->id]) }}"
-                       class="flex-1 flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition-all shadow-sm hover:shadow-md" style="background: linear-gradient(135deg, #1e3a5f, #0f172a);">
+                       class="flex-1 flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition-all shadow-sm hover:shadow-md" style="background: linear-gradient(135deg, #0071AA, #0f172a);">
                         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                         </svg>

@@ -5,7 +5,7 @@
 @section('content')
 <div class="space-y-6">
     <!-- Header -->
-    <div class="rounded-2xl p-6 shadow-lg" style="background: linear-gradient(180deg, #2d4a6f 0%, #1e3a5f 100%);">
+    <div class="rounded-2xl p-6 shadow-lg" style="background: linear-gradient(180deg, #0071AA 0%, #005a88 100%);">
         <div class="flex items-center gap-4">
             <div class="w-14 h-14 rounded-xl flex items-center justify-center" style="background-color: rgba(255,255,255,0.2);">
                 <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -52,13 +52,13 @@
         </div>
 
         <!-- Zoom Sessions -->
-        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5" style="border-right: 4px solid #06b6d4;">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5" style="border-right: 4px solid #0071AA;">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm font-medium text-gray-500 dark:text-gray-400">جلسات Zoom</p>
                     <p class="text-3xl font-bold text-gray-900 dark:text-white mt-1">{{ $zoomSessions }}</p>
                 </div>
-                <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background-color: #06b6d4;">
+                <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background-color: #0071AA;">
                     <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
                     </svg>
@@ -106,7 +106,7 @@
                 </select>
             </div>
             <div class="flex items-end">
-                <button type="submit" class="px-6 py-2.5 text-white font-medium rounded-xl transition-all flex items-center gap-2" style="background-color: #4f46e5;">
+                <button type="submit" class="px-6 py-2.5 text-white font-medium rounded-xl transition-all flex items-center gap-2" style="background-color: #0071AA;">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
                     </svg>
@@ -120,7 +120,7 @@
     <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm overflow-hidden">
         <div class="p-6 border-b border-gray-200 dark:border-gray-700">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background-color: #4f46e5;">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background-color: #0071AA;">
                     <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
                     </svg>
@@ -138,7 +138,7 @@
                                 <!-- Session Icon -->
                                 <div class="relative flex-shrink-0">
                                     <div class="w-14 h-14 rounded-2xl flex items-center justify-center"
-                                        style="background-color: @if($session->type === 'live_zoom') #06b6d4 @elseif($session->type === 'recorded') #8b5cf6 @else #f59e0b @endif;">
+                                        style="background-color: @if($session->type === 'live_zoom') #0071AA @elseif($session->type === 'recorded') #0071AA @else #f59e0b @endif;">
                                         @if($session->type === 'live_zoom')
                                             <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
@@ -181,7 +181,7 @@
                                         @endif
                                     </div>
                                     <div class="flex items-center gap-2 mt-1.5">
-                                        <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium" style="background-color: #e0e7ff; color: #4338ca;">
+                                        <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium" style="background-color: #e6f4fa; color: #0071AA;">
                                             {{ $session->subject->name }}
                                         </span>
                                         @if($session->unit)
@@ -215,7 +215,7 @@
                                         @if($session->type === 'live_zoom')
                                             <span class="px-3 py-1.5 rounded-lg text-xs font-semibold" style="background-color: #cffafe; color: #0e7490;">Zoom</span>
                                         @elseif($session->type === 'recorded')
-                                            <span class="px-3 py-1.5 rounded-lg text-xs font-semibold" style="background-color: #ede9fe; color: #6d28d9;">مسجل</span>
+                                            <span class="px-3 py-1.5 rounded-lg text-xs font-semibold" style="background-color: #e6f4fa; color: #0071AA;">مسجل</span>
                                         @else
                                             <span class="px-3 py-1.5 rounded-lg text-xs font-semibold" style="background-color: #fef3c7; color: #b45309;">حضوري</span>
                                         @endif
@@ -298,7 +298,7 @@
                                                 {{-- Session time has arrived and within 2 hours - allow access --}}
                                                 <a href="{{ route('student.sessions.join-zoom', $session->id) }}"
                                                    class="inline-flex items-center px-5 py-2.5 text-white font-bold rounded-xl transition-all shadow-lg hover:shadow-xl"
-                                                   style="background-color: #06b6d4;">
+                                                   style="background-color: #0071AA;">
                                                     <svg class="w-5 h-5 me-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
                                                     </svg>
@@ -309,7 +309,7 @@
                                             {{-- Session ended but has recording --}}
                                             <a href="{{ $session->zoom_recording_url }}" target="_blank"
                                                class="inline-flex items-center px-5 py-2.5 text-white font-bold rounded-xl transition-all shadow-lg hover:shadow-xl"
-                                               style="background-color: #8b5cf6;">
+                                               style="background-color: #0071AA;">
                                                 <svg class="w-5 h-5 me-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -360,7 +360,7 @@
                                     @if($session->type === 'recorded' && $session->video_url)
                                         <a href="{{ $session->video_url }}" target="_blank"
                                            class="inline-flex items-center px-5 py-2.5 text-white font-bold rounded-xl transition-all shadow-lg hover:shadow-xl"
-                                           style="background-color: #8b5cf6;">
+                                           style="background-color: #0071AA;">
                                             <svg class="w-5 h-5 me-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>

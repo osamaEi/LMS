@@ -31,7 +31,7 @@
                     </span>
                     <!-- Category -->
                     <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium"
-                        style="background-color: #e0e7ff; color: #4338ca;">
+                        style="background-color: #e6f4fa; color: #0071AA;">
                         @switch($ticket->category)
                             @case('technical') دعم فني @break
                             @case('academic') أكاديمي @break
@@ -74,7 +74,7 @@
             <!-- Original Message -->
             <div class="p-6">
                 <div class="flex items-start gap-4">
-                    <div class="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0" style="background-color: #4f46e5;">
+                    <div class="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0" style="background-color: #0071AA;">
                         <span class="text-white font-bold">{{ mb_substr(auth()->user()->name, 0, 1) }}</span>
                     </div>
                     <div class="flex-1">
@@ -95,7 +95,7 @@
                 <div class="p-6 @if($reply->user_id != auth()->id()) bg-gray-50 dark:bg-gray-700/50 @endif">
                     <div class="flex items-start gap-4">
                         <div class="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0"
-                            style="background-color: @if($reply->user_id == auth()->id()) #4f46e5 @else #10b981 @endif;">
+                            style="background-color: @if($reply->user_id == auth()->id()) #0071AA @else #10b981 @endif;">
                             <span class="text-white font-bold">{{ mb_substr($reply->user->name ?? 'D', 0, 1) }}</span>
                         </div>
                         <div class="flex-1">
@@ -138,7 +138,7 @@
                     <div class="flex justify-end">
                         <button type="submit"
                                 class="inline-flex items-center px-5 py-2.5 text-white font-medium rounded-xl"
-                                style="background-color: #4f46e5;">
+                                style="background-color: #0071AA;">
                             <svg class="w-5 h-5 me-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
                             </svg>

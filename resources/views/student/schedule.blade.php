@@ -5,7 +5,7 @@
 @section('content')
 <div class="space-y-6">
     <!-- Header Section -->
-    <div class="bg-gradient-to-l from-cyan-600 to-blue-700 rounded-2xl p-6 text-white shadow-lg">
+    <div class="rounded-2xl p-6 text-white shadow-lg" style="background: linear-gradient(to left, #0071AA, #005a88);">
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
                 <h1 class="text-2xl font-bold">الجدول الدراسي</h1>
@@ -21,7 +21,7 @@
     </div>
 
     <!-- Stats Cards -->
-    <div class="rounded-2xl p-6 shadow-lg" style="background: linear-gradient(to left, #0891b2, #1d4ed8);">
+    <div class="rounded-2xl p-6 shadow-lg" style="background: linear-gradient(to left, #0071AA, #005a88);">
         <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
             <div class="flex items-center gap-4">
                 <div class="w-14 h-14 rounded-xl flex items-center justify-center" style="background: rgba(255,255,255,0.2);">

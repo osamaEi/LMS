@@ -16,7 +16,7 @@
 
 <!-- Statistics Cards -->
 <div class="flex flex-wrap gap-4 mb-6">
-    <div class="flex-1 min-w-[200px] rounded-xl shadow-lg p-5" style="background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);">
+    <div class="flex-1 min-w-[200px] rounded-xl shadow-lg p-5" style="background: linear-gradient(135deg, #0071AA 0%, #005a88 100%);">
         <div class="flex items-center justify-between">
             <div>
                 <p class="text-sm" style="color: rgba(255,255,255,0.8);">إجمالي التذاكر</p>
@@ -90,7 +90,7 @@
     <div class="overflow-x-auto">
         <table class="w-full">
             <thead>
-                <tr style="background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%);">
+                <tr style="background: linear-gradient(135deg, #0071AA 0%, #005a88 100%);">
                     <th class="px-6 py-4 text-right text-xs font-medium text-white uppercase">#</th>
                     <th class="px-6 py-4 text-right text-xs font-medium text-white uppercase">الموضوع</th>
                     <th class="px-6 py-4 text-right text-xs font-medium text-white uppercase">الفئة</th>
@@ -169,7 +169,7 @@
                     <td class="px-6 py-4">
                         <a href="{{ route('teacher.tickets.show', $ticket) }}"
                            class="inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-sm font-medium text-white transition-all"
-                           style="background: linear-gradient(135deg, #6366f1, #4f46e5);">
+                           style="background: linear-gradient(135deg, #0071AA, #005a88);">
                             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />

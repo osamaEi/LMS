@@ -6,7 +6,7 @@
 <div class="space-y-6">
     @if($program)
         <!-- Header -->
-        <div class="rounded-2xl p-6 shadow-lg text-white" style="background: linear-gradient(180deg, #2d4a6f 0%, #1e3a5f 100%);">
+        <div class="rounded-2xl p-6 shadow-lg text-white" style="background: linear-gradient(180deg, #0071AA 0%, #005a88 100%);">
             <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
                 <div class="flex items-center gap-4">
                     <div class="w-16 h-16 rounded-2xl flex items-center justify-center" style="background-color: rgba(255,255,255,0.2);">
@@ -65,13 +65,13 @@
             </div>
 
             <!-- Total Sessions -->
-            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5" style="border-right: 4px solid #8b5cf6;">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5" style="border-right: 4px solid #0071AA;">
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm font-medium text-gray-500 dark:text-gray-400">إجمالي الجلسات</p>
                         <p class="text-3xl font-bold text-gray-900 dark:text-white mt-1">{{ $stats['total_sessions'] }}</p>
                     </div>
-                    <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background-color: #8b5cf6;">
+                    <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background-color: #0071AA;">
                         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
                         </svg>
@@ -116,7 +116,7 @@
             <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm overflow-hidden">
                 <div class="p-6 border-b border-gray-200 dark:border-gray-700">
                     <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background-color: #4f46e5;">
+                        <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background-color: #0071AA;">
                             <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                             </svg>
@@ -164,7 +164,7 @@
             <div class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-2xl shadow-sm overflow-hidden">
                 <div class="p-6 border-b border-gray-200 dark:border-gray-700">
                     <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background-color: #8b5cf6;">
+                        <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background-color: #0071AA;">
                             <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                             </svg>
@@ -188,10 +188,10 @@
                                         border border-gray-200 dark:border-gray-700
                                     @endif
                                 "
-                                style="@if($isCurrentTerm) border-color: #8b5cf6; background-color: rgba(139, 92, 246, 0.05); @endif">
+                                style="@if($isCurrentTerm) border-color: #0071AA; background-color: rgba(139, 92, 246, 0.05); @endif">
                                     <!-- Term Number Circle -->
                                     <div class="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg"
-                                        style="background-color: @if($isPastTerm) #10b981 @elseif($isCurrentTerm) #8b5cf6 @else #d1d5db @endif;">
+                                        style="background-color: @if($isPastTerm) #10b981 @elseif($isCurrentTerm) #0071AA @else #d1d5db @endif;">
                                         {{ $term->term_number }}
                                     </div>
 
@@ -225,7 +225,7 @@
                                                         مكتمل
                                                     </span>
                                                 @elseif($isCurrentTerm)
-                                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold text-white" style="background-color: #8b5cf6;">
+                                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold text-white" style="background-color: #0071AA;">
                                                         <span class="w-2 h-2 bg-white rounded-full me-1.5 animate-pulse"></span>
                                                         الفصل الحالي
                                                     </span>
@@ -254,14 +254,14 @@
             <div class="p-6 border-b border-gray-200 dark:border-gray-700">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background-color: #06b6d4;">
+                        <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background-color: #0071AA;">
                             <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
                             </svg>
                         </div>
                         <h2 class="text-lg font-bold text-gray-900 dark:text-white">المواد المسجلة</h2>
                     </div>
-                    <a href="{{ route('student.my-sessions') }}" class="text-sm font-medium flex items-center gap-1" style="color: #4f46e5;">
+                    <a href="{{ route('student.my-sessions') }}" class="text-sm font-medium flex items-center gap-1" style="color: #0071AA;">
                         عرض جميع الجلسات
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
@@ -277,7 +277,7 @@
                             <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                                 <div class="flex items-start gap-4">
                                     <!-- Subject Icon -->
-                                    <div class="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0" style="background-color: #06b6d4;">
+                                    <div class="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0" style="background-color: #0071AA;">
                                         <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
                                         </svg>
@@ -296,7 +296,7 @@
                                                 </span>
                                             @endif
                                             @if($subject->term)
-                                                <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium" style="background-color: #e0e7ff; color: #4338ca;">
+                                                <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium" style="background-color: #e6f4fa; color: #0071AA;">
                                                     {{ $subject->term->name }}
                                                 </span>
                                             @endif
@@ -330,7 +330,7 @@
                                 <div class="flex items-center gap-2">
                                     <a href="{{ route('student.subjects.show', $subject->id) }}"
                                        class="inline-flex items-center px-4 py-2 text-white font-medium rounded-xl transition-all"
-                                       style="background-color: #4f46e5;">
+                                       style="background-color: #0071AA;">
                                         <svg class="w-4 h-4 me-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
@@ -397,7 +397,7 @@
             <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm overflow-hidden">
                 <div class="p-6 border-b border-gray-200 dark:border-gray-700">
                     <div class="flex items-center gap-3">
-                        <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background-color: #4f46e5;">
+                        <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background-color: #0071AA;">
                             <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
                             </svg>
@@ -415,7 +415,7 @@
                             @foreach($availablePrograms as $availableProgram)
                                 <div class="rounded-2xl border-2 border-gray-200 dark:border-gray-700 hover:border-indigo-500 transition-all duration-300 overflow-hidden group">
                                     <!-- Program Header -->
-                                    <div class="p-6" style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);">
+                                    <div class="p-6" style="background: linear-gradient(135deg, #0071AA 0%, #005a88 100%);">
                                         <div class="flex items-center gap-3">
                                             <div class="w-14 h-14 rounded-xl flex items-center justify-center" style="background-color: rgba(255,255,255,0.2);">
                                                 <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -478,7 +478,7 @@
                                             <input type="hidden" name="program_id" value="{{ $availableProgram->id }}">
                                             <button type="submit"
                                                     class="w-full inline-flex items-center justify-center px-6 py-3 text-white font-bold rounded-xl transition-all hover:shadow-lg"
-                                                    style="background-color: #4f46e5;">
+                                                    style="background-color: #0071AA;">
                                                 <svg class="w-5 h-5 me-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                                 </svg>
@@ -531,7 +531,7 @@
                                 <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">هل لديك استفسار أو تحتاج مساعدة في اختيار البرنامج المناسب؟</p>
                                 <a href="{{ route('student.tickets.create') }}"
                                    class="inline-flex items-center text-sm font-medium"
-                                   style="color: #4f46e5;">
+                                   style="color: #0071AA;">
                                     إنشاء تذكرة دعم
                                     <svg class="w-4 h-4 ms-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>

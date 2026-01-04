@@ -5,11 +5,11 @@
 @section('content')
 <div class="space-y-6">
     <!-- Welcome Header -->
-    <div class="rounded-2xl p-6 text-white" style="background: linear-gradient(180deg, #2d4a6f 0%, #1e3a5f 100%);">
+    <div class="rounded-2xl p-6 text-white" style="background: linear-gradient(180deg, #0071AA 0%, #005a88 100%);">
         <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <div class="flex items-center gap-4">
                 <div class="relative">
-                    <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}&background=ffffff&color=1e3a5f&size=80"
+                    <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}&background=ffffff&color=0071AA&size=80"
                          alt="{{ auth()->user()->name }}"
                          class="w-16 h-16 rounded-2xl border-2 border-white/30 shadow-lg" />
                     <span class="absolute -bottom-1 -right-1 w-5 h-5 border-2 border-white rounded-full" style="background-color: #10b981;"></span>
@@ -41,13 +41,13 @@
 
     <!-- Statistics Cards -->
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5" style="border-right: 4px solid #4f46e5;">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5" style="border-right: 4px solid #0071AA;">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm font-medium text-gray-500 dark:text-gray-400">المواد المسجلة</p>
                     <p class="text-3xl font-bold text-gray-900 dark:text-white mt-1">{{ $stats['subjects_count'] }}</p>
                 </div>
-                <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background-color: #4f46e5;">
+                <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background-color: #0071AA;">
                     <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
                     </svg>
@@ -55,13 +55,13 @@
             </div>
         </div>
 
-        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5" style="border-right: 4px solid #06b6d4;">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5" style="border-right: 4px solid #0071AA;">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm font-medium text-gray-500 dark:text-gray-400">إجمالي الجلسات</p>
                     <p class="text-3xl font-bold text-gray-900 dark:text-white mt-1">{{ $stats['total_sessions'] }}</p>
                 </div>
-                <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background-color: #06b6d4;">
+                <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background-color: #0071AA;">
                     <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
                     </svg>
@@ -103,7 +103,7 @@
         <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm overflow-hidden">
             <div class="p-5 border-b border-gray-100 dark:border-gray-700">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background-color: #8b5cf6;">
+                    <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background-color: #0071AA;">
                         <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                         </svg>
@@ -161,7 +161,7 @@
                                 @else
                                     text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700
                                 @endif"
-                                style="@if($isToday) background-color: #4f46e5; @endif">
+                                style="@if($isToday) background-color: #0071AA; @endif">
                                 {{ $day }}
                             </span>
                             @if($hasSession)
@@ -174,7 +174,7 @@
                 <!-- Legend -->
                 <div class="flex items-center justify-center gap-4 mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
                     <div class="flex items-center gap-2">
-                        <span class="w-3 h-3 rounded-full" style="background-color: #4f46e5;"></span>
+                        <span class="w-3 h-3 rounded-full" style="background-color: #0071AA;"></span>
                         <span class="text-xs text-gray-500 dark:text-gray-400">اليوم</span>
                     </div>
                     <div class="flex items-center gap-2">
@@ -189,14 +189,14 @@
         <div class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-2xl shadow-sm overflow-hidden">
             <div class="p-5 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background-color: #06b6d4;">
+                    <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background-color: #0071AA;">
                         <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
                         </svg>
                     </div>
                     <h3 class="text-lg font-bold text-gray-900 dark:text-white">الجلسات القادمة</h3>
                 </div>
-                <a href="{{ route('student.my-sessions') }}" class="text-sm font-medium flex items-center gap-1" style="color: #4f46e5;">
+                <a href="{{ route('student.my-sessions') }}" class="text-sm font-medium flex items-center gap-1" style="color: #0071AA;">
                     عرض الكل
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
@@ -210,7 +210,7 @@
                         <div class="p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                             <div class="flex items-center gap-4">
                                 <div class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
-                                    style="background-color: @if($session->type === 'live_zoom') #06b6d4 @elseif($session->type === 'recorded') #8b5cf6 @else #f59e0b @endif;">
+                                    style="background-color: @if($session->type === 'live_zoom') #0071AA @elseif($session->type === 'recorded') #0071AA @else #0071AA @endif;">
                                     @if($session->type === 'live_zoom')
                                         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
@@ -227,7 +227,7 @@
                                     <p class="text-sm text-gray-500 dark:text-gray-400">{{ $session->subject->name }}</p>
                                     @if($session->scheduled_at)
                                         <div class="flex items-center gap-2 mt-1">
-                                            <span class="text-xs px-2 py-1 rounded-lg" style="background-color: #e0e7ff; color: #4338ca;">
+                                            <span class="text-xs px-2 py-1 rounded-lg" style="background-color: #e6f4fa; color: #0071AA;">
                                                 {{ $session->scheduled_at->format('Y-m-d') }}
                                             </span>
                                             <span class="text-xs px-2 py-1 rounded-lg" style="background-color: #d1fae5; color: #047857;">
@@ -239,7 +239,7 @@
                                 @if($session->type === 'live_zoom' && $session->zoom_meeting_id)
                                     <a href="{{ route('student.sessions.join-zoom', $session->id) }}"
                                        class="inline-flex items-center px-4 py-2 text-white font-medium rounded-xl text-sm"
-                                       style="background-color: #4f46e5;">
+                                       style="background-color: #0071AA;">
                                         انضم
                                     </a>
                                 @endif
@@ -309,7 +309,7 @@
                     </div>
                     <h3 class="text-lg font-bold text-gray-900 dark:text-white">موادي</h3>
                 </div>
-                <a href="{{ route('student.my-program') }}" class="text-sm font-medium flex items-center gap-1" style="color: #4f46e5;">
+                <a href="{{ route('student.my-program') }}" class="text-sm font-medium flex items-center gap-1" style="color: #0071AA;">
                     عرض الكل
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
@@ -322,8 +322,8 @@
                     @foreach($subjects->take(4) as $subject)
                         <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all">
                             <div class="flex items-start gap-3">
-                                <div class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0" style="background-color: #e0e7ff;">
-                                    <svg class="w-5 h-5" style="color: #4f46e5;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <div class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0" style="background-color: #e6f4fa;">
+                                    <svg class="w-5 h-5" style="color: #0071AA;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
                                     </svg>
                                 </div>
@@ -356,7 +356,7 @@
                         </svg>
                     </div>
                     <p class="text-gray-500 dark:text-gray-400">لا توجد مواد مسجلة</p>
-                    <a href="{{ route('student.my-program') }}" class="inline-flex items-center mt-4 px-4 py-2 text-white font-medium rounded-xl text-sm" style="background-color: #4f46e5;">
+                    <a href="{{ route('student.my-program') }}" class="inline-flex items-center mt-4 px-4 py-2 text-white font-medium rounded-xl text-sm" style="background-color: #0071AA;">
                         تسجيل في برنامج
                     </a>
                 </div>
@@ -380,7 +380,7 @@
                         @endif
                     </div>
                 </div>
-                <a href="{{ route('student.tickets.index') }}" class="text-sm font-medium flex items-center gap-1" style="color: #4f46e5;">
+                <a href="{{ route('student.tickets.index') }}" class="text-sm font-medium flex items-center gap-1" style="color: #0071AA;">
                     عرض الكل
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
@@ -412,7 +412,7 @@
             @endif
 
             <div class="p-4 border-t border-gray-100 dark:border-gray-700">
-                <a href="{{ route('student.tickets.create') }}" class="w-full inline-flex items-center justify-center px-4 py-2.5 text-white font-medium rounded-xl text-sm" style="background-color: #4f46e5;">
+                <a href="{{ route('student.tickets.create') }}" class="w-full inline-flex items-center justify-center px-4 py-2.5 text-white font-medium rounded-xl text-sm" style="background-color: #0071AA;">
                     <svg class="w-4 h-4 me-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                     </svg>

@@ -14,7 +14,7 @@
         <!-- Statistics Row - Above Calendar -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <!-- Statistics Card -->
-            <div class="rounded-lg p-5 shadow-lg" style="background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);">
+            <div class="rounded-lg p-5 shadow-lg" style="background: linear-gradient(135deg, #0071AA 0%, #005a88 100%);">
                 <div class="flex justify-between items-center">
                     <span class="text-sm text-white">إجمالي الجلسات</span>
                     <span class="text-3xl font-bold text-white">{{ count($sessions) }}</span>
@@ -55,7 +55,7 @@
             <div class="space-y-4">
 
                 <!-- Legend Card -->
-                <div class="rounded-lg shadow-lg p-5" style="background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%);">
+                <div class="rounded-lg shadow-lg p-5" style="background: linear-gradient(135deg, #0071AA 0%, #0f172a 100%);">
                     <h3 class="text-base font-bold text-white mb-4 pb-2" style="border-bottom: 1px solid rgba(255,255,255,0.2);">المفتاح اللوني</h3>
 
                     <div class="space-y-2">
@@ -115,7 +115,7 @@
     .fc-toolbar {
         padding: 1rem;
         margin-bottom: 0 !important;
-        background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%);
+        background: linear-gradient(135deg, #0071AA 0%, #0f172a 100%);
         border-radius: 12px 12px 0 0;
         flex-wrap: wrap;
         gap: 0.5rem;
@@ -157,7 +157,7 @@
 
     .fc .fc-button-active,
     .fc .fc-button-primary:not(:disabled).fc-button-active {
-        background: linear-gradient(135deg, #8b5cf6, #7c3aed) !important;
+        background: linear-gradient(135deg, #0071AA, #005a88) !important;
         box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
     }
 
@@ -221,8 +221,8 @@
     }
 
     .fc .fc-button-group .fc-button-active {
-        background: linear-gradient(135deg, #8b5cf6, #7c3aed) !important;
-        border-color: #8b5cf6 !important;
+        background: linear-gradient(135deg, #0071AA, #005a88) !important;
+        border-color: #0071AA !important;
         box-shadow: 0 2px 8px rgba(139, 92, 246, 0.4);
     }
 
@@ -230,14 +230,14 @@
     .fc-col-header-cell {
         background: linear-gradient(135deg, #f8fafc, #f1f5f9);
         font-weight: 700;
-        color: #1e3a5f;
+        color: #0071AA;
         font-size: 0.9rem;
         padding: 0.75rem 0;
         border-color: #e2e8f0;
     }
 
     .fc-col-header-cell-cushion {
-        color: #1e3a5f;
+        color: #0071AA;
         font-weight: 700;
     }
 

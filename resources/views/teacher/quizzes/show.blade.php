@@ -5,7 +5,7 @@
 @section('content')
 <div class="space-y-6">
     <!-- Header -->
-    <div class="rounded-2xl p-6 text-white" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
+    <div class="rounded-2xl p-6 text-white" style="background: linear-gradient(135deg, #0071AA, #005a88);">
         <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <div class="flex items-center gap-4">
                 <a href="{{ route('teacher.quizzes.index', $subject->id) }}"
@@ -49,7 +49,7 @@
                 </a>
                 <a href="{{ route('teacher.quizzes.questions.create', [$subject->id, $quiz->id]) }}"
                    class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold transition-all"
-                   style="background-color: white; color: #7c3aed;">
+                   style="background-color: white; color: #005a88;">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                     </svg>
@@ -96,7 +96,7 @@
                     <div class="p-6">
                         <div class="flex items-start gap-4">
                             <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 font-bold text-white"
-                                 style="background-color: #8b5cf6;">
+                                 style="background-color: #0071AA;">
                                 {{ $index + 1 }}
                             </div>
                             <div class="flex-1">
@@ -104,7 +104,7 @@
                                     <div>
                                         <div class="flex items-center gap-2 mb-2">
                                             <span class="px-2 py-0.5 rounded-full text-xs font-medium"
-                                                  style="background-color: #ede9fe; color: #5b21b6;">
+                                                  style="background-color: #e6f4fa; color: #0071AA;">
                                                 {{ $question->type_label }}
                                             </span>
                                             <span class="text-sm text-gray-500">{{ $question->marks }} درجة</span>
@@ -178,7 +178,7 @@
                 <p class="mt-2 text-gray-500 dark:text-gray-400">ابدأ بإضافة أسئلة لهذا الاختبار</p>
                 <a href="{{ route('teacher.quizzes.questions.create', [$subject->id, $quiz->id]) }}"
                    class="inline-flex items-center gap-2 mt-4 px-5 py-2.5 rounded-xl font-bold transition-all text-white"
-                   style="background-color: #8b5cf6;">
+                   style="background-color: #0071AA;">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                     </svg>

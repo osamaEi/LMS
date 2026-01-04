@@ -24,7 +24,7 @@
         color: white;
     }
     .question-nav-btn.current {
-        background-color: #8b5cf6;
+        background-color: #0071AA;
         color: white;
     }
     .question-nav-btn.unanswered {
@@ -42,7 +42,7 @@
 <div class="space-y-6">
     <!-- Header with Timer -->
     <div class="quiz-timer">
-        <div class="rounded-2xl p-4 text-white" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
+        <div class="rounded-2xl p-4 text-white" style="background: linear-gradient(135deg, #0071AA, #005a88);">
             <div class="flex items-center justify-between flex-wrap gap-4">
                 <div>
                     <p class="text-white/80 text-sm">{{ $subject->name }}</p>
@@ -78,7 +78,7 @@
                     <!-- Question Header -->
                     <div class="flex items-start justify-between mb-4">
                         <div class="flex items-center gap-3">
-                            <span class="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-white" style="background-color: #8b5cf6;">
+                            <span class="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-white" style="background-color: #0071AA;">
                                 {{ $index + 1 }}
                             </span>
                             <div>
@@ -91,7 +91,7 @@
                                     @endswitch
                                 </span>
                                 <span class="text-sm text-gray-500 dark:text-gray-400 mx-2">•</span>
-                                <span class="text-sm font-medium" style="color: #8b5cf6;">{{ $question->marks }} درجة</span>
+                                <span class="text-sm font-medium" style="color: #0071AA;">{{ $question->marks }} درجة</span>
                             </div>
                         </div>
                     </div>
@@ -153,7 +153,7 @@
 
                     <button type="button" id="nextBtn" onclick="navigateQuestion(1)"
                             class="px-6 py-2.5 rounded-xl font-bold text-white transition-all"
-                            style="background-color: #8b5cf6;">
+                            style="background-color: #0071AA;">
                         <span class="flex items-center gap-2">
                             التالي
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

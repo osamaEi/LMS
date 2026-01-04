@@ -5,7 +5,7 @@
 @section('content')
 <div class="space-y-6">
     <!-- Header -->
-    <div class="rounded-2xl p-6 text-white" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
+    <div class="rounded-2xl p-6 text-white" style="background: linear-gradient(135deg, #0071AA, #005a88);">
         <div class="flex items-center gap-4">
             <a href="{{ route('teacher.quizzes.results', [$subject->id, $quiz->id]) }}"
                class="w-10 h-10 rounded-xl flex items-center justify-center transition-colors"
@@ -76,7 +76,7 @@
                                     @case('essay') مقالي @break
                                 @endswitch
                             </span>
-                            <span class="text-sm font-medium" style="color: #8b5cf6;">{{ $question->marks }} درجة</span>
+                            <span class="text-sm font-medium" style="color: #0071AA;">{{ $question->marks }} درجة</span>
                             @if($needsGrading)
                             <span class="text-xs px-2 py-0.5 rounded-full" style="background-color: #fef3c7; color: #92400e;">
                                 يحتاج تصحيح

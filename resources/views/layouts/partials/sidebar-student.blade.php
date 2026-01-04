@@ -42,7 +42,7 @@
             <path d="M15.8333 2.5H4.16667C3.24167 2.5 2.5 3.24167 2.5 4.16667V15.8333C2.5 16.7583 3.24167 17.5 4.16667 17.5H15.8333C16.7583 17.5 17.5 16.7583 17.5 15.8333V4.16667C17.5 3.24167 16.7583 2.5 15.8333 2.5ZM15.8333 15.8333H4.16667V4.16667H15.8333V15.8333ZM13.3333 6.66667H6.66667V8.33333H13.3333V6.66667ZM10 10H6.66667V11.6667H10V10ZM10 13.3333H6.66667V15H10V13.3333Z" fill=""/>
         </svg>
         <span>الاختبارات</span>
-        <span class="text-xs px-1.5 py-0.5 rounded-full ms-auto" style="background-color: #ddd6fe; color: #7c3aed;">اختر مادة</span>
+        <span class="text-xs px-1.5 py-0.5 rounded-full ms-auto" style="background-color: #e6f4fa; color: #0071AA;">اختر مادة</span>
     </a>
 </li>
 

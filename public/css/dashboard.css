@@ -87,8 +87,8 @@ body.dark {
 .bg-gray-200 { background-color: #e5e7eb; }
 .bg-gray-800 { background-color: #1f2937; }
 .bg-gray-900 { background-color: #111827; }
-.bg-brand-500 { background-color: #6366f1; }
-.bg-brand-600 { background-color: #4f46e5; }
+.bg-brand-500 { background-color: #0071AA; }
+.bg-brand-600 { background-color: #0071AA; }
 .dark .dark\\:bg-gray-800 { background-color: #1f2937; }
 .dark .dark\\:bg-gray-900 { background-color: #111827; }
 .dark .dark\\:bg-black { background-color: #000000; }
@@ -99,7 +99,7 @@ body.dark {
 .text-gray-500 { color: #6b7280; }
 .text-gray-900 { color: #111827; }
 .text-yellow-400 { color: #fbbf24; }
-.text-brand-500 { color: #6366f1; }
+.text-brand-500 { color: #0071AA; }
 .text-xl { font-size: 1.25rem; }
 .text-sm { font-size: 0.875rem; }
 .text-4xl { font-size: 2.25rem; }
@@ -144,8 +144,8 @@ body.dark {
 /* Transitions */
 .transition-colors { transition-property: color, background-color, border-color; transition-duration: 0.2s; }
 .hover\\:bg-gray-100:hover { background-color: #f3f4f6; }
-.hover\\:bg-brand-600:hover { background-color: #4f46e5; }
-.hover\\:bg-brand-700:hover { background-color: #4338ca; }
+.hover\\:bg-brand-600:hover { background-color: #0071AA; }
+.hover\\:bg-brand-700:hover { background-color: #005a88; }
 
 /* Utilities */
 .fill-current { fill: currentColor; }
@@ -163,7 +163,7 @@ body.dark {
 }
 
 .menu-item-active {
-    background-color: #6366f1;
+    background-color: rgba(255, 255, 255, 0.2);
     color: #ffffff;
 }
 

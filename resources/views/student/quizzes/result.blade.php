@@ -44,7 +44,7 @@
         </div>
 
         <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-6 text-center">
-            <div class="text-3xl font-bold mb-2" style="color: #8b5cf6;">
+            <div class="text-3xl font-bold mb-2" style="color: #0071AA;">
                 {{ $quiz->total_marks > 0 ? number_format(($attempt->score / $quiz->total_marks) * 100, 0) : 0 }}%
             </div>
             <p class="text-gray-500 dark:text-gray-400">النسبة المئوية</p>
@@ -173,7 +173,7 @@
         </a>
         <a href="{{ route('student.quizzes.index', $subject->id) }}"
            class="px-6 py-2.5 rounded-xl font-bold text-white transition-all"
-           style="background-color: #8b5cf6;">
+           style="background-color: #0071AA;">
             جميع الاختبارات
         </a>
     </div>

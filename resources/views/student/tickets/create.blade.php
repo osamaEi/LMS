@@ -30,7 +30,7 @@
                 </label>
                 <input type="text" name="subject" id="subject" value="{{ old('subject') }}" required
                        class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2"
-                       style="--tw-ring-color: #4f46e5;"
+                       style="--tw-ring-color: #0071AA;"
                        placeholder="اكتب عنوان واضح يصف مشكلتك">
                 @error('subject')
                     <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
@@ -114,7 +114,7 @@
                 </a>
                 <button type="submit"
                         class="inline-flex items-center px-6 py-2.5 text-white font-medium rounded-xl transition-all"
-                        style="background-color: #4f46e5;">
+                        style="background-color: #0071AA;">
                     <svg class="w-5 h-5 me-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
                     </svg>

@@ -86,9 +86,9 @@
         <!-- Replies -->
         @foreach($ticket->replies as $reply)
         <div class="rounded-xl border {{ $reply->user_id !== auth()->id() ? 'border-r-4' : '' }} border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900 overflow-hidden shadow-lg" style="{{ $reply->user_id !== auth()->id() ? 'border-right-color: #10b981;' : '' }}">
-            <div class="p-4 border-b border-gray-200 dark:border-gray-700" style="{{ $reply->user_id !== auth()->id() ? 'background: linear-gradient(135deg, #10b981 0%, #059669 100%);' : 'background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);' }}">
+            <div class="p-4 border-b border-gray-200 dark:border-gray-700" style="{{ $reply->user_id !== auth()->id() ? 'background: linear-gradient(135deg, #10b981 0%, #059669 100%);' : 'background: linear-gradient(135deg, #0071AA 0%, #005a88 100%);' }}">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold" style="{{ $reply->user_id !== auth()->id() ? 'background: rgba(255,255,255,0.9); color: #059669;' : 'background: rgba(255,255,255,0.9); color: #6d28d9;' }}">
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold" style="{{ $reply->user_id !== auth()->id() ? 'background: rgba(255,255,255,0.9); color: #059669;' : 'background: rgba(255,255,255,0.9); color: #005a88;' }}">
                         {{ mb_substr($reply->user?->name ?? 'U', 0, 1) }}
                     </div>
                     <div>
@@ -115,7 +115,7 @@
         <form action="{{ route('teacher.tickets.reply', $ticket) }}" method="POST" class="rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900 overflow-hidden shadow-lg">
             @csrf
 
-            <div class="p-4 border-b border-gray-200 dark:border-gray-700" style="background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%);">
+            <div class="p-4 border-b border-gray-200 dark:border-gray-700" style="background: linear-gradient(135deg, #0071AA 0%, #0f172a 100%);">
                 <h3 class="text-lg font-semibold text-white">إضافة رد</h3>
             </div>
 
@@ -147,7 +147,7 @@
     <!-- Sidebar -->
     <div class="space-y-6">
         <!-- Ticket Info -->
-        <div class="rounded-xl shadow-lg overflow-hidden" style="background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%);">
+        <div class="rounded-xl shadow-lg overflow-hidden" style="background: linear-gradient(135deg, #0071AA 0%, #0f172a 100%);">
             <div class="p-5 border-b" style="border-color: rgba(255,255,255,0.1);">
                 <h3 class="text-base font-bold text-white">معلومات التذكرة</h3>
             </div>
@@ -191,7 +191,7 @@
         </div>
 
         <!-- Status Guide -->
-        <div class="rounded-xl shadow-lg p-5" style="background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);">
+        <div class="rounded-xl shadow-lg p-5" style="background: linear-gradient(135deg, #0071AA 0%, #005a88 100%);">
             <h3 class="text-base font-bold text-white mb-4 pb-2" style="border-bottom: 1px solid rgba(255,255,255,0.2);">حالات التذكرة</h3>
 
             <div class="space-y-3">

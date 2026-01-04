@@ -107,7 +107,7 @@
     <!-- Sidebar Tips -->
     <div class="space-y-6">
         <!-- Tips Card -->
-        <div class="rounded-xl shadow-lg p-5" style="background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%);">
+        <div class="rounded-xl shadow-lg p-5" style="background: linear-gradient(135deg, #0071AA 0%, #0f172a 100%);">
             <h3 class="text-base font-bold text-white mb-4 pb-2" style="border-bottom: 1px solid rgba(255,255,255,0.2);">نصائح لتذكرة فعالة</h3>
 
             <div class="space-y-3">
@@ -134,7 +134,7 @@
         </div>
 
         <!-- Priority Guide -->
-        <div class="rounded-xl shadow-lg p-5" style="background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);">
+        <div class="rounded-xl shadow-lg p-5" style="background: linear-gradient(135deg, #0071AA 0%, #005a88 100%);">
             <h3 class="text-base font-bold text-white mb-4 pb-2" style="border-bottom: 1px solid rgba(255,255,255,0.2);">دليل الأولويات</h3>
 
             <div class="space-y-3">

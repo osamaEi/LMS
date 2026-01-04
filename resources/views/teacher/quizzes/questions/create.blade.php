@@ -5,7 +5,7 @@
 @section('content')
 <div class="space-y-6">
     <!-- Header -->
-    <div class="rounded-2xl p-6 text-white" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
+    <div class="rounded-2xl p-6 text-white" style="background: linear-gradient(135deg, #0071AA, #005a88);">
         <div class="flex items-center gap-4">
             <a href="{{ route('teacher.quizzes.show', [$subject->id, $quiz->id]) }}"
                class="w-10 h-10 rounded-xl flex items-center justify-center transition-colors"
@@ -96,7 +96,7 @@
                     <h3 class="text-lg font-bold text-gray-900 dark:text-white">الخيارات</h3>
                     <button type="button" onclick="addOption()"
                             class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors"
-                            style="background-color: #ede9fe; color: #5b21b6;">
+                            style="background-color: #e6f4fa; color: #0071AA;">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                         </svg>
@@ -157,12 +157,12 @@
                 </a>
                 <button type="submit" name="add_another" value="1"
                         class="px-6 py-2.5 rounded-xl font-medium transition-all"
-                        style="background-color: #ede9fe; color: #5b21b6;">
+                        style="background-color: #e6f4fa; color: #0071AA;">
                     حفظ وإضافة سؤال آخر
                 </button>
                 <button type="submit"
                         class="px-6 py-2.5 rounded-xl font-bold text-white transition-all"
-                        style="background-color: #8b5cf6;">
+                        style="background-color: #0071AA;">
                     حفظ السؤال
                 </button>
             </div>

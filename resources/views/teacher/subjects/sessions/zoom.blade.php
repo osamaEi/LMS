@@ -14,7 +14,7 @@
         :root {
             --primary: #2563eb;
             --primary-dark: #1d4ed8;
-            --secondary: #7c3aed;
+            --secondary: #0071AA;
             --success: #10b981;
             --danger: #ef4444;
             --warning: #f59e0b;
@@ -192,7 +192,7 @@
             width: 44px;
             height: 44px;
             margin: 0 auto 10px;
-            background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+            background: linear-gradient(135deg, #2563eb 0%, #0071AA 100%);
             border-radius: 10px;
             display: flex;
             align-items: center;
@@ -286,7 +286,7 @@
         .join-btn {
             width: 100%;
             padding: 10px 16px;
-            background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+            background: linear-gradient(135deg, #2563eb 0%, #0071AA 100%);
             border: none;
             border-radius: 8px;
             color: white;
@@ -599,7 +599,7 @@
         .stat-card .number {
             font-size: 28px;
             font-weight: 900;
-            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            background: linear-gradient(135deg, #2563eb, #0071AA);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
