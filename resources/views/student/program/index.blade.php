@@ -358,7 +358,7 @@
         <!-- No Program Assigned - Show Available Programs -->
         <div class="space-y-8">
             <!-- Welcome Header -->
-            <div class="rounded-2xl p-8 text-white" style="background: linear-gradient(180deg, #2d4a6f 0%, #1e3a5f 100%);">
+            <div class="rounded-2xl p-8 text-white" style="background: linear-gradient(180deg, #0071AA 0%, #005a88 100%);">
                 <div class="max-w-3xl mx-auto text-center">
                     <div class="w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6" style="background-color: rgba(255,255,255,0.2);">
                         <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">

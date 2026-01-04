@@ -154,7 +154,7 @@
                                             أونلاين
                                         </span>
                                     @elseif($attendance->session->type === 'recorded')
-                                        <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium" style="background-color: #e0e7ff; color: #4338ca;">
+                                        <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium" style="background-color: #e6f4fa; color: #0071AA;">
                                             مسجّلة
                                         </span>
                                     @else
