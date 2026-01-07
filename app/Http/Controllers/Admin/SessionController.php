@@ -354,4 +354,83 @@ class SessionController extends Controller
 
         return back()->with('success', 'تم حذف الملف بنجاح');
     }
+
+    public function storeBatch(Request $request)
+    {
+        $sessionsData = json_decode($request->input('sessions'), true);
+
+        if (empty($sessionsData)) {
+            return redirect()->route('admin.sessions.create')
+                ->with('error', 'لا توجد جلسات لإضافتها');
+        }
+
+        $createdCount = 0;
+        $errors = [];
+
+        foreach ($sessionsData as $sessionData) {
+            try {
+                $validated = [
+                    'subject_id' => $sessionData['subject_id'],
+                    'title_ar' => $sessionData['title_ar'],
+                    'title_en' => $sessionData['title_en'] ?? $sessionData['title_ar'],
+                    'description_ar' => $sessionData['description_ar'] ?? null,
+                    'description_en' => $sessionData['description_en'] ?? null,
+                    'session_number' => $sessionData['session_number'] ?? 1,
+                    'type' => 'live_zoom',
+                    'scheduled_at' => $sessionData['scheduled_at'],
+                    'duration_minutes' => $sessionData['duration_minutes'] ?? 60,
+                ];
+
+                // Filter out null values
+                $validated = array_filter($validated, function($value) {
+                    return $value !== null && $value !== '';
+                });
+
+                // Automatically create Zoom meeting
+                try {
+                    $meetingData = [
+                        'topic' => $validated['title_ar'],
+                        'type' => 2, // Scheduled meeting
+                        'start_time' => \Carbon\Carbon::parse($validated['scheduled_at'])->toIso8601String(),
+                        'duration' => $validated['duration_minutes'] ?? 60,
+                        'timezone' => 'Asia/Riyadh',
+                        'agenda' => $validated['description_ar'] ?? '',
+                    ];
+
+                    $meeting = $this->zoomService->createMeeting($meetingData);
+
+                    if ($meeting) {
+                        $validated['zoom_meeting_id'] = $meeting['id'];
+                        $validated['zoom_join_url'] = $meeting['join_url'];
+                        $validated['zoom_password'] = $meeting['password'] ?? null;
+
+                        Log::info('Zoom meeting created for batch session', [
+                            'meeting_id' => $meeting['id'],
+                            'title' => $validated['title_ar']
+                        ]);
+                    }
+                } catch (\Exception $e) {
+                    Log::error('Zoom creation failed for batch session: ' . $e->getMessage());
+                }
+
+                Session::create($validated);
+                $createdCount++;
+
+            } catch (\Exception $e) {
+                Log::error('Failed to create batch session: ' . $e->getMessage());
+                $errors[] = $sessionData['title_ar'] ?? 'جلسة غير معروفة';
+            }
+        }
+
+        if ($createdCount > 0) {
+            $message = "تم إنشاء {$createdCount} جلسة بنجاح";
+            if (!empty($errors)) {
+                $message .= ". فشل إنشاء: " . implode(', ', $errors);
+            }
+            return redirect()->route('admin.sessions.index')->with('success', $message);
+        }
+
+        return redirect()->route('admin.sessions.create')
+            ->with('error', 'فشل إنشاء الجلسات. يرجى المحاولة مرة أخرى.');
+    }
 }

@@ -159,6 +159,11 @@ class User extends Authenticatable
         return $this->hasMany(\App\Models\Ticket::class);
     }
 
+    public function attendances()
+    {
+        return $this->hasMany(\App\Models\Attendance::class, 'student_id');
+    }
+
     public function assignedTickets()
     {
         return $this->hasMany(\App\Models\Ticket::class, 'assigned_to');

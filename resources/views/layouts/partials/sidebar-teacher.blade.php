@@ -20,6 +20,17 @@
     </a>
 </li>
 
+<!-- الجدول الدراسي -->
+<li>
+    <a href="{{ route('teacher.schedule') }}"
+       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('teacher.schedule') ? 'menu-item-active' : 'menu-item-inactive' }}">
+        <svg class="fill-current" style="fill: currentColor;" width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+            <path d="M15.8333 2.5H15V0.833336H13.3333V2.5H6.66667V0.833336H5V2.5H4.16667C3.24167 2.5 2.5 3.25 2.5 4.16667V15.8333C2.5 16.75 3.24167 17.5 4.16667 17.5H15.8333C16.75 17.5 17.5 16.75 17.5 15.8333V4.16667C17.5 3.25 16.75 2.5 15.8333 2.5ZM15.8333 15.8333H4.16667V7.5H15.8333V15.8333ZM15.8333 5.83334H4.16667V4.16667H15.8333V5.83334ZM6.66667 10H9.16667V12.5H6.66667V10Z"/>
+        </svg>
+        <span>الجدول الدراسي</span>
+    </a>
+</li>
+
 <!-- الاختبارات -->
 <li>
     <a href="#quizzes-section"

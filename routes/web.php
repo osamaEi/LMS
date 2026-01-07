@@ -98,6 +98,8 @@ Route::middleware(['auth', 'role:admin,super_admin'])->prefix('admin')->name('ad
         ->name('sessions.zoom-dashboard');
     Route::delete('/session-files/{file}', [\App\Http\Controllers\Admin\SessionController::class, 'deleteFile'])
         ->name('sessions.files.delete');
+    Route::post('/sessions/store-batch', [\App\Http\Controllers\Admin\SessionController::class, 'storeBatch'])
+        ->name('sessions.store-batch');
 
     // Zoom Integration
     Route::post('/zoom/create-meeting', [\App\Http\Controllers\Api\V1\Admin\ZoomController::class, 'createMeeting'])

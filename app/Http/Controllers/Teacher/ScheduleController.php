@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Teacher;
 
 use App\Http\Controllers\Controller;
 use App\Models\Session;
+use App\Models\Subject;
 use Illuminate\Http\Request;
 
 class ScheduleController extends Controller
@@ -11,6 +12,11 @@ class ScheduleController extends Controller
     public function index()
     {
         $teacher = auth()->user();
+
+        // Get teacher's subjects for the create modal
+        $subjects = Subject::where('teacher_id', $teacher->id)
+            ->where('status', 'active')
+            ->get();
 
         // Get all sessions for the teacher's subjects
         $sessions = Session::whereHas('subject', function($query) use ($teacher) {
@@ -41,7 +47,7 @@ class ScheduleController extends Controller
                 ];
             });
 
-        return view('teacher.schedule', compact('sessions'));
+        return view('teacher.schedule', compact('sessions', 'subjects'));
     }
 
     private function getStatusColor($status)
