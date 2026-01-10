@@ -62,27 +62,37 @@ class QuizController extends Controller
             'total_marks' => 'required|numeric|min:1',
             'pass_marks' => 'required|numeric|min:0',
             'max_attempts' => 'required|integer|min:1',
-            'shuffle_questions' => 'boolean',
-            'shuffle_answers' => 'boolean',
-            'show_results' => 'boolean',
-            'show_correct_answers' => 'boolean',
             'starts_at' => 'nullable|date',
             'ends_at' => 'nullable|date|after_or_equal:starts_at',
-            'is_active' => 'boolean',
         ]);
 
-        $validated['subject_id'] = $subjectId;
-        $validated['created_by'] = $teacher->id;
-        $validated['shuffle_questions'] = $request->boolean('shuffle_questions');
-        $validated['shuffle_answers'] = $request->boolean('shuffle_answers');
-        $validated['show_results'] = $request->boolean('show_results', true);
-        $validated['show_correct_answers'] = $request->boolean('show_correct_answers');
-        $validated['is_active'] = $request->boolean('is_active', true);
+        try {
+            $quiz = Quiz::create([
+                'subject_id' => $subjectId,
+                'created_by' => $teacher->id,
+                'title_ar' => $validated['title_ar'],
+                'title_en' => $validated['title_en'] ?? null,
+                'description_ar' => $validated['description_ar'] ?? null,
+                'description_en' => $validated['description_en'] ?? null,
+                'type' => $validated['type'],
+                'duration_minutes' => $validated['duration_minutes'] ?? null,
+                'total_marks' => $validated['total_marks'],
+                'pass_marks' => $validated['pass_marks'],
+                'max_attempts' => $validated['max_attempts'],
+                'shuffle_questions' => $request->boolean('shuffle_questions'),
+                'shuffle_answers' => $request->boolean('shuffle_answers'),
+                'show_results' => $request->boolean('show_results', true),
+                'show_correct_answers' => $request->boolean('show_correct_answers'),
+                'starts_at' => $validated['starts_at'] ?? null,
+                'ends_at' => $validated['ends_at'] ?? null,
+                'is_active' => $request->boolean('is_active', true),
+            ]);
 
-        $quiz = Quiz::create($validated);
-
-        return redirect()->route('teacher.quizzes.show', [$subjectId, $quiz->id])
-            ->with('success', 'تم إنشاء الاختبار بنجاح. يمكنك الآن إضافة الأسئلة.');
+            return redirect()->route('teacher.quizzes.show', [$subjectId, $quiz->id])
+                ->with('success', 'تم إنشاء الاختبار بنجاح. يمكنك الآن إضافة الأسئلة.');
+        } catch (\Exception $e) {
+            return back()->withInput()->withErrors(['error' => 'حدث خطأ أثناء إنشاء الاختبار: ' . $e->getMessage()]);
+        }
     }
 
     /**
@@ -215,7 +225,7 @@ class QuizController extends Controller
             'question_en' => 'nullable|string',
             'explanation_ar' => 'nullable|string',
             'explanation_en' => 'nullable|string',
-            'marks' => 'required|numeric|min:0.1',
+            'marks' => 'required|numeric|min:0',
             'order' => 'required|integer|min:1',
             'image' => 'nullable|image|max:2048',
             'options' => 'required_if:type,multiple_choice|array|min:2',
@@ -334,7 +344,7 @@ class QuizController extends Controller
             'question_en' => 'nullable|string',
             'explanation_ar' => 'nullable|string',
             'explanation_en' => 'nullable|string',
-            'marks' => 'required|numeric|min:0.1',
+            'marks' => 'required|numeric|min:0',
             'order' => 'required|integer|min:1',
             'image' => 'nullable|image|max:2048',
             'remove_image' => 'nullable|boolean',

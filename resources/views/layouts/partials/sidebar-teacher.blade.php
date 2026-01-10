@@ -31,17 +31,37 @@
     </a>
 </li>
 
-<!-- الاختبارات -->
-<li>
-    <a href="#quizzes-section"
-       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('teacher.quizzes.*') ? 'menu-item-active' : 'menu-item-inactive' }}"
-       onclick="document.getElementById('quizzes-info-modal')?.classList.remove('hidden'); return false;">
+<!-- الاختبارات - Dropdown -->
+<li x-data="{ open: {{ request()->routeIs('teacher.quizzes.*') ? 'true' : 'false' }} }">
+    <button @click="open = !open"
+            class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium w-full {{ request()->routeIs('teacher.quizzes.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
         <svg class="fill-current" style="fill: currentColor;" width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
             <path d="M15.8333 2.5H4.16667C3.24167 2.5 2.5 3.24167 2.5 4.16667V15.8333C2.5 16.7583 3.24167 17.5 4.16667 17.5H15.8333C16.7583 17.5 17.5 16.7583 17.5 15.8333V4.16667C17.5 3.24167 16.7583 2.5 15.8333 2.5ZM15.8333 15.8333H4.16667V4.16667H15.8333V15.8333ZM13.3333 6.66667H6.66667V8.33333H13.3333V6.66667ZM10 10H6.66667V11.6667H10V10ZM10 13.3333H6.66667V15H10V13.3333Z"/>
         </svg>
         <span>الاختبارات</span>
-        <span class="text-xs px-1.5 py-0.5 rounded-full ms-auto" style="background-color: #e6f4fa; color: #0071AA;">اختر مادة</span>
-    </a>
+        <svg class="fill-current ms-auto transition-transform duration-200" :class="{ 'rotate-180': open }" width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
+        </svg>
+    </button>
+    <!-- Dropdown Menu -->
+    <ul x-show="open" x-collapse class="mt-2 mr-4 space-y-1 border-r-2 border-white/20 pr-3">
+        @php
+            $teacherSubjects = \App\Models\Subject::where('teacher_id', auth()->id())->get();
+        @endphp
+        @forelse($teacherSubjects as $subject)
+        <li>
+            <a href="{{ route('teacher.quizzes.index', $subject->id) }}"
+               class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors {{ request()->is('teacher/subjects/'.$subject->id.'/quizzes*') ? 'bg-white/20 text-white' : 'text-white/70 hover:bg-white/10 hover:text-white' }}">
+                <span class="w-2 h-2 rounded-full {{ request()->is('teacher/subjects/'.$subject->id.'/quizzes*') ? 'bg-white' : 'bg-white/50' }}"></span>
+                <span class="truncate">{{ $subject->name }}</span>
+            </a>
+        </li>
+        @empty
+        <li class="px-3 py-2 text-sm text-white/50">
+            لا توجد مواد مسندة إليك
+        </li>
+        @endforelse
+    </ul>
 </li>
 
 <!-- الطلاب -->

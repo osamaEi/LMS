@@ -8,22 +8,21 @@
     <title>@yield('title', 'لوحة التحكم') - نظام إدارة التعلم</title>
 
     <!-- Cairo Font -->
-   
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <link href="{{ asset('css/tailadmin.css') }}" rel="stylesheet">
     @stack('styles')
+
+    <style>
+        * {
+            font-family: 'Cairo', sans-serif !important;
+        }
+        [x-cloak] { display: none !important; }
+    </style>
 </head>
 <body>
-
-<style>
-    body, * {
-     font-family: 'Cairo';
-            font-style: normal;
-            font-weight: 400;
-            src: url('/font/static/Cairo-Bold.ttf') format('truetype');
-    }
-    [x-cloak] { display: none !important; }
-</style>
 
     <!-- Preloader -->
     <div

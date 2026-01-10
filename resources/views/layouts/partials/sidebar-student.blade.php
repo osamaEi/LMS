@@ -22,28 +22,98 @@
 
 
 
-<!-- جلساتي -->
-<li>
-    <a href="{{ route('student.my-sessions') }}"
-       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('student.my-sessions') ? 'menu-item-active' : 'menu-item-inactive' }}">
-        <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M15 10L19.553 7.724C19.7054 7.64784 19.8748 7.61188 20.0451 7.61955C20.2154 7.62723 20.3812 7.67828 20.5267 7.76816C20.6723 7.85804 20.7928 7.98377 20.8769 8.13286C20.9609 8.28195 21.0059 8.44961 21.0078 8.62L21 11.38C21.0059 11.5504 20.9609 11.7181 20.8769 11.8671C20.7928 12.0162 20.6723 12.142 20.5267 12.2318C20.3812 12.3217 20.2154 12.3728 20.0451 12.3805C19.8748 12.3881 19.7054 12.3522 19.553 12.276L15 10ZM5 18H13C13.5304 18 14.0391 17.7893 14.4142 17.4142C14.7893 17.0391 15 16.5304 15 16V4C15 3.46957 14.7893 2.96086 14.4142 2.58579C14.0391 2.21071 13.5304 2 13 2H5C4.46957 2 3.96086 2.21071 3.58579 2.58579C3.21071 2.96086 3 3.46957 3 4V16C3 16.5304 3.21071 17.0391 3.58579 17.4142C3.96086 17.7893 4.46957 18 5 18Z" fill="" transform="scale(0.9)"/>
+<!-- جلساتي - Dropdown -->
+<li x-data="{ open: {{ request()->routeIs('student.my-sessions') || request()->routeIs('student.upcoming-sessions') || request()->routeIs('student.schedule') ? 'true' : 'false' }} }">
+    <button @click="open = !open"
+            class="menu-item group relative flex w-full items-center justify-between gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('student.my-sessions') || request()->routeIs('student.upcoming-sessions') || request()->routeIs('student.schedule') ? 'menu-item-active' : 'menu-item-inactive' }}">
+        <div class="flex items-center gap-3">
+            <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M15 10L19.553 7.724C19.7054 7.64784 19.8748 7.61188 20.0451 7.61955C20.2154 7.62723 20.3812 7.67828 20.5267 7.76816C20.6723 7.85804 20.7928 7.98377 20.8769 8.13286C20.9609 8.28195 21.0059 8.44961 21.0078 8.62L21 11.38C21.0059 11.5504 20.9609 11.7181 20.8769 11.8671C20.7928 12.0162 20.6723 12.142 20.5267 12.2318C20.3812 12.3217 20.2154 12.3728 20.0451 12.3805C19.8748 12.3881 19.7054 12.3522 19.553 12.276L15 10ZM5 18H13C13.5304 18 14.0391 17.7893 14.4142 17.4142C14.7893 17.0391 15 16.5304 15 16V4C15 3.46957 14.7893 2.96086 14.4142 2.58579C14.0391 2.21071 13.5304 2 13 2H5C4.46957 2 3.96086 2.21071 3.58579 2.58579C3.21071 2.96086 3 3.46957 3 4V16C3 16.5304 3.21071 17.0391 3.58579 17.4142C3.96086 17.7893 4.46957 18 5 18Z" fill="" transform="scale(0.9)"/>
+            </svg>
+            <span>الجلسات</span>
+        </div>
+        <svg class="fill-current transition-transform duration-200" :class="{ 'rotate-180': open }" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
-        <span>جلساتي</span>
-    </a>
+    </button>
+    <ul x-show="open" x-collapse class="mt-1 space-y-1 ps-8">
+        <li>
+            <a href="{{ route('student.my-sessions') }}"
+               class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-2 text-sm font-medium {{ request()->routeIs('student.my-sessions') ? 'menu-item-active' : 'menu-item-inactive' }}">
+                <svg class="fill-current" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M2 2.66667V13.3333H14V2.66667H2ZM4 4H12V6H4V4ZM4 7.33333H12V12H4V7.33333Z" fill=""/>
+                </svg>
+                <span>جميع الجلسات</span>
+            </a>
+        </li>
+        <li>
+            <a href="{{ route('student.upcoming-sessions') }}"
+               class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-2 text-sm font-medium {{ request()->routeIs('student.upcoming-sessions') ? 'menu-item-active' : 'menu-item-inactive' }}">
+                <svg class="fill-current" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M8 1.33334C4.32 1.33334 1.33333 4.32001 1.33333 8.00001C1.33333 11.68 4.32 14.6667 8 14.6667C11.68 14.6667 14.6667 11.68 14.6667 8.00001C14.6667 4.32001 11.68 1.33334 8 1.33334ZM8 13.3333C5.05333 13.3333 2.66667 10.9467 2.66667 8.00001C2.66667 5.05334 5.05333 2.66667 8 2.66667C10.9467 2.66667 13.3333 5.05334 13.3333 8.00001C13.3333 10.9467 10.9467 13.3333 8 13.3333ZM8.33333 4.66667H7.33333V8.66667L10.8333 10.7667L11.3333 9.94001L8.33333 8.16667V4.66667Z" fill=""/>
+                </svg>
+                <span>الجلسات القادمة</span>
+            </a>
+        </li>
+        <li>
+            <a href="{{ route('student.schedule') }}"
+               class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-2 text-sm font-medium {{ request()->routeIs('student.schedule') ? 'menu-item-active' : 'menu-item-inactive' }}">
+                <svg class="fill-current" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12.6667 2H12V0.666672H10.6667V2H5.33333V0.666672H4V2H3.33333C2.59333 2 2 2.6 2 3.33334V13.3333C2 14.0667 2.59333 14.6667 3.33333 14.6667H12.6667C13.4 14.6667 14 14.0667 14 13.3333V3.33334C14 2.6 13.4 2 12.6667 2ZM12.6667 13.3333H3.33333V5.33334H12.6667V13.3333Z" fill=""/>
+                </svg>
+                <span>الجدول الدراسي</span>
+            </a>
+        </li>
+    </ul>
 </li>
 
-<!-- الاختبارات -->
-<li>
-    <a href="#quizzes-section"
-       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('student.quizzes.*') ? 'menu-item-active' : 'menu-item-inactive' }}"
-       onclick="document.getElementById('quizzes-info-modal')?.classList.remove('hidden'); return false;">
-        <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M15.8333 2.5H4.16667C3.24167 2.5 2.5 3.24167 2.5 4.16667V15.8333C2.5 16.7583 3.24167 17.5 4.16667 17.5H15.8333C16.7583 17.5 17.5 16.7583 17.5 15.8333V4.16667C17.5 3.24167 16.7583 2.5 15.8333 2.5ZM15.8333 15.8333H4.16667V4.16667H15.8333V15.8333ZM13.3333 6.66667H6.66667V8.33333H13.3333V6.66667ZM10 10H6.66667V11.6667H10V10ZM10 13.3333H6.66667V15H10V13.3333Z" fill=""/>
+<!-- الاختبارات - Dropdown -->
+@php
+    $studentSubjects = collect();
+    if (auth()->check() && auth()->user()->role === 'student') {
+        $student = auth()->user();
+        if ($student->program_id) {
+            $studentSubjects = \App\Models\Subject::whereHas('term', function($q) use ($student) {
+                $q->where('program_id', $student->program_id);
+            })->get();
+        }
+    }
+@endphp
+<li x-data="{ open: {{ request()->routeIs('student.quizzes.*') ? 'true' : 'false' }} }">
+    <button @click="open = !open"
+            class="menu-item group relative flex w-full items-center justify-between gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('student.quizzes.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
+        <div class="flex items-center gap-3">
+            <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M15.8333 2.5H4.16667C3.24167 2.5 2.5 3.24167 2.5 4.16667V15.8333C2.5 16.7583 3.24167 17.5 4.16667 17.5H15.8333C16.7583 17.5 17.5 16.7583 17.5 15.8333V4.16667C17.5 3.24167 16.7583 2.5 15.8333 2.5ZM15.8333 15.8333H4.16667V4.16667H15.8333V15.8333ZM13.3333 6.66667H6.66667V8.33333H13.3333V6.66667ZM10 10H6.66667V11.6667H10V10ZM10 13.3333H6.66667V15H10V13.3333Z" fill=""/>
+            </svg>
+            <span>الاختبارات</span>
+        </div>
+        <svg class="fill-current transition-transform duration-200" :class="{ 'rotate-180': open }" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
-        <span>الاختبارات</span>
-        <span class="text-xs px-1.5 py-0.5 rounded-full ms-auto" style="background-color: #e6f4fa; color: #0071AA;">اختر مادة</span>
-    </a>
+    </button>
+    <ul x-show="open" x-collapse class="mt-1 space-y-1 ps-8">
+        @forelse($studentSubjects as $subject)
+        <li>
+            <a href="{{ route('student.quizzes.index', $subject->id) }}"
+               class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-2 text-sm font-medium {{ request()->is('student/subjects/'.$subject->id.'/quizzes*') ? 'menu-item-active' : 'menu-item-inactive' }}">
+                <svg class="fill-current" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M2 2.66667V13.3333H14V2.66667H2ZM12 12H4V4H12V12Z" fill=""/>
+                </svg>
+                <span class="truncate">{{ $subject->name_ar ?? $subject->name }}</span>
+            </a>
+        </li>
+        @empty
+        <li>
+            <span class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-2 text-sm font-medium text-gray-400">
+                <svg class="fill-current" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M8 1.33334C4.32 1.33334 1.33333 4.32001 1.33333 8.00001C1.33333 11.68 4.32 14.6667 8 14.6667C11.68 14.6667 14.6667 11.68 14.6667 8.00001C14.6667 4.32001 11.68 1.33334 8 1.33334ZM8.66667 12H7.33333V10.6667H8.66667V12ZM8.66667 9.33334H7.33333V4.00001H8.66667V9.33334Z" fill=""/>
+                </svg>
+                <span>لا توجد مواد مسجلة</span>
+            </span>
+        </li>
+        @endforelse
+    </ul>
 </li>
 
 <!-- سجل الحضور -->
