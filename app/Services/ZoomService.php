@@ -373,4 +373,130 @@ class ZoomService
             return null;
         }
     }
+
+    /**
+     * Get all recordings for a user within a date range
+     *
+     * @param string $userId User ID or 'me'
+     * @param string|null $from Start date (YYYY-MM-DD)
+     * @param string|null $to End date (YYYY-MM-DD)
+     * @return array|null
+     */
+    public function getUserRecordings(string $userId = 'me', ?string $from = null, ?string $to = null): ?array
+    {
+        try {
+            $token = $this->getAccessToken();
+
+            $params = [];
+            if ($from) {
+                $params['from'] = $from;
+            }
+            if ($to) {
+                $params['to'] = $to;
+            }
+
+            $response = Http::withToken($token)
+                ->get($this->baseUrl . '/users/' . $userId . '/recordings', $params);
+
+            if ($response->successful()) {
+                return $response->json();
+            }
+
+            if ($response->status() === 404) {
+                Log::info("No recordings found for user: {$userId}");
+                return ['meetings' => []];
+            }
+
+            Log::error('Failed to get user recordings', [
+                'user_id' => $userId,
+                'status' => $response->status(),
+                'response' => $response->body()
+            ]);
+
+            return null;
+        } catch (Exception $e) {
+            Log::error('Exception getting user recordings', [
+                'user_id' => $userId,
+                'error' => $e->getMessage()
+            ]);
+            return null;
+        }
+    }
+
+    /**
+     * Download a recording file
+     *
+     * @param string $downloadUrl
+     * @return string|null Returns file content
+     */
+    public function downloadRecording(string $downloadUrl): ?string
+    {
+        try {
+            $token = $this->getAccessToken();
+
+            $response = Http::withToken($token)
+                ->timeout(300) // 5 minutes timeout for large files
+                ->get($downloadUrl);
+
+            if ($response->successful()) {
+                return $response->body();
+            }
+
+            Log::error('Failed to download recording', [
+                'url' => $downloadUrl,
+                'status' => $response->status()
+            ]);
+
+            return null;
+        } catch (Exception $e) {
+            Log::error('Exception downloading recording', [
+                'url' => $downloadUrl,
+                'error' => $e->getMessage()
+            ]);
+            return null;
+        }
+    }
+
+    /**
+     * Delete a recording from Zoom cloud
+     *
+     * @param string $meetingId
+     * @param string|null $recordingId
+     * @return bool
+     */
+    public function deleteRecording(string $meetingId, ?string $recordingId = null): bool
+    {
+        try {
+            $token = $this->getAccessToken();
+
+            $url = $recordingId
+                ? $this->baseUrl . '/meetings/' . $meetingId . '/recordings/' . $recordingId
+                : $this->baseUrl . '/meetings/' . $meetingId . '/recordings';
+
+            $response = Http::withToken($token)
+                ->delete($url);
+
+            if ($response->successful() || $response->status() === 204) {
+                Log::info('Recording deleted from Zoom', [
+                    'meeting_id' => $meetingId,
+                    'recording_id' => $recordingId
+                ]);
+                return true;
+            }
+
+            Log::error('Failed to delete recording', [
+                'meeting_id' => $meetingId,
+                'recording_id' => $recordingId,
+                'status' => $response->status()
+            ]);
+
+            return false;
+        } catch (Exception $e) {
+            Log::error('Exception deleting recording', [
+                'meeting_id' => $meetingId,
+                'error' => $e->getMessage()
+            ]);
+            return false;
+        }
+    }
 }

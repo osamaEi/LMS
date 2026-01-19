@@ -107,6 +107,13 @@ Route::middleware(['auth', 'role:admin,super_admin'])->prefix('admin')->name('ad
     Route::post('/zoom/generate-signature', [\App\Http\Controllers\Api\V1\Admin\ZoomController::class, 'generateSignature'])
         ->name('zoom.generate-signature');
 
+    // Recording Management
+    Route::get('/recordings', [\App\Http\Controllers\Admin\RecordingController::class, 'index'])->name('recordings.index');
+    Route::post('/recordings/{session}/sync', [\App\Http\Controllers\Admin\RecordingController::class, 'sync'])->name('recordings.sync');
+    Route::delete('/recordings/{session}', [\App\Http\Controllers\Admin\RecordingController::class, 'destroy'])->name('recordings.destroy');
+    Route::delete('/recordings/{session}/zoom', [\App\Http\Controllers\Admin\RecordingController::class, 'deleteFromZoom'])->name('recordings.delete-zoom');
+    Route::get('/recordings/{session}/download', [\App\Http\Controllers\Admin\RecordingController::class, 'download'])->name('recordings.download');
+
     // Reports
     Route::get('/reports', function () {
         return view('admin.reports');
