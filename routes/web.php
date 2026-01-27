@@ -158,6 +158,28 @@ Route::middleware(['auth', 'role:admin,super_admin'])->prefix('admin')->name('ad
     Route::post('/users/{user}/toggle-status', [UserManagementController::class, 'toggleStatus'])->name('users.toggle-status');
     Route::post('/users/{user}/assign-role', [UserManagementController::class, 'assignRole'])->name('users.assign-role');
     Route::delete('/users/{user}/remove-role/{role}', [UserManagementController::class, 'removeRole'])->name('users.remove-role');
+
+    // Payments Management
+    Route::prefix('payments')->name('payments.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\PaymentController::class, 'index'])->name('index');
+        Route::get('/create', [\App\Http\Controllers\Admin\PaymentController::class, 'create'])->name('create');
+        Route::post('/', [\App\Http\Controllers\Admin\PaymentController::class, 'store'])->name('store');
+        Route::get('/{payment}', [\App\Http\Controllers\Admin\PaymentController::class, 'show'])->name('show');
+
+        // Installment plan
+        Route::post('/{payment}/installment-plan', [\App\Http\Controllers\Admin\PaymentController::class, 'createInstallmentPlan'])->name('installment-plan');
+
+        // Record payments
+        Route::post('/{payment}/record-payment', [\App\Http\Controllers\Admin\PaymentController::class, 'recordPayment'])->name('record-payment');
+        Route::post('/installments/{installment}/record-payment', [\App\Http\Controllers\Admin\PaymentController::class, 'recordInstallmentPayment'])->name('installment.record-payment');
+
+        // Actions
+        Route::post('/{payment}/waive', [\App\Http\Controllers\Admin\PaymentController::class, 'waive'])->name('waive');
+        Route::post('/{payment}/cancel', [\App\Http\Controllers\Admin\PaymentController::class, 'cancel'])->name('cancel');
+
+        // Overdue
+        Route::get('/overdue/installments', [\App\Http\Controllers\Admin\PaymentController::class, 'overdueInstallments'])->name('overdue');
+    });
 });
 
 // Teacher Routes
@@ -302,4 +324,18 @@ Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')
         Route::post('/{quiz}/submit', [\App\Http\Controllers\Student\QuizController::class, 'submit'])->name('submit');
         Route::get('/{quiz}/result/{attempt}', [\App\Http\Controllers\Student\QuizController::class, 'result'])->name('result');
     });
+
+    // Payments
+    Route::prefix('payments')->name('payments.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Student\PaymentController::class, 'index'])->name('index');
+        Route::get('/{payment}', [\App\Http\Controllers\Student\PaymentController::class, 'show'])->name('show');
+
+        // Tamara Integration
+        Route::post('/{payment}/pay-with-tamara', [\App\Http\Controllers\Student\PaymentController::class, 'payWithTamara'])->name('pay-tamara');
+        Route::get('/tamara/return', [\App\Http\Controllers\Student\PaymentController::class, 'tamaraReturn'])->name('tamara.return');
+        Route::get('/tamara/cancel', [\App\Http\Controllers\Student\PaymentController::class, 'tamaraCancel'])->name('tamara.cancel');
+    });
 });
+
+// Webhooks (Public routes - no authentication required)
+Route::post('/webhooks/tamara', [\App\Http\Controllers\Webhooks\TamaraWebhookController::class, 'handle'])->name('webhooks.tamara');

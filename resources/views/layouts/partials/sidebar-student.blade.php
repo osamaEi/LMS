@@ -129,7 +129,7 @@
 
 <!-- المدفوعات -->
 <li>
-    <a href="#"
+    <a href="{{ route('student.payments.index') }}"
        class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('student.payments.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
         <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M17.5 4.16667H2.5C1.57953 4.16667 0.833334 4.91286 0.833334 5.83333V14.1667C0.833334 15.0871 1.57953 15.8333 2.5 15.8333H17.5C18.4205 15.8333 19.1667 15.0871 19.1667 14.1667V5.83333C19.1667 4.91286 18.4205 4.16667 17.5 4.16667ZM17.5 14.1667H2.5V10H17.5V14.1667ZM17.5 7.5H2.5V5.83333H17.5V7.5Z" fill=""/>

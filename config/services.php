@@ -51,4 +51,12 @@ return [
         'webhook_secret_token' => env('ZOOM_WEBHOOK_SECRET_TOKEN'),
     ],
 
+    'tamara' => [
+        'api_url' => env('TAMARA_API_URL', 'https://api.tamara.co'),
+        'api_token' => env('TAMARA_API_TOKEN'),
+        'notification_token' => env('TAMARA_NOTIFICATION_TOKEN'),
+        'merchant_url' => env('TAMARA_MERCHANT_URL'),
+        'webhook_secret' => env('TAMARA_WEBHOOK_SECRET'),
+    ],
+
 ];

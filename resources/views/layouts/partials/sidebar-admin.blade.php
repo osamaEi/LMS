@@ -31,6 +31,17 @@
     </a>
 </li>
 
+<!-- إدارة الدفعات -->
+<li>
+    <a href="{{ route('admin.payments.index') }}"
+       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('admin.payments.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
+        <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20">
+            <path d="M17.5 4.16667H15.8333V2.5C15.8333 1.58333 15.0833 0.833333 14.1667 0.833333H5.83333C4.91667 0.833333 4.16667 1.58333 4.16667 2.5V4.16667H2.5C1.58333 4.16667 0.833333 4.91667 0.833333 5.83333V15.8333C0.833333 16.75 1.58333 17.5 2.5 17.5H17.5C18.4167 17.5 19.1667 16.75 19.1667 15.8333V5.83333C19.1667 4.91667 18.4167 4.16667 17.5 4.16667ZM5.83333 2.5H14.1667V4.16667H5.83333V2.5ZM17.5 15.8333H2.5V11.6667H17.5V15.8333ZM17.5 9.16667H2.5V5.83333H17.5V9.16667Z" fill=""/>
+        </svg>
+        <span>إدارة الدفعات</span>
+    </a>
+</li>
+
 <!-- إدارة المسارات التعليمية -->
 <li>
     <a href="{{ route('admin.programs.index') }}"

@@ -80,8 +80,6 @@
                                 id="role"
                                 class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
                                 required>
-                            <option value="student" {{ old('role', $user->role) == 'student' ? 'selected' : '' }}>طالب</option>
-                            <option value="teacher" {{ old('role', $user->role) == 'teacher' ? 'selected' : '' }}>معلم</option>
                             <option value="admin" {{ old('role', $user->role) == 'admin' ? 'selected' : '' }}>مدير</option>
                             <option value="super_admin" {{ old('role', $user->role) == 'super_admin' ? 'selected' : '' }}>مدير عام</option>
                         </select>
@@ -162,13 +160,13 @@
                 </div>
 
                 <!-- Actions -->
-                <div class="flex items-center gap-4 pt-6 mt-6 border-t border-gray-200 dark:border-gray-700">
+                <div class="flex items-center justify-start gap-4 pt-6 mt-6 border-t border-gray-200 dark:border-gray-700">
                     <button type="submit"
-                            class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition">
+                            class="px-8 py-3 bg-brand-500 hover:bg-brand-600 text-white font-medium rounded-lg transition shadow-md">
                         حفظ التغييرات
                     </button>
                     <a href="{{ route('admin.users.index') }}"
-                       class="px-6 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 font-medium rounded-lg transition">
+                       class="px-8 py-3 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 font-medium rounded-lg transition">
                         إلغاء
                     </a>
                 </div>

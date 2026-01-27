@@ -214,7 +214,11 @@ class User extends Authenticatable
         return $this->hasMany(\App\Models\User::class, 'program_id');
     }
 
-   
+    // Payments
+    public function payments()
+    {
+        return $this->hasMany(\App\Models\Payment::class);
+    }
 
     /**
      * Get role display name in Arabic

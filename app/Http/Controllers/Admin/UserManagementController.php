@@ -12,7 +12,8 @@ class UserManagementController extends Controller
 {
     public function index(Request $request)
     {
-        $query = User::with('roles');
+        $query = User::with('roles')
+            ->whereNotIn('role', ['student', 'teacher']);
 
         // Filter by role type (column)
         if ($request->filled('role_type')) {
@@ -58,7 +59,7 @@ class UserManagementController extends Controller
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
             'phone' => 'nullable|string|max:20',
-            'role' => 'required|in:admin,teacher,student,super_admin',
+            'role' => 'required|in:admin,super_admin',
             'status' => 'required|in:active,inactive,pending,suspended',
             'spatie_roles' => 'nullable|array',
             'spatie_roles.*' => 'exists:roles,id',
@@ -102,7 +103,7 @@ class UserManagementController extends Controller
             'email' => 'required|email|unique:users,email,' . $user->id,
             'password' => 'nullable|string|min:8|confirmed',
             'phone' => 'nullable|string|max:20',
-            'role' => 'required|in:admin,teacher,student,super_admin',
+            'role' => 'required|in:admin,super_admin',
             'status' => 'required|in:active,inactive,pending,suspended',
             'spatie_roles' => 'nullable|array',
             'spatie_roles.*' => 'exists:roles,id',
