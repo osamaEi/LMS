@@ -161,7 +161,7 @@ class DashboardController extends Controller
 
         // Ratings I've submitted
         $myRatings = TeacherRating::where('student_id', $student->id)
-            ->with(['teacher:id,name', 'subject:id,name'])
+            ->with(['teacher:id,name', 'subject:id,name_ar'])
             ->latest()
             ->limit(5)
             ->get();
@@ -196,6 +196,7 @@ class DashboardController extends Controller
 
         // Get all sessions for this subject
         $sessions = Session::where('subject_id', $id)
+            ->with('files')
             ->orderBy('session_number', 'asc')
             ->get();
 
@@ -226,7 +227,7 @@ class DashboardController extends Controller
         $query = Session::whereHas('subject.enrollments', function($q) use ($student) {
                 $q->where('student_id', $student->id);
             })
-            ->with(['subject', 'unit']);
+            ->with(['subject', 'unit', 'files']);
 
         // Filter by subject
         if ($subjectId) {
@@ -261,6 +262,35 @@ class DashboardController extends Controller
             $q->where('student_id', $student->id);
         })->where('type', 'live_zoom')->count();
 
+        // Calendar events (all sessions, not paginated)
+        $calendarSessions = Session::whereHas('subject.enrollments', function($q) use ($student) {
+                $q->where('student_id', $student->id);
+            })
+            ->with('subject')
+            ->whereNotNull('scheduled_at')
+            ->get();
+
+        $calendarEvents = $calendarSessions->map(function ($s) {
+            $status = $s->ended_at ? 'مكتملة' : ($s->started_at ? 'مباشر' : 'مجدولة');
+            $color = $s->ended_at ? '#10b981' : ($s->started_at ? '#ef4444' : ($s->subject->color ?? '#3b82f6'));
+            return [
+                'id' => $s->id,
+                'title' => $s->title,
+                'start' => $s->scheduled_at->toIso8601String(),
+                'end' => $s->scheduled_at->copy()->addMinutes($s->duration_minutes ?? 60)->toIso8601String(),
+                'color' => $color,
+                'url' => route('student.subjects.show', $s->subject_id),
+                'extendedProps' => [
+                    'subject' => $s->subject->name ?? '',
+                    'subject_id' => $s->subject_id,
+                    'type' => $s->type,
+                    'status' => $status,
+                    'session_number' => $s->session_number,
+                    'duration' => $s->duration_minutes,
+                ],
+            ];
+        })->values();
+
         return view('student.sessions.index', compact(
             'sessions',
             'enrolledSubjects',
@@ -269,7 +299,8 @@ class DashboardController extends Controller
             'attendances',
             'totalSessions',
             'completedSessions',
-            'zoomSessions'
+            'zoomSessions',
+            'calendarEvents'
         ));
     }
 
@@ -306,6 +337,8 @@ class DashboardController extends Controller
         $attendanceRate = $totalSessions > 0
             ? round(($attendedSessions / $totalSessions) * 100, 1)
             : 0;
+        $totalMinutes = Attendance::where('student_id', $student->id)
+            ->sum('duration_minutes') ?? 0;
 
         return view('student.attendance.index', compact(
             'attendances',
@@ -313,7 +346,8 @@ class DashboardController extends Controller
             'subjectId',
             'totalSessions',
             'attendedSessions',
-            'attendanceRate'
+            'attendanceRate',
+            'totalMinutes'
         ));
     }
 

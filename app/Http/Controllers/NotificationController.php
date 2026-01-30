@@ -14,11 +14,22 @@ class NotificationController extends BaseController
     public function __construct(NotificationService $notificationService)
     {
         $this->notificationService = $notificationService;
-        $this->middleware('auth');
     }
 
     /**
-     * Get user's notifications
+     * Show notifications page (Blade view)
+     */
+    public function page(Request $request)
+    {
+        $user = $request->user();
+        $notifications = $user->notifications()->latest()->paginate(20);
+        $unreadCount = $user->unreadNotifications()->count();
+
+        return view('notifications.index', compact('notifications', 'unreadCount'));
+    }
+
+    /**
+     * Get user's notifications (JSON API)
      */
     public function index(Request $request): JsonResponse
     {

@@ -1084,6 +1084,12 @@
         </div>
 
         <div class="modal-footer" style="flex-direction: column; gap: 0.75rem;">
+            <a id="viewZoomBtn" href="#" target="_blank" class="btn" style="width: 100%; display: none; background: linear-gradient(135deg, #2563eb, #1d4ed8); color: #fff; text-decoration: none; justify-content: center; align-items: center; gap: 0.5rem; padding: 0.75rem 1rem; border-radius: 12px; font-weight: 700; font-size: 0.95rem;">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                </svg>
+                انضمام إلى Zoom
+            </a>
             <a id="viewDetailsBtn" href="#" class="btn btn-primary" style="width: 100%;">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -1191,7 +1197,9 @@
                     type: props.type,
                     session_number: props.session_number,
                     start: info.event.start,
-                    url: info.event.url
+                    url: info.event.url,
+                    zoom_start_url: props.zoom_start_url,
+                    zoom_join_url: props.zoom_join_url
                 };
                 openViewModal(currentSessionData);
             },
@@ -1285,6 +1293,16 @@
         document.getElementById('viewSubject').textContent = session.subject;
         document.getElementById('viewSessionNumber').textContent = `#${session.session_number}`;
         document.getElementById('viewType').textContent = session.type === 'live_zoom' ? '🎥 Zoom مباشر' : '📹 فيديو مسجل';
+
+        // Show/hide Zoom button
+        const zoomBtn = document.getElementById('viewZoomBtn');
+        const zoomUrl = session.zoom_start_url || session.zoom_join_url;
+        if (session.type === 'live_zoom' && zoomUrl) {
+            zoomBtn.href = zoomUrl;
+            zoomBtn.style.display = 'flex';
+        } else {
+            zoomBtn.style.display = 'none';
+        }
 
         const dateStr = session.start ? new Date(session.start).toLocaleString('ar-SA', {
             weekday: 'long',

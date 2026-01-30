@@ -46,7 +46,7 @@
                 <span>جميع الجلسات</span>
             </a>
         </li>
-        <li>
+        <!-- <li>
             <a href="{{ route('student.upcoming-sessions') }}"
                class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-2 text-sm font-medium {{ request()->routeIs('student.upcoming-sessions') ? 'menu-item-active' : 'menu-item-inactive' }}">
                 <svg class="fill-current" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -63,7 +63,7 @@
                 </svg>
                 <span>الجدول الدراسي</span>
             </a>
-        </li>
+        </li> -->
     </ul>
 </li>
 

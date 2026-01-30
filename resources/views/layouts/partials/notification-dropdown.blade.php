@@ -90,7 +90,7 @@
 
         <!-- Footer -->
         <div class="px-4 py-2 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
-            <a href="#" class="block text-center text-xs text-blue-600 dark:text-blue-400 hover:underline py-1">
+            <a href="{{ route('notifications.page') }}" class="block text-center text-xs text-blue-600 dark:text-blue-400 hover:underline py-1">
                 عرض جميع الإشعارات
             </a>
         </div>

@@ -43,6 +43,8 @@ class ScheduleController extends Controller
                         'status' => $this->getStatusLabel($session->status),
                         'session_number' => $session->session_number,
                         'description' => $session->description,
+                        'zoom_start_url' => $session->zoom_start_url,
+                        'zoom_join_url' => $session->zoom_join_url,
                     ]
                 ];
             });

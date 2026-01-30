@@ -2,451 +2,639 @@
 
 @section('title', 'سجل الحضور')
 
+@push('styles')
+<style>
+    .att-page { max-width: 1200px; margin: 0 auto; }
+
+    /* Header */
+    .att-header {
+        background: linear-gradient(135deg, #0071AA 0%, #004d77 100%);
+        border-radius: 24px;
+        padding: 2rem 2.5rem;
+        color: #fff;
+        position: relative;
+        overflow: hidden;
+    }
+    .att-header::before {
+        content: '';
+        position: absolute;
+        top: -40%;
+        left: -10%;
+        width: 300px;
+        height: 300px;
+        background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+        border-radius: 50%;
+    }
+    .att-header::after {
+        content: '';
+        position: absolute;
+        bottom: -50%;
+        right: -5%;
+        width: 250px;
+        height: 250px;
+        background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%);
+        border-radius: 50%;
+    }
+
+    /* Stats Strip */
+    .stats-strip {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 1rem;
+    }
+    @media (max-width: 768px) {
+        .stats-strip { grid-template-columns: repeat(2, 1fr); }
+        .stats-strip .stat-item:last-child { grid-column: span 2; }
+    }
+    .stat-item {
+        background: #fff;
+        border-radius: 18px;
+        padding: 1.25rem 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06);
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .dark .stat-item { background: #1f2937; }
+    .stat-item:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+    .stat-item .stat-icon-wrap {
+        width: 52px;
+        height: 52px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    .stat-item .stat-num {
+        font-size: 1.75rem;
+        font-weight: 800;
+        line-height: 1;
+        color: #111827;
+    }
+    .dark .stat-item .stat-num { color: #f9fafb; }
+    .stat-item .stat-txt {
+        font-size: 0.78rem;
+        color: #6b7280;
+        margin-top: 0.2rem;
+        font-weight: 500;
+    }
+    .dark .stat-item .stat-txt { color: #9ca3af; }
+
+    /* Main Layout */
+    .att-layout {
+        display: grid;
+        grid-template-columns: 1fr 320px;
+        gap: 1.5rem;
+        align-items: start;
+    }
+    @media (max-width: 1024px) {
+        .att-layout { grid-template-columns: 1fr; }
+    }
+
+    /* Card */
+    .att-card {
+        background: #fff;
+        border-radius: 20px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06);
+        overflow: hidden;
+    }
+    .dark .att-card { background: #1f2937; }
+    .att-card-header {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid #f1f5f9;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    .dark .att-card-header { border-color: #374151; }
+
+    /* Filter */
+    .att-filter {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1rem 1.5rem;
+        background: #f8fafc;
+        border-bottom: 1px solid #f1f5f9;
+    }
+    .dark .att-filter { background: #111827; border-color: #374151; }
+    .att-filter select {
+        flex: 1;
+        padding: 0.6rem 1rem;
+        border-radius: 12px;
+        border: 2px solid #e2e8f0;
+        font-weight: 600;
+        font-size: 0.875rem;
+        background: #fff;
+        transition: border-color 0.2s;
+    }
+    .dark .att-filter select { background: #1f2937; border-color: #4b5563; color: #f9fafb; }
+    .att-filter select:focus { border-color: #0071AA; outline: none; }
+
+    /* Table */
+    .att-table { width: 100%; border-collapse: collapse; }
+    .att-table thead th {
+        padding: 0.85rem 1rem;
+        text-align: right;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #6b7280;
+        background: #f9fafb;
+        border-bottom: 2px solid #f1f5f9;
+        white-space: nowrap;
+    }
+    .dark .att-table thead th { background: #111827; color: #9ca3af; border-color: #374151; }
+    .att-table thead th.center { text-align: center; }
+    .att-table tbody tr {
+        border-bottom: 1px solid #f8fafc;
+        transition: background 0.15s;
+    }
+    .dark .att-table tbody tr { border-color: #1f2937; }
+    .att-table tbody tr:hover { background: #f8fafc; }
+    .dark .att-table tbody tr:hover { background: #111827; }
+    .att-table tbody tr:last-child { border-bottom: none; }
+    .att-table td {
+        padding: 1rem;
+        vertical-align: middle;
+        font-size: 0.875rem;
+    }
+    .att-table td.center { text-align: center; }
+
+    /* Row Number */
+    .row-num {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 0.8rem;
+        color: #fff;
+    }
+
+    /* Badges */
+    .badge-present {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        padding: 0.3rem 0.75rem;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        background: #ecfdf5;
+        color: #059669;
+    }
+    .dark .badge-present { background: rgba(16,185,129,0.1); color: #34d399; }
+    .badge-absent {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        padding: 0.3rem 0.75rem;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        background: #fef2f2;
+        color: #dc2626;
+    }
+    .dark .badge-absent { background: rgba(239,68,68,0.1); color: #f87171; }
+    .badge-upcoming {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        padding: 0.3rem 0.75rem;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        background: #eff6ff;
+        color: #2563eb;
+    }
+    .dark .badge-upcoming { background: rgba(37,99,235,0.1); color: #60a5fa; }
+
+    .dur-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        padding: 0.3rem 0.7rem;
+        border-radius: 8px;
+        font-size: 0.78rem;
+        font-weight: 700;
+        background: #f0f9ff;
+        color: #0369a1;
+    }
+    .dark .dur-chip { background: rgba(3,105,161,0.1); color: #38bdf8; }
+
+    /* Progress Mini */
+    .progress-mini {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        justify-content: center;
+    }
+    .progress-mini .bar {
+        width: 48px;
+        height: 6px;
+        background: #e5e7eb;
+        border-radius: 3px;
+        overflow: hidden;
+    }
+    .dark .progress-mini .bar { background: #374151; }
+    .progress-mini .fill { height: 100%; border-radius: 3px; }
+
+    /* Donut Chart */
+    .donut-wrap {
+        position: relative;
+        width: 140px;
+        height: 140px;
+        margin: 0 auto;
+    }
+    .donut-wrap svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+    .donut-wrap .donut-bg { fill: none; stroke: #f3f4f6; stroke-width: 12; }
+    .dark .donut-wrap .donut-bg { stroke: #374151; }
+    .donut-wrap .donut-fg { fill: none; stroke-width: 12; stroke-linecap: round; transition: stroke-dashoffset 1s ease; }
+    .donut-center {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+    }
+    .donut-center .donut-val { font-size: 1.75rem; font-weight: 800; line-height: 1; }
+    .donut-center .donut-lbl { font-size: 0.7rem; color: #9ca3af; margin-top: 0.15rem; }
+
+    /* Time card */
+    .time-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+    }
+    .time-box {
+        text-align: center;
+        padding: 1rem;
+        border-radius: 14px;
+        background: #f9fafb;
+    }
+    .dark .time-box { background: #111827; }
+    .time-box .time-val { font-size: 1.5rem; font-weight: 800; line-height: 1; }
+    .time-box .time-lbl { font-size: 0.7rem; color: #9ca3af; margin-top: 0.3rem; }
+
+    /* Mobile cards */
+    .mobile-att-card {
+        display: none;
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid #f1f5f9;
+    }
+    .dark .mobile-att-card { border-color: #374151; }
+    @media (max-width: 768px) {
+        .desktop-table { display: none !important; }
+        .mobile-att-card { display: block; }
+    }
+    @media (min-width: 769px) {
+        .mobile-att-card { display: none !important; }
+    }
+</style>
+@endpush
+
 @section('content')
-<div class="space-y-6">
-    <!-- Welcome Header with Profile -->
-    <div class="rounded-2xl p-6 text-white" style="background: linear-gradient(180deg, #0071AA 0%, #005a88 100%);">
-        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+<div class="att-page space-y-6">
+    <!-- Header -->
+    <div class="att-header">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 relative z-10">
             <div class="flex items-center gap-4">
-                <div class="relative">
-                    <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}&background=ffffff&color=0071AA&size=80"
-                         alt="{{ auth()->user()->name }}"
-                         class="w-16 h-16 rounded-2xl border-2 border-white/30 shadow-lg" />
-                    <span class="absolute -bottom-1 -right-1 w-5 h-5 border-2 border-white rounded-full" style="background-color: #10b981;"></span>
+                <div class="w-14 h-14 rounded-2xl flex items-center justify-center" style="background: rgba(255,255,255,0.12);">
+                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+                    </svg>
                 </div>
                 <div>
-                    <p class="text-white/80 text-sm">سجل الحضور</p>
-                    <h1 class="text-2xl font-bold">{{ auth()->user()->name }}</h1>
-                    @if(auth()->user()->studentId)
-                        <p class="text-white/70 text-sm mt-1">رقم الطالب: {{ auth()->user()->studentId }}</p>
-                    @endif
+                    <h1 class="text-2xl font-extrabold tracking-tight">سجل الحضور والغياب</h1>
+                    <p class="text-sm opacity-70 mt-0.5">{{ auth()->user()->name }} @if(auth()->user()->studentId) &mdash; {{ auth()->user()->studentId }} @endif</p>
                 </div>
             </div>
-            <div class="flex flex-wrap gap-3">
-                <a href="{{ route('student.dashboard') }}" class="inline-flex items-center px-4 py-2 rounded-xl text-sm font-medium transition-all" style="background-color: rgba(255,255,255,0.2);">
-                    <svg class="w-4 h-4 me-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
-                    </svg>
-                    لوحة التحكم
-                </a>
-                <a href="{{ route('student.my-sessions') }}" class="inline-flex items-center px-4 py-2 rounded-xl text-sm font-medium transition-all" style="background-color: rgba(255,255,255,0.2);">
-                    <svg class="w-4 h-4 me-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
-                    </svg>
-                    جلساتي
-                </a>
+            <div class="flex gap-2">
+                <a href="{{ route('student.dashboard') }}" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all" style="background: rgba(255,255,255,0.12);">لوحة التحكم</a>
+                <a href="{{ route('student.my-sessions') }}" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all" style="background: rgba(255,255,255,0.12);">جلساتي</a>
             </div>
         </div>
     </div>
 
-    <!-- Statistics Cards -->
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5" style="border-right: 4px solid #0071AA;">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">إجمالي الجلسات</p>
-                    <p class="text-3xl font-bold text-gray-900 dark:text-white mt-1">{{ $totalSessions }}</p>
-                </div>
-                <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background-color: #0071AA;">
-                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                    </svg>
-                </div>
+    <!-- Stats Strip -->
+    <div class="stats-strip">
+        <div class="stat-item">
+            <div class="stat-icon-wrap" style="background: linear-gradient(135deg, #0071AA, #005588);">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            </div>
+            <div>
+                <div class="stat-num">{{ $totalSessions }}</div>
+                <div class="stat-txt">إجمالي الجلسات</div>
             </div>
         </div>
-
-        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5" style="border-right: 4px solid #10b981;">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">الجلسات المحضورة</p>
-                    <p class="text-3xl font-bold text-gray-900 dark:text-white mt-1">{{ $attendedSessions }}</p>
-                </div>
-                <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background-color: #10b981;">
-                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                    </svg>
-                </div>
+        <div class="stat-item">
+            <div class="stat-icon-wrap" style="background: linear-gradient(135deg, #10b981, #059669);">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            </div>
+            <div>
+                <div class="stat-num">{{ $attendedSessions }}</div>
+                <div class="stat-txt">حاضر</div>
             </div>
         </div>
-
-        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5" style="border-right: 4px solid #ef4444;">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">الجلسات الغائبة</p>
-                    <p class="text-3xl font-bold text-gray-900 dark:text-white mt-1">{{ $totalSessions - $attendedSessions }}</p>
-                </div>
-                <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background-color: #ef4444;">
-                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                    </svg>
-                </div>
+        <div class="stat-item">
+            <div class="stat-icon-wrap" style="background: linear-gradient(135deg, #ef4444, #dc2626);">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </div>
+            <div>
+                <div class="stat-num">{{ $totalSessions - $attendedSessions }}</div>
+                <div class="stat-txt">غائب</div>
             </div>
         </div>
-
-        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5" style="border-right: 4px solid #f59e0b;">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">نسبة الحضور</p>
-                    <p class="text-3xl font-bold text-gray-900 dark:text-white mt-1">{{ $attendanceRate }}%</p>
-                </div>
-                <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background-color: #f59e0b;">
-                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                    </svg>
-                </div>
+        <div class="stat-item">
+            <div class="stat-icon-wrap" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+            </div>
+            <div>
+                <div class="stat-num">{{ $attendanceRate }}<span style="font-size: 1rem;">%</span></div>
+                <div class="stat-txt">نسبة الحضور</div>
+            </div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-icon-wrap" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+            <div>
+                <div class="stat-num">{{ number_format($totalMinutes) }}</div>
+                <div class="stat-txt">دقيقة إجمالية</div>
             </div>
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Weekly Schedule Table -->
-        <div class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-2xl shadow-sm overflow-hidden">
-            <div class="p-5 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background-color: #0071AA;">
-                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                        </svg>
-                    </div>
-                    <h3 class="text-lg font-bold text-gray-900 dark:text-white">جدول هذا الأسبوع</h3>
+    <!-- Main Layout -->
+    <div class="att-layout">
+        <!-- Records -->
+        <div class="att-card">
+            <!-- Filter -->
+            <form method="GET" action="{{ route('student.attendance') }}">
+                <div class="att-filter">
+                    <svg class="w-5 h-5 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
+                    <select name="subject_id" onchange="this.form.submit()">
+                        <option value="">جميع المواد</option>
+                        @foreach($enrolledSubjects as $subject)
+                            <option value="{{ $subject->id }}" {{ $subjectId == $subject->id ? 'selected' : '' }}>{{ $subject->name }}</option>
+                        @endforeach
+                    </select>
                 </div>
-                <a href="{{ route('student.my-sessions') }}" class="text-sm font-medium flex items-center gap-1 px-4 py-2 rounded-xl" style="background-color: #e6f4fa; color: #0071AA;">
-                    عرض الحضور الكامل
-                </a>
-            </div>
+            </form>
 
-            <div class="overflow-x-auto">
-                <table class="w-full">
+            <!-- Desktop Table -->
+            <div class="desktop-table">
+                <table class="att-table">
                     <thead>
-                        <tr class="bg-gray-50 dark:bg-gray-700/50">
-                            <th class="px-6 py-4 text-right text-sm font-bold text-gray-700 dark:text-gray-300">اليوم</th>
-                            <th class="px-6 py-4 text-right text-sm font-bold text-gray-700 dark:text-gray-300">المادة / الدورة</th>
-                            <th class="px-6 py-4 text-center text-sm font-bold text-gray-700 dark:text-gray-300">نوع الجلسة</th>
-                            <th class="px-6 py-4 text-center text-sm font-bold text-gray-700 dark:text-gray-300">الحالة</th>
+                        <tr>
+                            <th style="width: 50px;">#</th>
+                            <th>الجلسة</th>
+                            <th>المادة</th>
+                            <th class="center">التاريخ</th>
+                            <th class="center">الحالة</th>
+                            <th class="center">المدة</th>
+                            <th class="center">المشاهدة</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
-                        @php
-                            $arabicDays = [
-                                'Sunday' => 'الأحد',
-                                'Monday' => 'الاثنين',
-                                'Tuesday' => 'الثلاثاء',
-                                'Wednesday' => 'الأربعاء',
-                                'Thursday' => 'الخميس',
-                                'Friday' => 'الجمعة',
-                                'Saturday' => 'السبت'
-                            ];
-                        @endphp
-                        @forelse($attendances->take(7) as $attendance)
-                            <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
-                                <td class="px-6 py-4">
-                                    <span class="text-sm font-medium text-gray-900 dark:text-white">
-                                        {{ $arabicDays[$attendance->session->scheduled_at?->format('l') ?? $attendance->created_at->format('l')] ?? '-' }}
+                    <tbody>
+                        @forelse($attendances as $index => $attendance)
+                            <tr>
+                                <td>
+                                    <span class="row-num" style="background: {{ $attendance->attended ? '#10b981' : '#ef4444' }};">
+                                        {{ $attendances->firstItem() + $index }}
                                     </span>
                                 </td>
-                                <td class="px-6 py-4">
-                                    <div class="text-sm font-bold text-gray-900 dark:text-white">{{ $attendance->session->subject->name }}</div>
-                                    <div class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{{ $attendance->session->title }}</div>
+                                <td>
+                                    <div class="font-bold text-gray-900 dark:text-white" style="font-size: 0.875rem;">{{ $attendance->session->title }}</div>
+                                    @if($attendance->session->unit)
+                                        <div class="text-xs text-gray-400 mt-0.5">{{ $attendance->session->unit->title }}</div>
+                                    @endif
                                 </td>
-                                <td class="px-6 py-4 text-center">
-                                    @if($attendance->session->type === 'live_zoom')
-                                        <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium" style="background-color: #dbeafe; color: #1d4ed8;">
-                                            أونلاين
+                                <td>
+                                    <span class="text-sm font-semibold" style="color: #0071AA;">{{ $attendance->session->subject->name }}</span>
+                                </td>
+                                <td class="center">
+                                    <div class="text-sm font-semibold text-gray-800 dark:text-gray-200">
+                                        {{ $attendance->session->scheduled_at?->format('d/m/Y') ?? $attendance->created_at->format('d/m/Y') }}
+                                    </div>
+                                    <div class="text-xs text-gray-400 mt-0.5">
+                                        @if($attendance->joined_at)
+                                            {{ $attendance->joined_at->format('H:i') }}@if($attendance->left_at) &larr; {{ $attendance->left_at->format('H:i') }}@endif
+                                        @else
+                                            {{ $attendance->session->scheduled_at?->format('H:i') ?? '--:--' }}
+                                        @endif
+                                    </div>
+                                </td>
+                                <td class="center">
+                                    @if($attendance->attended)
+                                        <span class="badge-present">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                            حاضر
                                         </span>
-                                    @elseif($attendance->session->type === 'recorded')
-                                        <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium" style="background-color: #e6f4fa; color: #0071AA;">
-                                            مسجّلة
+                                    @elseif($attendance->session->scheduled_at && $attendance->session->scheduled_at->isFuture())
+                                        <span class="badge-upcoming">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                            قادمة
                                         </span>
                                     @else
-                                        <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium" style="background-color: #fef3c7; color: #b45309;">
-                                            حضوري
+                                        <span class="badge-absent">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+                                            غائب
                                         </span>
                                     @endif
                                 </td>
-                                <td class="px-6 py-4 text-center">
-                                    @if($attendance->attended)
-                                        <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium" style="background-color: #d1fae5; color: #047857;">
-                                            <svg class="w-4 h-4 me-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                                            </svg>
-                                            تم الحضور
-                                        </span>
-                                    @elseif($attendance->session->scheduled_at && $attendance->session->scheduled_at->isFuture())
-                                        <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium" style="background-color: #e6f4fa; color: #0071AA;">
-                                            <svg class="w-4 h-4 me-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                            </svg>
-                                            لم يبدأ بعد
-                                        </span>
-                                    @elseif($attendance->video_completed)
-                                        <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium" style="background-color: #d1fae5; color: #047857;">
-                                            <svg class="w-4 h-4 me-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
-                                            </svg>
-                                            شاهدة الآن
+                                <td class="center">
+                                    @if($attendance->duration_minutes)
+                                        <span class="dur-chip">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                            {{ $attendance->duration_minutes }} د
                                         </span>
                                     @else
-                                        <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium" style="background-color: #fee2e2; color: #dc2626;">
-                                            <svg class="w-4 h-4 me-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                                            </svg>
-                                            غياب
-                                        </span>
+                                        <span class="text-gray-300 dark:text-gray-600">&mdash;</span>
+                                    @endif
+                                </td>
+                                <td class="center">
+                                    @if($attendance->watch_percentage)
+                                        <div class="progress-mini">
+                                            <div class="bar">
+                                                <div class="fill" style="width: {{ min($attendance->watch_percentage, 100) }}%; background: {{ $attendance->watch_percentage >= 80 ? '#10b981' : ($attendance->watch_percentage >= 50 ? '#f59e0b' : '#ef4444') }};"></div>
+                                            </div>
+                                            <span class="text-xs font-bold" style="color: {{ $attendance->watch_percentage >= 80 ? '#10b981' : ($attendance->watch_percentage >= 50 ? '#f59e0b' : '#ef4444') }};">{{ round($attendance->watch_percentage) }}%</span>
+                                        </div>
+                                    @else
+                                        <span class="text-gray-300 dark:text-gray-600">&mdash;</span>
                                     @endif
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="4" class="px-6 py-12 text-center">
-                                    <div class="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                                        <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                                        </svg>
+                                <td colspan="7" class="text-center" style="padding: 4rem 1rem;">
+                                    <div class="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                                        <svg class="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
                                     </div>
-                                    <p class="text-gray-500 dark:text-gray-400">لا يوجد سجلات حضور</p>
+                                    <p class="text-gray-400 font-medium">لا يوجد سجلات حضور</p>
+                                    <p class="text-xs text-gray-300 mt-1">ستظهر هنا عند بدء الجلسات</p>
                                 </td>
                             </tr>
                         @endforelse
                     </tbody>
                 </table>
             </div>
+
+            <!-- Mobile Cards -->
+            @foreach($attendances as $index => $attendance)
+                <div class="mobile-att-card">
+                    <div class="flex items-start gap-3">
+                        <span class="row-num flex-shrink-0" style="background: {{ $attendance->attended ? '#10b981' : '#ef4444' }}; margin-top: 2px;">
+                            {{ $attendances->firstItem() + $index }}
+                        </span>
+                        <div class="flex-1 min-w-0">
+                            <div class="font-bold text-gray-900 dark:text-white text-sm truncate">{{ $attendance->session->title }}</div>
+                            <div class="text-xs mt-0.5" style="color: #0071AA; font-weight: 600;">{{ $attendance->session->subject->name }}</div>
+                            <div class="flex flex-wrap items-center gap-2 mt-2">
+                                @if($attendance->attended)
+                                    <span class="badge-present">حاضر</span>
+                                @elseif($attendance->session->scheduled_at && $attendance->session->scheduled_at->isFuture())
+                                    <span class="badge-upcoming">قادمة</span>
+                                @else
+                                    <span class="badge-absent">غائب</span>
+                                @endif
+                                @if($attendance->duration_minutes)
+                                    <span class="dur-chip">{{ $attendance->duration_minutes }} د</span>
+                                @endif
+                                <span class="text-xs text-gray-400">{{ $attendance->session->scheduled_at?->format('d/m/Y H:i') ?? $attendance->created_at->format('d/m/Y') }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+
+            @if($attendances->isEmpty())
+                <div class="mobile-att-card text-center" style="padding: 3rem 1rem;">
+                    <p class="text-gray-400">لا يوجد سجلات حضور</p>
+                </div>
+            @endif
+
+            <!-- Pagination -->
+            @if($attendances->hasPages())
+                <div class="px-5 py-4 border-t border-gray-100 dark:border-gray-700">
+                    {{ $attendances->withQueryString()->links() }}
+                </div>
+            @endif
         </div>
 
-        <!-- Sidebar - Profile Info & Filter -->
-        <div class="space-y-6">
-            <!-- Student Profile Card -->
-            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm overflow-hidden">
-                <div class="p-6 text-center border-b border-gray-100 dark:border-gray-700">
-                    <div class="relative inline-block">
-                        <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}&background=0071AA&color=ffffff&size=120"
-                             alt="{{ auth()->user()->name }}"
-                             class="w-24 h-24 rounded-2xl mx-auto shadow-lg" />
-                        <span class="absolute -bottom-1 -right-1 w-6 h-6 border-3 border-white rounded-full" style="background-color: #10b981;"></span>
+        <!-- Sidebar -->
+        <div class="space-y-5">
+            <!-- Donut Chart -->
+            <div class="att-card">
+                <div class="att-card-header">
+                    <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: #ecfdf5;">
+                        <svg class="w-4 h-4" style="color: #059669;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
                     </div>
-                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mt-4">{{ auth()->user()->name }}</h3>
-                </div>
-                <div class="p-4 space-y-3">
-                    @if(auth()->user()->studentId)
-                    <div class="flex items-center gap-3 text-sm">
-                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"/>
-                        </svg>
-                        <span class="text-gray-500 dark:text-gray-400">رقم الهوية</span>
-                        <span class="text-gray-900 dark:text-white font-medium me-auto">{{ auth()->user()->studentId }}</span>
-                    </div>
-                    @endif
-                    <div class="flex items-center gap-3 text-sm">
-                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                        </svg>
-                        <span class="text-gray-500 dark:text-gray-400">تاريخ الالتحاق</span>
-                        <span class="text-gray-900 dark:text-white font-medium me-auto">{{ auth()->user()->created_at->format('d M Y') }}</span>
-                    </div>
-                    @if(auth()->user()->email)
-                    <div class="flex items-center gap-3 text-sm">
-                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                        </svg>
-                        <span class="text-gray-500 dark:text-gray-400">البريد الإلكتروني</span>
-                        <span class="text-gray-900 dark:text-white font-medium me-auto text-xs">{{ auth()->user()->email }}</span>
-                    </div>
-                    @endif
-                    @if(auth()->user()->program)
-                    <div class="flex items-center gap-3 text-sm">
-                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-                        </svg>
-                        <span class="text-gray-500 dark:text-gray-400">البرنامج المنضم له</span>
-                        <span class="text-gray-900 dark:text-white font-medium me-auto">{{ auth()->user()->program->name }}</span>
-                    </div>
-                    @endif
-                </div>
-            </div>
-
-            <!-- Filter by Subject -->
-            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm overflow-hidden">
-                <div class="p-5 border-b border-gray-100 dark:border-gray-700">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background-color: #0071AA;">
-                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
-                            </svg>
-                        </div>
-                        <h3 class="text-lg font-bold text-gray-900 dark:text-white">تصفية حسب المادة</h3>
-                    </div>
-                </div>
-                <div class="p-4">
-                    <form method="GET" action="{{ route('student.attendance') }}" class="space-y-4">
-                        <div>
-                            <select name="subject_id" id="subject_id" class="w-full rounded-xl border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:border-indigo-500 focus:ring-indigo-500">
-                                <option value="">جميع المواد</option>
-                                @foreach($enrolledSubjects as $subject)
-                                    <option value="{{ $subject->id }}" {{ $subjectId == $subject->id ? 'selected' : '' }}>
-                                        {{ $subject->name }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <button type="submit" class="w-full px-4 py-2.5 text-white font-medium rounded-xl transition-all" style="background-color: #0071AA;">
-                            <svg class="w-4 h-4 inline me-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                            </svg>
-                            تصفية
-                        </button>
-                    </form>
-                </div>
-            </div>
-
-            <!-- Attendance Progress -->
-            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm overflow-hidden">
-                <div class="p-5 border-b border-gray-100 dark:border-gray-700">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background-color: #10b981;">
-                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                            </svg>
-                        </div>
-                        <h3 class="text-lg font-bold text-gray-900 dark:text-white">معدل الحضور</h3>
-                    </div>
+                    <span class="text-sm font-bold text-gray-900 dark:text-white">معدل الحضور</span>
                 </div>
                 <div class="p-5">
-                    <div class="relative pt-1">
-                        <div class="flex items-center justify-between mb-2">
-                            <span class="text-sm font-medium text-gray-600 dark:text-gray-400">نسبة الحضور الكلية</span>
-                            <span class="text-lg font-bold" style="color: {{ $attendanceRate >= 75 ? '#10b981' : ($attendanceRate >= 50 ? '#f59e0b' : '#ef4444') }};">{{ $attendanceRate }}%</span>
+                    @php
+                        $r = 54;
+                        $circ = 2 * 3.14159265 * $r;
+                        $dashoffset = $circ - ($attendanceRate / 100) * $circ;
+                        $rateColor = $attendanceRate >= 75 ? '#10b981' : ($attendanceRate >= 50 ? '#f59e0b' : '#ef4444');
+                    @endphp
+                    <div class="donut-wrap">
+                        <svg viewBox="0 0 120 120">
+                            <circle class="donut-bg" cx="60" cy="60" r="{{ $r }}"/>
+                            <circle class="donut-fg" cx="60" cy="60" r="{{ $r }}" stroke="{{ $rateColor }}" stroke-dasharray="{{ $circ }}" stroke-dashoffset="{{ $dashoffset }}"/>
+                        </svg>
+                        <div class="donut-center">
+                            <div class="donut-val" style="color: {{ $rateColor }};">{{ $attendanceRate }}%</div>
+                            <div class="donut-lbl">نسبة الحضور</div>
                         </div>
-                        <div class="w-full h-3 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                            <div class="h-3 rounded-full transition-all duration-500" style="width: {{ $attendanceRate }}%; background-color: {{ $attendanceRate >= 75 ? '#10b981' : ($attendanceRate >= 50 ? '#f59e0b' : '#ef4444') }};"></div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3 mt-5">
+                        <div class="text-center p-2.5 rounded-xl" style="background: #ecfdf5;">
+                            <div class="text-lg font-extrabold" style="color: #059669;">{{ $attendedSessions }}</div>
+                            <div class="text-xs font-semibold" style="color: #059669;">حاضر</div>
                         </div>
-                        <div class="mt-4 flex items-center justify-center gap-4">
-                            <div class="text-center">
-                                <span class="block text-2xl font-bold text-gray-900 dark:text-white">{{ $attendedSessions }}</span>
-                                <span class="text-xs text-gray-500 dark:text-gray-400">حاضر</span>
-                            </div>
-                            <div class="w-px h-8 bg-gray-200 dark:bg-gray-700"></div>
-                            <div class="text-center">
-                                <span class="block text-2xl font-bold text-gray-900 dark:text-white">{{ $totalSessions - $attendedSessions }}</span>
-                                <span class="text-xs text-gray-500 dark:text-gray-400">غائب</span>
-                            </div>
+                        <div class="text-center p-2.5 rounded-xl" style="background: #fef2f2;">
+                            <div class="text-lg font-extrabold" style="color: #dc2626;">{{ $totalSessions - $attendedSessions }}</div>
+                            <div class="text-xs font-semibold" style="color: #dc2626;">غائب</div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <!-- Full Attendance History -->
-    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm overflow-hidden">
-        <div class="p-5 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background-color: #0071AA;">
-                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
-                    </svg>
+            <!-- Study Time -->
+            <div class="att-card">
+                <div class="att-card-header">
+                    <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: #f3e8ff;">
+                        <svg class="w-4 h-4" style="color: #7c3aed;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    </div>
+                    <span class="text-sm font-bold text-gray-900 dark:text-white">وقت الدراسة</span>
                 </div>
-                <h3 class="text-lg font-bold text-gray-900 dark:text-white">سجل الحضور الكامل</h3>
+                <div class="p-5">
+                    <div class="time-grid">
+                        <div class="time-box">
+                            <div class="time-val" style="color: #7c3aed;">{{ $totalMinutes >= 60 ? floor($totalMinutes / 60) : 0 }}</div>
+                            <div class="time-lbl">ساعة</div>
+                        </div>
+                        <div class="time-box">
+                            <div class="time-val" style="color: #7c3aed;">{{ $totalMinutes % 60 }}</div>
+                            <div class="time-lbl">دقيقة</div>
+                        </div>
+                    </div>
+                    <div class="mt-4 text-center">
+                        <span class="text-xs font-semibold text-gray-400">الإجمالي: {{ number_format($totalMinutes) }} دقيقة</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Student Info -->
+            <div class="att-card">
+                <div class="att-card-header">
+                    <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: #eff6ff;">
+                        <svg class="w-4 h-4" style="color: #2563eb;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                    </div>
+                    <span class="text-sm font-bold text-gray-900 dark:text-white">معلومات الطالب</span>
+                </div>
+                <div class="p-5">
+                    <div class="flex items-center gap-3 mb-4">
+                        <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}&background=0071AA&color=ffffff&size=96&bold=true"
+                             alt="{{ auth()->user()->name }}"
+                             class="w-12 h-12 rounded-xl shadow" />
+                        <div class="min-w-0">
+                            <div class="font-bold text-gray-900 dark:text-white text-sm truncate">{{ auth()->user()->name }}</div>
+                            @if(auth()->user()->email)
+                                <div class="text-xs text-gray-400 truncate">{{ auth()->user()->email }}</div>
+                            @endif
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        @if(auth()->user()->studentId)
+                        <div class="flex justify-between text-xs p-2.5 rounded-lg bg-gray-50 dark:bg-gray-800">
+                            <span class="text-gray-500">رقم الطالب</span>
+                            <span class="font-bold text-gray-900 dark:text-white">{{ auth()->user()->studentId }}</span>
+                        </div>
+                        @endif
+                        <div class="flex justify-between text-xs p-2.5 rounded-lg bg-gray-50 dark:bg-gray-800">
+                            <span class="text-gray-500">تاريخ الالتحاق</span>
+                            <span class="font-bold text-gray-900 dark:text-white">{{ auth()->user()->created_at->format('d/m/Y') }}</span>
+                        </div>
+                        @if(auth()->user()->program)
+                        <div class="flex justify-between text-xs p-2.5 rounded-lg bg-gray-50 dark:bg-gray-800">
+                            <span class="text-gray-500">البرنامج</span>
+                            <span class="font-bold text-gray-900 dark:text-white">{{ auth()->user()->program->name }}</span>
+                        </div>
+                        @endif
+                    </div>
+                </div>
             </div>
         </div>
-
-        <div class="overflow-x-auto">
-            <table class="w-full">
-                <thead>
-                    <tr class="bg-gray-50 dark:bg-gray-700/50">
-                        <th class="px-6 py-4 text-right text-sm font-bold text-gray-700 dark:text-gray-300">الجلسة</th>
-                        <th class="px-6 py-4 text-right text-sm font-bold text-gray-700 dark:text-gray-300">المادة</th>
-                        <th class="px-6 py-4 text-center text-sm font-bold text-gray-700 dark:text-gray-300">التاريخ</th>
-                        <th class="px-6 py-4 text-center text-sm font-bold text-gray-700 dark:text-gray-300">الحالة</th>
-                        <th class="px-6 py-4 text-center text-sm font-bold text-gray-700 dark:text-gray-300">المدة</th>
-                        <th class="px-6 py-4 text-center text-sm font-bold text-gray-700 dark:text-gray-300">نسبة المشاهدة</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
-                    @forelse($attendances as $attendance)
-                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
-                            <td class="px-6 py-4">
-                                <div class="text-sm font-bold text-gray-900 dark:text-white">
-                                    {{ $attendance->session->title }}
-                                </div>
-                                @if($attendance->session->unit)
-                                    <div class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                                        {{ $attendance->session->unit->title }}
-                                    </div>
-                                @endif
-                            </td>
-                            <td class="px-6 py-4">
-                                <div class="text-sm text-gray-900 dark:text-white">
-                                    {{ $attendance->session->subject->name }}
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 text-center">
-                                <div class="text-sm font-medium text-gray-900 dark:text-white">
-                                    {{ $attendance->session->scheduled_at?->format('Y-m-d') ?? $attendance->created_at->format('Y-m-d') }}
-                                </div>
-                                <div class="text-xs text-gray-500 dark:text-gray-400">
-                                    {{ $attendance->joined_at?->format('H:i') ?? '-' }}
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 text-center">
-                                @if($attendance->attended)
-                                    <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium" style="background-color: #d1fae5; color: #047857;">
-                                        <svg class="w-4 h-4 me-1" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                                        </svg>
-                                        حاضر
-                                    </span>
-                                @else
-                                    <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium" style="background-color: #fee2e2; color: #dc2626;">
-                                        <svg class="w-4 h-4 me-1" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
-                                        </svg>
-                                        غائب
-                                    </span>
-                                @endif
-                            </td>
-                            <td class="px-6 py-4 text-center">
-                                <span class="text-sm font-medium text-gray-900 dark:text-white">
-                                    @if($attendance->duration_minutes)
-                                        {{ $attendance->duration_minutes }} دقيقة
-                                    @else
-                                        -
-                                    @endif
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 text-center">
-                                @if($attendance->watch_percentage)
-                                    <div class="flex items-center justify-center gap-2">
-                                        <div class="w-16 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                                            <div class="h-2 rounded-full" style="width: {{ min($attendance->watch_percentage, 100) }}%; background-color: #10b981;"></div>
-                                        </div>
-                                        <span class="text-xs font-medium text-gray-600 dark:text-gray-400">{{ $attendance->watch_percentage }}%</span>
-                                    </div>
-                                @else
-                                    <span class="text-sm text-gray-400">-</span>
-                                @endif
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="6" class="px-6 py-12 text-center">
-                                <div class="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                                    <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                                    </svg>
-                                </div>
-                                <p class="text-gray-500 dark:text-gray-400">لا يوجد سجلات حضور</p>
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Pagination -->
-        @if($attendances->hasPages())
-            <div class="px-6 py-4 border-t border-gray-100 dark:border-gray-700">
-                {{ $attendances->links() }}
-            </div>
-        @endif
     </div>
 </div>
 @endsection
