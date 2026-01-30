@@ -7,6 +7,7 @@ use App\Models\Attendance;
 use App\Models\Session;
 use App\Models\SessionFile;
 use App\Models\Subject;
+use App\Services\NotificationService;
 use App\Services\ZoomService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -15,10 +16,12 @@ use Illuminate\Support\Facades\Storage;
 class SubjectController extends Controller
 {
     protected $zoomService;
+    protected $notificationService;
 
-    public function __construct(ZoomService $zoomService)
+    public function __construct(ZoomService $zoomService, NotificationService $notificationService)
     {
         $this->zoomService = $zoomService;
+        $this->notificationService = $notificationService;
     }
 
     /**
@@ -190,6 +193,9 @@ class SubjectController extends Controller
             }
         }
 
+        // Notify enrolled students
+        $this->notificationService->notifySessionCreated($session);
+
         return redirect()->route('teacher.my-subjects.show', $subjectId)
             ->with('success', 'تم إضافة الحصة بنجاح');
     }
@@ -327,6 +333,9 @@ class SubjectController extends Controller
                 ]);
             }
         }
+
+        // Notify enrolled students about the update
+        $this->notificationService->notifySessionUpdated($session);
 
         return redirect()->route('teacher.my-subjects.show', $subjectId)
             ->with('success', 'تم تحديث الحصة بنجاح');

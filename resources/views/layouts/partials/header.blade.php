@@ -57,15 +57,8 @@
                 </svg>
             </button>
 
-            <!-- Notification Bell -->
-            <button class="relative flex h-10 w-10 items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-                <span class="absolute -top-0.5 -left-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500">
-                    <span class="text-[10px] font-bold text-white">3</span>
-                </span>
-                <svg class="fill-current text-gray-500 dark:text-gray-400" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M10 18.3333C11.1506 18.3333 12.0833 17.4006 12.0833 16.25H7.91667C7.91667 17.4006 8.84937 18.3333 10 18.3333ZM16.25 12.0833V7.91667C16.25 5.15417 14.7656 2.84271 12.1875 2.25521V1.66667C12.1875 0.953125 11.7135 0.416667 10 0.416667C8.28646 0.416667 7.8125 0.953125 7.8125 1.66667V2.25521C5.24479 2.84271 3.75 5.14479 3.75 7.91667V12.0833L1.66667 14.1667V15.2083H18.3333V14.1667L16.25 12.0833Z" fill=""/>
-                </svg>
-            </button>
+            <!-- Notification Dropdown -->
+            @include('layouts.partials.notification-dropdown')
 
             <!-- User Profile Dropdown -->
             <div class="relative" x-data="{ open: false }" @click.away="open = false">

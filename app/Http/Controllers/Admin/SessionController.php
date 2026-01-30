@@ -7,6 +7,7 @@ use App\Models\Session;
 use App\Models\SessionFile;
 use App\Models\Subject;
 use App\Services\ZoomService;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -14,10 +15,12 @@ use Illuminate\Support\Facades\Storage;
 class SessionController extends Controller
 {
     protected $zoomService;
+    protected $notificationService;
 
-    public function __construct(ZoomService $zoomService)
+    public function __construct(ZoomService $zoomService, NotificationService $notificationService)
     {
         $this->zoomService = $zoomService;
+        $this->notificationService = $notificationService;
     }
 
     public function index()
@@ -26,14 +29,17 @@ class SessionController extends Controller
             ->latest('scheduled_at')
             ->paginate(15);
 
-        return view('admin.sessions.index', compact('sessions'));
+        $subjects = Subject::with(['term.program', 'units'])
+            ->where('status', 'active')
+            ->get();
+
+        return view('admin.sessions.index', compact('sessions', 'subjects'));
     }
 
     public function create()
     {
-        $subjects = Subject::with(['term.program', 'units'])->where('status', 'active')->get();
-
-        return view('admin.sessions.create', compact('subjects'));
+        // Redirect to index page - modal is now on index
+        return redirect()->route('admin.sessions.index');
     }
 
     public function store(Request $request)
@@ -357,14 +363,35 @@ class SessionController extends Controller
 
     public function storeBatch(Request $request)
     {
-        $sessionsData = json_decode($request->input('sessions'), true);
+        Log::info('StoreBatch called', [
+            'has_sessions' => $request->has('sessions'),
+            'input' => $request->all()
+        ]);
+
+        $sessionsData = is_string($request->input('sessions'))
+            ? json_decode($request->input('sessions'), true)
+            : $request->input('sessions');
+
+        Log::info('Sessions data parsed', [
+            'count' => is_array($sessionsData) ? count($sessionsData) : 0,
+            'data' => $sessionsData
+        ]);
 
         if (empty($sessionsData)) {
+            Log::warning('Empty sessions data received');
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'لا توجد جلسات لإضافتها'
+                ], 400);
+            }
             return redirect()->route('admin.sessions.create')
                 ->with('error', 'لا توجد جلسات لإضافتها');
         }
 
         $createdCount = 0;
+        $createdSessionIds = [];
+        $createdSessions = [];
         $errors = [];
 
         foreach ($sessionsData as $sessionData) {
@@ -413,24 +440,97 @@ class SessionController extends Controller
                     Log::error('Zoom creation failed for batch session: ' . $e->getMessage());
                 }
 
-                Session::create($validated);
+                $session = Session::create($validated);
+                $createdSessionIds[] = $session->id;
+                $createdSessions[] = $session->load('subject');
                 $createdCount++;
 
+                Log::info('Session created successfully', [
+                    'session_id' => $session->id,
+                    'title' => $session->title_ar
+                ]);
+
             } catch (\Exception $e) {
-                Log::error('Failed to create batch session: ' . $e->getMessage());
+                Log::error('Failed to create batch session: ' . $e->getMessage(), [
+                    'trace' => $e->getTraceAsString()
+                ]);
                 $errors[] = $sessionData['title_ar'] ?? 'جلسة غير معروفة';
             }
         }
 
+        Log::info('Batch creation completed', [
+            'created_count' => $createdCount,
+            'errors_count' => count($errors)
+        ]);
+
         if ($createdCount > 0) {
+            // Send notifications asynchronously via queue
+            if (!empty($createdSessionIds)) {
+                $this->notificationService->notifyBatchSessionsCreated($createdSessionIds);
+            }
+
             $message = "تم إنشاء {$createdCount} جلسة بنجاح";
             if (!empty($errors)) {
                 $message .= ". فشل إنشاء: " . implode(', ', $errors);
             }
+
+            // Return JSON for AJAX requests
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => $message,
+                    'sessions' => $createdSessions,
+                    'count' => $createdCount
+                ]);
+            }
+
             return redirect()->route('admin.sessions.index')->with('success', $message);
+        }
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'فشل إنشاء الجلسات. يرجى المحاولة مرة أخرى.',
+                'errors' => $errors
+            ], 500);
         }
 
         return redirect()->route('admin.sessions.create')
             ->with('error', 'فشل إنشاء الجلسات. يرجى المحاولة مرة أخرى.');
+    }
+
+    public function reschedule(Request $request, Session $session)
+    {
+        $validated = $request->validate([
+            'scheduled_at' => 'required|date'
+        ]);
+
+        try {
+            $session->scheduled_at = $validated['scheduled_at'];
+            $session->save();
+
+            // Optionally update Zoom meeting if exists
+            if ($session->zoom_meeting_id) {
+                try {
+                    $this->zoomService->updateMeeting($session->zoom_meeting_id, [
+                        'start_time' => \Carbon\Carbon::parse($validated['scheduled_at'])->toIso8601String(),
+                    ]);
+                } catch (\Exception $e) {
+                    Log::warning('Failed to update Zoom meeting: ' . $e->getMessage());
+                }
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'تم إعادة جدولة الجلسة بنجاح',
+                'session' => $session
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Failed to reschedule session: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'فشل إعادة جدولة الجلسة'
+            ], 500);
+        }
     }
 }

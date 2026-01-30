@@ -541,6 +541,282 @@
         border-color: #374151;
         color: #f9fafb;
     }
+
+    /* Modal Styles */
+    .modal-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(4px);
+        z-index: 1000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+    }
+
+    .modal-backdrop.active {
+        display: flex;
+    }
+
+    .modal-container {
+        background: white;
+        border-radius: 24px;
+        width: 100%;
+        max-width: 560px;
+        max-height: 90vh;
+        overflow: hidden;
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+        animation: modalSlide 0.3s ease;
+    }
+
+    .dark .modal-container {
+        background: #1f2937;
+    }
+
+    @keyframes modalSlide {
+        from { opacity: 0; transform: translateY(20px) scale(0.95); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .modal-header {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        padding: 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .modal-close {
+        width: 40px;
+        height: 40px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        border: none;
+    }
+
+    .modal-close:hover {
+        background: rgba(255,255,255,0.3);
+    }
+
+    .modal-body {
+        padding: 1.5rem;
+        max-height: 60vh;
+        overflow-y: auto;
+    }
+
+    .modal-footer {
+        padding: 1.25rem 1.5rem;
+        background: #f9fafb;
+        border-top: 1px solid #e5e7eb;
+        display: flex;
+        gap: 0.75rem;
+        justify-content: flex-end;
+    }
+
+    .dark .modal-footer {
+        background: #111827;
+        border-color: #374151;
+    }
+
+    .form-group {
+        margin-bottom: 1.25rem;
+    }
+
+    .form-label {
+        display: block;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 0.5rem;
+        font-size: 0.875rem;
+    }
+
+    .dark .form-label {
+        color: #d1d5db;
+    }
+
+    .form-input, .form-select {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 2px solid #e5e7eb;
+        border-radius: 12px;
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+        background: white;
+        color: #1f2937;
+    }
+
+    .dark .form-input, .dark .form-select {
+        background: #111827;
+        border-color: #374151;
+        color: #f9fafb;
+    }
+
+    .form-input:focus, .form-select:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px rgba(0, 113, 170, 0.1);
+    }
+
+    .form-select {
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: left 12px center;
+        background-size: 20px;
+        padding-left: 40px;
+    }
+
+    .recurrence-toggle {
+        display: flex;
+        gap: 0.5rem;
+        padding: 4px;
+        background: #f3f4f6;
+        border-radius: 12px;
+    }
+
+    .dark .recurrence-toggle {
+        background: #111827;
+    }
+
+    .recurrence-option {
+        flex: 1;
+        padding: 0.625rem 1rem;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.875rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        color: #6b7280;
+        background: transparent;
+        border: none;
+    }
+
+    .recurrence-option:hover {
+        color: #374151;
+    }
+
+    .dark .recurrence-option:hover {
+        color: #d1d5db;
+    }
+
+    .recurrence-option.active {
+        background: white;
+        color: var(--primary);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .dark .recurrence-option.active {
+        background: #374151;
+        color: #60a5fa;
+    }
+
+    .day-selector {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .day-btn {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        border: 2px solid #e5e7eb;
+        background: white;
+        color: #6b7280;
+        font-weight: 600;
+        font-size: 0.75rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .dark .day-btn {
+        background: #111827;
+        border-color: #374151;
+        color: #9ca3af;
+    }
+
+    .day-btn:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+    }
+
+    .day-btn.active {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        border-color: transparent;
+        color: white;
+    }
+
+    .options-panel {
+        background: #f9fafb;
+        border-radius: 12px;
+        padding: 1rem;
+        margin-top: 1rem;
+        animation: fadeIn 0.2s ease;
+    }
+
+    .dark .options-panel {
+        background: #111827;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .btn-secondary {
+        padding: 0.75rem 1.5rem;
+        background: white;
+        border: 2px solid #e5e7eb;
+        border-radius: 12px;
+        font-weight: 600;
+        color: #374151;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .dark .btn-secondary {
+        background: #374151;
+        border-color: #4b5563;
+        color: #d1d5db;
+    }
+
+    .btn-secondary:hover {
+        background: #f3f4f6;
+    }
+
+    .dark .btn-secondary:hover {
+        background: #4b5563;
+    }
+
+    .btn-primary {
+        padding: 0.75rem 1.5rem;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        border: none;
+        border-radius: 12px;
+        font-weight: 600;
+        color: white;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 113, 170, 0.3);
+    }
 </style>
 @endpush
 
@@ -567,12 +843,12 @@
                     القائمة
                 </button>
             </div>
-            <a href="{{ route('admin.sessions.create') }}" class="add-btn">
+            <button onclick="showCreateModal()" class="add-btn">
                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                 </svg>
                 إضافة جلسة
-            </a>
+            </button>
         </div>
     </div>
 
@@ -658,6 +934,27 @@
                     <h2 class="text-xl font-bold text-white">تقويم الجلسات</h2>
                     <p class="text-white/70 text-sm">انقر على أي جلسة لعرض التفاصيل</p>
                 </div>
+            </div>
+            <div class="flex items-center gap-3 flex-wrap">
+                <!-- Session Templates -->
+                <select id="sessionTemplate" onchange="applyTemplate(this.value)"
+                        class="px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer border-2 border-white/30 bg-white/20 text-white focus:outline-none focus:ring-2 focus:ring-white/50">
+                    <option value="">اختر قالب...</option>
+                    <option value="weekly_morning">أسبوعي صباحاً (10:00)</option>
+                    <option value="weekly_afternoon">أسبوعي ظهراً (14:00)</option>
+                    <option value="weekly_evening">أسبوعي مساءً (17:00)</option>
+                    <option value="biweekly_morning">كل أسبوعين صباحاً (10:00)</option>
+                    <option value="daily_morning">يومي صباحاً (10:00)</option>
+                </select>
+
+                <!-- Create Session Button -->
+                <button onclick="showCreateModal()"
+                        class="px-6 py-2 rounded-lg text-sm font-medium bg-white/20 hover:bg-white/30 text-white border-2 border-white/30 transition-colors flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                    </svg>
+                    إضافة جلسة
+                </button>
             </div>
             <div class="legend" style="background: rgba(255,255,255,0.15); padding: 0.75rem 1rem;">
                 <div class="legend-item" style="color: white;">
@@ -774,12 +1071,12 @@
             </div>
             <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">لا توجد جلسات</h3>
             <p class="text-gray-500 dark:text-gray-400 mb-4">ابدأ بإضافة جلسة جديدة</p>
-            <a href="{{ route('admin.sessions.create') }}" class="add-btn">
+            <button onclick="showCreateModal()" class="add-btn">
                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                 </svg>
                 إضافة جلسة
-            </a>
+            </button>
         </div>
         @endforelse
 
@@ -790,6 +1087,128 @@
         @endif
     </div>
 </div>
+
+<!-- Add Session Modal -->
+<div class="modal-backdrop" id="sessionModal">
+    <div class="modal-container">
+        <!-- Modal Header -->
+        <div class="modal-header">
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                    <svg class="w-6 h-6 text-white" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M4 4h10a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2zm14 2.5l4-2v11l-4-2v-7z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold text-white">إضافة جلسة Zoom</h3>
+                    <p class="text-white/70 text-sm" id="selectedDateText">اختر التاريخ</p>
+                </div>
+            </div>
+            <button type="button" onclick="closeModal()" class="modal-close">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="modal-body">
+            <input type="hidden" id="modal_scheduled_date">
+
+            <!-- Subject -->
+            <div class="form-group">
+                <label class="form-label">المادة الدراسية <span class="text-red-500">*</span></label>
+                <select id="modal_subject_id" class="form-select" required>
+                    <option value="">اختر المادة</option>
+                    @foreach($subjects as $subject)
+                        <option value="{{ $subject->id }}">{{ $subject->name }} ({{ $subject->code }})</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <!-- Time & Duration -->
+            <div class="grid grid-cols-2 gap-4">
+                <div class="form-group">
+                    <label class="form-label">وقت البدء <span class="text-red-500">*</span></label>
+                    <input type="time" id="modal_start_time" class="form-input text-center" value="10:00" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">المدة</label>
+                    <select id="modal_duration" class="form-select">
+                        <option value="30">30 دقيقة</option>
+                        <option value="45">45 دقيقة</option>
+                        <option value="60" selected>60 دقيقة</option>
+                        <option value="90">90 دقيقة</option>
+                        <option value="120">ساعتان</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Recurrence -->
+            <div class="form-group">
+                <label class="form-label">التكرار</label>
+                <div class="recurrence-toggle">
+                    <button type="button" class="recurrence-option active" data-value="none">مرة واحدة</button>
+                    <button type="button" class="recurrence-option" data-value="weekly">أسبوعي</button>
+                    <button type="button" class="recurrence-option" data-value="monthly">شهري</button>
+                </div>
+            </div>
+
+            <!-- Weekly Options -->
+            <div id="weeklyOptions" class="options-panel" style="display: none;">
+                <div class="form-group mb-4">
+                    <label class="form-label">أيام التكرار</label>
+                    <div class="day-selector">
+                        <button type="button" class="day-btn" data-day="0">أحد</button>
+                        <button type="button" class="day-btn" data-day="1">إثن</button>
+                        <button type="button" class="day-btn" data-day="2">ثلا</button>
+                        <button type="button" class="day-btn" data-day="3">أرب</button>
+                        <button type="button" class="day-btn" data-day="4">خمي</button>
+                        <button type="button" class="day-btn" data-day="5">جمع</button>
+                        <button type="button" class="day-btn" data-day="6">سبت</button>
+                    </div>
+                </div>
+                <div class="form-group mb-0">
+                    <label class="form-label">عدد الأسابيع</label>
+                    <select id="modal_weeks" class="form-select" style="max-width: 200px;">
+                        @for($i = 2; $i <= 16; $i++)
+                            <option value="{{ $i }}" {{ $i == 4 ? 'selected' : '' }}>{{ $i }} أسابيع</option>
+                        @endfor
+                    </select>
+                </div>
+            </div>
+
+            <!-- Monthly Options -->
+            <div id="monthlyOptions" class="options-panel" style="display: none;">
+                <div class="form-group mb-0">
+                    <label class="form-label">عدد الأشهر</label>
+                    <select id="modal_months" class="form-select" style="max-width: 200px;">
+                        @for($i = 2; $i <= 12; $i++)
+                            <option value="{{ $i }}" {{ $i == 3 ? 'selected' : '' }}>{{ $i }} أشهر</option>
+                        @endfor
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="modal-footer">
+            <button type="button" onclick="closeModal()" class="btn-secondary">إلغاء</button>
+            <button type="button" onclick="createSession()" class="btn-primary">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                </svg>
+                إنشاء الجلسة
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Hidden Form -->
+<form id="batchForm" action="{{ route('admin.sessions.store-batch') }}" method="POST" style="display: none;">
+    @csrf
+    <input type="hidden" name="sessions" id="batchSessionsInput">
+</form>
 @endsection
 
 @push('scripts')
@@ -807,16 +1226,22 @@ document.addEventListener('DOMContentLoaded', function() {
         else if (session.status === 'completed') className = 'event-completed';
         else if (session.type === 'recorded_video') className = 'event-video';
 
+        // Use subject color if available
+        const subjectColor = session.subject?.color || '#0071AA';
+
         return {
             id: session.id,
             title: session.title_ar || session.title,
             start: session.scheduled_at,
             className: className,
+            backgroundColor: subjectColor,
+            borderColor: subjectColor,
             extendedProps: {
                 subject: session.subject?.name || '',
                 duration: session.duration_minutes,
                 status: session.status,
-                type: session.type
+                type: session.type,
+                subjectColor: subjectColor
             }
         };
     }).filter(e => e.start);
@@ -833,9 +1258,57 @@ document.addEventListener('DOMContentLoaded', function() {
             left: 'dayGridMonth,dayGridWeek,listWeek'
         },
         height: 'auto',
+        editable: true, // Enable drag-and-drop
+        selectable: true,
         events: events,
+        dateClick: function(info) {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            if (info.date < today) return;
+            openModal(info.dateStr);
+        },
         eventClick: function(info) {
-            window.location.href = '/admin/sessions/' + info.event.id;
+            // Only navigate if not dragging
+            if (!info.jsEvent.defaultPrevented) {
+                window.location.href = '/admin/sessions/' + info.event.id;
+            }
+        },
+        eventDrop: function(info) {
+            // Handle session rescheduling
+            const sessionId = info.event.id;
+            const newDate = info.event.start;
+
+            if (confirm(`هل تريد إعادة جدولة "${info.event.title}" إلى ${newDate.toLocaleString('ar-SA', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}؟`)) {
+                // Send AJAX request to update session date
+                fetch(`/admin/sessions/${sessionId}/reschedule`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        scheduled_at: newDate.toISOString()
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Show success message
+                        showNotification('تم إعادة جدولة الجلسة بنجاح', 'success');
+                    } else {
+                        info.revert(); // Revert if failed
+                        showNotification('فشل إعادة جدولة الجلسة', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    info.revert(); // Revert on error
+                    showNotification('حدث خطأ أثناء إعادة جدولة الجلسة', 'error');
+                });
+            } else {
+                info.revert(); // Revert if cancelled
+            }
         },
         eventDidMount: function(info) {
             // Add tooltip
@@ -843,6 +1316,18 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     calendar.render();
+
+    // Simple notification function
+    function showNotification(message, type = 'success') {
+        const notification = document.createElement('div');
+        notification.className = `fixed top-4 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-lg shadow-lg z-50 ${type === 'success' ? 'bg-green-500' : 'bg-red-500'} text-white font-medium`;
+        notification.textContent = message;
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
+    }
 
     // View Toggle
     const viewBtns = document.querySelectorAll('.view-btn');
@@ -863,6 +1348,324 @@ document.addEventListener('DOMContentLoaded', function() {
                 listView.style.display = 'block';
             }
         });
+    });
+
+    // Modal Variables
+    let selectedDate = null;
+    let currentRecurrence = 'none';
+    let selectedDays = [];
+
+    // Check for subject_id in URL and auto-open modal
+    const urlParams = new URLSearchParams(window.location.search);
+    const subjectId = urlParams.get('subject_id');
+    if (subjectId) {
+        // Pre-select subject and open modal
+        setTimeout(() => {
+            document.getElementById('modal_subject_id').value = subjectId;
+            showCreateModal();
+        }, 500);
+    }
+
+    // Show modal function
+    window.showCreateModal = function() {
+        const today = new Date().toISOString().split('T')[0];
+        openModal(today);
+    };
+
+    // Modal Functions
+    window.openModal = function(dateStr) {
+        selectedDate = dateStr;
+        document.getElementById('modal_scheduled_date').value = dateStr;
+
+        const dateObj = new Date(dateStr);
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        document.getElementById('selectedDateText').textContent = dateObj.toLocaleDateString('ar-SA', options);
+
+        // Auto-select the day
+        const dayOfWeek = dateObj.getDay();
+        selectedDays = [dayOfWeek];
+        updateDayButtons();
+
+        document.getElementById('sessionModal').classList.add('active');
+    };
+
+    window.closeModal = function() {
+        document.getElementById('sessionModal').classList.remove('active');
+        resetModal();
+    };
+
+    function resetModal() {
+        document.getElementById('modal_subject_id').value = '';
+        document.getElementById('modal_start_time').value = '10:00';
+        document.getElementById('modal_duration').value = '60';
+        currentRecurrence = 'none';
+        selectedDays = [];
+
+        // Reset recurrence buttons
+        document.querySelectorAll('.recurrence-option').forEach(btn => {
+            btn.classList.remove('active');
+            if (btn.dataset.value === 'none') btn.classList.add('active');
+        });
+
+        // Hide options panels
+        document.getElementById('weeklyOptions').style.display = 'none';
+        document.getElementById('monthlyOptions').style.display = 'none';
+
+        // Reset day buttons
+        document.querySelectorAll('.day-btn').forEach(btn => btn.classList.remove('active'));
+    }
+
+    // Recurrence handlers
+    document.querySelectorAll('.recurrence-option').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.recurrence-option').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+
+            currentRecurrence = this.dataset.value;
+
+            document.getElementById('weeklyOptions').style.display = currentRecurrence === 'weekly' ? 'block' : 'none';
+            document.getElementById('monthlyOptions').style.display = currentRecurrence === 'monthly' ? 'block' : 'none';
+        });
+    });
+
+    // Day selector handlers
+    document.querySelectorAll('.day-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const day = parseInt(this.dataset.day);
+
+            if (selectedDays.includes(day)) {
+                selectedDays = selectedDays.filter(d => d !== day);
+                this.classList.remove('active');
+            } else {
+                selectedDays.push(day);
+                this.classList.add('active');
+            }
+        });
+    });
+
+    function updateDayButtons() {
+        document.querySelectorAll('.day-btn').forEach(btn => {
+            const day = parseInt(btn.dataset.day);
+            if (selectedDays.includes(day)) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+    }
+
+    // Create session
+    window.createSession = function() {
+        const subjectId = document.getElementById('modal_subject_id').value;
+        const time = document.getElementById('modal_start_time').value;
+        const duration = parseInt(document.getElementById('modal_duration').value);
+
+        if (!subjectId) {
+            alert('الرجاء اختيار المادة');
+            return;
+        }
+
+        const dates = generateSessions(selectedDate, currentRecurrence);
+        const sessions = [];
+
+        // Get subject info for calendar display
+        const subjectSelect = document.getElementById('modal_subject_id');
+        const subjectText = subjectSelect.options[subjectSelect.selectedIndex].text;
+        const subjects = @json($subjects);
+        const selectedSubject = subjects.find(s => s.id == subjectId);
+
+        dates.forEach((date, index) => {
+            const datetime = date + ' ' + time;
+
+            sessions.push({
+                subject_id: parseInt(subjectId),
+                title_ar: `جلسة ${index + 1}`,
+                title_en: `Session ${index + 1}`,
+                scheduled_at: datetime,
+                duration_minutes: duration,
+                type: 'live_zoom'
+            });
+        });
+
+        // Use AJAX to submit the form
+        console.log('Sending sessions:', sessions);
+
+        fetch('{{ route('admin.sessions.store-batch') }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ sessions: sessions })
+        })
+        .then(response => {
+            console.log('Response status:', response.status);
+            return response.json();
+        })
+        .then(data => {
+            console.log('Response data:', data);
+            if (data.success) {
+                // Add new sessions to calendar
+                if (data.sessions) {
+                    data.sessions.forEach(session => {
+                        let className = 'event-zoom';
+                        const subjectColor = selectedSubject?.color || '#0071AA';
+
+                        calendar.addEvent({
+                            id: session.id,
+                            title: session.title_ar || session.title,
+                            start: session.scheduled_at,
+                            className: className,
+                            backgroundColor: subjectColor,
+                            borderColor: subjectColor,
+                            extendedProps: {
+                                subject: selectedSubject?.name || '',
+                                duration: session.duration_minutes,
+                                status: session.status,
+                                type: session.type,
+                                subjectColor: subjectColor
+                            }
+                        });
+                    });
+                }
+
+                showNotification(data.message || 'تم إنشاء الجلسات بنجاح', 'success');
+                closeModal();
+
+                // Reload page after a short delay to update stats
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+            } else {
+                showNotification(data.message || 'فشل إنشاء الجلسات', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('حدث خطأ أثناء إنشاء الجلسات', 'error');
+        });
+    };
+
+    function generateSessions(baseDate, recurrenceType) {
+        const sessions = [];
+        const date = new Date(baseDate);
+
+        if (recurrenceType === 'none') {
+            sessions.push(baseDate);
+        } else if (recurrenceType === 'weekly') {
+            const weeks = parseInt(document.getElementById('modal_weeks').value) || 4;
+            const days = selectedDays.length > 0 ? selectedDays : [date.getDay()];
+
+            for (let w = 0; w < weeks; w++) {
+                days.forEach(day => {
+                    const sessionDate = new Date(date);
+                    const currentDay = sessionDate.getDay();
+                    let daysUntil = day - currentDay;
+                    if (daysUntil < 0) daysUntil += 7;
+                    sessionDate.setDate(sessionDate.getDate() + daysUntil + (w * 7));
+
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    if (sessionDate >= today) {
+                        sessions.push(sessionDate.toISOString().split('T')[0]);
+                    }
+                });
+            }
+        } else if (recurrenceType === 'monthly') {
+            const months = parseInt(document.getElementById('modal_months').value) || 3;
+
+            for (let m = 0; m < months; m++) {
+                const sessionDate = new Date(date);
+                sessionDate.setMonth(sessionDate.getMonth() + m);
+                sessions.push(sessionDate.toISOString().split('T')[0]);
+            }
+        }
+
+        return [...new Set(sessions)].sort();
+    }
+
+    // Apply session template
+    window.applyTemplate = function(templateValue) {
+        if (!templateValue) return;
+
+        const subject = document.getElementById('modal_subject_id').value;
+        if (!subject) {
+            alert('الرجاء اختيار المادة أولاً');
+            document.getElementById('sessionTemplate').value = '';
+            return;
+        }
+
+        // Template configurations
+        const templates = {
+            'weekly_morning': {
+                time: '10:00',
+                recurrence: 'weekly',
+                weeks: 8,
+                days: [0, 2, 4]
+            },
+            'weekly_afternoon': {
+                time: '14:00',
+                recurrence: 'weekly',
+                weeks: 8,
+                days: [1, 3]
+            },
+            'weekly_evening': {
+                time: '17:00',
+                recurrence: 'weekly',
+                weeks: 8,
+                days: [0, 2]
+            },
+            'biweekly_morning': {
+                time: '10:00',
+                recurrence: 'weekly',
+                weeks: 8,
+                days: [0]
+            },
+            'daily_morning': {
+                time: '10:00',
+                recurrence: 'weekly',
+                weeks: 4,
+                days: [0, 1, 2, 3, 4]
+            }
+        };
+
+        const template = templates[templateValue];
+        if (!template) return;
+
+        // Set time
+        document.getElementById('modal_start_time').value = template.time;
+
+        // Set recurrence
+        currentRecurrence = template.recurrence;
+        selectedDays = template.days;
+
+        if (template.recurrence === 'weekly') {
+            document.getElementById('modal_weeks').value = template.weeks;
+        }
+
+        // Update UI
+        document.querySelectorAll('.recurrence-option').forEach(btn => {
+            btn.classList.remove('active');
+            if (btn.dataset.value === template.recurrence) btn.classList.add('active');
+        });
+
+        document.getElementById('weeklyOptions').style.display = template.recurrence === 'weekly' ? 'block' : 'none';
+        updateDayButtons();
+
+        showNotification('تم تطبيق القالب بنجاح! الرجاء النقر على التاريخ المطلوب', 'success');
+
+        // Reset template selection
+        document.getElementById('sessionTemplate').value = '';
+    };
+
+    // Keyboard handlers
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeModal();
+    });
+
+    document.getElementById('sessionModal').addEventListener('click', function(e) {
+        if (e.target === this) closeModal();
     });
 });
 </script>

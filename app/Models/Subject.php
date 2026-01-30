@@ -22,6 +22,7 @@ class Subject extends Model
         'banner_photo',
         'credits',
         'status',
+        'color',
     ];
 
     /**

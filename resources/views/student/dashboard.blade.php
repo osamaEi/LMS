@@ -318,32 +318,69 @@
             </div>
 
             @if($subjects->count() > 0)
-                <div class="p-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    @foreach($subjects->take(4) as $subject)
-                        <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all">
-                            <div class="flex items-start gap-3">
-                                <div class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0" style="background-color: #e6f4fa;">
-                                    <svg class="w-5 h-5" style="color: #0071AA;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-                                    </svg>
-                                </div>
-                                <div class="flex-1 min-w-0">
-                                    <h4 class="font-bold text-gray-900 dark:text-white text-sm truncate">{{ $subject->name }}</h4>
-                                    @if($subject->teacher)
-                                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ $subject->teacher->name }}</p>
+                <div class="p-4 course-grid">
+                    @foreach($subjects->take(4) as $index => $subject)
+                        @php
+                            $colors = ['blue', 'green', 'orange', 'purple'];
+                            $colorClass = $colors[$index % count($colors)];
+                            $progress = isset($subjectsProgress[$subject->id]) ? $subjectsProgress[$subject->id]['percentage'] : 0;
+
+                            // Use subject color if available
+                            $customStyle = '';
+                            if($subject->color) {
+                                $customStyle = 'background: linear-gradient(135deg, ' . $subject->color . ' 0%, ' . $subject->color . 'dd 100%);';
+                                $colorClass = ''; // Clear the color class
+                            }
+                        @endphp
+                        <div class="course-card">
+                            <!-- Course Image -->
+                            <div class="course-card-image {{ $colorClass }}" @if($customStyle) style="{{ $customStyle }}" @endif>
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                                </svg>
+                            </div>
+
+                            <!-- Course Content -->
+                            <div class="course-card-content">
+                                <h3 class="course-card-title">{{ $subject->name }}</h3>
+                                @if($subject->teacher)
+                                    <p class="course-card-subtitle">
+                                        <svg class="w-4 h-4 inline-block ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                                        </svg>
+                                        {{ $subject->teacher->name }}
+                                    </p>
+                                @endif
+
+                                <!-- Tags -->
+                                <div class="course-card-tags">
+                                    <span class="course-tag registered">مسجلة</span>
+                                    @if($progress >= 50)
+                                        <span class="course-tag active">نشطة</span>
                                     @endif
-                                    @if(isset($subjectsProgress[$subject->id]))
-                                        <div class="mt-2">
-                                            <div class="flex items-center justify-between mb-1">
-                                                <span class="text-xs text-gray-500">الحضور</span>
-                                                <span class="text-xs font-bold" style="color: #10b981;">{{ $subjectsProgress[$subject->id]['percentage'] }}%</span>
-                                            </div>
-                                            <div class="w-full h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                                                <div class="h-1.5 rounded-full" style="width: {{ $subjectsProgress[$subject->id]['percentage'] }}%; background-color: #10b981;"></div>
-                                            </div>
+                                </div>
+
+                                <!-- Progress Bar -->
+                                @if(isset($subjectsProgress[$subject->id]))
+                                    <div class="course-progress">
+                                        <div class="course-progress-label">
+                                            <span class="course-progress-text">نسبة الإنجاز</span>
+                                            <span class="course-progress-percent">{{ $progress }}%</span>
                                         </div>
-                                    @endif
-                                </div>
+                                        <div class="course-progress-bar">
+                                            <div class="course-progress-fill" style="width: {{ $progress }}%;"></div>
+                                        </div>
+                                    </div>
+                                @endif
+
+                                <!-- Action Button -->
+                                <a href="{{ route('student.subjects.show', $subject->id) }}" class="course-action-button">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                    </svg>
+                                    عرض التفاصيل
+                                </a>
                             </div>
                         </div>
                     @endforeach

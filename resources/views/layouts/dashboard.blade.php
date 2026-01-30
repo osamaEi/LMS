@@ -19,6 +19,9 @@
         * {
             font-family: 'Cairo', sans-serif !important;
         }
+        body {
+            font-size: 14px;
+        }
         [x-cloak] { display: none !important; }
     </style>
 </head>

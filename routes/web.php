@@ -71,6 +71,14 @@ Route::get('/dashboard', function () {
     };
 })->middleware('auth')->name('dashboard');
 
+// Notification Routes
+Route::middleware('auth')->prefix('notifications')->name('notifications.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\NotificationController::class, 'index'])->name('index');
+    Route::get('/unread-count', [\App\Http\Controllers\NotificationController::class, 'unreadCount'])->name('unread-count');
+    Route::post('/{id}/read', [\App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('mark-read');
+    Route::post('/read-all', [\App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('mark-all-read');
+});
+
 // Admin Routes
 Route::middleware(['auth', 'role:admin,super_admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
@@ -100,6 +108,8 @@ Route::middleware(['auth', 'role:admin,super_admin'])->prefix('admin')->name('ad
         ->name('sessions.files.delete');
     Route::post('/sessions/store-batch', [\App\Http\Controllers\Admin\SessionController::class, 'storeBatch'])
         ->name('sessions.store-batch');
+    Route::post('/sessions/{session}/reschedule', [\App\Http\Controllers\Admin\SessionController::class, 'reschedule'])
+        ->name('sessions.reschedule');
 
     // Zoom Integration
     Route::post('/zoom/create-meeting', [\App\Http\Controllers\Api\V1\Admin\ZoomController::class, 'createMeeting'])
@@ -201,6 +211,9 @@ Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')
     Route::get('/my-subjects/{subjectId}/sessions/{sessionId}/zoom-embedded', [\App\Http\Controllers\Teacher\SubjectController::class, 'showZoomEmbedded'])->name('my-subjects.sessions.zoom-embedded');
     Route::get('/my-subjects/{subjectId}/sessions/{sessionId}/attendance', [\App\Http\Controllers\Teacher\SubjectController::class, 'sessionAttendance'])->name('my-subjects.sessions.attendance');
     Route::delete('/my-subjects/{subjectId}/sessions/{sessionId}/files/{fileId}', [\App\Http\Controllers\Teacher\SubjectController::class, 'deleteSessionFile'])->name('my-subjects.sessions.files.destroy');
+
+    // Simple session show route for teachers (for calendar clicks)
+    Route::get('/sessions/{session}', [\App\Http\Controllers\Teacher\SessionController::class, 'show'])->name('sessions.show');
 
     // Zoom signature generation for teachers
     Route::post('/zoom/generate-signature', [\App\Http\Controllers\Api\V1\Admin\ZoomController::class, 'generateSignature'])->name('zoom.generate-signature');

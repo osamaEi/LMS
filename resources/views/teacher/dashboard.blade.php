@@ -9,187 +9,203 @@
 
     <div class="mb-6">
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white">مرحباً {{ auth()->user()->name }}</h1>
-        <p class="text-gray-600 dark:text-gray-400 mt-1">لوحة تحكم المعلم - معايير NELC</p>
     </div>
 
 
 
-    <!-- Statistics -->
-    <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 w-full">
-        <div class="rounded-xl shadow-lg p-6 transition-all duration-300 hover:shadow-xl" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm font-medium" style="color: #bfdbfe;">المواد</p>
-                    <p class="text-3xl font-bold text-white mt-1">{{ $stats['subjects_count'] }}</p>
-                </div>
-                <div class="w-14 h-14 rounded-xl flex items-center justify-center" style="background: rgba(255,255,255,0.2);">
-                    <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"/>
-                    </svg>
-                </div>
-            </div>
-        </div>
 
-        <div class="rounded-xl shadow-lg p-6 transition-all duration-300 hover:shadow-xl" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm font-medium" style="color: #a7f3d0;">الطلاب</p>
-                    <p class="text-3xl font-bold text-white mt-1">{{ $stats['total_students'] }}</p>
-                </div>
-                <div class="w-14 h-14 rounded-xl flex items-center justify-center" style="background: rgba(255,255,255,0.2);">
-                    <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/>
-                    </svg>
-                </div>
-            </div>
-        </div>
-
-        <div class="rounded-xl shadow-lg p-6 transition-all duration-300 hover:shadow-xl" style="background: linear-gradient(135deg, #0071AA 0%, #005a88 100%);">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm font-medium" style="color: #e6f4fa;">الجلسات</p>
-                    <p class="text-3xl font-bold text-white mt-1">{{ $stats['total_sessions'] }}</p>
-                </div>
-                <div class="w-14 h-14 rounded-xl flex items-center justify-center" style="background: rgba(255,255,255,0.2);">
-                    <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zm12.553 1.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z"/>
-                    </svg>
-                </div>
-            </div>
-        </div>
-
-        <div class="rounded-xl shadow-lg p-6 transition-all duration-300 hover:shadow-xl" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm font-medium" style="color: #fde68a;">معدل الحضور</p>
-                    <p class="text-3xl font-bold text-white mt-1">{{ $stats['attendance_rate'] ?? 0 }}%</p>
-                    <p class="text-xs" style="color: rgba(255,255,255,0.7);">NELC 1.2.5</p>
-                </div>
-                <div class="w-14 h-14 rounded-xl flex items-center justify-center" style="background: rgba(255,255,255,0.2);">
-                    <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                    </svg>
-                </div>
-            </div>
-        </div>
-    </div>
 
 
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- My Subjects -->
         <div class="lg:col-span-2">
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
-                <div class="p-6 border-b dark:border-gray-700" style="background: linear-gradient(to right, #eff6ff, #eef2ff);">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background: #3b82f6;">
-                            <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"/>
-                            </svg>
+
+            <!-- All Sessions Section -->
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden mt-6">
+                <div class="p-6 border-b dark:border-gray-700" style="background: linear-gradient(135deg, #0071AA 0%, #005a88 100%);">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background: rgba(255,255,255,0.2); backdrop-filter: blur(10px);">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h2 class="text-lg font-bold text-white">جميع الجلسات</h2>
+                                <p class="text-sm text-white/70">{{ $stats['total_sessions'] }} جلسة - {{ $stats['live_sessions'] ?? 0 }} مباشرة الآن</p>
+                            </div>
                         </div>
-                        <h2 class="text-lg font-bold text-gray-900 dark:text-white">المواد الدراسية</h2>
+                        <a href="{{ route('teacher.schedule') }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium bg-white/15 hover:bg-white/25 text-white transition-all">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                            الجدول الكامل
+                        </a>
                     </div>
                 </div>
+
                 <div class="p-6">
-                    @if($subjects->count() > 0)
-                        <div class="space-y-4">
-                            @foreach($subjects as $index => $subject)
-                            @php
-                                $borderColors = ['#3b82f6', '#0071AA', '#10b981', '#f59e0b'];
-                                $borderColor = $borderColors[$index % count($borderColors)];
-                            @endphp
-                            <div class="group rounded-xl p-5 hover:shadow-lg transition-all duration-300 bg-gray-50 dark:bg-gray-700" style="border-right: 4px solid {{ $borderColor }};">
-                                <div class="flex items-center justify-between flex-wrap gap-4">
-                                    <div class="flex-1">
-                                        <h3 class="font-bold text-gray-900 dark:text-white text-lg">{{ $subject->name }}</h3>
-                                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                                            {{ $subject->term->program->name ?? '' }} - {{ $subject->term->name ?? '' }}
-                                        </p>
-                                        <div class="flex items-center gap-3 mt-3 text-sm flex-wrap">
-                                            <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full" style="background: #d1fae5; color: #047857;">
-                                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/></svg>
-                                                {{ $subject->enrollments_count }} طالب
-                                            </span>
-                                            <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full" style="background: #e6f4fa; color: #0071AA;">
-                                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zm12.553 1.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z"/></svg>
-                                                {{ $subject->sessions_count ?? 0 }} جلسة
-                                            </span>
-                                            <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full" style="background: #fef3c7; color: #b45309;">
-                                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                    @php
+                        $allSessions = collect();
+                        if(isset($upcomingSessions)) $allSessions = $allSessions->merge($upcomingSessions);
+                        if(isset($recentSessions)) $allSessions = $allSessions->merge($recentSessions);
+                        $allSessions = $allSessions->unique('id')->sortByDesc('scheduled_at')->take(8);
+                    @endphp
+
+                    @if($allSessions->count() > 0)
+                        <div class="space-y-3">
+                            @foreach($allSessions as $session)
+                                @php
+                                    $isLive = $session->started_at && !$session->ended_at;
+                                    $isUpcoming = $session->scheduled_at && \Carbon\Carbon::parse($session->scheduled_at)->isFuture();
+                                    $isCompleted = $session->ended_at;
+                                    $isZoom = $session->type === 'live_zoom';
+                                @endphp
+                                <div class="flex items-center gap-4 p-4 rounded-2xl border transition-all duration-300 hover:shadow-md
+                                    {{ $isLive ? 'border-red-200 bg-red-50/50 dark:bg-red-900/10 dark:border-red-800' : 'border-gray-100 dark:border-gray-700 hover:border-blue-200 dark:hover:border-blue-800' }}">
+
+                                    {{-- Session Icon --}}
+                                    <div class="flex-shrink-0">
+                                        @if($isLive)
+                                            <div class="w-12 h-12 rounded-xl flex items-center justify-center relative" style="background: linear-gradient(135deg, #ef4444, #dc2626); box-shadow: 0 4px 12px rgba(239,68,68,0.3);">
+                                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
                                                 </svg>
-                                                {{ number_format($subject->teacher_rating ?? 0, 1) }}
-                                            </span>
-                                        </div>
+                                                <span class="absolute -top-1 -right-1 w-3.5 h-3.5 bg-red-500 rounded-full border-2 border-white dark:border-gray-800" style="animation: pulse 2s infinite;"></span>
+                                            </div>
+                                        @elseif($isUpcoming)
+                                            <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background: linear-gradient(135deg, #3b82f6, #2563eb); box-shadow: 0 4px 12px rgba(59,130,246,0.3);">
+                                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                                </svg>
+                                            </div>
+                                        @else
+                                            <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 4px 12px rgba(16,185,129,0.3);">
+                                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                                </svg>
+                                            </div>
+                                        @endif
                                     </div>
-                                    <a href="{{ route('teacher.subjects.show', $subject->id) }}"
-                                       class="px-5 py-2.5 text-white rounded-lg text-sm font-medium shadow-md hover:shadow-lg transition-all duration-300" style="background: linear-gradient(135deg, #3b82f6, #2563eb);">
-                                        عرض التفاصيل
-                                    </a>
+
+                                    {{-- Session Info --}}
+                                    <div class="flex-1 min-w-0">
+                                        <div class="flex items-center gap-2 mb-1">
+                                            <h4 class="font-bold text-gray-900 dark:text-white text-sm truncate">{{ $session->title }}</h4>
+                                            @if($isLive)
+                                                <span class="flex-shrink-0 inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold" style="background: linear-gradient(135deg, #fee2e2, #fecaca); color: #dc2626;">
+                                                    <span class="w-1.5 h-1.5 rounded-full bg-red-500" style="animation: pulse 1.5s infinite;"></span>
+                                                    مباشر الآن
+                                                </span>
+                                            @elseif($isUpcoming)
+                                                <span class="flex-shrink-0 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold" style="background: linear-gradient(135deg, #dbeafe, #bfdbfe); color: #2563eb;">
+                                                    قادمة
+                                                </span>
+                                            @elseif($isCompleted)
+                                                <span class="flex-shrink-0 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold" style="background: linear-gradient(135deg, #d1fae5, #a7f3d0); color: #059669;">
+                                                    مكتملة
+                                                </span>
+                                            @endif
+                                        </div>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ $session->subject->name ?? '' }}</p>
+                                        @if($session->scheduled_at)
+                                            <div class="flex items-center gap-3 mt-1.5 text-xs text-gray-400">
+                                                <span class="inline-flex items-center gap-1">
+                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                                    </svg>
+                                                    {{ \Carbon\Carbon::parse($session->scheduled_at)->format('Y/m/d') }}
+                                                </span>
+                                                <span class="inline-flex items-center gap-1">
+                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                                    </svg>
+                                                    {{ \Carbon\Carbon::parse($session->scheduled_at)->format('h:i A') }}
+                                                </span>
+                                                @if($session->duration_minutes)
+                                                    <span class="inline-flex items-center gap-1">
+                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                                                        </svg>
+                                                        {{ $session->duration_minutes }} د
+                                                    </span>
+                                                @endif
+                                            </div>
+                                        @endif
+                                    </div>
+
+                                    {{-- Action Buttons --}}
+                                    <div class="flex items-center gap-2 flex-shrink-0">
+                                        @if($isLive && $isZoom && $session->zoom_start_url)
+                                            <a href="{{ $session->zoom_start_url }}" target="_blank"
+                                               class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold text-white transition-all hover:scale-105"
+                                               style="background: linear-gradient(135deg, #ef4444, #dc2626); box-shadow: 0 4px 15px rgba(239,68,68,0.4); animation: pulse 2s infinite;">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                                                </svg>
+                                                انضم الآن
+                                            </a>
+                                        @elseif($isUpcoming && $isZoom)
+                                            @if($session->zoom_start_url)
+                                                <a href="{{ $session->zoom_start_url }}" target="_blank"
+                                                   class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold text-white transition-all hover:scale-105"
+                                                   style="background: linear-gradient(135deg, #3b82f6, #2563eb); box-shadow: 0 4px 15px rgba(59,130,246,0.4);">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                                                    </svg>
+                                                    ابدأ Zoom
+                                                </a>
+                                            @else
+                                                <a href="{{ route('teacher.my-subjects.sessions.zoom', [$session->subject_id, $session->id]) }}"
+                                                   class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold text-white transition-all hover:scale-105"
+                                                   style="background: linear-gradient(135deg, #3b82f6, #2563eb); box-shadow: 0 4px 15px rgba(59,130,246,0.4);">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                                                    </svg>
+                                                    تجهيز Zoom
+                                                </a>
+                                            @endif
+                                        @endif
+
+                                        <a href="{{ route('teacher.my-subjects.show', $session->subject_id) }}"
+                                           class="inline-flex items-center gap-1.5 px-3 py-2.5 rounded-xl text-sm font-medium border-2 border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:border-blue-400 hover:text-blue-600 dark:hover:border-blue-500 dark:hover:text-blue-400 transition-all">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                            </svg>
+                                            عرض
+                                        </a>
+                                    </div>
                                 </div>
-                            </div>
                             @endforeach
+                        </div>
+
+                        {{-- View All Link --}}
+                        <div class="mt-5 pt-5 border-t border-gray-100 dark:border-gray-700 text-center">
+                            <a href="{{ route('teacher.schedule') }}" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-bold transition-all hover:scale-105" style="background: linear-gradient(135deg, #0071AA, #005a88); color: white; box-shadow: 0 4px 15px rgba(0,113,170,0.3);">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                </svg>
+                                عرض جميع الجلسات في التقويم
+                            </a>
                         </div>
                     @else
                         <div class="text-center py-12">
-                            <div class="w-16 h-16 mx-auto mb-4 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center">
-                                <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                            <div class="w-20 h-20 mx-auto mb-4 rounded-2xl flex items-center justify-center" style="background: linear-gradient(135deg, #f1f5f9, #e2e8f0);">
+                                <svg class="w-10 h-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
                                 </svg>
                             </div>
-                            <p class="text-gray-500 dark:text-gray-400">لا توجد مواد دراسية</p>
+                            <h3 class="text-lg font-bold text-gray-900 dark:text-white">لا توجد جلسات</h3>
+                            <p class="text-gray-500 dark:text-gray-400 mt-1 text-sm">لم يتم إنشاء أي جلسة بعد</p>
                         </div>
                     @endif
                 </div>
             </div>
 
             <!-- Recent Student Feedback (NELC 2.4.9) -->
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow mt-6">
-                <div class="p-6 border-b dark:border-gray-700">
-                    <div class="flex items-center justify-between">
-                        <h2 class="text-lg font-bold text-gray-900 dark:text-white">آخر تقييمات الطلاب</h2>
-                        <span class="text-xs px-2 py-1 rounded" style="background-color: #e6f4fa; color: #0071AA;">NELC 2.4.9</span>
-                    </div>
-                </div>
-                <div class="p-6">
-                    @if(isset($recentRatings) && $recentRatings->count() > 0)
-                        <div class="space-y-4">
-                            @foreach($recentRatings as $rating)
-                            <div class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                                <div class="flex items-center justify-between mb-2">
-                                    <div class="flex items-center gap-2">
-                                        @if(!$rating->is_anonymous)
-                                        <span class="text-sm font-medium text-gray-900 dark:text-white">{{ $rating->student->name ?? 'طالب' }}</span>
-                                        @else
-                                        <span class="text-sm text-gray-500 dark:text-gray-400">تقييم مجهول</span>
-                                        @endif
-                                        <span class="text-xs text-gray-500 dark:text-gray-400">{{ $rating->subject->name ?? '' }}</span>
-                                    </div>
-                                    <div class="flex items-center">
-                                        @for($i = 1; $i <= 5; $i++)
-                                        <svg class="w-4 h-4 {{ $i <= $rating->overall_rating ? 'text-yellow-400' : 'text-gray-300 dark:text-gray-600' }}" fill="currentColor" viewBox="0 0 20 20">
-                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                                        </svg>
-                                        @endfor
-                                    </div>
-                                </div>
-                                @if($rating->comment)
-                                <p class="text-sm text-gray-600 dark:text-gray-400">{{ $rating->comment }}</p>
-                                @endif
-                                @if($rating->improvement_suggestions)
-                                <p class="text-sm text-blue-600 dark:text-blue-400 mt-2">
-                                    <strong>اقتراح:</strong> {{ $rating->improvement_suggestions }}
-                                </p>
-                                @endif
-                                <p class="text-xs text-gray-400 dark:text-gray-500 mt-2">{{ $rating->created_at->diffForHumans() }}</p>
-                            </div>
-                            @endforeach
-                        </div>
-                    @else
-                        <p class="text-gray-600 dark:text-gray-400 text-center py-4">لا توجد تقييمات بعد</p>
-                    @endif
-                </div>
-            </div>
+        
         </div>
 
         <!-- Sidebar -->
@@ -273,109 +289,13 @@
             </div>
 
             <!-- Upcoming Sessions -->
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
-                <div class="p-4 border-b dark:border-gray-700" style="background: linear-gradient(135deg, #0071AA, #005a88);">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background: rgba(255,255,255,0.2);">
-                            <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
-                            </svg>
-                        </div>
-                        <h2 class="text-lg font-bold text-white">الجلسات القادمة</h2>
-                    </div>
-                </div>
-                <div class="p-4">
-                    @if($upcomingSessions->count() > 0)
-                        <div class="space-y-3">
-                            @foreach($upcomingSessions as $session)
-                            <div class="p-3 rounded-lg bg-gray-50 dark:bg-gray-700" style="border-right: 3px solid #0071AA;">
-                                <div class="font-medium text-gray-900 dark:text-white text-sm">{{ $session->title }}</div>
-                                <div class="text-xs mt-1" style="color: #0071AA;">{{ $session->subject->name }}</div>
-                                <div class="text-xs text-gray-500 dark:text-gray-400 mt-1 flex items-center gap-1">
-                                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/></svg>
-                                    {{ \Carbon\Carbon::parse($session->scheduled_at)->format('Y-m-d H:i') }}
-                                </div>
-                            </div>
-                            @endforeach
-                        </div>
-                    @else
-                        <p class="text-gray-500 dark:text-gray-400 text-center py-6 text-sm">لا توجد جلسات قادمة</p>
-                    @endif
-                </div>
-            </div>
+    
 
             <!-- Support Tickets (NELC 1.3.3) -->
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg mt-6 overflow-hidden">
-                <div class="p-4 border-b dark:border-gray-700" style="background: linear-gradient(135deg, #3b82f6, #2563eb);">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background: rgba(255,255,255,0.2);">
-                                <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/>
-                                </svg>
-                            </div>
-                            <h2 class="text-lg font-bold text-white">تذاكر الدعم</h2>
-                        </div>
-                        <span class="text-xs px-2 py-1 rounded" style="background: rgba(255,255,255,0.2); color: white;">NELC 1.3.3</span>
-                    </div>
-                </div>
-                <div class="p-4">
-                    <div class="text-center mb-4">
-                        <a href="{{ route('teacher.tickets.create') }}" class="inline-flex items-center px-4 py-2 text-white rounded-lg text-sm transition-all" style="background: linear-gradient(135deg, #0071AA, #005a88);">
-                            <svg class="w-4 h-4 ml-2" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/>
-                            </svg>
-                            إنشاء تذكرة جديدة
-                        </a>
-                    </div>
-                    @if(isset($myTickets) && $myTickets->count() > 0)
-                        <div class="space-y-3">
-                            @foreach($myTickets as $ticket)
-                            <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                                <div>
-                                    <div class="text-sm font-medium text-gray-900 dark:text-white">{{ Str::limit($ticket->subject, 25) }}</div>
-                                    <div class="text-xs text-gray-500 dark:text-gray-400">{{ $ticket->created_at->diffForHumans() }}</div>
-                                </div>
-                                <span class="text-xs px-2 py-1 rounded-full" style="background: #dbeafe; color: #1e40af;">
-                                    {{ $ticket->getStatusLabel() }}
-                                </span>
-                            </div>
-                            @endforeach
-                        </div>
-                    @else
-                        <p class="text-gray-500 dark:text-gray-400 text-center py-4 text-sm">لا توجد تذاكر</p>
-                    @endif
-                </div>
-            </div>
+        
 
             <!-- Pending Surveys (NELC 1.2.11) -->
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg mt-6 overflow-hidden">
-                <div class="p-4 border-b dark:border-gray-700" style="background: linear-gradient(135deg, #10b981, #059669);">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background: rgba(255,255,255,0.2);">
-                                <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
-                                    <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/>
-                                </svg>
-                            </div>
-                            <h2 class="text-lg font-bold text-white">استبيانات الرضا</h2>
-                        </div>
-                        <span class="text-xs px-2 py-1 rounded" style="background: rgba(255,255,255,0.2); color: white;">NELC 1.2.11</span>
-                    </div>
-                </div>
-                <div class="p-4">
-                    @if(isset($pendingSurveys) && $pendingSurveys > 0)
-                        <div class="text-center">
-                            <div class="text-4xl font-bold mb-2" style="color: #f59e0b;">{{ $pendingSurveys }}</div>
-                            <p class="text-gray-600 dark:text-gray-400 text-sm">استبيان بانتظار الإكمال</p>
-                            <a href="{{ route('teacher.surveys.index') }}" class="inline-block mt-3 text-sm text-brand-500 hover:underline">عرض الاستبيانات</a>
-                        </div>
-                    @else
-                        <p class="text-gray-600 dark:text-gray-400 text-center py-4 text-sm">لا توجد استبيانات معلقة</p>
-                    @endif
-                </div>
-            </div>
+       
         </div>
     </div>
 </div>

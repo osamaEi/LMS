@@ -24,88 +24,92 @@
     .fc-toolbar {
         padding: 1.5rem 2rem !important;
         margin-bottom: 0 !important;
-        background: linear-gradient(135deg, #0071AA 0%, #005a88 50%, #004266 100%);
+        background: #f8fafc;
+        border-bottom: 2px solid #e2e8f0;
         flex-wrap: wrap;
         gap: 1rem;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .fc-toolbar::before {
-        content: '';
-        position: absolute;
-        top: -50%;
-        right: -20%;
-        width: 60%;
-        height: 200%;
-        background: radial-gradient(ellipse, rgba(255,255,255,0.1) 0%, transparent 70%);
-        pointer-events: none;
     }
 
     .fc-toolbar-title {
         font-size: 1.75rem !important;
         font-weight: 800 !important;
-        color: #ffffff !important;
-        text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        color: #1e293b !important;
         letter-spacing: -0.5px;
     }
 
-    /* Navigation Buttons */
+    /* Navigation Buttons - Inactive */
     .fc .fc-button {
-        background: rgba(255,255,255,0.2) !important;
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255,255,255,0.3) !important;
-        color: white !important;
+        background: white !important;
+        border: 2px solid #e2e8f0 !important;
+        color: #475569 !important;
         padding: 0.6rem 1.2rem;
         font-size: 0.875rem;
         border-radius: 12px !important;
         font-weight: 600;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     }
 
     .fc .fc-button:hover {
-        background: rgba(255,255,255,0.35) !important;
+        background: #f1f5f9 !important;
+        color: #0071AA !important;
+        border-color: #0071AA !important;
         transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     }
 
+    /* Active View Button */
     .fc .fc-button-active,
     .fc .fc-button-primary:not(:disabled).fc-button-active {
-        background: linear-gradient(135deg, #0071AA, #005a88) !important;
+        background: #0071AA !important;
+        color: white !important;
         border-color: #0071AA !important;
-        box-shadow: 0 4px 20px rgba(0, 113, 170, 0.5);
+        box-shadow: 0 4px 15px rgba(0, 113, 170, 0.4);
+        font-weight: 700;
+    }
+
+    .fc .fc-button-active:hover,
+    .fc .fc-button-primary:not(:disabled).fc-button-active:hover {
+        background: #005a88 !important;
+        border-color: #005a88 !important;
     }
 
     .fc .fc-today-button {
         background: linear-gradient(135deg, #10b981, #059669) !important;
         border: none !important;
+        color: white !important;
         box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
     }
 
     .fc .fc-today-button:hover {
         background: linear-gradient(135deg, #34d399, #10b981) !important;
+        color: white !important;
         transform: translateY(-2px);
     }
 
     .fc .fc-today-button:disabled {
-        background: rgba(255,255,255,0.15) !important;
-        opacity: 0.5;
+        background: #e2e8f0 !important;
+        color: #94a3b8 !important;
+        opacity: 0.6;
+        box-shadow: none;
     }
 
     .fc .fc-prev-button,
     .fc .fc-next-button {
-        background: linear-gradient(135deg, #0071AA, #005a88) !important;
-        border: none !important;
+        background: white !important;
+        border: 2px solid #e2e8f0 !important;
+        color: #0071AA !important;
         width: 42px;
         height: 42px;
         border-radius: 12px !important;
-        box-shadow: 0 4px 15px rgba(0, 113, 170, 0.3);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     }
 
     .fc .fc-prev-button:hover,
     .fc .fc-next-button:hover {
-        background: linear-gradient(135deg, #0088cc, #0071AA) !important;
+        background: #0071AA !important;
+        border-color: #0071AA !important;
+        color: white !important;
         transform: translateY(-2px) scale(1.05);
     }
 
@@ -1023,70 +1027,58 @@
 
 <!-- View Session Modal -->
 <div id="viewModal" class="modal-overlay" onclick="if(event.target === this) closeViewModal()">
-    <div class="modal-container">
-        <div class="modal-header" id="viewModalHeader">
+    <div class="modal-container" style="max-width: 520px;">
+        <div class="modal-header" id="viewModalHeader" style="padding: 1.75rem 2rem; text-align: center;">
             <button type="button" class="modal-close" onclick="closeViewModal()">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                 </svg>
             </button>
-            <div class="modal-header-icon">
-                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
-                </svg>
-            </div>
-            <h3 class="modal-title" id="viewModalTitle">تفاصيل الجلسة</h3>
-            <p class="modal-subtitle" id="viewModalSubtitle"></p>
+            <div id="viewModalStatus" style="margin-bottom: 0.75rem;"></div>
+            <h3 class="modal-title" id="viewModalTitle" style="font-size: 1.35rem; margin-bottom: 0.5rem;">تفاصيل الجلسة</h3>
+            <p class="modal-subtitle" id="viewModalSubtitle" style="font-size: 0.95rem;"></p>
         </div>
 
-        <div class="modal-body">
-            <div id="viewModalStatus" class="mb-4"></div>
-
-            <div class="session-detail">
-                <div class="session-detail-icon" style="background: linear-gradient(135deg, #0071AA, #005a88);">
-                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-                    </svg>
+        <div class="modal-body" style="padding: 1.5rem 2rem;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                <div style="background: linear-gradient(135deg, #eff6ff, #dbeafe); border-radius: 16px; padding: 1.25rem; text-align: center;">
+                    <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #0071AA, #005a88); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 0.75rem;">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                        </svg>
+                    </div>
+                    <div style="font-size: 0.75rem; color: #64748b; margin-bottom: 0.25rem;">المادة</div>
+                    <div style="font-weight: 700; color: #1e293b; font-size: 0.95rem;" id="viewSubject"></div>
                 </div>
-                <div class="session-detail-content">
-                    <div class="session-detail-label">المادة الدراسية</div>
-                    <div class="session-detail-value" id="viewSubject"></div>
-                </div>
-            </div>
-
-            <div class="session-detail">
-                <div class="session-detail-icon" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
-                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"/>
-                    </svg>
-                </div>
-                <div class="session-detail-content">
-                    <div class="session-detail-label">رقم الجلسة</div>
-                    <div class="session-detail-value" id="viewSessionNumber"></div>
+                <div style="background: linear-gradient(135deg, #f5f3ff, #ede9fe); border-radius: 16px; padding: 1.25rem; text-align: center;">
+                    <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #8b5cf6, #7c3aed); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 0.75rem;">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"/>
+                        </svg>
+                    </div>
+                    <div style="font-size: 0.75rem; color: #64748b; margin-bottom: 0.25rem;">رقم الجلسة</div>
+                    <div style="font-weight: 800; color: #1e293b; font-size: 1.25rem;" id="viewSessionNumber"></div>
                 </div>
             </div>
 
-            <div class="session-detail">
-                <div class="session-detail-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
-                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                    </svg>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div style="background: linear-gradient(135deg, #fefce8, #fef3c7); border-radius: 16px; padding: 1.25rem; text-align: center;">
+                    <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #f59e0b, #d97706); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 0.75rem;">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                    <div style="font-size: 0.75rem; color: #64748b; margin-bottom: 0.25rem;">التاريخ والوقت</div>
+                    <div style="font-weight: 700; color: #1e293b; font-size: 0.85rem; line-height: 1.5;" id="viewDateTime"></div>
                 </div>
-                <div class="session-detail-content">
-                    <div class="session-detail-label">التاريخ والوقت</div>
-                    <div class="session-detail-value" id="viewDateTime"></div>
-                </div>
-            </div>
-
-            <div class="session-detail">
-                <div class="session-detail-icon" style="background: linear-gradient(135deg, #ec4899, #be185d);">
-                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
-                    </svg>
-                </div>
-                <div class="session-detail-content">
-                    <div class="session-detail-label">نوع الجلسة</div>
-                    <div class="session-detail-value" id="viewType"></div>
+                <div style="background: linear-gradient(135deg, #fdf2f8, #fce7f3); border-radius: 16px; padding: 1.25rem; text-align: center;">
+                    <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #ec4899, #be185d); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 0.75rem;">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                    <div style="font-size: 0.75rem; color: #64748b; margin-bottom: 0.25rem;">نوع الجلسة</div>
+                    <div style="font-weight: 700; color: #1e293b; font-size: 0.95rem;" id="viewType"></div>
                 </div>
             </div>
         </div>
@@ -1289,7 +1281,7 @@
         document.getElementById('viewModalHeader').style.background = config.bg;
         document.getElementById('viewModalTitle').textContent = session.title;
         document.getElementById('viewModalSubtitle').textContent = session.subject;
-        document.getElementById('viewModalStatus').innerHTML = `<span class="status-badge" style="${config.badge}">${session.status}</span>`;
+        document.getElementById('viewModalStatus').innerHTML = `<span class="status-badge" style="${config.badge}; font-size: 0.8rem; padding: 0.35rem 1rem;">${session.status}</span>`;
         document.getElementById('viewSubject').textContent = session.subject;
         document.getElementById('viewSessionNumber').textContent = `#${session.session_number}`;
         document.getElementById('viewType').textContent = session.type === 'live_zoom' ? '🎥 Zoom مباشر' : '📹 فيديو مسجل';

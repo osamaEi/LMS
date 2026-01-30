@@ -889,7 +889,18 @@
                             <p class="text-white/70 text-sm mt-1">انقر على أي يوم لإضافة جلسة جديدة</p>
                         </div>
                     </div>
-                    <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-3 flex-wrap">
+                        <!-- Session Templates -->
+                        <select id="sessionTemplate" onchange="applyTemplate(this.value)"
+                                class="px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer border-2 border-white/30 bg-white/20 text-white focus:outline-none focus:ring-2 focus:ring-white/50">
+                            <option value="">اختر قالب...</option>
+                            <option value="weekly_morning">أسبوعي صباحاً (10:00)</option>
+                            <option value="weekly_afternoon">أسبوعي ظهراً (14:00)</option>
+                            <option value="weekly_evening">أسبوعي مساءً (17:00)</option>
+                            <option value="biweekly_morning">كل أسبوعين صباحاً (10:00)</option>
+                            <option value="daily_morning">يومي صباحاً (10:00)</option>
+                        </select>
+
                         <div class="feature-badge" style="background: rgba(255,255,255,0.2); color: white;">
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
@@ -1302,6 +1313,83 @@ document.addEventListener('DOMContentLoaded', function() {
 
         updateUI();
         closeModal();
+    };
+
+    // Apply session template
+    window.applyTemplate = function(templateValue) {
+        if (!templateValue) return;
+
+        const subject = document.getElementById('modal_subject').value;
+        if (!subject) {
+            alert('الرجاء اختيار المادة أولاً');
+            document.getElementById('sessionTemplate').value = '';
+            return;
+        }
+
+        // Get today's date
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        // Template configurations
+        const templates = {
+            'weekly_morning': {
+                time: '10:00',
+                recurrence: 'weekly',
+                weeks: 8,
+                days: [0, 2, 4] // Sunday, Tuesday, Thursday
+            },
+            'weekly_afternoon': {
+                time: '14:00',
+                recurrence: 'weekly',
+                weeks: 8,
+                days: [1, 3] // Monday, Wednesday
+            },
+            'weekly_evening': {
+                time: '17:00',
+                recurrence: 'weekly',
+                weeks: 8,
+                days: [0, 2] // Sunday, Tuesday
+            },
+            'biweekly_morning': {
+                time: '10:00',
+                recurrence: 'weekly',
+                weeks: 8,
+                days: [0] // Every other week Sunday
+            },
+            'daily_morning': {
+                time: '10:00',
+                recurrence: 'weekly',
+                weeks: 4,
+                days: [0, 1, 2, 3, 4] // Sunday to Thursday
+            }
+        };
+
+        const template = templates[templateValue];
+        if (!template) return;
+
+        // Set time
+        document.getElementById('modal_time').value = template.time;
+
+        // Set recurrence
+        currentRecurrence = template.recurrence;
+        selectedDays = template.days;
+
+        if (template.recurrence === 'weekly') {
+            document.getElementById('modal_weeks').value = template.weeks;
+        }
+
+        // Show success message
+        const notification = document.createElement('div');
+        notification.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-lg shadow-lg z-50 bg-blue-500 text-white font-medium';
+        notification.textContent = 'تم تطبيق القالب بنجاح! الرجاء النقر على التاريخ المطلوب';
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
+
+        // Reset template selection
+        document.getElementById('sessionTemplate').value = '';
     };
 
     function generateSessions(baseDate, recurrenceType) {
