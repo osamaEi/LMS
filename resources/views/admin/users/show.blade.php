@@ -108,15 +108,15 @@
                     @if($user->roles->count() > 0)
                     <div class="flex flex-wrap gap-2">
                         @foreach($user->roles as $role)
-                        <div class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-300 rounded-lg">
+                        <div class="inline-flex items-center gap-2 px-4 py-2 {{ \App\Helpers\PermissionHelper::getRoleColor($role->name) }} rounded-lg">
                             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
                             </svg>
-                            <span class="text-sm font-medium">{{ $role->name }}</span>
+                            <span class="text-sm font-medium">{{ \App\Helpers\PermissionHelper::translateRole($role->name) }}</span>
                             <form action="{{ route('admin.users.remove-role', [$user, $role]) }}" method="POST" class="inline">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-200">
+                                <button type="submit" class="hover:opacity-70 transition">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                                     </svg>
@@ -139,8 +139,8 @@
                     @if($allPermissions->count() > 0)
                     <div class="flex flex-wrap gap-2">
                         @foreach($allPermissions as $permission)
-                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">
-                            {{ $permission->name }}
+                        <span class="inline-flex items-center px-3 py-1 rounded-lg text-xs font-medium {{ \App\Helpers\PermissionHelper::getPermissionColor($permission->name) }}">
+                            {{ \App\Helpers\PermissionHelper::translatePermission($permission->name) }}
                         </span>
                         @endforeach
                     </div>
