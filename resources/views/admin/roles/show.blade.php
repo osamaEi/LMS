@@ -67,17 +67,30 @@
             <div class="lg:col-span-2 space-y-6">
                 <!-- Permissions -->
                 <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
-                    <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">الصلاحيات المرتبطة</h3>
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10 1L3 5V9C3 13.55 5.99 17.74 10 19C14.01 17.74 17 13.55 17 9V5L10 1ZM10 9.99H15C14.47 13.11 12.54 15.87 10 16.9V10H5V6.3L10 3.69V9.99Z"/>
+                        </svg>
+                        الصلاحيات المرتبطة ({{ $role->permissions->count() }})
+                    </h3>
                     @if($role->permissions->count() > 0)
                     <div class="flex flex-wrap gap-2">
                         @foreach($role->permissions as $permission)
-                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">
-                            {{ $permission->name }}
+                        <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium {{ \App\Helpers\PermissionHelper::getPermissionColor($permission->name) }}">
+                            <svg class="w-3.5 h-3.5 ml-1.5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                            {{ \App\Helpers\PermissionHelper::translatePermission($permission->name) }}
                         </span>
                         @endforeach
                     </div>
                     @else
-                    <p class="text-gray-500 dark:text-gray-400">لا توجد صلاحيات مرتبطة بهذا الدور</p>
+                    <div class="flex flex-col items-center py-8">
+                        <svg class="w-12 h-12 text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                        </svg>
+                        <p class="text-gray-500 dark:text-gray-400">لا توجد صلاحيات مرتبطة بهذا الدور</p>
+                    </div>
                     @endif
                 </div>
 

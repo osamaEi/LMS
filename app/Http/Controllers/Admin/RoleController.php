@@ -6,19 +6,31 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
+use App\Helpers\PermissionHelper;
 
 class RoleController extends Controller
 {
     public function index()
     {
         $roles = Role::with('permissions')->orderBy('name')->paginate(15);
-        return view('admin.roles.index', compact('roles'));
+
+        // Statistics
+        $totalRoles = Role::count();
+        $totalPermissions = Permission::count();
+        $rolesWithUsers = Role::has('users')->count();
+
+        // Calculate average permissions per role
+        $rolesWithCounts = Role::withCount('permissions')->get();
+        $avgPermissionsPerRole = $rolesWithCounts->avg('permissions_count');
+
+        return view('admin.roles.index', compact('roles', 'totalRoles', 'totalPermissions', 'rolesWithUsers', 'avgPermissionsPerRole'));
     }
 
     public function create()
     {
         $permissions = Permission::orderBy('name')->get();
-        return view('admin.roles.create', compact('permissions'));
+        $groupedPermissions = PermissionHelper::getGroupedPermissions($permissions);
+        return view('admin.roles.create', compact('permissions', 'groupedPermissions'));
     }
 
     public function store(Request $request)
@@ -53,8 +65,9 @@ class RoleController extends Controller
     public function edit(Role $role)
     {
         $permissions = Permission::orderBy('name')->get();
+        $groupedPermissions = PermissionHelper::getGroupedPermissions($permissions);
         $rolePermissions = $role->permissions->pluck('id')->toArray();
-        return view('admin.roles.edit', compact('role', 'permissions', 'rolePermissions'));
+        return view('admin.roles.edit', compact('role', 'permissions', 'rolePermissions', 'groupedPermissions'));
     }
 
     public function update(Request $request, Role $role)

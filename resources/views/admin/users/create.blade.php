@@ -138,18 +138,18 @@
                 <!-- Spatie Roles -->
                 <div class="mt-6">
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-                        الأدوار (Spatie)
+                        الأدوار والصلاحيات
                     </label>
                     @if($roles->count() > 0)
                     <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
                         @foreach($roles as $role)
-                        <label class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 transition">
+                        <label class="flex items-center gap-3 p-3 rounded-lg cursor-pointer hover:shadow-md transition border-2 border-transparent hover:border-indigo-200 dark:hover:border-indigo-700 {{ \App\Helpers\PermissionHelper::getRoleColor($role->name) }}">
                             <input type="checkbox"
                                    name="spatie_roles[]"
                                    value="{{ $role->id }}"
                                    {{ in_array($role->id, old('spatie_roles', [])) ? 'checked' : '' }}
-                                   class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-                            <span class="text-sm text-gray-700 dark:text-gray-300">{{ $role->name }}</span>
+                                   class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
+                            <span class="text-sm font-semibold">{{ \App\Helpers\PermissionHelper::translateRole($role->name) }}</span>
                         </label>
                         @endforeach
                     </div>

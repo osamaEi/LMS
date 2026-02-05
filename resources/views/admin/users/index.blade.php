@@ -55,12 +55,12 @@
                 </select>
             </div>
             <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">الدور (Spatie)</label>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">الدور</label>
                 <select name="spatie_role"
                         class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
                     <option value="">-- الكل --</option>
                     @foreach($roles as $role)
-                    <option value="{{ $role->name }}" {{ request('spatie_role') == $role->name ? 'selected' : '' }}>{{ $role->name }}</option>
+                    <option value="{{ $role->name }}" {{ request('spatie_role') == $role->name ? 'selected' : '' }}>{{ \App\Helpers\PermissionHelper::translateRole($role->name) }}</option>
                     @endforeach
                 </select>
             </div>
@@ -141,14 +141,14 @@
                     <td class="px-6 py-4">
                         <div class="flex flex-wrap gap-1">
                             @forelse($user->roles->take(2) as $role)
-                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-300">
-                                {{ $role->name }}
+                            <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold {{ \App\Helpers\PermissionHelper::getRoleColor($role->name) }} shadow-sm">
+                                {{ \App\Helpers\PermissionHelper::translateRole($role->name) }}
                             </span>
                             @empty
                             <span class="text-xs text-gray-500 dark:text-gray-400">لا يوجد</span>
                             @endforelse
                             @if($user->roles->count() > 2)
-                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
+                            <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 dark:from-gray-700 dark:to-gray-600 dark:text-gray-300 shadow-sm">
                                 +{{ $user->roles->count() - 2 }}
                             </span>
                             @endif
