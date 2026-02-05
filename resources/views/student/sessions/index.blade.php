@@ -229,7 +229,7 @@
     </div>
 
     {{-- Stats Cards --}}
-    <div class="stats-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem;">
+    <!-- <div class="stats-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem;">
         <div class="stat-card" style="--stat-color: #3b82f6;">
             <div class="flex items-center justify-between">
                 <div>
@@ -274,7 +274,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> -->
 
     {{-- View Toggle + Filters --}}
     <div class="filter-card">

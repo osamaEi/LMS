@@ -111,18 +111,28 @@
                                 <small>لديك خطة تقسيط. يرجى مراجعة الأقساط أدناه للدفع.</small>
                             </div>
                         @else
-                            <form action="{{ route('student.payments.pay-tamara', $payment) }}" method="POST">
+                            <!-- PayTabs - Credit Card / Apple Pay -->
+                            <form action="{{ route('student.payments.pay-paytabs', $payment) }}" method="POST" class="mb-3">
                                 @csrf
-                                <button type="submit" class="btn btn-primary w-100 mb-3">
-                                    <i class="bi bi-credit-card me-1"></i>
+                                <button type="submit" class="btn btn-success w-100">
+                                    <i class="bi bi-credit-card-2-front me-1"></i>
+                                    الدفع ببطاقة الائتمان / Apple Pay
+                                </button>
+                            </form>
+
+                            <!-- Tamara - Installments -->
+                            <form action="{{ route('student.payments.pay-tamara', $payment) }}" method="POST" class="mb-3">
+                                @csrf
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="bi bi-cash-stack me-1"></i>
                                     الدفع عبر تمارا (بالتقسيط)
                                 </button>
                             </form>
 
-                            <div class="alert alert-warning">
+                            <div class="alert alert-info mb-0">
                                 <small>
-                                    <i class="bi bi-exclamation-triangle me-1"></i>
-                                    يمكنك الدفع نقداً أو عبر التحويل البنكي بالتواصل مع الإدارة
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    يمكنك أيضاً الدفع نقداً أو عبر التحويل البنكي بالتواصل مع الإدارة
                                 </small>
                             </div>
                         @endif

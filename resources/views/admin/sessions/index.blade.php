@@ -1126,21 +1126,32 @@
                 </select>
             </div>
 
-            <!-- Time & Duration -->
+            <!-- Start Date & End Date -->
             <div class="grid grid-cols-2 gap-4">
                 <div class="form-group">
-                    <label class="form-label">وقت البدء <span class="text-red-500">*</span></label>
-                    <input type="time" id="modal_start_time" class="form-input text-center" value="10:00" required>
+                    <label class="form-label">تاريخ البدء <span class="text-red-500">*</span></label>
+                    <input type="date" id="modal_start_date" class="form-input" required>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">المدة</label>
-                    <select id="modal_duration" class="form-select">
-                        <option value="30">30 دقيقة</option>
-                        <option value="45">45 دقيقة</option>
-                        <option value="60" selected>60 دقيقة</option>
-                        <option value="90">90 دقيقة</option>
-                        <option value="120">ساعتان</option>
-                    </select>
+                    <label class="form-label">تاريخ الانتهاء <span class="text-red-500">*</span></label>
+                    <input type="date" id="modal_end_date" class="form-input" required>
+                </div>
+            </div>
+
+            <!-- Time & Duration -->
+            <div class="grid grid-cols-3 gap-4">
+                <div class="form-group">
+                    <label class="form-label">وقت البدء <span class="text-red-500">*</span></label>
+                    <input type="time" id="modal_start_time" class="form-input text-center" value="10:00" required onchange="calculateModalDuration()">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">وقت الانتهاء <span class="text-red-500">*</span></label>
+                    <input type="time" id="modal_end_time" class="form-input text-center" value="11:00" required onchange="calculateModalDuration()">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">المدة (محسوبة تلقائياً)</label>
+                    <div id="modal_calculated_duration" class="form-input bg-gray-100 text-center flex items-center justify-center font-bold text-emerald-600">60 دقيقة</div>
+                    <input type="hidden" id="modal_duration" value="60">
                 </div>
             </div>
 
@@ -1372,10 +1383,52 @@ document.addEventListener('DOMContentLoaded', function() {
         openModal(today);
     };
 
+    // Calculate duration from start and end time
+    window.calculateModalDuration = function() {
+        const startTime = document.getElementById('modal_start_time').value;
+        const endTime = document.getElementById('modal_end_time').value;
+        const durationDisplay = document.getElementById('modal_calculated_duration');
+        const durationInput = document.getElementById('modal_duration');
+
+        if (startTime && endTime) {
+            const [startHour, startMin] = startTime.split(':').map(Number);
+            const [endHour, endMin] = endTime.split(':').map(Number);
+
+            let totalMinutes = (endHour * 60 + endMin) - (startHour * 60 + startMin);
+
+            if (totalMinutes < 0) {
+                durationDisplay.textContent = 'وقت الانتهاء يجب أن يكون بعد وقت البدء';
+                durationDisplay.classList.remove('text-emerald-600');
+                durationDisplay.classList.add('text-red-500');
+                durationInput.value = '';
+                return;
+            }
+
+            durationDisplay.classList.remove('text-red-500');
+            durationDisplay.classList.add('text-emerald-600');
+
+            if (totalMinutes >= 60) {
+                const hours = Math.floor(totalMinutes / 60);
+                const mins = totalMinutes % 60;
+                if (mins > 0) {
+                    durationDisplay.textContent = hours + ' ساعة و ' + mins + ' دقيقة';
+                } else {
+                    durationDisplay.textContent = hours + (hours === 1 ? ' ساعة' : (hours === 2 ? ' ساعتان' : ' ساعات'));
+                }
+            } else {
+                durationDisplay.textContent = totalMinutes + ' دقيقة';
+            }
+
+            durationInput.value = totalMinutes;
+        }
+    };
+
     // Modal Functions
     window.openModal = function(dateStr) {
         selectedDate = dateStr;
         document.getElementById('modal_scheduled_date').value = dateStr;
+        document.getElementById('modal_start_date').value = dateStr;
+        document.getElementById('modal_end_date').value = dateStr;
 
         const dateObj = new Date(dateStr);
         const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
@@ -1385,6 +1438,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const dayOfWeek = dateObj.getDay();
         selectedDays = [dayOfWeek];
         updateDayButtons();
+
+        // Calculate initial duration
+        calculateModalDuration();
 
         document.getElementById('sessionModal').classList.add('active');
     };
@@ -1397,7 +1453,13 @@ document.addEventListener('DOMContentLoaded', function() {
     function resetModal() {
         document.getElementById('modal_subject_id').value = '';
         document.getElementById('modal_start_time').value = '10:00';
+        document.getElementById('modal_end_time').value = '11:00';
         document.getElementById('modal_duration').value = '60';
+        document.getElementById('modal_calculated_duration').textContent = '60 دقيقة';
+        document.getElementById('modal_calculated_duration').classList.remove('text-red-500');
+        document.getElementById('modal_calculated_duration').classList.add('text-emerald-600');
+        document.getElementById('modal_start_date').value = '';
+        document.getElementById('modal_end_date').value = '';
         currentRecurrence = 'none';
         selectedDays = [];
 
@@ -1457,7 +1519,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Create session
     window.createSession = function() {
         const subjectId = document.getElementById('modal_subject_id').value;
-        const time = document.getElementById('modal_start_time').value;
+        const startDate = document.getElementById('modal_start_date').value;
+        const endDate = document.getElementById('modal_end_date').value;
+        const startTime = document.getElementById('modal_start_time').value;
+        const endTime = document.getElementById('modal_end_time').value;
         const duration = parseInt(document.getElementById('modal_duration').value);
 
         if (!subjectId) {
@@ -1465,7 +1530,22 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        const dates = generateSessions(selectedDate, currentRecurrence);
+        if (!startDate || !endDate) {
+            alert('الرجاء تحديد تاريخ البدء وتاريخ الانتهاء');
+            return;
+        }
+
+        if (new Date(endDate) < new Date(startDate)) {
+            alert('تاريخ الانتهاء يجب أن يكون بعد تاريخ البدء');
+            return;
+        }
+
+        if (!duration || duration <= 0) {
+            alert('وقت الانتهاء يجب أن يكون بعد وقت البدء');
+            return;
+        }
+
+        const dates = generateSessions(startDate, currentRecurrence);
         const sessions = [];
 
         // Get subject info for calendar display
@@ -1475,13 +1555,17 @@ document.addEventListener('DOMContentLoaded', function() {
         const selectedSubject = subjects.find(s => s.id == subjectId);
 
         dates.forEach((date, index) => {
-            const datetime = date + ' ' + time;
+            const datetime = date + ' ' + startTime;
 
             sessions.push({
                 subject_id: parseInt(subjectId),
                 title_ar: `جلسة ${index + 1}`,
                 title_en: `Session ${index + 1}`,
                 scheduled_at: datetime,
+                start_date: startDate,
+                end_date: endDate,
+                start_time: startTime,
+                end_time: endTime,
                 duration_minutes: duration,
                 type: 'live_zoom'
             });

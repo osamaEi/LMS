@@ -14,6 +14,9 @@ class PaymentTransaction extends Model
         'type',
         'payment_method',
         'transaction_reference',
+        'transaction_id',
+        'response_code',
+        'response_message',
         'status',
         'metadata',
         'created_by',
@@ -105,6 +108,8 @@ class PaymentTransaction extends Model
             'cash' => 'نقدي',
             'bank_transfer' => 'تحويل بنكي',
             'tamara' => 'تمارا',
+            'paytabs' => 'بطاقة ائتمان (PayTabs)',
+            'apple_pay' => 'Apple Pay',
             'waived' => 'معفى',
             default => $this->payment_method,
         };

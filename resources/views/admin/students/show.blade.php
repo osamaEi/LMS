@@ -1642,6 +1642,75 @@
                     </div>
                 </div>
 
+                <!-- Program Management -->
+                <div class="info-card">
+                    <div class="info-card-header">
+                        <div class="icon" style="background: linear-gradient(135deg, #10b981, #059669);">
+                            <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                            </svg>
+                        </div>
+                        <h3>البرنامج الدراسي</h3>
+                    </div>
+                    <div class="info-card-body">
+                        @if($student->program)
+                            <div class="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl p-4 mb-4">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <div class="w-10 h-10 rounded-lg bg-gradient-to-r from-green-500 to-emerald-500 flex items-center justify-center">
+                                        <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <p class="font-semibold text-gray-900 dark:text-white">{{ $student->program->name }}</p>
+                                        <p class="text-xs text-gray-500">{{ $student->program->code }}</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between text-sm">
+                                    <span class="text-gray-500">المدة: {{ $student->program->duration_months }} شهر</span>
+                                    <span class="text-green-600 font-medium">{{ number_format($student->program->price) }} ر.س</span>
+                                </div>
+                            </div>
+                            <form action="{{ route('admin.students.remove-program', $student) }}" method="POST" onsubmit="return confirm('هل أنت متأكد من إزالة البرنامج من هذا الطالب؟');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/30 transition-colors font-medium text-sm">
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                    </svg>
+                                    إزالة البرنامج
+                                </button>
+                            </form>
+                        @else
+                            <div class="text-center py-4">
+                                <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+                                    <svg class="w-8 h-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                                    </svg>
+                                </div>
+                                <p class="text-gray-500 dark:text-gray-400 text-sm mb-4">لم يتم تعيين برنامج لهذا الطالب</p>
+                            </div>
+                            <form action="{{ route('admin.students.assign-program', $student) }}" method="POST">
+                                @csrf
+                                <div class="space-y-3">
+                                    <select name="program_id" required class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2.5 text-gray-900 dark:text-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500">
+                                        <option value="">اختر البرنامج...</option>
+                                        @foreach($programs as $program)
+                                            <option value="{{ $program->id }}">{{ $program->name }} ({{ $program->code }})</option>
+                                        @endforeach
+                                    </select>
+                                    <button type="submit" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-brand-500 text-white hover:bg-brand-600 transition-colors font-medium text-sm">
+                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                                        </svg>
+                                        تعيين البرنامج
+                                    </button>
+                                </div>
+                            </form>
+                        @endif
+                    </div>
+                </div>
+
                 <!-- Quick Actions -->
                 <div class="info-card">
                     <div class="info-card-header">
@@ -1855,26 +1924,84 @@
                 <h3>سجل المدفوعات</h3>
             </div>
             <div class="info-card-body">
-                <!-- Payment Summary - Placeholder for future implementation -->
-                <div class="payment-summary">
-                    <div class="payment-summary-card total">
-                        <div class="label">إجمالي الرسوم</div>
-                        <div class="amount"><span class="currency">ر.س</span>-</div>
+                <!-- Payment Summary -->
+                <div class="payment-summary" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+                    <div class="payment-summary-card" style="background: linear-gradient(135deg, #dbeafe, #bfdbfe); border-radius: 16px; padding: 1.25rem; text-align: center;">
+                        <div style="font-size: 0.75rem; font-weight: 600; color: #1e40af; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem;">إجمالي الرسوم</div>
+                        <div style="font-size: 1.75rem; font-weight: 800; color: #1e3a8a;">{{ number_format($totalPayments, 2) }} <span style="font-size: 0.9rem;">ر.س</span></div>
                     </div>
-                    <div class="payment-summary-card paid">
-                        <div class="label">المدفوع</div>
-                        <div class="amount"><span class="currency">ر.س</span>-</div>
+                    <div class="payment-summary-card" style="background: linear-gradient(135deg, #d1fae5, #a7f3d0); border-radius: 16px; padding: 1.25rem; text-align: center;">
+                        <div style="font-size: 0.75rem; font-weight: 600; color: #065f46; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem;">المدفوع</div>
+                        <div style="font-size: 1.75rem; font-weight: 800; color: #064e3b;">{{ number_format($totalPaid, 2) }} <span style="font-size: 0.9rem;">ر.س</span></div>
+                    </div>
+                    <div class="payment-summary-card" style="background: linear-gradient(135deg, #fee2e2, #fecaca); border-radius: 16px; padding: 1.25rem; text-align: center;">
+                        <div style="font-size: 0.75rem; font-weight: 600; color: #991b1b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem;">المتبقي</div>
+                        <div style="font-size: 1.75rem; font-weight: 800; color: #7f1d1d;">{{ number_format($totalRemaining, 2) }} <span style="font-size: 0.9rem;">ر.س</span></div>
                     </div>
                 </div>
 
-                <div class="empty-state">
-                    <div class="icon-wrapper">
-                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
-                        </svg>
+                @if($student->payments->count() > 0)
+                    <!-- Payments Table -->
+                    <div style="overflow-x: auto; border-radius: 12px; border: 1px solid #e5e7eb;">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <thead style="background: #f9fafb;">
+                                <tr>
+                                    <th style="padding: 0.75rem 1rem; text-align: right; font-size: 0.75rem; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid #e5e7eb;">#</th>
+                                    <th style="padding: 0.75rem 1rem; text-align: right; font-size: 0.75rem; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid #e5e7eb;">البرنامج</th>
+                                    <th style="padding: 0.75rem 1rem; text-align: right; font-size: 0.75rem; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid #e5e7eb;">نوع الدفع</th>
+                                    <th style="padding: 0.75rem 1rem; text-align: right; font-size: 0.75rem; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid #e5e7eb;">المبلغ الإجمالي</th>
+                                    <th style="padding: 0.75rem 1rem; text-align: right; font-size: 0.75rem; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid #e5e7eb;">المدفوع</th>
+                                    <th style="padding: 0.75rem 1rem; text-align: right; font-size: 0.75rem; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid #e5e7eb;">المتبقي</th>
+                                    <th style="padding: 0.75rem 1rem; text-align: right; font-size: 0.75rem; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid #e5e7eb;">الحالة</th>
+                                    <th style="padding: 0.75rem 1rem; text-align: right; font-size: 0.75rem; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid #e5e7eb;">الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($student->payments as $payment)
+                                    <tr style="transition: all 0.15s;" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='transparent'">
+                                        <td style="padding: 1rem; border-bottom: 1px solid #e5e7eb; font-weight: 700; color: #111827;">{{ $payment->id }}</td>
+                                        <td style="padding: 1rem; border-bottom: 1px solid #e5e7eb; font-weight: 600; color: #374151;">{{ $payment->program->name_ar }}</td>
+                                        <td style="padding: 1rem; border-bottom: 1px solid #e5e7eb;">
+                                            @if($payment->payment_type === 'full')
+                                                <span style="display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.4rem 0.85rem; border-radius: 10px; font-size: 0.75rem; font-weight: 700; background: rgba(59, 130, 246, 0.15); color: #3b82f6;">دفعة كاملة</span>
+                                            @else
+                                                <span style="display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.4rem 0.85rem; border-radius: 10px; font-size: 0.75rem; font-weight: 700; background: rgba(139, 92, 246, 0.15); color: #8b5cf6;">تقسيط</span>
+                                            @endif
+                                        </td>
+                                        <td style="padding: 1rem; border-bottom: 1px solid #e5e7eb; font-weight: 700; color: #111827;">{{ number_format($payment->total_amount, 2) }} ر.س</td>
+                                        <td style="padding: 1rem; border-bottom: 1px solid #e5e7eb; font-weight: 700; color: #10b981;">{{ number_format($payment->paid_amount, 2) }} ر.س</td>
+                                        <td style="padding: 1rem; border-bottom: 1px solid #e5e7eb; font-weight: 700; color: #ef4444;">{{ number_format($payment->remaining_amount, 2) }} ر.س</td>
+                                        <td style="padding: 1rem; border-bottom: 1px solid #e5e7eb;">
+                                            @if($payment->status === 'completed')
+                                                <span style="display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.4rem 0.85rem; border-radius: 10px; font-size: 0.75rem; font-weight: 700; background: rgba(16, 185, 129, 0.15); color: #10b981;">مكتملة</span>
+                                            @elseif($payment->status === 'partial')
+                                                <span style="display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.4rem 0.85rem; border-radius: 10px; font-size: 0.75rem; font-weight: 700; background: rgba(59, 130, 246, 0.15); color: #3b82f6;">جزئية</span>
+                                            @elseif($payment->status === 'pending')
+                                                <span style="display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.4rem 0.85rem; border-radius: 10px; font-size: 0.75rem; font-weight: 700; background: rgba(107, 114, 128, 0.15); color: #6b7280;">قيد الانتظار</span>
+                                            @elseif($payment->status === 'cancelled')
+                                                <span style="display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.4rem 0.85rem; border-radius: 10px; font-size: 0.75rem; font-weight: 700; background: rgba(239, 68, 68, 0.15); color: #ef4444;">ملغاة</span>
+                                            @endif
+                                        </td>
+                                        <td style="padding: 1rem; border-bottom: 1px solid #e5e7eb;">
+                                            <a href="{{ route('admin.payments.show', $payment) }}" style="display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.5rem 1rem; background: linear-gradient(135deg, #0071AA, #005a88); color: #fff; border-radius: 10px; font-size: 0.8rem; font-weight: 700; text-decoration: none; transition: all 0.2s;" onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 12px rgba(0, 113, 170, 0.3)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                                                <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                                </svg>
+                                                عرض التفاصيل
+                                            </a>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
                     </div>
-                    <p>سيتم إضافة نظام المدفوعات قريباً</p>
-                </div>
+                @else
+                    <div class="empty-state" style="text-align: center; padding: 3rem 1.5rem;">
+                        <div style="font-size: 3.5rem; margin-bottom: 1rem;">💰</div>
+                        <p style="color: #6b7280; font-size: 1rem; font-weight: 600;">لا توجد دفعات مسجلة لهذا الطالب</p>
+                    </div>
+                @endif
             </div>
         </div>
     </div>

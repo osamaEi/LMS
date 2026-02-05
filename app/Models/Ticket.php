@@ -128,7 +128,7 @@ class Ticket extends Model
         return match($this->category) {
             'technical' => 'دعم تقني',
             'academic' => 'أكاديمي',
-            'payment' => 'مالي',
+            'financial', 'payment' => 'مالي',
             'account' => 'حساب',
             'other' => 'أخرى',
             default => 'غير محدد',
@@ -178,6 +178,41 @@ class Ticket extends Model
             'resolved' => 'success',
             'closed' => 'secondary',
             default => 'secondary',
+        };
+    }
+
+    public function getStatusColorClass(): string
+    {
+        return match($this->status) {
+            'open' => 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300',
+            'in_progress' => 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300',
+            'waiting_response' => 'bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300',
+            'resolved' => 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300',
+            'closed' => 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300',
+            default => 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300',
+        };
+    }
+
+    public function getPriorityColorClass(): string
+    {
+        return match($this->priority) {
+            'urgent' => 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300',
+            'high' => 'bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300',
+            'medium' => 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300',
+            'low' => 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300',
+            default => 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300',
+        };
+    }
+
+    public function getCategoryColorClass(): string
+    {
+        return match($this->category) {
+            'technical' => 'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300',
+            'academic' => 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300',
+            'financial', 'payment' => 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300',
+            'account' => 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300',
+            'other' => 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300',
+            default => 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300',
         };
     }
 

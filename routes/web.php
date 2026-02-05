@@ -89,6 +89,10 @@ Route::middleware(['auth', 'role:admin,super_admin'])->prefix('admin')->name('ad
 
     // Students Management
     Route::resource('students', \App\Http\Controllers\Admin\StudentController::class);
+    Route::post('/students/{student}/assign-program', [\App\Http\Controllers\Admin\StudentController::class, 'assignProgram'])
+        ->name('students.assign-program');
+    Route::delete('/students/{student}/remove-program', [\App\Http\Controllers\Admin\StudentController::class, 'removeProgram'])
+        ->name('students.remove-program');
 
     // Program (Path) Management
     Route::resource('programs', \App\Http\Controllers\Admin\ProgramController::class);
@@ -348,8 +352,13 @@ Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')
         Route::post('/{payment}/pay-with-tamara', [\App\Http\Controllers\Student\PaymentController::class, 'payWithTamara'])->name('pay-tamara');
         Route::get('/tamara/return', [\App\Http\Controllers\Student\PaymentController::class, 'tamaraReturn'])->name('tamara.return');
         Route::get('/tamara/cancel', [\App\Http\Controllers\Student\PaymentController::class, 'tamaraCancel'])->name('tamara.cancel');
+
+        // PayTabs Integration (Credit Card / Apple Pay)
+        Route::post('/{payment}/pay-with-paytabs', [\App\Http\Controllers\Student\PaymentController::class, 'payWithPayTabs'])->name('pay-paytabs');
+        Route::get('/paytabs/return', [\App\Http\Controllers\Student\PaymentController::class, 'payTabsReturn'])->name('paytabs.return');
     });
 });
 
 // Webhooks (Public routes - no authentication required)
 Route::post('/webhooks/tamara', [\App\Http\Controllers\Webhooks\TamaraWebhookController::class, 'handle'])->name('webhooks.tamara');
+Route::post('/webhooks/paytabs', [\App\Http\Controllers\Student\PaymentController::class, 'payTabsCallback'])->name('webhooks.paytabs');

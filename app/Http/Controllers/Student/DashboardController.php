@@ -22,6 +22,11 @@ class DashboardController extends Controller
     {
         $student = auth()->user();
 
+        // Check if student is assigned to a program
+        if (!$student->program_id) {
+            return redirect()->route('student.my-program');
+        }
+
         // Get student's enrolled subjects with relationships
         $subjects = Subject::whereHas('enrollments', function($query) use ($student) {
                 $query->where('student_id', $student->id);

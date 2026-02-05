@@ -56,14 +56,14 @@ class TicketController extends Controller
     {
         $validated = $request->validate([
             'message' => 'required|string',
-            'is_internal_note' => 'boolean',
+            'is_internal_note_note' => 'boolean',
         ]);
 
         TicketReply::create([
             'ticket_id' => $ticket->id,
             'user_id' => auth()->id(),
             'message' => $validated['message'],
-            'is_internal_note' => $validated['is_internal_note'] ?? false,
+            'is_internal_note_note' => $validated['is_internal_note_note'] ?? false,
         ]);
 
         // Update ticket status if it was open

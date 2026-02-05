@@ -25,6 +25,8 @@ class Payment extends Model
         'tamara_checkout_id',
         'tamara_order_id',
         'tamara_metadata',
+        'paytabs_tran_ref',
+        'paytabs_cart_id',
         'notes',
         'completed_at',
     ];
@@ -164,9 +166,16 @@ class Payment extends Model
             'cash' => 'نقدي',
             'bank_transfer' => 'تحويل بنكي',
             'tamara' => 'تمارا',
+            'paytabs' => 'بطاقة ائتمان (PayTabs)',
+            'apple_pay' => 'Apple Pay',
             'waived' => 'معفى',
             default => $this->payment_method ?? 'غير محدد',
         };
+    }
+
+    public function isPayTabsPayment(): bool
+    {
+        return $this->payment_method === 'paytabs';
     }
 
     public function getStatusDisplayNameAttribute(): string

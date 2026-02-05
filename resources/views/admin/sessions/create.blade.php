@@ -1058,21 +1058,33 @@
                 </select>
             </div>
 
-            <!-- Time & Duration -->
+            <!-- Start Date & End Date -->
             <div class="grid grid-cols-2 gap-4">
+                <div class="form-group">
+                    <label class="form-label">تاريخ البدء <span class="text-red-500">*</span></label>
+                    <input type="date" id="modal_start_date" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">تاريخ الانتهاء</label>
+                    <input type="date" id="modal_end_date" class="form-input">
+                    <p class="text-xs text-gray-500 mt-1">اتركه فارغاً للجلسة في نفس اليوم</p>
+                </div>
+            </div>
+
+            <!-- Time & Duration -->
+            <div class="grid grid-cols-3 gap-4">
                 <div class="form-group">
                     <label class="form-label">وقت البدء <span class="text-red-500">*</span></label>
                     <input type="time" id="modal_start_time" class="form-input text-center" value="10:00" required>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">المدة</label>
-                    <select id="modal_duration" class="form-select">
-                        <option value="30">30 دقيقة</option>
-                        <option value="45">45 دقيقة</option>
-                        <option value="60" selected>60 دقيقة</option>
-                        <option value="90">90 دقيقة</option>
-                        <option value="120">ساعتان</option>
-                    </select>
+                    <label class="form-label">وقت الانتهاء <span class="text-red-500">*</span></label>
+                    <input type="time" id="modal_end_time" class="form-input text-center" value="11:00" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">المدة (تلقائي)</label>
+                    <input type="text" id="modal_duration_display" class="form-input text-center bg-gray-50 dark:bg-gray-800" value="60 دقيقة" readonly>
+                    <input type="hidden" id="modal_duration" value="60">
                 </div>
             </div>
 
@@ -1188,6 +1200,8 @@ document.addEventListener('DOMContentLoaded', function() {
     window.openModal = function(dateStr) {
         selectedDate = dateStr;
         document.getElementById('modal_scheduled_date').value = dateStr;
+        document.getElementById('modal_start_date').value = dateStr;
+        document.getElementById('modal_end_date').value = '';
 
         const dateObj = new Date(dateStr);
         const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
@@ -1208,8 +1222,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function resetModal() {
         document.getElementById('modal_subject_id').value = '';
+        document.getElementById('modal_start_date').value = '';
+        document.getElementById('modal_end_date').value = '';
         document.getElementById('modal_start_time').value = '10:00';
+        document.getElementById('modal_end_time').value = '11:00';
         document.getElementById('modal_duration').value = '60';
+        document.getElementById('modal_duration_display').value = '60 دقيقة';
         currentRecurrence = 'none';
         selectedDays = [];
 
@@ -1221,6 +1239,57 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('monthlyOptions').style.display = 'none';
         updateDayButtons();
     }
+
+    // Calculate duration from start and end time
+    function calculateDuration() {
+        const startTime = document.getElementById('modal_start_time').value;
+        const endTime = document.getElementById('modal_end_time').value;
+
+        if (startTime && endTime) {
+            const [startHour, startMin] = startTime.split(':').map(Number);
+            const [endHour, endMin] = endTime.split(':').map(Number);
+
+            let duration = (endHour * 60 + endMin) - (startHour * 60 + startMin);
+
+            // Handle overnight sessions
+            if (duration < 0) {
+                duration += 24 * 60;
+            }
+
+            document.getElementById('modal_duration').value = duration;
+
+            if (duration >= 60) {
+                const hours = Math.floor(duration / 60);
+                const mins = duration % 60;
+                if (mins > 0) {
+                    document.getElementById('modal_duration_display').value = `${hours} ساعة و ${mins} دقيقة`;
+                } else {
+                    document.getElementById('modal_duration_display').value = `${hours} ساعة`;
+                }
+            } else {
+                document.getElementById('modal_duration_display').value = `${duration} دقيقة`;
+            }
+        }
+    }
+
+    // Add event listeners for time changes
+    document.getElementById('modal_start_time').addEventListener('change', calculateDuration);
+    document.getElementById('modal_end_time').addEventListener('change', calculateDuration);
+
+    // Update selected date when start date changes
+    document.getElementById('modal_start_date').addEventListener('change', function() {
+        selectedDate = this.value;
+        document.getElementById('modal_scheduled_date').value = this.value;
+
+        const dateObj = new Date(this.value);
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        document.getElementById('selectedDateText').textContent = dateObj.toLocaleDateString('ar-SA', options);
+
+        // Update day selection
+        const dayOfWeek = dateObj.getDay();
+        selectedDays = [dayOfWeek];
+        updateDayButtons();
+    });
 
     // Recurrence Toggle
     document.querySelectorAll('.recurrence-option').forEach(btn => {
@@ -1257,12 +1326,25 @@ document.addEventListener('DOMContentLoaded', function() {
     // Add Session
     window.addSessionToCalendar = function() {
         const subjectId = document.getElementById('modal_subject_id').value;
+        const startDate = document.getElementById('modal_start_date').value;
+        const endDate = document.getElementById('modal_end_date').value;
         const startTime = document.getElementById('modal_start_time').value;
+        const endTime = document.getElementById('modal_end_time').value;
         const duration = document.getElementById('modal_duration').value;
 
-        if (!subjectId || !startTime) {
-            alert('يرجى اختيار المادة ووقت البدء');
+        if (!subjectId || !startDate || !startTime || !endTime) {
+            alert('يرجى تعبئة جميع الحقول المطلوبة');
             return;
+        }
+
+        // Validate that end time is after start time (for same day sessions)
+        if (!endDate || endDate === startDate) {
+            const [startHour, startMin] = startTime.split(':').map(Number);
+            const [endHour, endMin] = endTime.split(':').map(Number);
+            if ((endHour * 60 + endMin) <= (startHour * 60 + startMin)) {
+                alert('يجب أن يكون وقت الانتهاء بعد وقت البدء');
+                return;
+            }
         }
 
         const subjectSelect = document.getElementById('modal_subject_id');
@@ -1272,7 +1354,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const existingSessionsForSubject = pendingSessions.filter(s => s.subject_id === subjectId).length;
         const sessionNumber = existingSessionsForSubject + 1;
 
-        const sessions = generateSessions(selectedDate, currentRecurrence);
+        // Use start date from input instead of selectedDate
+        selectedDate = startDate;
+        const sessions = generateSessions(startDate, currentRecurrence);
 
         sessions.forEach((sessionDate, index) => {
             const id = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
@@ -1284,16 +1368,21 @@ document.addEventListener('DOMContentLoaded', function() {
             const titleAr = `جلسة ${currentSessionNumber} - ${subjectName.split('(')[0].trim()}`;
             const titleEn = `Session ${currentSessionNumber} - ${subjectName.split('(')[0].trim()}`;
 
+            // Calculate end datetime
+            const endDateTime = sessionDate + 'T' + endTime;
+
             calendar.addEvent({
                 id: id,
                 title: titleAr,
                 start: dateTime,
+                end: endDateTime,
                 extendedProps: {
                     subjectId: subjectId,
                     subjectName: subjectName,
                     titleAr: titleAr,
                     titleEn: titleEn,
                     duration: duration,
+                    endTime: endTime,
                     sessionNumber: currentSessionNumber
                 }
             });
@@ -1305,6 +1394,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 title_ar: titleAr,
                 title_en: titleEn,
                 scheduled_at: dateTime,
+                end_time: endTime,
                 duration_minutes: parseInt(duration),
                 session_number: currentSessionNumber,
                 type: 'live_zoom'

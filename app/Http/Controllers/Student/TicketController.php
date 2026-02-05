@@ -32,7 +32,7 @@ class TicketController extends Controller
             'subject' => 'required|string|max:255',
             'category' => 'required|in:technical,academic,financial,other',
             'priority' => 'required|in:low,medium,high',
-            'message' => 'required|string',
+            'description' => 'required|string',
         ]);
 
         $ticket = Ticket::create([
@@ -40,7 +40,7 @@ class TicketController extends Controller
             'subject' => $validated['subject'],
             'category' => $validated['category'],
             'priority' => $validated['priority'],
-            'message' => $validated['message'],
+            'description' => $validated['description'],
             'status' => 'open',
         ]);
 
@@ -56,7 +56,7 @@ class TicketController extends Controller
         }
 
         $ticket->load(['replies' => function($q) {
-            $q->where('is_internal_note', false)->with('user');
+            $q->where('is_internal_note_note', false)->with('user');
         }]);
 
         return view('student.tickets.show', compact('ticket'));
@@ -76,7 +76,7 @@ class TicketController extends Controller
             'ticket_id' => $ticket->id,
             'user_id' => auth()->id(),
             'message' => $validated['message'],
-            'is_internal_note' => false,
+            'is_internal_note_note' => false,
         ]);
 
         // Reopen ticket if it was resolved/closed

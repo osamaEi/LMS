@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\Program;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -48,10 +49,19 @@ class StudentController extends Controller
         $student->load([
             'program',
             'track',
-            'enrollments.subject'
+            'enrollments.subject',
+            'payments.program'
         ]);
 
-        return view('admin.students.show', compact('student'));
+        // Get all active programs for assignment dropdown
+        $programs = Program::where('status', 'active')->get();
+
+        // Get payment statistics
+        $totalPayments = $student->payments->sum('total_amount');
+        $totalPaid = $student->payments->sum('paid_amount');
+        $totalRemaining = $student->payments->sum('remaining_amount');
+
+        return view('admin.students.show', compact('student', 'programs', 'totalPayments', 'totalPaid', 'totalRemaining'));
     }
 
     public function edit(User $student)
@@ -87,5 +97,29 @@ class StudentController extends Controller
 
         return redirect()->route('admin.students.index')
             ->with('success', 'تم حذف الطالب بنجاح');
+    }
+
+    public function assignProgram(Request $request, User $student)
+    {
+        $validated = $request->validate([
+            'program_id' => 'required|exists:programs,id',
+        ]);
+
+        $student->update([
+            'program_id' => $validated['program_id'],
+        ]);
+
+        return redirect()->route('admin.students.show', $student)
+            ->with('success', 'تم تعيين البرنامج للطالب بنجاح');
+    }
+
+    public function removeProgram(User $student)
+    {
+        $student->update([
+            'program_id' => null,
+        ]);
+
+        return redirect()->route('admin.students.show', $student)
+            ->with('success', 'تم إزالة البرنامج من الطالب بنجاح');
     }
 }
