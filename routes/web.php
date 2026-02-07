@@ -15,6 +15,17 @@ Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/logout', [LogoutController::class, 'logout'])->name('logout');
 
+// My IP (for Nafath whitelist)
+Route::get('/my-ip', function () {
+    return response()->json(['ip' => request()->ip()]);
+});
+
+// Registration Routes
+Route::get('/register', [\App\Http\Controllers\Auth\RegisterController::class, 'showForm'])->name('register');
+Route::post('/register/nafath', [\App\Http\Controllers\Auth\RegisterController::class, 'initiateNafath'])->name('register.nafath');
+Route::get('/register/nafath/poll/{transactionId}', [\App\Http\Controllers\Auth\RegisterController::class, 'pollNafath'])->name('register.nafath.poll');
+Route::post('/register/complete', [\App\Http\Controllers\Auth\RegisterController::class, 'completeRegistration'])->name('register.complete');
+
 // Zoom OAuth Callback (for General App setup - not actively used)
 Route::get('/oauth/callback', function () {
     return response()->json([
@@ -362,3 +373,4 @@ Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')
 // Webhooks (Public routes - no authentication required)
 Route::post('/webhooks/tamara', [\App\Http\Controllers\Webhooks\TamaraWebhookController::class, 'handle'])->name('webhooks.tamara');
 Route::post('/webhooks/paytabs', [\App\Http\Controllers\Student\PaymentController::class, 'payTabsCallback'])->name('webhooks.paytabs');
+Route::post('/webhooks/nafath', [\App\Http\Controllers\Webhooks\NafathWebhookController::class, 'handle'])->name('webhooks.nafath');

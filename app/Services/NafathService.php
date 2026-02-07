@@ -11,14 +11,16 @@ use Illuminate\Support\Str;
 class NafathService
 {
     protected string $apiUrl;
-    protected string $apiKey;
+    protected string $appId;
+    protected string $appKey;
     protected int $timeout;
 
     public function __construct()
     {
-        $this->apiUrl = config('services.nafath.api_url', 'https://api.nafath.sa');
-        $this->apiKey = config('services.nafath.api_key', '');
-        $this->timeout = config('services.nafath.timeout', 300); // 5 minutes
+        $this->apiUrl = config('services.nafath.api_url', 'https://rabet-nafath.api.elm.sa');
+        $this->appId = config('services.nafath.app_id', '');
+        $this->appKey = config('services.nafath.app_key', '');
+        $this->timeout = config('services.nafath.timeout', 300);
     }
 
     /**
@@ -26,30 +28,26 @@ class NafathService
      */
     public function initiateOpenAccount(string $nationalId, ?int $userId = null): NafathTransaction
     {
-        // Generate unique transaction ID
-        $transactionId = $this->generateTransactionId();
+        $requestId = Str::uuid()->toString();
 
-        // Prepare request payload
         $requestPayload = [
-            'national_id' => $nationalId,
+            'nationalId' => $nationalId,
             'service' => 'OpenAccount',
-            'transaction_id' => $transactionId,
-            'timestamp' => now()->toIso8601String(),
         ];
 
-        // Create transaction record
+        // Create transaction record first
         $transaction = NafathTransaction::create([
             'user_id' => $userId,
-            'transaction_id' => $transactionId,
+            'transaction_id' => $requestId,
             'national_id' => $nationalId,
             'status' => 'pending',
-            'request_payload' => $requestPayload,
+            'request_payload' => array_merge($requestPayload, ['requestId' => $requestId]),
         ]);
 
         // Call Nafath API
-        $this->callNafathApi($transaction, $requestPayload);
+        $this->callNafathApi($transaction, $requestPayload, $requestId);
 
-        return $transaction;
+        return $transaction->fresh();
     }
 
     /**
@@ -80,48 +78,59 @@ class NafathService
     }
 
     /**
-     * Generate unique transaction ID
+     * Call Nafath API to initiate MFA request
      */
-    protected function generateTransactionId(): string
+    protected function callNafathApi(NafathTransaction $transaction, array $payload, string $requestId): void
     {
-        return 'NFT-' . strtoupper(Str::random(16)) . '-' . time();
-    }
+        try {
+            $endpoint = $this->apiUrl . '/stg/api/v1/mfa/request?local=ar&requestId=' . $requestId;
 
-    /**
-     * Call Nafath API to initiate verification
-     */
-    protected function callNafathApi(NafathTransaction $transaction, array $payload): void
-    {
-        // TODO: Implement actual Nafath API integration
-        // For now, just log the request
+            $response = Http::withoutVerifying()
+                ->withHeaders([
+                    'APP-ID' => $this->appId,
+                    'APP-KEY' => $this->appKey,
+                    'Content-Type' => 'application/json',
+                    'Accept' => 'application/json',
+                ])->post($endpoint, $payload);
 
-        Log::info('Nafath OpenAccount initiated', [
-            'transaction_id' => $transaction->transaction_id,
-            'national_id' => $transaction->national_id,
-        ]);
+            $result = $response->json();
 
-        // In production, make actual API call:
-        // try {
-        //     $response = Http::withHeaders([
-        //         'Authorization' => 'Bearer ' . $this->apiKey,
-        //         'Content-Type' => 'application/json',
-        //     ])->post($this->apiUrl . '/openaccount/initiate', $payload);
-        //
-        //     if ($response->successful()) {
-        //         $transaction->update([
-        //             'response_payload' => $response->json(),
-        //         ]);
-        //     } else {
-        //         Log::error('Nafath API error', [
-        //             'status' => $response->status(),
-        //             'body' => $response->body(),
-        //         ]);
-        //     }
-        // } catch (\Exception $e) {
-        //     Log::error('Nafath API exception', [
-        //         'message' => $e->getMessage(),
-        //     ]);
-        // }
+            Log::info('Nafath OpenAccount API request/response', [
+                'endpoint' => $endpoint,
+                'app_id' => $this->appId,
+                'app_key' => substr($this->appKey, 0, 8) . '...',
+                'payload' => $payload,
+                'http_status' => $response->status(),
+                'raw_body' => $response->body(),
+                'json_body' => $result,
+            ]);
+
+            if ($response->successful() && isset($result['transId'])) {
+                $transaction->update([
+                    'transaction_id' => $result['transId'],
+                    'response_payload' => $result,
+                ]);
+            } else {
+                Log::error('Nafath API initiation failed', [
+                    'status' => $response->status(),
+                    'body' => $result,
+                ]);
+
+                $transaction->update([
+                    'status' => 'rejected',
+                    'response_payload' => $result ?? ['error' => 'API call failed with status ' . $response->status()],
+                ]);
+            }
+        } catch (\Exception $e) {
+            Log::error('Nafath API exception', [
+                'message' => $e->getMessage(),
+            ]);
+
+            $transaction->update([
+                'status' => 'rejected',
+                'response_payload' => ['error' => $e->getMessage()],
+            ]);
+        }
     }
 
     /**
@@ -129,65 +138,63 @@ class NafathService
      */
     protected function pollNafathApi(NafathTransaction $transaction): void
     {
-        // TODO: Implement actual Nafath polling
-        // For development/testing, simulate random approval after some time
+        try {
+            $endpoint = $this->apiUrl . '/stg/api/v1/mfa/request/status/' . $transaction->transaction_id . '?local=ar';
 
-        // Simulate: if polled more than 3 times, approve it
-        $pollCount = NafathTransaction::where('transaction_id', $transaction->transaction_id)
-            ->whereNotNull('polled_at')
-            ->count();
+            $response = Http::withoutVerifying()
+                ->withHeaders([
+                    'APP-ID' => $this->appId,
+                    'APP-KEY' => $this->appKey,
+                    'Content-Type' => 'application/json',
+                    'Accept' => 'application/json',
+                ])->get($endpoint);
 
-        if ($pollCount >= 3) {
-            // Simulate approval
-            $transaction->markAsApproved([
-                'status' => 'approved',
-                'message' => 'Identity verified successfully',
-                'verified_at' => now()->toIso8601String(),
+            $result = $response->json();
+
+            Log::info('Nafath poll response', [
+                'transaction_id' => $transaction->transaction_id,
+                'status' => $response->status(),
+                'body' => $result,
             ]);
 
-            // Update user if exists
-            if ($transaction->user_id) {
-                User::find($transaction->user_id)?->update([
-                    'nafath_verified_at' => now(),
-                    'nafath_transaction_id' => $transaction->transaction_id,
-                ]);
-            }
+            if ($response->successful() && isset($result['status'])) {
+                $nafathStatus = strtoupper($result['status']);
 
-            Log::info('Nafath transaction approved (simulated)', [
+                if ($nafathStatus === 'COMPLETED' || $nafathStatus === 'APPROVED') {
+                    $transaction->markAsApproved($result);
+
+                    if ($transaction->user_id) {
+                        User::find($transaction->user_id)?->update([
+                            'nafath_verified_at' => now(),
+                            'nafath_transaction_id' => $transaction->transaction_id,
+                        ]);
+                    }
+                } elseif ($nafathStatus === 'REJECTED') {
+                    $transaction->markAsRejected($result);
+                } elseif ($nafathStatus === 'EXPIRED') {
+                    $transaction->update([
+                        'status' => 'expired',
+                        'response_payload' => $result,
+                        'completed_at' => now(),
+                    ]);
+                }
+                // If WAITING, do nothing - still pending
+            }
+        } catch (\Exception $e) {
+            Log::error('Nafath polling exception', [
                 'transaction_id' => $transaction->transaction_id,
+                'message' => $e->getMessage(),
             ]);
         }
+    }
 
-        // In production, make actual API call:
-        // try {
-        //     $response = Http::withHeaders([
-        //         'Authorization' => 'Bearer ' . $this->apiKey,
-        //         'Content-Type' => 'application/json',
-        //     ])->get($this->apiUrl . '/openaccount/status/' . $transaction->transaction_id);
-        //
-        //     if ($response->successful()) {
-        //         $data = $response->json();
-        //         $status = $data['status'] ?? 'pending';
-        //
-        //         if ($status === 'approved') {
-        //             $transaction->markAsApproved($data);
-        //
-        //             // Update user verification
-        //             if ($transaction->user_id) {
-        //                 User::find($transaction->user_id)?->update([
-        //                     'nafath_verified_at' => now(),
-        //                     'nafath_transaction_id' => $transaction->transaction_id,
-        //                 ]);
-        //             }
-        //         } elseif ($status === 'rejected') {
-        //             $transaction->markAsRejected($data);
-        //         }
-        //     }
-        // } catch (\Exception $e) {
-        //     Log::error('Nafath polling exception', [
-        //         'message' => $e->getMessage(),
-        //     ]);
-        // }
+    /**
+     * Get the random number from a transaction response
+     */
+    public function getRandomNumber(NafathTransaction $transaction): ?string
+    {
+        $response = $transaction->response_payload;
+        return $response['random'] ?? $response['Random'] ?? null;
     }
 
     /**
