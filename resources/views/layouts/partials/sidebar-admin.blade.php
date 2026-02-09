@@ -119,10 +119,32 @@
     </a>
 </li>
 
+<!-- سجل النشاطات (NELC Activity Logs) -->
+<li>
+    <a href="{{ route('admin.activity-logs.index') }}"
+       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('admin.activity-logs.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
+        <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2C11.45 2 11 2.45 11 3V11C11 11.55 11.45 12 12 12H18C18.55 12 19 11.55 19 11V3C19 2.45 18.55 2 18 2H12ZM13 10V4H17V10H13ZM11 16V14H3V16H11ZM3 12H11V10H3V12ZM3 6V8H9V6H3Z" fill=""/>
+        </svg>
+        <span>سجل النشاطات</span>
+    </a>
+</li>
+
+<!-- xAPI Dashboard (NELC) -->
+<li>
+    <a href="{{ route('admin.xapi.index') }}"
+       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('admin.xapi.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
+        <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M10 0C4.48 0 0 4.48 0 10C0 15.52 4.48 20 10 20C15.52 20 20 15.52 20 10C20 4.48 15.52 0 10 0ZM10 18C5.59 18 2 14.41 2 10C2 5.59 5.59 2 10 2C14.41 2 18 5.59 18 10C18 14.41 14.41 18 10 18ZM9 5H11V11H9V5ZM9 13H11V15H9V13Z" fill=""/>
+        </svg>
+        <span>xAPI Dashboard</span>
+    </a>
+</li>
+
 <!-- التقارير والإحصائيات -->
 <li>
-    <a href="{{ route('admin.reports') }}"
-       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('admin.reports') ? 'menu-item-active' : 'menu-item-inactive' }}">
+    <a href="{{ route('admin.reports.index') }}"
+       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('admin.reports.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
         <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M2.5 16.25H17.5C17.9583 16.25 18.3333 16.625 18.3333 17.0833C18.3333 17.5417 17.9583 17.9167 17.5 17.9167H2.5C2.04167 17.9167 1.66667 17.5417 1.66667 17.0833C1.66667 16.625 2.04167 16.25 2.5 16.25Z" fill=""/>
             <path d="M4.16667 13.75C3.70833 13.75 3.33333 13.375 3.33333 12.9167V7.08333C3.33333 6.625 3.70833 6.25 4.16667 6.25C4.625 6.25 5 6.625 5 7.08333V12.9167C5 13.375 4.625 13.75 4.16667 13.75Z" fill=""/>

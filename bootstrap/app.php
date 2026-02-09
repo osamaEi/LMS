@@ -20,6 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // Add SetLocale middleware to web group
         $middleware->web(append: [
             \App\Http\Middleware\SetLocale::class,
+            \App\Http\Middleware\LogActivity::class,
         ]);
 
         // Exclude webhooks from CSRF verification
@@ -30,6 +31,15 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withSchedule(function (Schedule $schedule): void {
         // Sync Zoom recordings every hour
         $schedule->command('zoom:sync-recordings')->hourly();
+
+        // Clean old activity logs monthly (NELC Compliance)
+        $schedule->command('activity-logs:clean')->monthly();
+
+        // Process xAPI statements every 5 minutes (NELC Compliance)
+        $schedule->command('xapi:process')->everyFiveMinutes();
+
+        // Retry failed xAPI statements hourly (NELC Compliance)
+        $schedule->command('xapi:retry-failed')->hourly();
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

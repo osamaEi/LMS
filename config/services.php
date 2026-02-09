@@ -73,4 +73,22 @@ return [
         'timeout' => env('NAFATH_TIMEOUT', 300),
     ],
 
+    // NELC FutureX Integration
+    'futurex' => [
+        // SSO Configuration
+        'client_id' => env('FUTUREX_CLIENT_ID'),
+        'client_secret' => env('FUTUREX_CLIENT_SECRET'),
+        'redirect' => env('FUTUREX_REDIRECT_URI'),
+        'base_url' => env('FUTUREX_BASE_URL', 'https://api.futurex.sa'),
+        'authorize_url' => env('FUTUREX_AUTHORIZE_URL'),
+        'token_url' => env('FUTUREX_TOKEN_URL'),
+        'userinfo_url' => env('FUTUREX_USERINFO_URL'),
+
+        // API Configuration
+        'api_base_url' => env('FUTUREX_API_URL', 'https://api.futurex.sa/v1'),
+        'api_key' => env('FUTUREX_API_KEY'),
+        'provider_id' => env('FUTUREX_PROVIDER_ID'),
+        'webhook_secret' => env('FUTUREX_WEBHOOK_SECRET'),
+    ],
+
 ];

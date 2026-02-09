@@ -140,10 +140,12 @@ Route::middleware(['auth', 'role:admin,super_admin'])->prefix('admin')->name('ad
     Route::delete('/recordings/{session}/zoom', [\App\Http\Controllers\Admin\RecordingController::class, 'deleteFromZoom'])->name('recordings.delete-zoom');
     Route::get('/recordings/{session}/download', [\App\Http\Controllers\Admin\RecordingController::class, 'download'])->name('recordings.download');
 
-    // Reports
-    Route::get('/reports', function () {
-        return view('admin.reports');
-    })->name('reports');
+    // Reports (NELC Compliance)
+    Route::prefix('reports')->name('reports.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\ReportController::class, 'index'])->name('index');
+        Route::get('/nelc-compliance', [\App\Http\Controllers\Admin\ReportController::class, 'nelcCompliance'])->name('nelc-compliance');
+        Route::get('/export', [\App\Http\Controllers\Admin\ReportController::class, 'export'])->name('export');
+    });
 
     // Settings
     Route::get('/settings', [\App\Http\Controllers\Admin\SettingController::class, 'index'])->name('settings');
@@ -205,6 +207,21 @@ Route::middleware(['auth', 'role:admin,super_admin'])->prefix('admin')->name('ad
 
         // Overdue
         Route::get('/overdue/installments', [\App\Http\Controllers\Admin\PaymentController::class, 'overdueInstallments'])->name('overdue');
+    });
+
+    // Activity Logs (NELC Compliance)
+    Route::prefix('activity-logs')->name('activity-logs.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\ActivityLogController::class, 'index'])->name('index');
+        Route::get('/stats', [\App\Http\Controllers\Admin\ActivityLogController::class, 'stats'])->name('stats');
+        Route::get('/export', [\App\Http\Controllers\Admin\ActivityLogController::class, 'export'])->name('export');
+        Route::get('/{log}', [\App\Http\Controllers\Admin\ActivityLogController::class, 'show'])->name('show');
+    });
+
+    // xAPI Dashboard (NELC Compliance)
+    Route::prefix('xapi')->name('xapi.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\XapiController::class, 'index'])->name('index');
+        Route::post('/test-connection', [\App\Http\Controllers\Admin\XapiController::class, 'testConnection'])->name('test-connection');
+        Route::post('/process-pending', [\App\Http\Controllers\Admin\XapiController::class, 'processPending'])->name('process-pending');
     });
 });
 
