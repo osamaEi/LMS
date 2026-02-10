@@ -56,7 +56,43 @@ class ActivityLogController extends Controller
         $actions = ActivityLog::select('action')->distinct()->pluck('action');
         $categories = ActivityLog::select('action_category')->distinct()->pluck('action_category');
 
-        return view('admin.activity-logs.index', compact('logs', 'actions', 'categories'));
+        // Get stats for dashboard cards (optimized single queries)
+        $stats = [
+            'total' => ActivityLog::count(),
+            'last_24h' => ActivityLog::where('created_at', '>=', now()->subDay())->count(),
+            'last_7d' => ActivityLog::where('created_at', '>=', now()->subDays(7))->count(),
+            'xapi_synced' => ActivityLog::where('xapi_sent', true)->count(),
+        ];
+
+        // Get category distribution
+        $categoryStats = ActivityLog::selectRaw('action_category, COUNT(*) as count')
+            ->groupBy('action_category')
+            ->get()
+            ->mapWithKeys(fn($item) => [$item->action_category => $item->count]);
+
+        // Get recent activity timeline (last 7 days)
+        $activityTimeline = ActivityLog::selectRaw('DATE(created_at) as date, COUNT(*) as count')
+            ->where('created_at', '>=', now()->subDays(7))
+            ->groupBy('date')
+            ->orderBy('date')
+            ->get();
+
+        // Get top actions
+        $topActions = ActivityLog::selectRaw('action, COUNT(*) as count')
+            ->groupBy('action')
+            ->orderByDesc('count')
+            ->limit(5)
+            ->get();
+
+        return view('admin.activity-logs.index', compact(
+            'logs',
+            'actions',
+            'categories',
+            'stats',
+            'categoryStats',
+            'activityTimeline',
+            'topActions'
+        ));
     }
 
     /**

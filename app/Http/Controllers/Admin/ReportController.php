@@ -14,7 +14,23 @@ class ReportController extends Controller
 
     public function index()
     {
-        return view('admin.reports.index');
+        // Get quick stats for the dashboard
+        $stats = [
+            'total_students' => \App\Models\User::where('role', 'student')->count(),
+            'total_programs' => \App\Models\Program::count(),
+            'total_sessions' => \App\Models\Session::count(),
+            'total_activities' => \App\Models\ActivityLog::count(),
+            'pending_xapi' => \App\Models\ActivityLog::where('xapi_sent', false)->count(),
+            'active_enrollments' => \App\Models\Enrollment::count(),
+        ];
+
+        // Get recent activity
+        $recentReports = \App\Models\ActivityLog::where('action_category', 'admin')
+            ->latest()
+            ->limit(5)
+            ->get();
+
+        return view('admin.reports.index', compact('stats', 'recentReports'));
     }
 
     public function nelcCompliance()

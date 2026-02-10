@@ -7,9 +7,9 @@ use Illuminate\Support\Facades\Log;
 
 class XapiClient
 {
-    private string $endpoint;
-    private string $username;
-    private string $password;
+    private ?string $endpoint;
+    private ?string $username;
+    private ?string $password;
     private string $version;
 
     public function __construct()

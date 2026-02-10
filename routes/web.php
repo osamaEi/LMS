@@ -63,6 +63,33 @@ Route::get('/faq', function () {
 Route::get('/contact', [\App\Http\Controllers\Front\ContactController::class, 'index'])->name('contact');
 Route::post('/contact', [\App\Http\Controllers\Front\ContactController::class, 'store'])->name('contact.store');
 
+// NELC Public Pages (Policies, Guides, Open Content)
+Route::prefix('nelc')->name('nelc.')->group(function () {
+    // Policy Pages (Public - no auth required per NELC standards)
+    Route::prefix('policies')->name('policies.')->group(function () {
+        Route::get('/privacy', fn() => view('front.policies.privacy'))->name('privacy');
+        Route::get('/academic-integrity', fn() => view('front.policies.academic-integrity'))->name('academic-integrity');
+        Route::get('/intellectual-property', fn() => view('front.policies.intellectual-property'))->name('intellectual-property');
+        Route::get('/communication', fn() => view('front.policies.communication'))->name('communication');
+        Route::get('/attendance', fn() => view('front.policies.attendance'))->name('attendance');
+        Route::get('/assessment', fn() => view('front.policies.assessment'))->name('assessment');
+        Route::get('/ai-ethics', fn() => view('front.policies.ai-ethics'))->name('ai-ethics');
+        Route::get('/technical-support', fn() => view('front.policies.technical-support'))->name('technical-support');
+        Route::get('/accessibility', fn() => view('front.policies.accessibility'))->name('accessibility');
+        Route::get('/national-compliance', fn() => view('front.policies.national-compliance'))->name('national-compliance');
+        Route::get('/risk-management', fn() => view('front.policies.risk-management'))->name('risk-management');
+    });
+
+    // User Guides (Public - accessible without login per NELC 1.3.2)
+    Route::prefix('guides')->name('guides.')->group(function () {
+        Route::get('/student', fn() => view('front.guides.student'))->name('student');
+        Route::get('/teacher', fn() => view('front.guides.teacher'))->name('teacher');
+    });
+
+    // Open Educational Content (Public - per NELC 2.1.5)
+    Route::get('/open-content', fn() => view('front.open-content'))->name('open-content');
+});
+
 // Language Switch Route
 Route::get('/lang/{locale}', [\App\Http\Controllers\LangController::class, 'switch'])->name('lang.switch');
 
@@ -89,6 +116,14 @@ Route::middleware('auth')->prefix('notifications')->name('notifications.')->grou
     Route::get('/unread-count', [\App\Http\Controllers\NotificationController::class, 'unreadCount'])->name('unread-count');
     Route::post('/{id}/read', [\App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('mark-read');
     Route::post('/read-all', [\App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('mark-all-read');
+});
+
+// Profile Routes (All authenticated users)
+Route::middleware('auth')->prefix('profile')->name('profile.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\ProfileController::class, 'edit'])->name('edit');
+    Route::put('/', [\App\Http\Controllers\ProfileController::class, 'update'])->name('update');
+    Route::put('/password', [\App\Http\Controllers\ProfileController::class, 'updatePassword'])->name('update-password');
+    Route::post('/avatar', [\App\Http\Controllers\ProfileController::class, 'updateAvatar'])->name('update-avatar');
 });
 
 // Admin Routes
@@ -144,6 +179,10 @@ Route::middleware(['auth', 'role:admin,super_admin'])->prefix('admin')->name('ad
     Route::prefix('reports')->name('reports.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Admin\ReportController::class, 'index'])->name('index');
         Route::get('/nelc-compliance', [\App\Http\Controllers\Admin\ReportController::class, 'nelcCompliance'])->name('nelc-compliance');
+        Route::get('/student-progress', [\App\Http\Controllers\Admin\ReportController::class, 'studentProgress'])->name('student-progress');
+        Route::get('/attendance', [\App\Http\Controllers\Admin\ReportController::class, 'attendance'])->name('attendance');
+        Route::get('/grades', [\App\Http\Controllers\Admin\ReportController::class, 'grades'])->name('grades');
+        Route::get('/teacher-performance', [\App\Http\Controllers\Admin\ReportController::class, 'teacherPerformance'])->name('teacher-performance');
         Route::get('/export', [\App\Http\Controllers\Admin\ReportController::class, 'export'])->name('export');
     });
 
@@ -216,6 +255,9 @@ Route::middleware(['auth', 'role:admin,super_admin'])->prefix('admin')->name('ad
         Route::get('/export', [\App\Http\Controllers\Admin\ActivityLogController::class, 'export'])->name('export');
         Route::get('/{log}', [\App\Http\Controllers\Admin\ActivityLogController::class, 'show'])->name('show');
     });
+
+    // NELC Compliance Dashboard
+    Route::get('/nelc-compliance', [\App\Http\Controllers\Admin\NelcComplianceController::class, 'dashboard'])->name('nelc-compliance');
 
     // xAPI Dashboard (NELC Compliance)
     Route::prefix('xapi')->name('xapi.')->group(function () {

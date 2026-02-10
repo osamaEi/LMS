@@ -68,9 +68,15 @@
                     class="flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                 >
                     <div class="relative">
-                        <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}&background=0D6FA6&color=fff"
-                             alt="User"
-                             class="h-10 w-10 rounded-full border-2 border-blue-500" />
+                        @if(auth()->user()->avatar)
+                            <img src="{{ asset('storage/avatars/' . auth()->user()->avatar) }}"
+                                 alt="User"
+                                 class="h-10 w-10 rounded-full border-2 border-blue-500 object-cover" />
+                        @else
+                            <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}&background=0D6FA6&color=fff"
+                                 alt="User"
+                                 class="h-10 w-10 rounded-full border-2 border-blue-500" />
+                        @endif
                         <span class="absolute -bottom-0.5 -left-0.5 h-3 w-3 rounded-full border-2 border-white bg-green-500 dark:border-gray-900"></span>
                     </div>
                     <div class="hidden md:block text-right">
@@ -114,7 +120,7 @@
                     <!-- Menu Items -->
                     <div class="py-2">
                         <!-- Profile Link -->
-                        <a href="#" class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                        <a href="{{ route('profile.edit') }}" class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                             <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                             </svg>
