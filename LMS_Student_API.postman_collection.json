@@ -1,0 +1,659 @@
+{
+	"info": {
+		"_postman_id": "lms-student-api-2026",
+		"name": "LMS Student API",
+		"description": "Student API endpoints for LMS.\n\nAuth: Bearer token via Laravel Sanctum.\n\n1. Login first to get token\n2. Token auto-saved to {{token}} variable",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8000/api/v1",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{token}}",
+				"type": "string"
+			}
+		]
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.data && jsonData.data.token) {",
+									"    pm.collectionVariables.set('token', jsonData.data.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "noauth" },
+						"method": "POST",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"student@example.com\",\n    \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "login"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Dashboard",
+			"item": [
+				{
+					"name": "Get Dashboard",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Accept", "value": "application/json" }],
+						"url": {
+							"raw": "{{base_url}}/student/dashboard",
+							"host": ["{{base_url}}"],
+							"path": ["student", "dashboard"]
+						},
+						"description": "Main dashboard: subjects, upcoming/recent/live sessions, stats, attendance rate, tickets count."
+					}
+				},
+				{
+					"name": "My Subjects",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Accept", "value": "application/json" }],
+						"url": {
+							"raw": "{{base_url}}/student/my-subjects",
+							"host": ["{{base_url}}"],
+							"path": ["student", "my-subjects"]
+						},
+						"description": "Enrolled subjects with progress (attended/total sessions per subject)."
+					}
+				},
+				{
+					"name": "Statistics",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Accept", "value": "application/json" }],
+						"url": {
+							"raw": "{{base_url}}/student/statistics",
+							"host": ["{{base_url}}"],
+							"path": ["student", "statistics"]
+						},
+						"description": "Detailed stats: attendance rate, monthly chart (6 months), session counts, total minutes."
+					}
+				},
+				{
+					"name": "Upcoming Sessions",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Accept", "value": "application/json" }],
+						"url": {
+							"raw": "{{base_url}}/student/upcoming-sessions",
+							"host": ["{{base_url}}"],
+							"path": ["student", "upcoming-sessions"]
+						},
+						"description": "Upcoming Zoom sessions (paginated) + currently live sessions."
+					}
+				},
+				{
+					"name": "Useful Links",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Accept", "value": "application/json" }],
+						"url": {
+							"raw": "{{base_url}}/student/links",
+							"host": ["{{base_url}}"],
+							"path": ["student", "links"]
+						},
+						"description": "Portal, library, support, schedule, blackboard, calendar links."
+					}
+				}
+			]
+		},
+		{
+			"name": "Attendance",
+			"item": [
+				{
+					"name": "Get Attendance Records",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Accept", "value": "application/json" }],
+						"url": {
+							"raw": "{{base_url}}/student/attendance",
+							"host": ["{{base_url}}"],
+							"path": ["student", "attendance"],
+							"query": [
+								{ "key": "subject_id", "value": "1", "disabled": true, "description": "Filter by subject" }
+							]
+						},
+						"description": "Paginated attendance records + stats (total, attended, rate, minutes). Filter by subject_id."
+					}
+				}
+			]
+		},
+		{
+			"name": "Sessions",
+			"item": [
+				{
+					"name": "List All Sessions",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Accept", "value": "application/json" }],
+						"url": {
+							"raw": "{{base_url}}/student/sessions",
+							"host": ["{{base_url}}"],
+							"path": ["student", "sessions"],
+							"query": [
+								{ "key": "subject_id", "value": "1", "disabled": true },
+								{ "key": "type", "value": "live_zoom", "disabled": true, "description": "live_zoom | recorded" }
+							]
+						},
+						"description": "All program sessions with attendance records and stats."
+					}
+				},
+				{
+					"name": "Join Zoom",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Accept", "value": "application/json" }],
+						"url": {
+							"raw": "{{base_url}}/student/sessions/:sessionId/join-zoom",
+							"host": ["{{base_url}}"],
+							"path": ["student", "sessions", ":sessionId", "join-zoom"],
+							"variable": [{ "key": "sessionId", "value": "1" }]
+						},
+						"description": "Join Zoom session. Creates attendance record, returns Zoom SDK signature + join URL."
+					}
+				},
+				{
+					"name": "Leave Zoom",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Accept", "value": "application/json" }],
+						"url": {
+							"raw": "{{base_url}}/student/sessions/:sessionId/leave-zoom",
+							"host": ["{{base_url}}"],
+							"path": ["student", "sessions", ":sessionId", "leave-zoom"],
+							"variable": [{ "key": "sessionId", "value": "1" }]
+						},
+						"description": "Leave Zoom. Records left_at and calculates duration_minutes."
+					}
+				}
+			]
+		},
+		{
+			"name": "Schedule",
+			"item": [
+				{
+					"name": "Get Calendar Events",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Accept", "value": "application/json" }],
+						"url": {
+							"raw": "{{base_url}}/student/schedule",
+							"host": ["{{base_url}}"],
+							"path": ["student", "schedule"],
+							"query": [
+								{ "key": "start", "value": "2026-01-01", "disabled": true },
+								{ "key": "end", "value": "2026-12-31", "disabled": true }
+							]
+						},
+						"description": "Calendar events with color by status (red=live, green=completed, blue=scheduled)."
+					}
+				}
+			]
+		},
+		{
+			"name": "Subjects & Units",
+			"item": [
+				{
+					"name": "Show Subject",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Accept", "value": "application/json" }],
+						"url": {
+							"raw": "{{base_url}}/student/subjects/:id",
+							"host": ["{{base_url}}"],
+							"path": ["student", "subjects", ":id"],
+							"variable": [{ "key": "id", "value": "1" }]
+						},
+						"description": "Subject details + sessions + attendance + progress. Requires enrollment."
+					}
+				},
+				{
+					"name": "Show Unit",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Accept", "value": "application/json" }],
+						"url": {
+							"raw": "{{base_url}}/student/units/:id",
+							"host": ["{{base_url}}"],
+							"path": ["student", "units", ":id"],
+							"variable": [{ "key": "id", "value": "1" }]
+						},
+						"description": "Unit details + sessions + attendance."
+					}
+				}
+			]
+		},
+		{
+			"name": "Program",
+			"item": [
+				{
+					"name": "My Program",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Accept", "value": "application/json" }],
+						"url": {
+							"raw": "{{base_url}}/student/my-program",
+							"host": ["{{base_url}}"],
+							"path": ["student", "my-program"]
+						},
+						"description": "Returns: enrolled → program details | pending → waiting message | no_program → available programs list."
+					}
+				},
+				{
+					"name": "Enroll in Program",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"program_id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/student/enroll-program",
+							"host": ["{{base_url}}"],
+							"path": ["student", "enroll-program"]
+						},
+						"description": "Enroll in program (status=pending). Fails if already enrolled."
+					}
+				}
+			]
+		},
+		{
+			"name": "Quizzes",
+			"item": [
+				{
+					"name": "List Quizzes",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Accept", "value": "application/json" }],
+						"url": {
+							"raw": "{{base_url}}/student/subjects/:subjectId/quizzes",
+							"host": ["{{base_url}}"],
+							"path": ["student", "subjects", ":subjectId", "quizzes"],
+							"variable": [{ "key": "subjectId", "value": "1" }]
+						},
+						"description": "Active quizzes for subject with attempts count, best score, availability status."
+					}
+				},
+				{
+					"name": "Quiz Details",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Accept", "value": "application/json" }],
+						"url": {
+							"raw": "{{base_url}}/student/subjects/:subjectId/quizzes/:quizId",
+							"host": ["{{base_url}}"],
+							"path": ["student", "subjects", ":subjectId", "quizzes", ":quizId"],
+							"variable": [
+								{ "key": "subjectId", "value": "1" },
+								{ "key": "quizId", "value": "1" }
+							]
+						},
+						"description": "Quiz info + previous attempts + active attempt if any."
+					}
+				},
+				{
+					"name": "Start Quiz",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Accept", "value": "application/json" }],
+						"url": {
+							"raw": "{{base_url}}/student/subjects/:subjectId/quizzes/:quizId/start",
+							"host": ["{{base_url}}"],
+							"path": ["student", "subjects", ":subjectId", "quizzes", ":quizId", "start"],
+							"variable": [
+								{ "key": "subjectId", "value": "1" },
+								{ "key": "quizId", "value": "1" }
+							]
+						},
+						"description": "Creates new attempt → returns attempt + questions. Returns existing if in-progress."
+					}
+				},
+				{
+					"name": "Take Quiz",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Accept", "value": "application/json" }],
+						"url": {
+							"raw": "{{base_url}}/student/subjects/:subjectId/quizzes/:quizId/take",
+							"host": ["{{base_url}}"],
+							"path": ["student", "subjects", ":subjectId", "quizzes", ":quizId", "take"],
+							"variable": [
+								{ "key": "subjectId", "value": "1" },
+								{ "key": "quizId", "value": "1" }
+							]
+						},
+						"description": "Questions for in-progress attempt + remaining_seconds. Auto-submits if expired."
+					}
+				},
+				{
+					"name": "Submit Quiz",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"answers\": {\n        \"1\": { \"option_id\": 3 },\n        \"2\": { \"option_id\": 7 },\n        \"3\": { \"text\": \"إجابة نصية\" }\n    }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/student/subjects/:subjectId/quizzes/:quizId/submit",
+							"host": ["{{base_url}}"],
+							"path": ["student", "subjects", ":subjectId", "quizzes", ":quizId", "submit"],
+							"variable": [
+								{ "key": "subjectId", "value": "1" },
+								{ "key": "quizId", "value": "1" }
+							]
+						},
+						"description": "Submit answers. Keys = question IDs. MCQ → option_id, Essay → text. Auto-grades objective."
+					}
+				},
+				{
+					"name": "Quiz Result",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Accept", "value": "application/json" }],
+						"url": {
+							"raw": "{{base_url}}/student/subjects/:subjectId/quizzes/:quizId/result/:attemptId",
+							"host": ["{{base_url}}"],
+							"path": ["student", "subjects", ":subjectId", "quizzes", ":quizId", "result", ":attemptId"],
+							"variable": [
+								{ "key": "subjectId", "value": "1" },
+								{ "key": "quizId", "value": "1" },
+								{ "key": "attemptId", "value": "1" }
+							]
+						},
+						"description": "Score, total marks, percentage, time spent. Correct answers if quiz allows."
+					}
+				}
+			]
+		},
+		{
+			"name": "Tickets",
+			"item": [
+				{
+					"name": "List Tickets",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Accept", "value": "application/json" }],
+						"url": {
+							"raw": "{{base_url}}/student/tickets",
+							"host": ["{{base_url}}"],
+							"path": ["student", "tickets"],
+							"query": [
+								{ "key": "status", "value": "open", "disabled": true, "description": "open|in_progress|resolved|closed" },
+								{ "key": "category", "value": "technical", "disabled": true, "description": "technical|academic|financial|other" }
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Ticket",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"subject\": \"مشكلة في الدخول للجلسة\",\n    \"category\": \"technical\",\n    \"priority\": \"medium\",\n    \"description\": \"لا أستطيع الدخول إلى جلسة Zoom\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/student/tickets",
+							"host": ["{{base_url}}"],
+							"path": ["student", "tickets"]
+						},
+						"description": "category: technical|academic|financial|other\npriority: low|medium|high"
+					}
+				},
+				{
+					"name": "Show Ticket",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Accept", "value": "application/json" }],
+						"url": {
+							"raw": "{{base_url}}/student/tickets/:id",
+							"host": ["{{base_url}}"],
+							"path": ["student", "tickets", ":id"],
+							"variable": [{ "key": "id", "value": "1" }]
+						},
+						"description": "Ticket details + non-internal replies."
+					}
+				},
+				{
+					"name": "Reply to Ticket",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"message\": \"شكراً، هل يمكنكم التحقق من حسابي؟\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/student/tickets/:id/reply",
+							"host": ["{{base_url}}"],
+							"path": ["student", "tickets", ":id", "reply"],
+							"variable": [{ "key": "id", "value": "1" }]
+						},
+						"description": "Add reply. Reopens ticket if resolved/closed."
+					}
+				}
+			]
+		},
+		{
+			"name": "Surveys",
+			"item": [
+				{
+					"name": "List Surveys",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Accept", "value": "application/json" }],
+						"url": {
+							"raw": "{{base_url}}/student/surveys",
+							"host": ["{{base_url}}"],
+							"path": ["student", "surveys"]
+						},
+						"description": "Available (pending) + completed surveys."
+					}
+				},
+				{
+					"name": "Show Survey",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Accept", "value": "application/json" }],
+						"url": {
+							"raw": "{{base_url}}/student/surveys/:id",
+							"host": ["{{base_url}}"],
+							"path": ["student", "surveys", ":id"],
+							"variable": [{ "key": "id", "value": "1" }]
+						},
+						"description": "Survey + questions. 422 if already completed."
+					}
+				},
+				{
+					"name": "Submit Survey",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"responses\": {\n        \"1\": 5,\n        \"2\": 4,\n        \"3\": \"إجابة نصية\"\n    },\n    \"comments\": {\n        \"1\": \"تعليق على تقييم منخفض\"\n    }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/student/surveys/:id/submit",
+							"host": ["{{base_url}}"],
+							"path": ["student", "surveys", ":id", "submit"],
+							"variable": [{ "key": "id", "value": "1" }]
+						},
+						"description": "Keys = question IDs. Rating: 1-5. Text: string. Comments required for ratings 1-2 if question requires it."
+					}
+				}
+			]
+		},
+		{
+			"name": "Teacher Ratings",
+			"item": [
+				{
+					"name": "List Ratable & Submitted",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Accept", "value": "application/json" }],
+						"url": {
+							"raw": "{{base_url}}/student/teacher-ratings",
+							"host": ["{{base_url}}"],
+							"path": ["student", "teacher-ratings"]
+						},
+						"description": "Subjects where teacher can be rated + already submitted ratings."
+					}
+				},
+				{
+					"name": "Rating Form Data",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Accept", "value": "application/json" }],
+						"url": {
+							"raw": "{{base_url}}/student/teacher-ratings/:subjectId",
+							"host": ["{{base_url}}"],
+							"path": ["student", "teacher-ratings", ":subjectId"],
+							"variable": [{ "key": "subjectId", "value": "1" }]
+						},
+						"description": "Subject + teacher info + rating categories. 422 if already rated."
+					}
+				},
+				{
+					"name": "Submit Rating",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"knowledge_rating\": 5,\n    \"communication_rating\": 4,\n    \"punctuality_rating\": 5,\n    \"support_rating\": 4,\n    \"comment\": \"أستاذ ممتاز ومتعاون\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/student/teacher-ratings/:subjectId",
+							"host": ["{{base_url}}"],
+							"path": ["student", "teacher-ratings", ":subjectId"],
+							"variable": [{ "key": "subjectId", "value": "1" }]
+						},
+						"description": "All ratings 1-5. Comment optional (max 1000). Requires admin approval."
+					}
+				}
+			]
+		},
+		{
+			"name": "Payments",
+			"item": [
+				{
+					"name": "List Payments",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Accept", "value": "application/json" }],
+						"url": {
+							"raw": "{{base_url}}/student/payments",
+							"host": ["{{base_url}}"],
+							"path": ["student", "payments"]
+						},
+						"description": "All payments + summary + installments + gateway availability."
+					}
+				},
+				{
+					"name": "Show Payment",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Accept", "value": "application/json" }],
+						"url": {
+							"raw": "{{base_url}}/student/payments/:id",
+							"host": ["{{base_url}}"],
+							"path": ["student", "payments", ":id"],
+							"variable": [{ "key": "id", "value": "1" }]
+						},
+						"description": "Payment details + program + installments + transactions."
+					}
+				},
+				{
+					"name": "Pay with Tamara",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Accept", "value": "application/json" }],
+						"url": {
+							"raw": "{{base_url}}/student/payments/:id/pay-with-tamara",
+							"host": ["{{base_url}}"],
+							"path": ["student", "payments", ":id", "pay-with-tamara"],
+							"variable": [{ "key": "id", "value": "1" }]
+						},
+						"description": "Initiate Tamara installment. Returns checkout_url to redirect user."
+					}
+				},
+				{
+					"name": "Pay with PayTabs",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Accept", "value": "application/json" }],
+						"url": {
+							"raw": "{{base_url}}/student/payments/:id/pay-with-paytabs",
+							"host": ["{{base_url}}"],
+							"path": ["student", "payments", ":id", "pay-with-paytabs"],
+							"variable": [{ "key": "id", "value": "1" }]
+						},
+						"description": "Initiate PayTabs (Credit Card/Apple Pay). Returns redirect_url."
+					}
+				}
+			]
+		}
+	]
+}

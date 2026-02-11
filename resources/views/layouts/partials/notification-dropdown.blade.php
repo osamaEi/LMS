@@ -21,7 +21,7 @@
          x-transition:leave="transition ease-in duration-75"
          x-transition:leave-start="transform opacity-100 scale-100"
          x-transition:leave-end="transform opacity-0 scale-95"
-         class="absolute left-0 mt-2 w-96 max-w-[calc(100vw-2rem)] rounded-lg bg-white shadow-xl dark:bg-gray-800 z-50 border border-gray-200 dark:border-gray-700"
+         class="absolute left-0 mt-2 w-[600px] max-w-[calc(100vw-2rem)] rounded-lg bg-white shadow-xl dark:bg-gray-800 z-50 border border-gray-200 dark:border-gray-700"
          x-cloak>
 
         <!-- Header -->

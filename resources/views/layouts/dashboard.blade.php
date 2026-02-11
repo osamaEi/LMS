@@ -29,6 +29,7 @@
 
     <!-- Preloader -->
     <div
+        x-data="{ loaded: true }"
         x-show="loaded"
         x-init="window.addEventListener('DOMContentLoaded', () => {setTimeout(() => loaded = false, 500)})"
         class="fixed left-0 top-0 z-999999 flex h-screen w-screen items-center justify-center bg-white dark:bg-black"
@@ -47,7 +48,7 @@
             @include('layouts.partials.header')
 
             <!-- Main Content -->
-            <main class="bg-white dark:bg-gray-900">
+            <main class="bg-gray-50 dark:bg-gray-900 min-h-screen">
                 <div class="p-4 mx-auto max-w-screen-2xl md:p-6 space-y-6">
                     @yield('content')
                 </div>
@@ -56,6 +57,23 @@
     </div>
 
     @stack('head-scripts')
+    <script>
+        // Prevent TailAdmin errors for missing search elements
+        (function() {
+            if (!document.getElementById('search-button')) {
+                var dummy = document.createElement('button');
+                dummy.id = 'search-button';
+                dummy.style.display = 'none';
+                document.body.appendChild(dummy);
+            }
+            if (!document.getElementById('search-input')) {
+                var dummy2 = document.createElement('input');
+                dummy2.id = 'search-input';
+                dummy2.style.display = 'none';
+                document.body.appendChild(dummy2);
+            }
+        })();
+    </script>
     <script defer src="{{ asset('js/tailadmin.js') }}"></script>
     @stack('scripts')
 </body>

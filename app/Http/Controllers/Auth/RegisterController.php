@@ -62,6 +62,24 @@ class RegisterController extends Controller
             ], 422);
         }
 
+        // BYPASS MODE: Skip Nafath verification entirely
+        if (config('services.nafath.bypass', false)) {
+            // Store registration data in session
+            session([
+                'register_phone' => $phone,
+                'register_national_id' => $request->national_id,
+                'register_nafath_bypass' => true,
+            ]);
+
+            // Return simulated response for step 2 display
+            return response()->json([
+                'success' => true,
+                'bypass' => true,
+                'transaction_id' => 'bypass-' . uniqid(),
+                'random' => rand(10, 99),
+            ]);
+        }
+
         try {
             $transaction = $this->nafathService->initiateOpenAccount($request->national_id);
 
@@ -136,42 +154,62 @@ class RegisterController extends Controller
 
         $phone = session('register_phone');
         $nationalId = session('register_national_id');
-        $transactionId = session('register_nafath_transaction');
+        $isBypassed = session('register_nafath_bypass', false);
 
-        if (!$phone || !$nationalId || !$transactionId) {
+        if (!$phone || !$nationalId) {
             return response()->json([
                 'success' => false,
                 'message' => 'انتهت صلاحية الجلسة. يرجى البدء من جديد.',
             ], 422);
         }
 
-        // Verify Nafath transaction is approved
-        $transaction = $this->nafathService->getTransaction($transactionId);
-        if (!$transaction || !$transaction->isApproved()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'لم يتم التحقق من الهوية عبر نفاذ.',
-            ], 422);
+        // BYPASS MODE: Skip Nafath verification check
+        if (!$isBypassed) {
+            $transactionId = session('register_nafath_transaction');
+
+            if (!$transactionId) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'انتهت صلاحية الجلسة. يرجى البدء من جديد.',
+                ], 422);
+            }
+
+            // Verify Nafath transaction is approved
+            $transaction = $this->nafathService->getTransaction($transactionId);
+            if (!$transaction || !$transaction->isApproved()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'لم يتم التحقق من الهوية عبر نفاذ.',
+                ], 422);
+            }
         }
 
         try {
-            $user = User::create([
+            $userData = [
                 'name' => $request->name,
                 'email' => $request->email,
                 'phone' => $phone,
                 'national_id' => $nationalId,
                 'password' => Hash::make($request->password),
                 'role' => 'student',
-                'status' => 'pending',
-                'nafath_verified_at' => now(),
-                'nafath_transaction_id' => $transactionId,
-            ]);
+                'status' => 'active',
+            ];
 
-            // Link transaction to user
-            $transaction->update(['user_id' => $user->id]);
+            // Add Nafath data if not bypassed
+            if (!$isBypassed && isset($transaction)) {
+                $userData['nafath_verified_at'] = now();
+                $userData['nafath_transaction_id'] = $transaction->transaction_id;
+            }
+
+            $user = User::create($userData);
+
+            // Link transaction to user if exists
+            if (!$isBypassed && isset($transaction)) {
+                $transaction->update(['user_id' => $user->id]);
+            }
 
             // Clear session
-            session()->forget(['register_phone', 'register_national_id', 'register_nafath_transaction']);
+            session()->forget(['register_phone', 'register_national_id', 'register_nafath_transaction', 'register_nafath_bypass']);
 
             return response()->json([
                 'success' => true,

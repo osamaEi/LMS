@@ -83,20 +83,60 @@ class NafathService
     protected function callNafathApi(NafathTransaction $transaction, array $payload, string $requestId): void
     {
         try {
-            $endpoint = $this->apiUrl . '/stg/api/v1/mfa/request?local=ar&requestId=' . $requestId;
+            // Check if using local mock (bypass HTTP call to avoid timeout)
+            $isLocalMock = str_contains($this->apiUrl, '127.0.0.1') || str_contains($this->apiUrl, 'localhost');
+
+            if ($isLocalMock) {
+                // Simulate local mock response directly
+                $result = [
+                    'transId' => Str::uuid()->toString(),
+                    'random' => rand(10, 99),
+                    'status' => 'WAITING',
+                    'message' => 'MFA request created successfully (LOCAL MOCK)',
+                ];
+
+                $transaction->update([
+                    'transaction_id' => $result['transId'],
+                    'response_payload' => $result,
+                ]);
+
+                Log::info('Nafath OpenAccount (Local Mock - Direct)', [
+                    'transaction_id' => $result['transId'],
+                    'random' => $result['random'],
+                ]);
+                return;
+            }
+
+            // Check if using external mock service
+            $isMockService = str_contains($this->apiUrl, 'mock-service');
+
+            // Build endpoint and headers based on environment
+            $headers = [
+                'Content-Type' => 'application/json',
+                'Accept' => 'application/json',
+            ];
+
+            if ($isMockService) {
+                // Mock service expects credentials as headers with underscores
+                $endpoint = $this->apiUrl . '/api/v1/mfa/request?local=ar&requestId=' . $requestId;
+                $headers['app_id'] = $this->appId;
+                $headers['app_key'] = $this->appKey;
+            } else {
+                $endpoint = $this->apiUrl . '/stg/api/v1/mfa/request?local=ar&requestId=' . $requestId;
+                $headers['APP-ID'] = $this->appId;
+                $headers['APP-KEY'] = $this->appKey;
+            }
 
             $response = Http::withoutVerifying()
-                ->withHeaders([
-                    'APP-ID' => $this->appId,
-                    'APP-KEY' => $this->appKey,
-                    'Content-Type' => 'application/json',
-                    'Accept' => 'application/json',
-                ])->post($endpoint, $payload);
+                ->withHeaders($headers)
+                ->post($endpoint, $payload);
 
             $result = $response->json();
 
             Log::info('Nafath OpenAccount API request/response', [
                 'endpoint' => $endpoint,
+                'is_mock' => $isMockService,
+                'headers_sent' => array_keys($headers),
                 'app_id' => $this->appId,
                 'app_key' => substr($this->appKey, 0, 8) . '...',
                 'payload' => $payload,
@@ -139,15 +179,58 @@ class NafathService
     protected function pollNafathApi(NafathTransaction $transaction): void
     {
         try {
-            $endpoint = $this->apiUrl . '/stg/api/v1/mfa/request/status/' . $transaction->transaction_id . '?local=ar';
+            // Check if using local mock (bypass HTTP call to avoid timeout)
+            $isLocalMock = str_contains($this->apiUrl, '127.0.0.1') || str_contains($this->apiUrl, 'localhost');
+
+            if ($isLocalMock) {
+                // Simulate local mock response - always return COMPLETED for immediate approval
+                $result = [
+                    'transId' => $transaction->transaction_id,
+                    'status' => 'COMPLETED',
+                    'message' => 'Status retrieved successfully (LOCAL MOCK)',
+                ];
+
+                Log::info('Nafath poll response (Local Mock - Direct)', [
+                    'transaction_id' => $transaction->transaction_id,
+                    'status' => 'COMPLETED',
+                ]);
+
+                // Process the result
+                $transaction->markAsApproved($result);
+
+                if ($transaction->user_id) {
+                    User::find($transaction->user_id)?->update([
+                        'nafath_verified_at' => now(),
+                        'nafath_transaction_id' => $transaction->transaction_id,
+                    ]);
+                }
+
+                return;
+            }
+
+            // Check if using external mock service
+            $isMockService = str_contains($this->apiUrl, 'mock-service');
+
+            // Build endpoint and headers based on environment
+            $headers = [
+                'Content-Type' => 'application/json',
+                'Accept' => 'application/json',
+            ];
+
+            if ($isMockService) {
+                // Mock service expects credentials as headers with underscores
+                $endpoint = $this->apiUrl . '/api/v1/mfa/request/status/' . $transaction->transaction_id . '?local=ar';
+                $headers['app_id'] = $this->appId;
+                $headers['app_key'] = $this->appKey;
+            } else {
+                $endpoint = $this->apiUrl . '/stg/api/v1/mfa/request/status/' . $transaction->transaction_id . '?local=ar';
+                $headers['APP-ID'] = $this->appId;
+                $headers['APP-KEY'] = $this->appKey;
+            }
 
             $response = Http::withoutVerifying()
-                ->withHeaders([
-                    'APP-ID' => $this->appId,
-                    'APP-KEY' => $this->appKey,
-                    'Content-Type' => 'application/json',
-                    'Accept' => 'application/json',
-                ])->get($endpoint);
+                ->withHeaders($headers)
+                ->get($endpoint);
 
             $result = $response->json();
 

@@ -139,6 +139,18 @@ Route::middleware(['auth', 'role:admin,super_admin'])->prefix('admin')->name('ad
         ->name('students.assign-program');
     Route::delete('/students/{student}/remove-program', [\App\Http\Controllers\Admin\StudentController::class, 'removeProgram'])
         ->name('students.remove-program');
+    Route::post('/students/{student}/toggle-status', [\App\Http\Controllers\Admin\StudentController::class, 'toggleStatus'])
+        ->name('students.toggle-status');
+
+    // Program Enrollments (Approval)
+    Route::prefix('program-enrollments')->name('program-enrollments.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\ProgramEnrollmentController::class, 'index'])->name('index');
+        Route::get('/{user}', [\App\Http\Controllers\Admin\ProgramEnrollmentController::class, 'show'])->name('show');
+        Route::post('/{user}/approve', [\App\Http\Controllers\Admin\ProgramEnrollmentController::class, 'approve'])->name('approve');
+        Route::delete('/{user}/reject', [\App\Http\Controllers\Admin\ProgramEnrollmentController::class, 'reject'])->name('reject');
+        Route::post('/bulk-approve', [\App\Http\Controllers\Admin\ProgramEnrollmentController::class, 'bulkApprove'])->name('bulk-approve');
+        Route::delete('/bulk-reject', [\App\Http\Controllers\Admin\ProgramEnrollmentController::class, 'bulkReject'])->name('bulk-reject');
+    });
 
     // Program (Path) Management
     Route::resource('programs', \App\Http\Controllers\Admin\ProgramController::class);
@@ -313,9 +325,7 @@ Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')
     })->name('grades.index');
 
     // Profile
-    Route::get('/profile', function () {
-        return view('teacher.profile');
-    })->name('profile');
+    Route::get('/profile', [\App\Http\Controllers\ProfileController::class, 'edit'])->name('profile');
 
     // Surveys (NELC 1.2.11)
     Route::get('/surveys', [\App\Http\Controllers\Teacher\SurveyController::class, 'index'])->name('surveys.index');
@@ -385,9 +395,7 @@ Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')
     Route::post('/enroll-program', [\App\Http\Controllers\Student\DashboardController::class, 'enrollInProgram'])->name('enroll-program');
 
     // Profile
-    Route::get('/profile', function () {
-        return view('student.profile');
-    })->name('profile');
+    Route::get('/profile', [\App\Http\Controllers\ProfileController::class, 'edit'])->name('profile');
 
     // Surveys (NELC 1.2.11)
     Route::get('/surveys', [\App\Http\Controllers\Student\SurveyController::class, 'index'])->name('surveys.index');
@@ -433,3 +441,11 @@ Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')
 Route::post('/webhooks/tamara', [\App\Http\Controllers\Webhooks\TamaraWebhookController::class, 'handle'])->name('webhooks.tamara');
 Route::post('/webhooks/paytabs', [\App\Http\Controllers\Student\PaymentController::class, 'payTabsCallback'])->name('webhooks.paytabs');
 Route::post('/webhooks/nafath', [\App\Http\Controllers\Webhooks\NafathWebhookController::class, 'handle'])->name('webhooks.nafath');
+
+// Local Mock Nafath API (for development/testing)
+Route::prefix('mock-nafath/api/v1/mfa')->group(function () {
+    Route::post('/request', [\App\Http\Controllers\Mock\NafathMockController::class, 'createRequest']);
+    Route::post('/request/status', [\App\Http\Controllers\Mock\NafathMockController::class, 'getStatus']);
+    Route::get('/request/status/{transId}', [\App\Http\Controllers\Mock\NafathMockController::class, 'getStatus']);
+    Route::get('/jwk', [\App\Http\Controllers\Mock\NafathMockController::class, 'getJwk']);
+});

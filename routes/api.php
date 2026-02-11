@@ -70,115 +70,55 @@ Route::prefix('v1')->group(function () {
             Route::get('/attendance', [App\Http\Controllers\Api\V1\Student\DashboardController::class, 'myAttendance']);
             Route::get('/links', [App\Http\Controllers\Api\V1\Student\DashboardController::class, 'usefulLinks']);
 
-            // Zoom Sessions - Join and Leave with Attendance Tracking
+            // Sessions
+            Route::get('/sessions', [App\Http\Controllers\Api\V1\Student\SessionController::class, 'index']);
             Route::post('/sessions/{sessionId}/join-zoom', [App\Http\Controllers\Api\V1\Student\DashboardController::class, 'joinZoom']);
             Route::post('/sessions/{sessionId}/leave-zoom', [App\Http\Controllers\Api\V1\Student\DashboardController::class, 'leaveZoom']);
 
-            // Subjects
+            // Schedule (Calendar)
+            Route::get('/schedule', [App\Http\Controllers\Api\V1\Student\ScheduleController::class, 'index']);
+
+            // Subjects & Units
             Route::get('/subjects/{id}', [App\Http\Controllers\Api\V1\Student\SubjectController::class, 'show']);
             Route::get('/units/{id}', [App\Http\Controllers\Api\V1\Student\SubjectController::class, 'showUnit']);
+
+            // Program
+            Route::get('/my-program', [App\Http\Controllers\Api\V1\Student\ProgramController::class, 'show']);
+            Route::post('/enroll-program', [App\Http\Controllers\Api\V1\Student\ProgramController::class, 'enroll']);
+
+            // Quizzes
+            Route::get('/subjects/{subjectId}/quizzes', [App\Http\Controllers\Api\V1\Student\QuizController::class, 'index']);
+            Route::get('/subjects/{subjectId}/quizzes/{quizId}', [App\Http\Controllers\Api\V1\Student\QuizController::class, 'show']);
+            Route::post('/subjects/{subjectId}/quizzes/{quizId}/start', [App\Http\Controllers\Api\V1\Student\QuizController::class, 'start']);
+            Route::get('/subjects/{subjectId}/quizzes/{quizId}/take', [App\Http\Controllers\Api\V1\Student\QuizController::class, 'take']);
+            Route::post('/subjects/{subjectId}/quizzes/{quizId}/submit', [App\Http\Controllers\Api\V1\Student\QuizController::class, 'submit']);
+            Route::get('/subjects/{subjectId}/quizzes/{quizId}/result/{attemptId}', [App\Http\Controllers\Api\V1\Student\QuizController::class, 'result']);
+
+            // Tickets (Support)
+            Route::get('/tickets', [App\Http\Controllers\Api\V1\Student\TicketController::class, 'index']);
+            Route::post('/tickets', [App\Http\Controllers\Api\V1\Student\TicketController::class, 'store']);
+            Route::get('/tickets/{id}', [App\Http\Controllers\Api\V1\Student\TicketController::class, 'show']);
+            Route::post('/tickets/{id}/reply', [App\Http\Controllers\Api\V1\Student\TicketController::class, 'reply']);
+
+            // Surveys
+            Route::get('/surveys', [App\Http\Controllers\Api\V1\Student\SurveyController::class, 'index']);
+            Route::get('/surveys/{id}', [App\Http\Controllers\Api\V1\Student\SurveyController::class, 'show']);
+            Route::post('/surveys/{id}/submit', [App\Http\Controllers\Api\V1\Student\SurveyController::class, 'submit']);
+
+            // Teacher Ratings
+            Route::get('/teacher-ratings', [App\Http\Controllers\Api\V1\Student\TeacherRatingController::class, 'index']);
+            Route::get('/teacher-ratings/{subjectId}', [App\Http\Controllers\Api\V1\Student\TeacherRatingController::class, 'show']);
+            Route::post('/teacher-ratings/{subjectId}', [App\Http\Controllers\Api\V1\Student\TeacherRatingController::class, 'store']);
+
+            // Payments
+            Route::get('/payments', [App\Http\Controllers\Api\V1\Student\PaymentController::class, 'index']);
+            Route::get('/payments/{id}', [App\Http\Controllers\Api\V1\Student\PaymentController::class, 'show']);
+            Route::post('/payments/{id}/pay-with-tamara', [App\Http\Controllers\Api\V1\Student\PaymentController::class, 'payWithTamara']);
+            Route::post('/payments/{id}/pay-with-paytabs', [App\Http\Controllers\Api\V1\Student\PaymentController::class, 'payWithPayTabs']);
         });
 
-        // Teacher Routes
-        Route::prefix('teacher')->group(function () {
-            // Dashboard
-            Route::get('/dashboard', [App\Http\Controllers\Api\V1\Teacher\DashboardController::class, 'index']);
-            Route::get('/my-subjects', [App\Http\Controllers\Api\V1\Teacher\DashboardController::class, 'mySubjects']);
+    
 
-            // Subjects Management
-            Route::prefix('subjects')->group(function () {
-                Route::get('/', [App\Http\Controllers\Api\V1\Teacher\SubjectController::class, 'index']);
-                Route::get('/{id}', [App\Http\Controllers\Api\V1\Teacher\SubjectController::class, 'show']);
-                Route::get('/{id}/students', [App\Http\Controllers\Api\V1\Teacher\SubjectController::class, 'students']);
-                Route::get('/{id}/statistics', [App\Http\Controllers\Api\V1\Teacher\SubjectController::class, 'statistics']);
-            });
-
-            // Sessions Management
-            Route::prefix('sessions')->group(function () {
-                Route::get('/', [App\Http\Controllers\Api\V1\Teacher\SessionController::class, 'index']);
-                Route::post('/', [App\Http\Controllers\Api\V1\Teacher\SessionController::class, 'store']);
-                Route::get('/{id}', [App\Http\Controllers\Api\V1\Teacher\SessionController::class, 'show']);
-                Route::put('/{id}', [App\Http\Controllers\Api\V1\Teacher\SessionController::class, 'update']);
-                Route::delete('/{id}', [App\Http\Controllers\Api\V1\Teacher\SessionController::class, 'destroy']);
-
-                // Session Files
-                Route::post('/{id}/files', [App\Http\Controllers\Api\V1\Teacher\SessionController::class, 'addFile']);
-                Route::put('/{sessionId}/files/{fileId}', [App\Http\Controllers\Api\V1\Teacher\SessionController::class, 'updateFile']);
-                Route::delete('/{sessionId}/files/{fileId}', [App\Http\Controllers\Api\V1\Teacher\SessionController::class, 'deleteFile']);
-            });
-
-            // Attendance Management
-            Route::prefix('sessions/{sessionId}/attendance')->group(function () {
-                Route::get('/', [App\Http\Controllers\Api\V1\Teacher\AttendanceController::class, 'index']);
-                Route::post('/', [App\Http\Controllers\Api\V1\Teacher\AttendanceController::class, 'store']);
-                Route::post('/bulk', [App\Http\Controllers\Api\V1\Teacher\AttendanceController::class, 'bulkStore']);
-                Route::put('/{attendanceId}', [App\Http\Controllers\Api\V1\Teacher\AttendanceController::class, 'update']);
-                Route::delete('/{attendanceId}', [App\Http\Controllers\Api\V1\Teacher\AttendanceController::class, 'destroy']);
-            });
-
-            // Evaluations Management
-            Route::prefix('evaluations')->group(function () {
-                Route::get('/', [App\Http\Controllers\Api\V1\Teacher\EvaluationController::class, 'index']);
-                Route::post('/', [App\Http\Controllers\Api\V1\Teacher\EvaluationController::class, 'store']);
-                Route::get('/{id}', [App\Http\Controllers\Api\V1\Teacher\EvaluationController::class, 'show']);
-                Route::put('/{id}', [App\Http\Controllers\Api\V1\Teacher\EvaluationController::class, 'update']);
-                Route::delete('/{id}', [App\Http\Controllers\Api\V1\Teacher\EvaluationController::class, 'destroy']);
-
-                // Submissions
-                Route::get('/{id}/submissions', [App\Http\Controllers\Api\V1\Teacher\EvaluationController::class, 'submissions']);
-                Route::post('/{evaluationId}/submissions/{submissionId}/grade', [App\Http\Controllers\Api\V1\Teacher\EvaluationController::class, 'gradeSubmission']);
-                Route::post('/{evaluationId}/submissions/bulk-grade', [App\Http\Controllers\Api\V1\Teacher\EvaluationController::class, 'bulkGrade']);
-            });
-        });
-
-        // Admin Routes (Super Admin & Admin only)
-        Route::prefix('admin')->group(function () {
-            // Dashboard
-            Route::get('/dashboard', [App\Http\Controllers\Api\V1\Admin\DashboardController::class, 'index']);
-            Route::get('/dashboard/charts', [App\Http\Controllers\Api\V1\Admin\DashboardController::class, 'getChartData']);
-            Route::get('/dashboard/overview', [App\Http\Controllers\Api\V1\Admin\DashboardController::class, 'getOverview']);
-            
-            // Dashboard View Configuration
-            Route::get('/dashboard-views', [App\Http\Controllers\Api\V1\Admin\DashboardViewController::class, 'getAvailableViews']);
-            Route::post('/dashboard-view/{role}', [App\Http\Controllers\Api\V1\Admin\DashboardViewController::class, 'updateDashboardView']);
-
-            // Users Management
-            Route::prefix('users')->group(function () {
-                Route::get('/', [App\Http\Controllers\Api\V1\Admin\UserController::class, 'index']);
-                Route::post('/', [App\Http\Controllers\Api\V1\Admin\UserController::class, 'store']);
-                Route::get('/stats', [App\Http\Controllers\Api\V1\Admin\UserController::class, 'stats']);
-                Route::get('/{id}', [App\Http\Controllers\Api\V1\Admin\UserController::class, 'show']);
-                Route::put('/{id}', [App\Http\Controllers\Api\V1\Admin\UserController::class, 'update']);
-                Route::delete('/{id}', [App\Http\Controllers\Api\V1\Admin\UserController::class, 'destroy']);
-            });
-
-            // Programs Management
-            Route::apiResource('programs', App\Http\Controllers\Api\V1\Admin\ProgramController::class);
-
-            // Subjects Management
-            Route::apiResource('subjects', App\Http\Controllers\Api\V1\Admin\SubjectController::class);
-
-            // Units Management
-            Route::apiResource('units', App\Http\Controllers\Api\V1\Admin\UnitController::class);
-
-            // Sessions Management
-            Route::apiResource('sessions', App\Http\Controllers\Api\V1\Admin\SessionController::class);
-
-            // Enrollments Management
-            Route::apiResource('enrollments', App\Http\Controllers\Api\V1\Admin\EnrollmentController::class);
-
-            // Attendance Management
-            Route::apiResource('attendances', App\Http\Controllers\Api\V1\Admin\AttendanceController::class);
-
-            // Evaluations Management
-            Route::apiResource('evaluations', App\Http\Controllers\Api\V1\Admin\EvaluationController::class);
-
-            // Zoom Management
-            Route::prefix('zoom')->group(function () {
-                Route::post('/create-meeting', [App\Http\Controllers\Api\V1\Admin\ZoomController::class, 'createMeeting']);
-                Route::get('/meeting/{meetingId}', [App\Http\Controllers\Api\V1\Admin\ZoomController::class, 'getMeeting']);
-                Route::delete('/meeting/{meetingId}', [App\Http\Controllers\Api\V1\Admin\ZoomController::class, 'deleteMeeting']);
-            });
-        });
+      
     });
 });

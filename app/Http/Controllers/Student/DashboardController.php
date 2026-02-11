@@ -215,7 +215,7 @@ class DashboardController extends Controller
     }
 
     /**
-     * عرض جميع جلسات الطالب
+     * عرض جميع جلسات الطالب من برنامجه
      */
     public function mySessions(Request $request)
     {
@@ -223,16 +223,16 @@ class DashboardController extends Controller
         $subjectId = $request->query('subject_id');
         $type = $request->query('type');
 
-        // Get enrolled subjects for filter dropdown
-        $enrolledSubjects = Subject::whereHas('enrollments', function($q) use ($student) {
-            $q->where('student_id', $student->id);
-        })->get();
+        // Get all subjects in student's program (through terms)
+        $programSubjects = Subject::whereHas('term', function($q) use ($student) {
+            $q->where('program_id', $student->program_id);
+        })->with(['term', 'teacher'])->get();
 
-        // Build sessions query
-        $query = Session::whereHas('subject.enrollments', function($q) use ($student) {
-                $q->where('student_id', $student->id);
+        // Build sessions query - all sessions from program subjects
+        $query = Session::whereHas('subject.term', function($q) use ($student) {
+                $q->where('program_id', $student->program_id);
             })
-            ->with(['subject', 'unit', 'files']);
+            ->with(['subject.term', 'subject.teacher', 'unit', 'files']);
 
         // Filter by subject
         if ($subjectId) {
@@ -244,9 +244,12 @@ class DashboardController extends Controller
             $query->where('type', $type);
         }
 
-        $sessions = $query->orderBy('scheduled_at', 'desc')
+        $sessions = $query->orderBy('subject_id')
             ->orderBy('session_number', 'asc')
-            ->paginate(15);
+            ->get();
+
+        // Group sessions by subject
+        $sessionsBySubject = $sessions->groupBy('subject_id');
 
         // Get attendance records for these sessions
         $attendances = Attendance::where('student_id', $student->id)
@@ -255,57 +258,22 @@ class DashboardController extends Controller
             ->keyBy('session_id');
 
         // Statistics
-        $totalSessions = Session::whereHas('subject.enrollments', function($q) use ($student) {
-            $q->where('student_id', $student->id);
-        })->count();
-
-        $completedSessions = Session::whereHas('subject.enrollments', function($q) use ($student) {
-            $q->where('student_id', $student->id);
-        })->whereNotNull('ended_at')->count();
-
-        $zoomSessions = Session::whereHas('subject.enrollments', function($q) use ($student) {
-            $q->where('student_id', $student->id);
-        })->where('type', 'live_zoom')->count();
-
-        // Calendar events (all sessions, not paginated)
-        $calendarSessions = Session::whereHas('subject.enrollments', function($q) use ($student) {
-                $q->where('student_id', $student->id);
-            })
-            ->with('subject')
-            ->whereNotNull('scheduled_at')
-            ->get();
-
-        $calendarEvents = $calendarSessions->map(function ($s) {
-            $status = $s->ended_at ? 'مكتملة' : ($s->started_at ? 'مباشر' : 'مجدولة');
-            $color = $s->ended_at ? '#10b981' : ($s->started_at ? '#ef4444' : ($s->subject->color ?? '#3b82f6'));
-            return [
-                'id' => $s->id,
-                'title' => $s->title,
-                'start' => $s->scheduled_at->toIso8601String(),
-                'end' => $s->scheduled_at->copy()->addMinutes($s->duration_minutes ?? 60)->toIso8601String(),
-                'color' => $color,
-                'url' => route('student.subjects.show', $s->subject_id),
-                'extendedProps' => [
-                    'subject' => $s->subject->name ?? '',
-                    'subject_id' => $s->subject_id,
-                    'type' => $s->type,
-                    'status' => $status,
-                    'session_number' => $s->session_number,
-                    'duration' => $s->duration_minutes,
-                ],
-            ];
-        })->values();
+        $totalSessions = $sessions->count();
+        $completedSessions = $sessions->whereNotNull('ended_at')->count();
+        $zoomSessions = $sessions->where('type', 'live_zoom')->count();
+        $liveSessions = $sessions->whereNotNull('started_at')->whereNull('ended_at')->count();
 
         return view('student.sessions.index', compact(
             'sessions',
-            'enrolledSubjects',
+            'sessionsBySubject',
+            'programSubjects',
             'subjectId',
             'type',
             'attendances',
             'totalSessions',
             'completedSessions',
             'zoomSessions',
-            'calendarEvents'
+            'liveSessions'
         ));
     }
 
@@ -315,7 +283,7 @@ class DashboardController extends Controller
     public function attendance(Request $request)
     {
         $student = auth()->user();
-        $subjectId = $request->query('subject_id');
+        $subjectId = $request->query('subject_id'); 
 
         // Get enrolled subjects for filter dropdown
         $enrolledSubjects = Subject::whereHas('enrollments', function($q) use ($student) {
@@ -394,16 +362,20 @@ class DashboardController extends Controller
         $student = auth()->user();
 
         // Find the session
-        $session = Session::with('subject')->findOrFail($sessionId);
+        $session = Session::with('subject.term')->findOrFail($sessionId);
 
-        // Check if student is enrolled
+        // Check if student has access (enrolled in subject OR session belongs to student's program)
         $isEnrolled = Enrollment::where('student_id', $student->id)
             ->where('subject_id', $session->subject_id)
             ->where('status', 'active')
             ->exists();
 
-        if (!$isEnrolled) {
-            return back()->with('error', 'أنت غير مسجل في هذه المادة');
+        $isInProgram = $student->program_id && $session->subject
+            && $session->subject->term
+            && $session->subject->term->program_id === $student->program_id;
+
+        if (!$isEnrolled && !$isInProgram) {
+            return back()->with('error', 'ليس لديك صلاحية الانضمام لهذه الجلسة');
         }
 
         // Check if session has Zoom meeting
@@ -464,6 +436,11 @@ class DashboardController extends Controller
     {
         $student = auth()->user();
 
+        // Check if program enrollment is pending approval
+        if ($student->program_status === 'pending') {
+            return view('student.program.pending');
+        }
+
         // Get student's program with terms
         $program = $student->program;
 
@@ -503,14 +480,7 @@ class DashboardController extends Controller
             ->with(['subject.term', 'subject.teacher', 'subject.sessions'])
             ->get();
 
-        $subjects = Subject::whereHas('enrollments', function($q) use ($student) {
-                $q->where('student_id', $student->id);
-            })
-            ->with(['term', 'teacher'])
-            ->withCount(['sessions', 'sessions as completed_sessions_count' => function($q) {
-                $q->whereNotNull('ended_at');
-            }])
-            ->get();
+        $subjects = Subject::whereIn('term_id', $terms->pluck('id'))->get();
 
         // Calculate statistics
         $totalSessions = Session::whereHas('subject.enrollments', function($q) use ($student) {
@@ -587,14 +557,15 @@ class DashboardController extends Controller
             ->where('status', 'active')
             ->firstOrFail();
 
-        // Update student's program
+        // Update student's program with pending status
         $student->update([
             'program_id' => $program->id,
+            'program_status' => 'pending',
             'current_term_number' => 1,
         ]);
 
         return redirect()->route('student.my-program')
-            ->with('success', 'تم تسجيلك في البرنامج بنجاح: ' . $program->name);
+            ->with('success', 'تم إرسال طلب التسجيل في البرنامج: ' . $program->name . '. في انتظار موافقة الإدارة.');
     }
 
     /**

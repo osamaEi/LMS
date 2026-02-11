@@ -30,6 +30,7 @@ class User extends Authenticatable
         'gender',
         'type',
         'program_id',
+        'program_status',
         'track_id',
         'current_term_number',
         'date_of_register',

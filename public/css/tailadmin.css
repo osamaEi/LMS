@@ -5858,6 +5858,20 @@ button:focus-visible, a:focus-visible, input:focus-visible {
   outline-offset: 2px;
 }
 
+/* Remove focus outline from sidebar menu items */
+.menu-item:focus-visible,
+.menu-item:focus,
+button.menu-item:focus-visible,
+a.menu-item:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Optional: Add subtle background change on focus instead */
+.menu-item:focus-visible {
+  background: rgba(255, 255, 255, 0.05);
+}
+
 /* Accessibility */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

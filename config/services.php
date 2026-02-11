@@ -67,10 +67,11 @@ return [
     ],
 
     'nafath' => [
-        'api_url' => env('NAFATH_API_URL', 'https://rabet-nafath.api.elm.sa'),
+        'api_url' => env('NAFATH_API_URL', 'https://mock-service.api.elm.sa/nafath'),
         'app_id' => env('NAFATH_APP_ID', 'w9kyh348'),
         'app_key' => env('NAFATH_APP_KEY', '87e50ef41b694ef7ae8b0c9831fd530d'),
         'timeout' => env('NAFATH_TIMEOUT', 300),
+        'bypass' => env('NAFATH_BYPASS', false),
     ],
 
     // NELC FutureX Integration

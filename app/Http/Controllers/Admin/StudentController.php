@@ -105,12 +105,39 @@ class StudentController extends Controller
             'program_id' => 'required|exists:programs,id',
         ]);
 
+        $program = Program::with('terms.subjects')->findOrFail($validated['program_id']);
+
+        // Update student with program
         $student->update([
-            'program_id' => $validated['program_id'],
+            'program_id' => $program->id,
+            'program_status' => 'approved', // Auto-approve when admin assigns
+            'current_term_number' => 1, // Start at first term
+            'status' => 'active', // Activate student account
         ]);
 
+        // Auto-enroll student in all subjects of the program
+        $enrolledCount = 0;
+        foreach ($program->terms as $term) {
+            foreach ($term->subjects as $subject) {
+                // Check if enrollment already exists
+                $exists = \App\Models\Enrollment::where('student_id', $student->id)
+                    ->where('subject_id', $subject->id)
+                    ->exists();
+
+                if (!$exists) {
+                    \App\Models\Enrollment::create([
+                        'student_id' => $student->id,
+                        'subject_id' => $subject->id,
+                        'enrolled_at' => now(),
+                        'status' => 'active',
+                    ]);
+                    $enrolledCount++;
+                }
+            }
+        }
+
         return redirect()->route('admin.students.show', $student)
-            ->with('success', 'تم تعيين البرنامج للطالب بنجاح');
+            ->with('success', "تم تعيين البرنامج للطالب بنجاح وتسجيله في {$enrolledCount} مادة");
     }
 
     public function removeProgram(User $student)
@@ -121,5 +148,18 @@ class StudentController extends Controller
 
         return redirect()->route('admin.students.show', $student)
             ->with('success', 'تم إزالة البرنامج من الطالب بنجاح');
+    }
+
+    public function toggleStatus(User $student)
+    {
+        $newStatus = $student->status === 'active' ? 'inactive' : 'active';
+        $student->update(['status' => $newStatus]);
+
+        $message = $newStatus === 'active'
+            ? 'تم تفعيل حساب الطالب بنجاح'
+            : 'تم إلغاء تفعيل حساب الطالب';
+
+        return redirect()->route('admin.students.index')
+            ->with('success', $message);
     }
 }

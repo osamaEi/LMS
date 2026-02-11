@@ -1,259 +1,213 @@
 @extends('layouts.dashboard')
 
-@section('title', 'حالة الدفع')
+@section('title', 'المدفوعات')
 
 @section('content')
-<div class="px-4 py-4">
-    <!-- Header -->
-    <div class="mb-6">
-        <h3 class="text-2xl font-bold text-gray-800 dark:text-white">حالة الدفع</h3>
-        <p class="text-gray-500 dark:text-gray-400 text-sm">عرض حالة الدفع للبرامج المسجلة</p>
-    </div>
+<div class="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-    @if(session('success'))
-        <div class="mb-4 p-4 bg-green-50 border border-green-200 text-green-800 rounded-lg flex items-center justify-between">
-            <span>{{ session('success') }}</span>
-            <button onclick="this.parentElement.remove()" class="text-green-500 hover:text-green-700">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                </svg>
-            </button>
-        </div>
-    @endif
+        <!-- Hero Header -->
+        <div class="mb-8">
+            <div class="bg-gradient-to-r from-blue-600 via-cyan-600 to-teal-700 rounded-2xl shadow-2xl p-8 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-72 h-72 bg-white opacity-5 rounded-full -mr-36 -mt-36"></div>
+                <div class="absolute bottom-0 left-0 w-56 h-56 bg-white opacity-5 rounded-full -ml-28 -mb-28"></div>
 
-    @if(session('error'))
-        <div class="mb-4 p-4 bg-red-50 border border-red-200 text-red-800 rounded-lg flex items-center justify-between">
-            <span>{{ session('error') }}</span>
-            <button onclick="this.parentElement.remove()" class="text-red-500 hover:text-red-700">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                </svg>
-            </button>
-        </div>
-    @endif
-
-    @if(session('warning'))
-        <div class="mb-4 p-4 bg-yellow-50 border border-yellow-200 text-yellow-800 rounded-lg flex items-center justify-between">
-            <span>{{ session('warning') }}</span>
-            <button onclick="this.parentElement.remove()" class="text-yellow-500 hover:text-yellow-700">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                </svg>
-            </button>
-        </div>
-    @endif
-
-    @if(session('info'))
-        <div class="mb-4 p-4 bg-blue-50 border border-blue-200 text-blue-800 rounded-lg flex items-center justify-between">
-            <span>{{ session('info') }}</span>
-            <button onclick="this.parentElement.remove()" class="text-blue-500 hover:text-blue-700">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                </svg>
-            </button>
-        </div>
-    @endif
-
-    @if($payments->count() > 0)
-        @foreach($payments as $payment)
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 mb-6">
-                <!-- Header -->
-                <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-                    <h5 class="text-lg font-semibold text-gray-800 dark:text-white">{{ $payment->program->name_ar }}</h5>
-                    @if($payment->status == 'pending')
-                        <span class="px-3 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300">قيد الانتظار</span>
-                    @elseif($payment->status == 'partial')
-                        <span class="px-3 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300">جزئية</span>
-                    @elseif($payment->status == 'completed')
-                        <span class="px-3 py-1 text-xs font-medium rounded-full bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">مكتملة</span>
-                    @elseif($payment->status == 'cancelled')
-                        <span class="px-3 py-1 text-xs font-medium rounded-full bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300">ملغاة</span>
-                    @endif
-                </div>
-
-                <!-- Body -->
-                <div class="p-6">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                        <!-- Payment Summary -->
-                        <div>
-                            <h6 class="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-3">ملخص الدفعة</h6>
-                            <div class="space-y-2">
-                                <div class="flex justify-between">
-                                    <span class="text-gray-700 dark:text-gray-300">إجمالي المبلغ:</span>
-                                    <strong class="text-gray-900 dark:text-white">{{ number_format($payment->total_amount, 2) }} ر.س</strong>
-                                </div>
-                                @if($payment->discount_amount > 0)
-                                    <div class="flex justify-between">
-                                        <span class="text-gray-700 dark:text-gray-300">الخصم:</span>
-                                        <strong class="text-green-600 dark:text-green-400">- {{ number_format($payment->discount_amount, 2) }} ر.س</strong>
-                                    </div>
-                                @endif
-                                <div class="flex justify-between">
-                                    <span class="text-gray-700 dark:text-gray-300">المدفوع:</span>
-                                    <strong class="text-green-600 dark:text-green-400">{{ number_format($payment->paid_amount, 2) }} ر.س</strong>
-                                </div>
-                                <div class="flex justify-between">
-                                    <span class="text-gray-700 dark:text-gray-300">المتبقي:</span>
-                                    <strong class="text-blue-600 dark:text-blue-400">{{ number_format($payment->remaining_amount, 2) }} ر.س</strong>
-                                </div>
-                            </div>
-
-                            <!-- Progress Bar -->
-                            @php
-                                $percentage = $payment->total_amount > 0 ? ($payment->paid_amount / $payment->total_amount) * 100 : 0;
-                            @endphp
-                            <div class="mt-4">
-                                <div class="flex justify-between text-sm text-gray-600 dark:text-gray-400 mb-1">
-                                    <span>نسبة الدفع</span>
-                                    <span>{{ number_format($percentage, 1) }}%</span>
-                                </div>
-                                <div class="w-full bg-gray-200 rounded-full h-6 dark:bg-gray-700">
-                                    <div class="bg-green-600 h-6 rounded-full flex items-center justify-center text-white text-xs font-medium" style="width: {{ $percentage }}%">
-                                        {{ number_format($percentage, 1) }}%
-                                    </div>
-                                </div>
-                            </div>
+                <div class="relative z-10">
+                    <div class="flex items-center gap-4 mb-3">
+                        <div class="w-16 h-16 rounded-xl bg-white bg-opacity-20 flex items-center justify-center backdrop-blur-sm">
+                            <svg class="w-9 h-9" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z"></path>
+                                <path fill-rule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clip-rule="evenodd"></path>
+                            </svg>
                         </div>
-
-                        <!-- Payment Actions -->
                         <div>
-                            <h6 class="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-3">خيارات الدفع</h6>
-
-                            @if(!$payment->isFullyPaid() && !$payment->isCancelled())
-                                @if($payment->payment_type == 'installment' && $payment->installments->count() > 0)
-                                    <div class="p-3 bg-blue-50 border border-blue-200 text-blue-800 rounded-lg mb-3 text-sm">
-                                        <svg class="w-5 h-5 inline ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                        </svg>
-                                        لديك خطة تقسيط. يرجى مراجعة الأقساط أدناه.
-                                    </div>
-                                @else
-                                    <!-- Tamara Payment Option -->
-                                    @if($tamaraConfigured ?? false)
-                                        <form action="{{ route('student.payments.pay-tamara', $payment) }}" method="POST">
-                                            @csrf
-                                            <button type="submit" class="w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition flex items-center justify-center font-medium mb-3">
-                                                <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
-                                                </svg>
-                                                الدفع عبر تمارا (بالتقسيط)
-                                            </button>
-                                        </form>
-                                    @endif
-
-                                    <div class="p-3 bg-yellow-50 border border-yellow-200 text-yellow-800 rounded-lg text-sm">
-                                        <svg class="w-5 h-5 inline ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                                        </svg>
-                                        يمكنك الدفع نقداً أو عبر التحويل البنكي بالتواصل مع الإدارة
-                                    </div>
-                                @endif
-                            @elseif($payment->isFullyPaid())
-                                <div class="p-3 bg-green-50 border border-green-200 text-green-800 rounded-lg text-sm">
-                                    <svg class="w-5 h-5 inline ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                    </svg>
-                                    تم دفع المبلغ بالكامل!
-                                </div>
-                            @endif
-
-                            <a href="{{ route('student.payments.show', $payment) }}" class="block w-full mt-3 px-4 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg transition text-center font-medium">
-                                <svg class="w-5 h-5 inline ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                                </svg>
-                                عرض التفاصيل
-                            </a>
+                            <h1 class="text-3xl font-bold">{{ __('المدفوعات والرسوم الدراسية') }}</h1>
+                            <p class="text-blue-100 text-lg mt-1">{{ __('عرض وإدارة جميع مدفوعاتك') }}</p>
                         </div>
                     </div>
-
-                    <!-- Installments Table -->
-                    @if($payment->payment_type == 'installment' && $payment->installments->count() > 0)
-                        <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
-                            <h6 class="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-3">الأقساط</h6>
-                            <div class="overflow-x-auto">
-                                <table class="w-full text-sm text-right">
-                                    <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                                        <tr>
-                                            <th class="px-4 py-3">القسط</th>
-                                            <th class="px-4 py-3">المبلغ</th>
-                                            <th class="px-4 py-3">تاريخ الاستحقاق</th>
-                                            <th class="px-4 py-3">الحالة</th>
-                                            <th class="px-4 py-3">تاريخ الدفع</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach($payment->installments as $installment)
-                                            <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                                                <td class="px-4 py-3 font-medium text-gray-900 dark:text-white">القسط #{{ $installment->installment_number }}</td>
-                                                <td class="px-4 py-3 text-gray-700 dark:text-gray-300">{{ number_format($installment->amount, 2) }} ر.س</td>
-                                                <td class="px-4 py-3 text-gray-700 dark:text-gray-300">{{ $installment->due_date->format('Y-m-d') }}</td>
-                                                <td class="px-4 py-3">
-                                                    @if($installment->status == 'pending')
-                                                        @if($installment->isOverdue())
-                                                            <span class="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300">متأخر</span>
-                                                        @else
-                                                            <span class="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300">قيد الانتظار</span>
-                                                        @endif
-                                                    @elseif($installment->status == 'paid')
-                                                        <span class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">مدفوع</span>
-                                                    @elseif($installment->status == 'cancelled')
-                                                        <span class="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300">ملغي</span>
-                                                    @endif
-                                                </td>
-                                                <td class="px-4 py-3 text-gray-700 dark:text-gray-300">
-                                                    @if($installment->paid_at)
-                                                        {{ $installment->paid_at->format('Y-m-d') }}
-                                                    @else
-                                                        --
-                                                    @endif
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
-
-                            @php
-                                $overdueCount = $payment->installments->filter(fn($i) => $i->isOverdue())->count();
-                            @endphp
-                            @if($overdueCount > 0)
-                                <div class="mt-4 p-3 bg-red-50 border border-red-200 text-red-800 rounded-lg text-sm">
-                                    <svg class="w-5 h-5 inline ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                                    </svg>
-                                    لديك {{ $overdueCount }} قسط متأخر. يرجى التواصل مع الإدارة للدفع.
-                                </div>
-                            @endif
-                        </div>
-                    @endif
-
-                    @if($payment->notes)
-                        <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
-                            <div class="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                                <strong class="text-gray-800 dark:text-white">ملاحظات:</strong><br>
-                                <span class="text-gray-600 dark:text-gray-300">{{ $payment->notes }}</span>
-                            </div>
-                        </div>
-                    @endif
                 </div>
-
-                <!-- Footer -->
-                <div class="px-6 py-3 bg-gray-50 dark:bg-gray-700 border-t border-gray-200 dark:border-gray-600">
-                    <small class="text-gray-500 dark:text-gray-400">تاريخ الإنشاء: {{ $payment->created_at->format('Y-m-d H:i') }}</small>
-                </div>
-            </div>
-        @endforeach
-    @else
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-            <div class="p-12 text-center">
-                <svg class="w-20 h-20 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                </svg>
-                <h4 class="text-xl font-semibold text-gray-600 dark:text-gray-300 mb-2">لا توجد دفعات</h4>
-                <p class="text-gray-500 dark:text-gray-400">لم يتم إنشاء أي دفعة لك بعد</p>
             </div>
         </div>
-    @endif
+
+        <!-- Alert Messages -->
+        @if(session('success'))
+            <div class="mb-6 bg-gradient-to-r from-green-500 to-emerald-600 px-6 py-4 rounded-xl shadow-lg flex items-center space-x-3 rtl:space-x-reverse animate-fade-in">
+                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                </svg>
+                <span class="font-medium">{{ session('success') }}</span>
+            </div>
+        @endif
+
+        @if(session('error'))
+            <div class="mb-6 bg-gradient-to-r from-red-500 to-pink-600 px-6 py-4 rounded-xl shadow-lg flex items-center space-x-3 rtl:space-x-reverse animate-fade-in">
+                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                </svg>
+                <span class="font-medium">{{ session('error') }}</span>
+            </div>
+        @endif
+
+        @if(session('warning'))
+            <div class="mb-6 bg-gradient-to-r from-yellow-500 to-orange-600 px-6 py-4 rounded-xl shadow-lg flex items-center space-x-3 rtl:space-x-reverse animate-fade-in">
+                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                </svg>
+                <span class="font-medium">{{ session('warning') }}</span>
+            </div>
+        @endif
+
+        @if($payments->count() > 0)
+            <!-- Payments Table -->
+            <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gradient-to-r from-blue-600 to-cyan-600">
+                            <tr>
+                                <th class="px-6 py-4 text-right text-sm font-bold uppercase tracking-wider">#</th>
+                                <th class="px-6 py-4 text-right text-sm font-bold uppercase tracking-wider">البرنامج</th>
+                                <th class="px-6 py-4 text-right text-sm font-bold uppercase tracking-wider">إجمالي المبلغ</th>
+                                <th class="px-6 py-4 text-right text-sm font-bold uppercase tracking-wider">الخصم</th>
+                                <th class="px-6 py-4 text-right text-sm font-bold uppercase tracking-wider">المدفوع</th>
+                                <th class="px-6 py-4 text-right text-sm font-bold uppercase tracking-wider">المتبقي</th>
+                                <th class="px-6 py-4 text-center text-sm font-bold uppercase tracking-wider">نسبة الدفع</th>
+                                <th class="px-6 py-4 text-center text-sm font-bold uppercase tracking-wider">الحالة</th>
+                                <th class="px-6 py-4 text-center text-sm font-bold uppercase tracking-wider">الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            @foreach($payments as $payment)
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="text-sm font-bold text-gray-900">#{{ $payment->id }}</span>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <div>
+                                            <div class="text-sm font-bold text-gray-900">{{ $payment->program->name_ar }}</div>
+                                            <div class="text-xs text-gray-500">{{ $payment->program->name_en }}</div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="text-sm font-semibold text-gray-900">{{ number_format($payment->total_amount, 0) }} ر.س</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        @if($payment->discount_amount > 0)
+                                            <span class="text-sm font-semibold text-green-600">{{ number_format($payment->discount_amount, 0) }} ر.س</span>
+                                        @else
+                                            <span class="text-sm text-gray-400">--</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="text-sm font-semibold text-blue-600">{{ number_format($payment->paid_amount, 0) }} ر.س</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="text-sm font-semibold text-orange-600">{{ number_format($payment->remaining_amount, 0) }} ر.س</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                                        @php
+                                            $percentage = $payment->total_amount > 0 ? ($payment->paid_amount / $payment->total_amount) * 100 : 0;
+                                        @endphp
+                                        <div class="flex items-center justify-center">
+                                            <div class="w-24">
+                                                <div class="flex items-center gap-2">
+                                                    <div class="flex-1 bg-gray-200 rounded-full h-2 overflow-hidden">
+                                                        <div class="bg-gradient-to-r from-blue-500 to-cyan-500 h-2 transition-all duration-500" style="width: {{ $percentage }}%"></div>
+                                                    </div>
+                                                    <span class="text-xs font-bold text-gray-700">{{ number_format($percentage, 0) }}%</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                                        @if($payment->status == 'pending')
+                                            <span class="px-3 py-1 text-xs font-bold rounded-full bg-yellow-100 text-yellow-700 inline-flex items-center gap-1">
+                                                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path></svg>
+                                                قيد الانتظار
+                                            </span>
+                                        @elseif($payment->status == 'partial')
+                                            <span class="px-3 py-1 text-xs font-bold rounded-full bg-blue-100 text-blue-700 inline-flex items-center gap-1">
+                                                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                                                مدفوعة جزئياً
+                                            </span>
+                                        @elseif($payment->status == 'completed')
+                                            <span class="px-3 py-1 text-xs font-bold rounded-full bg-green-100 text-green-700 inline-flex items-center gap-1">
+                                                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                                                مكتملة
+                                            </span>
+                                        @elseif($payment->status == 'cancelled')
+                                            <span class="px-3 py-1 text-xs font-bold rounded-full bg-red-100 text-red-700 inline-flex items-center gap-1">
+                                                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg>
+                                                ملغاة
+                                            </span>
+                                        @endif
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                                        <div class="flex items-center justify-center gap-2">
+                                            <a href="{{ route('student.payments.show', $payment) }}" class="inline-flex items-center px-3 py-2 bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 rounded-lg transition-all shadow-md hover:shadow-lg">
+                                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"></path>
+                                                    <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"></path>
+                                                </svg>
+                                            </a>
+
+                                            @if(!$payment->isFullyPaid() && !$payment->isCancelled() && ($tamaraConfigured ?? false))
+                                                <form action="{{ route('student.payments.pay-tamara', $payment) }}" method="POST" class="inline-block">
+                                                    @csrf
+                                                    <button type="submit" class="inline-flex items-center px-3 py-2 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 rounded-lg transition-all shadow-md hover:shadow-lg">
+                                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                                            <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z"></path>
+                                                            <path fill-rule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clip-rule="evenodd"></path>
+                                                        </svg>
+                                                    </button>
+                                                </form>
+                                            @endif
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Table Footer -->
+                <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
+                    <div class="flex items-center justify-between text-sm text-gray-600">
+                        <span>إجمالي المدفوعات: <strong class="text-gray-900">{{ $payments->count() }}</strong></span>
+                        <span>آخر تحديث: <strong class="text-gray-900">{{ now()->format('Y-m-d H:i') }}</strong></span>
+                    </div>
+                </div>
+            </div>
+        @else
+            <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+                <div class="p-16 text-center">
+                    <div class="w-32 h-32 mx-auto mb-6 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center">
+                        <svg class="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-700 mb-2">لا توجد دفعات</h3>
+                    <p class="text-gray-500">لم يتم إنشاء أي دفعة لك بعد. تواصل مع الإدارة لمزيد من المعلومات.</p>
+                </div>
+            </div>
+        @endif
+
+    </div>
 </div>
+
+<style>
+@keyframes fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in {
+    animation: fade-in 0.3s ease-out;
+}
+</style>
 @endsection

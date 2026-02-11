@@ -31,6 +31,23 @@
     </a>
 </li>
 
+<!-- طلبات التسجيل في البرامج المعلقة -->
+<li>
+    <a href="{{ route('admin.program-enrollments.index') }}"
+       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('admin.program-enrollments.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
+        <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9.99999 1.66666C5.39999 1.66666 1.66666 5.39999 1.66666 9.99999C1.66666 14.6 5.39999 18.3333 9.99999 18.3333C14.6 18.3333 18.3333 14.6 18.3333 9.99999C18.3333 5.39999 14.6 1.66666 9.99999 1.66666ZM9.99999 16.6667C6.31666 16.6667 3.33332 13.6833 3.33332 9.99999C3.33332 6.31666 6.31666 3.33332 9.99999 3.33332C13.6833 3.33332 16.6667 6.31666 16.6667 9.99999C16.6667 13.6833 13.6833 16.6667 9.99999 16.6667ZM9.99999 8.33333V5.83333H9.16666V8.33333H6.66666V9.16666H9.16666V11.6667H9.99999V9.16666H12.5V8.33333H9.99999Z" fill=""/>
+        </svg>
+        <span>طلبات التسجيل في البرامج</span>
+        @php
+            $pendingCount = \App\Models\User::where('program_status', 'pending')->where('role', 'student')->count();
+        @endphp
+        @if($pendingCount > 0)
+            <span class="mr-auto px-2 py-0.5 bg-yellow-500 text-white text-xs font-bold rounded-full">{{ $pendingCount }}</span>
+        @endif
+    </a>
+</li>
+
 <!-- إدارة الدفعات -->
 <li>
     <a href="{{ route('admin.payments.index') }}"

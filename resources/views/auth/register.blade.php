@@ -366,6 +366,27 @@
             currentTransactionId = data.transaction_id;
             document.getElementById('nafath-random').textContent = data.random || '--';
             goToStep(2);
+
+            // BYPASS MODE: Show step 2 briefly, then auto-proceed to step 3
+            if (data.bypass) {
+                // Update status message
+                document.getElementById('nafath-status').innerHTML = `
+                    <div class="flex items-center justify-center gap-3">
+                        <svg class="w-5 h-5 spin-slow" style="color: #3b82f6;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                        </svg>
+                        <span class="font-medium text-sm" style="color: #1e40af;">محاكاة التحقق (وضع التطوير)...</span>
+                    </div>
+                `;
+
+                // Auto-proceed to step 3 after 2 seconds
+                setTimeout(() => {
+                    goToStep(3);
+                }, 2000);
+                return;
+            }
+
+            // Normal flow - start polling
             startPolling();
             startTimer();
 

@@ -8,7 +8,7 @@
 
         <!-- Page Header -->
         <div class="mb-8">
-            <div class="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 rounded-2xl shadow-2xl p-8 text-white relative overflow-hidden">
+            <div class="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 rounded-2xl shadow-2xl p-8 relative overflow-hidden">
                 <div class="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full -mr-32 -mt-32"></div>
                 <div class="absolute bottom-0 left-0 w-48 h-48 bg-white opacity-5 rounded-full -ml-24 -mb-24"></div>
 
@@ -39,7 +39,7 @@
 
         <!-- Success/Error Messages -->
         @if(session('success'))
-            <div class="mb-6 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-6 py-4 rounded-xl shadow-lg flex items-center space-x-3 rtl:space-x-reverse animate-fade-in">
+            <div class="mb-6 bg-gradient-to-r from-green-500 to-emerald-600 px-6 py-4 rounded-xl shadow-lg flex items-center space-x-3 rtl:space-x-reverse animate-fade-in">
                 <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
                 </svg>
@@ -48,7 +48,7 @@
         @endif
 
         @if(session('error'))
-            <div class="mb-6 bg-gradient-to-r from-red-500 to-pink-600 text-white px-6 py-4 rounded-xl shadow-lg flex items-center space-x-3 rtl:space-x-reverse animate-fade-in">
+            <div class="mb-6 bg-gradient-to-r from-red-500 to-pink-600 px-6 py-4 rounded-xl shadow-lg flex items-center space-x-3 rtl:space-x-reverse animate-fade-in">
                 <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
                 </svg>
@@ -62,7 +62,7 @@
             <div class="lg:col-span-1">
                 <div class="bg-white rounded-2xl shadow-xl overflow-hidden hover:shadow-2xl transition-shadow duration-300">
                     <div class="bg-gradient-to-r from-purple-500 to-pink-500 px-6 py-4">
-                        <h2 class="text-xl font-bold text-white flex items-center">
+                        <h2 class="text-xl font-bold flex items-center">
                             <svg class="w-6 h-6 mr-2 rtl:ml-2" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path>
                             </svg>
@@ -86,7 +86,7 @@
                                 </div>
 
                                 <label class="w-full">
-                                    <div class="flex items-center justify-center w-full px-4 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl cursor-pointer hover:from-purple-600 hover:to-pink-600 transition-all duration-300 shadow-lg hover:shadow-xl">
+                                    <div class="flex items-center justify-center w-full px-4 py-3 bg-gradient-to-r from-sky-400 to-sky-600 rounded-xl cursor-pointer hover:from-sky-500 hover:to-sky-700 transition-all duration-300 shadow-lg hover:shadow-xl">
                                         <svg class="w-5 h-5 mr-2 rtl:ml-2" fill="currentColor" viewBox="0 0 20 20">
                                             <path d="M5.5 13a3.5 3.5 0 01-.369-6.98 4 4 0 117.753-1.977A4.5 4.5 0 1113.5 13H11V9.413l1.293 1.293a1 1 0 001.414-1.414l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13H5.5z"></path>
                                         </svg>
@@ -99,7 +99,7 @@
                                 @enderror
                             </div>
 
-                            <button type="submit" class="w-full px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl font-semibold hover:from-green-600 hover:to-emerald-700 transition-all duration-300 shadow-lg hover:shadow-xl">
+                            <button type="submit" class="w-full px-6 py-3 bg-gradient-to-r from-sky-400 to-sky-600 rounded-xl font-semibold hover:from-sky-500 hover:to-sky-700 transition-all duration-300 shadow-lg hover:shadow-xl">
                                 {{ __('حفظ الصورة') }}
                             </button>
                         </form>
@@ -134,7 +134,7 @@
                 <!-- Personal Information -->
                 <div class="bg-white rounded-2xl shadow-xl overflow-hidden hover:shadow-2xl transition-shadow duration-300">
                     <div class="bg-gradient-to-r from-blue-500 to-cyan-500 px-6 py-4">
-                        <h2 class="text-xl font-bold text-white flex items-center">
+                        <h2 class="text-xl font-bold flex items-center">
                             <svg class="w-6 h-6 mr-2 rtl:ml-2" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
                             </svg>
@@ -186,7 +186,7 @@
                             </div>
 
                             <div class="flex justify-end pt-4">
-                                <button type="submit" class="px-8 py-3 bg-gradient-to-r from-blue-500 to-cyan-600 text-white rounded-xl font-semibold hover:from-blue-600 hover:to-cyan-700 transition-all duration-300 shadow-lg hover:shadow-xl">
+                                <button type="submit" class="px-8 py-3 bg-gradient-to-r from-sky-400 to-sky-600 rounded-xl font-semibold hover:from-sky-500 hover:to-sky-700 transition-all duration-300 shadow-lg hover:shadow-xl">
                                     {{ __('حفظ التغييرات') }}
                                 </button>
                             </div>
@@ -197,7 +197,7 @@
                 <!-- Password Change -->
                 <div class="bg-white rounded-2xl shadow-xl overflow-hidden hover:shadow-2xl transition-shadow duration-300">
                     <div class="bg-gradient-to-r from-orange-500 to-red-500 px-6 py-4">
-                        <h2 class="text-xl font-bold text-white flex items-center">
+                        <h2 class="text-xl font-bold flex items-center">
                             <svg class="w-6 h-6 mr-2 rtl:ml-2" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"></path>
                             </svg>
@@ -252,7 +252,7 @@
                             </div>
 
                             <div class="flex justify-end pt-4">
-                                <button type="submit" class="px-8 py-3 bg-gradient-to-r from-orange-500 to-red-600 text-white rounded-xl font-semibold hover:from-orange-600 hover:to-red-700 transition-all duration-300 shadow-lg hover:shadow-xl">
+                                <button type="submit" class="px-8 py-3 bg-gradient-to-r from-sky-400 to-sky-600 rounded-xl font-semibold hover:from-sky-500 hover:to-sky-700 transition-all duration-300 shadow-lg hover:shadow-xl">
                                     {{ __('تحديث كلمة المرور') }}
                                 </button>
                             </div>
