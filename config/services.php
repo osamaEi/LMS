@@ -66,6 +66,13 @@ return [
         'region' => env('PAYTABS_REGION', 'SAU'),
     ],
 
+    'stripe' => [
+        'publishable_key' => env('STRIPE_PUBLISHABLE_KEY'),
+        'secret_key' => env('STRIPE_SECRET_KEY'),
+        'webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
+        'currency' => env('STRIPE_CURRENCY', 'SAR'),
+    ],
+
     'nafath' => [
         'api_url' => env('NAFATH_API_URL', 'https://mock-service.api.elm.sa/nafath'),
         'app_id' => env('NAFATH_APP_ID', 'w9kyh348'),

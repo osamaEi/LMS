@@ -664,7 +664,13 @@
                                     <form action="{{ route('student.enroll-program') }}" method="POST">
                                         @csrf
                                         <input type="hidden" name="program_id" value="{{ $availableProgram->id }}">
-                                        <button type="submit" class="enroll-btn">التسجيل في هذا البرنامج</button>
+                                        @if($availableProgram->price && $availableProgram->price > 0)
+                                            <button type="submit" class="enroll-btn" style="background: linear-gradient(135deg, #635bff, #4f46e5);">
+                                                التسجيل والدفع - {{ number_format($availableProgram->price, 2) }} ر.س
+                                            </button>
+                                        @else
+                                            <button type="submit" class="enroll-btn">التسجيل في هذا البرنامج</button>
+                                        @endif
                                     </form>
                                 </div>
                             </div>

@@ -434,6 +434,11 @@ Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')
         // PayTabs Integration (Credit Card / Apple Pay)
         Route::post('/{payment}/pay-with-paytabs', [\App\Http\Controllers\Student\PaymentController::class, 'payWithPayTabs'])->name('pay-paytabs');
         Route::get('/paytabs/return', [\App\Http\Controllers\Student\PaymentController::class, 'payTabsReturn'])->name('paytabs.return');
+
+        // Stripe Integration
+        Route::post('/{payment}/pay-with-stripe', [\App\Http\Controllers\Student\PaymentController::class, 'payWithStripe'])->name('pay-stripe');
+        Route::get('/stripe/success', [\App\Http\Controllers\Student\PaymentController::class, 'stripeSuccess'])->name('stripe.success');
+        Route::get('/stripe/cancel', [\App\Http\Controllers\Student\PaymentController::class, 'stripeCancel'])->name('stripe.cancel');
     });
 });
 

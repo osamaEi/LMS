@@ -27,6 +27,8 @@ class Payment extends Model
         'tamara_metadata',
         'paytabs_tran_ref',
         'paytabs_cart_id',
+        'stripe_session_id',
+        'stripe_payment_intent_id',
         'notes',
         'completed_at',
     ];
@@ -167,6 +169,7 @@ class Payment extends Model
             'bank_transfer' => 'تحويل بنكي',
             'tamara' => 'تمارا',
             'paytabs' => 'بطاقة ائتمان (PayTabs)',
+            'stripe' => 'Stripe',
             'apple_pay' => 'Apple Pay',
             'waived' => 'معفى',
             default => $this->payment_method ?? 'غير محدد',
@@ -176,6 +179,11 @@ class Payment extends Model
     public function isPayTabsPayment(): bool
     {
         return $this->payment_method === 'paytabs';
+    }
+
+    public function isStripePayment(): bool
+    {
+        return $this->payment_method === 'stripe';
     }
 
     public function getStatusDisplayNameAttribute(): string

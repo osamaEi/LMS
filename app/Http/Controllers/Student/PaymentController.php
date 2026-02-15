@@ -7,6 +7,7 @@ use App\Models\Payment;
 use App\Services\PaymentService;
 use App\Services\TamaraPaymentService;
 use App\Services\PayTabsService;
+use App\Services\StripePaymentService;
 use Illuminate\Http\Request;
 
 class PaymentController extends Controller
@@ -14,15 +15,18 @@ class PaymentController extends Controller
     protected PaymentService $paymentService;
     protected TamaraPaymentService $tamaraService;
     protected PayTabsService $payTabsService;
+    protected StripePaymentService $stripeService;
 
     public function __construct(
         PaymentService $paymentService,
         TamaraPaymentService $tamaraService,
-        PayTabsService $payTabsService
+        PayTabsService $payTabsService,
+        StripePaymentService $stripeService
     ) {
         $this->paymentService = $paymentService;
         $this->tamaraService = $tamaraService;
         $this->payTabsService = $payTabsService;
+        $this->stripeService = $stripeService;
     }
 
     /**
@@ -264,5 +268,135 @@ class PaymentController extends Controller
 
         return redirect()->route('student.payments.index')
             ->with('error', $result['message'] ?? 'فشلت عملية الدفع');
+    }
+
+    /**
+     * Initiate Stripe payment
+     */
+    public function payWithStripe(Payment $payment)
+    {
+        if ($payment->user_id !== auth()->id()) {
+            abort(403, 'غير مصرح لك بدفع هذه الدفعة');
+        }
+
+        if (!$this->stripeService->isConfigured()) {
+            return redirect()->route('student.payments.show', $payment)
+                ->with('error', 'خدمة الدفع عبر Stripe غير متاحة حالياً');
+        }
+
+        if ($payment->isFullyPaid()) {
+            return redirect()->route('student.payments.show', $payment)
+                ->with('error', 'الدفعة مكتملة بالفعل');
+        }
+
+        if ($payment->isCancelled()) {
+            return redirect()->route('student.payments.show', $payment)
+                ->with('error', 'الدفعة ملغاة');
+        }
+
+        try {
+            $result = $this->stripeService->createCheckoutSession(
+                payment: $payment,
+                successUrl: route('student.payments.stripe.success'),
+                cancelUrl: route('student.payments.stripe.cancel'),
+            );
+
+            if ($result['success']) {
+                return redirect($result['checkout_url']);
+            }
+
+            return redirect()->back()->with('error', $result['message'] ?? 'فشل إنشاء جلسة الدفع');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'حدث خطأ: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Handle Stripe success return
+     */
+    public function stripeSuccess(Request $request)
+    {
+        $sessionId = $request->query('session_id');
+
+        if (!$sessionId) {
+            return redirect()->route('student.payments.index')
+                ->with('error', 'جلسة دفع غير صالحة');
+        }
+
+        $result = $this->stripeService->verifySession($sessionId);
+
+        if ($result['success'] && isset($result['payment'])) {
+            $payment = $result['payment'];
+
+            // Ensure the payment belongs to the current student
+            if ($payment->user_id !== auth()->id()) {
+                abort(403);
+            }
+
+            // If payment is completed, assign the program to the student
+            if ($payment->isFullyPaid()) {
+                $student = auth()->user();
+
+                // Only assign if student doesn't already have this program
+                if (!$student->program_id || $student->program_id !== $payment->program_id) {
+                    $program = $payment->program()->with('terms.subjects')->first();
+
+                    $student->update([
+                        'program_id' => $program->id,
+                        'program_status' => 'approved',
+                        'current_term_number' => 1,
+                        'status' => 'active',
+                    ]);
+
+                    // Auto-enroll in all program subjects
+                    foreach ($program->terms as $term) {
+                        foreach ($term->subjects as $subject) {
+                            \App\Models\Enrollment::firstOrCreate([
+                                'student_id' => $student->id,
+                                'subject_id' => $subject->id,
+                            ], [
+                                'enrolled_at' => now(),
+                                'status' => 'active',
+                            ]);
+                        }
+                    }
+                }
+            }
+
+            return redirect()->route('student.payments.show', $payment)
+                ->with('success', 'تم الدفع بنجاح! تم تسجيلك في البرنامج.');
+        }
+
+        // Payment not completed
+        $payment = $result['payment'] ?? null;
+        if ($payment && $payment->user_id === auth()->id()) {
+            return redirect()->route('student.payments.show', $payment)
+                ->with('info', 'جاري معالجة الدفعة...');
+        }
+
+        return redirect()->route('student.payments.index')
+            ->with('error', $result['message'] ?? 'فشلت عملية الدفع');
+    }
+
+    /**
+     * Handle Stripe cancel return
+     */
+    public function stripeCancel(Request $request)
+    {
+        $sessionId = $request->query('session_id');
+
+        if ($sessionId) {
+            $payment = Payment::where('stripe_session_id', $sessionId)
+                ->where('user_id', auth()->id())
+                ->first();
+
+            if ($payment) {
+                return redirect()->route('student.payments.show', $payment)
+                    ->with('warning', 'تم إلغاء عملية الدفع. يمكنك المحاولة مرة أخرى.');
+            }
+        }
+
+        return redirect()->route('student.my-program')
+            ->with('warning', 'تم إلغاء عملية الدفع');
     }
 }

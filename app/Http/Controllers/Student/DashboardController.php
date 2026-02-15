@@ -557,7 +557,44 @@ class DashboardController extends Controller
             ->where('status', 'active')
             ->firstOrFail();
 
-        // Update student's program with pending status
+        // If program has a price, redirect to Stripe payment
+        if ($program->price && $program->price > 0) {
+            $stripeService = app(\App\Services\StripePaymentService::class);
+
+            if (!$stripeService->isConfigured()) {
+                return back()->with('error', 'خدمة الدفع غير متاحة حالياً. يرجى التواصل مع الإدارة.');
+            }
+
+            // Create payment record
+            $payment = \App\Models\Payment::create([
+                'user_id' => $student->id,
+                'program_id' => $program->id,
+                'total_amount' => $program->price,
+                'paid_amount' => 0,
+                'discount_amount' => 0,
+                'remaining_amount' => $program->price,
+                'payment_type' => 'full',
+                'payment_method' => 'stripe',
+                'status' => 'pending',
+            ]);
+
+            // Create Stripe Checkout Session
+            $result = $stripeService->createCheckoutSession(
+                payment: $payment,
+                successUrl: route('student.payments.stripe.success'),
+                cancelUrl: route('student.payments.stripe.cancel'),
+            );
+
+            if ($result['success']) {
+                return redirect($result['checkout_url']);
+            }
+
+            // Stripe failed - clean up payment record
+            $payment->delete();
+            return back()->with('error', 'فشل إنشاء جلسة الدفع. يرجى المحاولة مرة أخرى.');
+        }
+
+        // Free program - set pending status
         $student->update([
             'program_id' => $program->id,
             'program_status' => 'pending',
