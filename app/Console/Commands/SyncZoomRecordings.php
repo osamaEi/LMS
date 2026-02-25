@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Jobs\DownloadZoomRecording;
-use App\Models\ClassSession;
+use App\Models\Session as ClassSession;
 use App\Services\ZoomService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;

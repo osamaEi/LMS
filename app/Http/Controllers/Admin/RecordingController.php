@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Jobs\DownloadZoomRecording;
-use App\Models\ClassSession;
+use App\Models\Session as ClassSession;
 use App\Services\ZoomService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;

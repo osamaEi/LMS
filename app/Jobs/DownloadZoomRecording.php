@@ -2,7 +2,7 @@
 
 namespace App\Jobs;
 
-use App\Models\ClassSession;
+use App\Models\Session as ClassSession;
 use App\Services\ZoomService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
