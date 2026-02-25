@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Front;
 
 use App\Http\Controllers\Controller;
 use App\Models\Contact;
+use App\Models\User;
+use App\Notifications\CustomNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -31,8 +33,19 @@ class ContactController extends Controller
             $validated['attachment'] = $request->file('attachment')->store('contacts', 'public');
         }
 
-        Contact::create($validated);
+        $contact = Contact::create($validated);
 
-        return redirect()->route('contact')->with('success', 'Your message has been sent successfully. We will get back to you soon.');
+        // Notify all superadmins about the new contact message
+        $superAdmins = User::where('role', 'super_admin')->get();
+        foreach ($superAdmins as $superAdmin) {
+            $superAdmin->notify(new CustomNotification(
+                title: 'رسالة تواصل جديدة',
+                body: "أرسل {$contact->first_name} {$contact->last_name} رسالة جديدة بخصوص: " . ($contact->subject ?? 'بدون موضوع'),
+                actionUrl: route('admin.contacts.show', $contact),
+                senderName: $contact->first_name . ' ' . $contact->last_name,
+            ));
+        }
+
+        return redirect()->route('contact')->with('success', 'تم إرسال رسالتك بنجاح. سنتواصل معك في أقرب وقت ممكن.');
     }
 }

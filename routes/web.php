@@ -258,6 +258,8 @@ Route::middleware(['auth', 'role:admin,super_admin'])->prefix('admin')->name('ad
         Route::post('/installments/{installment}/record-payment', [\App\Http\Controllers\Admin\PaymentController::class, 'recordInstallmentPayment'])->name('installment.record-payment');
 
         // Actions
+        Route::post('/{payment}/update', [\App\Http\Controllers\Admin\PaymentController::class, 'update'])->name('update');
+        Route::post('/{payment}/refund', [\App\Http\Controllers\Admin\PaymentController::class, 'refund'])->name('refund');
         Route::post('/{payment}/waive', [\App\Http\Controllers\Admin\PaymentController::class, 'waive'])->name('waive');
         Route::post('/{payment}/cancel', [\App\Http\Controllers\Admin\PaymentController::class, 'cancel'])->name('cancel');
 
@@ -274,6 +276,7 @@ Route::middleware(['auth', 'role:admin,super_admin'])->prefix('admin')->name('ad
         Route::get('/', [\App\Http\Controllers\Admin\ContactController::class, 'index'])->name('index');
         Route::get('/{contact}', [\App\Http\Controllers\Admin\ContactController::class, 'show'])->name('show');
         Route::patch('/{contact}/status', [\App\Http\Controllers\Admin\ContactController::class, 'updateStatus'])->name('update-status');
+        Route::post('/{contact}/reply', [\App\Http\Controllers\Admin\ContactController::class, 'reply'])->name('reply');
         Route::delete('/{contact}', [\App\Http\Controllers\Admin\ContactController::class, 'destroy'])->name('destroy');
     });
 
@@ -354,6 +357,9 @@ Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')
     Route::resource('tickets', \App\Http\Controllers\Teacher\TicketController::class)->only(['index', 'create', 'store', 'show']);
     Route::post('/tickets/{ticket}/reply', [\App\Http\Controllers\Teacher\TicketController::class, 'reply'])->name('tickets.reply');
 
+    // Files & Resources
+    Route::get('/files', [\App\Http\Controllers\Teacher\FileController::class, 'index'])->name('files.index');
+
     // Quizzes & Exams Management
     Route::prefix('subjects/{subject}/quizzes')->name('quizzes.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Teacher\QuizController::class, 'index'])->name('index');
@@ -405,8 +411,14 @@ Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')
     Route::get('/sessions/{sessionId}/join-zoom', [\App\Http\Controllers\Student\DashboardController::class, 'joinZoom'])->name('sessions.join-zoom');
     Route::post('/sessions/{sessionId}/leave-zoom', [\App\Http\Controllers\Student\DashboardController::class, 'leaveZoom'])->name('sessions.leave-zoom');
 
+    // Files & Resources
+    Route::get('/files', [\App\Http\Controllers\Student\FileController::class, 'index'])->name('files.index');
+
     // Useful Links
     Route::get('/links', [\App\Http\Controllers\Student\DashboardController::class, 'usefulLinks'])->name('links');
+    Route::get('/links/{service}', [\App\Http\Controllers\Student\DashboardController::class, 'showLink'])
+         ->name('links.show')
+         ->where('service', 'portal|library|blackboard|calendar|support|schedule');
 
     // My Program (البرنامج الدراسي)
     Route::get('/my-program', [\App\Http\Controllers\Student\DashboardController::class, 'myProgram'])->name('my-program');

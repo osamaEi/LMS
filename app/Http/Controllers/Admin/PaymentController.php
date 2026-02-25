@@ -274,6 +274,75 @@ class PaymentController extends Controller
     }
 
     /**
+     * Update payment amount / notes
+     */
+    public function update(Request $request, Payment $payment)
+    {
+        $request->validate([
+            'total_amount'    => 'nullable|numeric|min:0',
+            'discount_amount' => 'nullable|numeric|min:0',
+            'reason'          => 'nullable|string',
+            'notes'           => 'nullable|string',
+        ]);
+
+        $data = [];
+
+        if ($request->filled('total_amount')) {
+            $data['total_amount'] = $request->total_amount;
+            $data['discount_amount'] = $request->discount_amount ?? $payment->discount_amount;
+            $netAmount = $data['total_amount'] - $data['discount_amount'];
+            $data['remaining_amount'] = max(0, $netAmount - $payment->paid_amount);
+        }
+
+        if ($request->has('notes')) {
+            $data['notes'] = $request->notes;
+        }
+
+        if (!empty($data)) {
+            $payment->update($data);
+        }
+
+        return redirect()->back()->with('success', 'تم تحديث بيانات الدفعة بنجاح');
+    }
+
+    /**
+     * Refund a completed payment
+     */
+    public function refund(Request $request, Payment $payment)
+    {
+        $request->validate([
+            'refund_method' => 'required|in:cash,bank_transfer,original_method',
+            'reason'        => 'required|string',
+        ]);
+
+        if (!$payment->isFullyPaid()) {
+            return redirect()->back()->with('error', 'يمكن استرداد الدفعات المكتملة فقط');
+        }
+
+        $payment->update([
+            'status'          => 'cancelled',
+            'remaining_amount' => 0,
+            'notes'           => ($payment->notes ? $payment->notes . "\n" : '')
+                                 . 'استرداد: ' . $request->reason
+                                 . ' | طريقة الاسترداد: ' . $request->refund_method
+                                 . ' | بواسطة: ' . auth()->user()->name
+                                 . ' | ' . now()->format('Y-m-d H:i'),
+        ]);
+
+        // Log refund transaction
+        $payment->transactions()->create([
+            'amount'         => -$payment->paid_amount,
+            'payment_method' => $request->refund_method === 'original_method' ? $payment->payment_method : $request->refund_method,
+            'type'           => 'refund',
+            'status'         => 'refunded',
+            'notes'          => $request->reason,
+            'created_by'     => auth()->id(),
+        ]);
+
+        return redirect()->back()->with('success', 'تم تسجيل الاسترداد بنجاح');
+    }
+
+    /**
      * Display overdue installments
      */
     public function overdueInstallments(Request $request)

@@ -10,13 +10,37 @@ use Illuminate\Support\Facades\Hash;
 
 class StudentController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $students = User::where('role', 'student')
-            ->latest()
-            ->paginate(15);
+        $search = $request->get('search');
+        $statusFilter = $request->get('status');
 
-        return view('admin.students.index', compact('students'));
+        $query = User::where('role', 'student')->with('program');
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('national_id', 'like', "%{$search}%")
+                  ->orWhere('phone', 'like', "%{$search}%");
+            });
+        }
+
+        if ($statusFilter && $statusFilter !== 'all') {
+            $query->where('status', $statusFilter);
+        }
+
+        $students = $query->latest()->paginate(15)->withQueryString();
+
+        $stats = [
+            'total'      => User::where('role', 'student')->count(),
+            'active'     => User::where('role', 'student')->where('status', 'active')->count(),
+            'pending'    => User::where('role', 'student')->where('status', 'pending')->count(),
+            'inactive'   => User::where('role', 'student')->whereIn('status', ['inactive', 'suspended'])->count(),
+            'this_month' => User::where('role', 'student')->whereMonth('created_at', now()->month)->whereYear('created_at', now()->year)->count(),
+        ];
+
+        return view('admin.students.index', compact('students', 'stats', 'search', 'statusFilter'));
     }
 
     public function create()

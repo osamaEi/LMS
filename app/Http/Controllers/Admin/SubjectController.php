@@ -10,14 +10,33 @@ use Illuminate\Http\Request;
 
 class SubjectController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $subjects = Subject::with(['term.program', 'teacher'])
-            ->withCount('sessions')
-            ->latest()
-            ->paginate(15);
+        $search = $request->get('search');
 
-        return view('admin.subjects.index', compact('subjects'));
+        $query = Subject::with(['term.program', 'teacher'])->withCount('sessions');
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name_ar', 'like', "%{$search}%")
+                  ->orWhere('name_en', 'like', "%{$search}%")
+                  ->orWhere('code', 'like', "%{$search}%")
+                  ->orWhereHas('teacher', function ($tq) use ($search) {
+                      $tq->where('name', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        $subjects = $query->latest()->paginate(15)->withQueryString();
+
+        $stats = [
+            'total'     => Subject::count(),
+            'active'    => Subject::where('status', 'active')->count(),
+            'inactive'  => Subject::where('status', 'inactive')->count(),
+            'completed' => Subject::where('status', 'completed')->count(),
+        ];
+
+        return view('admin.subjects.index', compact('subjects', 'stats', 'search'));
     }
 
     public function create()

@@ -120,6 +120,17 @@
     </a>
 </li>
 
+<!-- الملفات والموارد -->
+<li>
+    <a href="{{ route('student.files.index') }}"
+       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('student.files.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
+        <svg class="fill-current" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm-1 2l4.5 4.5H13V4zM8 17h8v-1.5H8V17zm0-3h8v-1.5H8V14zm0-3h5v-1.5H8V11z" fill="currentColor"/>
+        </svg>
+        <span>الملفات والموارد</span>
+    </a>
+</li>
+
 {{-- ═══ فاصل ═══ --}}
 <li style="margin:6px 16px;height:1px;background:rgba(255,255,255,0.1)"></li>
 
@@ -177,82 +188,15 @@
     </a>
 </li>
 
-<!-- الروابط المفيدة - Dropdown -->
-<li x-data="{ open: false }">
-    <button @click="open = !open"
-            class="menu-item group relative flex w-full items-center justify-between gap-3 rounded-lg px-4 py-3 font-medium menu-item-inactive">
-        <div class="flex items-center gap-3">
-            <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M8.33333 5H10V6.66667H8.33333V5ZM8.33333 8.33333H10V15H8.33333V8.33333ZM9.16667 0.833336C4.10833 0.833336 0 4.94167 0 10C0 15.0583 4.10833 19.1667 9.16667 19.1667C14.225 19.1667 18.3333 15.0583 18.3333 10C18.3333 4.94167 14.225 0.833336 9.16667 0.833336ZM9.16667 17.5C5.025 17.5 1.66667 14.1417 1.66667 10C1.66667 5.85834 5.025 2.5 9.16667 2.5C13.3083 2.5 16.6667 5.85834 16.6667 10C16.6667 14.1417 13.3083 17.5 9.16667 17.5Z" fill=""/>
-            </svg>
-            <span>روابط مفيدة</span>
-        </div>
-        <svg class="fill-current transition-transform duration-200" :class="{ 'rotate-180': open }" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<!-- الروابط المفيدة - Link to hub page -->
+<li>
+    <a href="{{ route('student.links') }}"
+       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('student.links') ? 'menu-item-active' : 'menu-item-inactive' }}">
+        <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M3.9 10c0-1.4 1.1-2.5 2.5-2.5H10V6H6.4C4.1 6 2.2 7.9 2.2 10.1 2.2 12.2 4.1 14 6.4 14H10v-1.5H6.4C5 12.5 3.9 11.4 3.9 10zM7 11h6V9H7v2zm6.6-5H10v1.5h3.6c1.4 0 2.5 1.1 2.5 2.5s-1.1 2.5-2.5 2.5H10V14h3.6c2.3 0 4.2-1.9 4.2-4.2C17.8 7.6 15.9 6 13.6 6z" fill=""/>
         </svg>
-    </button>
-    <ul x-show="open" x-collapse class="mt-1 space-y-1 ps-8">
-        <li>
-            <a href="{{ \App\Models\Setting::where('key', 'student_portal_url')->value('value') ?? '#' }}" target="_blank"
-               class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-2 text-sm font-medium menu-item-inactive">
-                <svg class="fill-current" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M8 1.33334C4.32 1.33334 1.33333 4.32001 1.33333 8.00001C1.33333 11.68 4.32 14.6667 8 14.6667C11.68 14.6667 14.6667 11.68 14.6667 8.00001C14.6667 4.32001 11.68 1.33334 8 1.33334Z" fill=""/>
-                </svg>
-                <span>البوابة الإلكترونية</span>
-                <svg class="w-3 h-3 ms-auto opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
-                </svg>
-            </a>
-        </li>
-        <li>
-            <a href="{{ \App\Models\Setting::where('key', 'library_url')->value('value') ?? '#' }}" target="_blank"
-               class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-2 text-sm font-medium menu-item-inactive">
-                <svg class="fill-current" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M2 2.66667V13.3333H14V2.66667H2ZM4 4H6V6H4V4ZM4 7.33333H6V9.33333H4V7.33333ZM12 12H4V10.6667H12V12ZM12 9.33333H7.33333V7.33333H12V9.33333ZM12 6H7.33333V4H12V6Z" fill=""/>
-                </svg>
-                <span>المكتبة الرقمية</span>
-                <svg class="w-3 h-3 ms-auto opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
-                </svg>
-            </a>
-        </li>
-        <li>
-            <a href="{{ \App\Models\Setting::where('key', 'blackboard_url')->value('value') ?? '#' }}" target="_blank"
-               class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-2 text-sm font-medium menu-item-inactive">
-                <svg class="fill-current" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M14 2H2C1.44667 2 1 2.44667 1 3V13C1 13.5533 1.44667 14 2 14H14C14.5533 14 15 13.5533 15 13V3C15 2.44667 14.5533 2 14 2ZM14 13H2V3H14V13Z" fill=""/>
-                </svg>
-                <span>نظام البلاك بورد</span>
-                <svg class="w-3 h-3 ms-auto opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
-                </svg>
-            </a>
-        </li>
-        <li>
-            <a href="{{ \App\Models\Setting::where('key', 'calendar_url')->value('value') ?? '#' }}" target="_blank"
-               class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-2 text-sm font-medium menu-item-inactive">
-                <svg class="fill-current" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12.6667 2H12V0.666672H10.6667V2H5.33333V0.666672H4V2H3.33333C2.59333 2 2 2.6 2 3.33334V13.3333C2 14.0667 2.59333 14.6667 3.33333 14.6667H12.6667C13.4 14.6667 14 14.0667 14 13.3333V3.33334C14 2.6 13.4 2 12.6667 2ZM12.6667 13.3333H3.33333V5.33334H12.6667V13.3333Z" fill=""/>
-                </svg>
-                <span>التقويم الأكاديمي</span>
-                <svg class="w-3 h-3 ms-auto opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
-                </svg>
-            </a>
-        </li>
-        <li>
-            <a href="{{ \App\Models\Setting::where('key', 'support_url')->value('value') ?? '#' }}" target="_blank"
-               class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-2 text-sm font-medium menu-item-inactive">
-                <svg class="fill-current" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M8 1.33334C4.32 1.33334 1.33333 4.32001 1.33333 8.00001C1.33333 11.68 4.32 14.6667 8 14.6667C11.68 14.6667 14.6667 11.68 14.6667 8.00001C14.6667 4.32001 11.68 1.33334 8 1.33334ZM8.66667 12.6667H7.33333V11.3333H8.66667V12.6667ZM8.66667 10H7.33333C7.33333 7.50001 10 7.66667 10 6.00001C10 4.89334 9.10667 4.00001 8 4.00001C6.89333 4.00001 6 4.89334 6 6.00001H4.66667C4.66667 4.15334 6.15333 2.66667 8 2.66667C9.84667 2.66667 11.3333 4.15334 11.3333 6.00001C11.3333 8.33334 8.66667 8.50001 8.66667 10Z" fill=""/>
-                </svg>
-                <span>الدعم الفني</span>
-                <svg class="w-3 h-3 ms-auto opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
-                </svg>
-            </a>
-        </li>
-    </ul>
+        <span>روابط مفيدة</span>
+    </a>
 </li>
 
 {{-- ═══ فاصل ═══ --}}

@@ -9,13 +9,31 @@ use Illuminate\Support\Facades\Hash;
 
 class TeacherController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $teachers = User::where('role', 'teacher')
-            ->latest()
-            ->paginate(15);
+        $search = $request->get('search');
 
-        return view('admin.teachers.index', compact('teachers'));
+        $query = User::where('role', 'teacher')
+            ->withCount('subjects');
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('national_id', 'like', "%{$search}%")
+                  ->orWhere('phone', 'like', "%{$search}%");
+            });
+        }
+
+        $teachers = $query->latest()->paginate(12)->withQueryString();
+
+        $stats = [
+            'total'        => User::where('role', 'teacher')->count(),
+            'this_month'   => User::where('role', 'teacher')->whereMonth('created_at', now()->month)->whereYear('created_at', now()->year)->count(),
+            'with_subjects'=> User::where('role', 'teacher')->has('subjects')->count(),
+        ];
+
+        return view('admin.teachers.index', compact('teachers', 'stats', 'search'));
     }
 
     public function create()

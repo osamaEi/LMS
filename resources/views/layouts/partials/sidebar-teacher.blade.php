@@ -80,6 +80,20 @@
 {{-- ═══ فاصل ═══ --}}
 <li style="margin:6px 16px;height:1px;background:rgba(255,255,255,0.1)"></li>
 
+<!-- الملفات والموارد -->
+<li>
+    <a href="{{ route('teacher.files.index') }}"
+       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('teacher.files.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
+        <svg class="fill-current" style="fill: currentColor;" width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm-1 2l4.5 4.5H13V4zM8 17h8v-1.5H8V17zm0-3h8v-1.5H8V14zm0-3h5v-1.5H8V11z"/>
+        </svg>
+        <span>الملفات والموارد</span>
+    </a>
+</li>
+
+{{-- ═══ فاصل ═══ --}}
+<li style="margin:6px 16px;height:1px;background:rgba(255,255,255,0.1)"></li>
+
 {{-- ═══ إدارة الطلاب ═══ --}}
 <li style="padding:8px 16px 4px">
     <span style="font-size:0.68rem;font-weight:700;letter-spacing:0.1em;color:rgba(255,255,255,0.35);display:block;text-transform:uppercase">إدارة الطلاب</span>

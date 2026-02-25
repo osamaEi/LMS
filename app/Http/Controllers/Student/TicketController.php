@@ -9,16 +9,28 @@ use Illuminate\Http\Request;
 
 class TicketController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $student = auth()->user();
 
-        $tickets = Ticket::where('user_id', $student->id)
-            ->withCount('replies')
-            ->latest()
-            ->paginate(10);
+        $statusFilter = $request->get('status');
 
-        return view('student.tickets.index', compact('tickets'));
+        $query = Ticket::where('user_id', $student->id)->withCount('replies');
+
+        if ($statusFilter && $statusFilter !== 'all') {
+            $query->where('status', $statusFilter);
+        }
+
+        $tickets = $query->latest()->paginate(10)->withQueryString();
+
+        $stats = [
+            'total'       => Ticket::where('user_id', $student->id)->count(),
+            'open'        => Ticket::where('user_id', $student->id)->where('status', 'open')->count(),
+            'in_progress' => Ticket::where('user_id', $student->id)->whereIn('status', ['in_progress', 'waiting_response'])->count(),
+            'resolved'    => Ticket::where('user_id', $student->id)->whereIn('status', ['resolved', 'closed'])->count(),
+        ];
+
+        return view('student.tickets.index', compact('tickets', 'stats', 'statusFilter'));
     }
 
     public function create()

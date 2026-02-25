@@ -3,256 +3,248 @@
 @section('title', 'إعدادات النظام')
 
 @section('content')
-<div class="min-h-screen bg-gray-50 dark:bg-gray-900 py-6">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div style="direction:rtl;font-family:'Segoe UI',sans-serif;" x-data="{ activeTab: 'general' }">
 
-        <!-- Header -->
-        <div class="mb-8">
-            <div class="flex items-center gap-3 mb-2">
-                <div class="p-2.5 rounded-xl shadow-lg" style="background:linear-gradient(135deg,#0071AA,#005a88)">
-                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+    {{-- Hero --}}
+    <div style="background:linear-gradient(135deg,#0f172a 0%,#1e293b 60%,#0f172a 100%);border-radius:20px;padding:32px 28px;margin-bottom:26px;position:relative;overflow:hidden;">
+        <div style="position:absolute;top:-50px;left:-50px;width:200px;height:200px;background:rgba(0,113,170,0.15);border-radius:50%;"></div>
+        <div style="position:absolute;bottom:-60px;right:15%;width:240px;height:240px;background:rgba(99,102,241,0.08);border-radius:50%;"></div>
+
+        <div style="position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;">
+            <div style="display:flex;align-items:center;gap:14px;">
+                <div style="width:52px;height:52px;background:linear-gradient(135deg,#0071AA,#005a88);border-radius:14px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(0,113,170,0.4);flex-shrink:0;">
+                    <svg width="26" height="26" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                     </svg>
                 </div>
-                <h1 class="text-3xl font-bold text-gray-900 dark:text-white">إعدادات النظام</h1>
+                <div>
+                    <h1 style="color:white;font-size:22px;font-weight:700;margin:0;">إعدادات النظام</h1>
+                    <p style="color:rgba(255,255,255,0.55);font-size:13px;margin:3px 0 0;">إدارة وتخصيص إعدادات التطبيق والنظام</p>
+                </div>
             </div>
-            <p class="text-gray-600 dark:text-gray-400 mr-14">إدارة وتخصيص إعدادات التطبيق والنظام</p>
+            {{-- Quick Info Chips --}}
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                @php
+                    $totalSettings = collect($settings)->flatten(1)->count();
+                @endphp
+                <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);padding:7px 14px;border-radius:20px;">
+                    <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="rgba(255,255,255,0.7)" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                    <span style="color:rgba(255,255,255,0.75);font-size:12px;">{{ $totalSettings }} إعداد</span>
+                </div>
+                <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);padding:7px 14px;border-radius:20px;">
+                    <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="rgba(255,255,255,0.7)" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                    <span style="color:rgba(255,255,255,0.75);font-size:12px;">{{ count($settings) }} أقسام</span>
+                </div>
+            </div>
         </div>
+    </div>
 
-        <!-- Alerts -->
-        @if(session('success'))
-        <div class="mb-6 border-r-4 border-green-500 text-green-800 dark:text-green-400 px-6 py-4 rounded-lg shadow-sm flex items-start gap-3"
-             style="background:rgba(34,197,94,.08)">
-            <svg class="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-            </svg>
-            <p class="font-medium">{{ session('success') }}</p>
-        </div>
-        @endif
+    {{-- Alerts --}}
+    @if(session('success'))
+    <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-right:4px solid #22c55e;border-radius:12px;padding:14px 18px;margin-bottom:20px;display:flex;align-items:center;gap:10px;">
+        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#16a34a" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span style="color:#15803d;font-size:14px;font-weight:500;">{{ session('success') }}</span>
+    </div>
+    @endif
+    @if(session('error'))
+    <div style="background:#fff1f2;border:1px solid #fecaca;border-right:4px solid #ef4444;border-radius:12px;padding:14px 18px;margin-bottom:20px;display:flex;align-items:center;gap:10px;">
+        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#dc2626" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span style="color:#dc2626;font-size:14px;font-weight:500;">{{ session('error') }}</span>
+    </div>
+    @endif
 
-        @if(session('error'))
-        <div class="mb-6 border-r-4 border-red-500 text-red-800 dark:text-red-400 px-6 py-4 rounded-lg shadow-sm flex items-start gap-3"
-             style="background:rgba(239,68,68,.08)">
-            <svg class="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
-            </svg>
-            <p class="font-medium">{{ session('error') }}</p>
-        </div>
-        @endif
+    <div style="display:flex;gap:20px;align-items:flex-start;">
 
-        <div x-data="{ activeTab: 'general' }">
-            <div class="flex flex-col lg:flex-row gap-6">
+        {{-- ── Sidebar ── --}}
+        <div style="width:250px;flex-shrink:0;position:sticky;top:20px;">
+            <div style="background:white;border-radius:16px;border:1px solid #e5e7eb;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.06);">
 
-                <!-- ─── Sidebar ─────────────────────────────── -->
-                <div class="lg:w-72 shrink-0">
-                    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden sticky top-6">
-                        <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700"
-                             style="background:linear-gradient(135deg,rgba(0,113,170,.06),rgba(0,90,136,.04))">
-                            <h3 class="text-sm font-bold text-gray-900 dark:text-white">أقسام الإعدادات</h3>
-                        </div>
-
-                        <nav class="p-3 space-y-1">
-                            @php
-                            $tabs = [
-                                ['id'=>'general',       'label'=>'الإعدادات العامة',    'icon'=>'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z'],
-                                ['id'=>'contact',       'label'=>'بيانات التواصل',      'icon'=>'M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z'],
-                                ['id'=>'social',        'label'=>'وسائل التواصل',       'icon'=>'M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z'],
-                                ['id'=>'email',         'label'=>'إعدادات البريد',      'icon'=>'M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z'],
-                                ['id'=>'notifications', 'label'=>'الإشعارات',           'icon'=>'M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9'],
-                                ['id'=>'security',      'label'=>'الأمان',              'icon'=>'M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z'],
-                                ['id'=>'zoom',          'label'=>'Zoom',                'icon'=>'M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z'],
-                            ];
-                            @endphp
-
-                            @foreach($tabs as $tab)
-                            <button @click="activeTab = '{{ $tab['id'] }}'"
-                                    :class="activeTab === '{{ $tab['id'] }}' ? 'text-white border-r-4 border-white/30' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50'"
-                                    :style="activeTab === '{{ $tab['id'] }}' ? 'background:linear-gradient(135deg,#0071AA,#005a88)' : ''"
-                                    class="w-full flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all">
-                                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $tab['icon'] }}"/>
-                                </svg>
-                                {{ $tab['label'] }}
-                            </button>
-                            @endforeach
-                        </nav>
-
-                        <!-- Cache Clear -->
-                        <div class="p-4 border-t border-gray-100 dark:border-gray-700">
-                            <form action="{{ route('admin.settings.clear-cache') }}" method="POST">
-                                @csrf
-                                <button type="submit"
-                                        class="w-full flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                                    </svg>
-                                    مسح الذاكرة المؤقتة
-                                </button>
-                            </form>
-                        </div>
-                    </div>
+                {{-- Sidebar Header --}}
+                <div style="padding:16px 18px;background:linear-gradient(135deg,#f8f9fa,#f0f4f8);border-bottom:1px solid #e5e7eb;">
+                    <p style="font-size:11px;font-weight:700;color:#9ca3af;letter-spacing:1px;text-transform:uppercase;margin:0;">أقسام الإعدادات</p>
                 </div>
 
-                <!-- ─── Content Area ───────────────────────── -->
-                <div class="flex-1 min-w-0">
+                {{-- Tab Buttons --}}
+                @php
+                $tabs = [
+                    ['id'=>'general',       'label'=>'الإعدادات العامة',    'grad'=>'#0071AA,#005a88', 'light'=>'#e0f2fe','text'=>'#0071AA','icon'=>'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z'],
+                    ['id'=>'contact',       'label'=>'بيانات التواصل',      'grad'=>'#059669,#047857', 'light'=>'#dcfce7','text'=>'#059669','icon'=>'M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z'],
+                    ['id'=>'social',        'label'=>'وسائل التواصل',       'grad'=>'#7c3aed,#6d28d9', 'light'=>'#ede9fe','text'=>'#7c3aed','icon'=>'M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z'],
+                    ['id'=>'email',         'label'=>'إعدادات البريد',      'grad'=>'#ea580c,#c2410c', 'light'=>'#ffedd5','text'=>'#ea580c','icon'=>'M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z'],
+                    ['id'=>'notifications', 'label'=>'الإشعارات',           'grad'=>'#d97706,#b45309', 'light'=>'#fef3c7','text'=>'#d97706','icon'=>'M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9'],
+                    ['id'=>'security',      'label'=>'الأمان',              'grad'=>'#dc2626,#b91c1c', 'light'=>'#fee2e2','text'=>'#dc2626','icon'=>'M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z'],
+                    ['id'=>'zoom',          'label'=>'Zoom',                'grad'=>'#2563eb,#1d4ed8', 'light'=>'#dbeafe','text'=>'#2563eb','icon'=>'M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z'],
+                ];
+                @endphp
 
-                    {{-- ══════════════ GENERAL ══════════════ --}}
-                    <div x-show="activeTab === 'general'" x-cloak>
-                        @include('admin.settings-partials.tab', [
-                            'tabTitle'    => 'الإعدادات العامة',
-                            'tabDesc'     => 'إعدادات التطبيق الأساسية والمعلومات العامة',
-                            'tabIcon'     => 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z',
-                            'group'       => 'general',
-                            'settingsGroup' => $settings['general'] ?? [],
-                        ])
-                    </div>
-
-                    {{-- ══════════════ CONTACT ══════════════ --}}
-                    <div x-show="activeTab === 'contact'" x-cloak>
-                        @include('admin.settings-partials.tab', [
-                            'tabTitle'    => 'بيانات التواصل',
-                            'tabDesc'     => 'معلومات الاتصال والموقع الجغرافي',
-                            'tabIcon'     => 'M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z',
-                            'group'       => 'contact',
-                            'settingsGroup' => $settings['contact'] ?? [],
-                        ])
-                    </div>
-
-                    {{-- ══════════════ SOCIAL ══════════════ --}}
-                    <div x-show="activeTab === 'social'" x-cloak>
-                        @include('admin.settings-partials.tab', [
-                            'tabTitle'    => 'وسائل التواصل الاجتماعي',
-                            'tabDesc'     => 'روابط حسابات المنصة على وسائل التواصل الاجتماعي',
-                            'tabIcon'     => 'M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z',
-                            'group'       => 'social',
-                            'settingsGroup' => $settings['social'] ?? [],
-                        ])
-                    </div>
-
-                    {{-- ══════════════ EMAIL ══════════════ --}}
-                    <div x-show="activeTab === 'email'" x-cloak>
-                        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
-                            <div class="px-8 py-6 border-b border-gray-100 dark:border-gray-700"
-                                 style="background:linear-gradient(135deg,rgba(0,113,170,.05),rgba(0,90,136,.03))">
-                                <h2 class="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
-                                    <div class="p-2 rounded-lg" style="background:rgba(0,113,170,.12)">
-                                        <svg class="w-5 h-5" style="color:#0071AA" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                                        </svg>
-                                    </div>
-                                    إعدادات البريد الإلكتروني
-                                </h2>
-                                <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">إعدادات SMTP لإرسال رسائل البريد الإلكتروني</p>
-                            </div>
-
-                            <form action="{{ route('admin.settings.update-group', 'email') }}" method="POST" class="p-8">
-                                @csrf
-                                @method('PUT')
-
-                                <div class="space-y-6">
-                                    @foreach($settings['email'] ?? [] as $setting)
-                                        @include('admin.settings-partials.field', ['setting' => $setting])
-                                    @endforeach
-                                </div>
-
-                                <div class="flex items-center justify-between gap-3 pt-6 mt-8 border-t border-gray-200 dark:border-gray-700">
-                                    <!-- Test Email Button -->
-                                    <button type="button" id="test-email-btn"
-                                            onclick="testEmail()"
-                                            class="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium text-white transition-all"
-                                            style="background:linear-gradient(135deg,#059669,#047857)">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
-                                        </svg>
-                                        إرسال بريد تجريبي
-                                    </button>
-                                    <button type="submit"
-                                            class="px-8 py-3 text-white font-semibold rounded-xl transition-all shadow-lg"
-                                            style="background:linear-gradient(135deg,#0071AA,#005a88)">
-                                        حفظ التغييرات
-                                    </button>
-                                </div>
-                            </form>
+                <nav style="padding:8px;">
+                    @foreach($tabs as $tab)
+                    <button @click="activeTab = '{{ $tab['id'] }}'"
+                            x-bind:style="activeTab === '{{ $tab['id'] }}' ? 'background:linear-gradient(135deg,{{ $tab['grad'] }});color:white;box-shadow:0 2px 8px rgba(0,0,0,0.15);' : 'background:transparent;color:#374151;'"
+                            style="width:100%;display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;border:none;cursor:pointer;font-size:13px;font-weight:600;text-align:right;transition:all .15s;margin-bottom:3px;">
+                        <div x-bind:style="activeTab === '{{ $tab['id'] }}' ? 'background:rgba(255,255,255,0.2)' : 'background:{{ $tab['light'] }}'"
+                             style="width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;">
+                            <svg width="16" height="16" fill="none" viewBox="0 0 24 24"
+                                 x-bind:stroke="activeTab === '{{ $tab['id'] }}' ? 'white' : '{{ $tab['text'] }}'"
+                                 stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="{{ $tab['icon'] }}"/>
+                            </svg>
                         </div>
+                        <span>{{ $tab['label'] }}</span>
+                    </button>
+                    @endforeach
+                </nav>
 
-                        <!-- Test Email Result -->
-                        <div id="email-test-result" class="mt-4 hidden"></div>
-                    </div>
-
-                    {{-- ══════════════ NOTIFICATIONS ══════════════ --}}
-                    <div x-show="activeTab === 'notifications'" x-cloak>
-                        @include('admin.settings-partials.tab', [
-                            'tabTitle'    => 'إعدادات الإشعارات',
-                            'tabDesc'     => 'تحكم في أنواع الإشعارات المرسلة للمستخدمين',
-                            'tabIcon'     => 'M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9',
-                            'group'       => 'notifications',
-                            'settingsGroup' => $settings['notifications'] ?? [],
-                        ])
-                    </div>
-
-                    {{-- ══════════════ SECURITY ══════════════ --}}
-                    <div x-show="activeTab === 'security'" x-cloak>
-                        @include('admin.settings-partials.tab', [
-                            'tabTitle'    => 'إعدادات الأمان',
-                            'tabDesc'     => 'إعدادات كلمات المرور والجلسات والتحقق',
-                            'tabIcon'     => 'M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z',
-                            'group'       => 'security',
-                            'settingsGroup' => $settings['security'] ?? [],
-                        ])
-                    </div>
-
-                    {{-- ══════════════ ZOOM ══════════════ --}}
-                    <div x-show="activeTab === 'zoom'" x-cloak>
-                        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
-                            <div class="px-8 py-6 border-b border-gray-100 dark:border-gray-700"
-                                 style="background:linear-gradient(135deg,rgba(37,99,235,.06),rgba(29,78,216,.04))">
-                                <h2 class="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
-                                    <div class="p-2 rounded-lg" style="background:rgba(37,99,235,.12)">
-                                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
-                                        </svg>
-                                    </div>
-                                    إعدادات Zoom
-                                </h2>
-                                <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">مفاتيح API والتكامل مع منصة Zoom للاجتماعات</p>
-                            </div>
-
-                            <!-- Zoom Info Banner -->
-                            <div class="mx-8 mt-6 p-4 rounded-xl flex items-start gap-3" style="background:rgba(37,99,235,.06);border:1px solid rgba(37,99,235,.15)">
-                                <svg class="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
-                                </svg>
-                                <p class="text-sm text-blue-800 dark:text-blue-300">
-                                    احصل على هذه المفاتيح من لوحة تحكم <strong>Zoom Marketplace</strong> بعد إنشاء تطبيق من نوع Server-to-Server OAuth.
-                                </p>
-                            </div>
-
-                            <form action="{{ route('admin.settings.update-group', 'zoom') }}" method="POST" class="p-8">
-                                @csrf
-                                @method('PUT')
-
-                                <div class="space-y-6">
-                                    @foreach($settings['zoom'] ?? [] as $setting)
-                                        @include('admin.settings-partials.field', ['setting' => $setting, 'isPassword' => str_contains($setting['key'], 'secret')])
-                                    @endforeach
-                                </div>
-
-                                <div class="flex items-center justify-end gap-3 pt-6 mt-8 border-t border-gray-200 dark:border-gray-700">
-                                    <button type="submit"
-                                            class="px-8 py-3 text-white font-semibold rounded-xl transition-all shadow-lg"
-                                            style="background:linear-gradient(135deg,#0071AA,#005a88)">
-                                        حفظ التغييرات
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-
-                </div>{{-- end content area --}}
+                {{-- Cache Clear --}}
+                <div style="padding:12px;border-top:1px solid #f3f4f6;">
+                    <form action="{{ route('admin.settings.clear-cache') }}" method="POST">
+                        @csrf
+                        <button type="submit"
+                                style="width:100%;display:flex;align-items:center;justify-content:center;gap:7px;padding:10px;background:#f3f4f6;border:none;border-radius:10px;font-size:12px;font-weight:600;color:#6b7280;cursor:pointer;transition:all .15s;"
+                                onmouseover="this.style.background='#fee2e2';this.style.color='#dc2626'" onmouseout="this.style.background='#f3f4f6';this.style.color='#6b7280'">
+                            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                            </svg>
+                            مسح الذاكرة المؤقتة
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
 
+        {{-- ── Content Area ── --}}
+        <div style="flex:1;min-width:0;">
+
+            {{-- GENERAL --}}
+            <div x-show="activeTab === 'general'" x-cloak>
+                @include('admin.settings-partials.tab', [
+                    'tabTitle' => 'الإعدادات العامة', 'tabDesc' => 'إعدادات التطبيق الأساسية والمعلومات العامة',
+                    'tabIcon'  => 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z',
+                    'tabColor' => '#0071AA', 'tabGrad' => '#0071AA,#005a88', 'tabLight' => '#e0f2fe',
+                    'group' => 'general', 'settingsGroup' => $settings['general'] ?? [],
+                ])
+            </div>
+
+            {{-- CONTACT --}}
+            <div x-show="activeTab === 'contact'" x-cloak>
+                @include('admin.settings-partials.tab', [
+                    'tabTitle' => 'بيانات التواصل', 'tabDesc' => 'معلومات الاتصال والموقع الجغرافي',
+                    'tabIcon'  => 'M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z',
+                    'tabColor' => '#059669', 'tabGrad' => '#059669,#047857', 'tabLight' => '#dcfce7',
+                    'group' => 'contact', 'settingsGroup' => $settings['contact'] ?? [],
+                ])
+            </div>
+
+            {{-- SOCIAL --}}
+            <div x-show="activeTab === 'social'" x-cloak>
+                @include('admin.settings-partials.tab', [
+                    'tabTitle' => 'وسائل التواصل الاجتماعي', 'tabDesc' => 'روابط حسابات المنصة على وسائل التواصل الاجتماعي',
+                    'tabIcon'  => 'M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z',
+                    'tabColor' => '#7c3aed', 'tabGrad' => '#7c3aed,#6d28d9', 'tabLight' => '#ede9fe',
+                    'group' => 'social', 'settingsGroup' => $settings['social'] ?? [],
+                ])
+            </div>
+
+            {{-- EMAIL --}}
+            <div x-show="activeTab === 'email'" x-cloak>
+                <div style="background:white;border-radius:16px;border:1px solid #e5e7eb;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.06);">
+                    {{-- Card Header --}}
+                    <div style="padding:20px 24px;border-bottom:1px solid #f3f4f6;background:linear-gradient(135deg,#fff7ed,#fffbeb);">
+                        <div style="display:flex;align-items:center;gap:12px;">
+                            <div style="width:40px;height:40px;background:linear-gradient(135deg,#ea580c,#c2410c);border-radius:10px;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 10px rgba(234,88,12,0.3);">
+                                <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                            </div>
+                            <div>
+                                <h2 style="font-size:16px;font-weight:700;color:#111827;margin:0;">إعدادات البريد الإلكتروني</h2>
+                                <p style="font-size:13px;color:#9ca3af;margin:2px 0 0;">إعدادات SMTP لإرسال رسائل البريد الإلكتروني</p>
+                            </div>
+                        </div>
+                    </div>
+                    <form action="{{ route('admin.settings.update-group', 'email') }}" method="POST" style="padding:24px;">
+                        @csrf
+                        @method('PUT')
+                        <div style="display:flex;flex-direction:column;gap:18px;">
+                            @foreach($settings['email'] ?? [] as $setting)
+                                @include('admin.settings-partials.field', ['setting' => $setting, 'accentColor' => '#ea580c'])
+                            @endforeach
+                        </div>
+                        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:20px;margin-top:20px;border-top:1px solid #f3f4f6;">
+                            <button type="button" id="test-email-btn" onclick="testEmail()"
+                                    style="display:inline-flex;align-items:center;gap:7px;padding:10px 18px;background:linear-gradient(135deg,#059669,#047857);color:white;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;box-shadow:0 2px 8px rgba(5,150,105,0.3);">
+                                <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+                                إرسال بريد تجريبي
+                            </button>
+                            <button type="submit" style="padding:10px 24px;background:linear-gradient(135deg,#ea580c,#c2410c);color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 3px 10px rgba(234,88,12,0.3);">
+                                حفظ التغييرات
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div id="email-test-result" style="margin-top:12px;display:none;"></div>
+            </div>
+
+            {{-- NOTIFICATIONS --}}
+            <div x-show="activeTab === 'notifications'" x-cloak>
+                @include('admin.settings-partials.tab', [
+                    'tabTitle' => 'إعدادات الإشعارات', 'tabDesc' => 'تحكم في أنواع الإشعارات المرسلة للمستخدمين',
+                    'tabIcon'  => 'M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9',
+                    'tabColor' => '#d97706', 'tabGrad' => '#d97706,#b45309', 'tabLight' => '#fef3c7',
+                    'group' => 'notifications', 'settingsGroup' => $settings['notifications'] ?? [],
+                ])
+            </div>
+
+            {{-- SECURITY --}}
+            <div x-show="activeTab === 'security'" x-cloak>
+                @include('admin.settings-partials.tab', [
+                    'tabTitle' => 'إعدادات الأمان', 'tabDesc' => 'إعدادات كلمات المرور والجلسات والتحقق',
+                    'tabIcon'  => 'M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z',
+                    'tabColor' => '#dc2626', 'tabGrad' => '#dc2626,#b91c1c', 'tabLight' => '#fee2e2',
+                    'group' => 'security', 'settingsGroup' => $settings['security'] ?? [],
+                ])
+            </div>
+
+            {{-- ZOOM --}}
+            <div x-show="activeTab === 'zoom'" x-cloak>
+                <div style="background:white;border-radius:16px;border:1px solid #e5e7eb;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.06);">
+                    <div style="padding:20px 24px;border-bottom:1px solid #f3f4f6;background:linear-gradient(135deg,#eff6ff,#eef2ff);">
+                        <div style="display:flex;align-items:center;gap:12px;">
+                            <div style="width:40px;height:40px;background:linear-gradient(135deg,#2563eb,#1d4ed8);border-radius:10px;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 10px rgba(37,99,235,0.3);">
+                                <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                            </div>
+                            <div>
+                                <h2 style="font-size:16px;font-weight:700;color:#111827;margin:0;">إعدادات Zoom</h2>
+                                <p style="font-size:13px;color:#9ca3af;margin:2px 0 0;">مفاتيح API والتكامل مع منصة Zoom للاجتماعات</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Info Banner --}}
+                    <div style="margin:20px 24px 0;padding:14px 16px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;display:flex;align-items:flex-start;gap:10px;">
+                        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#2563eb" stroke-width="2" style="flex-shrink:0;margin-top:1px;"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <p style="font-size:13px;color:#1e40af;margin:0;line-height:1.6;">
+                            احصل على هذه المفاتيح من لوحة تحكم <strong>Zoom Marketplace</strong> بعد إنشاء تطبيق من نوع Server-to-Server OAuth.
+                        </p>
+                    </div>
+
+                    <form action="{{ route('admin.settings.update-group', 'zoom') }}" method="POST" style="padding:24px;">
+                        @csrf
+                        @method('PUT')
+                        <div style="display:flex;flex-direction:column;gap:18px;">
+                            @foreach($settings['zoom'] ?? [] as $setting)
+                                @include('admin.settings-partials.field', ['setting' => $setting, 'isPassword' => str_contains($setting['key'], 'secret'), 'accentColor' => '#2563eb'])
+                            @endforeach
+                        </div>
+                        <div style="display:flex;justify-content:flex-end;padding-top:20px;margin-top:20px;border-top:1px solid #f3f4f6;">
+                            <button type="submit" style="padding:10px 24px;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 3px 10px rgba(37,99,235,0.3);">
+                                حفظ التغييرات
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </div>{{-- end content --}}
     </div>
 </div>
 
@@ -260,34 +252,30 @@
 function testEmail() {
     const btn = document.getElementById('test-email-btn');
     const result = document.getElementById('email-test-result');
-
     btn.disabled = true;
-    btn.innerHTML = '<svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg> جاري الإرسال...';
-
+    btn.innerHTML = '<svg class="animate-spin" width="15" height="15" fill="none" viewBox="0 0 24 24"><circle style="opacity:.25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path style="opacity:.75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg> جاري الإرسال...';
     fetch('{{ route('admin.settings.test-email') }}', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-            'Accept': 'application/json',
-        }
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content, 'Accept': 'application/json' }
     })
     .then(r => r.json())
     .then(data => {
-        result.classList.remove('hidden');
-        if (data.success) {
-            result.innerHTML = '<div class="p-4 rounded-xl flex items-center gap-3" style="background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2)"><svg class="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg><span class="text-green-700 font-medium">' + data.message + '</span></div>';
-        } else {
-            result.innerHTML = '<div class="p-4 rounded-xl flex items-center gap-3" style="background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2)"><svg class="w-5 h-5 text-red-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg><span class="text-red-700 font-medium">' + data.message + '</span></div>';
-        }
+        result.style.display = 'block';
+        const color = data.success ? '#059669' : '#dc2626';
+        const bg    = data.success ? '#f0fdf4' : '#fff1f2';
+        const bdr   = data.success ? '#bbf7d0' : '#fecaca';
+        const icon  = data.success
+            ? '<path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>'
+            : '<path stroke-linecap="round" stroke-linejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>';
+        result.innerHTML = `<div style="padding:14px 16px;background:${bg};border:1px solid ${bdr};border-radius:12px;display:flex;align-items:center;gap:10px;"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="${color}" stroke-width="2">${icon}</svg><span style="color:${color};font-size:14px;font-weight:500;">${data.message}</span></div>`;
     })
     .catch(() => {
-        result.classList.remove('hidden');
-        result.innerHTML = '<div class="p-4 rounded-xl" style="background:rgba(239,68,68,.08)"><span class="text-red-700">حدث خطأ أثناء الاتصال بالخادم</span></div>';
+        result.style.display = 'block';
+        result.innerHTML = '<div style="padding:14px 16px;background:#fff1f2;border:1px solid #fecaca;border-radius:12px;color:#dc2626;font-size:14px;">حدث خطأ أثناء الاتصال بالخادم</div>';
     })
     .finally(() => {
         btn.disabled = false;
-        btn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg> إرسال بريد تجريبي';
+        btn.innerHTML = '<svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg> إرسال بريد تجريبي';
     });
 }
 </script>

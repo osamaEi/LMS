@@ -9,14 +9,33 @@ use Illuminate\Http\Request;
 
 class TermController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $terms = Term::with(['program'])
-            ->withCount('subjects')
-            ->latest()
-            ->paginate(15);
+        $search = $request->get('search');
 
-        return view('admin.terms.index', compact('terms'));
+        $query = Term::with(['program'])->withCount('subjects');
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name_ar', 'like', "%{$search}%")
+                  ->orWhere('name_en', 'like', "%{$search}%")
+                  ->orWhereHas('program', function ($pq) use ($search) {
+                      $pq->where('name_ar', 'like', "%{$search}%")
+                         ->orWhere('name_en', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        $terms = $query->latest()->paginate(15)->withQueryString();
+
+        $stats = [
+            'total'     => Term::count(),
+            'active'    => Term::where('status', 'active')->count(),
+            'upcoming'  => Term::where('status', 'upcoming')->count(),
+            'completed' => Term::where('status', 'completed')->count(),
+        ];
+
+        return view('admin.terms.index', compact('terms', 'stats', 'search'));
     }
 
     public function create()

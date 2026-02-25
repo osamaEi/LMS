@@ -41,23 +41,21 @@
          style="width:520px;max-width:calc(100vw - 1.5rem);border:1px solid rgba(0,0,0,.08)">
 
         {{-- Header --}}
-        <div class="flex items-center justify-between px-6 py-5"
-             style="background:linear-gradient(135deg,#1e3a5f 0%,#0071AA 100%)">
-            <div class="flex items-center gap-3">
-                <div class="flex items-center justify-center rounded-xl"
-                     style="width:44px;height:44px;background:rgba(255,255,255,.2)">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="white">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:linear-gradient(135deg,#1e3a5f 0%,#0071AA 100%)">
+            <div style="display:flex;align-items:center;gap:10px">
+                <div style="width:38px;height:38px;border-radius:10px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                    <svg width="19" height="19" viewBox="0 0 24 24" fill="white">
                         <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
                     </svg>
                 </div>
                 <div>
-                    <h3 style="font-size:1.1rem;font-weight:800;color:#fff;margin:0">الإشعارات</h3>
-                    <p style="font-size:0.8rem;color:rgba(255,255,255,.75);margin:2px 0 0"
+                    <h3 style="font-size:1rem;font-weight:800;color:#fff;margin:0;line-height:1.2">الإشعارات</h3>
+                    <p style="font-size:0.76rem;color:rgba(255,255,255,.75);margin:2px 0 0;line-height:1"
                        x-text="unreadCount > 0 ? unreadCount + ' إشعار غير مقروء' : 'جميعها مقروءة'"></p>
                 </div>
             </div>
             <button @click="markAllAsRead()" x-show="unreadCount > 0" x-cloak
-                    style="background:rgba(255,255,255,.18);color:white;border:none;border-radius:10px;padding:8px 16px;font-size:0.85rem;font-weight:600;cursor:pointer;"
+                    style="background:rgba(255,255,255,.18);color:white;border:none;border-radius:8px;padding:6px 12px;font-size:0.8rem;font-weight:600;cursor:pointer;"
                     onmouseover="this.style.background='rgba(255,255,255,.28)'"
                     onmouseout="this.style.background='rgba(255,255,255,.18)'">
                 قراءة الكل
@@ -88,20 +86,13 @@
             {{-- Notification items --}}
             <template x-for="notification in notifications" :key="notification.id">
                 <div @click="handleNotificationClick(notification)"
-                     class="group"
-                     style="display:flex;align-items:flex-start;gap:14px;padding:16px 20px;cursor:pointer;transition:background 0.15s;"
-                     :style="!notification.read_at
-                         ? 'background:linear-gradient(90deg,rgba(0,113,170,.06) 0%,transparent 100%)'
-                         : ''"
-                     onmouseover="this.style.background='#f8fafd'"
-                     onmouseout="this.style.background=''">
+                     @mouseover="$el.style.background='#f8fafd'"
+                     @mouseout="$el.style.background = notification.read_at ? '' : 'linear-gradient(90deg,rgba(0,113,170,.06) 0%,transparent 100%)'"
+                     :style="`display:flex;align-items:flex-start;gap:10px;padding:11px 16px;cursor:pointer;transition:background 0.15s;border-bottom:1px solid #f3f4f6;${!notification.read_at ? 'background:linear-gradient(90deg,rgba(0,113,170,.06) 0%,transparent 100%)' : ''}`">
 
                     {{-- Icon --}}
-                    <div style="flex-shrink:0;width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-top:2px;transition:all 0.2s;"
-                         :style="!notification.read_at
-                             ? 'background:linear-gradient(135deg,#0071AA,#005a88);box-shadow:0 2px 8px rgba(0,113,170,0.3)'
-                             : 'background:#f3f4f6'">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"
+                    <div :style="`flex-shrink:0;width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-top:1px;${!notification.read_at ? 'background:linear-gradient(135deg,#0071AA,#005a88);box-shadow:0 2px 6px rgba(0,113,170,0.25)' : 'background:#f1f5f9'}`">
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"
                              :style="!notification.read_at ? 'color:white' : 'color:#9ca3af'">
                             <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2zM7 12h5v5H7z"/>
                         </svg>
@@ -109,14 +100,14 @@
 
                     {{-- Content --}}
                     <div style="flex:1;min-width:0">
-                        <p style="font-size:0.95rem;font-weight:700;color:#111827;margin:0;line-height:1.4"
+                        <p style="font-size:0.875rem;font-weight:700;color:#111827;margin:0;line-height:1.35"
                            x-text="notification.data.session_title || notification.data.title || 'إشعار'"></p>
-                        <p style="font-size:0.82rem;color:#6b7280;margin:4px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"
+                        <p style="font-size:0.78rem;color:#6b7280;margin:3px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"
                            x-text="notification.data.subject_name || notification.data.body || ''"></p>
-                        <div style="display:flex;align-items:center;gap:8px;margin-top:6px">
-                            <span style="font-size:0.78rem;color:#9ca3af" x-text="notification.created_at_human"></span>
+                        <div style="display:flex;align-items:center;gap:6px;margin-top:5px;flex-wrap:wrap">
+                            <span style="font-size:0.72rem;color:#9ca3af" x-text="notification.created_at_human"></span>
                             <template x-if="notification.data.scheduled_at_formatted">
-                                <span style="display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:2px 10px;font-size:0.78rem;font-weight:600;background:#eff6ff;color:#0071AA"
+                                <span style="display:inline-flex;align-items:center;border-radius:999px;padding:1px 8px;font-size:0.72rem;font-weight:600;background:#eff6ff;color:#0071AA"
                                       x-text="notification.data.scheduled_at_formatted"></span>
                             </template>
                         </div>
@@ -124,7 +115,7 @@
 
                     {{-- Unread dot --}}
                     <div x-show="!notification.read_at" x-cloak style="flex-shrink:0;margin-top:6px">
-                        <span style="display:inline-block;width:11px;height:11px;border-radius:50%;background:linear-gradient(135deg,#0071AA,#0ea5e9);box-shadow:0 1px 4px rgba(0,113,170,0.4)"></span>
+                        <span style="display:block;width:8px;height:8px;border-radius:50%;background:#0071AA"></span>
                     </div>
                 </div>
             </template>
@@ -133,10 +124,10 @@
         {{-- Footer --}}
         <div style="border-top:1px solid #f3f4f6">
             <a href="{{ route('notifications.page') }}"
-               style="display:flex;align-items:center;justify-content:center;gap:8px;padding:14px 20px;font-size:0.9rem;font-weight:700;color:#0071AA;text-decoration:none;transition:background 0.15s;"
+               style="display:flex;align-items:center;justify-content:center;gap:6px;padding:10px 16px;font-size:0.84rem;font-weight:700;color:#0071AA;text-decoration:none;transition:background 0.15s;"
                onmouseover="this.style.background='#f0f9ff'"
                onmouseout="this.style.background=''">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
                 </svg>
                 عرض جميع الإشعارات
