@@ -1,3 +1,8 @@
+{{-- ═══ الرئيسية ═══ --}}
+<li style="padding:16px 16px 4px">
+    <span style="font-size:0.68rem;font-weight:700;letter-spacing:0.1em;color:rgba(255,255,255,0.35);display:block;text-transform:uppercase">الرئيسية</span>
+</li>
+
 <!-- لوحة التحكم -->
 <li>
     <a href="{{ route('student.dashboard') }}"
@@ -20,7 +25,13 @@
     </a>
 </li>
 
+{{-- ═══ فاصل ═══ --}}
+<li style="margin:6px 16px;height:1px;background:rgba(255,255,255,0.1)"></li>
 
+{{-- ═══ الدراسة ═══ --}}
+<li style="padding:8px 16px 4px">
+    <span style="font-size:0.68rem;font-weight:700;letter-spacing:0.1em;color:rgba(255,255,255,0.35);display:block;text-transform:uppercase">الدراسة</span>
+</li>
 
 <!-- جلساتي - Dropdown -->
 <li x-data="{ open: {{ request()->routeIs('student.my-sessions') || request()->routeIs('student.upcoming-sessions') || request()->routeIs('student.schedule') ? 'true' : 'false' }} }">
@@ -46,24 +57,6 @@
                 <span>جميع الجلسات</span>
             </a>
         </li>
-        <!-- <li>
-            <a href="{{ route('student.upcoming-sessions') }}"
-               class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-2 text-sm font-medium {{ request()->routeIs('student.upcoming-sessions') ? 'menu-item-active' : 'menu-item-inactive' }}">
-                <svg class="fill-current" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M8 1.33334C4.32 1.33334 1.33333 4.32001 1.33333 8.00001C1.33333 11.68 4.32 14.6667 8 14.6667C11.68 14.6667 14.6667 11.68 14.6667 8.00001C14.6667 4.32001 11.68 1.33334 8 1.33334ZM8 13.3333C5.05333 13.3333 2.66667 10.9467 2.66667 8.00001C2.66667 5.05334 5.05333 2.66667 8 2.66667C10.9467 2.66667 13.3333 5.05334 13.3333 8.00001C13.3333 10.9467 10.9467 13.3333 8 13.3333ZM8.33333 4.66667H7.33333V8.66667L10.8333 10.7667L11.3333 9.94001L8.33333 8.16667V4.66667Z" fill=""/>
-                </svg>
-                <span>الجلسات القادمة</span>
-            </a>
-        </li>
-        <li>
-            <a href="{{ route('student.schedule') }}"
-               class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-2 text-sm font-medium {{ request()->routeIs('student.schedule') ? 'menu-item-active' : 'menu-item-inactive' }}">
-                <svg class="fill-current" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12.6667 2H12V0.666672H10.6667V2H5.33333V0.666672H4V2H3.33333C2.59333 2 2 2.6 2 3.33334V13.3333C2 14.0667 2.59333 14.6667 3.33333 14.6667H12.6667C13.4 14.6667 14 14.0667 14 13.3333V3.33334C14 2.6 13.4 2 12.6667 2ZM12.6667 13.3333H3.33333V5.33334H12.6667V13.3333Z" fill=""/>
-                </svg>
-                <span>الجدول الدراسي</span>
-            </a>
-        </li> -->
     </ul>
 </li>
 
@@ -127,6 +120,14 @@
     </a>
 </li>
 
+{{-- ═══ فاصل ═══ --}}
+<li style="margin:6px 16px;height:1px;background:rgba(255,255,255,0.1)"></li>
+
+{{-- ═══ المالية ═══ --}}
+<li style="padding:8px 16px 4px">
+    <span style="font-size:0.68rem;font-weight:700;letter-spacing:0.1em;color:rgba(255,255,255,0.35);display:block;text-transform:uppercase">المالية</span>
+</li>
+
 <!-- المدفوعات -->
 <li>
     <a href="{{ route('student.payments.index') }}"
@@ -138,7 +139,13 @@
     </a>
 </li>
 
+{{-- ═══ فاصل ═══ --}}
+<li style="margin:6px 16px;height:1px;background:rgba(255,255,255,0.1)"></li>
 
+{{-- ═══ التقدم ═══ --}}
+<li style="padding:8px 16px 4px">
+    <span style="font-size:0.68rem;font-weight:700;letter-spacing:0.1em;color:rgba(255,255,255,0.35);display:block;text-transform:uppercase">التقدم</span>
+</li>
 
 <!-- التقييم والشهادات -->
 <li>
@@ -149,6 +156,14 @@
         </svg>
         <span>التقييم والشهادات</span>
     </a>
+</li>
+
+{{-- ═══ فاصل ═══ --}}
+<li style="margin:6px 16px;height:1px;background:rgba(255,255,255,0.1)"></li>
+
+{{-- ═══ المساعدة ═══ --}}
+<li style="padding:8px 16px 4px">
+    <span style="font-size:0.68rem;font-weight:700;letter-spacing:0.1em;color:rgba(255,255,255,0.35);display:block;text-transform:uppercase">المساعدة</span>
 </li>
 
 <!-- الدعم والمساعدة -->
@@ -238,6 +253,14 @@
             </a>
         </li>
     </ul>
+</li>
+
+{{-- ═══ فاصل ═══ --}}
+<li style="margin:6px 16px;height:1px;background:rgba(255,255,255,0.1)"></li>
+
+{{-- ═══ الحساب ═══ --}}
+<li style="padding:8px 16px 4px">
+    <span style="font-size:0.68rem;font-weight:700;letter-spacing:0.1em;color:rgba(255,255,255,0.35);display:block;text-transform:uppercase">الحساب</span>
 </li>
 
 <!-- الإعدادات -->

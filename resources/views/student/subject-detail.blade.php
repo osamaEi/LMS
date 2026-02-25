@@ -32,85 +32,25 @@
         background: #1e293b;
         border-color: rgba(255,255,255,0.1);
     }
-    .session-card {
+    .file-card {
         background: white;
-        border-radius: 16px;
+        border-radius: 14px;
         border: 2px solid #f1f5f9;
-        transition: all 0.3s ease;
-        overflow: hidden;
-    }
-    .dark .session-card {
-        background: #1e293b;
-        border-color: rgba(255,255,255,0.1);
-    }
-    .session-card:hover {
-        border-color: #0071AA;
-        box-shadow: 0 8px 30px rgba(0, 113, 170, 0.1);
-    }
-    .session-toggle {
-        cursor: pointer;
-        width: 100%;
-        text-align: right;
-        background: none;
-        border: none;
-        padding: 1.25rem 1.5rem;
+        padding: 1.1rem 1.25rem;
         display: flex;
         align-items: center;
         gap: 1rem;
-    }
-    .session-toggle:hover {
-        background: #f8fafc;
-    }
-    .dark .session-toggle:hover {
-        background: #334155;
-    }
-    .session-details {
-        display: none;
-        padding: 0 1.5rem 1.5rem;
-        border-top: 1px solid #f1f5f9;
-    }
-    .dark .session-details {
-        border-color: rgba(255,255,255,0.1);
-    }
-    .session-card.open .session-details {
-        display: block;
-    }
-    .session-card.open .toggle-icon {
-        transform: rotate(180deg);
-    }
-    .toggle-icon {
-        transition: transform 0.3s ease;
-    }
-    .file-item {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        padding: 0.75rem 1rem;
-        background: #f8fafc;
-        border-radius: 12px;
         transition: all 0.2s ease;
+        text-decoration: none;
     }
-    .dark .file-item {
-        background: #0f172a;
+    .dark .file-card {
+        background: #1e293b;
+        border-color: rgba(255,255,255,0.08);
     }
-    .file-item:hover {
-        background: #eff6ff;
-        transform: translateX(-4px);
-    }
-    .dark .file-item:hover {
-        background: #334155;
-    }
-    .stat-mini {
-        text-align: center;
-        padding: 1rem;
-        border-radius: 14px;
-    }
-    .status-dot {
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        display: inline-block;
-        flex-shrink: 0;
+    .file-card:hover {
+        border-color: #0071AA;
+        box-shadow: 0 6px 24px rgba(0,113,170,0.12);
+        transform: translateY(-2px);
     }
 </style>
 @endpush
@@ -145,173 +85,230 @@
         </div>
     </div>
 
+    @php
+        $allFiles = $sessions->flatMap(fn($s) => $s->files ?? collect());
+
+        // Extension → color + icon helper
+        $extMeta = [
+            'pdf'  => ['bg' => '#fee2e2', 'icon_bg' => '#ef4444', 'label' => 'PDF'],
+            'doc'  => ['bg' => '#dbeafe', 'icon_bg' => '#2563eb', 'label' => 'Word'],
+            'docx' => ['bg' => '#dbeafe', 'icon_bg' => '#2563eb', 'label' => 'Word'],
+            'xls'  => ['bg' => '#d1fae5', 'icon_bg' => '#059669', 'label' => 'Excel'],
+            'xlsx' => ['bg' => '#d1fae5', 'icon_bg' => '#059669', 'label' => 'Excel'],
+            'ppt'  => ['bg' => '#ffedd5', 'icon_bg' => '#ea580c', 'label' => 'PowerPoint'],
+            'pptx' => ['bg' => '#ffedd5', 'icon_bg' => '#ea580c', 'label' => 'PowerPoint'],
+            'mp4'  => ['bg' => '#ede9fe', 'icon_bg' => '#7c3aed', 'label' => 'فيديو'],
+            'mp3'  => ['bg' => '#fae8ff', 'icon_bg' => '#a21caf', 'label' => 'صوت'],
+            'zip'  => ['bg' => '#fef9c3', 'icon_bg' => '#ca8a04', 'label' => 'ZIP'],
+            'rar'  => ['bg' => '#fef9c3', 'icon_bg' => '#ca8a04', 'label' => 'RAR'],
+            'jpg'  => ['bg' => '#e0f2fe', 'icon_bg' => '#0284c7', 'label' => 'صورة'],
+            'jpeg' => ['bg' => '#e0f2fe', 'icon_bg' => '#0284c7', 'label' => 'صورة'],
+            'png'  => ['bg' => '#e0f2fe', 'icon_bg' => '#0284c7', 'label' => 'صورة'],
+        ];
+        $defaultMeta = ['bg' => '#f1f5f9', 'icon_bg' => '#64748b', 'label' => 'ملف'];
+
+        // Group files by session
+        $filesBySession = [];
+        foreach ($sessions as $session) {
+            if ($session->files && $session->files->count() > 0) {
+                $filesBySession[] = ['session' => $session, 'files' => $session->files];
+            }
+        }
+    @endphp
+
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {{-- Main Content: Sessions --}}
-        <div class="lg:col-span-2 space-y-4">
-            <div class="flex items-center justify-between mb-2">
-                <h2 class="text-xl font-bold text-gray-900 dark:text-white">الجلسات ({{ $sessions->count() }})</h2>
-            </div>
 
-            @if($sessions->count() > 0)
-                @foreach($sessions as $session)
-                <div class="session-card" id="session-card-{{ $session->id }}">
-                    <button type="button" class="session-toggle" onclick="toggleSession({{ $session->id }})">
-                        {{-- Session Number Badge --}}
-                        <div style="width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: white; font-weight: 800; font-size: 0.9rem;
-                            background: {{ $session->ended_at ? 'linear-gradient(135deg, #10b981, #059669)' : ($session->started_at ? 'linear-gradient(135deg, #ef4444, #dc2626)' : 'linear-gradient(135deg, #3b82f6, #2563eb)') }};">
-                            {{ $session->session_number }}
-                        </div>
+        {{-- Files Main Panel --}}
+        <div class="lg:col-span-2">
 
-                        {{-- Session Info --}}
-                        <div class="flex-1 text-right">
-                            <div class="flex items-center gap-2 mb-1 flex-wrap">
-                                <h3 class="font-bold text-gray-900 dark:text-white text-sm md:text-base">{{ $session->title }}</h3>
-                                @if($session->ended_at)
-                                    <span class="text-xs px-2 py-0.5 bg-green-100 text-green-700 rounded-full font-medium dark:bg-green-900 dark:text-green-300">مكتمل</span>
-                                @elseif($session->started_at)
-                                    <span class="text-xs px-2 py-0.5 bg-red-100 text-red-700 rounded-full font-medium animate-pulse dark:bg-red-900 dark:text-red-300">مباشر</span>
-                                @else
-                                    <span class="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full font-medium dark:bg-blue-900 dark:text-blue-300">مجدول</span>
-                                @endif
-                                <span class="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full dark:bg-gray-700 dark:text-gray-300">
-                                    {{ $session->type === 'live_zoom' ? 'Zoom' : 'فيديو' }}
-                                </span>
-                            </div>
-                            @if($session->scheduled_at)
-                            <div class="text-xs text-gray-500 dark:text-gray-400">
-                                {{ \Carbon\Carbon::parse($session->scheduled_at)->translatedFormat('l، d F Y - h:i A') }}
-                            </div>
-                            @endif
-                        </div>
-
-                        {{-- Toggle Arrow --}}
-                        <svg class="w-5 h-5 text-gray-400 toggle-icon flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            {{-- Header row --}}
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-3">
+                    <div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#0071AA,#005a88);display:flex;align-items:center;justify-content:center">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/>
                         </svg>
-                    </button>
-
-                    {{-- Expandable Details --}}
-                    <div class="session-details">
-                        <div class="pt-4 space-y-4">
-                            {{-- Description --}}
-                            @if($session->description)
-                            <div>
-                                <div class="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">الوصف</div>
-                                <p class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">{{ $session->description }}</p>
-                            </div>
-                            @endif
-
-                            {{-- Session Info Grid --}}
-                            <div class="grid grid-cols-2 gap-3">
-                                @if($session->duration_minutes)
-                                <div class="bg-amber-50 dark:bg-amber-900/30 rounded-xl p-3 text-center">
-                                    <div class="text-xs text-amber-600 dark:text-amber-400 mb-1">المدة</div>
-                                    <div class="font-bold text-amber-800 dark:text-amber-200">{{ $session->duration_minutes }} دقيقة</div>
-                                </div>
-                                @endif
-                                @if($session->scheduled_at)
-                                <div class="bg-blue-50 dark:bg-blue-900/30 rounded-xl p-3 text-center">
-                                    <div class="text-xs text-blue-600 dark:text-blue-400 mb-1">الموعد</div>
-                                    <div class="font-bold text-blue-800 dark:text-blue-200 text-sm">{{ \Carbon\Carbon::parse($session->scheduled_at)->diffForHumans() }}</div>
-                                </div>
-                                @endif
-                            </div>
-
-                            {{-- Attendance Status --}}
-                            @if(isset($attendances[$session->id]))
-                                @php $att = $attendances[$session->id]; @endphp
-                                <div class="flex items-center gap-2 p-3 rounded-xl {{ $att->attended ? 'bg-green-50 dark:bg-green-900/30' : 'bg-red-50 dark:bg-red-900/30' }}">
-                                    @if($att->attended)
-                                        <svg class="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
-                                        <span class="text-sm font-medium text-green-700 dark:text-green-300">تم تسجيل حضورك</span>
-                                    @else
-                                        <svg class="w-5 h-5 text-red-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>
-                                        <span class="text-sm font-medium text-red-700 dark:text-red-300">غائب</span>
-                                    @endif
-                                </div>
-                            @endif
-
-                            {{-- Session Files --}}
-                            @if($session->files && $session->files->count() > 0)
-                            <div>
-                                <div class="text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 flex items-center gap-1">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>
-                                    الملفات المرفقة ({{ $session->files->count() }})
-                                </div>
-                                <div class="space-y-2">
-                                    @foreach($session->files as $file)
-                                    <a href="{{ asset('storage/' . $file->file_path) }}" target="_blank" class="file-item">
-                                        <div style="width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-                                            background: linear-gradient(135deg, #ef4444, #dc2626);">
-                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
-                                        </div>
-                                        <div class="flex-1 min-w-0">
-                                            <div class="text-sm font-medium text-gray-900 dark:text-white truncate">{{ $file->title }}</div>
-                                            @if($file->file_size)
-                                            <div class="text-xs text-gray-500">{{ number_format($file->file_size / 1024, 0) }} KB</div>
-                                            @endif
-                                        </div>
-                                        <svg class="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-                                    </a>
-                                    @endforeach
-                                </div>
-                            </div>
-                            @endif
-
-                            {{-- Recording --}}
-                            @if($session->type === 'live_zoom' && $session->video_url)
-                            <div>
-                                <div class="text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 flex items-center gap-1">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-                                    التسجيل
-                                </div>
-                                <div class="bg-black rounded-xl overflow-hidden">
-                                    <video class="w-full" controls controlsList="nodownload" preload="metadata">
-                                        <source src="{{ $session->getVideoUrl() }}" type="video/mp4">
-                                        متصفحك لا يدعم تشغيل الفيديو
-                                    </video>
-                                </div>
-                            </div>
-                            @elseif($session->type === 'recorded_video' && $session->hasVideo())
-                            <div>
-                                <div class="text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 flex items-center gap-1">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                    الفيديو
-                                </div>
-                                <div class="bg-black rounded-xl overflow-hidden">
-                                    <video class="w-full" controls controlsList="nodownload" preload="metadata">
-                                        <source src="{{ $session->getVideoUrl() }}" type="video/mp4">
-                                        متصفحك لا يدعم تشغيل الفيديو
-                                    </video>
-                                </div>
-                            </div>
-                            @endif
-
-                            {{-- Join Zoom Button --}}
-                            @if($session->type === 'live_zoom' && $session->started_at && !$session->ended_at && $session->zoom_join_url)
-                            <a href="{{ route('student.sessions.join-zoom', $session->id) }}"
-                               class="flex items-center justify-center gap-2 w-full py-3 rounded-xl text-white font-bold text-sm transition-all hover:scale-[1.02]"
-                               style="background: linear-gradient(135deg, #ef4444, #dc2626); box-shadow: 0 6px 20px rgba(239,68,68,0.4);">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-                                انضم الآن
-                            </a>
-                            @endif
-                        </div>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white">ملفات المادة</h2>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">{{ $allFiles->count() }} ملف في {{ count($filesBySession) }} جلسة</p>
                     </div>
                 </div>
-                @endforeach
-            @else
-                <div class="info-card p-12 text-center">
-                    <svg class="mx-auto h-16 w-16 text-gray-300 dark:text-gray-600 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+
+                {{-- Search --}}
+                <div style="position:relative">
+                    <input type="text" id="fileSearch" oninput="filterFiles()" placeholder="ابحث في الملفات..."
+                           style="border:1.5px solid #e2e8f0;border-radius:10px;padding:8px 36px 8px 12px;font-size:0.875rem;outline:none;width:220px;color:#374151"
+                           onfocus="this.style.borderColor='#0071AA'" onblur="this.style.borderColor='#e2e8f0'">
+                    <svg style="position:absolute;right:10px;top:50%;transform:translateY(-50%);color:#9ca3af" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="m21 21-4.35-4.35"/>
                     </svg>
-                    <p class="text-gray-500 dark:text-gray-400 font-medium">لا توجد جلسات لهذه المادة بعد</p>
+                </div>
+            </div>
+
+            @if($allFiles->count() === 0)
+                {{-- Empty state --}}
+                <div class="info-card" style="padding:4rem 2rem;text-align:center">
+                    <div style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#eff6ff,#dbeafe);display:flex;align-items:center;justify-content:center;margin:0 auto 1.25rem">
+                        <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#93c5fd" stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/>
+                        </svg>
+                    </div>
+                    <p style="font-size:1rem;font-weight:700;color:#374151;margin:0">لا توجد ملفات بعد</p>
+                    <p style="font-size:0.85rem;color:#9ca3af;margin:6px 0 0">سيتم رفع الملفات هنا من قِبَل المعلم</p>
+                </div>
+
+            @else
+                {{-- Files grouped by session --}}
+                <div id="filesList" class="space-y-5">
+                    @foreach($filesBySession as $group)
+                    @php $session = $group['session']; @endphp
+                    <div class="file-group" data-session="{{ $session->title }}">
+                        {{-- Session label --}}
+                        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+                            <div style="width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:0.8rem;flex-shrink:0;
+                                background:{{ $session->ended_at ? 'linear-gradient(135deg,#10b981,#059669)' : ($session->started_at ? 'linear-gradient(135deg,#ef4444,#dc2626)' : 'linear-gradient(135deg,#3b82f6,#2563eb)') }}">
+                                {{ $session->session_number }}
+                            </div>
+                            <span style="font-size:0.95rem;font-weight:700;color:#374151" class="dark:text-white">
+                                {{ $session->title }}
+                            </span>
+                            <span style="font-size:0.78rem;color:#6b7280;background:#f1f5f9;padding:2px 10px;border-radius:999px">
+                                {{ $group['files']->count() }} {{ $group['files']->count() == 1 ? 'ملف' : 'ملفات' }}
+                            </span>
+                        </div>
+
+                        {{-- File cards --}}
+                        <div class="space-y-2 file-items">
+                            @foreach($group['files'] as $file)
+                            @php
+                                $ext = strtolower(pathinfo($file->file_path ?? $file->title ?? '', PATHINFO_EXTENSION));
+                                $meta = $extMeta[$ext] ?? $defaultMeta;
+                                $sizeKb = $file->file_size ? number_format($file->file_size / 1024, 0) : null;
+                                $fileName = $file->title ?: basename($file->file_path ?? 'ملف');
+                            @endphp
+                            <a href="{{ asset('storage/' . $file->file_path) }}" target="_blank"
+                               class="file-card file-item-card" data-name="{{ strtolower($fileName) }}">
+
+                                {{-- Icon --}}
+                                <div style="width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:{{ $meta['bg'] }}">
+                                    @if(in_array($ext, ['mp4', 'avi', 'mov', 'mkv']))
+                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="{{ $meta['icon_bg'] }}">
+                                        <path d="M8 5v14l11-7z"/>
+                                    </svg>
+                                    @elseif(in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp']))
+                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="{{ $meta['icon_bg'] }}">
+                                        <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+                                    </svg>
+                                    @elseif(in_array($ext, ['mp3', 'wav', 'ogg']))
+                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="{{ $meta['icon_bg'] }}">
+                                        <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+                                    </svg>
+                                    @else
+                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="{{ $meta['icon_bg'] }}">
+                                        <path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
+                                    </svg>
+                                    @endif
+                                </div>
+
+                                {{-- Info --}}
+                                <div style="flex:1;min-width:0">
+                                    <div style="font-size:0.95rem;font-weight:700;color:#111827;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" class="dark:text-white">
+                                        {{ $fileName }}
+                                    </div>
+                                    <div style="display:flex;align-items:center;gap:8px;margin-top:3px">
+                                        <span style="font-size:0.75rem;font-weight:600;padding:1px 8px;border-radius:999px;background:{{ $meta['bg'] }};color:{{ $meta['icon_bg'] }}">
+                                            {{ strtoupper($ext) ?: $meta['label'] }}
+                                        </span>
+                                        @if($sizeKb)
+                                        <span style="font-size:0.75rem;color:#9ca3af">{{ $sizeKb }} KB</span>
+                                        @endif
+                                        @if($file->created_at)
+                                        <span style="font-size:0.75rem;color:#9ca3af">{{ \Carbon\Carbon::parse($file->created_at)->diffForHumans() }}</span>
+                                        @endif
+                                    </div>
+                                </div>
+
+                                {{-- Download icon --}}
+                                <div style="flex-shrink:0;width:36px;height:36px;border-radius:10px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;transition:all .2s"
+                                     onmouseover="this.style.background='#0071AA';this.style.color='#fff'"
+                                     onmouseout="this.style.background='#f1f5f9';this.style.color='#6b7280'">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                                    </svg>
+                                </div>
+                            </a>
+                            @endforeach
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+
+                {{-- No results --}}
+                <div id="noResults" style="display:none;text-align:center;padding:3rem 1rem">
+                    <p style="color:#9ca3af;font-size:0.95rem">لا توجد ملفات تطابق بحثك</p>
                 </div>
             @endif
         </div>
 
         {{-- Sidebar --}}
         <div class="space-y-6">
+
+            {{-- Stats --}}
+            <div class="info-card">
+                <div class="p-5 border-b border-gray-100 dark:border-gray-700">
+                    <h2 class="font-bold text-gray-900 dark:text-white">إحصائيات الملفات</h2>
+                </div>
+                <div class="p-5 space-y-3">
+                    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#eff6ff;border-radius:12px">
+                        <span style="font-size:0.85rem;color:#2563eb;font-weight:600">إجمالي الملفات</span>
+                        <span style="font-size:1.2rem;font-weight:800;color:#1d4ed8">{{ $allFiles->count() }}</span>
+                    </div>
+                    @php
+                        $pdfCount    = $allFiles->filter(fn($f) => strtolower(pathinfo($f->file_path ?? '', PATHINFO_EXTENSION)) === 'pdf')->count();
+                        $videoCount  = $allFiles->filter(fn($f) => in_array(strtolower(pathinfo($f->file_path ?? '', PATHINFO_EXTENSION)), ['mp4','avi','mov','mkv']))->count();
+                        $docCount    = $allFiles->filter(fn($f) => in_array(strtolower(pathinfo($f->file_path ?? '', PATHINFO_EXTENSION)), ['doc','docx','ppt','pptx','xls','xlsx']))->count();
+                        $otherCount  = $allFiles->count() - $pdfCount - $videoCount - $docCount;
+                    @endphp
+                    @if($pdfCount > 0)
+                    <div style="display:flex;align-items:center;justify-content:space-between">
+                        <div style="display:flex;align-items:center;gap:8px">
+                            <div style="width:10px;height:10px;border-radius:50%;background:#ef4444"></div>
+                            <span style="font-size:0.85rem;color:#6b7280">PDF</span>
+                        </div>
+                        <span style="font-weight:700;color:#374151">{{ $pdfCount }}</span>
+                    </div>
+                    @endif
+                    @if($videoCount > 0)
+                    <div style="display:flex;align-items:center;justify-content:space-between">
+                        <div style="display:flex;align-items:center;gap:8px">
+                            <div style="width:10px;height:10px;border-radius:50%;background:#7c3aed"></div>
+                            <span style="font-size:0.85rem;color:#6b7280">فيديو</span>
+                        </div>
+                        <span style="font-weight:700;color:#374151">{{ $videoCount }}</span>
+                    </div>
+                    @endif
+                    @if($docCount > 0)
+                    <div style="display:flex;align-items:center;justify-content:space-between">
+                        <div style="display:flex;align-items:center;gap:8px">
+                            <div style="width:10px;height:10px;border-radius:50%;background:#2563eb"></div>
+                            <span style="font-size:0.85rem;color:#6b7280">مستندات</span>
+                        </div>
+                        <span style="font-weight:700;color:#374151">{{ $docCount }}</span>
+                    </div>
+                    @endif
+                    @if($otherCount > 0)
+                    <div style="display:flex;align-items:center;justify-content:space-between">
+                        <div style="display:flex;align-items:center;gap:8px">
+                            <div style="width:10px;height:10px;border-radius:50%;background:#9ca3af"></div>
+                            <span style="font-size:0.85rem;color:#6b7280">أخرى</span>
+                        </div>
+                        <span style="font-weight:700;color:#374151">{{ $otherCount }}</span>
+                    </div>
+                    @endif
+                </div>
+            </div>
+
             {{-- Teacher Info --}}
             <div class="info-card">
                 <div class="p-5 border-b border-gray-100 dark:border-gray-700">
@@ -353,52 +350,9 @@
                         <div class="font-medium text-gray-900 dark:text-white text-sm">{{ $subject->credits }}</div>
                     </div>
                     @endif
-                </div>
-            </div>
-
-            {{-- Statistics --}}
-            <div class="info-card">
-                <div class="p-5 border-b border-gray-100 dark:border-gray-700">
-                    <h2 class="font-bold text-gray-900 dark:text-white">الإحصائيات</h2>
-                </div>
-                <div class="p-5">
-                    <div class="grid grid-cols-2 gap-3 mb-4">
-                        <div class="stat-mini" style="background: linear-gradient(135deg, #eff6ff, #dbeafe);">
-                            <div class="text-2xl font-bold text-blue-700">{{ $sessions->count() }}</div>
-                            <div class="text-xs text-blue-600 mt-1">إجمالي الجلسات</div>
-                        </div>
-                        <div class="stat-mini" style="background: linear-gradient(135deg, #ecfdf5, #d1fae5);">
-                            <div class="text-2xl font-bold text-green-700">{{ $sessions->where('ended_at', '!=', null)->count() }}</div>
-                            <div class="text-xs text-green-600 mt-1">مكتملة</div>
-                        </div>
-                    </div>
-
-                    @php
-                        $totalAttended = $attendances->where('attended', true)->count();
-                        $totalSessions = $sessions->where('ended_at', '!=', null)->count();
-                        $attendanceRate = $totalSessions > 0 ? round(($totalAttended / $totalSessions) * 100) : 0;
-                        $completionRate = $sessions->count() > 0 ? round(($sessions->where('ended_at', '!=', null)->count() / $sessions->count()) * 100) : 0;
-                    @endphp
-
-                    <div class="space-y-3">
-                        <div>
-                            <div class="flex items-center justify-between mb-1">
-                                <span class="text-xs text-gray-600 dark:text-gray-400">نسبة الإنجاز</span>
-                                <span class="text-xs font-bold text-gray-900 dark:text-white">{{ $completionRate }}%</span>
-                            </div>
-                            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                                <div class="bg-green-500 h-2 rounded-full transition-all" style="width: {{ $completionRate }}%"></div>
-                            </div>
-                        </div>
-                        <div>
-                            <div class="flex items-center justify-between mb-1">
-                                <span class="text-xs text-gray-600 dark:text-gray-400">نسبة الحضور</span>
-                                <span class="text-xs font-bold text-gray-900 dark:text-white">{{ $attendanceRate }}%</span>
-                            </div>
-                            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                                <div class="h-2 rounded-full transition-all" style="width: {{ $attendanceRate }}%; background: linear-gradient(135deg, #0071AA, #005a88);"></div>
-                            </div>
-                        </div>
+                    <div>
+                        <div class="text-xs text-gray-500 dark:text-gray-400 mb-1">عدد الجلسات</div>
+                        <div class="font-medium text-gray-900 dark:text-white text-sm">{{ $sessions->count() }}</div>
                     </div>
                 </div>
             </div>
@@ -409,9 +363,27 @@
 
 @push('scripts')
 <script>
-function toggleSession(id) {
-    const card = document.getElementById('session-card-' + id);
-    card.classList.toggle('open');
+function filterFiles() {
+    const q = document.getElementById('fileSearch').value.toLowerCase().trim();
+    const cards = document.querySelectorAll('.file-item-card');
+    const groups = document.querySelectorAll('.file-group');
+    let totalVisible = 0;
+
+    groups.forEach(group => {
+        let groupVisible = 0;
+        group.querySelectorAll('.file-item-card').forEach(card => {
+            const name = card.dataset.name || '';
+            const match = !q || name.includes(q);
+            card.style.display = match ? '' : 'none';
+            if (match) groupVisible++;
+        });
+        group.style.display = groupVisible > 0 ? '' : 'none';
+        totalVisible += groupVisible;
+    });
+
+    document.getElementById('noResults').style.display = totalVisible === 0 ? '' : 'none';
+    const list = document.getElementById('filesList');
+    if (list) list.style.display = totalVisible === 0 ? 'none' : '';
 }
 </script>
 @endpush

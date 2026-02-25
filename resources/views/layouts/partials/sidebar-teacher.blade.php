@@ -1,3 +1,8 @@
+{{-- ═══ الرئيسية ═══ --}}
+<li style="padding:16px 16px 4px">
+    <span style="font-size:0.68rem;font-weight:700;letter-spacing:0.1em;color:rgba(255,255,255,0.35);display:block;text-transform:uppercase">الرئيسية</span>
+</li>
+
 <!-- لوحة التحكم -->
 <li>
     <a href="{{ route('teacher.dashboard') }}"
@@ -7,6 +12,14 @@
         </svg>
         <span>لوحة التحكم</span>
     </a>
+</li>
+
+{{-- ═══ فاصل ═══ --}}
+<li style="margin:6px 16px;height:1px;background:rgba(255,255,255,0.1)"></li>
+
+{{-- ═══ التدريس ═══ --}}
+<li style="padding:8px 16px 4px">
+    <span style="font-size:0.68rem;font-weight:700;letter-spacing:0.1em;color:rgba(255,255,255,0.35);display:block;text-transform:uppercase">التدريس</span>
 </li>
 
 <!-- موادي -->
@@ -64,6 +77,14 @@
     </ul>
 </li>
 
+{{-- ═══ فاصل ═══ --}}
+<li style="margin:6px 16px;height:1px;background:rgba(255,255,255,0.1)"></li>
+
+{{-- ═══ إدارة الطلاب ═══ --}}
+<li style="padding:8px 16px 4px">
+    <span style="font-size:0.68rem;font-weight:700;letter-spacing:0.1em;color:rgba(255,255,255,0.35);display:block;text-transform:uppercase">إدارة الطلاب</span>
+</li>
+
 <!-- الطلاب -->
 <li>
     <a href="{{ route('teacher.students.index') }}"
@@ -73,6 +94,14 @@
         </svg>
         <span>الطلاب</span>
     </a>
+</li>
+
+{{-- ═══ فاصل ═══ --}}
+<li style="margin:6px 16px;height:1px;background:rgba(255,255,255,0.1)"></li>
+
+{{-- ═══ الدعم ═══ --}}
+<li style="padding:8px 16px 4px">
+    <span style="font-size:0.68rem;font-weight:700;letter-spacing:0.1em;color:rgba(255,255,255,0.35);display:block;text-transform:uppercase">الدعم</span>
 </li>
 
 <!-- تذاكر الدعم -->
