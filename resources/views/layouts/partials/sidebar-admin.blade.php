@@ -1,4 +1,6 @@
-{{-- لوحة التحكم --}}
+{{-- ════════════════════════════════════════ --}}
+{{-- لوحة التحكم                           --}}
+{{-- ════════════════════════════════════════ --}}
 @can('view-dashboard')
 <li>
     <a href="{{ route('admin.dashboard') }}"
@@ -8,6 +10,15 @@
     </a>
 </li>
 @endcan
+
+{{-- ════════════════════════════════════════ --}}
+{{-- الأشخاص                                --}}
+{{-- ════════════════════════════════════════ --}}
+@canany(['view-teachers','view-students'])
+<li class="mt-4 mb-1">
+    <span class="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider px-4">الأشخاص</span>
+</li>
+@endcanany
 
 {{-- إدارة المعلمين --}}
 @can('view-teachers')
@@ -31,31 +42,14 @@
 </li>
 @endcan
 
-{{-- طلبات التسجيل في البرامج --}}
-@canany(['manage-program-enrollments', 'approve-program-enrollments'])
-<li>
-    <a href="{{ route('admin.program-enrollments.index') }}"
-       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('admin.program-enrollments.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
-        <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20"><path d="M15.8333 2.5H4.16667C3.25 2.5 2.5 3.25 2.5 4.16667V15.8333C2.5 16.75 3.25 17.5 4.16667 17.5H15.8333C16.75 17.5 17.5 16.75 17.5 15.8333V4.16667C17.5 3.25 16.75 2.5 15.8333 2.5ZM8.33333 13.3333L5 10L6.175 8.825L8.33333 10.975L13.825 5.48333L15 6.66667L8.33333 13.3333Z" fill=""/></svg>
-        <span>طلبات التسجيل في البرامج</span>
-        @php $pendingCount = \App\Models\User::where('program_status','pending')->where('role','student')->count(); @endphp
-        @if($pendingCount > 0)
-        <span class="mr-auto px-2 py-0.5 bg-yellow-500 text-white text-xs font-bold rounded-full">{{ $pendingCount }}</span>
-        @endif
-    </a>
+{{-- ════════════════════════════════════════ --}}
+{{-- الأكاديمي                              --}}
+{{-- ════════════════════════════════════════ --}}
+@canany(['view-programs','view-terms','view-subjects','view-sessions','view-recordings'])
+<li class="mt-4 mb-1">
+    <span class="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider px-4">الأكاديمي</span>
 </li>
 @endcanany
-
-{{-- إدارة الدفعات --}}
-@can('view-payments')
-<li>
-    <a href="{{ route('admin.payments.index') }}"
-       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('admin.payments.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
-        <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20"><path d="M17.5 4.16667H15.8333V2.5C15.8333 1.58333 15.0833 0.833333 14.1667 0.833333H5.83333C4.91667 0.833333 4.16667 1.58333 4.16667 2.5V4.16667H2.5C1.58333 4.16667 0.833333 4.91667 0.833333 5.83333V15.8333C0.833333 16.75 1.58333 17.5 2.5 17.5H17.5C18.4167 17.5 19.1667 16.75 19.1667 15.8333V5.83333C19.1667 4.91667 18.4167 4.16667 17.5 4.16667ZM5.83333 2.5H14.1667V4.16667H5.83333V2.5ZM17.5 15.8333H2.5V11.6667H17.5V15.8333ZM17.5 9.16667H2.5V5.83333H17.5V9.16667Z" fill=""/></svg>
-        <span>إدارة الدفعات</span>
-    </a>
-</li>
-@endcan
 
 {{-- المسارات التعليمية --}}
 @can('view-programs')
@@ -112,13 +106,37 @@
 </li>
 @endcan
 
-{{-- استبيانات الرضا --}}
-@can('view-surveys')
+{{-- ════════════════════════════════════════ --}}
+{{-- العمليات                               --}}
+{{-- ════════════════════════════════════════ --}}
+@canany(['manage-program-enrollments','approve-program-enrollments','view-payments','view-tickets'])
+<li class="mt-4 mb-1">
+    <span class="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider px-4">العمليات</span>
+</li>
+@endcanany
+
+{{-- طلبات التسجيل في البرامج --}}
+@canany(['manage-program-enrollments', 'approve-program-enrollments'])
 <li>
-    <a href="{{ route('admin.surveys.index') }}"
-       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('admin.surveys.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
+    <a href="{{ route('admin.program-enrollments.index') }}"
+       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('admin.program-enrollments.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
         <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20"><path d="M15.8333 2.5H4.16667C3.25 2.5 2.5 3.25 2.5 4.16667V15.8333C2.5 16.75 3.25 17.5 4.16667 17.5H15.8333C16.75 17.5 17.5 16.75 17.5 15.8333V4.16667C17.5 3.25 16.75 2.5 15.8333 2.5ZM8.33333 13.3333L5 10L6.175 8.825L8.33333 10.975L13.825 5.48333L15 6.66667L8.33333 13.3333Z" fill=""/></svg>
-        <span>استبيانات الرضا</span>
+        <span>طلبات التسجيل</span>
+        @php $pendingCount = \App\Models\User::where('program_status','pending')->where('role','student')->count(); @endphp
+        @if($pendingCount > 0)
+        <span class="mr-auto px-2 py-0.5 bg-yellow-500 text-white text-xs font-bold rounded-full">{{ $pendingCount }}</span>
+        @endif
+    </a>
+</li>
+@endcanany
+
+{{-- إدارة الدفعات --}}
+@can('view-payments')
+<li>
+    <a href="{{ route('admin.payments.index') }}"
+       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('admin.payments.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
+        <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20"><path d="M17.5 4.16667H15.8333V2.5C15.8333 1.58333 15.0833 0.833333 14.1667 0.833333H5.83333C4.91667 0.833333 4.16667 1.58333 4.16667 2.5V4.16667H2.5C1.58333 4.16667 0.833333 4.91667 0.833333 5.83333V15.8333C0.833333 16.75 1.58333 17.5 2.5 17.5H17.5C18.4167 17.5 19.1667 16.75 19.1667 15.8333V5.83333C19.1667 4.91667 18.4167 4.16667 17.5 4.16667ZM5.83333 2.5H14.1667V4.16667H5.83333V2.5ZM17.5 15.8333H2.5V11.6667H17.5V15.8333ZM17.5 9.16667H2.5V5.83333H17.5V9.16667Z" fill=""/></svg>
+        <span>إدارة الدفعات</span>
     </a>
 </li>
 @endcan
@@ -134,13 +152,51 @@
 </li>
 @endcan
 
-{{-- تقييم المدربين --}}
-@can('view-ratings')
+{{-- ════════════════════════════════════════ --}}
+{{-- المحتوى                                --}}
+{{-- ════════════════════════════════════════ --}}
+<li class="mt-4 mb-1">
+    <span class="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider px-4">المحتوى</span>
+</li>
+
+{{-- الأخبار --}}
 <li>
-    <a href="{{ route('admin.teacher-ratings.index') }}"
-       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('admin.teacher-ratings.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
-        <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20"><path d="M10 1.66667L12.575 6.88334L18.3333 7.725L14.1667 11.7833L15.15 17.5167L10 14.8083L4.85 17.5167L5.83333 11.7833L1.66667 7.725L7.425 6.88334L10 1.66667Z" fill=""/></svg>
-        <span>تقييم المدربين</span>
+    <a href="{{ route('admin.news.index') }}"
+       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('admin.news.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
+        <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20"><path d="M17.5 3.33334H2.5C1.58334 3.33334 0.841671 4.08334 0.841671 5.00001L0.833337 15C0.833337 15.9167 1.58334 16.6667 2.5 16.6667H17.5C18.4167 16.6667 19.1667 15.9167 19.1667 15V5.00001C19.1667 4.08334 18.4167 3.33334 17.5 3.33334ZM10.8333 13.3333H4.16667V11.6667H10.8333V13.3333ZM15.8333 10H4.16667V8.33334H15.8333V10ZM15.8333 6.66667H4.16667V5.00001H15.8333V6.66667Z" fill=""/></svg>
+        <span>الأخبار</span>
+    </a>
+</li>
+
+{{-- رسائل التواصل --}}
+<li>
+    <a href="{{ route('admin.contacts.index') }}"
+       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('admin.contacts.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
+        <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20"><path d="M16.6667 3.33334H3.33337C2.41671 3.33334 1.67504 4.08334 1.67504 5.00001L1.66671 15C1.66671 15.9167 2.41671 16.6667 3.33337 16.6667H16.6667C17.5834 16.6667 18.3334 15.9167 18.3334 15V5.00001C18.3334 4.08334 17.5834 3.33334 16.6667 3.33334ZM16.6667 6.66667L10 10.8333L3.33337 6.66667V5.00001L10 9.16667L16.6667 5.00001V6.66667Z" fill=""/></svg>
+        <span>رسائل التواصل</span>
+        @php $newContacts = \App\Models\Contact::where('status', 'new')->count(); @endphp
+        @if($newContacts > 0)
+        <span class="mr-auto px-2 py-0.5 bg-red-500 text-white text-xs font-bold rounded-full">{{ $newContacts }}</span>
+        @endif
+    </a>
+</li>
+
+{{-- ════════════════════════════════════════ --}}
+{{-- التقارير والتقييم                      --}}
+{{-- ════════════════════════════════════════ --}}
+@canany(['view-reports','view-activity-logs','manage-xapi','view-surveys','view-ratings'])
+<li class="mt-4 mb-1">
+    <span class="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider px-4">التقارير والتقييم</span>
+</li>
+@endcanany
+
+{{-- التقارير والإحصائيات --}}
+@can('view-reports')
+<li>
+    <a href="{{ route('admin.reports.index') }}"
+       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('admin.reports.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
+        <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20"><path d="M2.5 16.25H17.5C17.9583 16.25 18.3333 16.625 18.3333 17.0833C18.3333 17.5417 17.9583 17.9167 17.5 17.9167H2.5C2.04167 17.9167 1.66667 17.5417 1.66667 17.0833C1.66667 16.625 2.04167 16.25 2.5 16.25Z" fill=""/><path d="M4.16667 13.75C3.70833 13.75 3.33333 13.375 3.33333 12.9167V7.08333C3.33333 6.625 3.70833 6.25 4.16667 6.25C4.625 6.25 5 6.625 5 7.08333V12.9167C5 13.375 4.625 13.75 4.16667 13.75Z" fill=""/><path d="M8.33333 13.75C7.875 13.75 7.5 13.375 7.5 12.9167V2.91667C7.5 2.45833 7.875 2.08333 8.33333 2.08333C8.79167 2.08333 9.16667 2.45833 9.16667 2.91667V12.9167C9.16667 13.375 8.79167 13.75 8.33333 13.75Z" fill=""/><path d="M12.5 13.75C12.0417 13.75 11.6667 13.375 11.6667 12.9167V9.58333C11.6667 9.125 12.0417 8.75 12.5 8.75C12.9583 8.75 13.3333 9.125 13.3333 9.58333V12.9167C13.3333 13.375 12.9583 13.75 12.5 13.75Z" fill=""/><path d="M16.6667 13.75C16.2083 13.75 15.8333 13.375 15.8333 12.9167V4.58333C15.8333 4.125 16.2083 3.75 16.6667 3.75C17.125 3.75 17.5 4.125 17.5 4.58333V12.9167C17.5 13.375 17.125 13.75 16.6667 13.75Z" fill=""/></svg>
+        <span>التقارير والإحصائيات</span>
     </a>
 </li>
 @endcan
@@ -156,31 +212,34 @@
 </li>
 @endcan
 
-{{-- xAPI Dashboard --}}
-@can('manage-xapi')
+{{-- استبيانات الرضا --}}
+@can('view-surveys')
 <li>
-    <a href="{{ route('admin.xapi.index') }}"
-       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('admin.xapi.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
-        <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20"><path d="M10 0C4.48 0 0 4.48 0 10C0 15.52 4.48 20 10 20C15.52 20 20 15.52 20 10C20 4.48 15.52 0 10 0ZM10 18C5.59 18 2 14.41 2 10C2 5.59 5.59 2 10 2C14.41 2 18 5.59 18 10C18 14.41 14.41 18 10 18ZM9 5H11V11H9V5ZM9 13H11V15H9V13Z" fill=""/></svg>
-        <span>xAPI Dashboard</span>
+    <a href="{{ route('admin.surveys.index') }}"
+       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('admin.surveys.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
+        <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20"><path d="M15.8333 2.5H4.16667C3.25 2.5 2.5 3.25 2.5 4.16667V15.8333C2.5 16.75 3.25 17.5 4.16667 17.5H15.8333C16.75 17.5 17.5 16.75 17.5 15.8333V4.16667C17.5 3.25 16.75 2.5 15.8333 2.5ZM8.33333 13.3333L5 10L6.175 8.825L8.33333 10.975L13.825 5.48333L15 6.66667L8.33333 13.3333Z" fill=""/></svg>
+        <span>استبيانات الرضا</span>
     </a>
 </li>
 @endcan
 
-{{-- التقارير والإحصائيات --}}
-@can('view-reports')
+{{-- تقييم المدربين --}}
+@can('view-ratings')
 <li>
-    <a href="{{ route('admin.reports.index') }}"
-       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('admin.reports.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
-        <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20"><path d="M2.5 16.25H17.5C17.9583 16.25 18.3333 16.625 18.3333 17.0833C18.3333 17.5417 17.9583 17.9167 17.5 17.9167H2.5C2.04167 17.9167 1.66667 17.5417 1.66667 17.0833C1.66667 16.625 2.04167 16.25 2.5 16.25Z" fill=""/><path d="M4.16667 13.75C3.70833 13.75 3.33333 13.375 3.33333 12.9167V7.08333C3.33333 6.625 3.70833 6.25 4.16667 6.25C4.625 6.25 5 6.625 5 7.08333V12.9167C5 13.375 4.625 13.75 4.16667 13.75Z" fill=""/><path d="M8.33333 13.75C7.875 13.75 7.5 13.375 7.5 12.9167V2.91667C7.5 2.45833 7.875 2.08333 8.33333 2.08333C8.79167 2.08333 9.16667 2.45833 9.16667 2.91667V12.9167C9.16667 13.375 8.79167 13.75 8.33333 13.75Z" fill=""/><path d="M12.5 13.75C12.0417 13.75 11.6667 13.375 11.6667 12.9167V9.58333C11.6667 9.125 12.0417 8.75 12.5 8.75C12.9583 8.75 13.3333 9.125 13.3333 9.58333V12.9167C13.3333 13.375 12.9583 13.75 12.5 13.75Z" fill=""/><path d="M16.6667 13.75C16.2083 13.75 15.8333 13.375 15.8333 12.9167V4.58333C15.8333 4.125 16.2083 3.75 16.6667 3.75C17.125 3.75 17.5 4.125 17.5 4.58333V12.9167C17.5 13.375 17.125 13.75 16.6667 13.75Z" fill=""/></svg>
-        <span>التقارير والإحصائيات</span>
+    <a href="{{ route('admin.teacher-ratings.index') }}"
+       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('admin.teacher-ratings.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
+        <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20"><path d="M10 1.66667L12.575 6.88334L18.3333 7.725L14.1667 11.7833L15.15 17.5167L10 14.8083L4.85 17.5167L5.83333 11.7833L1.66667 7.725L7.425 6.88334L10 1.66667Z" fill=""/></svg>
+        <span>تقييم المدربين</span>
     </a>
 </li>
 @endcan
 
-{{-- ─── إدارة النظام ─────────────────────────── --}}
+
+{{-- ════════════════════════════════════════ --}}
+{{-- إدارة النظام                           --}}
+{{-- ════════════════════════════════════════ --}}
 @canany(['view-users','manage-roles','manage-permissions','view-settings','manage-system'])
-<li class="mt-4 mb-2">
+<li class="mt-4 mb-1">
     <span class="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider px-4">إدارة النظام</span>
 </li>
 @endcanany

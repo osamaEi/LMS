@@ -1077,7 +1077,7 @@
 <body>
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg d-flex flex-column shadow-sm">
-        <!-- Container 1 -->
+        {{-- <!-- Container 1 -->
         <div class="container-fluid bg-gray d-flex justify-content-start gap-3 align-items-center top-bar">
             <img src="https://flagcdn.com/sa.svg" width="30" alt="Saudi Flag" />
             <p class="top-text mb-0">{{ __('Official government site registered with the Digital Government Authority') }}</p>
@@ -1103,9 +1103,7 @@
                     <p class="mb-0">{{ __('Riyadh') }}</p>
                 </div>
             </div>
-
-
-        </div>
+        </div> --}}
 
         <!-- Container 3 -->
         <div class="container-fluid bottom-bar bg-white d-flex align-items-center justify-content-between">
@@ -1124,16 +1122,10 @@
                         <a href="{{ route('home') }}" class="active">{{ __('Home') }}</a>
                     </li>
                     <li class="nav-item">
-                        <a href="{{ route('training-paths') }}">{{ __('Training Paths') }}</a>
-                    </li>
-                    <li class="nav-item">
                         <a href="{{ route('short-courses') }}">{{ __('Short Courses') }}</a>
                     </li>
                     <li class="nav-item">
                         <a href="{{ route('about') }}">{{ __('About Us') }}</a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{{ route('news') }}">{{ __('News') }}</a>
                     </li>
                     <li class="nav-item">
                         <a href="{{ route('faq') }}">{{ __('FAQ') }}</a>
@@ -1188,10 +1180,8 @@
         </div>
         <ul class="mobile-nav-list">
             <li><a href="{{ route('home') }}" class="active">{{ __('Home') }}</a></li>
-            <li><a href="{{ route('training-paths') }}">{{ __('Training Paths') }}</a></li>
             <li><a href="{{ route('short-courses') }}">{{ __('Short Courses') }}</a></li>
             <li><a href="{{ route('about') }}">{{ __('About Us') }}</a></li>
-            <li><a href="{{ route('news') }}">{{ __('News') }}</a></li>
             <li><a href="{{ route('faq') }}">{{ __('FAQ') }}</a></li>
             <li><a href="{{ route('contact') }}">{{ __('Contact Us') }}</a></li>
         </ul>
@@ -1226,7 +1216,6 @@
     <section class="container-fluid section-wrapper">
         <div class="row section-content">
             <div class="col-sm-12 col-md-6 d-flex flex-column justify-content-center">
-                <p class="st-p">{{ __('Training That Meets Your Needs') }}</p>
                 <h1>
                     {{ __('Distinguished training opens doors to') }}
                     <span style="color: var(--main-color);">{{ __('tomorrow') }}</span>
@@ -1241,8 +1230,6 @@
             </div>
             <div class="col-sm-12 col-md-6 left-sec">
                 <img src="{{ asset('images/person.png') }}" alt="" class="main-img" />
-                <button class="abs-btn">{{ __('Start Learning Now') }}</button>
-                <img src="{{ asset('images/Figma Cursor.png') }}" class="img-abs land-abs" />
             </div>
         </div>
     </section>
@@ -1253,15 +1240,10 @@
     <!-- Why Choose Us Section -->
     <section class="section-container">
         <div class="head text-center d-flex justify-content-center align-items-center flex-column position-relative">
-            <p class="st-p">{{ __('Training That Meets Your Needs') }}</p>
             <h1>{{ __('Why Choose Us') }}</h1>
-            <div>
-                <p class="nd-p">
-                    {{ __('We offer an integrated training system that combines quality, flexibility, and modern technologies to ensure the best educational experience.') }}
-                </p>
-                <button class="abs-btn d-none d-md-block">{{ __('Start Learning Now') }}</button>
-                <img src="{{ asset('images/Figma Cursor.png') }}" class="img-abs d-none d-md-block" />
-            </div>
+            <p class="nd-p">
+                {{ __('We offer an integrated training system that combines quality, flexibility, and modern technologies to ensure the best educational experience.') }}
+            </p>
         </div>
         <div class="row text-center mt-4 container-fluid gx-4 gy-4 mx-auto">
             <div class="col-12 col-sm-6 col-md-4 col-lg-3">
@@ -1325,12 +1307,9 @@
 
     <!-- Training Paths Section -->
     <section class="container-fluid py-5" style="background: #f3f4f6">
-        <div class="head d-flex justify-content-center align-items-center flex-column py-5 position-relative text-center">
-            <p class="st-p">{{ __('Training That Meets Your Needs') }}</p>
+        <div class="head d-flex justify-content-center align-items-center flex-column py-5 text-center">
             <h1>{{ __('Comprehensive training paths to build your future') }}</h1>
             <p class="phead">{{ __('We provide training paths spanning two and a half years through 10 training quarters, plus short and specialized courses for various professional goals.') }}</p>
-            <button class="abs-btn d-none d-md-block">{{ __('Start Learning Now') }}</button>
-            <img src="{{ asset('images/Figma Cursor.png') }}" class="img-abs train-abs d-none d-md-block" />
         </div>
         <div class="courses-container">
             @for ($i = 0; $i < 3; $i++)
@@ -1363,13 +1342,10 @@
 
     <!-- Upcoming Courses Section -->
     <section class="container-fluid py-5">
-        <div class="head d-flex justify-content-center align-items-center flex-column py-5 position-relative text-center">
-            <p class="st-p">{{ __('Training That Meets Your Needs') }}</p>
+        <div class="head d-flex justify-content-center align-items-center flex-column py-5 text-center">
             <h2>{{ __('Courses starting soon — Reserve your seat') }}</h2>
             <p class="phead">{{ __('Choose from a variety of specialized courses starting in the coming weeks.') }}</p>
             <button class="notfull-btn mt-3">{{ __('View All Courses') }}</button>
-            <button class="abs-btn d-none d-md-block">{{ __('Start Learning Now') }}</button>
-            <img src="{{ asset('images/Figma Cursor.png') }}" class="img-abs coming-abs d-none d-md-block" />
         </div>
         <div class="courses-container">
             @for ($i = 0; $i < 3; $i++)
@@ -1402,15 +1378,12 @@
 
     <!-- How It Works Section -->
     <section class="container-fluid py-5 " >
-        <div class="head d-flex justify-content-center align-items-center flex-column py-5 position-relative text-center">
-            <p class="st-p">{{ __('Training That Meets Your Needs') }}</p>
+        <div class="head d-flex justify-content-center align-items-center flex-column py-5 text-center">
             <h2>{{ __('How does our training system work?') }}</h2>
             <p>
                 {{ __('An integrated training system that ensures a clear, organized educational journey with measurable results. From registration to certification, we designed our system to be simple, effective, and compliant with private training standards in the Kingdom.') }}
             </p>
             <button class="notfull-btn mt-3">{{ __('View All Courses') }}</button>
-            <button class="abs-btn d-none d-md-block How-abs-btn">{{ __('Start Learning Now') }}</button>
-            <img src="{{ asset('images/Figma Cursor.png') }}" class="img-abs How-abs d-none d-md-block" />
         </div>
         <div class="row container-fluid content-wrapper How-sec {{ app()->getLocale() == 'ar' ?  '': 'flex-row-reverse' }}">
 
@@ -1450,255 +1423,6 @@
 
         </div>
 
-    </section>
-
-    <!-- App Section -->
-    <section class="container-fluid pt-5 pb-5 app-section">
-        <div class="d-flex justify-content-between main-wrapper flex-wrap" style="max-width: 1400px; margin: 0 auto; gap: 2rem;">
-            <div class="right-sec pe-3" style="flex: 1; min-width: 300px; padding: 3rem 0;">
-                <p class="st-p" style="background: white;">{{ __('Training That Meets Your Needs') }}</p>
-                <h1>{{ __('The app that accompanies you at every step of your training journey') }}</h1>
-                <p class="nd-p">
-                    {{ __('Our app provides a comprehensive educational experience that allows you to follow your courses, attend lectures, track your progress, and communicate directly with trainers — all from one place with an easy-to-use interface.') }}
-                </p>
-                <div class="store-buttons" dir="ltr">
-                    <!-- Huawei AppGallery -->
-                    <a href="#" class="store-btn">
-                        <img src="{{ asset('images/huawei-appgallery-thumb.png') }}" style="width: 40px; border-radius: 10px" />
-                        <div class="text">
-                            <span class="small">EXPLORE IT ON</span>
-                            <span class="big">AppGallery</span>
-                        </div>
-                    </a>
-
-                    <!-- Apple App Store -->
-                    <a href="#" class="store-btn">
-                        <i class="bi bi-apple" style="font-size: 24px;"></i>
-                        <div class="text">
-                            <span class="small">Download on the</span>
-                            <span class="big">App Store</span>
-                        </div>
-                    </a>
-
-                    <!-- Google Play -->
-                    <a href="#" class="store-btn">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="21" height="24" viewBox="0 0 21 24" fill="none">
-                            <path d="M9.80482 11.4617L0.0895996 22.0059C0.0905121 22.0078 0.090512 22.0106 0.0914244 22.0125C0.389807 23.1574 1.41179 24 2.62539 24C3.11083 24 3.56616 23.8656 3.95671 23.6305L3.98773 23.6118L14.9229 17.1593L9.80482 11.4617Z" fill="#EA4335"/>
-                            <path d="M19.6332 9.66424L19.624 9.6577L14.9029 6.85928L9.58398 11.6994L14.922 17.1562L19.6177 14.3858C20.4407 13.9305 21.0001 13.0431 21.0001 12.0204C21.0001 11.0033 20.4489 10.1205 19.6332 9.66424Z" fill="#FBBC04"/>
-                            <path d="M0.0894234 1.9952C0.0310244 2.21542 0 2.44683 0 2.68571V21.3182C0 21.5571 0.0310245 21.7885 0.0903359 22.0078L10.1386 11.7332L0.0894234 1.9952Z" fill="#4285F4"/>
-                            <path d="M9.87666 12L14.9044 6.85945L3.98201 0.383598C3.58508 0.140054 3.12154 8.67844e-05 2.62606 8.67844e-05C1.41246 8.67844e-05 0.38865 0.84456 0.0902675 1.99043C0.0902675 1.99136 0.0893555 1.9923 0.0893555 1.99323L9.87666 12Z" fill="#34A853"/>
-                        </svg>
-                        <div class="text">
-                            <span class="small">GET IT ON</span>
-                            <span class="big">Google Play</span>
-                        </div>
-                    </a>
-                </div>
-            </div>
-            <div class="d-flex left-sec align-items-end" style="flex: 1; min-width: 300px; position: relative;">
-                <div class="st-mobile">
-                    <img src="{{ asset('images/phone1.png') }}" alt="" style="width: 250px; height: 500px; position: relative; z-index: 50; {{ app()->getLocale() == 'ar' ? 'left: -140px;' : 'right: -140px;' }}" />
-                </div>
-                <div class="nd-mobile">
-                    <img src="{{ asset('images/phone2.png') }}" alt="" style="width: 250px; height: 400px; position: relative; z-index: 30;" />
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Trainers Section -->
-    <section class="container-fluid section-container p-5">
-        <div class="head text-center d-flex justify-content-center align-items-center flex-column position-relative">
-            <p class="st-p">{{ __('Training That Meets Your Needs') }}</p>
-            <h1>{{ __('Elevate your skills with the best certified trainers') }}</h1>
-            <p class="head-desc">
-                {{ __('We offer you a training system supervised by elite Saudi trainers with academic and professional expertise, to ensure effective learning that enables you to achieve your goals with confidence and methodology.') }}
-            </p>
-            <button class="abs-btn d-none d-md-block trainers-abs-btn">{{ __('Start Learning Now') }}</button>
-            <img src="{{ asset('images/Figma Cursor.png') }}" class="img-abs trainers-abs d-none d-md-block" />
-        </div>
-
-        <div class="row mt-4">
-            <!-- Right Column -->
-            <div class="col-12 col-md-3 col-lg-3 d-flex flex-column gap-3">
-                <div class="trainers-card">
-                    <div class="imgs d-flex flex-column align-items-center">
-                        <div class="top-img">
-                            <img src="{{ asset('images/top.png') }}" alt="" />
-                        </div>
-                        <div class="bottom-img d-flex gap-3 mt-2">
-                            <img src="{{ asset('images/left.png') }}" alt="" />
-                            <img src="{{ asset('images/right.png') }}" alt="" />
-                        </div>
-                    </div>
-                    <div class="text mt-3">
-                        <h4>{{ __('Experience leads you to success') }}</h4>
-                        <p>{{ __('Each trainer has academic and professional experience in their field, ensuring training quality and depth of benefit.') }}</p>
-                    </div>
-                </div>
-                <div class="trainers-card">
-                    <div class="imgs d-flex flex-column align-items-center">
-                        <div class="top-img">
-                            <img src="{{ asset('images/top.png') }}" alt="" />
-                        </div>
-                        <div class="bottom-img d-flex gap-3 mt-2">
-                            <img src="{{ asset('images/left.png') }}" alt="" />
-                            <img src="{{ asset('images/right.png') }}" alt="" />
-                        </div>
-                    </div>
-                    <div class="text mt-3">
-                        <h4>{{ __('Accredited training content') }}</h4>
-                        <p>{{ __('Programs and paths provided by certified trainers, built on private training standards within the Kingdom.') }}</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Center Column -->
-            <div class="col-12 col-md-6 col-lg-6">
-                <div class="center-card h-100">
-                    <div class="img">
-                        <img src="{{ asset('images/center.jpg') }}" alt="" />
-                    </div>
-                    <div class="btns d-flex gap-4 justify-content-center mt-4">
-                        <button class="full-btn">{{ __('Join us as a trainer') }}</button>
-                        <button class="notfull-btn">{{ __('Joining requirements') }}</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Left Column -->
-            <div class="col-12 col-md-3 col-lg-3 d-flex flex-column gap-3">
-                <div class="trainers-card">
-                    <div class="imgs d-flex flex-column align-items-center">
-                        <div class="top-img">
-                            <img src="{{ asset('images/top.png') }}" alt="" />
-                        </div>
-                        <div class="bottom-img d-flex gap-3 mt-2">
-                            <img src="{{ asset('images/left.png') }}" alt="" />
-                            <img src="{{ asset('images/right.png') }}" alt="" />
-                        </div>
-                    </div>
-                    <div class="text mt-3">
-                        <h4>{{ __('Flexible and diverse learning') }}</h4>
-                        <p>{{ __('Live and recorded content, designed to keep pace with different learning styles and give you complete flexibility.') }}</p>
-                    </div>
-                </div>
-                <div class="trainers-card">
-                    <div class="imgs d-flex flex-column align-items-center">
-                        <div class="top-img">
-                            <img src="{{ asset('images/top.png') }}" alt="" />
-                        </div>
-                        <div class="bottom-img d-flex gap-3 mt-2">
-                            <img src="{{ asset('images/left.png') }}" alt="" />
-                            <img src="{{ asset('images/right.png') }}" alt="" />
-                        </div>
-                    </div>
-                    <div class="text mt-3">
-                        <h4>{{ __('Direct interaction with trainers') }}</h4>
-                        <p>{{ __('Ability to communicate, ask questions, and receive feedback to help you progress confidently.') }}</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Success Stories Section -->
-    <section class="container-fluid section-container p-4 feedback-section">
-        <div class="head text-center d-flex justify-content-center align-items-center flex-column position-relative">
-            <p class="st-p">{{ __('Training That Meets Your Needs') }}</p>
-            <h1>{{ __('Success Stories We Are Proud Of') }}</h1>
-            <p class="head-desc">
-                {{ __('Hundreds of trainees have developed their careers and launched into new opportunities thanks to our accredited programs.') }}
-            </p>
-            <button class="notfull-btn">{{ __('View All Stories') }}</button>
-            <button class="abs-btn d-none d-md-block fedback-abs-btn">{{ __('Start Learning Now') }}</button>
-            <img src="{{ asset('images/Figma Cursor.png') }}" class="img-abs fedback-abs d-none d-md-block" />
-        </div>
-
-        <div class="feedback d-flex mt-5">
-            <div class="img">
-                <img id="mainTestimonialImg" src="{{ asset('images/avatar.png') }}" />
-            </div>
-            <div class="text pt-5 {{ app()->getLocale() == 'ar' ? 'me-5' : 'ms-5' }}">
-                <i class="bi bi-quote"></i>
-                <h3 id="testimonialText" class="fw-bold">
-                    {{ __('A distinctive and clear training journey from beginning to end, following the term and lessons was very easy, and the app helped me track my progress daily.') }}
-                </h3>
-                <p id="testimonialAuthor" class="nd-p">
-                    {{ __('Salman M. - Computer and IT Path') }}
-                </p>
-                <div class="imgs-av d-flex gap-3">
-                    <img src="{{ asset('images/avatar.png') }}" class="active" data-index="0" onclick="changeTestimonial(0)" />
-                    <img src="{{ asset('images/person.png') }}" data-index="1" onclick="changeTestimonial(1)" />
-                    <img src="{{ asset('images/right.png') }}" data-index="2" onclick="changeTestimonial(2)" />
-                    <img src="{{ asset('images/Media.png') }}" data-index="3" onclick="changeTestimonial(3)" />
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- FAQ Section -->
-    <section class="container-fluid section-container p-5">
-        <div class="head text-center d-flex justify-content-center align-items-center flex-column position-relative">
-            <p class="st-p">{{ __('Training That Meets Your Needs') }}</p>
-            <h1>{{ __('Frequently Asked Questions About Our Programs and Platform') }}</h1>
-            <p class="head-desc">
-                {{ __('We provide comprehensive answers to the most common questions about registration, programs, terms, courses, and technical support, to facilitate your educational experience with us.') }}
-            </p>
-            <button class="notfull-btn">{{ __('View All Questions') }}</button>
-            <button class="abs-btn d-none d-md-block faq-abs-btn">{{ __('Start Learning Now') }}</button>
-            <img src="{{ asset('images/Figma Cursor.png') }}" class="img-abs faq-abs d-none d-md-block" />
-        </div>
-        <div class="accordion mt-5" id="accordionExample">
-            <div class="accordion-item">
-                <h2 class="accordion-header">
-                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                        {{ __('How do I register at the institute?') }}
-                    </button>
-                </h2>
-                <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionExample">
-                    <div class="accordion-body">
-                        {{ __('You can easily register via Nafath account or create an internal account. After registration, you can choose the academic path or short courses that suit you.') }}
-                    </div>
-                </div>
-            </div>
-            <div class="accordion-item">
-                <h2 class="accordion-header">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                        {{ __('What payment methods are available?') }}
-                    </button>
-                </h2>
-                <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
-                    <div class="accordion-body">
-                        {{ __('We provide several payment methods including: credit cards, Mada, bank transfer, and payment upon registration. We also offer installment options for long paths.') }}
-                    </div>
-                </div>
-            </div>
-            <div class="accordion-item">
-                <h2 class="accordion-header">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                        {{ __('Are the certificates accredited?') }}
-                    </button>
-                </h2>
-                <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
-                    <div class="accordion-body">
-                        {{ __('Yes, all our certificates are accredited by the Technical and Vocational Training Corporation and recognized in the Saudi labor market.') }}
-                    </div>
-                </div>
-            </div>
-            <div class="accordion-item">
-                <h2 class="accordion-header">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
-                        {{ __('Is there remote training?') }}
-                    </button>
-                </h2>
-                <div id="collapseFour" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
-                    <div class="accordion-body">
-                        {{ __('Yes, we provide remote training options for most of our courses and training paths, with all educational materials and resources available electronically.') }}
-                    </div>
-                </div>
-            </div>
-        </div>
     </section>
 
     <!-- Footer -->

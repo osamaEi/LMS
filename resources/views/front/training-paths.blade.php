@@ -246,65 +246,36 @@
     <!-- Training Programs Section -->
     <section class="courses-section">
         <div class="head">
-            <p class="st-p mx-auto">{{ __('Training That Meets Your Needs') }}</p>
             <h2>{{ __('Our Training Programs and Specialized Paths') }}</h2>
             <p>
                 {{ __('A diverse range of accredited training programs designed to meet labor market needs. Choose your training path and start a professional journey supported by certified experts and modern methodologies.') }}
             </p>
         </div>
 
+        @if($programs->isEmpty())
+            <p class="text-center text-muted py-5">{{ __('No training paths available at the moment.') }}</p>
+        @else
         <div class="courses-container">
-            @for($i = 0; $i < 6; $i++)
+            @foreach($programs as $program)
             <div class="course-card">
-                <img src="{{ asset('images/course.jpg') }}" alt="Course" />
+                <img src="{{ asset('images/course.jpg') }}" alt="{{ $program->name_ar }}" />
                 <div class="card-body">
-                    <h5 class="card-title">{{ __('Web Development Path') }}</h5>
-                    <p class="card-text">{{ __('Learn the fundamentals and techniques of modern web application development using the latest technologies.') }}</p>
+                    <h5 class="card-title">{{ app()->getLocale() === 'en' ? ($program->name_en ?: $program->name_ar) : $program->name_ar }}</h5>
+                    <p class="card-text">{{ Str::limit(app()->getLocale() === 'en' ? ($program->description_en ?: $program->description_ar) : $program->description_ar, 100) }}</p>
                     <div class="course-meta">
-                        <span><i class="bi bi-clock"></i> 10 {{ __('Quarters') }}</span>
-                        <span class="course-price">2500 {{ __('SAR') }}</span>
+                        @if($program->duration_months)
+                            <span><i class="bi bi-clock"></i> {{ $program->duration_months }} {{ __('Months') }}</span>
+                        @endif
+                        @if($program->price)
+                            <span class="course-price">{{ number_format($program->price, 0) }} {{ __('SAR') }}</span>
+                        @endif
                     </div>
-                    <button class="full-btn mt-3 w-100">{{ __('View Details') }}</button>
+                    <a href="{{ route('register') }}" class="full-btn mt-3 w-100 d-block text-center">{{ __('Register Now') }}</a>
                 </div>
             </div>
-            @endfor
+            @endforeach
         </div>
-
-        <div class="text-center mt-4">
-            <button class="notfull-btn">{{ __('View All Paths') }}</button>
-        </div>
-    </section>
-
-    <!-- Similar Paths Section -->
-    <section class="courses-section" style="background: #f9fafb;">
-        <div class="head">
-            <p class="st-p mx-auto">{{ __('Training That Meets Your Needs') }}</p>
-            <h2>{{ __('Similar Paths') }}</h2>
-            <p>
-                {{ __('Explore more paths that suit your interests and professional aspirations. Each path is designed to develop your skills practically and progressively, with official accreditation and recognized certificates.') }}
-            </p>
-        </div>
-
-        <div class="courses-container">
-            @for($i = 0; $i < 3; $i++)
-            <div class="course-card">
-                <img src="{{ asset('images/course.jpg') }}" alt="Course" />
-                <div class="card-body">
-                    <h5 class="card-title">{{ __('Cybersecurity Path') }}</h5>
-                    <p class="card-text">{{ __('Learn the fundamentals and techniques of cybersecurity to protect data and digital systems.') }}</p>
-                    <div class="course-meta">
-                        <span><i class="bi bi-clock"></i> 10 {{ __('Quarters') }}</span>
-                        <span class="course-price">3000 {{ __('SAR') }}</span>
-                    </div>
-                    <button class="full-btn mt-3 w-100">{{ __('View Details') }}</button>
-                </div>
-            </div>
-            @endfor
-        </div>
-
-        <div class="text-center mt-4">
-            <button class="notfull-btn">{{ __('View All Questions') }}</button>
-        </div>
+        @endif
     </section>
 
     <!-- Mockup Section -->
@@ -312,7 +283,7 @@
         <div class="row align-items-center">
             <div class="col-lg-6">
                 <div class="content">
-                    <p class="st-p" style="background: rgba(255,255,255,0.2); color: white;">{{ __('Training That Meets Your Needs') }}</p>
+        
                     <h2>{{ __('Download Our App Now and Start Your Learning Journey') }}</h2>
                     <p>
                         {{ __('Our institute app provides you with quick and direct access to all training paths and courses. Track your progress, receive lecture notifications, and communicate with trainers easily from anywhere.') }}
@@ -344,7 +315,7 @@
     <!-- FAQ Section -->
     <section class="faq-section">
         <div class="head">
-            <p class="st-p">{{ __('Training That Meets Your Needs') }}</p>
+
             <h2>{{ __('Frequently Asked Questions About Paths') }}</h2>
         </div>
 

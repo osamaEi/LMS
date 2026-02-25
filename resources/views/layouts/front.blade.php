@@ -847,40 +847,7 @@
 <body>
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg d-flex flex-column shadow-sm">
-        <!-- Container 1 -->
-        <div class="container-fluid bg-gray d-flex justify-content-start gap-3 align-items-center top-bar">
-            <img src="https://flagcdn.com/sa.svg" width="30" alt="Saudi Flag" />
-            <p class="top-text mb-0">{{ __('Official government site registered with the Digital Government Authority') }}</p>
-        </div>
-
-        <!-- Container 2 -->
-        <div class="container-fluid middle-bar bg-gray d-flex justify-content-between align-items-center">
-            <div class="d-flex gap-4 info-section">
-                <div class="d-flex gap-1 align-items-center">
-                    <i class="bi bi-cloud"></i>
-                    <p class="mb-0">{{ __('Cloudy') }}</p>
-                </div>
-                <div class="d-flex gap-1 align-items-center">
-                    <i class="bi bi-calendar"></i>
-                    <p class="mb-0" id="currentDate"></p>
-                </div>
-                <div class="d-flex gap-1 align-items-center">
-                    <i class="bi bi-clock"></i>
-                    <p class="mb-0" id="currentTime"></p>
-                </div>
-                <div class="d-flex gap-1 align-items-center">
-                    <i class="bi bi-geo-alt"></i>
-                    <p class="mb-0">{{ __('Riyadh') }}</p>
-                </div>
-            </div>
-
-            <div class="d-flex gap-2 icons-section">
-                <i class="bi bi-eye"></i>
-                <i class="bi bi-zoom-in"></i>
-                <i class="bi bi-zoom-out"></i>
-                <i class="bi bi-mic"></i>
-            </div>
-        </div>
+        {{-- Containers 1 & 2 removed --}}
 
         <!-- Container 3 -->
         <div class="container-fluid bottom-bar bg-white d-flex align-items-center justify-content-between">
@@ -899,16 +866,10 @@
                         <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}">{{ __('Home') }}</a>
                     </li>
                     <li class="nav-item">
-                        <a href="{{ route('training-paths') }}" class="{{ request()->routeIs('training-paths') ? 'active' : '' }}">{{ __('Training Paths') }}</a>
-                    </li>
-                    <li class="nav-item">
                         <a href="{{ route('short-courses') }}" class="{{ request()->routeIs('short-courses') ? 'active' : '' }}">{{ __('Short Courses') }}</a>
                     </li>
                     <li class="nav-item">
                         <a href="{{ route('about') }}" class="{{ request()->routeIs('about') ? 'active' : '' }}">{{ __('About Us') }}</a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{{ route('news') }}" class="{{ request()->routeIs('news') ? 'active' : '' }}">{{ __('News') }}</a>
                     </li>
                     <li class="nav-item">
                         <a href="{{ route('faq') }}" class="{{ request()->routeIs('faq') ? 'active' : '' }}">{{ __('FAQ') }}</a>
@@ -961,10 +922,8 @@
         </div>
         <ul class="mobile-nav-list">
             <li><a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}">{{ __('Home') }}</a></li>
-            <li><a href="{{ route('training-paths') }}" class="{{ request()->routeIs('training-paths') ? 'active' : '' }}">{{ __('Training Paths') }}</a></li>
             <li><a href="{{ route('short-courses') }}" class="{{ request()->routeIs('short-courses') ? 'active' : '' }}">{{ __('Short Courses') }}</a></li>
             <li><a href="{{ route('about') }}" class="{{ request()->routeIs('about') ? 'active' : '' }}">{{ __('About Us') }}</a></li>
-            <li><a href="{{ route('news') }}" class="{{ request()->routeIs('news') ? 'active' : '' }}">{{ __('News') }}</a></li>
             <li><a href="{{ route('faq') }}" class="{{ request()->routeIs('faq') ? 'active' : '' }}">{{ __('FAQ') }}</a></li>
             <li><a href="{{ route('contact') }}" class="{{ request()->routeIs('contact') ? 'active' : '' }}">{{ __('Contact Us') }}</a></li>
         </ul>

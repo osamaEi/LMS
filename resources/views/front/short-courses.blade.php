@@ -231,80 +231,41 @@
         <h2>{{ __('Short Courses') }}</h2>
     </section>
 
-    <!-- Courses Section 1 -->
+    <!-- Courses Section -->
     <section class="courses-section mb-5">
         <div class="head">
-            <p class="st-p mx-auto">{{ __('Training That Meets Your Needs') }}</p>
             <h2>{{ __('Choose the Right Short Course for You') }}</h2>
             <p>
                 {{ __('Short courses are designed to develop your skills quickly and effectively in multiple fields, officially accredited and suitable for students and professionals seeking to enhance their expertise without committing to a long path.') }}
             </p>
         </div>
 
+        @if($programs->isEmpty())
+            <p class="text-center text-muted py-5">{{ __('No courses available at the moment.') }}</p>
+        @else
         <div class="courses-container">
-            @php
-            $courses = [
-                ['title' => __('Programming Fundamentals Course'), 'duration' => '4 ' . __('Weeks'), 'price' => '500'],
-                ['title' => __('Digital Marketing Course'), 'duration' => '3 ' . __('Weeks'), 'price' => '450'],
-                ['title' => __('Project Management Course'), 'duration' => '5 ' . __('Weeks'), 'price' => '600'],
-                ['title' => __('UI/UX Design Course'), 'duration' => '4 ' . __('Weeks'), 'price' => '550'],
-                ['title' => __('Cybersecurity Course'), 'duration' => '6 ' . __('Weeks'), 'price' => '700'],
-                ['title' => __('Data Analysis Course'), 'duration' => '5 ' . __('Weeks'), 'price' => '650'],
-            ];
-            @endphp
-
-            @foreach($courses as $course)
+            @foreach($programs as $program)
             <div class="course-card-wrapper">
                 <div class="course-card">
-                    <img src="{{ asset('images/course.jpg') }}" alt="{{ $course['title'] }}" />
+                    <img src="{{ asset('images/course.jpg') }}" alt="{{ $program->name_ar }}" />
                     <div class="card-body">
-                        <h5 class="card-title">{{ $course['title'] }}</h5>
-                        <p class="card-text">{{ __('Learn fundamentals and advanced skills in this field with expert trainers and updated practical content.') }}</p>
+                        <h5 class="card-title">{{ app()->getLocale() === 'en' ? ($program->name_en ?: $program->name_ar) : $program->name_ar }}</h5>
+                        <p class="card-text">{{ Str::limit(app()->getLocale() === 'en' ? ($program->description_en ?: $program->description_ar) : $program->description_ar, 100) }}</p>
                         <div class="course-meta">
-                            <span><i class="bi bi-clock"></i> {{ $course['duration'] }}</span>
-                            <span class="course-price">{{ $course['price'] }} {{ __('SAR') }}</span>
+                            @if($program->duration_months)
+                                <span><i class="bi bi-clock"></i> {{ $program->duration_months }} {{ __('Months') }}</span>
+                            @endif
+                            @if($program->price)
+                                <span class="course-price">{{ number_format($program->price, 0) }} {{ __('SAR') }}</span>
+                            @endif
                         </div>
-                        <button class="full-btn mt-3 w-100">{{ __('View Details') }}</button>
+                        <a href="{{ route('register') }}" class="full-btn mt-3 w-100 d-block text-center">{{ __('Register Now') }}</a>
                     </div>
                 </div>
             </div>
             @endforeach
         </div>
-    </section>
-
-    <!-- Featured Courses Section -->
-    <section class="courses-section pt-5 pb-5" style="background: #f9fafb;">
-        <div class="head">
-            <p class="st-p mx-auto">{{ __('Training That Meets Your Needs') }}</p>
-            <h2>{{ __('Featured Courses to Boost Your Skills Quickly') }}</h2>
-            <p>
-                {{ __('We offer you the best carefully selected courses to develop your skills practically and quickly.') }}
-            </p>
-        </div>
-
-        <div class="courses-container">
-            @for($i = 0; $i < 6; $i++)
-            <div class="course-card-wrapper">
-                <span class="course-badge">{{ __('Featured') }}</span>
-                <div class="course-card">
-                    <img src="{{ asset('images/course.jpg') }}" alt="Course" />
-                    <div class="card-body">
-                        <h5 class="card-title">{{ __('Artificial Intelligence Course') }}</h5>
-                        <p class="card-text">{{ __('Discover the world of artificial intelligence and machine learning with real practical applications.') }}</p>
-                        <div class="course-meta">
-                            <span><i class="bi bi-clock"></i> 6 {{ __('Weeks') }}</span>
-                            <span class="course-price">800 {{ __('SAR') }}</span>
-                        </div>
-                        <button class="full-btn mt-3 w-100">{{ __('View Details') }}</button>
-                    </div>
-                </div>
-            </div>
-            @endfor
-        </div>
-
-        <div class="text-center mt-4">
-            <button class="notfull-btn">{{ __('View All Paths') }}</button>
-        </div>
+        @endif
     </section>
 
     <!-- Mockup Section -->
@@ -312,7 +273,7 @@
         <div class="row align-items-center">
             <div class="col-lg-6">
                 <div class="content">
-                    <p class="st-p" style="background: rgba(255,255,255,0.2); color: white;">{{ __('Training That Meets Your Needs') }}</p>
+
                     <h2>{{ __('Download Our App Now and Start Your Learning Journey') }}</h2>
                     <p>
                         {{ __('Our institute app provides you with quick and direct access to all training paths and courses. Track your progress, receive lecture notifications, and communicate with trainers easily from anywhere.') }}

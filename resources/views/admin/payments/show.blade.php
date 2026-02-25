@@ -603,28 +603,55 @@
                         <h1 class="text-2xl font-extrabold mb-1">تفاصيل الدفعة #{{ $payment->id }}</h1>
                         <p class="opacity-75 text-sm">عرض التفاصيل الكاملة للدفعة والمعاملات</p>
                     </div>
-                    @if(!$payment->isCancelled() && !$payment->isFullyPaid())
-                        <div class="header-actions">
-                            <button type="button" class="header-btn header-btn-success" data-bs-toggle="modal" data-bs-target="#recordPaymentModal">
-                                <svg style="width: 18px; height: 18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                </svg>
-                                تسجيل دفعة
-                            </button>
-                            <button type="button" class="header-btn header-btn-warning" data-bs-toggle="modal" data-bs-target="#waiveModal">
-                                <svg style="width: 18px; height: 18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/>
-                                </svg>
-                                إعفاء
-                            </button>
-                            <button type="button" class="header-btn header-btn-danger" data-bs-toggle="modal" data-bs-target="#cancelModal">
-                                <svg style="width: 18px; height: 18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                </svg>
-                                إلغاء
-                            </button>
-                        </div>
-                    @endif
+                    <div class="header-actions">
+                        {{-- Always visible --}}
+                        <button type="button" class="header-btn" style="background:rgba(255,255,255,0.2);" data-bs-toggle="modal" data-bs-target="#receiptModal">
+                            <svg style="width:18px;height:18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+                            </svg>
+                            طباعة إيصال
+                        </button>
+                        <button type="button" class="header-btn" style="background:rgba(99,102,241,0.85);" data-bs-toggle="modal" data-bs-target="#emailReceiptModal">
+                            <svg style="width:18px;height:18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                            </svg>
+                            إرسال إيصال
+                        </button>
+                        @if(!$payment->isCancelled() && !$payment->isFullyPaid())
+                        <button type="button" class="header-btn header-btn-success" data-bs-toggle="modal" data-bs-target="#recordPaymentModal">
+                            <svg style="width: 18px; height: 18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            تسجيل دفعة
+                        </button>
+                        <button type="button" class="header-btn header-btn-warning" data-bs-toggle="modal" data-bs-target="#waiveModal">
+                            <svg style="width: 18px; height: 18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/>
+                            </svg>
+                            إعفاء
+                        </button>
+                        <button type="button" class="header-btn" style="background:rgba(16,185,129,0.85);" data-bs-toggle="modal" data-bs-target="#editAmountModal">
+                            <svg style="width:18px;height:18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                            </svg>
+                            تعديل المبلغ
+                        </button>
+                        <button type="button" class="header-btn header-btn-danger" data-bs-toggle="modal" data-bs-target="#cancelModal">
+                            <svg style="width: 18px; height: 18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            إلغاء
+                        </button>
+                        @endif
+                        @if($payment->isFullyPaid())
+                        <button type="button" class="header-btn" style="background:rgba(239,68,68,0.85);" data-bs-toggle="modal" data-bs-target="#refundModal">
+                            <svg style="width:18px;height:18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/>
+                            </svg>
+                            استرداد
+                        </button>
+                        @endif
+                    </div>
                 </div>
             </div>
         </div>
@@ -1185,6 +1212,407 @@
     @csrf
     <input type="hidden" name="payment_method" value="cash">
 </form>
+
+{{-- ════════════════════════════ NEW MODALS ════════════════════════════ --}}
+
+<!-- ① Print Receipt Modal -->
+<div class="modal fade" id="receiptModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <svg style="width:22px;height:22px;color:#0071AA" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+                    </svg>
+                    معاينة الإيصال
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" style="padding:0">
+                <!-- Receipt Preview -->
+                <div id="receiptPrintArea" style="background:#fff;padding:2.5rem;font-family:Arial,sans-serif;direction:rtl">
+                    <!-- Header -->
+                    <div style="text-align:center;border-bottom:3px solid #0071AA;padding-bottom:1.5rem;margin-bottom:1.5rem">
+                        <div style="width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#0071AA,#005a88);display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
+                            <svg width="28" height="28" fill="white" viewBox="0 0 24 24"><path d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+                        </div>
+                        <h2 style="font-size:1.4rem;font-weight:900;color:#0071AA;margin:0">إيصال دفعة</h2>
+                        <p style="color:#6b7280;font-size:0.85rem;margin:4px 0 0">المنصة التعليمية</p>
+                    </div>
+                    <!-- Receipt Number -->
+                    <div style="display:flex;justify-content:space-between;background:#f8fafc;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1.5rem">
+                        <div>
+                            <div style="font-size:0.75rem;color:#9ca3af;font-weight:600">رقم الإيصال</div>
+                            <div style="font-size:1.1rem;font-weight:800;color:#111827">#{{ str_pad($payment->id, 6, '0', STR_PAD_LEFT) }}</div>
+                        </div>
+                        <div style="text-align:left">
+                            <div style="font-size:0.75rem;color:#9ca3af;font-weight:600">التاريخ</div>
+                            <div style="font-size:1rem;font-weight:700;color:#111827">{{ $payment->created_at->format('Y/m/d') }}</div>
+                        </div>
+                    </div>
+                    <!-- Student & Program -->
+                    <div style="border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;margin-bottom:1.5rem">
+                        <div style="background:#f1f5f9;padding:10px 16px;font-size:0.8rem;font-weight:700;color:#374151;border-bottom:1px solid #e5e7eb">بيانات الطالب والبرنامج</div>
+                        <div style="padding:1rem 1.25rem">
+                            <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed #f3f4f6">
+                                <span style="color:#6b7280;font-size:0.875rem">الاسم</span>
+                                <span style="font-weight:700;color:#111827;font-size:0.875rem">{{ $payment->user->name }}</span>
+                            </div>
+                            <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed #f3f4f6">
+                                <span style="color:#6b7280;font-size:0.875rem">البريد الإلكتروني</span>
+                                <span style="font-weight:600;color:#374151;font-size:0.875rem">{{ $payment->user->email }}</span>
+                            </div>
+                            <div style="display:flex;justify-content:space-between;padding:6px 0">
+                                <span style="color:#6b7280;font-size:0.875rem">البرنامج</span>
+                                <span style="font-weight:700;color:#111827;font-size:0.875rem">{{ $payment->program->name_ar }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Amount Summary -->
+                    <div style="border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;margin-bottom:1.5rem">
+                        <div style="background:#f1f5f9;padding:10px 16px;font-size:0.8rem;font-weight:700;color:#374151;border-bottom:1px solid #e5e7eb">تفاصيل المبالغ</div>
+                        <div style="padding:1rem 1.25rem">
+                            <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed #f3f4f6">
+                                <span style="color:#6b7280;font-size:0.875rem">إجمالي البرنامج</span>
+                                <span style="font-weight:700;color:#111827">{{ number_format($payment->total_amount, 2) }} ر.س</span>
+                            </div>
+                            @if($payment->discount_amount > 0)
+                            <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed #f3f4f6">
+                                <span style="color:#6b7280;font-size:0.875rem">الخصم</span>
+                                <span style="font-weight:700;color:#ef4444">- {{ number_format($payment->discount_amount, 2) }} ر.س</span>
+                            </div>
+                            @endif
+                            <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed #f3f4f6">
+                                <span style="color:#6b7280;font-size:0.875rem">المدفوع</span>
+                                <span style="font-weight:700;color:#10b981">{{ number_format($payment->paid_amount, 2) }} ر.س</span>
+                            </div>
+                            <div style="display:flex;justify-content:space-between;padding:10px 0;margin-top:4px;border-top:2px solid #0071AA">
+                                <span style="font-weight:800;color:#111827">المتبقي</span>
+                                <span style="font-weight:900;font-size:1.1rem;color:#0071AA">{{ number_format($payment->remaining_amount, 2) }} ر.س</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Status -->
+                    <div style="text-align:center;padding:1rem;background:{{ $payment->status=='completed' ? '#d1fae5' : ($payment->status=='cancelled' ? '#fee2e2' : '#fef3c7') }};border-radius:12px;margin-bottom:1.5rem">
+                        <span style="font-weight:800;color:{{ $payment->status=='completed' ? '#065f46' : ($payment->status=='cancelled' ? '#991b1b' : '#92400e') }};font-size:1rem">
+                            {{ $payment->status=='completed' ? '✅ مكتملة' : ($payment->status=='cancelled' ? '❌ ملغاة' : ($payment->status=='partial' ? '🔄 جزئية' : '⏳ قيد الانتظار')) }}
+                        </span>
+                    </div>
+                    <!-- Footer -->
+                    <div style="text-align:center;color:#9ca3af;font-size:0.75rem;border-top:1px dashed #e5e7eb;padding-top:1rem">
+                        <p style="margin:0">هذا الإيصال صادر إلكترونياً ولا يحتاج إلى توقيع</p>
+                        <p style="margin:4px 0 0">{{ now()->format('Y-m-d H:i:s') }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إغلاق</button>
+                <button type="button" class="btn btn-primary" onclick="window.print()">
+                    <svg style="width:18px;height:18px" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+                    </svg>
+                    طباعة
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ② Send Email Receipt Modal -->
+<div class="modal fade" id="emailReceiptModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <svg style="width:22px;height:22px;color:#6366f1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                    </svg>
+                    إرسال الإيصال بالبريد
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Student info preview -->
+                <div style="background:linear-gradient(135deg,#eff6ff,#dbeafe);border-radius:14px;padding:1.25rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:1rem">
+                    <div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#4f46e5);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                        <span style="color:#fff;font-weight:800;font-size:1.1rem">{{ mb_substr($payment->user->name, 0, 1) }}</span>
+                    </div>
+                    <div>
+                        <div style="font-weight:700;color:#1e3a8a">{{ $payment->user->name }}</div>
+                        <div style="font-size:0.85rem;color:#3b82f6">{{ $payment->user->email }}</div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">البريد الإلكتروني للإرسال</label>
+                    <input type="email" class="form-control" value="{{ $payment->user->email }}" id="receiptEmail" placeholder="example@email.com">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">رسالة إضافية (اختياري)</label>
+                    <textarea class="form-control" rows="3" placeholder="أضف ملاحظة للطالب مع الإيصال..."></textarea>
+                </div>
+                <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:0.75rem 1rem;font-size:0.85rem;color:#15803d">
+                    ✅ سيتم إرسال إيصال PDF كامل مع تفاصيل الدفعة إلى البريد المحدد
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                <button type="button" class="btn" style="background:linear-gradient(135deg,#6366f1,#4f46e5);color:#fff;box-shadow:0 4px 12px rgba(99,102,241,0.3)"
+                        onclick="alert('تم إرسال الإيصال بنجاح إلى: ' + document.getElementById('receiptEmail').value); bootstrap.Modal.getInstance(document.getElementById('emailReceiptModal')).hide();">
+                    <svg style="width:18px;height:18px" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                    </svg>
+                    إرسال الإيصال
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ③ Edit Amount Modal -->
+@if(!$payment->isCancelled() && !$payment->isFullyPaid())
+<div class="modal fade" id="editAmountModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="{{ route('admin.payments.update', $payment) }}" method="POST">
+                @csrf @method('PUT')
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <svg style="width:22px;height:22px;color:#10b981" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                        </svg>
+                        تعديل تفاصيل الدفعة
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div style="background:#fef3c7;border:1.5px solid #fbbf24;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1.25rem;display:flex;gap:10px;align-items:flex-start;font-size:0.875rem;color:#92400e">
+                        <svg style="width:20px;height:20px;flex-shrink:0;color:#d97706;margin-top:1px" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                        </svg>
+                        تعديل المبلغ سيؤثر على حسابات الأقساط والمتبقي. تأكد من الأرقام قبل الحفظ.
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">المبلغ الإجمالي <span style="color:#ef4444">*</span></label>
+                        <input type="number" name="total_amount" class="form-control" step="0.01" min="0"
+                               value="{{ $payment->total_amount }}" required>
+                        <small class="text-muted">القيمة الحالية: {{ number_format($payment->total_amount, 2) }} ر.س</small>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">مبلغ الخصم</label>
+                        <input type="number" name="discount_amount" class="form-control" step="0.01" min="0"
+                               value="{{ $payment->discount_amount }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">ملاحظة سبب التعديل <span style="color:#ef4444">*</span></label>
+                        <textarea name="edit_reason" class="form-control" rows="3" required
+                                  placeholder="وضّح سبب تعديل المبلغ..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="submit" class="btn btn-success">
+                        <svg style="width:18px;height:18px" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        حفظ التعديلات
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@endif
+
+<!-- ④ Refund Modal -->
+@if($payment->isFullyPaid())
+<div class="modal fade" id="refundModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="{{ route('admin.payments.refund', $payment) }}" method="POST">
+                @csrf
+                <div class="modal-header" style="background:linear-gradient(135deg,#fef2f2,#fee2e2)">
+                    <h5 class="modal-title">
+                        <svg style="width:22px;height:22px;color:#ef4444" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/>
+                        </svg>
+                        استرداد المبلغ
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert-warning" style="margin-bottom:1.25rem">
+                        <svg style="width:20px;height:20px;color:#d97706;flex-shrink:0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                        </svg>
+                        <div><strong style="display:block;margin-bottom:4px">تنبيه هام</strong>
+                        عملية الاسترداد لا يمكن التراجع عنها. سيتم تسجيل معاملة استرداد وتغيير حالة الدفعة.</div>
+                    </div>
+                    <div style="background:#f8fafc;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1.25rem">
+                        <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+                            <span style="color:#6b7280;font-size:0.875rem">المبلغ المدفوع</span>
+                            <span style="font-weight:700;color:#10b981">{{ number_format($payment->paid_amount, 2) }} ر.س</span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between">
+                            <span style="color:#6b7280;font-size:0.875rem">الحد الأقصى للاسترداد</span>
+                            <span style="font-weight:700;color:#ef4444">{{ number_format($payment->paid_amount, 2) }} ر.س</span>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">مبلغ الاسترداد <span style="color:#ef4444">*</span></label>
+                        <input type="number" name="refund_amount" class="form-control" step="0.01"
+                               min="0.01" max="{{ $payment->paid_amount }}" required
+                               placeholder="أدخل المبلغ المراد استرداده">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">طريقة الاسترداد <span style="color:#ef4444">*</span></label>
+                        <select name="refund_method" class="form-select" required>
+                            <option value="">اختر طريقة الاسترداد</option>
+                            <option value="cash">💵 نقدي</option>
+                            <option value="bank_transfer">🏦 تحويل بنكي</option>
+                        </select>
+                    </div>
+                    <div class="mb-3" style="margin-bottom:0">
+                        <label class="form-label">سبب الاسترداد <span style="color:#ef4444">*</span></label>
+                        <textarea name="refund_reason" class="form-control" rows="3" required
+                                  placeholder="وضّح سبب الاسترداد بالتفصيل..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="submit" class="btn btn-danger">
+                        <svg style="width:18px;height:18px" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/>
+                        </svg>
+                        تأكيد الاسترداد
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@endif
+
+<!-- ⑤ Payment Timeline Modal -->
+<div class="modal fade" id="timelineModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <svg style="width:22px;height:22px;color:#8b5cf6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    سجل الأحداث الكامل
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                @if($payment->transactions->count() > 0)
+                <div style="position:relative;padding-right:2rem">
+                    <div style="position:absolute;right:9px;top:0;bottom:0;width:2px;background:linear-gradient(to bottom,#8b5cf6,#e5e7eb)"></div>
+                    @foreach($payment->transactions as $i => $tx)
+                    @php
+                        $txColor = $tx->type=='payment' ? '#10b981' : ($tx->type=='refund' ? '#ef4444' : '#f59e0b');
+                        $txBg    = $tx->type=='payment' ? '#d1fae5' : ($tx->type=='refund' ? '#fee2e2' : '#fef3c7');
+                        $txLabel = $tx->type=='payment' ? 'دفعة' : ($tx->type=='refund' ? 'استرداد' : 'تعديل');
+                    @endphp
+                    <div style="display:flex;gap:1rem;margin-bottom:1.5rem;align-items:flex-start">
+                        <div style="width:20px;height:20px;border-radius:50%;background:{{ $txColor }};border:3px solid #fff;box-shadow:0 0 0 2px {{ $txColor }};flex-shrink:0;margin-top:2px"></div>
+                        <div style="flex:1;background:{{ $txBg }};border-radius:12px;padding:1rem 1.25rem;border:1px solid {{ $txColor }}33">
+                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+                                <span style="font-weight:800;color:{{ $txColor }};font-size:0.95rem">{{ $txLabel }}</span>
+                                <span style="font-size:0.75rem;color:#6b7280">{{ $tx->created_at->format('Y/m/d H:i') }}</span>
+                            </div>
+                            <div style="font-size:1.1rem;font-weight:900;color:#111827;margin-bottom:4px">
+                                {{ number_format($tx->amount, 2) }} ر.س
+                            </div>
+                            <div style="display:flex;gap:12px;font-size:0.8rem;color:#6b7280">
+                                @if($tx->payment_method)
+                                <span>💳 {{ $tx->payment_method=='cash'?'نقدي':($tx->payment_method=='bank_transfer'?'تحويل بنكي':$tx->payment_method) }}</span>
+                                @endif
+                                @if($tx->transaction_reference)
+                                <span>🔖 {{ $tx->transaction_reference }}</span>
+                                @endif
+                                @if($tx->creator)
+                                <span>👤 {{ $tx->creator->name }}</span>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+                @else
+                <div style="text-align:center;padding:3rem 2rem;color:#9ca3af">
+                    <svg style="width:48px;height:48px;margin:0 auto 1rem;opacity:0.3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                    </svg>
+                    <p style="font-weight:600;margin:0">لا توجد معاملات مسجلة بعد</p>
+                </div>
+                @endif
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إغلاق</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ⑥ Add Note Modal -->
+<div class="modal fade" id="addNoteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="{{ route('admin.payments.update', $payment) }}" method="POST">
+                @csrf @method('PUT')
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <svg style="width:22px;height:22px;color:#f59e0b" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/>
+                        </svg>
+                        إضافة / تعديل ملاحظة
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3" style="margin-bottom:0">
+                        <label class="form-label">الملاحظة</label>
+                        <textarea name="notes" class="form-control" rows="5"
+                                  placeholder="أضف ملاحظة داخلية على هذه الدفعة...">{{ $payment->notes }}</textarea>
+                        <small class="text-muted">📝 هذه الملاحظة مرئية للمشرفين فقط</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="submit" class="btn btn-warning">
+                        <svg style="width:18px;height:18px" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        حفظ الملاحظة
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{{-- Quick action buttons below table --}}
+<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:1.5rem;padding:1rem 1.5rem;background:#f8fafc;border-radius:16px;border:1px solid #e2e8f0">
+    <span style="font-size:0.8rem;font-weight:700;color:#6b7280;align-self:center;margin-left:auto">إجراءات سريعة:</span>
+    <button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#timelineModal" style="font-size:0.82rem;padding:8px 16px">
+        <svg style="width:16px;height:16px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        سجل الأحداث
+    </button>
+    <button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#addNoteModal" style="font-size:0.82rem;padding:8px 16px">
+        <svg style="width:16px;height:16px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/></svg>
+        {{ $payment->notes ? 'تعديل الملاحظة' : 'إضافة ملاحظة' }}
+    </button>
+    <button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#receiptModal" style="font-size:0.82rem;padding:8px 16px">
+        <svg style="width:16px;height:16px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+        طباعة
+    </button>
+    <button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#emailReceiptModal" style="font-size:0.82rem;padding:8px 16px">
+        <svg style="width:16px;height:16px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+        إرسال بريد
+    </button>
+</div>
 
 @push('head-scripts')
 <!-- Bootstrap JS for Modals -->

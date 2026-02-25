@@ -1,11 +1,11 @@
 <!doctype html>
-<html lang="ar" dir="rtl">
+<html lang="{{ app()->getLocale() }}" dir="{{ app()->getLocale() === 'ar' ? 'rtl' : 'ltr' }}">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>تسجيل الدخول - ALERTIQA</title>
+    <title>{{ app()->getLocale() === 'ar' ? 'تسجيل الدخول' : 'Login' }} - ALERTIQA</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @font-face {
@@ -44,6 +44,18 @@
     </style>
 </head>
 <body class="min-h-screen bg-gray-50">
+
+    <!-- Language Switcher -->
+    <div class="fixed top-4 {{ app()->getLocale() === 'ar' ? 'left-4' : 'right-4' }} z-50">
+        <a href="{{ route('lang.switch', app()->getLocale() === 'ar' ? 'en' : 'ar') }}"
+           class="inline-flex items-center gap-2 px-3 py-1.5 bg-white border border-gray-200 rounded-lg shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+            <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/>
+            </svg>
+            {{ app()->getLocale() === 'ar' ? 'English' : 'العربية' }}
+        </a>
+    </div>
 
     <!-- ============================================ -->
     <!-- PART 1: LEFT SIDE - BLUE BACKGROUND WITH LOGO -->
@@ -87,8 +99,14 @@
                          class="mx-auto mb-8"
                          style="width: 80px; height: auto;">
 
-                    <h2 class="text-3xl font-bold text-gray-900 mb-3">تسجيل الدخول</h2>
-                    <p class="text-gray-600 text-sm">ادخل إلى حسابك باستخدام بيانات المعهد لمتابعة دوراتك وجدولاتك الدراسية</p>
+                    <h2 class="text-3xl font-bold text-gray-900 mb-3">
+                        {{ app()->getLocale() === 'ar' ? 'تسجيل الدخول' : 'Login' }}
+                    </h2>
+                    <p class="text-gray-600 text-sm">
+                        {{ app()->getLocale() === 'ar'
+                            ? 'ادخل إلى حسابك باستخدام بيانات المعهد لمتابعة دوراتك وجدولاتك الدراسية'
+                            : 'Sign in to your account to follow your courses and study schedule' }}
+                    </p>
                 </div>
 
                 <!-- Login Form -->
@@ -102,7 +120,7 @@
                                 <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
                                 <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
                             </svg>
-                            رقم الهوية
+                            {{ app()->getLocale() === 'ar' ? 'رقم الهوية' : 'Email / ID' }}
                         </label>
                         <input
                             id="email"
@@ -124,7 +142,7 @@
                             <svg class="w-4 h-4 inline ml-1" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
                             </svg>
-                            كلمة المرور
+                            {{ app()->getLocale() === 'ar' ? 'كلمة المرور' : 'Password' }}
                         </label>
                         <div class="relative">
                             <input
@@ -142,7 +160,9 @@
                                 </svg>
                             </button>
                         </div>
-                        <a href="#" class="inline-block mt-2 text-sm text-blue-600 hover:text-blue-700">نسيت كلمة المرور؟</a>
+                        <a href="#" class="inline-block mt-2 text-sm text-blue-600 hover:text-blue-700">
+                            {{ app()->getLocale() === 'ar' ? 'نسيت كلمة المرور؟' : 'Forgot password?' }}
+                        </a>
                         @error('password')
                             <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                         @enderror
@@ -156,7 +176,7 @@
                         onmouseover="this.style.backgroundColor='#0A5A86'"
                         onmouseout="this.style.backgroundColor='#0D6FA6'"
                     >
-                        إرسال رمز التحقق
+                        {{ app()->getLocale() === 'ar' ? 'تسجيل الدخول' : 'Sign In' }}
                     </button>
                 </form>
 
@@ -166,7 +186,7 @@
                         <div class="w-full border-t border-gray-200"></div>
                     </div>
                     <div class="relative flex justify-center text-sm">
-                        <span class="px-4 bg-white text-gray-500">أو</span>
+                        <span class="px-4 bg-white text-gray-500">{{ app()->getLocale() === 'ar' ? 'أو' : 'or' }}</span>
                     </div>
                 </div>
 
@@ -178,8 +198,8 @@
                             <circle cx="12" cy="12" r="10" fill="#1F2937"/>
                             <path d="M12 8v8M8 12h8" stroke="white" stroke-width="2" stroke-linecap="round"/>
                         </svg>
-                        <span class="text-xs text-gray-600">أجابات إستفسارات ؟</span>
-                        <a href="#" class="text-sm font-medium text-blue-600 hover:text-blue-700">تواصل معنا</a>
+                        <span class="text-xs text-gray-600">{{ app()->getLocale() === 'ar' ? 'أجابات إستفسارات ؟' : 'Need help?' }}</span>
+                        <a href="#" class="text-sm font-medium text-blue-600 hover:text-blue-700">{{ app()->getLocale() === 'ar' ? 'تواصل معنا' : 'Contact Us' }}</a>
                     </button>
 
                     <!-- Register Button -->
@@ -187,8 +207,8 @@
                         <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                         </svg>
-                        <span class="text-xs text-gray-600">ليس لديك حساب ؟</span>
-                        <span class="text-sm font-medium text-blue-600 hover:text-blue-700">سجل حساب جديد</span>
+                        <span class="text-xs text-gray-600">{{ app()->getLocale() === 'ar' ? 'ليس لديك حساب ؟' : "Don't have an account?" }}</span>
+                        <span class="text-sm font-medium text-blue-600 hover:text-blue-700">{{ app()->getLocale() === 'ar' ? 'سجل حساب جديد' : 'Register' }}</span>
                     </a>
                 </div>
 

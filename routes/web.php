@@ -41,20 +41,20 @@ Route::get('/', function () {
 
 // Front pages routes
 Route::get('/training-paths', function () {
-    return view('front.training-paths');
+    $programs = \App\Models\Program::where('status', 'active')->get();
+    return view('front.training-paths', compact('programs'));
 })->name('training-paths');
 
 Route::get('/short-courses', function () {
-    return view('front.short-courses');
+    $programs = \App\Models\Program::where('status', 'active')->get();
+    return view('front.short-courses', compact('programs'));
 })->name('short-courses');
 
 Route::get('/about', function () {
     return view('front.about');
 })->name('about');
 
-Route::get('/news', function () {
-    return view('front.news');
-})->name('news');
+Route::get('/news', [\App\Http\Controllers\Front\NewsController::class, 'index'])->name('news');
 
 Route::get('/faq', function () {
     return view('front.faq');
@@ -263,6 +263,18 @@ Route::middleware(['auth', 'role:admin,super_admin'])->prefix('admin')->name('ad
 
         // Overdue
         Route::get('/overdue/installments', [\App\Http\Controllers\Admin\PaymentController::class, 'overdueInstallments'])->name('overdue');
+    });
+
+    // News Management
+    Route::resource('news', \App\Http\Controllers\Admin\NewsController::class)->except(['show']);
+    Route::post('/news/{news}/toggle-status', [\App\Http\Controllers\Admin\NewsController::class, 'toggleStatus'])->name('news.toggle-status');
+
+    // Contact Requests Management
+    Route::prefix('contacts')->name('contacts.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\ContactController::class, 'index'])->name('index');
+        Route::get('/{contact}', [\App\Http\Controllers\Admin\ContactController::class, 'show'])->name('show');
+        Route::patch('/{contact}/status', [\App\Http\Controllers\Admin\ContactController::class, 'updateStatus'])->name('update-status');
+        Route::delete('/{contact}', [\App\Http\Controllers\Admin\ContactController::class, 'destroy'])->name('destroy');
     });
 
     // Activity Logs (NELC Compliance)

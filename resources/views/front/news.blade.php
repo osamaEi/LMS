@@ -147,53 +147,34 @@
 
     <!-- News Section -->
     <section class="news-section container-fluid">
+        @if($news->isEmpty())
+            <div class="text-center py-16 text-gray-400">
+                <p style="font-size:1.1rem;">{{ __('No news available at the moment.') }}</p>
+            </div>
+        @else
         <div class="news-grid">
-            @php
-            $newsItems = [
-                ['date' => __('October') . ' 1, 2025', 'title' => __('Important Announcement - Registration Opens for New Training Program'), 'desc' => __('The institute announces the opening of registration for the Digital Skills Training Program for the current semester.')],
-                ['date' => __('September') . ' 25, 2025', 'title' => __('Advanced Web Development Workshop'), 'desc' => __('Join us in a comprehensive workshop to learn the latest modern web application development technologies.')],
-                ['date' => __('September') . ' 20, 2025', 'title' => __('Annual Technology Conference'), 'desc' => __('We are pleased to invite you to attend the Annual Technology and Innovation Conference in Digital Education.')],
-                ['date' => __('September') . ' 15, 2025', 'title' => __('Cybersecurity Training Course'), 'desc' => __('Learn the fundamentals and techniques of cybersecurity to protect data and digital systems.')],
-                ['date' => __('September') . ' 10, 2025', 'title' => __('Artificial Intelligence Training Program'), 'desc' => __('Discover the world of artificial intelligence and machine learning in our specialized training program.')],
-                ['date' => __('September') . ' 5, 2025', 'title' => __('Mobile Application Development Seminar'), 'desc' => __('Join us in a seminar on best practices for smartphone application development.')],
-                ['date' => __('September') . ' 1, 2025', 'title' => __('User Experience Design Course'), 'desc' => __('Learn the principles and foundations of user interface design and improving user experience.')],
-                ['date' => __('August') . ' 28, 2025', 'title' => __('Launch of New E-Learning Platform'), 'desc' => __('We announce the launch of our new e-learning platform with advanced features.')],
-                ['date' => __('August') . ' 25, 2025', 'title' => __('New Partnership with Technology Companies'), 'desc' => __('We are pleased to announce new partnerships with major technology companies to provide job opportunities for graduates.')],
-            ];
-            @endphp
-
-            @foreach($newsItems as $news)
+            @foreach($news as $item)
             <div class="news-card">
-                <img src="{{ asset('images/card.png') }}" alt="{{ $news['title'] }}" onerror="this.src='{{ asset('images/course.jpg') }}'" />
+                @if($item->image)
+                    <img src="{{ Storage::url($item->image) }}" alt="{{ $item->title_ar }}" onerror="this.src='{{ asset('images/card.png') }}'" />
+                @else
+                    <img src="{{ asset('images/card.png') }}" alt="{{ $item->title_ar }}" onerror="this.src='{{ asset('images/course.jpg') }}'" />
+                @endif
                 <div class="card-body">
-                    <p class="card-date">{{ $news['date'] }}</p>
-                    <h5 class="card-title">{{ $news['title'] }}</h5>
-                    <p class="card-text">{{ $news['desc'] }}</p>
-                    <button class="full-btn">{{ __('View Details') }}</button>
+                    <p class="card-date">{{ $item->published_at ? $item->published_at->format('Y-m-d') : $item->created_at->format('Y-m-d') }}</p>
+                    <h5 class="card-title">{{ app()->getLocale() === 'en' ? ($item->title_en ?: $item->title_ar) : $item->title_ar }}</h5>
+                    <p class="card-text">{{ Str::limit(app()->getLocale() === 'en' ? ($item->body_en ?: $item->body_ar) : $item->body_ar, 120) }}</p>
                 </div>
             </div>
             @endforeach
         </div>
 
-        <!-- Pagination -->
+        {{-- Laravel Pagination --}}
+        @if($news->hasPages())
         <div class="pagination-wrapper">
-            <button class="pagination-btn pagination-arrow" disabled>
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="{{ app()->getLocale() == 'ar' ? '9 18 15 12 9 6' : '15 18 9 12 15 6' }}"></polyline>
-                </svg>
-            </button>
-
-            <button class="pagination-btn active">1</button>
-            <button class="pagination-btn">2</button>
-            <button class="pagination-btn">3</button>
-            <button class="pagination-btn">...</button>
-            <button class="pagination-btn">10</button>
-
-            <button class="pagination-btn pagination-arrow">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="{{ app()->getLocale() == 'ar' ? '15 18 9 12 15 6' : '9 18 15 12 9 6' }}"></polyline>
-                </svg>
-            </button>
+            {{ $news->links() }}
         </div>
+        @endif
+        @endif
     </section>
 @endsection
