@@ -162,4 +162,44 @@ class StudentController extends Controller
         return redirect()->route('admin.students.index')
             ->with('success', $message);
     }
+
+    public function export()
+    {
+        $students = User::where('role', 'student')->latest()->get();
+
+        $filename = 'students_' . now()->format('Y-m-d') . '.csv';
+
+        $headers = [
+            'Content-Type'        => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+            'Pragma'              => 'no-cache',
+            'Cache-Control'       => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires'             => '0',
+        ];
+
+        $callback = function () use ($students) {
+            $file = fopen('php://output', 'w');
+            fputs($file, "\xEF\xBB\xBF");
+
+            fputcsv($file, ['#', 'الاسم', 'البريد الإلكتروني', 'رقم الهوية', 'رقم الهاتف', 'الحالة', 'تاريخ التسجيل']);
+
+            $statusMap = ['active' => 'نشط', 'inactive' => 'غير نشط', 'pending' => 'معلق', 'suspended' => 'موقوف'];
+
+            foreach ($students as $i => $student) {
+                fputcsv($file, [
+                    $i + 1,
+                    $student->name,
+                    $student->email,
+                    $student->national_id ?? '',
+                    $student->phone ?? '',
+                    $statusMap[$student->status] ?? $student->status,
+                    $student->created_at->format('Y-m-d'),
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
 }

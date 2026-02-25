@@ -87,4 +87,44 @@ class ProgramController extends Controller
         return redirect()->route('admin.programs.index')
             ->with('success', 'تم حذف المسار بنجاح');
     }
+
+    public function export()
+    {
+        $programs = Program::withCount('terms')->latest()->get();
+
+        $filename = 'programs_' . now()->format('Y-m-d') . '.csv';
+
+        $headers = [
+            'Content-Type'        => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+            'Pragma'              => 'no-cache',
+            'Cache-Control'       => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires'             => '0',
+        ];
+
+        $callback = function () use ($programs) {
+            $file = fopen('php://output', 'w');
+            fputs($file, "\xEF\xBB\xBF");
+
+            fputcsv($file, ['#', 'الاسم العربي', 'الاسم الإنجليزي', 'الرمز', 'المدة (أشهر)', 'السعر', 'عدد الفصول', 'الحالة', 'تاريخ الإنشاء']);
+
+            foreach ($programs as $i => $program) {
+                fputcsv($file, [
+                    $i + 1,
+                    $program->name_ar,
+                    $program->name_en,
+                    $program->code,
+                    $program->duration_months ?? '',
+                    $program->price ?? '0',
+                    $program->terms_count,
+                    $program->status === 'active' ? 'نشط' : 'غير نشط',
+                    $program->created_at->format('Y-m-d'),
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
 }

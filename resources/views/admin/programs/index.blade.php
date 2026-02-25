@@ -244,13 +244,24 @@
                     </div>
                 </div>
 
-                <a href="{{ route('admin.programs.create') }}"
-                   class="btn-shine inline-flex items-center gap-3 px-6 py-3.5 rounded-2xl bg-white text-[#0071AA] font-bold shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5">
-                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                    </svg>
-                    إضافة مسار جديد
-                </a>
+                <div class="flex items-center gap-3">
+                    <a href="{{ route('admin.programs.export') }}"
+                       class="inline-flex items-center gap-2 px-5 py-3 rounded-2xl font-bold transition-all"
+                       style="background: rgba(255,255,255,0.15); border: 2px solid rgba(255,255,255,0.4); color: #fff; backdrop-filter: blur(4px);"
+                       onmouseover="this.style.background='rgba(255,255,255,0.25)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                        </svg>
+                        تصدير Excel
+                    </a>
+                    <a href="{{ route('admin.programs.create') }}"
+                       class="btn-shine inline-flex items-center gap-3 px-6 py-3.5 rounded-2xl bg-white text-[#0071AA] font-bold shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        إضافة مسار جديد
+                    </a>
+                </div>
             </div>
         </div>
     </div>

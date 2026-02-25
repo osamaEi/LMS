@@ -177,4 +177,56 @@ class UserManagementController extends Controller
         return redirect()->back()
             ->with('success', 'تم تحديث حالة المستخدم');
     }
+
+    public function export(Request $request)
+    {
+        $query = User::with('roles')
+            ->whereNotIn('role', ['student', 'teacher']);
+
+        if ($request->filled('role_type')) {
+            $query->where('role', $request->role_type);
+        }
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        $users = $query->orderBy('created_at', 'desc')->get();
+
+        $filename = 'users_' . now()->format('Y-m-d') . '.csv';
+
+        $headers = [
+            'Content-Type'        => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+            'Pragma'              => 'no-cache',
+            'Cache-Control'       => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires'             => '0',
+        ];
+
+        $roleTypeMap = ['admin' => 'مدير', 'super_admin' => 'مدير عام'];
+        $statusMap   = ['active' => 'نشط', 'inactive' => 'غير نشط', 'pending' => 'معلق', 'suspended' => 'موقوف'];
+
+        $callback = function () use ($users, $roleTypeMap, $statusMap) {
+            $file = fopen('php://output', 'w');
+            fputs($file, "\xEF\xBB\xBF");
+
+            fputcsv($file, ['#', 'الاسم', 'البريد الإلكتروني', 'رقم الهاتف', 'النوع', 'الأدوار', 'الحالة', 'تاريخ التسجيل']);
+
+            foreach ($users as $i => $user) {
+                fputcsv($file, [
+                    $i + 1,
+                    $user->name,
+                    $user->email,
+                    $user->phone ?? '',
+                    $roleTypeMap[$user->role] ?? $user->role,
+                    $user->roles->pluck('name')->join(', '),
+                    $statusMap[$user->status] ?? $user->status,
+                    $user->created_at->format('Y-m-d'),
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
 }

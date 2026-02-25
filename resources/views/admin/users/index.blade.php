@@ -9,7 +9,14 @@
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white">إدارة المستخدمين</h1>
         <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">إنشاء وتعديل حسابات المستخدمين وتعيين الأدوار</p>
     </div>
-    <div class="mt-4 sm:mt-0">
+    <div class="mt-4 sm:mt-0 flex items-center gap-2">
+        <a href="{{ route('admin.users.export', request()->only(['role_type','status'])) }}"
+           class="inline-flex items-center gap-2 px-5 py-2.5 border border-green-500 bg-white hover:bg-green-50 text-green-600 font-medium rounded-lg transition shadow-sm dark:bg-gray-900 dark:hover:bg-gray-800">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+            </svg>
+            تصدير Excel
+        </a>
         <a href="{{ route('admin.users.create') }}"
            class="inline-flex items-center gap-2 px-5 py-2.5 bg-brand-500 hover:bg-brand-600 text-white font-medium rounded-lg transition shadow-md">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

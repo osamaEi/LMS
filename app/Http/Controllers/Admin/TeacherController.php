@@ -84,4 +84,42 @@ class TeacherController extends Controller
         return redirect()->route('admin.teachers.index')
             ->with('success', 'تم حذف المعلم بنجاح');
     }
+
+    public function export()
+    {
+        $teachers = User::where('role', 'teacher')->latest()->get();
+
+        $filename = 'teachers_' . now()->format('Y-m-d') . '.csv';
+
+        $headers = [
+            'Content-Type'        => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+            'Pragma'              => 'no-cache',
+            'Cache-Control'       => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires'             => '0',
+        ];
+
+        $callback = function () use ($teachers) {
+            $file = fopen('php://output', 'w');
+            // UTF-8 BOM for Excel Arabic support
+            fputs($file, "\xEF\xBB\xBF");
+
+            fputcsv($file, ['#', 'الاسم', 'البريد الإلكتروني', 'رقم الهوية', 'رقم الهاتف', 'تاريخ التسجيل']);
+
+            foreach ($teachers as $i => $teacher) {
+                fputcsv($file, [
+                    $i + 1,
+                    $teacher->name,
+                    $teacher->email,
+                    $teacher->national_id ?? '',
+                    $teacher->phone ?? '',
+                    $teacher->created_at->format('Y-m-d'),
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
 }

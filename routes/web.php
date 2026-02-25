@@ -132,9 +132,11 @@ Route::middleware(['auth', 'role:admin,super_admin'])->prefix('admin')->name('ad
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 
     // Teachers Management
+    Route::get('/teachers/export', [\App\Http\Controllers\Admin\TeacherController::class, 'export'])->name('teachers.export');
     Route::resource('teachers', \App\Http\Controllers\Admin\TeacherController::class);
 
     // Students Management
+    Route::get('/students/export', [\App\Http\Controllers\Admin\StudentController::class, 'export'])->name('students.export');
     Route::resource('students', \App\Http\Controllers\Admin\StudentController::class);
     Route::post('/students/{student}/assign-program', [\App\Http\Controllers\Admin\StudentController::class, 'assignProgram'])
         ->name('students.assign-program');
@@ -154,6 +156,7 @@ Route::middleware(['auth', 'role:admin,super_admin'])->prefix('admin')->name('ad
     });
 
     // Program (Path) Management
+    Route::get('/programs/export', [\App\Http\Controllers\Admin\ProgramController::class, 'export'])->name('programs.export');
     Route::resource('programs', \App\Http\Controllers\Admin\ProgramController::class);
 
     // Term (Semester) Management
@@ -234,6 +237,7 @@ Route::middleware(['auth', 'role:admin,super_admin'])->prefix('admin')->name('ad
     Route::post('/permissions/bulk-store', [PermissionController::class, 'bulkStore'])->name('permissions.bulk-store');
 
     // Users Management with Role Assignment
+    Route::get('/users/export', [UserManagementController::class, 'export'])->name('users.export');
     Route::resource('users', UserManagementController::class);
     Route::post('/users/{user}/toggle-status', [UserManagementController::class, 'toggleStatus'])->name('users.toggle-status');
     Route::post('/users/{user}/assign-role', [UserManagementController::class, 'assignRole'])->name('users.assign-role');

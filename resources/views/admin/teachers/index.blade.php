@@ -8,13 +8,22 @@
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white">إدارة المعلمين</h1>
         <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">عرض وإدارة جميع المعلمين في النظام</p>
     </div>
-    <a href="{{ route('admin.teachers.create') }}"
-       class="flex items-center gap-2 rounded-lg bg-brand-500 px-6 py-3 text-sm font-medium text-white hover:bg-brand-600">
-        <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M10 5V15M5 10H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-        <span>إضافة معلم جديد</span>
-    </a>
+    <div class="flex items-center gap-2">
+        <a href="{{ route('admin.teachers.export') }}"
+           class="flex items-center gap-2 rounded-lg border border-green-500 bg-white px-5 py-3 text-sm font-medium text-green-600 hover:bg-green-50 dark:bg-gray-900 dark:hover:bg-gray-800">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+            </svg>
+            <span>تصدير Excel</span>
+        </a>
+        <a href="{{ route('admin.teachers.create') }}"
+           class="flex items-center gap-2 rounded-lg bg-brand-500 px-6 py-3 text-sm font-medium text-white hover:bg-brand-600">
+            <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10 5V15M5 10H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <span>إضافة معلم جديد</span>
+        </a>
+    </div>
 </div>
 
 @if(session('success'))

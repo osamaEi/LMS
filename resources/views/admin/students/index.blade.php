@@ -305,9 +305,19 @@
 <div class="students-page">
     <!-- Header -->
     <div class="students-header">
-        <div style="position: relative; z-index: 1;">
-            <h1 class="header-title">إدارة الطلاب</h1>
-            <p class="header-subtitle">عرض وإدارة جميع الطلاب المسجلين في النظام</p>
+        <div style="position: relative; z-index: 1; display: flex; align-items: center; justify-content: space-between;">
+            <div>
+                <h1 class="header-title">إدارة الطلاب</h1>
+                <p class="header-subtitle">عرض وإدارة جميع الطلاب المسجلين في النظام</p>
+            </div>
+            <a href="{{ route('admin.students.export') }}"
+               style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; background: rgba(255,255,255,0.2); border: 2px solid rgba(255,255,255,0.5); border-radius: 12px; color: #fff; font-weight: 600; font-size: 0.9rem; text-decoration: none; transition: all 0.2s; backdrop-filter: blur(4px);"
+               onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'">
+                <svg style="width:18px;height:18px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                </svg>
+                تصدير Excel
+            </a>
         </div>
     </div>
 
