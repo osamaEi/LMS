@@ -12,63 +12,98 @@ class ScheduleController extends Controller
     public function index()
     {
         $teacher = auth()->user();
+        $now     = now();
 
-        // Get teacher's subjects for the create modal
-        $subjects = Subject::where('teacher_id', $teacher->id)
-            ->where('status', 'active')
-            ->get();
-
-        // Get all sessions for the teacher's subjects
-        $sessions = Session::whereHas('subject', function($query) use ($teacher) {
+        $sessions = Session::whereHas('subject', function ($query) use ($teacher) {
                 $query->where('teacher_id', $teacher->id);
             })
-            ->with(['subject', 'subject.teacher'])
-            ->get()
-            ->map(function($session) {
-                return [
-                    'id' => $session->id,
-                    'title' => $session->title,
-                    'start' => $session->scheduled_at,
-                    'end' => $session->scheduled_at ? \Carbon\Carbon::parse($session->scheduled_at)->addHours(2) : null,
-                    'backgroundColor' => $this->getStatusColor($session->status),
-                    'borderColor' => $this->getStatusColor($session->status),
-                    'textColor' => '#ffffff',
-                    'url' => route('teacher.my-subjects.show', $session->subject->id),
-                    'extendedProps' => [
-                        'subject' => $session->subject->name,
-                        'subject_id' => $session->subject->id,
-                        'teacher' => $session->subject->teacher->name,
-                        'teacher_id' => $session->subject->teacher_id,
-                        'type' => $session->type,
-                        'status' => $this->getStatusLabel($session->status),
-                        'session_number' => $session->session_number,
-                        'description' => $session->description,
-                        'zoom_start_url' => $session->zoom_start_url,
-                        'zoom_join_url' => $session->zoom_join_url,
-                    ]
-                ];
-            });
+            ->with(['subject'])
+            ->orderBy('scheduled_at', 'asc')
+            ->get();
 
-        return view('teacher.schedule', compact('sessions', 'subjects'));
+        $upcoming = $sessions->filter(fn($s) => $s->scheduled_at && \Carbon\Carbon::parse($s->scheduled_at)->gte($now))->values();
+        $past     = $sessions->filter(fn($s) => !$s->scheduled_at || \Carbon\Carbon::parse($s->scheduled_at)->lt($now))->sortByDesc('scheduled_at')->values();
+
+        // Group upcoming by day label
+        $groupedUpcoming = $upcoming->groupBy(function ($s) {
+            $dt = \Carbon\Carbon::parse($s->scheduled_at);
+            if ($dt->isToday())    return 'اليوم';
+            if ($dt->isTomorrow()) return 'غداً';
+            return $dt->translatedFormat('l، d F Y');
+        });
+
+        $stats = [
+            'total'     => $sessions->count(),
+            'upcoming'  => $upcoming->count(),
+            'live'      => $sessions->where('status', 'live')->count(),
+            'completed' => $sessions->where('status', 'completed')->count(),
+        ];
+
+        // Teacher's active subjects for the create form
+        $subjects = Subject::where('teacher_id', $teacher->id)
+            ->where('status', 'active')
+            ->orderBy('name_ar')
+            ->get(['id', 'name_ar', 'name_en']);
+
+        return view('teacher.schedule', compact('groupedUpcoming', 'past', 'stats', 'subjects'));
     }
 
-    private function getStatusColor($status)
+    /**
+     * Bulk-create multiple sessions at once (no Zoom auto-create).
+     * Teacher can edit individual sessions later to add Zoom links.
+     */
+    public function bulkStore(Request $request)
     {
-        return match($status) {
-            'live' => '#EF4444',      // Red - Live
-            'completed' => '#10B981',  // Green - Completed
-            'scheduled' => '#3B82F6',  // Blue - Scheduled
-            default => '#6B7280',      // Gray - Other
-        };
-    }
+        $teacher = auth()->user();
 
-    private function getStatusLabel($status)
-    {
-        return match($status) {
-            'live' => 'مباشر',
-            'completed' => 'مكتملة',
-            'scheduled' => 'مجدولة',
-            default => 'أخرى',
-        };
+        $request->validate([
+            'sessions'                  => 'required|array|min:1',
+            'sessions.*.subject_id'     => 'required|integer',
+            'sessions.*.title_ar'       => 'required|string|max:255',
+            'sessions.*.title_en'       => 'required|string|max:255',
+            'sessions.*.type'           => 'required|in:live_zoom,recorded_video',
+            'sessions.*.scheduled_at'   => 'required|date|after:now',
+            'sessions.*.duration_minutes' => 'nullable|integer|min:1|max:480',
+        ]);
+
+        // Verify all subjects belong to this teacher
+        $subjectIds = collect($request->sessions)->pluck('subject_id')->unique();
+        $allowed    = Subject::where('teacher_id', $teacher->id)
+            ->whereIn('id', $subjectIds)
+            ->pluck('id');
+
+        foreach ($subjectIds as $sid) {
+            if (!$allowed->contains($sid)) {
+                return back()->withInput()
+                    ->withErrors(['sessions' => 'إحدى المواد غير مصرح لك بها.']);
+            }
+        }
+
+        // Determine next session number per subject
+        $nextNumbers = [];
+        foreach ($allowed as $sid) {
+            $nextNumbers[$sid] = Session::where('subject_id', $sid)->max('session_number') ?? 0;
+        }
+
+        $created = 0;
+        foreach ($request->sessions as $row) {
+            $sid = (int) $row['subject_id'];
+            $nextNumbers[$sid]++;
+
+            Session::create([
+                'subject_id'       => $sid,
+                'title_ar'         => $row['title_ar'],
+                'title_en'         => $row['title_en'],
+                'type'             => $row['type'],
+                'scheduled_at'     => $row['scheduled_at'],
+                'duration_minutes' => $row['duration_minutes'] ?? 60,
+                'session_number'   => $nextNumbers[$sid],
+                'status'           => 'scheduled',
+            ]);
+            $created++;
+        }
+
+        return redirect()->route('teacher.schedule')
+            ->with('success', "تم إنشاء {$created} جلسة بنجاح ✓");
     }
 }

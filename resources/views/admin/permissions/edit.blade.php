@@ -1,6 +1,6 @@
 @extends('layouts.dashboard')
 
-@section('title', 'تعديل الصلاحية: ' . $permission->name)
+@section('title', 'تعديل الصلاحية: ' . \App\Helpers\PermissionHelper::translatePermission($permission->name))
 
 @section('content')
 <div class="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
@@ -12,7 +12,7 @@
                 <span class="mx-2">/</span>
                 <a href="{{ route('admin.permissions.index') }}" class="hover:text-blue-600">الصلاحيات</a>
                 <span class="mx-2">/</span>
-                <span class="text-gray-900 dark:text-white">تعديل: {{ $permission->name }}</span>
+                <span class="text-gray-900 dark:text-white">تعديل: {{ \App\Helpers\PermissionHelper::translatePermission($permission->name) }}</span>
             </nav>
             <h1 class="text-2xl font-bold text-gray-900 dark:text-white">تعديل الصلاحية</h1>
         </div>

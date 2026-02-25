@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use Database\Seeders\PermissionSeeder;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -13,13 +14,9 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             // 1. Roles and Permissions (must be first)
-            RolesAndPermissionsSeeder::class,
+            PermissionSeeder::class,
 
-            // 2. Settings
-            SettingsSeeder::class,
-
-            // 3. Demo Data (Users, Programs, Terms, Subjects, Enrollments)
-            DashboardDemoSeeder::class,
+       
         ]);
     }
 }

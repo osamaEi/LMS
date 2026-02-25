@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller as BaseController;
+use App\Models\User;
+use App\Notifications\CustomNotification;
 use App\Services\NotificationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -94,5 +96,45 @@ class NotificationController extends BaseController
             'marked_count' => $count,
             'unread_count' => 0,
         ]);
+    }
+
+    /**
+     * Send a custom notification to students / teachers / all (admin only)
+     */
+    public function send(Request $request)
+    {
+        $validated = $request->validate([
+            'target'     => 'required|in:student,teacher,all',
+            'title'      => 'required|string|max:255',
+            'body'       => 'required|string|max:1000',
+            'action_url' => 'nullable|url|max:500',
+        ]);
+
+        $query = User::query();
+
+        if ($validated['target'] !== 'all') {
+            $query->where('role', $validated['target']);
+        }
+
+        $users = $query->get();
+        $notification = new CustomNotification(
+            title:      $validated['title'],
+            body:       $validated['body'],
+            actionUrl:  $validated['action_url'] ?? '#',
+            senderName: auth()->user()->name,
+        );
+
+        foreach ($users as $user) {
+            $user->notify($notification);
+        }
+
+        $targetLabel = match($validated['target']) {
+            'student' => 'الطلاب',
+            'teacher' => 'المعلمين',
+            'all'     => 'جميع المستخدمين',
+        };
+
+        return redirect()->route('notifications.page')
+            ->with('success', "تم إرسال الإشعار بنجاح إلى {$targetLabel} ({$users->count()} مستخدم)");
     }
 }

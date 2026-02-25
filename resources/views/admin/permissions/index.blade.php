@@ -78,16 +78,18 @@
                                     </svg>
                                 </div>
                                 <div>
-                                    <div class="text-sm font-medium text-gray-900 dark:text-white">{{ $permission->name }}</div>
-                                    <div class="text-xs text-gray-500 dark:text-gray-400">Guard: {{ $permission->guard_name }}</div>
+                                    <div class="text-sm font-medium text-gray-900 dark:text-white">
+                                        {{ \App\Helpers\PermissionHelper::translatePermission($permission->name) }}
+                                    </div>
+                                    <div class="text-xs text-gray-400 dark:text-gray-500 font-mono">{{ $permission->name }}</div>
                                 </div>
                             </div>
                         </td>
                         <td class="px-6 py-4">
                             <div class="flex flex-wrap gap-1">
                                 @forelse($permission->roles->take(3) as $role)
-                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">
-                                    {{ $role->name }}
+                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium {{ \App\Helpers\PermissionHelper::getRoleColor($role->name) }}">
+                                    {{ \App\Helpers\PermissionHelper::translateRole($role->name) }}
                                 </span>
                                 @empty
                                 <span class="text-xs text-gray-500 dark:text-gray-400">غير مرتبطة</span>

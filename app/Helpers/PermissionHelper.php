@@ -2,209 +2,97 @@
 
 namespace App\Helpers;
 
+use Database\Seeders\PermissionSeeder;
+
 class PermissionHelper
 {
     /**
-     * Translate permission name to Arabic
+     * Translate a permission name to Arabic.
+     * Source of truth is PermissionSeeder::$permissions.
      */
     public static function translatePermission(string $permission): string
     {
-        $translations = [
-            // Dashboard
-            'view-dashboard' => 'عرض لوحة التحكم',
-
-            // Users Management
-            'view-users' => 'عرض المستخدمين',
-            'create-users' => 'إنشاء مستخدمين',
-            'edit-users' => 'تعديل المستخدمين',
-            'delete-users' => 'حذف المستخدمين',
-
-            // Sessions/Lessons Management
-            'view-sessions' => 'عرض الدروس',
-            'create-sessions' => 'إنشاء دروس',
-            'edit-sessions' => 'تعديل الدروس',
-            'delete-sessions' => 'حذف الدروس',
-
-            // Subjects Management
-            'view-subjects' => 'عرض المواد',
-            'create-subjects' => 'إنشاء مواد',
-            'edit-subjects' => 'تعديل المواد',
-            'delete-subjects' => 'حذف المواد',
-
-            // Programs Management
-            'view-programs' => 'عرض المسارات التعليمية',
-            'create-programs' => 'إنشاء مسارات تعليمية',
-            'edit-programs' => 'تعديل المسارات التعليمية',
-            'delete-programs' => 'حذف المسارات التعليمية',
-
-            // Terms Management
-            'view-terms' => 'عرض الفصول الدراسية',
-            'create-terms' => 'إنشاء فصول دراسية',
-            'edit-terms' => 'تعديل الفصول الدراسية',
-            'delete-terms' => 'حذف الفصول الدراسية',
-
-            // Enrollments
-            'manage-enrollments' => 'إدارة التسجيلات',
-            'view-enrollments' => 'عرض التسجيلات',
-
-            // Attendance
-            'manage-attendance' => 'إدارة الحضور',
-            'view-attendance' => 'عرض الحضور',
-
-            // Reports
-            'view-reports' => 'عرض التقارير',
-            'export-reports' => 'تصدير التقارير',
-            'view-analytics' => 'عرض الإحصائيات',
-
-            // Settings
-            'view-settings' => 'عرض الإعدادات',
-            'edit-settings' => 'تعديل الإعدادات',
-            'manage-system' => 'إدارة النظام',
-
-            // Roles & Permissions
-            'manage-roles' => 'إدارة الأدوار',
-            'manage-permissions' => 'إدارة الصلاحيات',
-
-            // Surveys
-            'view-surveys' => 'عرض الاستبيانات',
-            'create-surveys' => 'إنشاء استبيانات',
-            'edit-surveys' => 'تعديل الاستبيانات',
-            'delete-surveys' => 'حذف الاستبيانات',
-
-            // Tickets
-            'view-tickets' => 'عرض التذاكر',
-            'manage-tickets' => 'إدارة التذاكر',
-            'assign-tickets' => 'تعيين التذاكر',
-
-            // Teacher Ratings
-            'view-ratings' => 'عرض التقييمات',
-            'approve-ratings' => 'الموافقة على التقييمات',
-        ];
-
-        return $translations[$permission] ?? $permission;
+        return PermissionSeeder::$permissions[$permission] ?? $permission;
     }
 
     /**
-     * Get permissions grouped by category
+     * Group definitions – each key maps to a list of permission name substrings.
      */
-    public static function getGroupedPermissions($permissions)
+    private static array $groups = [
+        'dashboard'            => ['name' => 'لوحة التحكم',                    'match' => ['dashboard']],
+        'users'                => ['name' => 'إدارة المستخدمين',                'match' => ['user']],
+        'teachers'             => ['name' => 'إدارة المعلمين',                  'match' => ['teacher']],
+        'students'             => ['name' => 'إدارة الطلاب',                    'match' => ['student']],
+        'programs'             => ['name' => 'المسارات التعليمية',              'match' => ['program']],
+        'terms'                => ['name' => 'الفصول الدراسية',                'match' => ['term']],
+        'subjects'             => ['name' => 'المواد الدراسية',                 'match' => ['subject']],
+        'sessions'             => ['name' => 'الجلسات والمحاضرات',              'match' => ['session', 'zoom']],
+        'recordings'           => ['name' => 'التسجيلات',                       'match' => ['recording']],
+        'enrollments'          => ['name' => 'التسجيل والقبول',                 'match' => ['enrollment']],
+        'attendance'           => ['name' => 'الحضور والغياب',                  'match' => ['attendance']],
+        'quizzes'              => ['name' => 'الاختبارات',                      'match' => ['quiz']],
+        'payments'             => ['name' => 'المدفوعات والرسوم',               'match' => ['payment', 'installment', 'waive']],
+        'reports'              => ['name' => 'التقارير والإحصائيات',            'match' => ['report', 'analytics', 'nelc', 'progress', 'grade-report', 'teacher-performance']],
+        'surveys'              => ['name' => 'الاستبيانات',                     'match' => ['survey']],
+        'tickets'              => ['name' => 'تذاكر الدعم الفني',              'match' => ['ticket']],
+        'ratings'              => ['name' => 'تقييم المعلمين',                  'match' => ['rating']],
+        'pending_users'        => ['name' => 'طلبات التسجيل المعلقة',          'match' => ['pending-user']],
+        'activity_logs'        => ['name' => 'سجل النشاطات',                   'match' => ['activity-log']],
+        'roles'                => ['name' => 'الأدوار والصلاحيات',             'match' => ['role', 'permission']],
+        'settings'             => ['name' => 'الإعدادات والنظام',              'match' => ['setting', 'system', 'xapi']],
+    ];
+
+    /**
+     * Get permissions grouped by category for display in views.
+     */
+    public static function getGroupedPermissions($permissions): array
     {
-        $grouped = [
-            'dashboard' => [
-                'name' => 'لوحة التحكم',
-                'permissions' => [],
-            ],
-            'users' => [
-                'name' => 'إدارة المستخدمين',
-                'permissions' => [],
-            ],
-            'sessions' => [
-                'name' => 'الدروس والمحاضرات',
-                'permissions' => [],
-            ],
-            'subjects' => [
-                'name' => 'المواد الدراسية',
-                'permissions' => [],
-            ],
-            'programs' => [
-                'name' => 'المسارات التعليمية',
-                'permissions' => [],
-            ],
-            'terms' => [
-                'name' => 'الفصول الدراسية',
-                'permissions' => [],
-            ],
-            'enrollments' => [
-                'name' => 'التسجيلات',
-                'permissions' => [],
-            ],
-            'attendance' => [
-                'name' => 'الحضور والغياب',
-                'permissions' => [],
-            ],
-            'reports' => [
-                'name' => 'التقارير والإحصائيات',
-                'permissions' => [],
-            ],
-            'surveys' => [
-                'name' => 'الاستبيانات',
-                'permissions' => [],
-            ],
-            'tickets' => [
-                'name' => 'تذاكر الدعم',
-                'permissions' => [],
-            ],
-            'ratings' => [
-                'name' => 'تقييم المدربين',
-                'permissions' => [],
-            ],
-            'roles' => [
-                'name' => 'الأدوار والصلاحيات',
-                'permissions' => [],
-            ],
-            'settings' => [
-                'name' => 'الإعدادات',
-                'permissions' => [],
-            ],
-        ];
+        // Build skeleton
+        $grouped = [];
+        foreach (self::$groups as $key => $meta) {
+            $grouped[$key] = ['name' => $meta['name'], 'permissions' => []];
+        }
+        $grouped['other'] = ['name' => 'أخرى', 'permissions' => []];
 
         foreach ($permissions as $permission) {
-            $name = $permission->name;
+            $placed = false;
+            $name   = $permission->name;
 
-            // Categorize permissions
-            if (str_contains($name, 'dashboard')) {
-                $grouped['dashboard']['permissions'][] = $permission;
-            } elseif (str_contains($name, 'user')) {
-                $grouped['users']['permissions'][] = $permission;
-            } elseif (str_contains($name, 'session')) {
-                $grouped['sessions']['permissions'][] = $permission;
-            } elseif (str_contains($name, 'subject')) {
-                $grouped['subjects']['permissions'][] = $permission;
-            } elseif (str_contains($name, 'program')) {
-                $grouped['programs']['permissions'][] = $permission;
-            } elseif (str_contains($name, 'term')) {
-                $grouped['terms']['permissions'][] = $permission;
-            } elseif (str_contains($name, 'enrollment')) {
-                $grouped['enrollments']['permissions'][] = $permission;
-            } elseif (str_contains($name, 'attendance')) {
-                $grouped['attendance']['permissions'][] = $permission;
-            } elseif (str_contains($name, 'report') || str_contains($name, 'analytics')) {
-                $grouped['reports']['permissions'][] = $permission;
-            } elseif (str_contains($name, 'survey')) {
-                $grouped['surveys']['permissions'][] = $permission;
-            } elseif (str_contains($name, 'ticket')) {
-                $grouped['tickets']['permissions'][] = $permission;
-            } elseif (str_contains($name, 'rating')) {
-                $grouped['ratings']['permissions'][] = $permission;
-            } elseif (str_contains($name, 'role') || str_contains($name, 'permission')) {
-                $grouped['roles']['permissions'][] = $permission;
-            } elseif (str_contains($name, 'setting') || str_contains($name, 'system')) {
-                $grouped['settings']['permissions'][] = $permission;
+            foreach (self::$groups as $key => $meta) {
+                foreach ($meta['match'] as $keyword) {
+                    if (str_contains($name, $keyword)) {
+                        $grouped[$key]['permissions'][] = $permission;
+                        $placed = true;
+                        break 2;
+                    }
+                }
+            }
+
+            if (!$placed) {
+                $grouped['other']['permissions'][] = $permission;
             }
         }
 
         // Remove empty groups
-        return array_filter($grouped, function($group) {
-            return count($group['permissions']) > 0;
-        });
+        return array_filter($grouped, fn($g) => count($g['permissions']) > 0);
     }
 
     /**
-     * Get permission color class based on action
+     * Tailwind color class based on action type.
      */
     public static function getPermissionColor(string $permission): string
     {
         if (str_contains($permission, 'view')) {
             return 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300';
-        } elseif (str_contains($permission, 'create')) {
+        } elseif (str_contains($permission, 'create') || str_contains($permission, 'add')) {
             return 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300';
-        } elseif (str_contains($permission, 'edit') || str_contains($permission, 'manage')) {
+        } elseif (str_contains($permission, 'edit') || str_contains($permission, 'manage') || str_contains($permission, 'sync') || str_contains($permission, 'toggle')) {
             return 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300';
-        } elseif (str_contains($permission, 'delete')) {
+        } elseif (str_contains($permission, 'delete') || str_contains($permission, 'cancel') || str_contains($permission, 'remove') || str_contains($permission, 'reject')) {
             return 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300';
-        } elseif (str_contains($permission, 'approve') || str_contains($permission, 'assign')) {
+        } elseif (str_contains($permission, 'approve') || str_contains($permission, 'assign') || str_contains($permission, 'waive') || str_contains($permission, 'grade')) {
             return 'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300';
-        } elseif (str_contains($permission, 'export')) {
+        } elseif (str_contains($permission, 'export') || str_contains($permission, 'record')) {
             return 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300';
         }
 
@@ -212,45 +100,50 @@ class PermissionHelper
     }
 
     /**
-     * Translate role name to Arabic
+     * Translate role name to Arabic.
      */
     public static function translateRole(string $role): string
     {
         $translations = [
-            'super-admin' => 'مدير عام',
-            'admin' => 'مدير',
-            'teacher' => 'معلم',
-            'student' => 'طالب',
+            'super-admin'     => 'مدير عام',
+            'super_admin'     => 'مدير عام',
+            'admin'           => 'مدير',
+            'teacher'         => 'معلم',
+            'student'         => 'طالب',
             'content-manager' => 'مدير محتوى',
-            'support-agent' => 'موظف دعم',
-            'supervisor' => 'مشرف',
-            'coordinator' => 'منسق',
-            'moderator' => 'مشرف',
-            'editor' => 'محرر',
-            'viewer' => 'مشاهد',
-            'guest' => 'ضيف',
+            'content_manager' => 'مدير محتوى',
+            'support-agent'   => 'موظف دعم',
+            'support_agent'   => 'موظف دعم',
+            'supervisor'      => 'مشرف',
+            'coordinator'     => 'منسق',
+            'moderator'       => 'مشرف محتوى',
+            'editor'          => 'محرر',
+            'viewer'          => 'مشاهد',
+            'guest'           => 'ضيف',
         ];
 
         return $translations[$role] ?? $role;
     }
 
     /**
-     * Get role color class based on role name
+     * Tailwind color class for a role badge.
      */
     public static function getRoleColor(string $role): string
     {
-        return match(strtolower($role)) {
+        return match (strtolower($role)) {
             'super-admin', 'super_admin' => 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300',
-            'admin' => 'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300',
-            'teacher' => 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300',
-            'student' => 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300',
-            'content-manager', 'content_manager' => 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300',
-            'support-agent', 'support_agent' => 'bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300',
-            'supervisor' => 'bg-pink-100 text-pink-700 dark:bg-pink-900 dark:text-pink-300',
-            'coordinator' => 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900 dark:text-cyan-300',
-            'moderator' => 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300',
-            'editor' => 'bg-teal-100 text-teal-700 dark:bg-teal-900 dark:text-teal-300',
-            default => 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300',
+            'admin'                       => 'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300',
+            'teacher'                     => 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300',
+            'student'                     => 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300',
+            'content-manager',
+            'content_manager'             => 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300',
+            'support-agent',
+            'support_agent'               => 'bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300',
+            'supervisor'                  => 'bg-pink-100 text-pink-700 dark:bg-pink-900 dark:text-pink-300',
+            'coordinator'                 => 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900 dark:text-cyan-300',
+            'moderator'                   => 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300',
+            'editor'                      => 'bg-teal-100 text-teal-700 dark:bg-teal-900 dark:text-teal-300',
+            default                       => 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300',
         };
     }
 }

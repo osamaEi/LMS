@@ -116,6 +116,7 @@ Route::middleware('auth')->prefix('notifications')->name('notifications.')->grou
     Route::get('/unread-count', [\App\Http\Controllers\NotificationController::class, 'unreadCount'])->name('unread-count');
     Route::post('/{id}/read', [\App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('mark-read');
     Route::post('/read-all', [\App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('mark-all-read');
+    Route::post('/send', [\App\Http\Controllers\NotificationController::class, 'send'])->name('send')->middleware('role:admin,super-admin,super_admin');
 });
 
 // Profile Routes (All authenticated users)
@@ -307,6 +308,7 @@ Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')
 
     // Schedule
     Route::get('/schedule', [\App\Http\Controllers\Teacher\ScheduleController::class, 'index'])->name('schedule');
+    Route::post('/schedule/sessions', [\App\Http\Controllers\Teacher\ScheduleController::class, 'bulkStore'])->name('schedule.sessions.store');
 
     // Students
     Route::get('/students', [\App\Http\Controllers\Teacher\StudentsController::class, 'index'])->name('students.index');

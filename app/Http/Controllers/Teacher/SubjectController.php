@@ -53,11 +53,17 @@ class SubjectController extends Controller
             ->findOrFail($id);
 
         $sessions = Session::where('subject_id', $id)
-            ->with('unit')
+            ->with(['unit', 'files'])
             ->orderBy('session_number', 'asc')
             ->get();
 
-        return view('teacher.subjects.show', compact('subject', 'sessions'));
+        // Collect all session files across all sessions for the files tab
+        $allFiles = $sessions->flatMap(fn($s) => $s->files->map(fn($f) => [
+            'file'    => $f,
+            'session' => $s,
+        ]));
+
+        return view('teacher.subjects.show', compact('subject', 'sessions', 'allFiles'));
     }
 
     /**
