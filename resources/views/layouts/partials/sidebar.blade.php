@@ -5,7 +5,13 @@
 >
     <!-- SIDEBAR HEADER -->
     <div class="flex items-center justify-between pt-8 pb-7">
-        <a href="{{ route(auth()->user()->role . '.dashboard') }}">
+        @php
+            $userRole = auth()->user()->role;
+            $dashboardRoute = in_array($userRole, ['admin', 'super_admin'])
+                ? 'admin.dashboard'
+                : $userRole . '.dashboard';
+        @endphp
+        <a href="{{ route($dashboardRoute) }}">
             <img src="{{ asset('images/logo/logo.png') }}" alt="Logo" class="h-12" style="filter: brightness(0) invert(1);" />
         </a>
     </div>
@@ -14,7 +20,7 @@
         <!-- Sidebar Menu -->
         <nav>
             <ul class="flex flex-col gap-2">
-                @if(auth()->user()->role === 'admin')
+                @if(in_array(auth()->user()->role, ['admin', 'super_admin']))
                     @include('layouts.partials.sidebar-admin')
                 @elseif(auth()->user()->role === 'teacher')
                     @include('layouts.partials.sidebar-teacher')
