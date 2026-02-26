@@ -1312,67 +1312,57 @@
             <p class="phead">{{ __('We provide training paths spanning two and a half years through 10 training quarters, plus short and specialized courses for various professional goals.') }}</p>
         </div>
         <div class="courses-container">
-            @for ($i = 0; $i < 3; $i++)
+            @forelse($featuredPrograms ?? [] as $program)
             <div class="course-card card p-2">
                 <img src="{{ asset('images/course.jpg') }}" class="rounded" />
-                <h4 class="mt-2">{{ __('Management Skills Development') }}</h4>
-                <p>{{ __('Modern management fundamentals: leadership, planning, and practical decision-making.') }}</p>
+                <h4 class="mt-2">{{ $program->name }}</h4>
+                <p>{{ Str::limit($program->description ?? __('A comprehensive training program designed to develop professional skills and build practical competencies.'), 100) }}</p>
                 <div class="marks my-1 d-flex gap-2 flex-wrap">
+                    @if($program->duration_months)
                     <div class="st">
-                        <i class="bi bi-exclamation-triangle"></i>
-                        {{ __('Tag') }}
+                        <i class="bi bi-clock"></i>
+                        {{ $program->duration_months }} {{ __('months') }}
                     </div>
+                    @endif
+                    @if($program->price && $program->price > 0)
                     <div class="nd">
-                        <i class="bi bi-exclamation-triangle"></i>
-                        {{ __('Tag') }}
+                        <i class="bi bi-tag"></i>
+                        {{ number_format($program->price, 0) }} {{ __('SAR') }}
                     </div>
+                    @else
+                    <div class="nd">
+                        <i class="bi bi-check-circle"></i>
+                        {{ __('Free') }}
+                    </div>
+                    @endif
                     <div class="th">
-                        <i class="bi bi-exclamation-triangle"></i>
-                        {{ __('Tag') }}
+                        <i class="bi bi-mortarboard"></i>
+                        {{ $program->code ?? __('Program') }}
                     </div>
                 </div>
                 <div class="d-flex gap-2 w-100 flex-wrap flex-sm-nowrap mt-2">
-                    <button class="notfull-btn w-100">{{ __('View Details') }}</button>
-                    <button class="full-btn w-100">{{ __('Register Now') }}</button>
+                    <a href="{{ route('training-paths') }}" class="notfull-btn w-100 text-center text-decoration-none">{{ __('View Details') }}</a>
+                    <a href="{{ auth()->check() ? route('student.my-program') : route('login') }}" class="full-btn w-100 text-center text-decoration-none">{{ __('Register Now') }}</a>
                 </div>
             </div>
-            @endfor
-        </div>
-    </section>
-
-    <!-- Upcoming Courses Section -->
-    <section class="container-fluid py-5">
-        <div class="head d-flex justify-content-center align-items-center flex-column py-5 text-center">
-            <h2>{{ __('Courses starting soon — Reserve your seat') }}</h2>
-            <p class="phead">{{ __('Choose from a variety of specialized courses starting in the coming weeks.') }}</p>
-            <button class="notfull-btn mt-3">{{ __('View All Courses') }}</button>
-        </div>
-        <div class="courses-container">
+            @empty
             @for ($i = 0; $i < 3; $i++)
             <div class="course-card card p-2">
                 <img src="{{ asset('images/course.jpg') }}" class="rounded" />
                 <h4 class="mt-2">{{ __('Management Skills Development') }}</h4>
                 <p>{{ __('Modern management fundamentals: leadership, planning, and practical decision-making.') }}</p>
                 <div class="marks my-1 d-flex gap-2 flex-wrap">
-                    <div class="st">
-                        <i class="bi bi-exclamation-triangle"></i>
-                        {{ __('Tag') }}
-                    </div>
-                    <div class="nd">
-                        <i class="bi bi-exclamation-triangle"></i>
-                        {{ __('Tag') }}
-                    </div>
-                    <div class="th">
-                        <i class="bi bi-exclamation-triangle"></i>
-                        {{ __('Tag') }}
-                    </div>
+                    <div class="st"><i class="bi bi-clock"></i> 12 {{ __('months') }}</div>
+                    <div class="nd"><i class="bi bi-tag"></i> {{ __('Free') }}</div>
+                    <div class="th"><i class="bi bi-mortarboard"></i> {{ __('Program') }}</div>
                 </div>
-                <div class="mt-2 d-flex gap-2 w-100 flex-wrap flex-sm-nowrap">
-                    <button class="notfull-btn w-100">{{ __('View Details') }}</button>
-                    <button class="full-btn w-100">{{ __('Register Now') }}</button>
+                <div class="d-flex gap-2 w-100 flex-wrap flex-sm-nowrap mt-2">
+                    <a href="{{ route('training-paths') }}" class="notfull-btn w-100 text-center text-decoration-none">{{ __('View Details') }}</a>
+                    <a href="{{ route('login') }}" class="full-btn w-100 text-center text-decoration-none">{{ __('Register Now') }}</a>
                 </div>
             </div>
             @endfor
+            @endforelse
         </div>
     </section>
 
