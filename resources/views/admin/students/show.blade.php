@@ -1455,6 +1455,12 @@
             <span class="badge" style="background: linear-gradient(135deg, #f59e0b, #d97706);">{{ $student->documents->where('status','pending')->count() }}</span>
             @endif
         </button>
+        <button class="tab-btn" onclick="switchTab('notification')">
+            <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+            </svg>
+            إرسال إشعار
+        </button>
     </div>
 
     <!-- Personal Info Tab -->
@@ -2221,6 +2227,129 @@
             </div>
         </div>
     </div>
+
+    <!-- Notification Tab -->
+    <div id="tab-notification" class="tab-content">
+        <div class="info-card">
+            <div class="info-card-header">
+                <div class="icon" style="background: linear-gradient(135deg, #0071AA, #005a88);">
+                    <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                    </svg>
+                </div>
+                <h3>إرسال إشعار للطالب</h3>
+            </div>
+            <div class="info-card-body">
+
+                {{-- Flash for this tab --}}
+                @if(session('notif_success'))
+                <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:#f0fdf4;border:1px solid #86efac;border-radius:12px;color:#166534;font-size:.875rem;margin-bottom:1.25rem;">
+                    <svg style="width:18px;height:18px;flex-shrink:0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                    {{ session('notif_success') }}
+                </div>
+                @endif
+
+                {{-- Student recipient banner --}}
+                <div style="display:flex;align-items:center;gap:1rem;padding:1rem 1.25rem;background:linear-gradient(135deg,#eff6ff,#dbeafe);border:1px solid #bfdbfe;border-radius:14px;margin-bottom:1.5rem;">
+                    <div style="width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,#0071AA,#005a88);display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:800;color:white;flex-shrink:0;">
+                        {{ mb_substr($student->name, 0, 1) }}
+                    </div>
+                    <div>
+                        <div style="font-size:.9rem;font-weight:700;color:#1e3a5f;">{{ $student->name }}</div>
+                        <div style="font-size:.8rem;color:#0071AA;">{{ $student->email }}</div>
+                        @if($student->national_id)
+                        <div style="font-size:.75rem;color:#64748b;">{{ $student->national_id }}</div>
+                        @endif
+                    </div>
+                    <div style="margin-right:auto;display:flex;align-items:center;gap:6px;background:rgba(0,113,170,.12);padding:5px 12px;border-radius:999px;">
+                        <svg style="width:14px;height:14px;color:#0071AA" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                        <span style="font-size:.75rem;font-weight:700;color:#0071AA;">طالب</span>
+                    </div>
+                </div>
+
+                <form action="{{ route('notifications.send') }}" method="POST" style="display:flex;flex-direction:column;gap:1.25rem;">
+                    @csrf
+                    <input type="hidden" name="send_mode" value="individual">
+                    <input type="hidden" name="user_ids[]" value="{{ $student->id }}">
+
+                    {{-- Validation errors --}}
+                    @if($errors->any())
+                    <div style="padding:10px 14px;background:#fef2f2;border:1px solid #fca5a5;border-radius:10px;font-size:.8rem;color:#991b1b;">
+                        @foreach($errors->all() as $err)<div>• {{ $err }}</div>@endforeach
+                    </div>
+                    @endif
+
+                    {{-- Title --}}
+                    <div>
+                        <label style="display:block;font-size:.85rem;font-weight:700;color:#374151;margin-bottom:.5rem;">
+                            عنوان الإشعار <span style="color:#ef4444;">*</span>
+                        </label>
+                        <input type="text" name="title" value="{{ old('title') }}" required maxlength="255"
+                               placeholder="مثال: تنبيه مهم، رسالة من الإدارة..."
+                               style="width:100%;border:1.5px solid #e2e8f0;border-radius:12px;padding:11px 14px;font-size:.9rem;color:#374151;outline:none;background:#f8fafc;box-sizing:border-box;transition:border-color .2s,background .2s;"
+                               onfocus="this.style.borderColor='#0071AA';this.style.background='#fff'"
+                               onblur="this.style.borderColor='#e2e8f0';this.style.background='#f8fafc'">
+                    </div>
+
+                    {{-- Body --}}
+                    <div>
+                        <label style="display:block;font-size:.85rem;font-weight:700;color:#374151;margin-bottom:.5rem;">
+                            نص الإشعار <span style="color:#ef4444;">*</span>
+                        </label>
+                        <textarea name="body" required maxlength="1000" rows="4"
+                                  placeholder="اكتب تفاصيل الإشعار هنا..."
+                                  style="width:100%;border:1.5px solid #e2e8f0;border-radius:12px;padding:11px 14px;font-size:.9rem;color:#374151;outline:none;background:#f8fafc;resize:vertical;box-sizing:border-box;font-family:inherit;transition:border-color .2s,background .2s;"
+                                  onfocus="this.style.borderColor='#0071AA';this.style.background='#fff'"
+                                  onblur="this.style.borderColor='#e2e8f0';this.style.background='#f8fafc'">{{ old('body') }}</textarea>
+                    </div>
+
+                    {{-- Action URL --}}
+                    <div>
+                        <label style="display:block;font-size:.85rem;font-weight:700;color:#374151;margin-bottom:.5rem;">
+                            رابط الإجراء <span style="font-weight:400;color:#9ca3af;">(اختياري)</span>
+                        </label>
+                        <input type="url" name="action_url" value="{{ old('action_url') }}" placeholder="https://..."
+                               style="width:100%;border:1.5px solid #e2e8f0;border-radius:12px;padding:11px 14px;font-size:.9rem;color:#374151;outline:none;background:#f8fafc;box-sizing:border-box;transition:border-color .2s,background .2s;"
+                               onfocus="this.style.borderColor='#0071AA';this.style.background='#fff'"
+                               onblur="this.style.borderColor='#e2e8f0';this.style.background='#f8fafc'">
+                    </div>
+
+                    {{-- Quick templates --}}
+                    <div>
+                        <p style="font-size:.8rem;font-weight:700;color:#6b7280;margin-bottom:.6rem;">قوالب سريعة:</p>
+                        <div style="display:flex;flex-wrap:wrap;gap:.5rem;">
+                            @foreach([
+                                ['label' => 'تذكير بالحضور',    'title' => 'تذكير بحضور الجلسة',            'body' => 'نود تذكيرك بأن لديك جلسة قادمة، يرجى الحضور في الوقت المحدد.'],
+                                ['label' => 'تحديث البرنامج',   'title' => 'تحديث مهم بشأن برنامجك',        'body' => 'نود إعلامك بوجود تحديثات مهمة تخص برنامجك الدراسي.'],
+                                ['label' => 'إشعار دفع',        'title' => 'تذكير بموعد السداد',             'body' => 'يرجى إتمام عملية السداد في أقرب وقت ممكن لتجنب تعليق الحساب.'],
+                                ['label' => 'تهنئة',            'title' => 'تهانينا على تميزك!',            'body' => 'نهنئك على أدائك المتميز ونتمنى لك مزيداً من التوفيق والنجاح.'],
+                            ] as $tpl)
+                            <button type="button"
+                                    onclick="applyTemplate('{{ addslashes($tpl['title']) }}','{{ addslashes($tpl['body']) }}')"
+                                    style="padding:.4rem .9rem;border-radius:999px;border:1.5px solid #e2e8f0;background:#f8fafc;font-size:.75rem;font-weight:600;color:#374151;cursor:pointer;transition:all .15s;"
+                                    onmouseover="this.style.borderColor='#0071AA';this.style.color='#0071AA';this.style.background='#eff6ff'"
+                                    onmouseout="this.style.borderColor='#e2e8f0';this.style.color='#374151';this.style.background='#f8fafc'">
+                                {{ $tpl['label'] }}
+                            </button>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    {{-- Submit --}}
+                    <button type="submit"
+                            style="display:flex;align-items:center;justify-content:center;gap:8px;padding:13px 20px;background:linear-gradient(135deg,#0071AA,#005a88);color:#fff;border:none;border-radius:12px;font-size:.9rem;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(0,113,170,.3);transition:all .2s;"
+                            onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 20px rgba(0,113,170,.4)'"
+                            onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 16px rgba(0,113,170,.3)'">
+                        <svg style="width:17px;height:17px" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                        </svg>
+                        إرسال الإشعار للطالب
+                    </button>
+                </form>
+
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- ===== Document Lightbox ===== -->
@@ -2305,6 +2434,14 @@
 
 @push('scripts')
 <script>
+/* ── Notification quick templates ─────────────────── */
+function applyTemplate(title, body) {
+    const form = document.querySelector('#tab-notification form');
+    if (!form) return;
+    form.querySelector('[name="title"]').value = title;
+    form.querySelector('[name="body"]').value  = body;
+}
+
 /* ── Tab switching ────────────────────────────────── */
 function switchTab(tabName) {
     document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));

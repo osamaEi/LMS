@@ -217,19 +217,25 @@ class DashboardController extends Controller
         });
 
         // Summary stats
-        $totalSubjects   = $termsData->sum('subjects_count');
+        $totalSubjects    = $termsData->sum('subjects_count');
         $enrolledSubjects = $termsData->sum('enrolled_count');
+
+        // Current term full object
+        $currentTermNumber = $student->current_term_number ?? 1;
+        $currentTermData   = $termsData->firstWhere('term_number', $currentTermNumber)
+                          ?? $termsData->first();
 
         return response()->json([
             'success' => true,
             'data'    => [
-                'program_id'       => $student->program_id,
-                'program_status'   => $student->program_status,
-                'current_term'     => $student->current_term_number ?? 1,
-                'total_terms'      => $terms->count(),
-                'total_subjects'   => $totalSubjects,
-                'enrolled_subjects'=> $enrolledSubjects,
-                'terms'            => $termsData,
+                'program_id'        => $student->program_id,
+                'program_status'    => $student->program_status,
+                'current_term_number' => $currentTermNumber,
+                'current_term'      => $currentTermData,   // full term object with subjects
+                'total_terms'       => $terms->count(),
+                'total_subjects'    => $totalSubjects,
+                'enrolled_subjects' => $enrolledSubjects,
+                'terms'             => $termsData,
             ],
         ]);
     }

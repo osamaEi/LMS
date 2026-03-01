@@ -399,17 +399,63 @@
                             <h3>بيانات الدفعة</h3>
                         </div>
                         <div class="form-card-body">
-                            <!-- Student -->
-                            <div class="form-group">
+                            <!-- Student (custom searchable picker) -->
+                            <div class="form-group" style="position:relative;">
                                 <label class="form-label">الطالب <span class="required">*</span></label>
-                                <select name="user_id" id="user_id" class="form-select @error('user_id') is-invalid @enderror" required>
-                                    <option value="">اختر الطالب</option>
-                                    @foreach($students as $student)
-                                        <option value="{{ $student->id }}" {{ old('user_id') == $student->id ? 'selected' : '' }}>
-                                            {{ $student->name }} ({{ $student->email }})
-                                        </option>
-                                    @endforeach
-                                </select>
+
+                                {{-- Hidden real input for form submission --}}
+                                <input type="hidden" name="user_id" id="user_id" value="{{ old('user_id') }}" required>
+
+                                {{-- Trigger button --}}
+                                <div id="student-trigger"
+                                     onclick="toggleStudentPicker()"
+                                     style="display:flex;align-items:center;justify-content:space-between;width:100%;padding:.75rem 1rem;border:2px solid {{ $errors->has('user_id') ? '#ef4444' : '#e5e7eb' }};border-radius:12px;font-size:.9375rem;color:#111827;background:#fff;cursor:pointer;box-sizing:border-box;transition:border-color .2s;">
+                                    <span id="student-trigger-text" style="color:#6b7280;">اختر الطالب</span>
+                                    <svg id="student-chevron" style="width:18px;height:18px;color:#9ca3af;transition:transform .2s;flex-shrink:0;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                    </svg>
+                                </div>
+
+                                {{-- Dropdown --}}
+                                <div id="student-picker" style="display:none;position:absolute;top:100%;right:0;left:0;z-index:500;background:#fff;border:2px solid #0071AA;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,0.12);margin-top:4px;overflow:hidden;">
+                                    <div style="padding:.6rem .75rem;border-bottom:1px solid #f1f5f9;">
+                                        <input type="text" id="student-search" placeholder="بحث بالاسم أو الإيميل أو رقم الهوية..."
+                                               oninput="filterStudents()"
+                                               style="width:100%;border:1.5px solid #e2e8f0;border-radius:8px;padding:.5rem .75rem;font-size:.875rem;color:#374151;outline:none;box-sizing:border-box;"
+                                               onfocus="this.style.borderColor='#0071AA'" onblur="this.style.borderColor='#e2e8f0'">
+                                    </div>
+                                    <div id="student-list" style="max-height:260px;overflow-y:auto;">
+                                        @foreach($students as $s)
+                                        <div class="s-row"
+                                             data-id="{{ $s->id }}"
+                                             data-name="{{ $s->name }}"
+                                             data-email="{{ $s->email }}"
+                                             data-nid="{{ $s->national_id ?? '' }}"
+                                             onclick="selectStudent({{ $s->id }}, '{{ addslashes($s->name) }}', '{{ addslashes($s->email) }}')"
+                                             style="display:flex;align-items:center;gap:.75rem;padding:.65rem 1rem;cursor:pointer;border-bottom:1px solid #f9fafb;transition:background .15s;"
+                                             onmouseover="this.style.background='#eff6ff'"
+                                             onmouseout="this.style.background='white'">
+                                            <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#0071AA,#005a88);display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:800;color:white;flex-shrink:0;">
+                                                {{ mb_substr($s->name, 0, 1) }}
+                                            </div>
+                                            <div style="flex:1;min-width:0;">
+                                                <div style="font-size:.9rem;font-weight:700;color:#111827;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ $s->name }}</div>
+                                                <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin-top:2px;">
+                                                    <span style="font-size:.75rem;color:#0071AA;">{{ $s->email }}</span>
+                                                    @if($s->national_id)
+                                                    <span style="font-size:.7rem;color:#9ca3af;border:1px solid #e5e7eb;border-radius:4px;padding:0 4px;">{{ $s->national_id }}</span>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                            <svg class="s-check" style="width:18px;height:18px;color:#0071AA;display:none;flex-shrink:0;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                                            </svg>
+                                        </div>
+                                        @endforeach
+                                        <div id="no-students" style="display:none;padding:1.25rem;text-align:center;color:#9ca3af;font-size:.875rem;">لا يوجد نتائج</div>
+                                    </div>
+                                </div>
+
                                 @error('user_id')
                                     <p class="form-error">{{ $message }}</p>
                                 @enderror
@@ -552,40 +598,104 @@
 
 @push('scripts')
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const paymentTypeSelect = document.getElementById('payment_type');
-        const installmentOptions = document.getElementById('installment_options');
-        const programSelect = document.getElementById('program_id');
-        const discountInput = document.querySelector('input[name="discount_amount"]');
+/* ── Student custom picker ─────────────────────────── */
+let studentPickerOpen = false;
 
-        // Toggle installment options
-        paymentTypeSelect.addEventListener('change', function() {
-            installmentOptions.style.display = this.value === 'installment' ? 'block' : 'none';
-        });
+function toggleStudentPicker() {
+    studentPickerOpen = !studentPickerOpen;
+    const picker  = document.getElementById('student-picker');
+    const chevron = document.getElementById('student-chevron');
+    picker.style.display  = studentPickerOpen ? 'block' : 'none';
+    chevron.style.transform = studentPickerOpen ? 'rotate(180deg)' : 'rotate(0)';
+    if (studentPickerOpen) {
+        setTimeout(() => document.getElementById('student-search').focus(), 50);
+    }
+}
 
-        // Update summary on change
-        programSelect.addEventListener('change', updateSummary);
-        discountInput.addEventListener('input', updateSummary);
-
-        // Initialize if page loads with installment selected
-        if (paymentTypeSelect.value === 'installment') {
-            installmentOptions.style.display = 'block';
-        }
-
-        function updateSummary() {
-            const selectedOption = programSelect.options[programSelect.selectedIndex];
-            const price = parseFloat(selectedOption.dataset.price || 0);
-            const discount = parseFloat(discountInput.value || 0);
-            const total = Math.max(0, price - discount);
-
-            document.getElementById('program_price').textContent = price.toFixed(2) + ' ر.س';
-            document.getElementById('discount_display').textContent = discount.toFixed(2) + ' ر.س';
-            document.getElementById('total_required').textContent = total.toFixed(2) + ' ر.س';
-        }
-
-        // Initialize summary
-        updateSummary();
+function filterStudents() {
+    const q = document.getElementById('student-search').value.toLowerCase();
+    let visible = 0;
+    document.querySelectorAll('.s-row').forEach(row => {
+        const match = row.dataset.name.toLowerCase().includes(q)
+                   || row.dataset.email.toLowerCase().includes(q)
+                   || (row.dataset.nid || '').toLowerCase().includes(q);
+        row.style.display = match ? 'flex' : 'none';
+        if (match) visible++;
     });
+    document.getElementById('no-students').style.display = visible === 0 ? 'block' : 'none';
+}
+
+let _selectedStudentId = null;
+function selectStudent(id, name, email) {
+    // deselect old
+    if (_selectedStudentId) {
+        const old = document.querySelector(`.s-row[data-id="${_selectedStudentId}"]`);
+        if (old) { old.style.background = 'white'; old.querySelector('.s-check').style.display = 'none'; }
+    }
+    _selectedStudentId = id;
+    document.getElementById('user_id').value = id;
+    document.getElementById('student-trigger-text').textContent = name + ' — ' + email;
+    document.getElementById('student-trigger-text').style.color = '#111827';
+
+    const row = document.querySelector(`.s-row[data-id="${id}"]`);
+    if (row) { row.style.background = '#eff6ff'; row.querySelector('.s-check').style.display = 'block'; }
+
+    // close picker
+    studentPickerOpen = false;
+    document.getElementById('student-picker').style.display = 'none';
+    document.getElementById('student-chevron').style.transform = 'rotate(0)';
+}
+
+// Close picker when clicking outside
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('#student-trigger') && !e.target.closest('#student-picker')) {
+        studentPickerOpen = false;
+        document.getElementById('student-picker').style.display = 'none';
+        document.getElementById('student-chevron').style.transform = 'rotate(0)';
+    }
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Restore selected student on old() repopulation
+    const oldId = document.getElementById('user_id').value;
+    if (oldId) {
+        const row = document.querySelector(`.s-row[data-id="${oldId}"]`);
+        if (row) selectStudent(parseInt(oldId), row.dataset.name, row.dataset.email);
+    }
+
+    const paymentTypeSelect = document.getElementById('payment_type');
+    const installmentOptions = document.getElementById('installment_options');
+    const programSelect = document.getElementById('program_id');
+    const discountInput = document.querySelector('input[name="discount_amount"]');
+
+    // Toggle installment options
+    paymentTypeSelect.addEventListener('change', function() {
+        installmentOptions.style.display = this.value === 'installment' ? 'block' : 'none';
+    });
+
+    // Update summary on change
+    programSelect.addEventListener('change', updateSummary);
+    discountInput.addEventListener('input', updateSummary);
+
+    // Initialize if page loads with installment selected
+    if (paymentTypeSelect.value === 'installment') {
+        installmentOptions.style.display = 'block';
+    }
+
+    function updateSummary() {
+        const selectedOption = programSelect.options[programSelect.selectedIndex];
+        const price = parseFloat(selectedOption.dataset.price || 0);
+        const discount = parseFloat(discountInput.value || 0);
+        const total = Math.max(0, price - discount);
+
+        document.getElementById('program_price').textContent = price.toFixed(2) + ' ر.س';
+        document.getElementById('discount_display').textContent = discount.toFixed(2) + ' ر.س';
+        document.getElementById('total_required').textContent = total.toFixed(2) + ' ر.س';
+    }
+
+    // Initialize summary
+    updateSummary();
+});
 </script>
 @endpush
 @endsection
