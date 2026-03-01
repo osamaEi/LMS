@@ -88,7 +88,6 @@ class RegisterController extends Controller
             'is_confirm_user'     => true,
             'is_terms'            => true,
             'role'                => 'student',
-            'type'                => 'student',
             'status'              => 'pending',
             'date_of_register'    => now()->toDateString(),
         ]);
