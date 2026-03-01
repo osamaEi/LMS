@@ -433,7 +433,10 @@ Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')
     Route::post('/enroll-program', [\App\Http\Controllers\Student\DashboardController::class, 'enrollInProgram'])->name('enroll-program');
 
     // Profile
-    Route::get('/profile', [\App\Http\Controllers\ProfileController::class, 'edit'])->name('profile');
+    Route::get('/profile', [\App\Http\Controllers\Student\ProfileController::class, 'show'])->name('profile');
+    Route::put('/profile', [\App\Http\Controllers\Student\ProfileController::class, 'update'])->name('profile.update');
+    Route::post('/profile/update-password', [\App\Http\Controllers\Student\ProfileController::class, 'updatePassword'])->name('profile.update-password');
+    Route::post('/profile/update-photo', [\App\Http\Controllers\Student\ProfileController::class, 'updatePhoto'])->name('profile.update-photo');
 
     // Surveys (NELC 1.2.11)
     Route::get('/surveys', [\App\Http\Controllers\Student\SurveyController::class, 'index'])->name('surveys.index');

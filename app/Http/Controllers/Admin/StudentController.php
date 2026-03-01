@@ -74,7 +74,8 @@ class StudentController extends Controller
             'program',
             'track',
             'enrollments.subject',
-            'payments.program'
+            'payments.program',
+            'documents',
         ]);
 
         // Get all active programs for assignment dropdown

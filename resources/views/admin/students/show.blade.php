@@ -1531,9 +1531,88 @@
                                     <div class="value">{{ $student->gender === 'male' ? 'ذكر' : ($student->gender === 'female' ? 'أنثى' : 'غير محدد') }}</div>
                                 </div>
                             </div>
+                            <div class="info-item">
+                                <div class="icon-box" style="background: linear-gradient(135deg, #3b82f6, #2563eb);">
+                                    <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                                    </svg>
+                                </div>
+                                <div class="content">
+                                    <div class="label">التخصص</div>
+                                    <div class="value">{{ $student->specialization ?? 'غير محدد' }}</div>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <div class="icon-box" style="background: linear-gradient(135deg, #a855f7, #9333ea);">
+                                    <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                    </svg>
+                                </div>
+                                <div class="content">
+                                    <div class="label">نوع التخصص</div>
+                                    <div class="value">{{ $student->specialization_type ?? 'غير محدد' }}</div>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <div class="icon-box" style="background: linear-gradient(135deg, #10b981, #059669);">
+                                    <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path d="M12 14l9-5-9-5-9 5 9 5z"/><path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222"/>
+                                    </svg>
+                                </div>
+                                <div class="content">
+                                    <div class="label">تاريخ التخرج</div>
+                                    <div class="value">{{ $student->date_of_graduation ? $student->date_of_graduation->format('Y/m/d') : 'غير محدد' }}</div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
+
+                <!-- National ID Documents Card -->
+                @if($student->documents && $student->documents->count() > 0)
+                <div class="info-card">
+                    <div class="info-card-header">
+                        <div class="icon" style="background: linear-gradient(135deg, #7c3aed, #6d28d9);">
+                            <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"/>
+                            </svg>
+                        </div>
+                        <h3>صور الهوية الوطنية</h3>
+                    </div>
+                    <div style="padding: 1.25rem; display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
+                        @foreach($student->documents as $doc)
+                        <div style="border: 2px solid #f1f5f9; border-radius: 14px; overflow: hidden;">
+                            @php
+                                $docLabel = $doc->document_type === 'national_id_front' ? 'الوجه الأمامي' : 'الوجه الخلفي';
+                                $isImage  = in_array(pathinfo($doc->file_path, PATHINFO_EXTENSION), ['jpg','jpeg','png']);
+                                $dsBg     = match($doc->status) { 'approved'=>'#dcfce7','rejected'=>'#fee2e2', default=>'#fef9c3' };
+                                $dsColor  = match($doc->status) { 'approved'=>'#16a34a','rejected'=>'#dc2626', default=>'#92400e' };
+                                $dsLabel  = match($doc->status) { 'approved'=>'مقبول','rejected'=>'مرفوض', default=>'قيد المراجعة' };
+                            @endphp
+                            <div style="height:130px; background:#f8fafc; display:flex; align-items:center; justify-content:center; overflow:hidden;">
+                                @if($isImage)
+                                    <img src="{{ asset('storage/'.$doc->file_path) }}" alt="{{ $docLabel }}"
+                                         style="width:100%;height:100%;object-fit:cover;cursor:pointer;"
+                                         onclick="window.open('{{ asset('storage/'.$doc->file_path) }}','_blank')">
+                                @else
+                                    <div style="text-align:center;">
+                                        <svg class="w-10 h-10 mx-auto mb-1" style="color:#7c3aed;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                                        <a href="{{ asset('storage/'.$doc->file_path) }}" target="_blank" style="font-size:.75rem;color:#7c3aed;font-weight:700;">عرض PDF</a>
+                                    </div>
+                                @endif
+                            </div>
+                            <div style="padding:.65rem .85rem; border-top:1px solid #f1f5f9; display:flex; align-items:center; justify-content:space-between;">
+                                <div>
+                                    <div style="font-size:.8rem;font-weight:700;color:#111827;">{{ $docLabel }}</div>
+                                    <div style="font-size:.65rem;color:#9ca3af;margin-top:2px;">{{ $doc->original_name }}</div>
+                                </div>
+                                <span style="padding:.2rem .65rem; font-size:.65rem; font-weight:700; border-radius:8px; background:{{ $dsBg }}; color:{{ $dsColor }};">{{ $dsLabel }}</span>
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+                @endif
 
                 <!-- Enrolled Subjects Card -->
                 <div class="info-card">
