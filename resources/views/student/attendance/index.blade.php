@@ -401,7 +401,13 @@
                 </div>
                 <div>
                     <h1 class="text-2xl font-extrabold tracking-tight">سجل الحضور والغياب</h1>
-                    <p class="text-sm opacity-70 mt-0.5">{{ auth()->user()->name }} @if(auth()->user()->studentId) &mdash; {{ auth()->user()->studentId }} @endif</p>
+                    <p class="text-sm opacity-70 mt-0.5">
+                        @if($termFilter === 'current' && isset($currentTerm) && $currentTerm)
+                            الفصل الحالي &mdash; {{ $currentTerm->name }}
+                        @else
+                            {{ auth()->user()->name }}@if(auth()->user()->studentId) &mdash; {{ auth()->user()->studentId }}@endif
+                        @endif
+                    </p>
                 </div>
             </div>
             <div class="flex gap-2">
@@ -410,6 +416,29 @@
             </div>
         </div>
     </div>
+
+    <!-- Term Tabs -->
+    @if(isset($currentTerm) && $currentTerm)
+    <div style="display: flex; gap: 0.375rem; background: #f3f4f6; padding: 0.375rem; border-radius: 16px;">
+        <a href="{{ route('student.attendance', ['term_filter' => 'current']) }}"
+           style="flex: 1; text-align: center; padding: 0.625rem 1.25rem; border-radius: 12px; font-size: 0.875rem; font-weight: 700; text-decoration: none; transition: all 0.2s;
+                  {{ $termFilter === 'current' ? 'background: linear-gradient(135deg,#0071AA,#005a88); color:#fff; box-shadow:0 2px 8px rgba(0,113,170,0.25);' : 'color:#6b7280;' }}">
+            <svg style="width: 15px; height: 15px; display: inline; margin-left: 0.375rem; vertical-align: -2px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
+            الفصل الحالي
+            <span style="margin-right: 0.375rem; font-size: 0.75rem; opacity: 0.85;">— {{ $currentTerm->name }}</span>
+        </a>
+        <a href="{{ route('student.attendance', ['term_filter' => 'all']) }}"
+           style="flex: 1; text-align: center; padding: 0.625rem 1.25rem; border-radius: 12px; font-size: 0.875rem; font-weight: 700; text-decoration: none; transition: all 0.2s;
+                  {{ $termFilter === 'all' ? 'background: #fff; color:#374151; box-shadow:0 1px 4px rgba(0,0,0,0.1);' : 'color:#6b7280;' }}">
+            <svg style="width: 15px; height: 15px; display: inline; margin-left: 0.375rem; vertical-align: -2px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
+            </svg>
+            جميع الفصول
+        </a>
+    </div>
+    @endif
 
     <!-- Stats Strip -->
     <div class="stats-strip">
@@ -466,11 +495,14 @@
         <div class="att-card">
             <!-- Filter -->
             <form method="GET" action="{{ route('student.attendance') }}">
+                @if($termFilter === 'all')
+                    <input type="hidden" name="term_filter" value="all">
+                @endif
                 <div class="att-filter">
                     <svg class="w-5 h-5 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
                     <select name="subject_id" onchange="this.form.submit()">
                         <option value="">جميع المواد</option>
-                        @foreach($enrolledSubjects as $subject)
+                        @foreach($filterSubjects as $subject)
                             <option value="{{ $subject->id }}" {{ $subjectId == $subject->id ? 'selected' : '' }}>{{ $subject->name }}</option>
                         @endforeach
                     </select>

@@ -221,18 +221,49 @@ class DashboardController extends Controller
     {
         $student = auth()->user();
         $subjectId = $request->query('subject_id');
-        $type = $request->query('type');
+        $type      = $request->query('type');
+        $termFilter = $request->query('term_filter', 'current'); // 'current' | 'all'
+
+        // Detect current term (same 3-step logic as myProgram)
+        $terms = Term::where('program_id', $student->program_id)
+            ->orderBy('term_number', 'asc')
+            ->get();
+
+        $currentTermNumber = $student->current_term_number ?? 1;
+        $currentTerm = $terms->first(function ($term) {
+            return $term->start_date && $term->end_date
+                && $term->start_date <= now()
+                && $term->end_date   >= now();
+        }) ?? $terms->firstWhere('term_number', $currentTermNumber)
+          ?? $terms->first();
 
         // Get all subjects in student's program (through terms)
         $programSubjects = Subject::whereHas('term', function($q) use ($student) {
             $q->where('program_id', $student->program_id);
         })->with(['term', 'teacher'])->get();
 
+        // Subjects scoped to current term (for the filter dropdown when on current tab)
+        $currentTermSubjects = $currentTerm
+            ? $programSubjects->where('term_id', $currentTerm->id)->values()
+            : $programSubjects;
+
+        // Subjects shown in the filter dropdown depend on active tab
+        $filterSubjects = ($termFilter === 'current' && $currentTerm)
+            ? $currentTermSubjects
+            : $programSubjects;
+
         // Build sessions query - all sessions from program subjects
         $query = Session::whereHas('subject.term', function($q) use ($student) {
                 $q->where('program_id', $student->program_id);
             })
             ->with(['subject.term', 'subject.teacher', 'unit', 'files']);
+
+        // Scope to current term unless "all" requested
+        if ($termFilter === 'current' && $currentTerm) {
+            $query->whereHas('subject', function($q) use ($currentTerm) {
+                $q->where('term_id', $currentTerm->id);
+            });
+        }
 
         // Filter by subject
         if ($subjectId) {
@@ -258,15 +289,18 @@ class DashboardController extends Controller
             ->keyBy('session_id');
 
         // Statistics
-        $totalSessions = $sessions->count();
+        $totalSessions    = $sessions->count();
         $completedSessions = $sessions->whereNotNull('ended_at')->count();
-        $zoomSessions = $sessions->where('type', 'live_zoom')->count();
-        $liveSessions = $sessions->whereNotNull('started_at')->whereNull('ended_at')->count();
+        $zoomSessions     = $sessions->where('type', 'live_zoom')->count();
+        $liveSessions     = $sessions->whereNotNull('started_at')->whereNull('ended_at')->count();
 
         return view('student.sessions.index', compact(
             'sessions',
             'sessionsBySubject',
             'programSubjects',
+            'filterSubjects',
+            'currentTerm',
+            'termFilter',
             'subjectId',
             'type',
             'attendances',
@@ -282,17 +316,43 @@ class DashboardController extends Controller
      */
     public function attendance(Request $request)
     {
-        $student = auth()->user();
-        $subjectId = $request->query('subject_id'); 
+        $student    = auth()->user();
+        $subjectId  = $request->query('subject_id');
+        $termFilter = $request->query('term_filter', 'current'); // 'current' | 'all'
+
+        // Detect current term
+        $terms = $student->program_id
+            ? Term::where('program_id', $student->program_id)->orderBy('term_number', 'asc')->get()
+            : collect();
+
+        $currentTermNumber = $student->current_term_number ?? 1;
+        $currentTerm = $terms->first(function ($term) {
+            return $term->start_date && $term->end_date
+                && $term->start_date <= now()
+                && $term->end_date   >= now();
+        }) ?? $terms->firstWhere('term_number', $currentTermNumber)
+          ?? $terms->first();
 
         // Get enrolled subjects for filter dropdown
         $enrolledSubjects = Subject::whereHas('enrollments', function($q) use ($student) {
             $q->where('student_id', $student->id);
         })->get();
 
+        // Subjects shown in the filter dropdown depend on active tab
+        $filterSubjects = ($termFilter === 'current' && $currentTerm)
+            ? $enrolledSubjects->where('term_id', $currentTerm->id)->values()
+            : $enrolledSubjects;
+
         // Build attendance query
         $query = Attendance::where('student_id', $student->id)
             ->with(['session.subject', 'session.unit']);
+
+        // Scope to current term unless "all" requested
+        if ($termFilter === 'current' && $currentTerm) {
+            $query->whereHas('session.subject', function($q) use ($currentTerm) {
+                $q->where('term_id', $currentTerm->id);
+            });
+        }
 
         if ($subjectId) {
             $query->whereHas('session', function($q) use ($subjectId) {
@@ -302,20 +362,27 @@ class DashboardController extends Controller
 
         $attendances = $query->orderBy('created_at', 'desc')->paginate(15);
 
-        // Calculate statistics
-        $totalSessions = Attendance::where('student_id', $student->id)->count();
-        $attendedSessions = Attendance::where('student_id', $student->id)
-            ->where('attended', true)
-            ->count();
-        $attendanceRate = $totalSessions > 0
+        // Calculate statistics scoped to active term filter
+        $baseQuery = Attendance::where('student_id', $student->id);
+        if ($termFilter === 'current' && $currentTerm) {
+            $baseQuery->whereHas('session.subject', function($q) use ($currentTerm) {
+                $q->where('term_id', $currentTerm->id);
+            });
+        }
+
+        $totalSessions    = (clone $baseQuery)->count();
+        $attendedSessions = (clone $baseQuery)->where('attended', true)->count();
+        $attendanceRate   = $totalSessions > 0
             ? round(($attendedSessions / $totalSessions) * 100, 1)
             : 0;
-        $totalMinutes = Attendance::where('student_id', $student->id)
-            ->sum('duration_minutes') ?? 0;
+        $totalMinutes = (clone $baseQuery)->sum('duration_minutes') ?? 0;
 
         return view('student.attendance.index', compact(
             'attendances',
             'enrolledSubjects',
+            'filterSubjects',
+            'currentTerm',
+            'termFilter',
             'subjectId',
             'totalSessions',
             'attendedSessions',
