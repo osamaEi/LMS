@@ -358,6 +358,190 @@
             </div>
         </div>
 
+        {{-- ===== Current Term Spotlight ===== --}}
+        @php
+            $currentTerm = $terms->firstWhere('term_number', $currentTermNumber);
+        @endphp
+        @if($currentTerm)
+        <div style="background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+                    border: 1px solid rgba(139,92,246,.35);
+                    border-radius: 20px; padding: 1.75rem 2rem; margin-bottom: 1.5rem;
+                    position: relative; overflow: hidden;">
+            {{-- bg decoration --}}
+            <div style="position:absolute;top:-40px;left:-40px;width:180px;height:180px;
+                        border-radius:50%;background:rgba(124,58,237,.08);pointer-events:none;"></div>
+            <div style="position:absolute;bottom:-30px;right:-30px;width:140px;height:140px;
+                        border-radius:50%;background:rgba(99,102,241,.06);pointer-events:none;"></div>
+
+            <div style="position:relative;z-index:1;">
+                {{-- header row --}}
+                <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem;">
+                    <div style="display:flex;align-items:center;gap:1rem;">
+                        <div style="width:52px;height:52px;border-radius:14px;flex-shrink:0;
+                                    background:linear-gradient(135deg,#7c3aed,#4f46e5);
+                                    display:flex;align-items:center;justify-content:center;
+                                    box-shadow:0 6px 20px rgba(124,58,237,.4);">
+                            <svg width="24" height="24" fill="none" stroke="white" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div style="color:#a78bfa;font-size:.78rem;font-weight:600;text-transform:uppercase;
+                                        letter-spacing:.07em;margin-bottom:.2rem;">فصلك الدراسي الحالي</div>
+                            <h2 style="color:#f1f5f9;font-size:1.35rem;font-weight:800;margin:0;">
+                                {{ $currentTerm->name_ar ?? $currentTerm->name ?? 'الفصل ' . $currentTermNumber }}
+                            </h2>
+                        </div>
+                    </div>
+
+                    {{-- badges row --}}
+                    <div style="display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;">
+                        <span style="background:rgba(124,58,237,.2);border:1px solid rgba(124,58,237,.4);
+                                     color:#c4b5fd;font-size:.78rem;font-weight:700;
+                                     padding:.35rem .85rem;border-radius:999px;">
+                            الفصل {{ $currentTermNumber }} من {{ $terms->count() }}
+                        </span>
+                        <span style="background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.3);
+                                     color:#6ee7b7;font-size:.78rem;font-weight:700;
+                                     padding:.35rem .85rem;border-radius:999px;
+                                     display:flex;align-items:center;gap:.35rem;">
+                            <span style="width:7px;height:7px;border-radius:50%;background:#10b981;
+                                         display:inline-block;animation:pulse 2s infinite;"></span>
+                            جارٍ الآن
+                        </span>
+                        @if($currentTerm->subjects->count() > 0)
+                        <span style="background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.3);
+                                     color:#93c5fd;font-size:.78rem;font-weight:700;
+                                     padding:.35rem .85rem;border-radius:999px;">
+                            {{ $currentTerm->subjects->count() }} مادة
+                        </span>
+                        @endif
+                    </div>
+                </div>
+
+                {{-- dates row --}}
+                @if($currentTerm->start_date || $currentTerm->end_date)
+                <div style="display:flex;flex-wrap:wrap;gap:1.5rem;margin-bottom:1.5rem;
+                            padding:1rem 1.25rem;background:rgba(255,255,255,.04);
+                            border:1px solid rgba(255,255,255,.07);border-radius:12px;">
+                    @if($currentTerm->start_date)
+                    <div style="display:flex;align-items:center;gap:.5rem;">
+                        <div style="width:32px;height:32px;border-radius:8px;background:rgba(16,185,129,.15);
+                                    display:flex;align-items:center;justify-content:center;">
+                            <svg width="16" height="16" fill="none" stroke="#10b981" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div style="color:#64748b;font-size:.72rem;">تاريخ البداية</div>
+                            <div style="color:#e2e8f0;font-size:.85rem;font-weight:700;">
+                                {{ $currentTerm->start_date->format('d / m / Y') }}
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+                    @if($currentTerm->end_date)
+                    <div style="display:flex;align-items:center;gap:.5rem;">
+                        <div style="width:32px;height:32px;border-radius:8px;background:rgba(239,68,68,.12);
+                                    display:flex;align-items:center;justify-content:center;">
+                            <svg width="16" height="16" fill="none" stroke="#ef4444" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div style="color:#64748b;font-size:.72rem;">تاريخ الانتهاء</div>
+                            <div style="color:#e2e8f0;font-size:.85rem;font-weight:700;">
+                                {{ $currentTerm->end_date->format('d / m / Y') }}
+                            </div>
+                        </div>
+                    </div>
+                    @php
+                        $daysLeft = now()->diffInDays($currentTerm->end_date, false);
+                    @endphp
+                    @if($daysLeft > 0)
+                    <div style="display:flex;align-items:center;gap:.5rem;">
+                        <div style="width:32px;height:32px;border-radius:8px;background:rgba(245,158,11,.12);
+                                    display:flex;align-items:center;justify-content:center;">
+                            <svg width="16" height="16" fill="none" stroke="#f59e0b" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div style="color:#64748b;font-size:.72rem;">المتبقي</div>
+                            <div style="color:#fcd34d;font-size:.85rem;font-weight:700;">{{ $daysLeft }} يوم</div>
+                        </div>
+                    </div>
+                    @endif
+                    @endif
+                </div>
+                @endif
+
+                {{-- subjects in current term --}}
+                @if($currentTerm->subjects->count() > 0)
+                <div>
+                    <div style="color:#94a3b8;font-size:.78rem;font-weight:600;
+                                text-transform:uppercase;letter-spacing:.06em;margin-bottom:.85rem;">
+                        مواد هذا الفصل
+                    </div>
+                    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:.75rem;">
+                        @foreach($currentTerm->subjects as $s)
+                        @php
+                            $sp = $subjectsProgress[$s->id] ?? null;
+                            $pct = $sp ? $sp['percentage'] : 0;
+                            $barColor = $pct >= 80 ? '#10b981' : ($pct >= 50 ? '#f59e0b' : '#ef4444');
+                        @endphp
+                        <div style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);
+                                    border-radius:14px;padding:1rem;transition:background .2s;">
+                            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem;margin-bottom:.65rem;">
+                                <div style="font-weight:700;font-size:.88rem;color:#e2e8f0;line-height:1.4;">
+                                    {{ $s->name_ar ?? $s->name }}
+                                </div>
+                                <div style="width:32px;height:32px;border-radius:8px;flex-shrink:0;
+                                            background:rgba({{ $s->color ? '0,0,0' : '124,58,237' }},.15);
+                                            display:flex;align-items:center;justify-content:center;">
+                                    <svg width="16" height="16" fill="none" stroke="{{ $s->color ?? '#a78bfa' }}" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                              d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            @if($s->teacher)
+                            <div style="color:#64748b;font-size:.75rem;margin-bottom:.65rem;
+                                        display:flex;align-items:center;gap:.3rem;">
+                                <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                                </svg>
+                                {{ $s->teacher->name }}
+                            </div>
+                            @endif
+                            {{-- attendance bar --}}
+                            @if($sp)
+                            <div>
+                                <div style="display:flex;justify-content:space-between;font-size:.72rem;
+                                            color:#64748b;margin-bottom:.3rem;">
+                                    <span>الحضور</span>
+                                    <span style="color:{{ $barColor }};font-weight:700;">{{ $pct }}%</span>
+                                </div>
+                                <div style="height:5px;background:rgba(255,255,255,.08);border-radius:999px;overflow:hidden;">
+                                    <div style="height:100%;width:{{ $pct }}%;background:{{ $barColor }};
+                                                border-radius:999px;transition:width .6s;"></div>
+                                </div>
+                            </div>
+                            @endif
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+                @endif
+            </div>
+        </div>
+        @endif
+
         {{-- ===== Stats Row ===== --}}
         <!-- <div class="stats-row">
             <div class="stat-card">

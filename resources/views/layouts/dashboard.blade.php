@@ -56,6 +56,7 @@
         </div>
     </div>
 
+    @include('layouts.partials.toaster')
     @stack('head-scripts')
     <script>
         // Prevent TailAdmin errors for missing search elements
