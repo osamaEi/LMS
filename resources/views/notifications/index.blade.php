@@ -186,28 +186,27 @@
 
         {{-- ===== RIGHT: Send Notification Panel (Admin only) ===== --}}
         @if(in_array(auth()->user()->role, ['admin', 'super_admin']))
-        <div style="display:flex;flex-direction:column;gap:1.25rem;">
+        <div style="display:flex;flex-direction:column;gap:1.25rem;position:sticky;top:1.5rem;">
 
-            {{-- Send Card --}}
-            <div style="background:#fff;border-radius:1.25rem;border:1px solid #e2e8f0;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.05);position:sticky;top:1.5rem;">
+            <div style="background:#fff;border-radius:1.25rem;border:1px solid #e2e8f0;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.08);">
                 {{-- Header --}}
                 <div style="padding:1.25rem 1.5rem;background:linear-gradient(135deg,#1e3a5f 0%,#0071AA 100%);">
                     <div style="display:flex;align-items:center;gap:10px;">
-                        <div style="width:38px;height:38px;border-radius:10px;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                            <svg style="width:18px;height:18px;color:#fff" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <div style="width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                            <svg style="width:20px;height:20px;color:#fff" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
                             </svg>
                         </div>
                         <div>
-                            <h3 style="font-size:.95rem;font-weight:800;color:#fff;margin:0;">إرسال إشعار مخصص</h3>
-                            <p style="font-size:.75rem;color:rgba(255,255,255,.7);margin:2px 0 0;">للمستخدمين عبر المنصة</p>
+                            <h3 style="font-size:1rem;font-weight:800;color:#fff;margin:0;">إرسال إشعار مخصص</h3>
+                            <p style="font-size:.72rem;color:rgba(255,255,255,.7);margin:2px 0 0;">إلى مستخدمين محددين أو مجموعات</p>
                         </div>
                     </div>
                 </div>
 
-                {{-- Form --}}
-                <form action="{{ route('notifications.send') }}" method="POST" style="padding:1.25rem;display:flex;flex-direction:column;gap:1rem;">
+                <form action="{{ route('notifications.send') }}" method="POST" id="send-notif-form" style="padding:1.25rem;display:flex;flex-direction:column;gap:1rem;">
                     @csrf
+                    <input type="hidden" name="send_mode" id="send_mode" value="group">
 
                     @if($errors->any())
                     <div style="padding:10px 14px;background:#fef2f2;border:1px solid #fca5a5;border-radius:10px;font-size:.8rem;color:#991b1b;">
@@ -215,15 +214,27 @@
                     </div>
                     @endif
 
-                    {{-- Target selector --}}
-                    <div>
+                    {{-- ── Mode tabs ── --}}
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+                        <button type="button" id="tab-group" onclick="setMode('group')"
+                                style="padding:.6rem;border-radius:10px;border:2px solid transparent;font-size:.8rem;font-weight:700;cursor:pointer;transition:all .18s;background:linear-gradient(135deg,#0071AA,#005a88);color:white;box-shadow:0 2px 8px rgba(0,113,170,.25);">
+                            إرسال لمجموعة
+                        </button>
+                        <button type="button" id="tab-individual" onclick="setMode('individual')"
+                                style="padding:.6rem;border-radius:10px;border:2px solid #e5e7eb;font-size:.8rem;font-weight:700;cursor:pointer;transition:all .18s;background:white;color:#6b7280;">
+                            تحديد مستخدمين
+                        </button>
+                    </div>
+
+                    {{-- ── GROUP mode ── --}}
+                    <div id="section-group">
                         <label style="display:block;font-size:.8rem;font-weight:700;color:#374151;margin-bottom:.6rem;">المستهدفون <span style="color:#ef4444;">*</span></label>
                         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;">
                             @foreach([['student','الطلاب','#059669'],['teacher','المعلمون','#2563eb'],['all','الجميع','#7c3aed']] as [$val, $lab, $col])
                             <label style="cursor:pointer;">
                                 <input type="radio" name="target" value="{{ $val }}" id="t-{{ $val }}"
-                                       {{ old('target', 'student') === $val ? 'checked' : '' }}
-                                       style="display:none;" onchange="updateTarget()">
+                                       {{ old('target','student') === $val ? 'checked' : '' }}
+                                       style="display:none;" onchange="styleTargetBtns()">
                                 <span id="lbl-{{ $val }}"
                                       style="display:block;text-align:center;padding:9px 4px;border-radius:10px;font-size:.78rem;font-weight:700;border:2px solid #e5e7eb;color:#6b7280;cursor:pointer;transition:all .18s;user-select:none;">
                                     {{ $lab }}
@@ -233,7 +244,80 @@
                         </div>
                     </div>
 
-                    {{-- Title --}}
+                    {{-- ── INDIVIDUAL mode ── --}}
+                    <div id="section-individual" style="display:none;">
+                        {{-- Tab: Students / Teachers --}}
+                        <div style="display:flex;gap:.5rem;margin-bottom:.75rem;">
+                            <button type="button" id="pick-tab-students" onclick="setPickTab('students')"
+                                    style="flex:1;padding:.5rem;border-radius:8px;border:2px solid transparent;font-size:.78rem;font-weight:700;cursor:pointer;background:linear-gradient(135deg,#059669,#047857);color:white;">
+                                الطلاب ({{ count($students) }})
+                            </button>
+                            <button type="button" id="pick-tab-teachers" onclick="setPickTab('teachers')"
+                                    style="flex:1;padding:.5rem;border-radius:8px;border:2px solid #e5e7eb;font-size:.78rem;font-weight:700;cursor:pointer;background:white;color:#6b7280;">
+                                المعلمون ({{ count($teachers) }})
+                            </button>
+                        </div>
+
+                        {{-- Search box --}}
+                        <input type="text" id="user-search" placeholder="بحث بالاسم..."
+                               oninput="filterUsers()"
+                               style="width:100%;border:1.5px solid #e2e8f0;border-radius:10px;padding:.55rem .9rem;font-size:.82rem;color:#374151;outline:none;margin-bottom:.6rem;box-sizing:border-box;"
+                               onfocus="this.style.borderColor='#0071AA'" onblur="this.style.borderColor='#e2e8f0'">
+
+                        {{-- Selected chips --}}
+                        <div id="selected-chips" style="display:flex;flex-wrap:wrap;gap:.4rem;min-height:0;margin-bottom:.5rem;"></div>
+
+                        {{-- User list --}}
+                        <div id="user-list" style="max-height:220px;overflow-y:auto;border:1.5px solid #f1f5f9;border-radius:12px;background:#fafbff;">
+                            {{-- students --}}
+                            <div id="list-students">
+                                @forelse($students as $s)
+                                <div class="user-pick-row" data-group="students" data-id="{{ $s->id }}" data-name="{{ $s->name }}"
+                                     onclick="toggleUser({{ $s->id }}, '{{ addslashes($s->name) }}', 'students')"
+                                     style="display:flex;align-items:center;gap:.7rem;padding:.6rem .85rem;cursor:pointer;border-bottom:1px solid #f1f5f9;transition:background .15s;"
+                                     onmouseover="if(!this.dataset.sel)this.style.background='#f0f9ff'"
+                                     onmouseout="if(!this.dataset.sel)this.style.background='white'">
+                                    <div style="width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#059669,#047857);display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:800;color:white;flex-shrink:0;">
+                                        {{ mb_substr($s->name,0,1) }}
+                                    </div>
+                                    <div style="flex:1;min-width:0;">
+                                        <div style="font-size:.82rem;font-weight:700;color:#111827;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ $s->name }}</div>
+                                        <div style="font-size:.7rem;color:#9ca3af;">{{ $s->national_id ?? $s->email }}</div>
+                                    </div>
+                                    <svg class="check-icon" style="width:18px;height:18px;color:#059669;display:none;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                </div>
+                                @empty
+                                <div style="padding:1.5rem;text-align:center;color:#9ca3af;font-size:.82rem;">لا يوجد طلاب نشطون</div>
+                                @endforelse
+                            </div>
+                            {{-- teachers --}}
+                            <div id="list-teachers" style="display:none;">
+                                @forelse($teachers as $t)
+                                <div class="user-pick-row" data-group="teachers" data-id="{{ $t->id }}" data-name="{{ $t->name }}"
+                                     onclick="toggleUser({{ $t->id }}, '{{ addslashes($t->name) }}', 'teachers')"
+                                     style="display:flex;align-items:center;gap:.7rem;padding:.6rem .85rem;cursor:pointer;border-bottom:1px solid #f1f5f9;transition:background .15s;"
+                                     onmouseover="if(!this.dataset.sel)this.style.background='#f0f9ff'"
+                                     onmouseout="if(!this.dataset.sel)this.style.background='white'">
+                                    <div style="width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#2563eb,#1d4ed8);display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:800;color:white;flex-shrink:0;">
+                                        {{ mb_substr($t->name,0,1) }}
+                                    </div>
+                                    <div style="flex:1;min-width:0;">
+                                        <div style="font-size:.82rem;font-weight:700;color:#111827;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ $t->name }}</div>
+                                        <div style="font-size:.7rem;color:#9ca3af;">{{ $t->email }}</div>
+                                    </div>
+                                    <svg class="check-icon" style="width:18px;height:18px;color:#2563eb;display:none;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                </div>
+                                @empty
+                                <div style="padding:1.5rem;text-align:center;color:#9ca3af;font-size:.82rem;">لا يوجد معلمون نشطون</div>
+                                @endforelse
+                            </div>
+                        </div>
+                        {{-- hidden inputs for selected IDs --}}
+                        <div id="selected-inputs"></div>
+                        <div id="sel-summary" style="font-size:.75rem;color:#0071AA;font-weight:700;margin-top:.4rem;"></div>
+                    </div>
+
+                    {{-- ── Title ── --}}
                     <div>
                         <label style="display:block;font-size:.8rem;font-weight:700;color:#374151;margin-bottom:.4rem;">عنوان الإشعار <span style="color:#ef4444;">*</span></label>
                         <input type="text" name="title" value="{{ old('title') }}" required maxlength="255"
@@ -243,35 +327,30 @@
                                onblur="this.style.borderColor='#e2e8f0';this.style.background='#f8fafc'">
                     </div>
 
-                    {{-- Body --}}
+                    {{-- ── Body ── --}}
                     <div>
                         <label style="display:block;font-size:.8rem;font-weight:700;color:#374151;margin-bottom:.4rem;">نص الإشعار <span style="color:#ef4444;">*</span></label>
-                        <textarea name="body" required maxlength="1000" rows="4"
+                        <textarea name="body" required maxlength="1000" rows="3"
                                   placeholder="اكتب تفاصيل الإشعار هنا..."
                                   style="width:100%;border:1.5px solid #e2e8f0;border-radius:10px;padding:10px 14px;font-size:.875rem;color:#374151;outline:none;background:#f8fafc;resize:vertical;box-sizing:border-box;font-family:inherit;"
                                   onfocus="this.style.borderColor='#0071AA';this.style.background='#fff'"
                                   onblur="this.style.borderColor='#e2e8f0';this.style.background='#f8fafc'">{{ old('body') }}</textarea>
-                        <p style="font-size:.72rem;color:#9ca3af;margin-top:4px;">بحد أقصى 1000 حرف</p>
                     </div>
 
-                    {{-- Action URL --}}
+                    {{-- ── Action URL ── --}}
                     <div>
-                        <label style="display:block;font-size:.8rem;font-weight:700;color:#374151;margin-bottom:.4rem;">
-                            رابط الإجراء <span style="font-weight:400;color:#9ca3af;">(اختياري)</span>
-                        </label>
-                        <input type="url" name="action_url" value="{{ old('action_url') }}"
-                               placeholder="https://..."
+                        <label style="display:block;font-size:.8rem;font-weight:700;color:#374151;margin-bottom:.4rem;">رابط الإجراء <span style="font-weight:400;color:#9ca3af;">(اختياري)</span></label>
+                        <input type="url" name="action_url" value="{{ old('action_url') }}" placeholder="https://..."
                                style="width:100%;border:1.5px solid #e2e8f0;border-radius:10px;padding:10px 14px;font-size:.875rem;color:#374151;outline:none;background:#f8fafc;box-sizing:border-box;"
                                onfocus="this.style.borderColor='#0071AA';this.style.background='#fff'"
                                onblur="this.style.borderColor='#e2e8f0';this.style.background='#f8fafc'">
-                        <p style="font-size:.72rem;color:#9ca3af;margin-top:4px;">يُوجَّه المستخدم إليه عند الضغط</p>
                     </div>
 
-                    {{-- Submit --}}
+                    {{-- ── Submit ── --}}
                     <button type="submit"
                             style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:13px;background:linear-gradient(135deg,#0071AA,#005a88);color:#fff;border:none;border-radius:12px;font-size:.9rem;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(0,113,170,.3);transition:all .2s;"
-                            onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 18px rgba(0,113,170,.4)'"
-                            onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 12px rgba(0,113,170,.3)'">
+                            onmouseover="this.style.transform='translateY(-1px)'"
+                            onmouseout="this.style.transform='translateY(0)'">
                         <svg style="width:17px;height:17px" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
                         </svg>
@@ -280,19 +359,8 @@
                 </form>
             </div>
 
-            {{-- Info card --}}
-            <div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:1rem;padding:1rem 1.25rem;">
-                <p style="font-size:.8rem;font-weight:700;color:#0369a1;margin:0 0 .5rem;">معلومات</p>
-                <ul style="margin:0;padding:0 1rem;font-size:.78rem;color:#0c4a6e;line-height:1.8;list-style-type:disc;">
-                    <li>يتم حفظ الإشعارات في قاعدة البيانات</li>
-                    <li>تظهر الإشعارات فوراً في جرس كل مستخدم</li>
-                    <li>تُرسَل إشعارات التواصل تلقائياً للمدير العام</li>
-                </ul>
-            </div>
-
         </div>
         @endif
-
     </div>
 </div>
 
@@ -301,24 +369,108 @@
 </style>
 
 <script>
-function updateTarget() {
-    ['student','teacher','all'].forEach(function(v) {
-        var radio = document.getElementById('t-' + v);
-        var lbl   = document.getElementById('lbl-' + v);
-        if (!radio || !lbl) return;
-        if (radio.checked) {
-            lbl.style.background  = 'linear-gradient(135deg,#0071AA,#005a88)';
-            lbl.style.color       = 'white';
-            lbl.style.borderColor = 'transparent';
-            lbl.style.boxShadow   = '0 2px 8px rgba(0,113,170,.3)';
+/* ── Mode: group / individual ── */
+function setMode(mode) {
+    document.getElementById('send_mode').value = mode;
+    const isInd = mode === 'individual';
+    document.getElementById('section-group').style.display      = isInd ? 'none' : 'block';
+    document.getElementById('section-individual').style.display = isInd ? 'block' : 'none';
+
+    const tg = document.getElementById('tab-group');
+    const ti = document.getElementById('tab-individual');
+    if (isInd) {
+        ti.style.background = 'linear-gradient(135deg,#7c3aed,#6d28d9)'; ti.style.color = 'white'; ti.style.borderColor = 'transparent';
+        tg.style.background = 'white'; tg.style.color = '#6b7280'; tg.style.borderColor = '#e5e7eb';
+    } else {
+        tg.style.background = 'linear-gradient(135deg,#0071AA,#005a88)'; tg.style.color = 'white'; tg.style.borderColor = 'transparent';
+        ti.style.background = 'white'; ti.style.color = '#6b7280'; ti.style.borderColor = '#e5e7eb';
+    }
+}
+
+/* ── Target radio styling ── */
+function styleTargetBtns() {
+    ['student','teacher','all'].forEach(v => {
+        const r = document.getElementById('t-' + v);
+        const l = document.getElementById('lbl-' + v);
+        if (!r || !l) return;
+        if (r.checked) {
+            const cols = {student:'#059669',teacher:'#2563eb',all:'#7c3aed'};
+            l.style.background = `linear-gradient(135deg,${cols[v]},${cols[v]}cc)`;
+            l.style.color = 'white'; l.style.borderColor = 'transparent';
+            l.style.boxShadow = `0 2px 8px ${cols[v]}44`;
         } else {
-            lbl.style.background  = 'transparent';
-            lbl.style.color       = '#6b7280';
-            lbl.style.borderColor = '#e5e7eb';
-            lbl.style.boxShadow   = 'none';
+            l.style.background = 'transparent'; l.style.color = '#6b7280';
+            l.style.borderColor = '#e5e7eb'; l.style.boxShadow = 'none';
         }
     });
 }
-document.addEventListener('DOMContentLoaded', updateTarget);
+document.addEventListener('DOMContentLoaded', styleTargetBtns);
+
+/* ── Pick tab: students / teachers ── */
+let currentPickTab = 'students';
+function setPickTab(tab) {
+    currentPickTab = tab;
+    document.getElementById('list-students').style.display = tab === 'students' ? 'block' : 'none';
+    document.getElementById('list-teachers').style.display = tab === 'teachers' ? 'block' : 'none';
+    document.getElementById('user-search').value = '';
+    filterUsers();
+
+    const ts = document.getElementById('pick-tab-students');
+    const tt = document.getElementById('pick-tab-teachers');
+    if (tab === 'students') {
+        ts.style.background = 'linear-gradient(135deg,#059669,#047857)'; ts.style.color = 'white'; ts.style.borderColor = 'transparent';
+        tt.style.background = 'white'; tt.style.color = '#6b7280'; tt.style.borderColor = '#e5e7eb';
+    } else {
+        tt.style.background = 'linear-gradient(135deg,#2563eb,#1d4ed8)'; tt.style.color = 'white'; tt.style.borderColor = 'transparent';
+        ts.style.background = 'white'; ts.style.color = '#6b7280'; ts.style.borderColor = '#e5e7eb';
+    }
+}
+
+/* ── Search filter ── */
+function filterUsers() {
+    const q = document.getElementById('user-search').value.toLowerCase();
+    document.querySelectorAll(`.user-pick-row[data-group="${currentPickTab}"]`).forEach(row => {
+        const name = row.dataset.name.toLowerCase();
+        row.style.display = name.includes(q) ? 'flex' : 'none';
+    });
+}
+
+/* ── Toggle individual user selection ── */
+const selectedUsers = {};
+function toggleUser(id, name, group) {
+    const row = document.querySelector(`.user-pick-row[data-group="${group}"][data-id="${id}"]`);
+    if (selectedUsers[id]) {
+        delete selectedUsers[id];
+        if (row) { row.style.background='white'; row.dataset.sel=''; row.querySelector('.check-icon').style.display='none'; }
+    } else {
+        selectedUsers[id] = { name, group };
+        if (row) { row.style.background='#f0fdf4'; row.dataset.sel='1'; row.querySelector('.check-icon').style.display='block'; }
+    }
+    renderChips();
+}
+
+function renderChips() {
+    const chips = document.getElementById('selected-chips');
+    const inputs = document.getElementById('selected-inputs');
+    const summary = document.getElementById('sel-summary');
+    chips.innerHTML = '';
+    inputs.innerHTML = '';
+
+    const ids = Object.keys(selectedUsers);
+    ids.forEach(id => {
+        const u = selectedUsers[id];
+        const chip = document.createElement('div');
+        chip.style.cssText = 'display:inline-flex;align-items:center;gap:.3rem;padding:.25rem .65rem;border-radius:20px;font-size:.72rem;font-weight:700;cursor:pointer;' +
+            (u.group==='students' ? 'background:#dcfce7;color:#15803d;' : 'background:#dbeafe;color:#1e40af;');
+        chip.innerHTML = `${u.name} <span onclick="toggleUser(${id},'${u.name}','${u.group}')" style="font-size:.85rem;cursor:pointer;opacity:.7;">✕</span>`;
+        chips.appendChild(chip);
+
+        const inp = document.createElement('input');
+        inp.type = 'hidden'; inp.name = 'user_ids[]'; inp.value = id;
+        inputs.appendChild(inp);
+    });
+
+    summary.textContent = ids.length ? `تم تحديد ${ids.length} مستخدم` : '';
+}
 </script>
 @endsection

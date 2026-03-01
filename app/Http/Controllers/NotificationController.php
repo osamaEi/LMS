@@ -23,11 +23,21 @@ class NotificationController extends BaseController
      */
     public function page(Request $request)
     {
-        $user = $request->user();
+        $user          = $request->user();
         $notifications = $user->notifications()->latest()->paginate(20);
-        $unreadCount = $user->unreadNotifications()->count();
+        $unreadCount   = $user->unreadNotifications()->count();
 
-        return view('notifications.index', compact('notifications', 'unreadCount'));
+        // For admin send panel
+        $students = [];
+        $teachers = [];
+        if (in_array($user->role, ['admin', 'super_admin'])) {
+            $students = User::where('role', 'student')->where('status', 'active')
+                ->orderBy('name')->get(['id', 'name', 'email', 'phone', 'national_id', 'profile_photo']);
+            $teachers = User::where('role', 'teacher')->where('status', 'active')
+                ->orderBy('name')->get(['id', 'name', 'email', 'profile_photo']);
+        }
+
+        return view('notifications.index', compact('notifications', 'unreadCount', 'students', 'teachers'));
     }
 
     /**
@@ -99,24 +109,41 @@ class NotificationController extends BaseController
     }
 
     /**
-     * Send a custom notification to students / teachers / all (admin only)
+     * Send a custom notification — supports group or individual targeting (admin only)
      */
     public function send(Request $request)
     {
         $validated = $request->validate([
-            'target'     => 'required|in:student,teacher,all',
+            'send_mode'  => 'required|in:group,individual',
+            'target'     => 'required_if:send_mode,group|nullable|in:student,teacher,all',
+            'user_ids'   => 'required_if:send_mode,individual|nullable|array',
+            'user_ids.*' => 'exists:users,id',
             'title'      => 'required|string|max:255',
             'body'       => 'required|string|max:1000',
             'action_url' => 'nullable|url|max:500',
         ]);
 
-        $query = User::query();
-
-        if ($validated['target'] !== 'all') {
-            $query->where('role', $validated['target']);
+        if ($validated['send_mode'] === 'individual') {
+            $users = User::whereIn('id', $validated['user_ids'] ?? [])->get();
+            $targetLabel = 'مستخدمين محددين';
+        } else {
+            $query = User::query();
+            if ($validated['target'] !== 'all') {
+                $query->where('role', $validated['target']);
+            }
+            $users = $query->get();
+            $targetLabel = match($validated['target']) {
+                'student' => 'الطلاب',
+                'teacher' => 'المعلمين',
+                default   => 'جميع المستخدمين',
+            };
         }
 
-        $users = $query->get();
+        if ($users->isEmpty()) {
+            return redirect()->route('notifications.page')
+                ->with('error', 'لم يتم تحديد أي مستخدمين لإرسال الإشعار');
+        }
+
         $notification = new CustomNotification(
             title:      $validated['title'],
             body:       $validated['body'],
@@ -127,12 +154,6 @@ class NotificationController extends BaseController
         foreach ($users as $user) {
             $user->notify($notification);
         }
-
-        $targetLabel = match($validated['target']) {
-            'student' => 'الطلاب',
-            'teacher' => 'المعلمين',
-            'all'     => 'جميع المستخدمين',
-        };
 
         return redirect()->route('notifications.page')
             ->with('success', "تم إرسال الإشعار بنجاح إلى {$targetLabel} ({$users->count()} مستخدم)");
