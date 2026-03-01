@@ -259,7 +259,7 @@
                         </div>
 
                         {{-- Search box --}}
-                        <input type="text" id="user-search" placeholder="بحث بالاسم..."
+                        <input type="text" id="user-search" placeholder="بحث بالاسم أو الإيميل..."
                                oninput="filterUsers()"
                                style="width:100%;border:1.5px solid #e2e8f0;border-radius:10px;padding:.55rem .9rem;font-size:.82rem;color:#374151;outline:none;margin-bottom:.6rem;box-sizing:border-box;"
                                onfocus="this.style.borderColor='#0071AA'" onblur="this.style.borderColor='#e2e8f0'">
@@ -272,7 +272,7 @@
                             {{-- students --}}
                             <div id="list-students">
                                 @forelse($students as $s)
-                                <div class="user-pick-row" data-group="students" data-id="{{ $s->id }}" data-name="{{ $s->name }}"
+                                <div class="user-pick-row" data-group="students" data-id="{{ $s->id }}" data-name="{{ $s->name }}" data-email="{{ $s->email }}"
                                      onclick="toggleUser({{ $s->id }}, '{{ addslashes($s->name) }}', 'students')"
                                      style="display:flex;align-items:center;gap:.7rem;padding:.6rem .85rem;cursor:pointer;border-bottom:1px solid #f1f5f9;transition:background .15s;"
                                      onmouseover="if(!this.dataset.sel)this.style.background='#f0f9ff'"
@@ -282,7 +282,12 @@
                                     </div>
                                     <div style="flex:1;min-width:0;">
                                         <div style="font-size:.82rem;font-weight:700;color:#111827;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ $s->name }}</div>
-                                        <div style="font-size:.7rem;color:#9ca3af;">{{ $s->national_id ?? $s->email }}</div>
+                                        <div style="display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;">
+                                            <span style="font-size:.7rem;color:#0071AA;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ $s->email }}</span>
+                                            @if($s->national_id)
+                                            <span style="font-size:.65rem;color:#9ca3af;border:1px solid #e5e7eb;border-radius:4px;padding:0 4px;">{{ $s->national_id }}</span>
+                                            @endif
+                                        </div>
                                     </div>
                                     <svg class="check-icon" style="width:18px;height:18px;color:#059669;display:none;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                                 </div>
@@ -293,7 +298,7 @@
                             {{-- teachers --}}
                             <div id="list-teachers" style="display:none;">
                                 @forelse($teachers as $t)
-                                <div class="user-pick-row" data-group="teachers" data-id="{{ $t->id }}" data-name="{{ $t->name }}"
+                                <div class="user-pick-row" data-group="teachers" data-id="{{ $t->id }}" data-name="{{ $t->name }}" data-email="{{ $t->email }}"
                                      onclick="toggleUser({{ $t->id }}, '{{ addslashes($t->name) }}', 'teachers')"
                                      style="display:flex;align-items:center;gap:.7rem;padding:.6rem .85rem;cursor:pointer;border-bottom:1px solid #f1f5f9;transition:background .15s;"
                                      onmouseover="if(!this.dataset.sel)this.style.background='#f0f9ff'"
@@ -303,7 +308,7 @@
                                     </div>
                                     <div style="flex:1;min-width:0;">
                                         <div style="font-size:.82rem;font-weight:700;color:#111827;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ $t->name }}</div>
-                                        <div style="font-size:.7rem;color:#9ca3af;">{{ $t->email }}</div>
+                                        <div style="font-size:.7rem;color:#0071AA;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ $t->email }}</div>
                                     </div>
                                     <svg class="check-icon" style="width:18px;height:18px;color:#2563eb;display:none;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                                 </div>
@@ -430,8 +435,9 @@ function setPickTab(tab) {
 function filterUsers() {
     const q = document.getElementById('user-search').value.toLowerCase();
     document.querySelectorAll(`.user-pick-row[data-group="${currentPickTab}"]`).forEach(row => {
-        const name = row.dataset.name.toLowerCase();
-        row.style.display = name.includes(q) ? 'flex' : 'none';
+        const name  = row.dataset.name.toLowerCase();
+        const email = (row.dataset.email || '').toLowerCase();
+        row.style.display = (name.includes(q) || email.includes(q)) ? 'flex' : 'none';
     });
 }
 
