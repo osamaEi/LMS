@@ -1970,6 +1970,14 @@
                     </svg>
                 </div>
                 <h3>سجل المدفوعات</h3>
+                <a href="{{ route('admin.payments.create') }}?user_id={{ $student->id }}"
+                   style="margin-right:auto;display:inline-flex;align-items:center;gap:6px;padding:.5rem 1.1rem;background:linear-gradient(135deg,#f59e0b,#d97706);color:white;border-radius:10px;font-size:.82rem;font-weight:700;text-decoration:none;transition:all .2s;box-shadow:0 2px 8px rgba(245,158,11,.3);"
+                   onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform='translateY(0)'">
+                    <svg style="width:15px;height:15px" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                    </svg>
+                    إنشاء دفعة
+                </a>
             </div>
             <div class="info-card-body">
                 <!-- Payment Summary -->

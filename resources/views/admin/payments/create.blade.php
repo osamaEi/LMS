@@ -461,29 +461,64 @@
                                 @enderror
                             </div>
 
-                            <!-- Program -->
-                            <div class="form-group">
+                            <!-- Program (custom picker) -->
+                            <div class="form-group" style="position:relative;">
                                 <label class="form-label">البرنامج <span class="required">*</span></label>
-                                <select name="program_id" id="program_id" class="form-select @error('program_id') is-invalid @enderror" required>
-                                    <option value="">اختر البرنامج</option>
-                                    @foreach($programs as $program)
-                                        <option value="{{ $program->id }}" data-price="{{ $program->price }}" {{ old('program_id') == $program->id ? 'selected' : '' }}>
-                                            {{ $program->name_ar }} ({{ number_format($program->price, 2) }} ر.س)
-                                        </option>
-                                    @endforeach
-                                </select>
+                                <input type="hidden" name="program_id" id="program_id" value="{{ old('program_id') }}" required>
+                                <div id="program-trigger" onclick="togglePicker('program')"
+                                     style="display:flex;align-items:center;justify-content:space-between;width:100%;padding:.75rem 1rem;border:2px solid {{ $errors->has('program_id') ? '#ef4444' : '#e5e7eb' }};border-radius:12px;font-size:.9375rem;background:#fff;cursor:pointer;box-sizing:border-box;transition:border-color .2s;">
+                                    <span id="program-trigger-text" style="color:#6b7280;">اختر البرنامج</span>
+                                    <svg id="program-chevron" style="width:18px;height:18px;color:#9ca3af;transition:transform .2s;flex-shrink:0;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                    </svg>
+                                </div>
+                                <div id="program-picker" style="display:none;position:absolute;top:100%;right:0;left:0;z-index:500;background:#fff;border:2px solid #0071AA;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,0.12);margin-top:4px;overflow:hidden;">
+                                    <div id="program-list" style="max-height:240px;overflow-y:auto;">
+                                        @foreach($programs as $p)
+                                        <div class="p-row"
+                                             data-id="{{ $p->id }}"
+                                             data-price="{{ $p->price }}"
+                                             data-name="{{ $p->name_ar }}"
+                                             onclick="selectProgram({{ $p->id }}, '{{ addslashes($p->name_ar) }}', {{ $p->price }})"
+                                             style="display:flex;align-items:center;justify-content:space-between;padding:.75rem 1rem;cursor:pointer;border-bottom:1px solid #f9fafb;transition:background .15s;"
+                                             onmouseover="this.style.background='#eff6ff'"
+                                             onmouseout="this.style.background='white'">
+                                            <div style="flex:1;min-width:0;">
+                                                <div style="font-size:.9rem;font-weight:700;color:#111827;">{{ $p->name_ar }}</div>
+                                                @if($p->name_en)
+                                                <div style="font-size:.75rem;color:#6b7280;">{{ $p->name_en }}</div>
+                                                @endif
+                                            </div>
+                                            <div style="display:flex;align-items:center;gap:.5rem;flex-shrink:0;margin-right:.5rem;">
+                                                <span style="font-size:.85rem;font-weight:700;color:#0071AA;">{{ number_format($p->price, 2) }} ر.س</span>
+                                                <svg class="p-check" style="width:16px;height:16px;color:#0071AA;display:none;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                                                </svg>
+                                            </div>
+                                        </div>
+                                        @endforeach
+                                    </div>
+                                </div>
                                 @error('program_id')
                                     <p class="form-error">{{ $message }}</p>
                                 @enderror
                             </div>
 
-                            <!-- Payment Type -->
+                            <!-- Payment Type (custom picker) -->
                             <div class="form-group">
                                 <label class="form-label">نوع الدفع <span class="required">*</span></label>
-                                <select name="payment_type" id="payment_type" class="form-select @error('payment_type') is-invalid @enderror" required>
-                                    <option value="full" {{ old('payment_type') == 'full' ? 'selected' : '' }}>دفعة كاملة</option>
-                                    <option value="installment" {{ old('payment_type') == 'installment' ? 'selected' : '' }}>تقسيط</option>
-                                </select>
+                                <input type="hidden" name="payment_type" id="payment_type" value="{{ old('payment_type', 'full') }}" required>
+                                <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;">
+                                    @foreach([['full','دفعة كاملة','M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z'],['installment','تقسيط','M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z']] as [$val,$lab,$icon])
+                                    <div id="ptype-{{ $val }}" onclick="selectPaymentType('{{ $val }}')"
+                                         style="display:flex;align-items:center;gap:.6rem;padding:.75rem 1rem;border:2px solid {{ old('payment_type','full') === $val ? '#0071AA' : '#e5e7eb' }};border-radius:12px;cursor:pointer;transition:all .18s;background:{{ old('payment_type','full') === $val ? '#eff6ff' : '#fff' }};">
+                                        <svg style="width:20px;height:20px;color:{{ old('payment_type','full') === $val ? '#0071AA' : '#9ca3af' }};flex-shrink:0;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $icon }}"/>
+                                        </svg>
+                                        <span style="font-size:.875rem;font-weight:700;color:{{ old('payment_type','full') === $val ? '#0071AA' : '#374151' }};">{{ $lab }}</span>
+                                    </div>
+                                    @endforeach
+                                </div>
                                 @error('payment_type')
                                     <p class="form-error">{{ $message }}</p>
                                 @enderror
@@ -519,16 +554,31 @@
                                 <p class="form-hint">اترك صفر إذا لم يكن هناك خصم</p>
                             </div>
 
-                            <!-- Payment Method -->
+                            <!-- Payment Method (custom picker) -->
                             <div class="form-group">
-                                <label class="form-label">طريقة الدفع</label>
-                                <select name="payment_method" class="form-select @error('payment_method') is-invalid @enderror">
-                                    <option value="">لم يتم التحديد بعد</option>
-                                    <option value="cash" {{ old('payment_method') == 'cash' ? 'selected' : '' }}>نقدي</option>
-                                    <option value="bank_transfer" {{ old('payment_method') == 'bank_transfer' ? 'selected' : '' }}>تحويل بنكي</option>
-                                    <option value="tamara" {{ old('payment_method') == 'tamara' ? 'selected' : '' }}>تمارا</option>
-                                    <option value="waived" {{ old('payment_method') == 'waived' ? 'selected' : '' }}>معفي</option>
-                                </select>
+                                <label class="form-label">طريقة الدفع <span style="font-weight:400;color:#9ca3af;">(اختياري)</span></label>
+                                <input type="hidden" name="payment_method" id="payment_method" value="{{ old('payment_method', '') }}">
+                                @php
+                                $methods = [
+                                    [''             , 'لم يتم التحديد', 'M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z', '#9ca3af'],
+                                    ['cash'         , 'نقدي'          , 'M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z', '#059669'],
+                                    ['bank_transfer', 'تحويل بنكي'    , 'M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z', '#2563eb'],
+                                    ['tamara'       , 'تمارا'          , 'M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z', '#7c3aed'],
+                                    ['waived'       , 'معفي'           , 'M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z', '#f59e0b'],
+                                ];
+                                $oldMethod = old('payment_method', '');
+                                @endphp
+                                <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;">
+                                    @foreach($methods as [$val,$lab,$icon,$col])
+                                    <div id="pmethod-{{ $val ?: 'none' }}" onclick="selectPaymentMethod('{{ $val }}')"
+                                         style="display:flex;align-items:center;gap:.6rem;padding:.65rem .9rem;border:2px solid {{ $oldMethod === $val ? '#0071AA' : '#e5e7eb' }};border-radius:12px;cursor:pointer;transition:all .18s;background:{{ $oldMethod === $val ? '#eff6ff' : '#fff' }};">
+                                        <svg style="width:18px;height:18px;color:{{ $oldMethod === $val ? '#0071AA' : $col }};flex-shrink:0;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $icon }}"/>
+                                        </svg>
+                                        <span style="font-size:.82rem;font-weight:600;color:{{ $oldMethod === $val ? '#0071AA' : '#374151' }};">{{ $lab }}</span>
+                                    </div>
+                                    @endforeach
+                                </div>
                                 @error('payment_method')
                                     <p class="form-error">{{ $message }}</p>
                                 @enderror
@@ -655,45 +705,120 @@ document.addEventListener('click', function(e) {
     }
 });
 
-document.addEventListener('DOMContentLoaded', function() {
-    // Restore selected student on old() repopulation
-    const oldId = document.getElementById('user_id').value;
-    if (oldId) {
-        const row = document.querySelector(`.s-row[data-id="${oldId}"]`);
-        if (row) selectStudent(parseInt(oldId), row.dataset.name, row.dataset.email);
+/* ── Program custom picker ─────────────────────────── */
+const pickerState = {};
+
+function togglePicker(key) {
+    pickerState[key] = !pickerState[key];
+    const picker  = document.getElementById(key + '-picker');
+    const chevron = document.getElementById(key + '-chevron');
+    if (picker)  picker.style.display = pickerState[key] ? 'block' : 'none';
+    if (chevron) chevron.style.transform = pickerState[key] ? 'rotate(180deg)' : 'rotate(0)';
+}
+
+let _selectedProgramPrice = 0;
+let _selectedProgramId    = null;
+
+function selectProgram(id, name, price) {
+    // deselect old
+    if (_selectedProgramId) {
+        const old = document.querySelector(`.p-row[data-id="${_selectedProgramId}"]`);
+        if (old) { old.style.background = 'white'; old.querySelector('.p-check').style.display = 'none'; }
     }
+    _selectedProgramId    = id;
+    _selectedProgramPrice = price;
+    document.getElementById('program_id').value = id;
+    document.getElementById('program-trigger-text').textContent = name + ' — ' + price.toFixed(2) + ' ر.س';
+    document.getElementById('program-trigger-text').style.color = '#111827';
 
-    const paymentTypeSelect = document.getElementById('payment_type');
-    const installmentOptions = document.getElementById('installment_options');
-    const programSelect = document.getElementById('program_id');
-    const discountInput = document.querySelector('input[name="discount_amount"]');
+    const row = document.querySelector(`.p-row[data-id="${id}"]`);
+    if (row) { row.style.background = '#eff6ff'; row.querySelector('.p-check').style.display = 'block'; }
 
-    // Toggle installment options
-    paymentTypeSelect.addEventListener('change', function() {
-        installmentOptions.style.display = this.value === 'installment' ? 'block' : 'none';
+    pickerState['program'] = false;
+    document.getElementById('program-picker').style.display = 'none';
+    document.getElementById('program-chevron').style.transform = 'rotate(0)';
+    updateSummary();
+}
+
+/* ── Payment Type toggle ───────────────────────────── */
+function selectPaymentType(val) {
+    document.getElementById('payment_type').value = val;
+    ['full', 'installment'].forEach(v => {
+        const el = document.getElementById('ptype-' + v);
+        if (!el) return;
+        const active = v === val;
+        el.style.borderColor = active ? '#0071AA' : '#e5e7eb';
+        el.style.background  = active ? '#eff6ff' : '#fff';
+        el.querySelector('svg').style.color  = active ? '#0071AA' : '#9ca3af';
+        el.querySelector('span').style.color = active ? '#0071AA' : '#374151';
     });
+    document.getElementById('installment_options').style.display = val === 'installment' ? 'block' : 'none';
+}
 
-    // Update summary on change
-    programSelect.addEventListener('change', updateSummary);
-    discountInput.addEventListener('input', updateSummary);
+/* ── Payment Method toggle ─────────────────────────── */
+const methodColors = { '': '#9ca3af', cash: '#059669', bank_transfer: '#2563eb', tamara: '#7c3aed', waived: '#f59e0b' };
+function selectPaymentMethod(val) {
+    document.getElementById('payment_method').value = val;
+    Object.keys(methodColors).forEach(v => {
+        const el = document.getElementById('pmethod-' + (v || 'none'));
+        if (!el) return;
+        const active = v === val;
+        el.style.borderColor = active ? '#0071AA' : '#e5e7eb';
+        el.style.background  = active ? '#eff6ff' : '#fff';
+        el.querySelector('svg').style.color  = active ? '#0071AA' : methodColors[v];
+        el.querySelector('span').style.color = active ? '#0071AA' : '#374151';
+    });
+}
 
-    // Initialize if page loads with installment selected
-    if (paymentTypeSelect.value === 'installment') {
-        installmentOptions.style.display = 'block';
+/* ── Close pickers on outside click ───────────────── */
+document.addEventListener('click', function(e) {
+    ['student', 'program'].forEach(key => {
+        if (!e.target.closest(`#${key}-trigger`) && !e.target.closest(`#${key}-picker`)) {
+            pickerState[key] = false;
+            const picker  = document.getElementById(key + '-picker');
+            const chevron = document.getElementById(key + '-chevron');
+            if (picker)  picker.style.display = 'none';
+            if (chevron) chevron.style.transform = 'rotate(0)';
+        }
+    });
+});
+
+/* ── Summary update ────────────────────────────────── */
+function updateSummary() {
+    const price    = _selectedProgramPrice || 0;
+    const discount = parseFloat(document.querySelector('input[name="discount_amount"]').value || 0);
+    const total    = Math.max(0, price - discount);
+    document.getElementById('program_price').textContent    = price.toFixed(2) + ' ر.س';
+    document.getElementById('discount_display').textContent = discount.toFixed(2) + ' ر.س';
+    document.getElementById('total_required').textContent   = total.toFixed(2) + ' ر.س';
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Pre-select student from query string (e.g. coming from student profile)
+    const preselect = {{ $preselectedUserId ? (int)$preselectedUserId : 'null' }};
+    const oldStudentId = document.getElementById('user_id').value || preselect;
+    if (oldStudentId) {
+        const row = document.querySelector(`.s-row[data-id="${oldStudentId}"]`);
+        if (row) selectStudent(parseInt(oldStudentId), row.dataset.name, row.dataset.email);
     }
 
-    function updateSummary() {
-        const selectedOption = programSelect.options[programSelect.selectedIndex];
-        const price = parseFloat(selectedOption.dataset.price || 0);
-        const discount = parseFloat(discountInput.value || 0);
-        const total = Math.max(0, price - discount);
-
-        document.getElementById('program_price').textContent = price.toFixed(2) + ' ر.س';
-        document.getElementById('discount_display').textContent = discount.toFixed(2) + ' ر.س';
-        document.getElementById('total_required').textContent = total.toFixed(2) + ' ر.س';
+    // Restore / pre-select program
+    const preselectProg = {{ $preselectedProgId ? (int)$preselectedProgId : 'null' }};
+    const oldProgramId  = document.getElementById('program_id').value || preselectProg;
+    if (oldProgramId) {
+        const row = document.querySelector(`.p-row[data-id="${oldProgramId}"]`);
+        if (row) selectProgram(parseInt(oldProgramId), row.dataset.name, parseFloat(row.dataset.price));
     }
 
-    // Initialize summary
+    // Init payment type visual
+    selectPaymentType(document.getElementById('payment_type').value || 'full');
+
+    // Init payment method visual
+    selectPaymentMethod(document.getElementById('payment_method').value || '');
+
+    // Discount change
+    document.querySelector('input[name="discount_amount"]').addEventListener('input', updateSummary);
+
     updateSummary();
 });
 </script>

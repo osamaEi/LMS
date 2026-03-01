@@ -67,7 +67,7 @@ class PaymentController extends Controller
     /**
      * Show the form for creating a new payment
      */
-    public function create()
+    public function create(\Illuminate\Http\Request $request)
     {
         $students = User::where('role', 'student')
             ->where('status', 'active')
@@ -76,7 +76,16 @@ class PaymentController extends Controller
 
         $programs = Program::where('status', 'active')->orderBy('name_ar')->get();
 
-        return view('admin.payments.create', compact('students', 'programs'));
+        // Pre-select student (and their program) when coming from student profile
+        $preselectedUserId  = $request->query('user_id');
+        $preselectedProgId  = null;
+        if ($preselectedUserId) {
+            $preselectedProgId = User::where('id', $preselectedUserId)
+                ->where('role', 'student')
+                ->value('program_id');
+        }
+
+        return view('admin.payments.create', compact('students', 'programs', 'preselectedUserId', 'preselectedProgId'));
     }
 
     /**
