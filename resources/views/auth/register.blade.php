@@ -179,6 +179,24 @@
 
                 <form id="step3-form" class="space-y-4">
 
+                    {{-- Verified Data (phone + national_id from Step 1) --}}
+                    <div style="background:#f0fdf4; border-radius:14px; padding:.75rem 1rem; border:1px solid #bbf7d0;">
+                        <div class="flex items-center gap-2 mb-2.5">
+                            <svg class="w-4 h-4" style="color:#16a34a;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            <span class="text-xs font-bold" style="color:#15803d;">البيانات المتحقق منها عبر نفاذ</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <p class="text-[0.68rem] font-medium mb-1" style="color:#64748b;">رقم الجوال</p>
+                                <p id="display-phone" class="text-sm font-bold" style="color:#1e3a5f;" dir="ltr">—</p>
+                            </div>
+                            <div>
+                                <p class="text-[0.68rem] font-medium mb-1" style="color:#64748b;">رقم الهوية الوطنية</p>
+                                <p id="display-national-id" class="text-sm font-bold" style="color:#1e3a5f;" dir="ltr">—</p>
+                            </div>
+                        </div>
+                    </div>
+
                     {{-- Personal Info Section --}}
                     <div style="background:#f0fdf4; border-radius:14px; padding:.875rem 1rem; border:1px solid #bbf7d0;">
                         <p class="text-xs font-bold mb-3" style="color:#15803d; text-transform:uppercase; letter-spacing:.05em;">البيانات الشخصية</p>
@@ -407,6 +425,16 @@
     function goToStep(step) {
         document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
         document.getElementById(step === 'success' ? 'step-success' : 'step' + step).classList.add('active');
+
+        // Populate verified data display when entering Step 3
+        if (step === 3) {
+            const phone = document.getElementById('phone').value.trim();
+            const natId = document.getElementById('national_id').value.trim();
+            const dPhone = document.getElementById('display-phone');
+            const dNatId = document.getElementById('display-national-id');
+            if (dPhone) dPhone.textContent = phone || '—';
+            if (dNatId) dNatId.textContent = natId || '—';
+        }
 
         // Update step dots
         for (let i = 1; i <= 3; i++) {
