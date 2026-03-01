@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Program;
+use App\Models\StudentDocument;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -226,5 +227,20 @@ class StudentController extends Controller
         };
 
         return response()->stream($callback, 200, $headers);
+    }
+
+    public function approveDocument(Request $request, User $student, StudentDocument $document)
+    {
+        abort_if($document->user_id !== $student->id, 403);
+        $document->approve(auth()->id());
+        return response()->json(['success' => true, 'message' => 'تم قبول الوثيقة بنجاح', 'status' => 'approved']);
+    }
+
+    public function rejectDocument(Request $request, User $student, StudentDocument $document)
+    {
+        $request->validate(['reason' => 'nullable|string|max:500']);
+        abort_if($document->user_id !== $student->id, 403);
+        $document->reject(auth()->id(), $request->reason ?? 'تم الرفض من قبل الإدارة');
+        return response()->json(['success' => true, 'message' => 'تم رفض الوثيقة', 'status' => 'rejected']);
     }
 }

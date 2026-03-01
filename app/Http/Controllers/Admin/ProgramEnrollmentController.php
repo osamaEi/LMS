@@ -44,7 +44,7 @@ class ProgramEnrollmentController extends Controller
                 ->with('error', 'هذا الطالب ليس لديه طلب تسجيل معلق');
         }
 
-        $user->load('program', 'track');
+        $user->load('program', 'track', 'documents');
 
         return view('admin.program-enrollments.show', compact('user'));
     }

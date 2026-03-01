@@ -32,6 +32,11 @@ class News extends Model
         return $locale === 'en' ? ($this->body_en ?: $this->body_ar) : $this->body_ar;
     }
 
+    public function getImageUrlAttribute(): ?string
+    {
+        return $this->image ? asset('storage/' . $this->image) : null;
+    }
+
     public function isActive(): bool
     {
         return $this->status === 'active';

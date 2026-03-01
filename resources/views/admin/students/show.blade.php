@@ -1446,6 +1446,15 @@
             <span class="badge">{{ $openTicketsCount }}</span>
             @endif
         </button>
+        <button class="tab-btn" onclick="switchTab('documents')" id="docs-tab-btn">
+            <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"/>
+            </svg>
+            صور الهوية
+            @if($student->documents && $student->documents->where('status','pending')->count() > 0)
+            <span class="badge" style="background: linear-gradient(135deg, #f59e0b, #d97706);">{{ $student->documents->where('status','pending')->count() }}</span>
+            @endif
+        </button>
     </div>
 
     <!-- Personal Info Tab -->
@@ -1567,52 +1576,6 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- National ID Documents Card -->
-                @if($student->documents && $student->documents->count() > 0)
-                <div class="info-card">
-                    <div class="info-card-header">
-                        <div class="icon" style="background: linear-gradient(135deg, #7c3aed, #6d28d9);">
-                            <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"/>
-                            </svg>
-                        </div>
-                        <h3>صور الهوية الوطنية</h3>
-                    </div>
-                    <div style="padding: 1.25rem; display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
-                        @foreach($student->documents as $doc)
-                        <div style="border: 2px solid #f1f5f9; border-radius: 14px; overflow: hidden;">
-                            @php
-                                $docLabel = $doc->document_type === 'national_id_front' ? 'الوجه الأمامي' : 'الوجه الخلفي';
-                                $isImage  = in_array(pathinfo($doc->file_path, PATHINFO_EXTENSION), ['jpg','jpeg','png']);
-                                $dsBg     = match($doc->status) { 'approved'=>'#dcfce7','rejected'=>'#fee2e2', default=>'#fef9c3' };
-                                $dsColor  = match($doc->status) { 'approved'=>'#16a34a','rejected'=>'#dc2626', default=>'#92400e' };
-                                $dsLabel  = match($doc->status) { 'approved'=>'مقبول','rejected'=>'مرفوض', default=>'قيد المراجعة' };
-                            @endphp
-                            <div style="height:130px; background:#f8fafc; display:flex; align-items:center; justify-content:center; overflow:hidden;">
-                                @if($isImage)
-                                    <img src="{{ asset('storage/'.$doc->file_path) }}" alt="{{ $docLabel }}"
-                                         style="width:100%;height:100%;object-fit:cover;cursor:pointer;"
-                                         onclick="window.open('{{ asset('storage/'.$doc->file_path) }}','_blank')">
-                                @else
-                                    <div style="text-align:center;">
-                                        <svg class="w-10 h-10 mx-auto mb-1" style="color:#7c3aed;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
-                                        <a href="{{ asset('storage/'.$doc->file_path) }}" target="_blank" style="font-size:.75rem;color:#7c3aed;font-weight:700;">عرض PDF</a>
-                                    </div>
-                                @endif
-                            </div>
-                            <div style="padding:.65rem .85rem; border-top:1px solid #f1f5f9; display:flex; align-items:center; justify-content:space-between;">
-                                <div>
-                                    <div style="font-size:.8rem;font-weight:700;color:#111827;">{{ $docLabel }}</div>
-                                    <div style="font-size:.65rem;color:#9ca3af;margin-top:2px;">{{ $doc->original_name }}</div>
-                                </div>
-                                <span style="padding:.2rem .65rem; font-size:.65rem; font-weight:700; border-radius:8px; background:{{ $dsBg }}; color:{{ $dsColor }};">{{ $dsLabel }}</span>
-                            </div>
-                        </div>
-                        @endforeach
-                    </div>
-                </div>
-                @endif
 
                 <!-- Enrolled Subjects Card -->
                 <div class="info-card">
@@ -2085,6 +2048,130 @@
         </div>
     </div>
 
+    <!-- Documents Tab -->
+    <div id="tab-documents" class="tab-content">
+        @if($student->documents && $student->documents->count() > 0)
+            @php $docsKeyed = $student->documents->keyBy('document_type'); @endphp
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                @foreach(['national_id_front' => ['label'=>'الوجه الأمامي للهوية الوطنية','icon'=>'M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0'], 'national_id_back' => ['label'=>'الوجه الخلفي للهوية الوطنية','icon'=>'M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0']] as $type => $meta)
+                    @php $doc = $docsKeyed->get($type); @endphp
+                    <div class="doc-big-card" id="card-{{ $type }}" style="
+                        background: white;
+                        border-radius: 24px;
+                        overflow: hidden;
+                        box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+                        border: 2px solid {{ $doc && $doc->status === 'approved' ? '#10b981' : ($doc && $doc->status === 'rejected' ? '#ef4444' : '#f1f5f9') }};
+                        transition: all .3s ease;">
+
+                        {{-- Card Header --}}
+                        <div style="padding: 1.25rem 1.5rem; background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); display:flex; align-items:center; justify-content:space-between;">
+                            <div style="display:flex; align-items:center; gap:.75rem;">
+                                <div style="width:42px;height:42px;background:rgba(255,255,255,.15);border-radius:12px;display:flex;align-items:center;justify-content:center;">
+                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $meta['icon'] }}"/></svg>
+                                </div>
+                                <div>
+                                    <div style="color:white;font-weight:700;font-size:.95rem;">{{ $meta['label'] }}</div>
+                                    @if($doc)
+                                    <div style="color:rgba(255,255,255,.65);font-size:.72rem;margin-top:2px;">{{ $doc->original_name }}</div>
+                                    @endif
+                                </div>
+                            </div>
+                            @if($doc)
+                                @php
+                                    $sb = match($doc->status) { 'approved'=>['bg'=>'#dcfce7','color'=>'#16a34a','label'=>'✓ مقبول'], 'rejected'=>['bg'=>'#fee2e2','color'=>'#dc2626','label'=>'✕ مرفوض'], default=>['bg'=>'#fef9c3','color'=>'#92400e','label'=>'⏳ قيد المراجعة'] };
+                                @endphp
+                                <span id="status-badge-{{ $type }}" style="padding:.35rem .9rem;border-radius:10px;font-size:.75rem;font-weight:800;background:{{ $sb['bg'] }};color:{{ $sb['color'] }};">{{ $sb['label'] }}</span>
+                            @endif
+                        </div>
+
+                        {{-- Image Preview --}}
+                        <div style="position:relative; background:#0f0f1a; min-height:280px; display:flex; align-items:center; justify-content:center; overflow:hidden;">
+                            @if($doc && $doc->file_path)
+                                @php $isImg = in_array(strtolower(pathinfo($doc->file_path, PATHINFO_EXTENSION)), ['jpg','jpeg','png']); @endphp
+                                @if($isImg)
+                                    <img src="{{ asset('storage/'.$doc->file_path) }}" alt="{{ $meta['label'] }}"
+                                         style="max-width:100%;max-height:340px;object-fit:contain;cursor:zoom-in;transition:transform .3s ease;"
+                                         onclick="openDocLightbox('{{ asset('storage/'.$doc->file_path) }}', '{{ $meta['label'] }}')"
+                                         onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+                                    {{-- Zoom hint --}}
+                                    <div style="position:absolute;bottom:12px;left:12px;background:rgba(0,0,0,.55);backdrop-filter:blur(4px);border-radius:8px;padding:.3rem .7rem;display:flex;align-items:center;gap:.4rem;pointer-events:none;">
+                                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"/></svg>
+                                        <span style="color:white;font-size:.7rem;font-weight:600;">انقر للتكبير</span>
+                                    </div>
+                                @else
+                                    <div style="text-align:center;padding:3rem;">
+                                        <svg class="w-16 h-16 mx-auto mb-3" style="color:#a78bfa;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                                        <p style="color:#d1d5db;font-weight:600;margin-bottom:1rem;">ملف PDF</p>
+                                        <a href="{{ asset('storage/'.$doc->file_path) }}" target="_blank"
+                                           style="padding:.6rem 1.5rem;background:linear-gradient(135deg,#7c3aed,#6d28d9);color:white;border-radius:12px;font-weight:700;font-size:.85rem;text-decoration:none;">
+                                            فتح الملف
+                                        </a>
+                                    </div>
+                                @endif
+                            @else
+                                <div style="text-align:center;padding:3rem;">
+                                    <svg class="w-16 h-16 mx-auto mb-3 opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" style="color:white;"/></svg>
+                                    <p style="color:#6b7280;font-weight:600;">لم يتم رفع هذه الصورة بعد</p>
+                                </div>
+                            @endif
+                        </div>
+
+                        {{-- Actions Footer --}}
+                        @if($doc)
+                        <div style="padding:1.25rem 1.5rem; border-top:1px solid #f1f5f9; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:.75rem;">
+                            <div style="display:flex;align-items:center;gap:.5rem;">
+                                <span style="font-size:.75rem;color:#6b7280;">الحجم: {{ $doc->file_size_human }}</span>
+                                <span style="width:4px;height:4px;border-radius:50%;background:#d1d5db;"></span>
+                                <span style="font-size:.75rem;color:#6b7280;">{{ $doc->created_at->format('Y/m/d') }}</span>
+                                @if($doc->reviewed_at)
+                                    <span style="width:4px;height:4px;border-radius:50%;background:#d1d5db;"></span>
+                                    <span style="font-size:.75rem;color:#6b7280;">راجعه: {{ $doc->reviewer?->name ?? 'الإدارة' }}</span>
+                                @endif
+                            </div>
+                            <div style="display:flex;gap:.5rem;" id="actions-{{ $type }}">
+                                <a href="{{ asset('storage/'.$doc->file_path) }}" download="{{ $doc->original_name }}"
+                                   style="padding:.5rem 1rem;background:#f1f5f9;color:#374151;border-radius:10px;font-size:.78rem;font-weight:700;text-decoration:none;display:flex;align-items:center;gap:.4rem;">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                                    تنزيل
+                                </a>
+                                <button class="doc-approve-btn" data-doc-id="{{ $doc->id }}" data-action="approve"
+                                        onclick="reviewDocument({{ $doc->id }}, '{{ $type }}', 'approve')"
+                                        style="padding:.5rem 1.1rem;background:linear-gradient(135deg,#10b981,#059669);color:white;border:none;border-radius:10px;font-size:.78rem;font-weight:700;cursor:pointer;display:{{ $doc->status === 'approved' ? 'none' : 'flex' }};align-items:center;gap:.4rem;">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                    قبول
+                                </button>
+                                <button class="doc-reject-btn" data-doc-id="{{ $doc->id }}" data-action="reject"
+                                        onclick="openRejectModal({{ $doc->id }}, '{{ $type }}')"
+                                        style="padding:.5rem 1.1rem;background:linear-gradient(135deg,#ef4444,#dc2626);color:white;border:none;border-radius:10px;font-size:.78rem;font-weight:700;cursor:pointer;display:{{ $doc->status === 'rejected' ? 'none' : 'flex' }};align-items:center;gap:.4rem;">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                    رفض
+                                </button>
+                            </div>
+                        </div>
+                        @if($doc->rejection_reason && $doc->status === 'rejected')
+                        <div class="doc-reject-reason-box" style="margin:0 1.5rem 1.25rem;padding:.75rem 1rem;background:#fef2f2;border-radius:12px;border:1px solid #fecaca;">
+                            <span style="font-size:.78rem;color:#dc2626;font-weight:600;">سبب الرفض: </span>
+                            <span style="font-size:.78rem;color:#b91c1c;">{{ $doc->rejection_reason }}</span>
+                        </div>
+                        @endif
+                        @endif
+                    </div>
+                @endforeach
+            </div>
+        @else
+            <div class="info-card">
+                <div class="info-card-body">
+                    <div class="empty-state">
+                        <div class="icon-wrapper" style="background: linear-gradient(135deg, #7c3aed, #6d28d9);">
+                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                        </div>
+                        <p>لم يتم رفع صور الهوية الوطنية بعد</p>
+                    </div>
+                </div>
+            </div>
+        @endif
+    </div>
+
     <!-- Tickets Tab -->
     <div id="tab-tickets" class="tab-content">
         <div class="info-card">
@@ -2136,25 +2223,219 @@
     </div>
 </div>
 
+<!-- ===== Document Lightbox ===== -->
+<div id="doc-lightbox" onclick="closeDocLightbox()" style="
+    display:none; position:fixed; inset:0; z-index:9999;
+    background:rgba(0,0,0,0.92); backdrop-filter:blur(6px);
+    align-items:center; justify-content:center; flex-direction:column;
+    padding:2rem;">
+    <div onclick="event.stopPropagation()" style="position:relative; max-width:90vw; max-height:90vh;">
+        <img id="lightbox-img" src="" alt="" style="
+            max-width:100%; max-height:85vh; object-fit:contain;
+            border-radius:16px; box-shadow:0 30px 80px rgba(0,0,0,0.6);">
+        <div id="lightbox-label" style="
+            position:absolute; bottom:-2.5rem; left:50%; transform:translateX(-50%);
+            color:rgba(255,255,255,0.85); font-size:.9rem; font-weight:600;
+            white-space:nowrap; text-shadow:0 2px 8px rgba(0,0,0,.5);"></div>
+    </div>
+    <button onclick="closeDocLightbox()" style="
+        position:fixed; top:1.5rem; left:1.5rem;
+        background:rgba(255,255,255,0.15); border:2px solid rgba(255,255,255,0.3);
+        color:white; border-radius:50%; width:44px; height:44px;
+        font-size:1.3rem; cursor:pointer; display:flex; align-items:center; justify-content:center;
+        backdrop-filter:blur(4px); transition:background .2s;">✕</button>
+</div>
+
+<!-- ===== Reject Document Modal ===== -->
+<div id="reject-modal" style="
+    display:none; position:fixed; inset:0; z-index:9990;
+    background:rgba(0,0,0,0.6); backdrop-filter:blur(4px);
+    align-items:center; justify-content:center;">
+    <div onclick="event.stopPropagation()" style="
+        background:white; border-radius:20px; padding:2rem;
+        width:100%; max-width:480px; margin:1rem;
+        box-shadow:0 30px 80px rgba(0,0,0,0.3);">
+        <div style="display:flex; align-items:center; gap:1rem; margin-bottom:1.5rem;">
+            <div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#ef4444,#dc2626);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <svg class="w-5 h-5" style="color:white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </div>
+            <div>
+                <h3 style="font-size:1.1rem;font-weight:700;color:#111827;margin:0;">رفض الوثيقة</h3>
+                <p id="reject-modal-subtitle" style="font-size:.8rem;color:#6b7280;margin:.25rem 0 0;"></p>
+            </div>
+        </div>
+        <div style="margin-bottom:1.25rem;">
+            <label style="display:block;font-size:.85rem;font-weight:600;color:#374151;margin-bottom:.5rem;">سبب الرفض (اختياري)</label>
+            <textarea id="reject-reason-input" rows="3" placeholder="اكتب سبب رفض الوثيقة..." style="
+                width:100%; border:2px solid #e5e7eb; border-radius:12px;
+                padding:.75rem 1rem; font-size:.875rem; color:#111827;
+                resize:none; outline:none; font-family:inherit;
+                transition:border-color .2s;"
+                onfocus="this.style.borderColor='#ef4444'" onblur="this.style.borderColor='#e5e7eb'"></textarea>
+        </div>
+        <div style="display:flex; gap:.75rem; justify-content:flex-end;">
+            <button onclick="closeRejectModal()" style="
+                padding:.6rem 1.25rem; background:#f1f5f9; color:#6b7280;
+                border:none; border-radius:10px; font-size:.875rem; font-weight:600;
+                cursor:pointer;">إلغاء</button>
+            <button onclick="submitReject()" style="
+                padding:.6rem 1.25rem;
+                background:linear-gradient(135deg,#ef4444,#dc2626);
+                color:white; border:none; border-radius:10px;
+                font-size:.875rem; font-weight:700; cursor:pointer;
+                display:flex; align-items:center; gap:.4rem;"
+                id="reject-submit-btn">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+                تأكيد الرفض
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== Toast Notification ===== -->
+<div id="doc-toast" style="
+    display:none; position:fixed; bottom:2rem; left:50%; transform:translateX(-50%);
+    padding:.85rem 1.75rem; border-radius:14px; color:white; font-size:.9rem; font-weight:600;
+    z-index:99999; box-shadow:0 8px 30px rgba(0,0,0,0.2); pointer-events:none;
+    animation:slideUpToast .3s ease;"></div>
+
 @push('scripts')
 <script>
+/* ── Tab switching ────────────────────────────────── */
 function switchTab(tabName) {
-    // Hide all tab contents
-    document.querySelectorAll('.tab-content').forEach(content => {
-        content.classList.remove('active');
-    });
-
-    // Remove active from all buttons
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.classList.remove('active');
-    });
-
-    // Show selected tab content
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     document.getElementById('tab-' + tabName).classList.add('active');
-
-    // Add active to clicked button
     event.currentTarget.classList.add('active');
 }
+
+/* ── Lightbox ─────────────────────────────────────── */
+function openDocLightbox(src, label) {
+    const lb = document.getElementById('doc-lightbox');
+    document.getElementById('lightbox-img').src = src;
+    document.getElementById('lightbox-label').textContent = label || '';
+    lb.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+function closeDocLightbox() {
+    document.getElementById('doc-lightbox').style.display = 'none';
+    document.body.style.overflow = '';
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeDocLightbox(); closeRejectModal(); } });
+
+/* ── Reject Modal ─────────────────────────────────── */
+let _rejectDocId   = null;
+let _rejectDocType = null;
+
+function openRejectModal(docId, docType) {
+    _rejectDocId   = docId;
+    _rejectDocType = docType;
+    const labels = { national_id_front: 'الوجه الأمامي للهوية الوطنية', national_id_back: 'الوجه الخلفي للهوية الوطنية' };
+    document.getElementById('reject-modal-subtitle').textContent = labels[docType] || docType;
+    document.getElementById('reject-reason-input').value = '';
+    const modal = document.getElementById('reject-modal');
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => document.getElementById('reject-reason-input').focus(), 50);
+}
+function closeRejectModal() {
+    document.getElementById('reject-modal').style.display = 'none';
+    document.body.style.overflow = '';
+}
+function submitReject() {
+    const reason = document.getElementById('reject-reason-input').value.trim();
+    closeRejectModal();
+    reviewDocument(_rejectDocId, _rejectDocType, 'reject', reason);
+}
+
+/* ── Review Document (Approve / Reject via AJAX) ──── */
+function reviewDocument(docId, docType, action, reason) {
+    const studentId = {{ $student->id }};
+    const url = action === 'approve'
+        ? `/admin/students/${studentId}/documents/${docId}/approve`
+        : `/admin/students/${studentId}/documents/${docId}/reject`;
+
+    const body = new URLSearchParams();
+    body.append('_token', '{{ csrf_token() }}');
+    if (action === 'reject' && reason) body.append('reason', reason);
+
+    const btn = document.querySelector(`[data-doc-id="${docId}"][data-action="${action}"]`);
+    if (btn) { btn.disabled = true; btn.style.opacity = '.6'; }
+
+    fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-Requested-With': 'XMLHttpRequest' }, body })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                showDocToast(data.message, action === 'approve' ? '#10b981' : '#ef4444');
+                updateCardStatus(docType, data.status, reason);
+            } else {
+                showDocToast(data.message || 'حدث خطأ', '#ef4444');
+                if (btn) { btn.disabled = false; btn.style.opacity = '1'; }
+            }
+        })
+        .catch(() => {
+            showDocToast('فشل الاتصال بالخادم', '#ef4444');
+            if (btn) { btn.disabled = false; btn.style.opacity = '1'; }
+        });
+}
+
+/* ── Update card UI after review ─────────────────── */
+function updateCardStatus(docType, status, reason) {
+    const card = document.getElementById('card-' + docType);
+    if (!card) return;
+
+    // Update status badge
+    const badge = document.getElementById('status-badge-' + docType);
+    if (badge) {
+        const colors = { approved: { bg:'#dcfce7', color:'#16a34a', text:'✓ مقبول' }, rejected: { bg:'#fee2e2', color:'#dc2626', text:'✕ مرفوض' }, pending: { bg:'#fef9c3', color:'#92400e', text:'⏳ قيد المراجعة' } };
+        const c = colors[status] || colors.pending;
+        badge.style.background = c.bg;
+        badge.style.color = c.color;
+        badge.textContent = c.text;
+    }
+
+    // Update card border glow
+    const borderColors = { approved: '#10b981', rejected: '#ef4444', pending: '#f59e0b' };
+    card.style.borderColor = (borderColors[status] || '#e5e7eb') + '40';
+
+    // Show / hide approve & reject buttons
+    const approveBtn = card.querySelector('.doc-approve-btn');
+    const rejectBtn  = card.querySelector('.doc-reject-btn');
+    if (approveBtn) approveBtn.style.display = status === 'approved'  ? 'none' : 'flex';
+    if (rejectBtn)  rejectBtn.style.display  = status === 'rejected'  ? 'none' : 'flex';
+
+    // Show rejection reason if rejected
+    let reasonBox = card.querySelector('.doc-reject-reason-box');
+    if (status === 'rejected' && reason) {
+        if (!reasonBox) {
+            reasonBox = document.createElement('div');
+            reasonBox.className = 'doc-reject-reason-box';
+            reasonBox.style.cssText = 'margin:0 1.5rem 1.25rem;padding:.75rem 1rem;background:#fef2f2;border-radius:12px;border:1px solid #fecaca;';
+            card.appendChild(reasonBox);
+        }
+        reasonBox.innerHTML = `<span style="font-size:.78rem;color:#dc2626;font-weight:600;">سبب الرفض: </span><span style="font-size:.78rem;color:#b91c1c;">${reason}</span>`;
+    } else if (reasonBox && status !== 'rejected') {
+        reasonBox.remove();
+    }
+}
+
+/* ── Toast helper ─────────────────────────────────── */
+function showDocToast(msg, bg) {
+    const t = document.getElementById('doc-toast');
+    t.textContent = msg;
+    t.style.background = bg || '#10b981';
+    t.style.display = 'block';
+    setTimeout(() => { t.style.display = 'none'; }, 3500);
+}
+
+/* ── Style for toast animation ────────────────────── */
+const toastStyle = document.createElement('style');
+toastStyle.textContent = `@keyframes slideUpToast { from { opacity:0; transform:translateX(-50%) translateY(20px); } to { opacity:1; transform:translateX(-50%) translateY(0); } }`;
+document.head.appendChild(toastStyle);
 </script>
 @endpush
 @endsection

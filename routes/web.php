@@ -145,6 +145,10 @@ Route::middleware(['auth', 'role:admin,super_admin'])->prefix('admin')->name('ad
         ->name('students.remove-program');
     Route::post('/students/{student}/toggle-status', [\App\Http\Controllers\Admin\StudentController::class, 'toggleStatus'])
         ->name('students.toggle-status');
+    Route::post('/students/{student}/documents/{document}/approve', [\App\Http\Controllers\Admin\StudentController::class, 'approveDocument'])
+        ->name('students.documents.approve');
+    Route::post('/students/{student}/documents/{document}/reject', [\App\Http\Controllers\Admin\StudentController::class, 'rejectDocument'])
+        ->name('students.documents.reject');
 
     // Program Enrollments (Approval)
     Route::prefix('program-enrollments')->name('program-enrollments.')->group(function () {

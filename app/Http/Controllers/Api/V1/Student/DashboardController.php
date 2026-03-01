@@ -8,6 +8,7 @@ use App\Models\Session;
 use App\Models\Attendance;
 use App\Models\Enrollment;
 use App\Models\Setting;
+use App\Models\Term;
 use App\Models\Ticket;
 use App\Models\TeacherRating;
 use App\Models\SatisfactionSurvey;
@@ -109,37 +110,127 @@ class DashboardController extends Controller
 
     /**
      * GET /api/v1/student/my-subjects
-     * List enrolled subjects
+     * All subjects in the student's program, grouped by term, with enrollment status
      */
     public function mySubjects()
     {
         $student = auth()->user();
 
-        $subjects = Subject::whereHas('enrollments', function ($query) use ($student) {
-            $query->where('student_id', $student->id);
-        })
-            ->with(['term.program', 'teacher:id,name,email,profile_photo'])
-            ->withCount('sessions')
+        if (!$student->program_id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'لم يتم تعيين برنامج دراسي',
+            ], 200);
+        }
+
+        // Load all terms of the student's program with subjects
+        $terms = Term::where('program_id', $student->program_id)
+            ->orderBy('term_number', 'asc')
+            ->with([
+                'subjects' => function ($q) {
+                    $q->with(['teacher:id,name,email,profile_photo'])
+                      ->withCount('sessions')
+                      ->orderBy('name_ar');
+                },
+            ])
             ->get();
 
-        // Add progress per subject
-        $subjects->each(function ($subject) use ($student) {
-            $totalSessions = $subject->sessions()->count();
-            $attendedSessions = Attendance::where('student_id', $student->id)
-                ->whereHas('session', fn($q) => $q->where('subject_id', $subject->id))
-                ->where('attended', true)
-                ->count();
+        // Student's enrollments keyed by subject_id
+        $enrollments = Enrollment::where('student_id', $student->id)
+            ->get()
+            ->keyBy('subject_id');
 
-            $subject->progress = [
-                'total_sessions' => $totalSessions,
-                'attended_sessions' => $attendedSessions,
-                'percentage' => $totalSessions > 0 ? round(($attendedSessions / $totalSessions) * 100, 1) : 0,
+        // Attendance counts keyed by subject_id
+        $attendanceCounts = Attendance::where('student_id', $student->id)
+            ->where('attended', true)
+            ->select('session_id', DB::raw('COUNT(*) as cnt'))
+            ->groupBy('session_id')
+            ->get();
+
+        // Build subject_id → attended sessions count map
+        $subjectAttended = [];
+        if ($attendanceCounts->isNotEmpty()) {
+            $sessionIds = $attendanceCounts->pluck('session_id');
+            $sessionSubjects = Session::whereIn('id', $sessionIds)
+                ->select('id', 'subject_id')
+                ->get()
+                ->keyBy('id');
+
+            foreach ($attendanceCounts as $row) {
+                $subjectId = $sessionSubjects[$row->session_id]->subject_id ?? null;
+                if ($subjectId) {
+                    $subjectAttended[$subjectId] = ($subjectAttended[$subjectId] ?? 0) + 1;
+                }
+            }
+        }
+
+        $termsData = $terms->map(function ($term) use ($enrollments, $subjectAttended, $student) {
+            $subjects = $term->subjects->map(function ($subject) use ($enrollments, $subjectAttended) {
+                $enrollment = $enrollments->get($subject->id);
+                $totalSessions = $subject->sessions_count;
+                $attended      = $subjectAttended[$subject->id] ?? 0;
+
+                return [
+                    'id'           => $subject->id,
+                    'name_ar'      => $subject->name_ar,
+                    'name_en'      => $subject->name_en,
+                    'code'         => $subject->code,
+                    'credits'      => $subject->credits,
+                    'color'        => $subject->color,
+                    'banner_photo' => $subject->banner_photo,
+                    'status'       => $subject->status,
+                    'teacher'      => $subject->teacher ? [
+                        'id'            => $subject->teacher->id,
+                        'name'          => $subject->teacher->name,
+                        'email'         => $subject->teacher->email,
+                        'profile_photo' => $subject->teacher->profile_photo,
+                    ] : null,
+                    'sessions_count' => $totalSessions,
+                    'enrollment'   => $enrollment ? [
+                        'status'      => $enrollment->status,
+                        'enrolled_at' => $enrollment->enrolled_at,
+                        'final_grade' => $enrollment->final_grade,
+                        'grade_letter'=> $enrollment->grade_letter,
+                    ] : null,
+                    'is_enrolled'  => (bool) $enrollment,
+                    'progress'     => [
+                        'total_sessions'    => $totalSessions,
+                        'attended_sessions' => $attended,
+                        'percentage'        => $totalSessions > 0
+                            ? round(($attended / $totalSessions) * 100, 1)
+                            : 0,
+                    ],
+                ];
+            });
+
+            $enrolledCount = $subjects->where('is_enrolled', true)->count();
+
+            return [
+                'id'             => $term->id,
+                'term_number'    => $term->term_number,
+                'name'           => $term->name ?? ('الفصل ' . $term->term_number),
+                'subjects_count' => $subjects->count(),
+                'enrolled_count' => $enrolledCount,
+                'is_current'     => $term->term_number === ($student->current_term_number ?? 1),
+                'subjects'       => $subjects->values(),
             ];
         });
 
+        // Summary stats
+        $totalSubjects   = $termsData->sum('subjects_count');
+        $enrolledSubjects = $termsData->sum('enrolled_count');
+
         return response()->json([
             'success' => true,
-            'data' => $subjects,
+            'data'    => [
+                'program_id'       => $student->program_id,
+                'program_status'   => $student->program_status,
+                'current_term'     => $student->current_term_number ?? 1,
+                'total_terms'      => $terms->count(),
+                'total_subjects'   => $totalSubjects,
+                'enrolled_subjects'=> $enrolledSubjects,
+                'terms'            => $termsData,
+            ],
         ]);
     }
 
@@ -199,50 +290,140 @@ class DashboardController extends Controller
 
     /**
      * GET /api/v1/student/upcoming-sessions
-     * Upcoming Zoom sessions
+     * Upcoming & live sessions for the student's program (enrollment not required)
      */
     public function upcomingSessions()
     {
         $student = auth()->user();
 
-        $upcomingSessions = Session::whereHas('subject.enrollments', function ($q) use ($student) {
-            $q->where('student_id', $student->id)->where('status', 'active');
-        })
-            ->where('type', 'live_zoom')
-            ->where('scheduled_at', '>=', now())
-            ->with(['subject:id,name_ar,name_en', 'unit:id,title'])
-            ->orderBy('scheduled_at', 'asc')
-            ->paginate(10);
+        if (!$student->program_id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'لم يتم تعيين برنامج دراسي',
+            ], 200);
+        }
 
-        $liveSessions = Session::whereHas('subject.enrollments', function ($q) use ($student) {
-            $q->where('student_id', $student->id)->where('status', 'active');
-        })
+        // Subject IDs in the student's program
+        $programSubjectIds = Subject::whereHas('term', fn($q) => $q->where('program_id', $student->program_id))
+            ->pluck('id');
+
+        // Also include subjects the student is explicitly enrolled in (other programs / standalone)
+        $enrolledSubjectIds = Enrollment::where('student_id', $student->id)
+            ->where('status', 'active')
+            ->pluck('subject_id');
+
+        $subjectIds = $programSubjectIds->merge($enrolledSubjectIds)->unique();
+
+        $sessionWith = [
+            'subject:id,name_ar,name_en,code,color',
+            'subject.term:id,term_number,name',
+            'unit:id,title',
+        ];
+
+        // Live sessions (currently running)
+        $liveSessions = Session::whereIn('subject_id', $subjectIds)
             ->where('type', 'live_zoom')
             ->whereNotNull('started_at')
             ->whereNull('ended_at')
-            ->with(['subject:id,name_ar,name_en', 'unit:id,title'])
-            ->get();
+            ->with($sessionWith)
+            ->get()
+            ->map(fn($s) => $this->formatSession($s, $student->id, true));
+
+        // Upcoming sessions
+        $upcomingSessions = Session::whereIn('subject_id', $subjectIds)
+            ->where('scheduled_at', '>=', now())
+            ->whereNull('started_at')
+            ->with($sessionWith)
+            ->orderBy('scheduled_at', 'asc')
+            ->paginate(15)
+            ->through(fn($s) => $this->formatSession($s, $student->id, false));
+
+        // Past sessions (last 10)
+        $pastSessions = Session::whereIn('subject_id', $subjectIds)
+            ->whereNotNull('ended_at')
+            ->with($sessionWith)
+            ->orderBy('ended_at', 'desc')
+            ->take(10)
+            ->get()
+            ->map(fn($s) => $this->formatSession($s, $student->id, false));
 
         return response()->json([
             'success' => true,
             'data' => [
+                'live_sessions'     => $liveSessions,
                 'upcoming_sessions' => $upcomingSessions,
-                'live_sessions' => $liveSessions,
+                'past_sessions'     => $pastSessions,
             ],
         ]);
     }
 
     /**
+     * Format a session with join links and attendance info
+     */
+    private function formatSession(Session $session, int $studentId, bool $isLive): array
+    {
+        $attendance = Attendance::where('student_id', $studentId)
+            ->where('session_id', $session->id)
+            ->first();
+
+        $joinUrl = $session->zoom_join_url;
+
+        return [
+            'id'             => $session->id,
+            'title'          => $session->title,
+            'type'           => $session->type,
+            'scheduled_at'   => $session->scheduled_at,
+            'started_at'     => $session->started_at,
+            'ended_at'       => $session->ended_at,
+            'duration_minutes' => $session->duration_minutes,
+            'is_live'        => $isLive,
+            'subject'        => $session->subject ? [
+                'id'      => $session->subject->id,
+                'name_ar' => $session->subject->name_ar,
+                'name_en' => $session->subject->name_en,
+                'code'    => $session->subject->code,
+                'color'   => $session->subject->color,
+                'term'    => $session->subject->term ? [
+                    'id'          => $session->subject->term->id,
+                    'term_number' => $session->subject->term->term_number,
+                    'name'        => $session->subject->term->name,
+                ] : null,
+            ] : null,
+            'unit'           => $session->unit ? [
+                'id'    => $session->unit->id,
+                'title' => $session->unit->title,
+            ] : null,
+            'links'          => [
+                'join_zoom'   => $joinUrl,
+                'zoom_meeting_id' => $session->zoom_meeting_id,
+                'recording'   => $session->recording_url ?? null,
+                'join_api'    => url("/api/v1/student/sessions/{$session->id}/join-zoom"),
+                'leave_api'   => url("/api/v1/student/sessions/{$session->id}/leave-zoom"),
+            ],
+            'attendance'     => $attendance ? [
+                'attended'         => $attendance->attended,
+                'joined_at'        => $attendance->joined_at,
+                'left_at'          => $attendance->left_at,
+                'duration_minutes' => $attendance->duration_minutes,
+            ] : null,
+        ];
+    }
+
+    /**
      * GET /api/v1/student/attendance
-     * Attendance records
+     * Attendance records (filter by ?subject_id=)
      */
     public function myAttendance(Request $request)
     {
-        $student = auth()->user();
+        $student   = auth()->user();
         $subjectId = $request->query('subject_id');
 
         $query = Attendance::where('student_id', $student->id)
-            ->with(['session.subject:id,name_ar,name_en', 'session.unit:id,title']);
+            ->with([
+                'session:id,subject_id,unit_id,title,type,scheduled_at,started_at,ended_at,zoom_join_url,recording_url',
+                'session.subject:id,name_ar,name_en,code,color',
+                'session.unit:id,title',
+            ]);
 
         if ($subjectId) {
             $query->whereHas('session', fn($q) => $q->where('subject_id', $subjectId));
@@ -251,27 +432,37 @@ class DashboardController extends Controller
         $attendances = $query->orderBy('created_at', 'desc')->paginate(15);
 
         // Statistics
-        $totalSessions = Attendance::where('student_id', $student->id)->count();
-        $attendedSessions = Attendance::where('student_id', $student->id)->where('attended', true)->count();
-        $attendanceRate = $totalSessions > 0 ? round(($attendedSessions / $totalSessions) * 100, 1) : 0;
-        $totalMinutes = Attendance::where('student_id', $student->id)->sum('duration_minutes') ?? 0;
+        $total    = Attendance::where('student_id', $student->id)->count();
+        $attended = Attendance::where('student_id', $student->id)->where('attended', true)->count();
+        $rate     = $total > 0 ? round(($attended / $total) * 100, 1) : 0;
+        $minutes  = (int) (Attendance::where('student_id', $student->id)->sum('duration_minutes') ?? 0);
 
-        // Enrolled subjects for filter
-        $enrolledSubjects = Subject::whereHas('enrollments', function ($q) use ($student) {
-            $q->where('student_id', $student->id);
-        })->select('id', 'name_ar', 'name_en')->get();
+        // Subjects available for filtering: program subjects + enrolled subjects
+        $programSubjects = $student->program_id
+            ? Subject::whereHas('term', fn($q) => $q->where('program_id', $student->program_id))
+                ->select('id', 'name_ar', 'name_en', 'code', 'color')
+                ->orderBy('name_ar')
+                ->get()
+            : collect();
+
+        $enrolledSubjects = Subject::whereHas('enrollments', fn($q) => $q->where('student_id', $student->id))
+            ->select('id', 'name_ar', 'name_en', 'code', 'color')
+            ->get();
+
+        $availableSubjects = $programSubjects->merge($enrolledSubjects)->unique('id')->values();
 
         return response()->json([
             'success' => true,
-            'data' => [
-                'attendances' => $attendances,
-                'statistics' => [
-                    'total_sessions' => $totalSessions,
-                    'attended_sessions' => $attendedSessions,
-                    'attendance_rate' => $attendanceRate,
-                    'total_minutes' => $totalMinutes,
+            'data'    => [
+                'attendances'       => $attendances,
+                'statistics'        => [
+                    'total_sessions'    => $total,
+                    'attended_sessions' => $attended,
+                    'absent_sessions'   => $total - $attended,
+                    'attendance_rate'   => $rate,
+                    'total_minutes'     => $minutes,
                 ],
-                'enrolled_subjects' => $enrolledSubjects,
+                'available_subjects' => $availableSubjects,
             ],
         ]);
     }

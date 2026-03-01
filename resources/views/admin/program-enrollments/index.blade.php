@@ -361,7 +361,7 @@
     </div>
 
     <!-- Bulk Actions Form -->
-    <form id="bulk-form" method="POST">
+    <form id="bulk-form" method="POST" onsubmit="return false;">
         @csrf
 
         <!-- Bulk Actions Bar -->

@@ -29,6 +29,20 @@ Route::prefix('v1')->group(function () {
         $news = \App\Models\News::active()
             ->latest('published_at')
             ->paginate(request('per_page', 10));
+
+        $news->getCollection()->transform(function ($item) {
+            $item->image_url  = $item->image_url;
+            $item->detail_url = url('/api/v1/news/' . $item->id);
+            return $item;
+        });
+
+        return response()->json(['success' => true, 'data' => $news]);
+    });
+
+    // News detail
+    Route::get('/news/{id}', function ($id) {
+        $news = \App\Models\News::active()->findOrFail($id);
+        $news->image_url = $news->image_url;
         return response()->json(['success' => true, 'data' => $news]);
     });
 

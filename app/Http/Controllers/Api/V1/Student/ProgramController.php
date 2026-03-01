@@ -26,8 +26,10 @@ class ProgramController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => [
-                    'status' => 'pending',
+                    'status'  => 'pending',
                     'message' => 'طلب التسجيل في انتظار موافقة الإدارة',
+                    'program' => $student->program,
+                    'track'   => $student->track,
                 ],
             ]);
         }
