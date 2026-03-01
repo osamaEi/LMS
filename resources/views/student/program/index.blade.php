@@ -343,7 +343,7 @@
                     @endif
                 </div>
                 <div class="hero-term-box">
-                    <div class="hero-term-num">{{ $currentTermNumber ?? 1 }}<span style="font-size: 1rem; opacity: 0.7;"> / {{ $stats['total_terms'] }}</span></div>
+                    <div class="hero-term-num">{{ $currentTermIndex ?? $stats['current_term'] }}<span style="font-size: 1rem; opacity: 0.7;"> / {{ $stats['total_terms'] }}</span></div>
                     <div class="hero-term-label">الفصل الحالي</div>
                 </div>
             </div>
@@ -359,10 +359,7 @@
         </div>
 
         {{-- ===== Current Term Spotlight ===== --}}
-        @php
-            $currentTerm = $terms->firstWhere('term_number', $currentTermNumber);
-        @endphp
-        @if($currentTerm)
+        @if(isset($currentTerm) && $currentTerm)
         <div style="background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
                     border: 1px solid rgba(139,92,246,.35);
                     border-radius: 20px; padding: 1.75rem 2rem; margin-bottom: 1.5rem;
@@ -400,7 +397,7 @@
                         <span style="background:rgba(124,58,237,.2);border:1px solid rgba(124,58,237,.4);
                                      color:#c4b5fd;font-size:.78rem;font-weight:700;
                                      padding:.35rem .85rem;border-radius:999px;">
-                            الفصل {{ $currentTermNumber }} من {{ $terms->count() }}
+                            الفصل {{ $currentTermIndex ?? $stats['current_term'] }} من {{ $terms->count() }}
                         </span>
                         <span style="background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.3);
                                      color:#6ee7b7;font-size:.78rem;font-weight:700;
@@ -640,10 +637,23 @@
                 </div>
                 <div class="timeline">
                     @if($terms->count() > 0)
-                        @foreach($terms as $term)
+                        @foreach($terms as $termLoop)
                             @php
-                                $isCurrentTerm = ($term->term_number == $currentTermNumber);
-                                $isPastTerm = ($term->term_number < $currentTermNumber);
+                                // State by date first, then fall back to position vs currentTerm
+                                $isCurrentTerm = isset($currentTerm) && $currentTerm && $termLoop->id === $currentTerm->id;
+                                // A term is past if it ended before today, or if it appears before the currentTerm in the sorted list
+                                $isPastTerm = false;
+                                if (!$isCurrentTerm) {
+                                    if ($termLoop->end_date && $termLoop->end_date < now()) {
+                                        $isPastTerm = true;
+                                    } elseif (isset($currentTerm) && $currentTerm) {
+                                        // Compare positions in the sorted $terms collection
+                                        $currentTermPos = $terms->search(fn($t) => $t->id === $currentTerm->id);
+                                        $thisTermPos    = $terms->search(fn($t) => $t->id === $termLoop->id);
+                                        $isPastTerm = $thisTermPos < $currentTermPos;
+                                    }
+                                }
+                                $term  = $termLoop; // keep template variable name
                                 $state = $isPastTerm ? 'past' : ($isCurrentTerm ? 'current' : 'future');
                             @endphp
                             <div class="tl-item {{ $state }}">
@@ -700,24 +710,35 @@
             </div>
         </div>
 
-        {{-- ===== Enrolled Subjects ===== --}}
+        {{-- ===== Subjects of Current Term ===== --}}
+        @php
+            $currentTermSubjects = isset($currentTerm) && $currentTerm
+                ? $subjects->where('term_id', $currentTerm->id)->values()
+                : $subjects;
+        @endphp
         <div class="sec-card">
             <div class="sec-header">
                 <div class="sec-title">
                     <div class="sec-title-icon" style="background: linear-gradient(135deg, #0071AA, #005a88);">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
                     </div>
-                    المواد المسجلة
+                    مواد الفصل الحالي
+                    @if(isset($currentTerm) && $currentTerm)
+                        <span style="background:#e0f2fe;color:#0369a1;font-size:.72rem;font-weight:700;
+                                     padding:.2rem .65rem;border-radius:999px;margin-right:.25rem;">
+                            {{ $currentTerm->name_ar ?? $currentTerm->name }}
+                        </span>
+                    @endif
                 </div>
                 <a href="{{ route('student.my-sessions') }}" class="sec-link">
-                    عرض جميع الجلسات
+                    جميع الجلسات
                     <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
                 </a>
             </div>
 
-            @if($subjects->count() > 0)
+            @if($currentTermSubjects->count() > 0)
                 <div class="subj-grid">
-                    @foreach($subjects as $subject)
+                    @foreach($currentTermSubjects as $subject)
                         @php
                             $color = $subject->color ?? '#0071AA';
                             $progress = $subjectsProgress[$subject->id] ?? null;
@@ -733,12 +754,9 @@
                                             {{ $subject->teacher->name }}
                                         </span>
                                     @endif
-                                    @if($subject->term)
-                                        <span class="subj-chip" style="background: {{ $color }}15; color: {{ $color }};">{{ $subject->term->name }}</span>
-                                    @endif
                                     <span class="subj-chip">
                                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-                                        {{ $subject->sessions_count }} جلسة
+                                        {{ $subject->sessions->count() }} جلسة
                                     </span>
                                 </div>
 
@@ -768,8 +786,13 @@
                     <div style="width:64px;height:64px;border-radius:16px;background:#f8fafc;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;">
                         <svg style="width:32px;height:32px;color:#cbd5e1;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
                     </div>
-                    <h3 style="font-size:1.1rem;font-weight:800;color:#1e293b;margin-bottom:0.25rem;">لا توجد مواد مسجلة</h3>
-                    <p style="font-size:0.85rem;color:#94a3b8;">سيتم عرض المواد هنا بعد التسجيل</p>
+                    <h3 style="font-size:1.1rem;font-weight:800;color:#1e293b;margin-bottom:0.25rem;">لا توجد مواد في هذا الفصل</h3>
+                    <p style="font-size:0.85rem;color:#94a3b8;">
+                        لم يتم إضافة مواد للفصل الحالي بعد
+                        @if(isset($currentTerm) && $currentTerm)
+                            ({{ $currentTerm->name_ar ?? $currentTerm->name }})
+                        @endif
+                    </p>
                 </div>
             @endif
         </div>

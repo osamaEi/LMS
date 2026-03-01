@@ -464,7 +464,6 @@ class DashboardController extends Controller
         // Get student's track
         $track = $student->track;
 
-        // Get current term
         $currentTermNumber = $student->current_term_number ?? 1;
 
         // Get all terms for this program
@@ -474,6 +473,17 @@ class DashboardController extends Controller
                 $q->with(['teacher', 'sessions']);
             }])
             ->get();
+
+        // Determine current term intelligently:
+        // 1) Term whose dates span today
+        // 2) Term matching stored current_term_number
+        // 3) First term in program
+        $currentTerm = $terms->first(function ($term) {
+            return $term->start_date && $term->end_date
+                && $term->start_date <= now()
+                && $term->end_date   >= now();
+        }) ?? $terms->firstWhere('term_number', $currentTermNumber)
+          ?? $terms->first();
 
         // Get enrolled subjects with details
         $enrollments = Enrollment::where('student_id', $student->id)
@@ -514,14 +524,19 @@ class DashboardController extends Controller
             ];
         }
 
+        // Current term index (1-based position in sorted list)
+        $currentTermIndex = $currentTerm
+            ? $terms->search(fn($t) => $t->id === $currentTerm->id) + 1
+            : 1;
+
         $stats = [
             'total_subjects' => $subjects->count(),
             'total_sessions' => $totalSessions,
             'completed_sessions' => $completedSessions,
             'attendance_rate' => $attendanceRate,
-            'current_term' => $currentTermNumber,
+            'current_term' => $currentTermIndex,
             'total_terms' => $terms->count(),
-            'progress_percentage' => $terms->count() > 0 ? round(($currentTermNumber / $terms->count()) * 100, 1) : 0,
+            'progress_percentage' => $terms->count() > 0 ? round(($currentTermIndex / $terms->count()) * 100, 1) : 0,
         ];
 
         return view('student.program.index', compact(
@@ -532,7 +547,9 @@ class DashboardController extends Controller
             'stats',
             'enrollments',
             'subjectsProgress',
-            'currentTermNumber'
+            'currentTermNumber',
+            'currentTerm',
+            'currentTermIndex'
         ));
     }
 
