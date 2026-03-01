@@ -166,90 +166,206 @@
             </div>
 
             <!-- ==================== STEP 3: Complete Registration ==================== -->
-            <div id="step3" class="step">
-                <div class="text-center mb-6">
-                    <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg" style="background: #22c55e;">
-                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div id="step3" class="step" style="max-height:80vh; overflow-y:auto; padding-right:4px;">
+                <div class="text-center mb-4">
+                    <div class="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-2 shadow-lg" style="background: #22c55e;">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                         </svg>
                     </div>
-                    <h2 class="text-2xl font-bold mb-2" style="color: #1e3a5f;">تم التحقق بنجاح!</h2>
-                    <p class="text-sm" style="color: #64748b;">أكمل بيانات حسابك</p>
+                    <h2 class="text-xl font-bold mb-1" style="color: #1e3a5f;">تم التحقق بنجاح!</h2>
+                    <p class="text-xs" style="color: #64748b;">أكمل بياناتك الشخصية والأكاديمية</p>
                 </div>
 
-                <form id="step3-form" class="space-y-5">
-                    <!-- Name -->
-                    <div>
-                        <label class="block text-sm font-medium mb-2" style="color: #1e3a5f;">
-                            <svg class="w-4 h-4 inline ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                            </svg>
-                            الاسم الكامل
-                        </label>
-                        <input type="text" id="name" name="name" required
-                               class="w-full px-4 py-3 border-2 rounded-xl focus:outline-none transition"
-                               style="border-color: #86efac; background: #f0fdf4;"
-                               onfocus="this.style.borderColor='#22c55e'; this.style.boxShadow='0 0 0 3px rgba(34,197,94,0.1)'"
-                               onblur="this.style.borderColor='#86efac'; this.style.boxShadow='none'">
-                        <p id="name-error" class="mt-1 text-sm hidden" style="color: #f97316;"></p>
+                <form id="step3-form" class="space-y-4">
+
+                    {{-- Personal Info Section --}}
+                    <div style="background:#f0fdf4; border-radius:14px; padding:.875rem 1rem; border:1px solid #bbf7d0;">
+                        <p class="text-xs font-bold mb-3" style="color:#15803d; text-transform:uppercase; letter-spacing:.05em;">البيانات الشخصية</p>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="block text-xs font-semibold mb-1" style="color:#1e3a5f;">الاسم الكامل <span style="color:#ef4444;">*</span></label>
+                                <input type="text" id="name" name="name" required placeholder="الاسم الرباعي"
+                                       class="w-full px-3 py-2.5 border-2 rounded-xl focus:outline-none text-sm"
+                                       style="border-color:#86efac; background:#fff;"
+                                       onfocus="this.style.borderColor='#22c55e'" onblur="this.style.borderColor='#86efac'">
+                                <p id="name-error" class="mt-1 text-xs hidden" style="color:#ef4444;"></p>
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs font-semibold mb-1" style="color:#1e3a5f;">تاريخ الميلاد <span style="color:#ef4444;">*</span></label>
+                                    <input type="date" id="date_of_birth" name="date_of_birth" required
+                                           class="w-full px-3 py-2.5 border-2 rounded-xl focus:outline-none text-sm"
+                                           style="border-color:#86efac; background:#fff;"
+                                           onfocus="this.style.borderColor='#22c55e'" onblur="this.style.borderColor='#86efac'">
+                                    <p id="dob-error" class="mt-1 text-xs hidden" style="color:#ef4444;"></p>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold mb-1" style="color:#1e3a5f;">الجنس <span style="color:#ef4444;">*</span></label>
+                                    <select id="gender" name="gender" required
+                                            class="w-full px-3 py-2.5 border-2 rounded-xl focus:outline-none text-sm"
+                                            style="border-color:#86efac; background:#fff;"
+                                            onfocus="this.style.borderColor='#22c55e'" onblur="this.style.borderColor='#86efac'">
+                                        <option value="">اختر</option>
+                                        <option value="male">ذكر</option>
+                                        <option value="female">أنثى</option>
+                                    </select>
+                                    <p id="gender-error" class="mt-1 text-xs hidden" style="color:#ef4444;"></p>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold mb-1" style="color:#1e3a5f;">البريد الإلكتروني <span style="color:#ef4444;">*</span></label>
+                                <input type="email" id="email" name="email" required placeholder="example@email.com"
+                                       class="w-full px-3 py-2.5 border-2 rounded-xl focus:outline-none text-sm"
+                                       style="border-color:#86efac; background:#fff;"
+                                       onfocus="this.style.borderColor='#22c55e'" onblur="this.style.borderColor='#86efac'">
+                                <p id="email-error" class="mt-1 text-xs hidden" style="color:#ef4444;"></p>
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs font-semibold mb-1" style="color:#1e3a5f;">كلمة المرور <span style="color:#ef4444;">*</span></label>
+                                    <input type="password" id="password" name="password" required minlength="8" placeholder="8 أحرف على الأقل"
+                                           class="w-full px-3 py-2.5 border-2 rounded-xl focus:outline-none text-sm"
+                                           style="border-color:#86efac; background:#fff;"
+                                           onfocus="this.style.borderColor='#22c55e'" onblur="this.style.borderColor='#86efac'">
+                                    <p id="password-error" class="mt-1 text-xs hidden" style="color:#ef4444;"></p>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold mb-1" style="color:#1e3a5f;">تأكيد كلمة المرور <span style="color:#ef4444;">*</span></label>
+                                    <input type="password" id="password_confirmation" name="password_confirmation" required minlength="8"
+                                           class="w-full px-3 py-2.5 border-2 rounded-xl focus:outline-none text-sm"
+                                           style="border-color:#86efac; background:#fff;"
+                                           onfocus="this.style.borderColor='#22c55e'" onblur="this.style.borderColor='#86efac'">
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
-                    <!-- Email -->
-                    <div>
-                        <label class="block text-sm font-medium mb-2" style="color: #1e3a5f;">
-                            <svg class="w-4 h-4 inline ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                            </svg>
-                            البريد الإلكتروني
-                        </label>
-                        <input type="email" id="email" name="email" required
-                               class="w-full px-4 py-3 border-2 rounded-xl focus:outline-none transition"
-                               style="border-color: #86efac; background: #f0fdf4;"
-                               onfocus="this.style.borderColor='#22c55e'; this.style.boxShadow='0 0 0 3px rgba(34,197,94,0.1)'"
-                               onblur="this.style.borderColor='#86efac'; this.style.boxShadow='none'">
-                        <p id="email-error" class="mt-1 text-sm hidden" style="color: #f97316;"></p>
+                    {{-- Academic Info Section --}}
+                    <div style="background:#eff6ff; border-radius:14px; padding:.875rem 1rem; border:1px solid #bfdbfe;">
+                        <p class="text-xs font-bold mb-3" style="color:#1d4ed8; text-transform:uppercase; letter-spacing:.05em;">البيانات الأكاديمية</p>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="block text-xs font-semibold mb-1" style="color:#1e3a5f;">التخصص <span style="color:#ef4444;">*</span></label>
+                                <input type="text" id="specialization" name="specialization" required placeholder="مثال: علوم الحاسب، إدارة الأعمال"
+                                       class="w-full px-3 py-2.5 border-2 rounded-xl focus:outline-none text-sm"
+                                       style="border-color:#bfdbfe; background:#fff;"
+                                       onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#bfdbfe'">
+                                <p id="spec-error" class="mt-1 text-xs hidden" style="color:#ef4444;"></p>
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs font-semibold mb-1" style="color:#1e3a5f;">نوع التخصص <span style="color:#ef4444;">*</span></label>
+                                    <select id="specialization_type" name="specialization_type" required
+                                            class="w-full px-3 py-2.5 border-2 rounded-xl focus:outline-none text-sm"
+                                            style="border-color:#bfdbfe; background:#fff;"
+                                            onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#bfdbfe'">
+                                        <option value="">اختر</option>
+                                        <option value="diploma">دبلوم</option>
+                                        <option value="bachelor">بكالوريوس</option>
+                                        <option value="master">ماجستير</option>
+                                        <option value="phd">دكتوراه</option>
+                                        <option value="training">تدريب مهني</option>
+                                    </select>
+                                    <p id="spec-type-error" class="mt-1 text-xs hidden" style="color:#ef4444;"></p>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold mb-1" style="color:#1e3a5f;">تاريخ التخرج <span style="color:#ef4444;">*</span></label>
+                                    <input type="date" id="date_of_graduation" name="date_of_graduation" required
+                                           class="w-full px-3 py-2.5 border-2 rounded-xl focus:outline-none text-sm"
+                                           style="border-color:#bfdbfe; background:#fff;"
+                                           onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#bfdbfe'">
+                                    <p id="grad-error" class="mt-1 text-xs hidden" style="color:#ef4444;"></p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
-                    <!-- Password -->
-                    <div>
-                        <label class="block text-sm font-medium mb-2" style="color: #1e3a5f;">
-                            <svg class="w-4 h-4 inline ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                            </svg>
-                            كلمة المرور
-                        </label>
-                        <input type="password" id="password" name="password" required minlength="8"
-                               class="w-full px-4 py-3 border-2 rounded-xl focus:outline-none transition"
-                               style="border-color: #86efac; background: #f0fdf4;"
-                               onfocus="this.style.borderColor='#22c55e'; this.style.boxShadow='0 0 0 3px rgba(34,197,94,0.1)'"
-                               onblur="this.style.borderColor='#86efac'; this.style.boxShadow='none'">
-                        <p id="password-error" class="mt-1 text-sm hidden" style="color: #f97316;"></p>
+                    {{-- National ID Images Section --}}
+                    <div style="background:#fdf4ff; border-radius:14px; padding:.875rem 1rem; border:1px solid #e9d5ff;">
+                        <p class="text-xs font-bold mb-3" style="color:#7c3aed; text-transform:uppercase; letter-spacing:.05em;">صور الهوية الوطنية</p>
+                        <div class="grid grid-cols-2 gap-3">
+                            <!-- Front -->
+                            <div>
+                                <label class="block text-xs font-semibold mb-1" style="color:#1e3a5f;">الوجه الأمامي <span style="color:#ef4444;">*</span></label>
+                                <label id="front-label" for="national_id_front"
+                                       class="flex flex-col items-center justify-center w-full cursor-pointer rounded-xl border-2 border-dashed"
+                                       style="border-color:#c4b5fd; background:#fff; min-height:90px; padding:.625rem; transition:border-color .2s;"
+                                       ondragover="event.preventDefault();this.style.borderColor='#7c3aed'"
+                                       ondragleave="this.style.borderColor='#c4b5fd'"
+                                       ondrop="handleDrop(event,'national_id_front','front-preview','front-label')">
+                                    <div id="front-preview" style="text-align:center; width:100%;">
+                                        <svg class="w-7 h-7 mx-auto mb-1" style="color:#a78bfa;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                        </svg>
+                                        <p class="text-xs" style="color:#7c3aed;">اضغط أو اسحب</p>
+                                        <p class="text-xs" style="color:#a78bfa; margin-top:2px;">JPG, PNG, PDF</p>
+                                    </div>
+                                    <input type="file" id="national_id_front" name="national_id_front"
+                                           accept=".jpg,.jpeg,.png,.pdf" required class="hidden"
+                                           onchange="previewFile(this,'front-preview','front-label')">
+                                </label>
+                                <p id="front-error" class="mt-1 text-xs hidden" style="color:#ef4444;"></p>
+                            </div>
+                            <!-- Back -->
+                            <div>
+                                <label class="block text-xs font-semibold mb-1" style="color:#1e3a5f;">الوجه الخلفي <span style="color:#ef4444;">*</span></label>
+                                <label id="back-label" for="national_id_back"
+                                       class="flex flex-col items-center justify-center w-full cursor-pointer rounded-xl border-2 border-dashed"
+                                       style="border-color:#c4b5fd; background:#fff; min-height:90px; padding:.625rem; transition:border-color .2s;"
+                                       ondragover="event.preventDefault();this.style.borderColor='#7c3aed'"
+                                       ondragleave="this.style.borderColor='#c4b5fd'"
+                                       ondrop="handleDrop(event,'national_id_back','back-preview','back-label')">
+                                    <div id="back-preview" style="text-align:center; width:100%;">
+                                        <svg class="w-7 h-7 mx-auto mb-1" style="color:#a78bfa;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                        </svg>
+                                        <p class="text-xs" style="color:#7c3aed;">اضغط أو اسحب</p>
+                                        <p class="text-xs" style="color:#a78bfa; margin-top:2px;">JPG, PNG, PDF</p>
+                                    </div>
+                                    <input type="file" id="national_id_back" name="national_id_back"
+                                           accept=".jpg,.jpeg,.png,.pdf" required class="hidden"
+                                           onchange="previewFile(this,'back-preview','back-label')">
+                                </label>
+                                <p id="back-error" class="mt-1 text-xs hidden" style="color:#ef4444;"></p>
+                            </div>
+                        </div>
                     </div>
 
-                    <!-- Confirm Password -->
-                    <div>
-                        <label class="block text-sm font-medium mb-2" style="color: #1e3a5f;">
-                            <svg class="w-4 h-4 inline ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
-                            </svg>
-                            تأكيد كلمة المرور
+                    {{-- Checkboxes --}}
+                    <div class="space-y-2">
+                        <label id="confirm-box" class="flex items-start gap-3 cursor-pointer p-3 rounded-xl border-2"
+                               style="border-color:#e2e8f0; background:#f8fafc; transition:border-color .2s;">
+                            <input type="checkbox" id="is_confirm_user" name="is_confirm_user" value="1"
+                                   style="width:18px;height:18px;flex-shrink:0;margin-top:2px;accent-color:#3b82f6;cursor:pointer;"
+                                   onchange="toggleCheckbox(this,'confirm-box')">
+                            <span class="text-xs font-medium leading-relaxed" style="color:#374151;">
+                                أقر بأن جميع البيانات المدخلة صحيحة ومطابقة للهوية الرسمية.
+                            </span>
                         </label>
-                        <input type="password" id="password_confirmation" name="password_confirmation" required minlength="8"
-                               class="w-full px-4 py-3 border-2 rounded-xl focus:outline-none transition"
-                               style="border-color: #86efac; background: #f0fdf4;"
-                               onfocus="this.style.borderColor='#22c55e'; this.style.boxShadow='0 0 0 3px rgba(34,197,94,0.1)'"
-                               onblur="this.style.borderColor='#86efac'; this.style.boxShadow='none'">
+                        <p id="confirm-error" class="text-xs hidden" style="color:#ef4444; padding-right:.5rem;"></p>
+
+                        <label id="terms-box" class="flex items-start gap-3 cursor-pointer p-3 rounded-xl border-2"
+                               style="border-color:#e2e8f0; background:#f8fafc; transition:border-color .2s;">
+                            <input type="checkbox" id="is_terms" name="is_terms" value="1"
+                                   style="width:18px;height:18px;flex-shrink:0;margin-top:2px;accent-color:#3b82f6;cursor:pointer;"
+                                   onchange="toggleCheckbox(this,'terms-box')">
+                            <span class="text-xs font-medium leading-relaxed" style="color:#374151;">
+                                أوافق على الشروط والأحكام وسياسات الخصوصية الخاصة بالمعهد.
+                            </span>
+                        </label>
+                        <p id="terms-error" class="text-xs hidden" style="color:#ef4444; padding-right:.5rem;"></p>
                     </div>
 
                     <!-- Error -->
-                    <div id="step3-error" class="hidden p-4 rounded-xl text-sm font-medium" style="background: #fff7ed; color: #9a3412; border: 1px solid #fdba74;"></div>
+                    <div id="step3-error" class="hidden p-3 rounded-xl text-sm font-medium" style="background:#fff7ed; color:#9a3412; border:1px solid #fdba74;"></div>
 
                     <!-- Submit -->
                     <button type="submit" id="step3-btn"
-                            class="w-full py-3.5 px-4 text-white font-bold rounded-xl shadow-lg transition-all hover:shadow-xl transform hover:scale-105"
+                            class="w-full py-3.5 px-4 text-white font-bold rounded-xl shadow-lg transition-all hover:shadow-xl"
                             style="background: #22c55e;">
                         <span id="step3-btn-text">إنشاء الحساب</span>
-                        <svg id="step3-spinner" class="hidden w-5 h-5 inline spin-slow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg id="step3-spinner" class="hidden w-5 h-5 inline spin-slow mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
                         </svg>
                     </button>
@@ -458,25 +574,102 @@
         errDiv.classList.remove('hidden');
     }
 
+    // ========== STEP 3: Helper – file preview ==========
+    function previewFile(input, previewId, labelId) {
+        const preview = document.getElementById(previewId);
+        const label   = document.getElementById(labelId);
+        if (!input.files || !input.files[0]) return;
+        const file = input.files[0];
+        const name = file.name.length > 22 ? file.name.substring(0, 22) + '…' : file.name;
+        const isImage = file.type.startsWith('image/');
+        if (isImage) {
+            const reader = new FileReader();
+            reader.onload = e => {
+                preview.innerHTML = `
+                    <img src="${e.target.result}" alt="preview"
+                         style="width:100%;height:64px;object-fit:cover;border-radius:8px;margin-bottom:4px;">
+                    <p style="font-size:.65rem;color:#7c3aed;font-weight:600;">${name}</p>`;
+            };
+            reader.readAsDataURL(file);
+        } else {
+            preview.innerHTML = `
+                <svg class="w-7 h-7 mx-auto mb-1" style="color:#ef4444;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                </svg>
+                <p style="font-size:.65rem;color:#7c3aed;font-weight:600;">${name}</p>`;
+        }
+        label.style.borderColor = '#7c3aed';
+        label.style.borderStyle = 'solid';
+    }
+
+    function handleDrop(event, inputId, previewId, labelId) {
+        event.preventDefault();
+        const input = document.getElementById(inputId);
+        const dt    = event.dataTransfer;
+        if (dt.files.length) {
+            const transfer = new DataTransfer();
+            transfer.items.add(dt.files[0]);
+            input.files = transfer.files;
+            previewFile(input, previewId, labelId);
+        }
+        document.getElementById(labelId).style.borderColor = '#7c3aed';
+    }
+
+    function toggleCheckbox(checkbox, boxId) {
+        const box = document.getElementById(boxId);
+        box.style.borderColor = checkbox.checked ? '#3b82f6' : '#e2e8f0';
+        box.style.background  = checkbox.checked ? '#eff6ff' : '#f8fafc';
+    }
+
     // ========== STEP 3: Complete Registration ==========
     document.getElementById('step3-form').addEventListener('submit', async function(e) {
         e.preventDefault();
 
-        // Clear errors
-        ['name-error', 'email-error', 'password-error'].forEach(id => {
-            document.getElementById(id).classList.add('hidden');
-        });
-        document.getElementById('step3-error').classList.add('hidden');
+        // Clear all errors
+        ['name-error','dob-error','gender-error','email-error','password-error',
+         'spec-error','spec-type-error','grad-error','front-error','back-error',
+         'confirm-error','terms-error','step3-error'
+        ].forEach(id => { const el = document.getElementById(id); if(el){ el.textContent=''; el.classList.add('hidden'); }});
 
-        const name = document.getElementById('name').value.trim();
-        const email = document.getElementById('email').value.trim();
-        const password = document.getElementById('password').value;
-        const passwordConfirmation = document.getElementById('password_confirmation').value;
+        // Client-side validation
+        let valid = true;
+        const v = (id, errId, msg) => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            const val = el.type === 'checkbox' ? el.checked : el.value.trim();
+            if (!val) { showFieldError(errId, msg); valid = false; }
+        };
 
-        if (!name) { showFieldError('name-error', 'الاسم مطلوب'); return; }
-        if (!email) { showFieldError('email-error', 'البريد الإلكتروني مطلوب'); return; }
-        if (password.length < 8) { showFieldError('password-error', 'كلمة المرور يجب أن تكون 8 أحرف على الأقل'); return; }
-        if (password !== passwordConfirmation) { showFieldError('password-error', 'تأكيد كلمة المرور غير متطابق'); return; }
+        v('name',                'name-error',      'الاسم الكامل مطلوب');
+        v('date_of_birth',       'dob-error',       'تاريخ الميلاد مطلوب');
+        v('gender',              'gender-error',    'الجنس مطلوب');
+        v('email',               'email-error',     'البريد الإلكتروني مطلوب');
+        v('specialization',      'spec-error',      'التخصص مطلوب');
+        v('specialization_type', 'spec-type-error', 'نوع التخصص مطلوب');
+        v('date_of_graduation',  'grad-error',      'تاريخ التخرج مطلوب');
+
+        const pw  = document.getElementById('password').value;
+        const pwc = document.getElementById('password_confirmation').value;
+        if (pw.length < 8) { showFieldError('password-error', 'كلمة المرور 8 أحرف على الأقل'); valid = false; }
+        else if (pw !== pwc) { showFieldError('password-error', 'تأكيد كلمة المرور غير متطابق'); valid = false; }
+
+        if (!document.getElementById('national_id_front').files.length) {
+            showFieldError('front-error', 'صورة الوجه الأمامي للهوية مطلوبة'); valid = false;
+        }
+        if (!document.getElementById('national_id_back').files.length) {
+            showFieldError('back-error', 'صورة الوجه الخلفي للهوية مطلوبة'); valid = false;
+        }
+        if (!document.getElementById('is_confirm_user').checked) {
+            showFieldError('confirm-error', 'يجب الإقرار بصحة البيانات المدخلة'); valid = false;
+        }
+        if (!document.getElementById('is_terms').checked) {
+            showFieldError('terms-error', 'يجب الموافقة على الشروط والأحكام'); valid = false;
+        }
+
+        if (!valid) return;
+
+        // Build FormData (supports file uploads)
+        const fd = new FormData(document.getElementById('step3-form'));
 
         // Show loading
         document.getElementById('step3-btn').disabled = true;
@@ -487,24 +680,24 @@
             const res = await fetch('/register/complete', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': csrfToken,
                     'Accept': 'application/json',
+                    // No Content-Type — browser sets it with multipart boundary automatically
                 },
-                body: JSON.stringify({
-                    name,
-                    email,
-                    password,
-                    password_confirmation: passwordConfirmation,
-                }),
+                body: fd,
             });
 
             const data = await res.json();
 
             if (!res.ok || !data.success) {
-                const msg = data.message || (data.errors ? Object.values(data.errors).flat().join(', ') : 'حدث خطأ');
-                document.getElementById('step3-error').textContent = msg;
-                document.getElementById('step3-error').classList.remove('hidden');
+                let msg = data.message || 'حدث خطأ';
+                if (data.errors) {
+                    const allErrors = Object.values(data.errors).flat();
+                    msg = allErrors.join('<br>');
+                }
+                const errEl = document.getElementById('step3-error');
+                errEl.innerHTML = msg;
+                errEl.classList.remove('hidden');
                 resetStep3Btn();
                 return;
             }
@@ -526,6 +719,7 @@
 
     function showFieldError(id, msg) {
         const el = document.getElementById(id);
+        if (!el) return;
         el.textContent = msg;
         el.classList.remove('hidden');
     }

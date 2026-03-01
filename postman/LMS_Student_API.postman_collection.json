@@ -1,0 +1,798 @@
+{
+  "info": {
+    "name": "LMS Student API",
+    "_postman_id": "lms-student-api-v1",
+    "description": "نظام إدارة التعلم (LMS) — Student API Collection\n\nBase URL: {{base_url}}/api/v1\nAuthentication: Bearer Token (Sanctum)\n\nHow to use:\n1. Run 'Login' or 'Register' request\n2. Copy the token from the response\n3. Set it in the collection variable: token",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "https://www.alertiqa.edu.sa",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "payment_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "notification_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "subject_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "session_id",
+      "value": "1",
+      "type": "string"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "description": "تسجيل الدخول والتسجيل وإدارة الحساب",
+      "item": [
+        {
+          "name": "Register",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var json = pm.response.json();",
+                  "if (json.success && json.data && json.data.token) {",
+                  "    pm.collectionVariables.set('token', json.data.token);",
+                  "    console.log('Token saved:', json.data.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "name",                  "value": "أحمد محمد علي",         "type": "text",        "description": "الاسم الكامل" },
+                { "key": "national_id",           "value": "1234567890",             "type": "text",        "description": "رقم الهوية الوطنية (10 أرقام)" },
+                { "key": "date_of_birth",         "value": "1995-06-15",             "type": "text",        "description": "تاريخ الميلاد (YYYY-MM-DD)" },
+                { "key": "gender",                "value": "male",                   "type": "text",        "description": "الجنس: male أو female" },
+                { "key": "email",                 "value": "student@example.com",    "type": "text",        "description": "البريد الإلكتروني" },
+                { "key": "phone",                 "value": "0512345678",             "type": "text",        "description": "رقم الجوال (مثال: 0512345678)" },
+                { "key": "password",              "value": "password123",            "type": "text",        "description": "كلمة المرور (8 أحرف على الأقل)" },
+                { "key": "password_confirmation", "value": "password123",            "type": "text",        "description": "تأكيد كلمة المرور" },
+                { "key": "specialization",        "value": "علوم الحاسب",            "type": "text",        "description": "التخصص الدراسي" },
+                { "key": "specialization_type",   "value": "بكالوريوس",              "type": "text",        "description": "نوع التخصص (بكالوريوس، ماجستير، دبلوم...)" },
+                { "key": "date_of_graduation",    "value": "2020-06-01",             "type": "text",        "description": "تاريخ التخرج (YYYY-MM-DD)" },
+                { "key": "national_id_front",     "src": "",                         "type": "file",        "description": "صورة الهوية الوطنية (الوجه الأمامي) — JPG/PNG/PDF، max 5MB" },
+                { "key": "national_id_back",      "src": "",                         "type": "file",        "description": "صورة الهوية الوطنية (الوجه الخلفي) — JPG/PNG/PDF، max 5MB" },
+                { "key": "is_confirm_user",       "value": "1",                      "type": "text",        "description": "الإقرار بصحة البيانات (يجب أن تكون 1)" },
+                { "key": "is_terms",              "value": "1",                      "type": "text",        "description": "الموافقة على الشروط والأحكام (يجب أن تكون 1)" }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "auth", "register"]
+            },
+            "description": "تسجيل حساب طالب جديد (multipart/form-data)\n\nيتم إنشاء الحساب بحالة 'pending' في انتظار مراجعة الإدارة وتفعيل الحساب.\n\nالحقول المطلوبة:\n- name: الاسم الكامل\n- national_id: رقم الهوية الوطنية (10 أرقام، فريد)\n- date_of_birth: تاريخ الميلاد (YYYY-MM-DD)\n- gender: الجنس (male / female)\n- email: البريد الإلكتروني (فريد)\n- phone: رقم الجوال السعودي (05XXXXXXXX)\n- password: كلمة المرور (8 أحرف على الأقل)\n- password_confirmation: تأكيد كلمة المرور\n- specialization: التخصص الدراسي\n- specialization_type: نوع التخصص\n- date_of_graduation: تاريخ التخرج (YYYY-MM-DD)\n- national_id_front: صورة الهوية الأمامية (JPG/PNG/PDF، max 5MB)\n- national_id_back: صورة الهوية الخلفية (JPG/PNG/PDF، max 5MB)\n- is_confirm_user: 1 (إقرار بصحة البيانات)\n- is_terms: 1 (موافقة على الشروط والأحكام)\n\nملاحظة: استخدم form-data وليس JSON لأن الطلب يحتوي على ملفات."
+          },
+          "response": [
+            {
+              "name": "Register - Success (201)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Accept", "value": "application/json" }],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    { "key": "name",                  "value": "أحمد محمد علي",      "type": "text" },
+                    { "key": "national_id",           "value": "1234567890",          "type": "text" },
+                    { "key": "date_of_birth",         "value": "1995-06-15",          "type": "text" },
+                    { "key": "gender",                "value": "male",                "type": "text" },
+                    { "key": "email",                 "value": "student@example.com", "type": "text" },
+                    { "key": "phone",                 "value": "0512345678",          "type": "text" },
+                    { "key": "password",              "value": "password123",         "type": "text" },
+                    { "key": "password_confirmation", "value": "password123",         "type": "text" },
+                    { "key": "specialization",        "value": "علوم الحاسب",         "type": "text" },
+                    { "key": "specialization_type",   "value": "بكالوريوس",           "type": "text" },
+                    { "key": "date_of_graduation",    "value": "2020-06-01",          "type": "text" },
+                    { "key": "national_id_front",     "src": "",                      "type": "file" },
+                    { "key": "national_id_back",      "src": "",                      "type": "file" },
+                    { "key": "is_confirm_user",       "value": "1",                   "type": "text" },
+                    { "key": "is_terms",              "value": "1",                   "type": "text" }
+                  ]
+                },
+                "url": { "raw": "{{base_url}}/api/v1/auth/register" }
+              },
+              "status": "Created",
+              "code": 201,
+              "body": "{\n  \"success\": true,\n  \"message\": \"تم إنشاء الحساب بنجاح. في انتظار مراجعة الإدارة وتفعيل حسابك.\",\n  \"data\": {\n    \"user\": {\n      \"id\": 42,\n      \"name\": \"أحمد محمد علي\",\n      \"national_id\": \"1234567890\",\n      \"date_of_birth\": \"1995-06-15\",\n      \"gender\": \"male\",\n      \"email\": \"student@example.com\",\n      \"phone\": \"0512345678\",\n      \"specialization\": \"علوم الحاسب\",\n      \"specialization_type\": \"بكالوريوس\",\n      \"date_of_graduation\": \"2020-06-01\",\n      \"role\": \"student\",\n      \"status\": \"pending\",\n      \"program_id\": null,\n      \"program_status\": null\n    },\n    \"token\": \"1|abc123xyz...\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var json = pm.response.json();",
+                  "if (json.success && json.data && json.data.token) {",
+                  "    pm.collectionVariables.set('token', json.data.token);",
+                  "    console.log('Token saved:', json.data.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"student@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "auth", "login"]
+            },
+            "description": "تسجيل الدخول والحصول على Sanctum Bearer Token\n\nسيتم حفظ التوكن تلقائياً في متغير المجموعة 'token'."
+          },
+          "response": [
+            {
+              "name": "Login - Success (200)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Accept", "value": "application/json" }],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"student@example.com\",\n  \"password\": \"password123\"\n}"
+                },
+                "url": { "raw": "{{base_url}}/api/v1/auth/login" }
+              },
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"success\": true,\n  \"message\": \"تم تسجيل الدخول بنجاح\",\n  \"data\": {\n    \"user\": {\n      \"id\": 42,\n      \"name\": \"أحمد محمد\",\n      \"email\": \"student@example.com\",\n      \"role\": \"student\",\n      \"status\": \"active\",\n      \"program_id\": 1,\n      \"program_status\": \"active\"\n    },\n    \"token\": \"1|abc123xyz...\"\n  }\n}"
+            },
+            {
+              "name": "Login - Invalid Credentials (422)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Accept", "value": "application/json" }],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"wrong@example.com\",\n  \"password\": \"wrongpassword\"\n}"
+                },
+                "url": { "raw": "{{base_url}}/api/v1/auth/login" }
+              },
+              "status": "Unprocessable Content",
+              "code": 422,
+              "body": "{\n  \"message\": \"البريد الإلكتروني أو كلمة المرور غير صحيحة\",\n  \"errors\": {\n    \"email\": [\"البريد الإلكتروني أو كلمة المرور غير صحيحة\"]\n  }\n}"
+            },
+            {
+              "name": "Login - Account Inactive (403)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Accept", "value": "application/json" }],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"pending@example.com\",\n  \"password\": \"password123\"\n}"
+                },
+                "url": { "raw": "{{base_url}}/api/v1/auth/login" }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "body": "{\n  \"success\": false,\n  \"message\": \"حسابك غير نشط. يرجى التواصل مع الإدارة.\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/logout",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "auth", "logout"]
+            },
+            "description": "تسجيل الخروج وإلغاء التوكن الحالي\n\nيتطلب: Authorization: Bearer {{token}}"
+          },
+          "response": [
+            {
+              "name": "Logout - Success (200)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Accept", "value": "application/json" }],
+                "url": { "raw": "{{base_url}}/api/v1/auth/logout" }
+              },
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"success\": true,\n  \"message\": \"تم تسجيل الخروج بنجاح\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/profile",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "profile"]
+            },
+            "description": "جلب معلومات الملف الشخصي للمستخدم المسجل مع البرنامج والمسار\n\nيتطلب: Authorization: Bearer {{token}}"
+          },
+          "response": [
+            {
+              "name": "Get Profile - Success (200)",
+              "originalRequest": {
+                "method": "GET",
+                "header": [{ "key": "Accept", "value": "application/json" }],
+                "url": { "raw": "{{base_url}}/api/v1/profile" }
+              },
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"id\": 42,\n    \"name\": \"أحمد محمد\",\n    \"email\": \"student@example.com\",\n    \"phone\": \"0512345678\",\n    \"national_id\": \"1234567890\",\n    \"role\": \"student\",\n    \"status\": \"active\",\n    \"program_id\": 1,\n    \"program_status\": \"active\",\n    \"current_term_number\": 2,\n    \"created_at\": \"2025-09-01T08:00:00.000000Z\",\n    \"program\": {\n      \"id\": 1,\n      \"name\": \"برنامج علوم الحاسب\"\n    },\n    \"track\": null\n  }\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "description": "لوحة تحكم الطالب — البرنامج والمعلومات الشخصية والأخبار والمدفوعات والإشعارات",
+      "item": [
+        {
+          "name": "My Info (Profile)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/profile",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "profile"]
+            },
+            "description": "معلومات الطالب الشخصية مع برنامجه ومساره الدراسي"
+          },
+          "response": []
+        },
+        {
+          "name": "Dashboard Overview",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/student/dashboard",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "student", "dashboard"]
+            },
+            "description": "نظرة عامة على لوحة التحكم:\n- المواد المسجلة\n- الجلسات القادمة\n- الجلسات الأخيرة\n- الجلسات المباشرة\n- الإحصائيات العامة\n- معدل الحضور\n- عدد التذاكر المفتوحة"
+          },
+          "response": [
+            {
+              "name": "Dashboard Overview - Success (200)",
+              "originalRequest": {
+                "method": "GET",
+                "header": [{ "key": "Accept", "value": "application/json" }],
+                "url": { "raw": "{{base_url}}/api/v1/student/dashboard" }
+              },
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"subjects\": [...],\n    \"upcoming_sessions\": [...],\n    \"recent_sessions\": [...],\n    \"live_sessions\": [],\n    \"statistics\": {\n      \"subjects_count\": 5,\n      \"total_sessions\": 48,\n      \"completed_sessions\": 30,\n      \"live_sessions\": 0\n    },\n    \"overall_attendance\": 87.5,\n    \"open_tickets_count\": 1\n  }\n}"
+            },
+            {
+              "name": "Dashboard - No Program (200)",
+              "originalRequest": {
+                "method": "GET",
+                "header": [{ "key": "Accept", "value": "application/json" }],
+                "url": { "raw": "{{base_url}}/api/v1/student/dashboard" }
+              },
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"success\": false,\n  \"message\": \"لم يتم تعيين برنامج دراسي\",\n  \"redirect\": \"my-program\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "My Program",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/student/my-program",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "student", "my-program"]
+            },
+            "description": "تفاصيل البرنامج الدراسي المسجل:\n- بيانات البرنامج\n- الفصول الدراسية والمواد\n- التسجيلات\n- الإحصائيات والتقدم\n\nالحالات الممكنة في data.status:\n- 'enrolled': مسجل في برنامج\n- 'pending': في انتظار موافقة\n- 'no_program': لا يوجد برنامج (يعرض البرامج المتاحة)"
+          },
+          "response": [
+            {
+              "name": "My Program - Enrolled (200)",
+              "originalRequest": {
+                "method": "GET",
+                "header": [{ "key": "Accept", "value": "application/json" }],
+                "url": { "raw": "{{base_url}}/api/v1/student/my-program" }
+              },
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"status\": \"enrolled\",\n    \"program\": {\n      \"id\": 1,\n      \"name\": \"برنامج علوم الحاسب\",\n      \"description\": \"...\",\n      \"price\": 5000\n    },\n    \"track\": null,\n    \"terms\": [\n      {\n        \"id\": 1,\n        \"name\": \"الفصل الأول\",\n        \"term_number\": 1,\n        \"start_date\": \"2025-09-01\",\n        \"end_date\": \"2026-01-31\",\n        \"subjects\": [...]\n      }\n    ],\n    \"enrollments\": [...],\n    \"statistics\": {\n      \"total_subjects\": 5,\n      \"total_sessions\": 48,\n      \"completed_sessions\": 30,\n      \"attendance_rate\": 87.5,\n      \"current_term\": 1,\n      \"total_terms\": 2,\n      \"progress_percentage\": 50\n    }\n  }\n}"
+            },
+            {
+              "name": "My Program - Pending (200)",
+              "originalRequest": {
+                "method": "GET",
+                "header": [{ "key": "Accept", "value": "application/json" }],
+                "url": { "raw": "{{base_url}}/api/v1/student/my-program" }
+              },
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"status\": \"pending\",\n    \"message\": \"طلب التسجيل في انتظار موافقة الإدارة\"\n  }\n}"
+            },
+            {
+              "name": "My Program - No Program (200)",
+              "originalRequest": {
+                "method": "GET",
+                "header": [{ "key": "Accept", "value": "application/json" }],
+                "url": { "raw": "{{base_url}}/api/v1/student/my-program" }
+              },
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"status\": \"no_program\",\n    \"available_programs\": [\n      {\n        \"id\": 1,\n        \"name\": \"برنامج علوم الحاسب\",\n        \"price\": 5000,\n        \"terms_count\": 4\n      }\n    ]\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Enroll in Program",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"program_id\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/student/enroll-program",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "student", "enroll-program"]
+            },
+            "description": "التسجيل في برنامج دراسي\n\nملاحظة: يتطلب موافقة الإدارة. إذا كان البرنامج مدفوعاً يجب إتمام الدفع أولاً عبر لوحة التحكم."
+          },
+          "response": [
+            {
+              "name": "Enroll - Success (200)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Accept", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"program_id\": 1\n}" },
+                "url": { "raw": "{{base_url}}/api/v1/student/enroll-program" }
+              },
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"success\": true,\n  \"message\": \"تم إرسال طلب التسجيل في البرنامج: برنامج علوم الحاسب. في انتظار موافقة الإدارة.\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "My Subjects",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/student/my-subjects",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "student", "my-subjects"]
+            },
+            "description": "قائمة المواد المسجل بها الطالب مع نسبة التقدم لكل مادة"
+          },
+          "response": []
+        },
+        {
+          "name": "Statistics",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/student/statistics",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "student", "statistics"]
+            },
+            "description": "إحصائيات الطالب الكاملة:\n- عدد المواد والجلسات\n- معدل الحضور\n- إجمالي وقت الدراسة (دقائق)\n- الحضور الشهري للأشهر الستة الماضية"
+          },
+          "response": [
+            {
+              "name": "Statistics - Success (200)",
+              "originalRequest": {
+                "method": "GET",
+                "header": [{ "key": "Accept", "value": "application/json" }],
+                "url": { "raw": "{{base_url}}/api/v1/student/statistics" }
+              },
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"subjects_count\": 5,\n    \"total_sessions\": 48,\n    \"completed_sessions\": 30,\n    \"attendance_rate\": 87.5,\n    \"total_attended\": 28,\n    \"total_absent\": 4,\n    \"total_minutes\": 2160,\n    \"monthly_attendance\": [\n      { \"month\": \"2025-10\", \"present\": 8, \"total\": 10, \"rate\": 80 },\n      { \"month\": \"2025-11\", \"present\": 9, \"total\": 10, \"rate\": 90 },\n      { \"month\": \"2025-12\", \"present\": 10, \"total\": 10, \"rate\": 100 }\n    ]\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Upcoming Sessions",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/student/upcoming-sessions",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "student", "upcoming-sessions"]
+            },
+            "description": "الجلسات القادمة والجلسات المباشرة الآن (Zoom)"
+          },
+          "response": []
+        },
+        {
+          "name": "Attendance Records",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/student/attendance",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "student", "attendance"],
+              "query": [
+                {
+                  "key": "subject_id",
+                  "value": "",
+                  "description": "Filter by subject ID (optional)",
+                  "disabled": true
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number (default: 1)",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "سجل الحضور والغياب مع:\n- إحصائيات الحضور (إجمالي، حاضر، غائب، معدل)\n- إجمالي دقائق الدراسة\n- قائمة المواد المسجلة للفلترة\n\nالمعاملات الاختيارية:\n- subject_id: للفلترة حسب المادة\n- page: رقم الصفحة (15 سجل لكل صفحة)"
+          },
+          "response": []
+        },
+        {
+          "name": "News",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/news",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "news"],
+              "query": [
+                {
+                  "key": "per_page",
+                  "value": "10",
+                  "description": "Number of items per page",
+                  "disabled": false
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "قائمة الأخبار والإعلانات المنشورة (عامة — لا يتطلب توثيقاً)\n\nتتضمن: العنوان (عربي/إنجليزي)، المحتوى، الصورة، تاريخ النشر"
+          },
+          "response": [
+            {
+              "name": "News - Success (200)",
+              "originalRequest": {
+                "method": "GET",
+                "header": [{ "key": "Accept", "value": "application/json" }],
+                "url": { "raw": "{{base_url}}/api/v1/news?per_page=10" }
+              },
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"current_page\": 1,\n    \"data\": [\n      {\n        \"id\": 1,\n        \"title_ar\": \"بداية الفصل الدراسي الثاني\",\n        \"title_en\": \"Second Semester Begins\",\n        \"body_ar\": \"يسر الإدارة الإعلان عن بداية...\",\n        \"body_en\": \"We are pleased to announce...\",\n        \"image\": \"news/image.jpg\",\n        \"status\": \"active\",\n        \"published_at\": \"2026-01-15T08:00:00.000000Z\"\n      }\n    ],\n    \"total\": 25,\n    \"per_page\": 10,\n    \"last_page\": 3\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Notifications",
+          "description": "إدارة إشعارات الطالب",
+          "item": [
+            {
+              "name": "Get Notifications",
+              "request": {
+                "method": "GET",
+                "header": [
+                  { "key": "Accept", "value": "application/json" }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/student/notifications?limit=10",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "v1", "student", "notifications"],
+                  "query": [
+                    {
+                      "key": "limit",
+                      "value": "10",
+                      "description": "Max number of notifications to return (default: 10)"
+                    }
+                  ]
+                },
+                "description": "جلب إشعارات الطالب الأخيرة مع عدد غير المقروء"
+              },
+              "response": [
+                {
+                  "name": "Notifications - Success (200)",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [{ "key": "Accept", "value": "application/json" }],
+                    "url": { "raw": "{{base_url}}/api/v1/student/notifications" }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "body": "{\n  \"notifications\": [\n    {\n      \"id\": \"uuid-here\",\n      \"type\": \"App\\\\Notifications\\\\CustomNotification\",\n      \"data\": {\n        \"title\": \"تم قبول طلب التسجيل\",\n        \"body\": \"تهانينا! تم قبول تسجيلك في البرنامج.\",\n        \"action_url\": \"/student/my-program\",\n        \"sender_name\": \"الإدارة\"\n      },\n      \"read_at\": null,\n      \"created_at\": \"2026-01-15T09:30:00.000000Z\"\n    }\n  ],\n  \"unread_count\": 3\n}"
+                }
+              ]
+            },
+            {
+              "name": "Unread Count",
+              "request": {
+                "method": "GET",
+                "header": [
+                  { "key": "Accept", "value": "application/json" }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/student/notifications/unread-count",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "v1", "student", "notifications", "unread-count"]
+                },
+                "description": "عدد الإشعارات غير المقروءة (مفيد لعرض Badge في التطبيق)"
+              },
+              "response": [
+                {
+                  "name": "Unread Count - Success (200)",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [{ "key": "Accept", "value": "application/json" }],
+                    "url": { "raw": "{{base_url}}/api/v1/student/notifications/unread-count" }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "body": "{\n  \"count\": 3\n}"
+                }
+              ]
+            },
+            {
+              "name": "Mark Notification as Read",
+              "request": {
+                "method": "POST",
+                "header": [
+                  { "key": "Accept", "value": "application/json" }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/student/notifications/{{notification_id}}/read",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "v1", "student", "notifications", "{{notification_id}}", "read"]
+                },
+                "description": "تعيين إشعار واحد كمقروء\n\nاستبدل {{notification_id}} بمعرف الإشعار (UUID)"
+              },
+              "response": [
+                {
+                  "name": "Mark Read - Success (200)",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [{ "key": "Accept", "value": "application/json" }],
+                    "url": { "raw": "{{base_url}}/api/v1/student/notifications/uuid-here/read" }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "body": "{\n  \"success\": true,\n  \"unread_count\": 2\n}"
+                }
+              ]
+            },
+            {
+              "name": "Mark All as Read",
+              "request": {
+                "method": "POST",
+                "header": [
+                  { "key": "Accept", "value": "application/json" }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/student/notifications/read-all",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "v1", "student", "notifications", "read-all"]
+                },
+                "description": "تعيين جميع الإشعارات كمقروءة"
+              },
+              "response": [
+                {
+                  "name": "Mark All Read - Success (200)",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [{ "key": "Accept", "value": "application/json" }],
+                    "url": { "raw": "{{base_url}}/api/v1/student/notifications/read-all" }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "body": "{\n  \"success\": true,\n  \"marked_count\": 3,\n  \"unread_count\": 0\n}"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Payments",
+          "description": "مدفوعات الطالب",
+          "item": [
+            {
+              "name": "List Payments",
+              "request": {
+                "method": "GET",
+                "header": [
+                  { "key": "Accept", "value": "application/json" }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/student/payments",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "v1", "student", "payments"]
+                },
+                "description": "قائمة مدفوعات الطالب مع الملخص المالي:\n- إجمالي المبلغ المستحق\n- المبلغ المدفوع\n- المبلغ المتبقي\n- قائمة المدفوعات مع الأقساط والمعاملات"
+              },
+              "response": [
+                {
+                  "name": "List Payments - Success (200)",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [{ "key": "Accept", "value": "application/json" }],
+                    "url": { "raw": "{{base_url}}/api/v1/student/payments" }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "body": "{\n  \"success\": true,\n  \"data\": {\n    \"payments\": [\n      {\n        \"id\": 1,\n        \"program_id\": 1,\n        \"total_amount\": \"5000.00\",\n        \"paid_amount\": \"2500.00\",\n        \"remaining_amount\": \"2500.00\",\n        \"payment_type\": \"installment\",\n        \"payment_method\": \"tamara\",\n        \"status\": \"partial\",\n        \"created_at\": \"2025-09-01T10:00:00.000000Z\",\n        \"program\": { \"id\": 1, \"name\": \"برنامج علوم الحاسب\" },\n        \"installments\": [...],\n        \"transactions\": [...]\n      }\n    ],\n    \"summary\": {\n      \"total_amount\": 5000,\n      \"paid_amount\": 2500,\n      \"remaining_amount\": 2500,\n      \"payments_count\": 1\n    },\n    \"tamara_configured\": true,\n    \"paytabs_configured\": true\n  }\n}"
+                }
+              ]
+            },
+            {
+              "name": "Get Payment Details",
+              "request": {
+                "method": "GET",
+                "header": [
+                  { "key": "Accept", "value": "application/json" }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/student/payments/{{payment_id}}",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "v1", "student", "payments", "{{payment_id}}"]
+                },
+                "description": "تفاصيل دفعة محددة مع الأقساط والمعاملات المالية"
+              },
+              "response": []
+            },
+            {
+              "name": "Pay with Tamara",
+              "request": {
+                "method": "POST",
+                "header": [
+                  { "key": "Accept", "value": "application/json" }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/student/payments/{{payment_id}}/pay-with-tamara",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "v1", "student", "payments", "{{payment_id}}", "pay-with-tamara"]
+                },
+                "description": "بدء عملية دفع عبر تمارا (الدفع على أقساط)\n\nالاستجابة تحتوي على checkout_url — يجب فتحه في المتصفح/WebView لإتمام الدفع"
+              },
+              "response": [
+                {
+                  "name": "Pay Tamara - Success (200)",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [{ "key": "Accept", "value": "application/json" }],
+                    "url": { "raw": "{{base_url}}/api/v1/student/payments/1/pay-with-tamara" }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "body": "{\n  \"success\": true,\n  \"data\": {\n    \"checkout_url\": \"https://checkout.tamara.co/checkout/...\"\n  }\n}"
+                },
+                {
+                  "name": "Pay Tamara - Not Configured (400)",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [{ "key": "Accept", "value": "application/json" }],
+                    "url": { "raw": "{{base_url}}/api/v1/student/payments/1/pay-with-tamara" }
+                  },
+                  "status": "Bad Request",
+                  "code": 400,
+                  "body": "{\n  \"success\": false,\n  \"message\": \"خدمة الدفع عبر تمارا غير متاحة حالياً\"\n}"
+                }
+              ]
+            },
+            {
+              "name": "Pay with PayTabs",
+              "request": {
+                "method": "POST",
+                "header": [
+                  { "key": "Accept", "value": "application/json" }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/student/payments/{{payment_id}}/pay-with-paytabs",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "v1", "student", "payments", "{{payment_id}}", "pay-with-paytabs"]
+                },
+                "description": "بدء عملية دفع عبر PayTabs (بطاقة ائتمانية)\n\nالاستجابة تحتوي على redirect_url — يجب فتحه في المتصفح/WebView لإتمام الدفع"
+              },
+              "response": [
+                {
+                  "name": "Pay PayTabs - Success (200)",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [{ "key": "Accept", "value": "application/json" }],
+                    "url": { "raw": "{{base_url}}/api/v1/student/payments/1/pay-with-paytabs" }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "body": "{\n  \"success\": true,\n  \"data\": {\n    \"redirect_url\": \"https://secure.paytabs.sa/payment/...\"\n  }\n}"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

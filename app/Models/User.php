@@ -41,6 +41,8 @@ class User extends Authenticatable
         'profile_photo',
         'bio',
         'specialization',
+        'specialization_type',
+        'date_of_graduation',
     ];
 
     /**
@@ -67,6 +69,7 @@ class User extends Authenticatable
             'profile_completed_at' => 'datetime',
             'date_of_birth' => 'date',
             'date_of_register' => 'date',
+            'date_of_graduation' => 'date',
             'is_terms' => 'boolean',
             'is_confirm_user' => 'boolean',
             'password' => 'hashed',

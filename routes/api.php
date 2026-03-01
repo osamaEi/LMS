@@ -24,6 +24,14 @@ Route::prefix('v1')->group(function () {
     Route::get('/programs', [App\Http\Controllers\Api\V1\ProgramController::class, 'index']);
     Route::get('/programs/{program}', [App\Http\Controllers\Api\V1\ProgramController::class, 'show']);
 
+    // Public News
+    Route::get('/news', function () {
+        $news = \App\Models\News::active()
+            ->latest('published_at')
+            ->paginate(request('per_page', 10));
+        return response()->json(['success' => true, 'data' => $news]);
+    });
+
     // Authentication Routes (Public)
     Route::prefix('auth')->group(function () {
         Route::post('/register', [App\Http\Controllers\Api\V1\Auth\RegisterController::class, 'register']);
@@ -115,9 +123,17 @@ Route::prefix('v1')->group(function () {
             Route::get('/payments/{id}', [App\Http\Controllers\Api\V1\Student\PaymentController::class, 'show']);
             Route::post('/payments/{id}/pay-with-tamara', [App\Http\Controllers\Api\V1\Student\PaymentController::class, 'payWithTamara']);
             Route::post('/payments/{id}/pay-with-paytabs', [App\Http\Controllers\Api\V1\Student\PaymentController::class, 'payWithPayTabs']);
+
+            // Notifications
+            Route::prefix('notifications')->group(function () {
+                Route::get('/', [App\Http\Controllers\NotificationController::class, 'index']);
+                Route::get('/unread-count', [App\Http\Controllers\NotificationController::class, 'unreadCount']);
+                Route::post('/{id}/read', [App\Http\Controllers\NotificationController::class, 'markAsRead']);
+                Route::post('/read-all', [App\Http\Controllers\NotificationController::class, 'markAllAsRead']);
+            });
         });
 
-    
+
 
       
     });
