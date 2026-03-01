@@ -298,6 +298,13 @@ Route::middleware(['auth', 'role:admin,super_admin'])->prefix('admin')->name('ad
         Route::post('/test-connection', [\App\Http\Controllers\Admin\XapiController::class, 'testConnection'])->name('test-connection');
         Route::post('/process-pending', [\App\Http\Controllers\Admin\XapiController::class, 'processPending'])->name('process-pending');
     });
+
+    // Laravel Log Viewer
+    Route::prefix('logs')->name('logs.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\LogViewerController::class, 'index'])->name('index');
+        Route::post('/clear', [\App\Http\Controllers\Admin\LogViewerController::class, 'clear'])->name('clear');
+        Route::get('/download', [\App\Http\Controllers\Admin\LogViewerController::class, 'download'])->name('download');
+    });
 });
 
 // Teacher Routes
