@@ -13,6 +13,7 @@ use App\Models\SurveyResponse;
 use App\Models\Ticket;
 use App\Models\TeacherRating;
 use App\Models\Attendance;
+use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -120,6 +121,17 @@ class DashboardController extends Controller
         // Pending ratings
         $pendingRatingsCount = TeacherRating::where('is_approved', false)->count();
 
+        // Recent activity logs
+        $recentLogs = ActivityLog::with('user:id,name,role')
+            ->latest()
+            ->limit(12)
+            ->get();
+
+        // Logs stats for today
+        $todayLogsCount  = ActivityLog::whereDate('created_at', today())->count();
+        $totalLogsCount  = ActivityLog::count();
+        $xapiSentCount   = ActivityLog::where('xapi_sent', true)->count();
+
         return view('admin.dashboard', compact(
             'stats',
             'nelcStats',
@@ -133,7 +145,11 @@ class DashboardController extends Controller
             'recentTickets',
             'topTeachers',
             'activeSurveys',
-            'pendingRatingsCount'
+            'pendingRatingsCount',
+            'recentLogs',
+            'todayLogsCount',
+            'totalLogsCount',
+            'xapiSentCount'
         ));
     }
 
