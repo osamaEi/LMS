@@ -169,6 +169,11 @@ Route::middleware(['auth', 'role:admin,super_admin'])->prefix('admin')->name('ad
 
     // Subject Management
     Route::resource('subjects', \App\Http\Controllers\Admin\SubjectController::class);
+    Route::post('subjects/{subject}/files', [\App\Http\Controllers\Admin\SubjectController::class, 'uploadFile'])->name('subjects.files.upload');
+    Route::delete('subjects/{subject}/files/{file}', [\App\Http\Controllers\Admin\SubjectController::class, 'deleteFile'])->name('subjects.files.destroy');
+
+    // Term Subject Assignment
+    Route::post('terms/{term}/subjects/sync', [\App\Http\Controllers\Admin\TermController::class, 'syncSubjects'])->name('terms.subjects.sync');
 
     // Session (Lesson) Management
     Route::resource('sessions', \App\Http\Controllers\Admin\SessionController::class);
@@ -329,6 +334,7 @@ Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')
     Route::get('/my-subjects/{subjectId}/sessions/{sessionId}/zoom', [\App\Http\Controllers\Teacher\SubjectController::class, 'showZoom'])->name('my-subjects.sessions.zoom');
     Route::get('/my-subjects/{subjectId}/sessions/{sessionId}/zoom-embedded', [\App\Http\Controllers\Teacher\SubjectController::class, 'showZoomEmbedded'])->name('my-subjects.sessions.zoom-embedded');
     Route::get('/my-subjects/{subjectId}/sessions/{sessionId}/attendance', [\App\Http\Controllers\Teacher\SubjectController::class, 'sessionAttendance'])->name('my-subjects.sessions.attendance');
+    Route::post('/my-subjects/{subjectId}/sessions/{sessionId}/attendance', [\App\Http\Controllers\Teacher\SubjectController::class, 'saveAttendance'])->name('my-subjects.sessions.attendance.save');
     Route::delete('/my-subjects/{subjectId}/sessions/{sessionId}/files/{fileId}', [\App\Http\Controllers\Teacher\SubjectController::class, 'deleteSessionFile'])->name('my-subjects.sessions.files.destroy');
 
     // Simple session show route for teachers (for calendar clicks)
@@ -345,9 +351,7 @@ Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')
     Route::get('/students', [\App\Http\Controllers\Teacher\StudentsController::class, 'index'])->name('students.index');
 
     // Attendance
-    Route::get('/attendance', function () {
-        return view('teacher.attendance.index');
-    })->name('attendance.index');
+    Route::get('/attendance', [\App\Http\Controllers\Teacher\SubjectController::class, 'attendanceOverview'])->name('attendance.index');
 
     // Assignments (TODO: Create controller)
     // Route::resource('assignments', \App\Http\Controllers\Teacher\AssignmentController::class);

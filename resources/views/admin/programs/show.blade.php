@@ -1,6 +1,6 @@
 @extends('layouts.dashboard')
 
-@section('title', 'عرض المسار التعليمي')
+@section('title', 'عرض الدبلومة التعليمي')
 
 @push('head-scripts')
 <script>
@@ -46,7 +46,7 @@
                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                     </svg>
-                    إضافة فصل دراسي
+                    إضافة ربع دراسي
                 </button>
             </div>
         </div>
@@ -69,7 +69,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <div class="text-3xl font-bold text-gray-900 dark:text-white">{{ $program->terms->count() }}</div>
-                    <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">الفصول الدراسية</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">الأرباع الدراسية</div>
                 </div>
                 <div class="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
                     <svg class="w-6 h-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -95,7 +95,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <div class="text-3xl font-bold text-green-500">{{ $program->terms->where('status', 'active')->count() }}</div>
-                    <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">فصول نشطة</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">أرباع نشطة</div>
                 </div>
                 <div class="w-12 h-12 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
                     <svg class="w-6 h-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -127,7 +127,7 @@
             <!-- Program Info Card -->
             <div class="rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
                 <div class="p-6 border-b border-gray-200 dark:border-gray-800">
-                    <h2 class="text-lg font-bold text-gray-900 dark:text-white">معلومات المسار</h2>
+                    <h2 class="text-lg font-bold text-gray-900 dark:text-white">معلومات الدبلومة</h2>
                 </div>
                 <div class="p-6">
                     <dl class="grid grid-cols-1 gap-6 sm:grid-cols-2">
@@ -138,7 +138,7 @@
                                 </svg>
                             </div>
                             <div>
-                                <dt class="text-xs font-medium text-gray-500 dark:text-gray-400">كود المسار</dt>
+                                <dt class="text-xs font-medium text-gray-500 dark:text-gray-400">كود الدبلومة</dt>
                                 <dd class="text-sm font-semibold text-gray-900 dark:text-white">{{ $program->code }}</dd>
                             </div>
                         </div>
@@ -183,16 +183,49 @@
                 </div>
             </div>
 
+            <!-- Tracks List -->
+            <div class="rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
+                <div class="p-6 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
+                    <h2 class="text-lg font-bold text-gray-900 dark:text-white">الدبلومات  التعليمية ({{ $program->tracks->count() }})</h2>
+                </div>
+                <div class="divide-y divide-gray-200 dark:divide-gray-800">
+                    @forelse($program->tracks as $track)
+                    <div class="p-5 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background:#fdf4ff;">
+                                    <svg class="w-5 h-5" style="color:#7c3aed;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 class="text-sm font-semibold text-gray-900 dark:text-white">{{ $track->name }}</h3>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{{ $track->code }} · {{ $track->total_terms ?? 0 }} ربع · {{ $track->duration_months ?? '-' }} شهر</p>
+                                </div>
+                            </div>
+                            <span class="rounded-full px-2.5 py-1 text-xs font-medium {{ $track->status === 'active' ? 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400' : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400' }}">
+                                {{ $track->status === 'active' ? 'نشط' : 'غير نشط' }}
+                            </span>
+                        </div>
+                    </div>
+                    @empty
+                    <div class="p-8 text-center">
+                        <p class="text-sm text-gray-500 dark:text-gray-400">لا توجد دبلومات تعليمية لهذا البرنامج</p>
+                    </div>
+                    @endforelse
+                </div>
+            </div>
+
             <!-- Terms List -->
             <div class="rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
                 <div class="p-6 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
-                    <h2 class="text-lg font-bold text-gray-900 dark:text-white">الفصول الدراسية ({{ $program->terms->count() }})</h2>
+                    <h2 class="text-lg font-bold text-gray-900 dark:text-white">الأرباع الدراسية ({{ $program->terms->count() }})</h2>
                     <button @click="$store.termModal = true"
                             class="flex items-center gap-2 rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800 transition-colors">
                         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                         </svg>
-                        إضافة فصل
+                        إضافة ربع
                     </button>
                 </div>
                 <div class="divide-y divide-gray-200 dark:divide-gray-800">
@@ -262,14 +295,14 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                             </svg>
                         </div>
-                        <p class="text-sm font-medium text-gray-900 dark:text-white">لا توجد فصول دراسية</p>
-                        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">ابدأ بإضافة فصل دراسي جديد لهذا المسار</p>
+                        <p class="text-sm font-medium text-gray-900 dark:text-white">لا توجد أرباع دراسية</p>
+                        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">ابدأ بإضافة ربع دراسي جديد لهذا الدبلومة</p>
                         <button @click="$store.termModal = true"
                                 class="mt-4 inline-flex items-center gap-2 rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600 transition-colors">
                             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                             </svg>
-                            إضافة فصل دراسي
+                            إضافة ربع دراسي
                         </button>
                     </div>
                     @endforelse
@@ -292,7 +325,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                             </svg>
                         </div>
-                        إضافة فصل دراسي جديد
+                        إضافة ربع دراسي جديد
                     </button>
                     <a href="{{ route('admin.programs.edit', $program) }}"
                        class="w-full flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800 transition-colors">
@@ -301,7 +334,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                             </svg>
                         </div>
-                        تعديل بيانات المسار
+                        تعديل بيانات الدبلومة
                     </a>
                     <a href="{{ route('admin.subjects.index') }}?program_id={{ $program->id }}"
                        class="w-full flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800 transition-colors">
@@ -355,7 +388,7 @@
                  class="dark:bg-gray-800">
 
                 <div style="padding: 1rem; border-bottom: 1px solid #e5e7eb;" class="dark:border-gray-700 flex items-center justify-between">
-                    <h3 style="font-size: 1rem; font-weight: 600;" class="text-gray-900 dark:text-white">إضافة فصل دراسي</h3>
+                    <h3 style="font-size: 1rem; font-weight: 600;" class="text-gray-900 dark:text-white">إضافة ربع دراسي</h3>
                     <button @click="open = false; $store.termModal = false" class="text-gray-400 hover:text-gray-600">
                         <svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -369,11 +402,11 @@
                     <div style="padding: 1rem; max-height: 50vh; overflow-y: auto;" class="space-y-3">
                         <div class="grid grid-cols-2 gap-3">
                             <div>
-                                <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">اسم الفصل *</label>
-                                <input type="text" name="name" required class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="الفصل الأول">
+                                <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">اسم الربع *</label>
+                                <input type="text" name="name" required class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="الربع الأول">
                             </div>
                             <div>
-                                <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">رقم الفصل *</label>
+                                <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">رقم الربع *</label>
                                 <input type="number" name="term_number" required min="1" value="{{ $program->terms->count() + 1 }}" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                             </div>
                         </div>

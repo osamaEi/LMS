@@ -35,9 +35,20 @@ class LoginController extends Controller
         $remember = $request->boolean('remember');
 
         if (Auth::attempt($credentials, $remember)) {
-            $request->session()->regenerate();
-
             $user = Auth::user();
+
+            // Block login if student/teacher account is not active
+            if (in_array($user->role, ['student', 'teacher']) && $user->status !== 'active') {
+                Auth::logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+
+                throw ValidationException::withMessages([
+                    'email' => 'حسابك غير مفعّل. يرجى التواصل مع الإدارة.',
+                ]);
+            }
+
+            $request->session()->regenerate();
 
             // Log login activity (NELC Compliance)
             $this->activityLogService->logAuth(ActivityLog::AUTH_LOGIN, $user);

@@ -251,6 +251,101 @@
                 @endif
             </div>
 
+            {{-- Attendance Section --}}
+            <div class="overflow-hidden rounded-2xl border border-stroke bg-white shadow-sm dark:border-strokedark dark:bg-boxdark">
+                <div class="flex items-center justify-between border-b border-stroke px-6 py-4 dark:border-strokedark">
+                    <div class="flex items-center gap-3">
+                        <div class="flex h-9 w-9 items-center justify-center rounded-xl" style="background:linear-gradient(135deg,#10b981,#059669)">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="white">
+                                <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-black dark:text-white">حضور الطلاب</h3>
+                            <p class="text-xs text-gray-400">الجلسات الأخيرة</p>
+                        </div>
+                    </div>
+                </div>
+
+                @if($recentSessionsWithAttendance->isEmpty())
+                <div class="flex flex-col items-center justify-center py-12 text-center">
+                    <div class="mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-meta-4">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" class="text-gray-300">
+                            <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+                        </svg>
+                    </div>
+                    <p class="text-sm font-medium text-gray-500">لا توجد جلسات منتهية بعد</p>
+                </div>
+                @else
+                <div class="divide-y divide-stroke dark:divide-strokedark">
+                    @foreach($recentSessionsWithAttendance as $session)
+                    @php
+                        $attendedCount = $session->attendances->count();
+                        $totalEnrolled = $session->enrolled_count;
+                        $rate = $totalEnrolled > 0 ? round(($attendedCount / $totalEnrolled) * 100) : 0;
+                        $rateColor = $rate >= 75 ? '#10b981' : ($rate >= 50 ? '#f59e0b' : '#ef4444');
+                    @endphp
+                    <div class="px-6 py-4">
+                        <div class="flex items-start justify-between gap-3">
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <span class="font-semibold text-sm text-black dark:text-white truncate">{{ $session->title }}</span>
+                                    <span class="text-xs text-gray-400">{{ $session->subject->name_ar ?? $session->subject->name ?? '—' }}</span>
+                                </div>
+                                <p class="text-xs text-gray-400 mt-0.5">
+                                    {{ $session->scheduled_at ? \Carbon\Carbon::parse($session->scheduled_at)->format('Y/m/d H:i') : '—' }}
+                                </p>
+                                {{-- Attendance bar --}}
+                                <div class="mt-2 flex items-center gap-2">
+                                    <div class="flex-1 h-1.5 rounded-full bg-gray-100 dark:bg-meta-4 overflow-hidden">
+                                        <div class="h-full rounded-full transition-all" style="width:{{ $rate }}%; background:{{ $rateColor }}"></div>
+                                    </div>
+                                    <span class="text-xs font-bold flex-shrink-0" style="color:{{ $rateColor }}">
+                                        {{ $attendedCount }}/{{ $totalEnrolled }}
+                                    </span>
+                                </div>
+                                {{-- Attended students avatars --}}
+                                @if($session->attendances->isNotEmpty())
+                                <div class="mt-2 flex items-center gap-1 flex-wrap">
+                                    @foreach($session->attendances->take(5) as $att)
+                                    <span class="inline-flex h-6 w-6 items-center justify-center rounded-full text-white text-xs font-bold ring-2 ring-white dark:ring-boxdark"
+                                          style="background:linear-gradient(135deg,#0071AA,#005a88)"
+                                          title="{{ $att->student->name ?? '' }}">
+                                        {{ mb_substr($att->student->name ?? '؟', 0, 1) }}
+                                    </span>
+                                    @endforeach
+                                    @if($session->attendances->count() > 5)
+                                    <span class="text-xs text-gray-400">+{{ $session->attendances->count() - 5 }} آخرون</span>
+                                    @endif
+                                </div>
+                                @endif
+                            </div>
+                            {{-- Actions --}}
+                            <div class="flex flex-col gap-1.5 flex-shrink-0">
+                                <a href="{{ route('teacher.my-subjects.sessions.attendance', [$session->subject_id, $session->id]) }}"
+                                   class="inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-white transition"
+                                   style="background:linear-gradient(135deg,#0071AA,#005a88)">
+                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+                                    </svg>
+                                    عرض
+                                </a>
+                                <a href="{{ route('teacher.my-subjects.sessions.attendance', [$session->subject_id, $session->id]) }}#add-attendance"
+                                   class="inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-semibold transition"
+                                   style="background:rgba(16,185,129,.1); color:#059669;">
+                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                                    </svg>
+                                    إضافة
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+                @endif
+            </div>
+
         </div>
 
         {{-- RIGHT — Sidebar (1/3) --}}

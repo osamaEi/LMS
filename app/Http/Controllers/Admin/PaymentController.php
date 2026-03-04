@@ -102,6 +102,8 @@ class PaymentController extends Controller
             'notes' => 'nullable|string',
             'number_of_installments' => 'required_if:payment_type,installment|integer|min:2|max:12',
             'installment_start_date' => 'required_if:payment_type,installment|date',
+            'installment_dates' => 'nullable|array',
+            'installment_dates.*' => 'nullable|date',
         ]);
 
         // Check if student already has payment for this program
@@ -131,10 +133,17 @@ class PaymentController extends Controller
 
         // Create installment plan if needed
         if ($request->payment_type === 'installment') {
+            $customDates = collect($request->installment_dates ?? [])
+                ->filter()
+                ->map(fn($d) => Carbon::parse($d))
+                ->values()
+                ->toArray();
+
             $this->paymentService->createInstallmentPlan(
                 paymentId: $payment->id,
                 numberOfInstallments: $request->number_of_installments,
-                startDate: Carbon::parse($request->installment_start_date)
+                startDate: Carbon::parse($request->installment_start_date),
+                customDates: $customDates
             );
         }
 

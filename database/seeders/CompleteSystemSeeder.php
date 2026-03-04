@@ -32,13 +32,13 @@ class CompleteSystemSeeder extends Seeder
         $this->command->info('Creating students...');
         $students = $this->createStudents();
 
-        // 3. الحصول على المسارات الموجودة
+        // 3. الحصول على الدبلومات  الموجودة
         $tracks = Track::with('terms')->get();
 
-        foreach ($tracks->take(1) as $track) { // فقط أول مسار للاختبار
+        foreach ($tracks->take(1) as $track) { // فقط أول دبلومة للاختبار
             $this->command->info("Processing track: {$track->name}");
 
-            // 4. إنشاء مواد لكل ربع في المسار
+            // 4. إنشاء مواد لكل ربع في الدبلومة
             foreach ($track->terms->take(2) as $term) { // فقط الربع 1 و 2
                 $this->command->info("  Creating subjects for term {$term->term_number}...");
                 $subjects = $this->createSubjectsForTerm($term, $teachers);

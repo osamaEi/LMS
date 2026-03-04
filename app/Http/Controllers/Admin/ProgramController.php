@@ -10,7 +10,7 @@ class ProgramController extends Controller
 {
     public function index()
     {
-        $programs = Program::withCount('terms')
+        $programs = Program::withCount(['terms', 'tracks'])
             ->latest()
             ->paginate(15);
 
@@ -44,14 +44,17 @@ class ProgramController extends Controller
         Program::create($validated);
 
         return redirect()->route('admin.programs.index')
-            ->with('success', 'تم إضافة المسار بنجاح');
+            ->with('success', 'تم إضافة الدبلومة بنجاح');
     }
 
     public function show(Program $program)
     {
-        $program->load(['terms' => function($query) {
-            $query->withCount('subjects')->latest();
-        }]);
+        $program->load([
+            'terms' => function($query) {
+                $query->withCount('subjects')->latest();
+            },
+            'tracks',
+        ]);
 
         return view('admin.programs.show', compact('program'));
     }
@@ -77,7 +80,7 @@ class ProgramController extends Controller
         $program->update($validated);
 
         return redirect()->route('admin.programs.index')
-            ->with('success', 'تم تحديث المسار بنجاح');
+            ->with('success', 'تم تحديث الدبلومة بنجاح');
     }
 
     public function destroy(Program $program)
@@ -85,7 +88,7 @@ class ProgramController extends Controller
         $program->delete();
 
         return redirect()->route('admin.programs.index')
-            ->with('success', 'تم حذف المسار بنجاح');
+            ->with('success', 'تم حذف الدبلومة بنجاح');
     }
 
     public function export()

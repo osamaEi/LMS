@@ -51,24 +51,24 @@
 </li>
 @endcanany
 
-{{-- المسارات التعليمية --}}
+{{-- الدبلومات  --}}
 @can('view-programs')
 <li>
     <a href="{{ route('admin.programs.index') }}"
        class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('admin.programs.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
         <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20"><path d="M10 1.66666L1.66667 5.83333V8.33333C1.66667 12.4833 4.65 16.3583 8.75 17.4583C9.575 17.6833 10.425 17.6833 11.25 17.4583C15.35 16.3583 18.3333 12.4833 18.3333 8.33333V5.83333L10 1.66666ZM10 3.33333L16.6667 6.66666V8.33333C16.6667 11.6667 14.2667 14.7417 11.0833 15.6417C10.3833 15.8167 9.61667 15.8167 8.91667 15.6417C5.73333 14.7417 3.33333 11.6667 3.33333 8.33333V6.66666L10 3.33333ZM9.16667 10.8333L7.08333 8.74999L6.08333 9.74999L9.16667 12.8333L14.1667 7.83333L13.1667 6.83333L9.16667 10.8333Z" fill=""/></svg>
-        <span>المسارات التعليمية</span>
+        <span>الدبلومات </span>
     </a>
 </li>
 @endcan
 
-{{-- الفصول الدراسية --}}
+{{-- الأرباع الدراسية --}}
 @can('view-terms')
 <li>
     <a href="{{ route('admin.terms.index') }}"
        class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('admin.terms.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
         <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20"><path d="M16.6667 2.5H15V0.833333H13.3333V2.5H6.66667V0.833333H5V2.5H3.33333C2.41667 2.5 1.66667 3.25 1.66667 4.16667V17.5C1.66667 18.4167 2.41667 19.1667 3.33333 19.1667H16.6667C17.5833 19.1667 18.3333 18.4167 18.3333 17.5V4.16667C18.3333 3.25 17.5833 2.5 16.6667 2.5ZM16.6667 17.5H3.33333V7.5H16.6667V17.5ZM16.6667 5.83333H3.33333V4.16667H16.6667V5.83333Z" fill=""/></svg>
-        <span>الفصول الدراسية</span>
+        <span>الأرباع الدراسية</span>
     </a>
 </li>
 @endcan
@@ -77,9 +77,20 @@
 @can('view-subjects')
 <li>
     <a href="{{ route('admin.subjects.index') }}"
-       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('admin.subjects.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
+       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('admin.subjects.index') || request()->routeIs('admin.subjects.create') || request()->routeIs('admin.subjects.edit') ? 'menu-item-active' : 'menu-item-inactive' }}">
         <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20"><path d="M15.8333 3.33333H4.16667C3.24167 3.33333 2.5 4.08333 2.5 5V15C2.5 15.9167 3.24167 16.6667 4.16667 16.6667H15.8333C16.7583 16.6667 17.5 15.9167 17.5 15V5C17.5 4.08333 16.7583 3.33333 15.8333 3.33333ZM15.8333 15H4.16667V5H15.8333V15ZM6.66667 10H13.3333V11.6667H6.66667V10ZM6.66667 7.5H13.3333V9.16667H6.66667V7.5ZM6.66667 12.5H10.8333V14.1667H6.66667V12.5Z" fill=""/></svg>
         <span>المواد الدراسية</span>
+    </a>
+</li>
+@endcan
+
+{{-- ملفات المواد الدراسية --}}
+@can('view-subjects')
+<li>
+    <a href="{{ route('admin.subjects.index') }}"
+       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('admin.subjects.show') ? 'menu-item-active' : 'menu-item-inactive' }}">
+        <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20"><path d="M15.8333 5.83333H10L8.33333 4.16667H4.16667C3.25 4.16667 2.5 4.91667 2.5 5.83333V14.1667C2.5 15.0833 3.25 15.8333 4.16667 15.8333H15.8333C16.75 15.8333 17.5 15.0833 17.5 14.1667V7.5C17.5 6.58333 16.75 5.83333 15.8333 5.83333ZM13.3333 12.5H6.66667V10.8333H13.3333V12.5ZM13.3333 10H6.66667V8.33333H13.3333V10Z" fill=""/></svg>
+        <span>ملفات المواد الدراسية</span>
     </a>
 </li>
 @endcan
@@ -233,6 +244,28 @@
     </a>
 </li>
 @endcan
+
+{{-- لوحة الامتثال NELC --}}
+@canany(['manage-system','view-reports'])
+<li>
+    <a href="{{ route('admin.nelc-compliance') }}"
+       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('admin.nelc-compliance') ? 'menu-item-active' : 'menu-item-inactive' }}">
+        <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20"><path d="M10 1.66667L3.33333 5V9.16667C3.33333 13.0833 6.2 16.7333 10 17.5C13.8 16.7333 16.6667 13.0833 16.6667 9.16667V5L10 1.66667ZM8.33333 13.3333L5.83333 10.8333L7.01667 9.65L8.33333 10.9583L12.9833 6.30833L14.1667 7.5L8.33333 13.3333Z" fill=""/></svg>
+        <span>لوحة امتثال NELC</span>
+    </a>
+</li>
+@endcanany
+
+{{-- xAPI لوحة التتبع --}}
+@canany(['manage-system','manage-xapi'])
+<li>
+    <a href="{{ route('admin.xapi.index') }}"
+       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('admin.xapi.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
+        <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20"><path d="M3.33333 3.33333H16.6667C17.5833 3.33333 18.3333 4.08333 18.3333 5V15C18.3333 15.9167 17.5833 16.6667 16.6667 16.6667H3.33333C2.41667 16.6667 1.66667 15.9167 1.66667 15V5C1.66667 4.08333 2.41667 3.33333 3.33333 3.33333ZM3.33333 5V15H16.6667V5H3.33333ZM5 12.5L7.5 8.33333L10 11.6667L12.5 7.5L15 12.5H5Z" fill=""/></svg>
+        <span>لوحة xAPI</span>
+    </a>
+</li>
+@endcanany
 
 
 {{-- ════════════════════════════════════════ --}}

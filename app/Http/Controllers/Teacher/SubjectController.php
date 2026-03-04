@@ -474,4 +474,56 @@ class SubjectController extends Controller
 
         return view('teacher.subjects.sessions.attendance', compact('subject', 'session', 'attendances', 'absentStudents', 'stats'));
     }
+
+    /**
+     * Save/add attendance records manually
+     */
+    public function saveAttendance(Request $request, $subjectId, $sessionId)
+    {
+        $teacher = auth()->user();
+
+        $subject = Subject::where('teacher_id', $teacher->id)
+            ->findOrFail($subjectId);
+
+        $session = Session::where('subject_id', $subjectId)
+            ->findOrFail($sessionId);
+
+        $validated = $request->validate([
+            'student_ids'   => 'required|array',
+            'student_ids.*' => 'exists:users,id',
+        ]);
+
+        foreach ($validated['student_ids'] as $studentId) {
+            Attendance::updateOrCreate(
+                ['student_id' => $studentId, 'session_id' => $session->id],
+                [
+                    'attended'    => true,
+                    'joined_at'   => now(),
+                ]
+            );
+        }
+
+        return back()->with('success', 'تم تسجيل الحضور بنجاح');
+    }
+
+    /**
+     * Attendance overview for all teacher's sessions
+     */
+    public function attendanceOverview()
+    {
+        $teacher = auth()->user();
+
+        $subjects = Subject::where('teacher_id', $teacher->id)
+            ->with(['sessions' => function($q) {
+                $q->where('scheduled_at', '<', now())
+                  ->withCount(['attendances as attended_count' => function($q) {
+                      $q->where('attended', true);
+                  }])
+                  ->orderBy('scheduled_at', 'desc');
+            }])
+            ->withCount('enrollments')
+            ->get();
+
+        return view('teacher.attendance.index', compact('subjects'));
+    }
 }

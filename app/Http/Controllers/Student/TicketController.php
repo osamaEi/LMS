@@ -45,7 +45,13 @@ class TicketController extends Controller
             'category' => 'required|in:technical,academic,financial,other',
             'priority' => 'required|in:low,medium,high',
             'description' => 'required|string',
+            'attachment' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
         ]);
+
+        $attachmentPath = null;
+        if ($request->hasFile('attachment')) {
+            $attachmentPath = $request->file('attachment')->store('ticket-attachments', 'public');
+        }
 
         $ticket = Ticket::create([
             'user_id' => auth()->id(),
@@ -53,6 +59,7 @@ class TicketController extends Controller
             'category' => $validated['category'],
             'priority' => $validated['priority'],
             'description' => $validated['description'],
+            'attachment' => $attachmentPath,
             'status' => 'open',
         ]);
 

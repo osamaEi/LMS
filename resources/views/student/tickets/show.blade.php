@@ -418,6 +418,13 @@
                         <span class="message-time">{{ $ticket->created_at->translatedFormat('j F Y - H:i') }}</span>
                     </div>
                     <div class="message-body">{{ $ticket->description }}</div>
+                    @if($ticket->attachment)
+                        <div style="margin-top: 0.75rem;">
+                            <a href="{{ Storage::url($ticket->attachment) }}" target="_blank">
+                                <img src="{{ Storage::url($ticket->attachment) }}" alt="مرفق" style="max-height: 220px; border-radius: 10px; border: 1px solid #e5e7eb; cursor: zoom-in;">
+                            </a>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
@@ -447,6 +454,13 @@
                             <span class="message-time">{{ $reply->created_at->translatedFormat('j F Y - H:i') }}</span>
                         </div>
                         <div class="message-body">{{ $reply->message }}</div>
+                        @if($reply->attachment)
+                            <div style="margin-top: 0.75rem;">
+                                <a href="{{ Storage::url($reply->attachment) }}" target="_blank">
+                                    <img src="{{ Storage::url($reply->attachment) }}" alt="مرفق" style="max-height: 220px; border-radius: 10px; border: 1px solid #e5e7eb; cursor: zoom-in;">
+                                </a>
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>

@@ -1,6 +1,6 @@
 @extends('layouts.dashboard')
 
-@section('title', 'إدارة المسارات التعليمية')
+@section('title', 'إدارة الدبلومات ')
 
 @push('styles')
 <style>
@@ -239,8 +239,8 @@
                         </svg>
                     </div>
                     <div>
-                        <h1 class="text-3xl font-bold text-white">المسارات التعليمية</h1>
-                        <p class="mt-1 text-white/70">إدارة وتنظيم جميع المسارات والبرامج التعليمية</p>
+                        <h1 class="text-3xl font-bold text-white">الدبلومات </h1>
+                        <p class="mt-1 text-white/70">إدارة وتنظيم جميع الدبلومات  والبرامج التعليمية</p>
                     </div>
                 </div>
 
@@ -259,7 +259,7 @@
                         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                         </svg>
-                        إضافة مسار جديد
+                        إضافة دبلومة جديد
                     </a>
                 </div>
             </div>
@@ -283,9 +283,9 @@
         <div class="stat-card bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-6" style="--card-accent: #0071AA;">
             <div class="flex items-start justify-between">
                 <div>
-                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">إجمالي المسارات</p>
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">إجمالي الدبلومات </p>
                     <p class="text-4xl font-bold text-gray-900 dark:text-white mt-2">{{ $stats['total'] }}</p>
-                    <p class="text-xs text-gray-400 dark:text-gray-500 mt-2">جميع المسارات في النظام</p>
+                    <p class="text-xs text-gray-400 dark:text-gray-500 mt-2">جميع الدبلومات  في النظام</p>
                 </div>
                 <div class="w-14 h-14 rounded-2xl flex items-center justify-center" style="background: linear-gradient(135deg, #0071AA 0%, #005a88 100%);">
                     <svg class="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -299,7 +299,7 @@
         <div class="stat-card bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-6" style="--card-accent: #10b981;">
             <div class="flex items-start justify-between">
                 <div>
-                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">مسارات نشطة</p>
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">دبلومات نشطة</p>
                     <p class="text-4xl font-bold text-gray-900 dark:text-white mt-2">{{ $stats['active'] }}</p>
                     <div class="flex items-center gap-2 mt-2">
                         <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
@@ -322,7 +322,7 @@
         <div class="stat-card bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-6" style="--card-accent: #6b7280;">
             <div class="flex items-start justify-between">
                 <div>
-                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">مسارات غير نشطة</p>
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">دبلومات غير نشطة</p>
                     <p class="text-4xl font-bold text-gray-900 dark:text-white mt-2">{{ $stats['inactive'] }}</p>
                     <p class="text-xs text-gray-400 dark:text-gray-500 mt-2">بحاجة للتفعيل</p>
                 </div>
@@ -347,8 +347,8 @@
                         </svg>
                     </div>
                     <div>
-                        <h2 class="text-xl font-bold text-gray-900 dark:text-white">قائمة المسارات</h2>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">{{ $programs->total() }} مسار تعليمي</p>
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white">قائمة الدبلومات </h2>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">{{ $programs->total() }} دبلومة تعليمي</p>
                     </div>
                 </div>
 
@@ -358,7 +358,7 @@
                         <svg class="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                         </svg>
-                        <input type="text" placeholder="بحث في المسارات..."
+                        <input type="text" placeholder="بحث في الدبلومات ..."
                                class="search-input w-64 pl-4 pr-10 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm focus:outline-none focus:border-[#0071AA] transition-all"
                                id="searchInput">
                     </div>
@@ -380,11 +380,12 @@
                         <th class="px-6 py-4 text-right">
                             <input type="checkbox" class="custom-checkbox" id="selectAll">
                         </th>
-                        <th class="px-6 py-4 text-right text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">المسار</th>
+                        <th class="px-6 py-4 text-right text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">الدبلومة</th>
                         <th class="px-6 py-4 text-right text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">الرمز</th>
                         <th class="px-6 py-4 text-right text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">المدة</th>
                         <th class="px-6 py-4 text-right text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">السعر</th>
-                        <th class="px-6 py-4 text-right text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">الفصول</th>
+                        <th class="px-6 py-4 text-right text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">الدبلومات </th>
+                        <th class="px-6 py-4 text-right text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">الأرباع</th>
                         <th class="px-6 py-4 text-right text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">الحالة</th>
                         <th class="px-6 py-4 text-center text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">الإجراءات</th>
                     </tr>
@@ -443,10 +444,18 @@
                         </td>
                         <td class="px-6 py-5">
                             <div class="flex items-center gap-2">
+                                <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background-color: #fdf4ff;">
+                                    <span class="text-sm font-bold" style="color: #7c3aed;">{{ $program->tracks_count }}</span>
+                                </div>
+                                <span class="text-xs text-gray-500 dark:text-gray-400">دبلومة</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-5">
+                            <div class="flex items-center gap-2">
                                 <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background-color: #e6f4fa;">
                                     <span class="text-sm font-bold" style="color: #0071AA;">{{ $program->terms_count }}</span>
                                 </div>
-                                <span class="text-xs text-gray-500 dark:text-gray-400">فصل</span>
+                                <span class="text-xs text-gray-500 dark:text-gray-400">ربع</span>
                             </div>
                         </td>
                         <td class="px-6 py-5">
@@ -478,7 +487,7 @@
                                     </svg>
                                 </a>
                                 <form action="{{ route('admin.programs.destroy', $program) }}" method="POST" class="inline"
-                                      onsubmit="return confirm('هل أنت متأكد من حذف هذا المسار؟ سيتم حذف جميع البيانات المرتبطة به.')">
+                                      onsubmit="return confirm('هل أنت متأكد من حذف هذا الدبلومة؟ سيتم حذف جميع البيانات المرتبطة به.')">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit"
@@ -514,9 +523,9 @@
                     </svg>
                 </div>
             </div>
-            <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-3">لا توجد مسارات تعليمية</h3>
+            <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-3">لا توجد دبلومات تعليمية</h3>
             <p class="text-gray-500 dark:text-gray-400 max-w-md mx-auto mb-6">
-                ابدأ بإضافة مسار تعليمي جديد لتنظيم المواد والبرامج الدراسية في نظامك التعليمي.
+                ابدأ بإضافة دبلومة تعليمي جديد لتنظيم المواد والبرامج الدراسية في نظامك التعليمي.
             </p>
             <a href="{{ route('admin.programs.create') }}"
                class="btn-shine inline-flex items-center gap-2 px-6 py-3 rounded-xl text-white font-bold shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5"
@@ -524,7 +533,7 @@
                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                 </svg>
-                إضافة مسار جديد
+                إضافة دبلومة جديد
             </a>
         </div>
         @endif

@@ -151,6 +151,7 @@ class RegisterController extends Controller
             'date_of_graduation'    => 'required|date',
             'national_id_front'     => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
             'national_id_back'      => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'certificate'           => 'required|file|mimes:pdf|max:10240',
             'is_confirm_user'       => 'required|accepted',
             'is_terms'              => 'required|accepted',
         ], [
@@ -174,6 +175,9 @@ class RegisterController extends Controller
             'national_id_back.required'   => 'صورة الهوية الخلفية مطلوبة',
             'national_id_back.mimes'      => 'يجب أن تكون الصورة بصيغة JPG أو PNG أو PDF',
             'national_id_back.max'        => 'حجم الملف يجب ألا يتجاوز 5 ميجابايت',
+            'certificate.required'        => 'الشهادة مطلوبة',
+            'certificate.mimes'           => 'يجب أن تكون الشهادة بصيغة PDF',
+            'certificate.max'             => 'حجم الشهادة يجب ألا يتجاوز 10 ميجابايت',
             'is_confirm_user.accepted'    => 'يجب الإقرار بصحة البيانات المدخلة',
             'is_terms.accepted'           => 'يجب الموافقة على الشروط والأحكام',
         ]);
@@ -237,8 +241,8 @@ class RegisterController extends Controller
 
             $user = User::create($userData);
 
-            // Store national ID images in student_documents
-            foreach (['national_id_front', 'national_id_back'] as $field) {
+            // Store national ID images and certificate in student_documents
+            foreach (['national_id_front', 'national_id_back', 'certificate'] as $field) {
                 if ($request->hasFile($field)) {
                     $file     = $request->file($field);
                     $path     = $file->store("student-documents/{$user->id}", 'public');

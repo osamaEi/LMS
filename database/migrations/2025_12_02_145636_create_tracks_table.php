@@ -14,11 +14,11 @@ return new class extends Migration
         Schema::create('tracks', function (Blueprint $table) {
             $table->id();
             $table->foreignId('program_id')->constrained('programs')->cascadeOnDelete();
-            $table->string('name'); // اسم المسار
-            $table->string('code')->unique(); // كود المسار
-            $table->text('description')->nullable(); // وصف المسار
+            $table->string('name'); // اسم الدبلومة
+            $table->string('code')->unique(); // كود الدبلومة
+            $table->text('description')->nullable(); // وصف الدبلومة
             $table->integer('total_terms')->default(10); // عدد الأرباع (10 أرباع)
-            $table->integer('duration_months')->nullable(); // مدة المسار بالأشهر
+            $table->integer('duration_months')->nullable(); // مدة الدبلومة بالأشهر
             $table->enum('status', ['active', 'inactive', 'archived'])->default('active');
             $table->timestamps();
             $table->softDeletes();

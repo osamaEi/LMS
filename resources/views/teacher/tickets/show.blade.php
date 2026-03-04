@@ -80,6 +80,13 @@
                 <div class="prose dark:prose-invert max-w-none text-gray-700 dark:text-gray-300">
                     {!! nl2br(e($ticket->description)) !!}
                 </div>
+                @if($ticket->attachment)
+                    <div class="mt-3">
+                        <a href="{{ Storage::url($ticket->attachment) }}" target="_blank">
+                            <img src="{{ Storage::url($ticket->attachment) }}" alt="مرفق" class="max-h-56 rounded-lg border border-gray-200" style="cursor: zoom-in;">
+                        </a>
+                    </div>
+                @endif
             </div>
         </div>
 
@@ -106,6 +113,13 @@
                 <div class="prose dark:prose-invert max-w-none text-gray-700 dark:text-gray-300">
                     {!! nl2br(e($reply->message)) !!}
                 </div>
+                @if($reply->attachment)
+                    <div class="mt-3">
+                        <a href="{{ Storage::url($reply->attachment) }}" target="_blank">
+                            <img src="{{ Storage::url($reply->attachment) }}" alt="مرفق" class="max-h-56 rounded-lg border border-gray-200" style="cursor: zoom-in;">
+                        </a>
+                    </div>
+                @endif
             </div>
         </div>
         @endforeach

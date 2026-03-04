@@ -12,6 +12,7 @@ class Subject extends Model
     use SoftDeletes;
 
     protected $fillable = [
+        'program_id',
         'term_id',
         'teacher_id',
         'name_ar',
@@ -51,9 +52,24 @@ class Subject extends Model
     }
 
     // Relationships
+    public function program(): BelongsTo
+    {
+        return $this->belongsTo(Program::class);
+    }
+
     public function term(): BelongsTo
     {
         return $this->belongsTo(Term::class);
+    }
+
+    public function terms()
+    {
+        return $this->belongsToMany(Term::class, 'term_subject')->withTimestamps();
+    }
+
+    public function files(): HasMany
+    {
+        return $this->hasMany(SubjectFile::class)->orderBy('order', 'asc');
     }
 
     public function teacher(): BelongsTo

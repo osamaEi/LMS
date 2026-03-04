@@ -1450,7 +1450,7 @@
             <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"/>
             </svg>
-            صور الهوية
+            المستندات
             @if($student->documents && $student->documents->where('status','pending')->count() > 0)
             <span class="badge" style="background: linear-gradient(135deg, #f59e0b, #d97706);">{{ $student->documents->where('status','pending')->count() }}</span>
             @endif
@@ -1566,6 +1566,17 @@
                                 <div class="content">
                                     <div class="label">نوع التخصص</div>
                                     <div class="value">{{ $student->specialization_type ?? 'غير محدد' }}</div>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <div class="icon-box" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                                    <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                                    </svg>
+                                </div>
+                                <div class="content">
+                                    <div class="label">المستوى</div>
+                                    <div class="value">{{ $student->level ?? 'غير محدد' }}</div>
                                 </div>
                             </div>
                             <div class="info-item">
@@ -2067,7 +2078,7 @@
         @if($student->documents && $student->documents->count() > 0)
             @php $docsKeyed = $student->documents->keyBy('document_type'); @endphp
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                @foreach(['national_id_front' => ['label'=>'الوجه الأمامي للهوية الوطنية','icon'=>'M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0'], 'national_id_back' => ['label'=>'الوجه الخلفي للهوية الوطنية','icon'=>'M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0']] as $type => $meta)
+                @foreach(['national_id_front' => ['label'=>'الوجه الأمامي للهوية الوطنية','icon'=>'M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0'], 'national_id_back' => ['label'=>'الوجه الخلفي للهوية الوطنية','icon'=>'M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0'], 'certificate' => ['label'=>'الشهادة','icon'=>'M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z']] as $type => $meta)
                     @php $doc = $docsKeyed->get($type); @endphp
                     <div class="doc-big-card" id="card-{{ $type }}" style="
                         background: white;
@@ -2179,7 +2190,7 @@
                         <div class="icon-wrapper" style="background: linear-gradient(135deg, #7c3aed, #6d28d9);">
                             <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                         </div>
-                        <p>لم يتم رفع صور الهوية الوطنية بعد</p>
+                        <p>لم يتم رفع أي مستندات بعد</p>
                     </div>
                 </div>
             </div>
@@ -2479,7 +2490,7 @@ let _rejectDocType = null;
 function openRejectModal(docId, docType) {
     _rejectDocId   = docId;
     _rejectDocType = docType;
-    const labels = { national_id_front: 'الوجه الأمامي للهوية الوطنية', national_id_back: 'الوجه الخلفي للهوية الوطنية' };
+    const labels = { national_id_front: 'الوجه الأمامي للهوية الوطنية', national_id_back: 'الوجه الخلفي للهوية الوطنية', certificate: 'الشهادة' };
     document.getElementById('reject-modal-subtitle').textContent = labels[docType] || docType;
     document.getElementById('reject-reason-input').value = '';
     const modal = document.getElementById('reject-modal');

@@ -55,6 +55,16 @@ class Program extends Model
         return $this->hasMany(Term::class);
     }
 
+    public function subjects()
+    {
+        return $this->hasMany(Subject::class);
+    }
+
+    public function tracks()
+    {
+        return $this->hasMany(Track::class);
+    }
+
     public function payments()
     {
         return $this->hasMany(Payment::class);

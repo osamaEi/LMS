@@ -1,6 +1,6 @@
 @extends('layouts.dashboard')
 
-@section('title', 'إضافة مسار تعليمي جديد')
+@section('title', 'إضافة دبلومة تعليمي جديد')
 
 @section('content')
 <div class="mb-6">
@@ -11,9 +11,9 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
             </svg>
         </a>
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">إضافة مسار تعليمي جديد</h1>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">إضافة دبلومة تعليمي جديد</h1>
     </div>
-    <p class="text-sm text-gray-500 dark:text-gray-400">أدخل بيانات المسار التعليمي الجديد</p>
+    <p class="text-sm text-gray-500 dark:text-gray-400">أدخل بيانات الدبلومة التعليمي الجديد</p>
 </div>
 
 @if($errors->any())
@@ -31,10 +31,10 @@
 
     <div class="rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
         <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
-            <!-- اسم المسار بالعربي -->
+            <!-- اسم الدبلومة بالعربي -->
             <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    اسم المسار (عربي) <span class="text-error-500">*</span>
+                    اسم الدبلومة (عربي) <span class="text-error-500">*</span>
                 </label>
                 <input type="text"
                        name="name_ar"
@@ -44,10 +44,10 @@
                        placeholder="مثال: دبلوم البرمجة وتطوير الويب">
             </div>
 
-            <!-- اسم المسار بالإنجليزي -->
+            <!-- اسم الدبلومة بالإنجليزي -->
             <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    اسم المسار (إنجليزي) <span class="text-error-500">*</span>
+                    اسم الدبلومة (إنجليزي) <span class="text-error-500">*</span>
                 </label>
                 <input type="text"
                        name="name_en"
@@ -58,10 +58,10 @@
                        placeholder="Example: Web Development Diploma">
             </div>
 
-            <!-- كود المسار -->
+            <!-- كود الدبلومة -->
             <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    كود المسار <span class="text-error-500">*</span>
+                    كود الدبلومة <span class="text-error-500">*</span>
                 </label>
                 <input type="text"
                        name="code"
@@ -119,7 +119,7 @@
                 <textarea name="description_ar"
                           rows="3"
                           class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-                          placeholder="وصف تفصيلي عن المسار التعليمي وأهدافه ومحتوياته...">{{ old('description_ar') }}</textarea>
+                          placeholder="وصف تفصيلي عن الدبلومة التعليمي وأهدافه ومحتوياته...">{{ old('description_ar') }}</textarea>
             </div>
 
             <!-- الوصف بالإنجليزي -->
@@ -143,7 +143,7 @@
             </a>
             <button type="submit"
                     class="rounded-lg bg-brand-500 px-6 py-2.5 text-sm font-medium text-white hover:bg-brand-600 transition-colors">
-                حفظ المسار
+                حفظ الدبلومة
             </button>
         </div>
     </div>

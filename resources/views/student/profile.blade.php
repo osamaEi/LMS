@@ -404,6 +404,46 @@
                         </div>
                     @endforeach
                 </div>
+
+                {{-- Certificate --}}
+                @php $cert = $documents->get('certificate'); @endphp
+                <div class="border-t pt-4 mt-2">
+                    <div class="text-xs font-bold mb-2" style="color:#7c3aed;">الشهادة</div>
+                    <div class="doc-card">
+                        <div class="doc-preview">
+                            @if($cert && $cert->file_path)
+                                <div class="flex flex-col items-center gap-2">
+                                    <svg class="w-10 h-10" style="color:#7c3aed;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                                    <a href="{{ asset('storage/'.$cert->file_path) }}" target="_blank"
+                                       class="text-xs font-bold px-3 py-1 rounded-lg text-white" style="background:#7c3aed;">فتح PDF</a>
+                                </div>
+                            @else
+                                <div class="flex flex-col items-center gap-2 text-gray-300">
+                                    <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                                    <span class="text-xs">لم يُرفع بعد</span>
+                                </div>
+                            @endif
+                        </div>
+                        <div class="doc-footer">
+                            <div>
+                                <div class="text-xs font-bold text-gray-900 dark:text-white">الشهادة (PDF)</div>
+                                @if($cert)
+                                    <div class="text-[0.65rem] text-gray-400 mt-0.5">{{ $cert->original_name ?? '' }}</div>
+                                @endif
+                            </div>
+                            @if($cert)
+                                @php
+                                    $dsBg = match($cert->status) { 'approved'=>'#dcfce7','rejected'=>'#fee2e2', default=>'#fef9c3' };
+                                    $dsColor = match($cert->status) { 'approved'=>'#16a34a','rejected'=>'#dc2626', default=>'#92400e' };
+                                    $dsLabel = match($cert->status) { 'approved'=>'مقبول','rejected'=>'مرفوض', default=>'قيد المراجعة' };
+                                @endphp
+                                <span class="px-2 py-0.5 text-[0.65rem] font-bold rounded-lg" style="background:{{ $dsBg }};color:{{ $dsColor }};">{{ $dsLabel }}</span>
+                            @else
+                                <span class="px-2 py-0.5 text-[0.65rem] font-bold rounded-lg" style="background:#f3f4f6;color:#6b7280;">غير موجود</span>
+                            @endif
+                        </div>
+                    </div>
+                </div>
             </div>
 
         </div>

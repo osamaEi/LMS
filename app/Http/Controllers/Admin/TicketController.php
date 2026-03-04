@@ -57,12 +57,19 @@ class TicketController extends Controller
         $validated = $request->validate([
             'message' => 'required|string',
             'is_internal_note_note' => 'boolean',
+            'attachment' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
         ]);
+
+        $attachmentPath = null;
+        if ($request->hasFile('attachment')) {
+            $attachmentPath = $request->file('attachment')->store('ticket-attachments', 'public');
+        }
 
         TicketReply::create([
             'ticket_id' => $ticket->id,
             'user_id' => auth()->id(),
             'message' => $validated['message'],
+            'attachment' => $attachmentPath,
             'is_internal_note_note' => $validated['is_internal_note_note'] ?? false,
         ]);
 

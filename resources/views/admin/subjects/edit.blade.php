@@ -32,18 +32,17 @@
 
     <div class="rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
         <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
-            <!-- الفصل الدراسي -->
+            <!-- الدبلوم -->
             <div class="md:col-span-2">
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    الفصل الدراسي <span class="text-error-500">*</span>
+                    الدبلوم <span class="text-error-500">*</span>
                 </label>
-                <select name="term_id"
-                        required
+                <select name="program_id" required
                         class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
-                    <option value="">اختر الفصل الدراسي</option>
-                    @foreach($terms as $term)
-                        <option value="{{ $term->id }}" {{ old('term_id', $subject->term_id) == $term->id ? 'selected' : '' }}>
-                            {{ $term->name }} - {{ $term->program->name ?? '' }} (الفصل {{ $term->term_number }})
+                    <option value="">اختر الدبلوم</option>
+                    @foreach($programs as $program)
+                        <option value="{{ $program->id }}" {{ old('program_id', $subject->program_id) == $program->id ? 'selected' : '' }}>
+                            {{ $program->name_ar }} ({{ $program->code }})
                         </option>
                     @endforeach
                 </select>
@@ -52,12 +51,11 @@
             <!-- المعلم -->
             <div class="md:col-span-2">
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    المعلم <span class="text-error-500">*</span>
+                    المعلم
                 </label>
                 <select name="teacher_id"
-                        required
                         class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
-                    <option value="">اختر المعلم</option>
+                    <option value="">اختر المعلم (اختياري)</option>
                     @foreach($teachers as $teacher)
                         <option value="{{ $teacher->id }}" {{ old('teacher_id', $subject->teacher_id) == $teacher->id ? 'selected' : '' }}>
                             {{ $teacher->name }}

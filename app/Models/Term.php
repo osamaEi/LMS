@@ -53,9 +53,9 @@ class Term extends Model
         return $this->belongsTo(Track::class);
     }
 
-    public function subjects(): HasMany
+    public function subjects()
     {
-        return $this->hasMany(Subject::class);
+        return $this->belongsToMany(Subject::class, 'term_subject')->withTimestamps();
     }
 
     public function enrollments(): HasMany

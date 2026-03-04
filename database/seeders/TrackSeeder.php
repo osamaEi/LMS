@@ -23,18 +23,18 @@ class TrackSeeder extends Seeder
         }
 
         foreach ($programs as $index => $program) {
-            // إنشاء مسار واحد لكل برنامج
+            // إنشاء دبلومة واحد لكل برنامج
             $track = Track::create([
                 'program_id' => $program->id,
-                'name' => "مسار {$program->name} الأساسي",
+                'name' => "دبلومة {$program->name} الأساسي",
                 'code' => 'TRACK-' . str_pad($program->id, 3, '0', STR_PAD_LEFT) . '-01',
-                'description' => "المسار الأساسي لبرنامج {$program->name} يتكون من 10 أرباع دراسية",
+                'description' => "الدبلومة الأساسي لبرنامج {$program->name} يتكون من 10 أرباع دراسية",
                 'total_terms' => 10,
                 'duration_months' => 30, // 10 أرباع × 3 أشهر
                 'status' => 'active',
             ]);
 
-            // إنشاء 10 أرباع للمسار
+            // إنشاء 10 أرباع للدبلومة
             $this->createTermsForTrack($track);
 
             $this->command->info("Track created for program: {$program->name}");
@@ -44,7 +44,7 @@ class TrackSeeder extends Seeder
     }
 
     /**
-     * إنشاء 10 أرباع للمسار
+     * إنشاء 10 أرباع للدبلومة
      */
     protected function createTermsForTrack(Track $track): void
     {

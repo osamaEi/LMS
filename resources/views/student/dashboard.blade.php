@@ -234,11 +234,16 @@
                      alt="{{ auth()->user()->name }}"
                      class="w-14 h-14 rounded-2xl border-2 border-white/20 shadow-lg" />
                 <div>
-                    <p class="text-sm opacity-65">مرحباً بك</p>
+                    <p class="text-sm opacity-65">مرحباً بك في معهد الارتقاء</p>
                     <h1 class="text-2xl font-extrabold tracking-tight">{{ auth()->user()->name }}</h1>
-                    @if(auth()->user()->program)
-                        <p class="text-sm opacity-55 mt-0.5">{{ auth()->user()->program->name }}</p>
-                    @endif
+                    <div class="flex items-center gap-2 mt-0.5 flex-wrap">
+                        @if(auth()->user()->program)
+                            <p class="text-sm opacity-55">{{ auth()->user()->program->name }}</p>
+                        @endif
+                        @if(auth()->user()->level)
+                            <span class="text-xs font-bold px-2 py-0.5 rounded-full" style="background: rgba(255,255,255,0.2); color: #fff;">{{ auth()->user()->level }}</span>
+                        @endif
+                    </div>
                 </div>
             </div>
             <div class="flex gap-2 flex-wrap">

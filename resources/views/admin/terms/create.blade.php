@@ -1,6 +1,6 @@
 @extends('layouts.dashboard')
 
-@section('title', 'إضافة فصل دراسي جديد')
+@section('title', 'إضافة ربع دراسي جديد')
 
 @section('content')
 <div class="mb-6">
@@ -11,7 +11,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
             </svg>
         </a>
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">إضافة فصل دراسي جديد</h1>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">إضافة ربع دراسي جديد</h1>
     </div>
     <p class="text-sm text-gray-500 dark:text-gray-400">أدخل بيانات الفصل الدراسي الجديد</p>
 </div>
@@ -31,15 +31,14 @@
 
     <div class="rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
         <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
-            <!-- المسار التعليمي -->
+            <!-- الدبلوم -->
             <div class="md:col-span-2">
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    المسار التعليمي <span class="text-error-500">*</span>
+                    الدبلوم <span class="text-error-500">*</span>
                 </label>
-                <select name="program_id"
-                        required
+                <select name="program_id" id="program_select" required onchange="loadSubjects(this.value)"
                         class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
-                    <option value="">اختر المسار التعليمي</option>
+                    <option value="">اختر الدبلوم</option>
                     @foreach($programs as $program)
                         <option value="{{ $program->id }}" {{ old('program_id', request('program_id')) == $program->id ? 'selected' : '' }}>
                             {{ $program->name_ar }} ({{ $program->code }})
@@ -48,10 +47,10 @@
                 </select>
             </div>
 
-            <!-- رقم الفصل -->
+            <!-- رقم الربع -->
             <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    رقم الفصل <span class="text-error-500">*</span>
+                    رقم الربع <span class="text-error-500">*</span>
                 </label>
                 <input type="number"
                        name="term_number"
@@ -76,10 +75,10 @@
                 </select>
             </div>
 
-            <!-- اسم الفصل بالعربي -->
+            <!-- اسم الربع بالعربي -->
             <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    اسم الفصل (عربي) <span class="text-error-500">*</span>
+                    اسم الربع (عربي) <span class="text-error-500">*</span>
                 </label>
                 <input type="text"
                        name="name_ar"
@@ -89,10 +88,10 @@
                        placeholder="مثال: الفصل الدراسي الأول">
             </div>
 
-            <!-- اسم الفصل بالإنجليزي -->
+            <!-- اسم الربع بالإنجليزي -->
             <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    اسم الفصل (إنجليزي) <span class="text-error-500">*</span>
+                    اسم الربع (إنجليزي) <span class="text-error-500">*</span>
                 </label>
                 <input type="text"
                        name="name_en"
@@ -128,6 +127,18 @@
             </div>
         </div>
 
+            <!-- المواد الدراسية -->
+            <div class="md:col-span-2" id="subjects-section" style="display:none;">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    المواد الدراسية المرتبطة بهذا الربع
+                </label>
+                <div id="subjects-list" class="rounded-lg border border-gray-200 dark:border-gray-700 divide-y divide-gray-100 dark:divide-gray-800 max-h-64 overflow-y-auto">
+                    <p class="text-sm text-gray-400 p-4 text-center">اختر الدبلوم أولاً لعرض المواد المتاحة</p>
+                </div>
+                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">اختر المواد التي ستُدرَّس في هذا الربع</p>
+            </div>
+        </div>
+
         <!-- الأزرار -->
         <div class="mt-6 flex items-center justify-end gap-3 border-t border-gray-200 pt-6 dark:border-gray-800">
             <a href="{{ route('admin.terms.index') }}"
@@ -136,9 +147,48 @@
             </a>
             <button type="submit"
                     class="rounded-lg bg-brand-500 px-6 py-2.5 text-sm font-medium text-white hover:bg-brand-600 transition-colors">
-                حفظ الفصل الدراسي
+                حفظ الربع الدراسي
             </button>
         </div>
     </div>
 </form>
+
+@push('scripts')
+<script>
+const programSubjects = @json($programs->load('subjects')->pluck('subjects', 'id'));
+
+function loadSubjects(programId) {
+    const section = document.getElementById('subjects-section');
+    const list = document.getElementById('subjects-list');
+
+    if (!programId) {
+        section.style.display = 'none';
+        return;
+    }
+
+    const subjects = programSubjects[programId] || [];
+    section.style.display = 'block';
+
+    if (subjects.length === 0) {
+        list.innerHTML = '<p class="text-sm text-gray-400 p-4 text-center">لا توجد مواد دراسية لهذا الدبلوم بعد. <a href="{{ route('admin.subjects.create') }}" class="text-brand-600 underline">أضف مادة الآن</a></p>';
+        return;
+    }
+
+    list.innerHTML = subjects.map(s => `
+        <label class="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer">
+            <input type="checkbox" name="subject_ids[]" value="${s.id}"
+                   class="h-4 w-4 rounded border-gray-300 text-brand-600 focus:ring-brand-500">
+            <div class="flex-1">
+                <span class="text-sm font-medium text-gray-900 dark:text-white">${s.name_ar}</span>
+                <span class="ml-2 text-xs text-gray-400">${s.code}</span>
+            </div>
+        </label>
+    `).join('');
+}
+
+// Auto-load if program preselected
+const preselected = document.getElementById('program_select').value;
+if (preselected) loadSubjects(preselected);
+</script>
+@endpush
 @endsection

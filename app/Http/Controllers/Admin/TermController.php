@@ -57,22 +57,26 @@ class TermController extends Controller
             'status' => 'required|in:upcoming,active,completed',
         ]);
 
-        Term::create($validated);
+        $term = Term::create($validated);
 
-        // If coming from program show page, redirect back there
-        if ($request->has('program_id') && $request->header('referer') && str_contains($request->header('referer'), 'programs')) {
-            return redirect()->route('admin.programs.show', $request->program_id)
-                ->with('success', 'تم إضافة الفصل الدراسي بنجاح');
+        // Assign subjects if provided
+        if ($request->has('subject_ids') && is_array($request->subject_ids)) {
+            $term->subjects()->sync($request->subject_ids);
         }
 
-        return redirect()->route('admin.terms.index')
-            ->with('success', 'تم إضافة الفصل الدراسي بنجاح');
+        if ($request->has('program_id') && $request->header('referer') && str_contains($request->header('referer'), 'programs')) {
+            return redirect()->route('admin.programs.show', $request->program_id)
+                ->with('success', 'تم إضافة الربع الدراسي بنجاح');
+        }
+
+        return redirect()->route('admin.terms.show', $term)
+            ->with('success', 'تم إضافة الربع الدراسي بنجاح');
     }
 
     public function show(Term $term)
     {
-        $term->load(['program', 'subjects' => function($query) {
-            $query->withCount('sessions')->latest();
+        $term->load(['program', 'subjects' => function ($query) {
+            $query->with(['files', 'teacher'])->withCount('sessions');
         }]);
 
         return view('admin.terms.show', compact('term'));
@@ -99,8 +103,8 @@ class TermController extends Controller
 
         $term->update($validated);
 
-        return redirect()->route('admin.terms.index')
-            ->with('success', 'تم تحديث الفصل الدراسي بنجاح');
+        return redirect()->route('admin.terms.show', $term)
+            ->with('success', 'تم تحديث الربع الدراسي بنجاح');
     }
 
     public function destroy(Term $term)
@@ -108,6 +112,18 @@ class TermController extends Controller
         $term->delete();
 
         return redirect()->route('admin.terms.index')
-            ->with('success', 'تم حذف الفصل الدراسي بنجاح');
+            ->with('success', 'تم حذف الربع الدراسي بنجاح');
+    }
+
+    public function syncSubjects(Request $request, Term $term)
+    {
+        $request->validate([
+            'subject_ids' => 'nullable|array',
+            'subject_ids.*' => 'exists:subjects,id',
+        ]);
+
+        $term->subjects()->sync($request->subject_ids ?? []);
+
+        return back()->with('success', 'تم تحديث المواد الدراسية بنجاح');
     }
 }

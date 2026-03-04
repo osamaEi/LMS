@@ -42,6 +42,7 @@ class User extends Authenticatable
         'bio',
         'specialization',
         'specialization_type',
+        'level',
         'date_of_graduation',
     ];
 

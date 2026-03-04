@@ -30,7 +30,7 @@
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
     <!-- Form -->
     <div class="lg:col-span-2">
-        <form action="{{ route('teacher.tickets.store') }}" method="POST" class="rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900 overflow-hidden shadow-lg">
+        <form action="{{ route('teacher.tickets.store') }}" method="POST" enctype="multipart/form-data" class="rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900 overflow-hidden shadow-lg">
             @csrf
 
             <div class="p-6 border-b border-gray-200 dark:border-gray-700" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);">
@@ -87,6 +87,35 @@
                     <textarea name="message" id="message" rows="6" required
                               class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-white transition-colors"
                               placeholder="اشرح مشكلتك بالتفصيل...">{{ old('message') }}</textarea>
+                </div>
+
+                <!-- Attachment -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">صورة مرفقة (اختياري)</label>
+                    <div class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-5 text-center cursor-pointer transition-colors hover:border-blue-400"
+                         id="dropzone-teacher"
+                         ondragover="event.preventDefault(); this.style.borderColor='#3b82f6';"
+                         ondragleave="this.style.borderColor='';"
+                         ondrop="handleDrop(event, 'attachment-teacher', 'preview-teacher', 'dropzone-teacher')">
+                        <input type="file" name="attachment" id="attachment-teacher" accept="image/*" class="hidden"
+                               onchange="previewImage(this, 'preview-teacher')">
+                        <div id="preview-teacher" style="display:none;" class="mb-3">
+                            <img id="preview-teacher-img" src="" alt="معاينة" class="max-h-48 rounded-lg mx-auto">
+                        </div>
+                        <div id="dropzone-teacher-placeholder">
+                            <svg class="w-10 h-10 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                            <p class="text-sm text-gray-500 mb-1">اسحب الصورة هنا أو
+                                <button type="button" onclick="document.getElementById('attachment-teacher').click()"
+                                        class="text-blue-500 font-semibold hover:underline bg-transparent border-none cursor-pointer">اختر صورة</button>
+                            </p>
+                        </div>
+                        <p class="text-xs text-gray-400 mt-1">PNG, JPG, GIF, WEBP - الحد الأقصى 5MB</p>
+                    </div>
+                    @error('attachment')
+                        <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
+                    @enderror
                 </div>
             </div>
 
@@ -173,4 +202,24 @@
         </div>
     </div>
 </div>
+@push('scripts')
+<script>
+function previewImage(input, previewId) {
+    const preview = document.getElementById(previewId);
+    const img = document.getElementById(previewId + '-img');
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = e => { img.src = e.target.result; preview.style.display = 'block'; };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+function handleDrop(event, inputId, previewId, dropzoneId) {
+    event.preventDefault();
+    document.getElementById(dropzoneId).style.borderColor = '';
+    const input = document.getElementById(inputId);
+    input.files = event.dataTransfer.files;
+    previewImage(input, previewId);
+}
+</script>
+@endpush
 @endsection

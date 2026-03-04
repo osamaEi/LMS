@@ -13,8 +13,8 @@ $actionArabic = [
     'mark_attendance'=>'تسجيل الحضور','enroll'=>'التسجيل في مادة','withdraw'=>'الانسحاب',
     'complete_course'=>'إتمام الدورة','submit_survey'=>'إرسال استبيان','submit_rating'=>'تقييم معلم',
     'create_ticket'=>'إنشاء تذكرة','reply_ticket'=>'الرد على تذكرة','create_user'=>'إنشاء مستخدم',
-    'update_user'=>'تعديل مستخدم','delete_user'=>'حذف مستخدم','create_program'=>'إنشاء مسار',
-    'update_program'=>'تعديل مسار','delete_program'=>'حذف مسار','create_session'=>'إنشاء جلسة',
+    'update_user'=>'تعديل مستخدم','delete_user'=>'حذف مستخدم','create_program'=>'إنشاء دبلومة',
+    'update_program'=>'تعديل دبلومة','delete_program'=>'حذف دبلومة','create_session'=>'إنشاء جلسة',
     'update_session'=>'تعديل جلسة','delete_session'=>'حذف جلسة','page_view'=>'عرض صفحة',
 ];
 $categoryArabic = [

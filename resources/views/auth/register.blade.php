@@ -279,6 +279,9 @@
                                             style="border-color:#bfdbfe; background:#fff;"
                                             onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#bfdbfe'">
                                         <option value="">اختر</option>
+                                        <option value="primary">ابتدائي</option>
+                                        <option value="middle">متوسط</option>
+                                        <option value="secondary">ثانوي</option>
                                         <option value="diploma">دبلوم</option>
                                         <option value="bachelor">بكالوريوس</option>
                                         <option value="master">ماجستير</option>
@@ -347,6 +350,29 @@
                                 </label>
                                 <p id="back-error" class="mt-1 text-xs hidden" style="color:#ef4444;"></p>
                             </div>
+                        </div>
+
+                        {{-- Certificate Upload --}}
+                        <div class="mt-3">
+                            <label class="block text-xs font-semibold mb-1" style="color:#1e3a5f;">الشهادة (PDF) <span style="color:#ef4444;">*</span></label>
+                            <label id="cert-label" for="certificate"
+                                   class="flex flex-col items-center justify-center w-full cursor-pointer rounded-xl border-2 border-dashed"
+                                   style="border-color:#c4b5fd; background:#fff; min-height:90px; padding:.625rem; transition:border-color .2s;"
+                                   ondragover="event.preventDefault();this.style.borderColor='#7c3aed'"
+                                   ondragleave="this.style.borderColor='#c4b5fd'"
+                                   ondrop="handleDrop(event,'certificate','cert-preview','cert-label')">
+                                <div id="cert-preview" style="text-align:center; width:100%;">
+                                    <svg class="w-7 h-7 mx-auto mb-1" style="color:#a78bfa;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                                    </svg>
+                                    <p class="text-xs" style="color:#7c3aed;">اضغط أو اسحب لرفع الشهادة</p>
+                                    <p class="text-xs" style="color:#a78bfa; margin-top:2px;">PDF فقط</p>
+                                </div>
+                                <input type="file" id="certificate" name="certificate"
+                                       accept=".pdf" required class="hidden"
+                                       onchange="previewFile(this,'cert-preview','cert-label')">
+                            </label>
+                            <p id="cert-error" class="mt-1 text-xs hidden" style="color:#ef4444;"></p>
                         </div>
                     </div>
 
@@ -656,7 +682,7 @@
         // Clear all errors
         ['name-error','dob-error','gender-error','email-error','password-error',
          'spec-error','spec-type-error','grad-error','front-error','back-error',
-         'confirm-error','terms-error','step3-error'
+         'cert-error','confirm-error','terms-error','step3-error'
         ].forEach(id => { const el = document.getElementById(id); if(el){ el.textContent=''; el.classList.add('hidden'); }});
 
         // Client-side validation
@@ -686,6 +712,9 @@
         }
         if (!document.getElementById('national_id_back').files.length) {
             showFieldError('back-error', 'صورة الوجه الخلفي للهوية مطلوبة'); valid = false;
+        }
+        if (!document.getElementById('certificate').files.length) {
+            showFieldError('cert-error', 'الشهادة مطلوبة'); valid = false;
         }
         if (!document.getElementById('is_confirm_user').checked) {
             showFieldError('confirm-error', 'يجب الإقرار بصحة البيانات المدخلة'); valid = false;

@@ -120,15 +120,15 @@
                             @endphp
                             <span style="background:{{ $s['bg'] }};color:{{ $s['text'] }};padding:4px 12px;border-radius:8px;font-size:13px;font-weight:600;">{{ $s['label'] }}</span>
                         </div>
-                        {{-- Term --}}
-                        <div style="background:#f9fafb;border-radius:12px;padding:16px;">
-                            <div style="color:#9ca3af;font-size:12px;font-weight:500;margin-bottom:6px;">الفصل الدراسي</div>
-                            <div style="color:#111827;font-size:14px;font-weight:600;">{{ $subject->term->name ?? '—' }}</div>
-                        </div>
                         {{-- Program --}}
                         <div style="background:#f9fafb;border-radius:12px;padding:16px;">
-                            <div style="color:#9ca3af;font-size:12px;font-weight:500;margin-bottom:6px;">المسار التعليمي</div>
-                            <div style="color:#111827;font-size:14px;font-weight:600;">{{ $subject->term->program->name ?? '—' }}</div>
+                            <div style="color:#9ca3af;font-size:12px;font-weight:500;margin-bottom:6px;">الدبلوم</div>
+                            <div style="color:#111827;font-size:14px;font-weight:600;">{{ $subject->program->name_ar ?? '—' }}</div>
+                        </div>
+                        {{-- Files Count --}}
+                        <div style="background:#f9fafb;border-radius:12px;padding:16px;">
+                            <div style="color:#9ca3af;font-size:12px;font-weight:500;margin-bottom:6px;">ملفات المادة</div>
+                            <div style="color:#111827;font-size:14px;font-weight:600;">{{ $subject->files->count() }} ملف</div>
                         </div>
                         @if($subject->credits)
                         <div style="background:#f9fafb;border-radius:12px;padding:16px;">
@@ -149,6 +149,126 @@
                         <p style="color:#374151;font-size:14px;line-height:1.7;margin:0;background:#f9fafb;border-radius:10px;padding:14px;">{{ $subject->description }}</p>
                     </div>
                     @endif
+                </div>
+            </div>
+
+            {{-- Files Section --}}
+            <div style="background:white;border-radius:16px;border:1px solid #e5e7eb;overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,0.06);">
+                <div style="padding:18px 24px;border-bottom:1px solid #f3f4f6;display:flex;align-items:center;justify-content:space-between;">
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <div style="width:36px;height:36px;background:#eff6ff;border-radius:10px;display:flex;align-items:center;justify-content:center;">
+                            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#2563eb" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                        </div>
+                        <h2 style="font-size:16px;font-weight:700;color:#111827;margin:0;">ملفات المادة ({{ $subject->files->count() }})</h2>
+                    </div>
+                    <button onclick="document.getElementById('upload-form').classList.toggle('hidden')"
+                            style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:#2563eb;color:white;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">
+                        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        رفع ملف
+                    </button>
+                </div>
+
+                {{-- Upload Form --}}
+                <div id="upload-form" class="hidden" style="padding:20px 24px;border-bottom:1px solid #f3f4f6;background:#f8faff;">
+                    @if(session('success'))
+                    <div style="margin-bottom:12px;padding:10px 14px;background:#dcfce7;border-radius:8px;color:#166534;font-size:13px;">
+                        {{ session('success') }}
+                    </div>
+                    @endif
+                    <form action="{{ route('admin.subjects.files.upload', $subject) }}" method="POST" enctype="multipart/form-data">
+                        @csrf
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+                            <div>
+                                <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:6px;">عنوان الملف <span style="color:#ef4444;">*</span></label>
+                                <input type="text" name="title" required placeholder="مثال: محاضرة الأسبوع الأول"
+                                       style="width:100%;border:1px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size:13px;box-sizing:border-box;">
+                            </div>
+                            <div>
+                                <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:6px;">اختر الملف <span style="color:#ef4444;">*</span></label>
+                                <input type="file" name="file" required
+                                       style="width:100%;border:1px solid #d1d5db;border-radius:8px;padding:7px 12px;font-size:13px;box-sizing:border-box;background:white;">
+                            </div>
+                        </div>
+                        <div style="margin-bottom:14px;">
+                            <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:6px;">وصف (اختياري)</label>
+                            <input type="text" name="description" placeholder="وصف مختصر للملف"
+                                   style="width:100%;border:1px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size:13px;box-sizing:border-box;">
+                        </div>
+                        <p style="font-size:11px;color:#9ca3af;margin:0 0 12px;">الحد الأقصى لحجم الملف: 50MB - جميع صيغ الملفات مدعومة</p>
+                        <div style="display:flex;gap:10px;">
+                            <button type="submit"
+                                    style="padding:9px 20px;background:#2563eb;color:white;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">
+                                رفع الملف
+                            </button>
+                            <button type="button" onclick="document.getElementById('upload-form').classList.add('hidden')"
+                                    style="padding:9px 20px;background:#f3f4f6;color:#374151;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">
+                                إلغاء
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                {{-- Files List --}}
+                <div style="padding:16px 24px;">
+                    @forelse($subject->files as $file)
+                    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:#f9fafb;border-radius:10px;margin-bottom:10px;border:1px solid #e5e7eb;">
+                        <div style="display:flex;align-items:center;gap:12px;flex:1;min-width:0;">
+                            <div style="width:38px;height:38px;background:#eff6ff;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                @php
+                                    $ext = strtolower($file->file_type ?? '');
+                                    $iconColor = match($ext) {
+                                        'pdf' => '#dc2626',
+                                        'doc','docx' => '#2563eb',
+                                        'xls','xlsx' => '#16a34a',
+                                        'ppt','pptx' => '#ea580c',
+                                        default => '#6b7280',
+                                    };
+                                @endphp
+                                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="{{ $iconColor }}" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                </svg>
+                            </div>
+                            <div style="min-width:0;">
+                                <div style="font-size:14px;font-weight:600;color:#111827;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ $file->title }}</div>
+                                <div style="font-size:11px;color:#9ca3af;margin-top:2px;">
+                                    {{ strtoupper($file->file_type ?? 'FILE') }}
+                                    @if($file->file_size) · {{ $file->getFormattedSize() }} @endif
+                                    @if($file->description) · {{ $file->description }} @endif
+                                </div>
+                            </div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+                            <a href="{{ Storage::url($file->file_path) }}" target="_blank"
+                               style="display:inline-flex;align-items:center;gap:5px;padding:6px 12px;background:#eff6ff;color:#2563eb;border-radius:7px;font-size:12px;font-weight:600;text-decoration:none;">
+                                <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                                </svg>
+                                تحميل
+                            </a>
+                            <form action="{{ route('admin.subjects.files.destroy', [$subject, $file]) }}" method="POST"
+                                  onsubmit="return confirm('هل أنت متأكد من حذف هذا الملف؟')">
+                                @csrf @method('DELETE')
+                                <button type="submit"
+                                        style="display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;background:#fee2e2;color:#dc2626;border:none;border-radius:7px;cursor:pointer;">
+                                    <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                    </svg>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    @empty
+                    <div style="text-align:center;padding:32px 20px;color:#9ca3af;">
+                        <svg width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" style="margin:0 auto 12px;display:block;color:#d1d5db;">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                        <p style="font-size:13px;margin:0;">لا توجد ملفات بعد. اضغط "رفع ملف" لإضافة ملفات للمادة.</p>
+                    </div>
+                    @endforelse
                 </div>
             </div>
 
@@ -279,7 +399,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                         </svg>
                     </div>
-                    <h2 style="font-size:15px;font-weight:700;color:#111827;margin:0;">الفصل والمسار</h2>
+                    <h2 style="font-size:15px;font-weight:700;color:#111827;margin:0;">الفصل والدبلومة</h2>
                 </div>
                 <div style="padding:16px 20px;display:flex;flex-direction:column;gap:10px;">
                     <div style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:#f9fafb;border-radius:10px;">
@@ -288,7 +408,7 @@
                     </div>
                     @if($subject->term->program)
                     <div style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:#f9fafb;border-radius:10px;">
-                        <span style="font-size:12px;color:#9ca3af;font-weight:500;">المسار التعليمي</span>
+                        <span style="font-size:12px;color:#9ca3af;font-weight:500;">الدبلومة التعليمي</span>
                         <span style="font-size:13px;font-weight:600;color:#374151;">{{ $subject->term->program->name }}</span>
                     </div>
                     @endif

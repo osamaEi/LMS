@@ -420,7 +420,7 @@
         </div>
     </div>
 
-    <form action="{{ route('student.tickets.store') }}" method="POST">
+    <form action="{{ route('student.tickets.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
 
         <!-- Main Form Card -->
@@ -555,7 +555,7 @@
                 </div>
 
                 <!-- Description -->
-                <div class="form-group" style="margin-bottom: 0;">
+                <div class="form-group">
                     <label class="form-label">
                         تفاصيل المشكلة <span class="text-red-500">*</span>
                     </label>
@@ -574,6 +574,35 @@
                             </svg>
                             {{ $message }}
                         </p>
+                    @enderror
+                </div>
+
+                <!-- Attachment -->
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label">صورة مرفقة (اختياري)</label>
+                    <div style="border: 2px dashed #e5e7eb; border-radius: 14px; padding: 1.25rem; text-align: center; transition: all 0.2s; cursor: pointer;" id="dropzone-student"
+                         ondragover="event.preventDefault(); this.style.borderColor='#0071AA';"
+                         ondragleave="this.style.borderColor='#e5e7eb';"
+                         ondrop="handleDrop(event, 'attachment-student', 'preview-student', 'dropzone-student')">
+                        <input type="file" name="attachment" id="attachment-student" accept="image/*" class="hidden"
+                               onchange="previewImage(this, 'preview-student')">
+                        <div id="preview-student" style="display:none; margin-bottom: 0.75rem;">
+                            <img id="preview-student-img" src="" alt="معاينة" style="max-height: 200px; border-radius: 10px; margin: 0 auto; display: block;">
+                        </div>
+                        <div id="dropzone-student-placeholder">
+                            <svg style="width: 40px; height: 40px; color: #9ca3af; margin: 0 auto 0.75rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                            <p style="font-size: 0.875rem; color: #6b7280; margin-bottom: 0.5rem;">اسحب الصورة هنا أو</p>
+                            <button type="button" onclick="document.getElementById('attachment-student').click()"
+                                    style="font-size: 0.875rem; color: #0071AA; font-weight: 600; background: none; border: none; cursor: pointer;">
+                                اختر صورة
+                            </button>
+                        </div>
+                        <p style="font-size: 0.75rem; color: #9ca3af; margin-top: 0.5rem;">PNG, JPG, GIF, WEBP - الحد الأقصى 5MB</p>
+                    </div>
+                    @error('attachment')
+                        <p class="form-error">{{ $message }}</p>
                     @enderror
                 </div>
             </div>
@@ -646,4 +675,27 @@
         </div>
     </form>
 </div>
+@push('scripts')
+<script>
+function previewImage(input, previewId) {
+    const preview = document.getElementById(previewId);
+    const img = document.getElementById(previewId + '-img');
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = e => {
+            img.src = e.target.result;
+            preview.style.display = 'block';
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+function handleDrop(event, inputId, previewId, dropzoneId) {
+    event.preventDefault();
+    document.getElementById(dropzoneId).style.borderColor = '#e5e7eb';
+    const input = document.getElementById(inputId);
+    input.files = event.dataTransfer.files;
+    previewImage(input, previewId);
+}
+</script>
+@endpush
 @endsection

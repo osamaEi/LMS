@@ -45,6 +45,24 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
+        // Get recent past sessions with attendance counts for dashboard attendance section
+        $recentSessionsWithAttendance = Session::whereHas('subject', function($query) use ($teacher) {
+                $query->where('teacher_id', $teacher->id);
+            })
+            ->where('scheduled_at', '<', now())
+            ->with(['subject', 'attendances' => function($q) {
+                $q->where('attended', true)->with('student:id,name');
+            }])
+            ->orderBy('scheduled_at', 'desc')
+            ->take(8)
+            ->get()
+            ->map(function($session) {
+                $session->enrolled_count = $session->subject
+                    ? $session->subject->enrollments()->count()
+                    : 0;
+                return $session;
+            });
+
         // Statistics
         $stats = [
             'subjects_count' => $subjects->count(),
@@ -136,6 +154,7 @@ class DashboardController extends Controller
             'subjects',
             'upcomingSessions',
             'recentSessions',
+            'recentSessionsWithAttendance',
             'stats',
             'teacherRating',
             'recentFeedback',

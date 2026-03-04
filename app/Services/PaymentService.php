@@ -51,7 +51,8 @@ class PaymentService
     public function createInstallmentPlan(
         int $paymentId,
         int $numberOfInstallments,
-        Carbon $startDate
+        Carbon $startDate,
+        array $customDates = []
     ): array {
         $payment = Payment::findOrFail($paymentId);
 
@@ -65,15 +66,17 @@ class PaymentService
         $dueDate = $startDate->copy();
 
         for ($i = 1; $i <= $numberOfInstallments; $i++) {
+            // Use custom date if provided, otherwise auto-calculate monthly
+            $date = isset($customDates[$i - 1]) ? $customDates[$i - 1] : $dueDate->copy();
+
             $installments[] = PaymentInstallment::create([
                 'payment_id' => $payment->id,
                 'installment_number' => $i,
                 'amount' => $installmentAmount,
-                'due_date' => $dueDate->copy(),
+                'due_date' => $date,
                 'status' => 'pending',
             ]);
 
-            // Next month
             $dueDate->addMonth();
         }
 

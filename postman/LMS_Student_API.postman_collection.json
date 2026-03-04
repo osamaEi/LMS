@@ -257,7 +257,7 @@
               "host": ["{{base_url}}"],
               "path": ["api", "v1", "profile"]
             },
-            "description": "جلب معلومات الملف الشخصي للمستخدم المسجل مع البرنامج والمسار\n\nيتطلب: Authorization: Bearer {{token}}"
+            "description": "جلب معلومات الملف الشخصي للمستخدم المسجل مع البرنامج والدبلومة\n\nيتطلب: Authorization: Bearer {{token}}"
           },
           "response": [
             {
@@ -291,7 +291,7 @@
               "host": ["{{base_url}}"],
               "path": ["api", "v1", "profile"]
             },
-            "description": "معلومات الطالب الشخصية مع برنامجه ومساره الدراسي"
+            "description": "معلومات الطالب الشخصية مع برنامجه ودبلومةه الدراسي"
           },
           "response": []
         },
