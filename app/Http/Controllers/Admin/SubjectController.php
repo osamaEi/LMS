@@ -14,7 +14,11 @@ class SubjectController extends Controller
 {
     public function index(Request $request)
     {
-        $search = $request->get('search');
+        $search     = $request->get('search');
+        $status     = $request->get('status');
+        $programId  = $request->get('program_id');
+        $teacherId  = $request->get('teacher_id');
+        $noTeacher  = $request->boolean('no_teacher');
 
         $query = Subject::with(['program', 'teacher'])->withCount(['sessions', 'files']);
 
@@ -23,10 +27,22 @@ class SubjectController extends Controller
                 $q->where('name_ar', 'like', "%{$search}%")
                   ->orWhere('name_en', 'like', "%{$search}%")
                   ->orWhere('code', 'like', "%{$search}%")
-                  ->orWhereHas('teacher', function ($tq) use ($search) {
-                      $tq->where('name', 'like', "%{$search}%");
-                  });
+                  ->orWhereHas('teacher', fn($tq) => $tq->where('name', 'like', "%{$search}%"));
             });
+        }
+
+        if ($status) {
+            $query->where('status', $status);
+        }
+
+        if ($programId) {
+            $query->where('program_id', $programId);
+        }
+
+        if ($noTeacher) {
+            $query->whereNull('teacher_id');
+        } elseif ($teacherId) {
+            $query->where('teacher_id', $teacherId);
         }
 
         $subjects = $query->latest()->paginate(15)->withQueryString();
@@ -38,7 +54,12 @@ class SubjectController extends Controller
             'completed' => Subject::where('status', 'completed')->count(),
         ];
 
-        return view('admin.subjects.index', compact('subjects', 'stats', 'search'));
+        $programs = Program::orderBy('name_ar')->get(['id', 'name_ar', 'name_en']);
+        $teachers = User::where('role', 'teacher')->orderBy('name')->get(['id', 'name']);
+
+        $filters = compact('search', 'status', 'programId', 'teacherId', 'noTeacher');
+
+        return view('admin.subjects.index', compact('subjects', 'stats', 'programs', 'teachers', 'filters'));
     }
 
     public function create()

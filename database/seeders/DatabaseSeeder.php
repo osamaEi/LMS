@@ -18,7 +18,7 @@ class DatabaseSeeder extends Seeder
             PermissionSeeder::class,
 
             // 2. Super Admin user with all permissions
-            SubjectsSeeder::class,
+           // SubjectsSeeder::class,
         ]);
     }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Program;
+use App\Models\Subject;
 use App\Models\Term;
 use Illuminate\Http\Request;
 
@@ -76,10 +77,17 @@ class TermController extends Controller
     public function show(Term $term)
     {
         $term->load(['program', 'subjects' => function ($query) {
-            $query->with(['files', 'teacher'])->withCount('sessions');
+            $query->with(['teacher'])->withCount(['sessions', 'files']);
         }]);
 
-        return view('admin.terms.show', compact('term'));
+        // All subjects available to assign (with optional program hint)
+        $allSubjects = Subject::with('program')
+            ->orderBy('name_ar')
+            ->get(['id', 'name_ar', 'name_en', 'code', 'program_id', 'teacher_id', 'status']);
+
+        $assignedIds = $term->subjects->pluck('id')->toArray();
+
+        return view('admin.terms.show', compact('term', 'allSubjects', 'assignedIds'));
     }
 
     public function edit(Term $term)

@@ -69,26 +69,150 @@
     </div>
     @endif
 
-    {{-- Search Bar --}}
-    <div style="background:white;border-radius:14px;padding:16px 20px;margin-bottom:20px;border:1px solid #e5e7eb;display:flex;align-items:center;gap:12px;box-shadow:0 1px 4px rgba(0,0,0,0.06);">
-        <form method="GET" action="{{ route('admin.subjects.index') }}" style="flex:1;display:flex;align-items:center;gap:10px;">
-            <div style="position:relative;flex:1;">
-                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#9ca3af" stroke-width="2" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                </svg>
-                <input type="text" name="search" value="{{ $search }}"
-                       placeholder="البحث بالاسم أو الكود أو المعلم..."
-                       style="width:100%;padding:10px 44px 10px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;color:#111827;background:#f9fafb;outline:none;box-sizing:border-box;"
-                       onfocus="this.style.borderColor='#0d9488'" onblur="this.style.borderColor='#e5e7eb'">
+    {{-- Filter Bar --}}
+    @php $hasFilters = $filters['search'] || $filters['status'] || $filters['programId'] || $filters['teacherId'] || $filters['noTeacher']; @endphp
+    <div style="background:white;border-radius:14px;padding:18px 20px;margin-bottom:20px;border:1px solid #e5e7eb;box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+        <form method="GET" action="{{ route('admin.subjects.index') }}">
+            {{-- Row 1: search + submit --}}
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+                <div style="position:relative;flex:1;">
+                    <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#9ca3af" stroke-width="2"
+                         style="position:absolute;right:13px;top:50%;transform:translateY(-50%);pointer-events:none;">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                    <input type="text" name="search" value="{{ $filters['search'] }}"
+                           placeholder="البحث بالاسم أو الكود أو المعلم..."
+                           style="width:100%;padding:10px 40px 10px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;color:#111827;background:#f9fafb;outline:none;box-sizing:border-box;"
+                           onfocus="this.style.borderColor='#0d9488'" onblur="this.style.borderColor='#e5e7eb'">
+                </div>
+                <button type="submit"
+                        style="white-space:nowrap;padding:10px 22px;background:#0f766e;color:white;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;">
+                    <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                    بحث وتصفية
+                </button>
+                @if($hasFilters)
+                <a href="{{ route('admin.subjects.index') }}"
+                   style="white-space:nowrap;padding:10px 16px;background:#fef2f2;color:#dc2626;border:1px solid #fecaca;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:5px;">
+                    <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                    مسح الفلاتر
+                </a>
+                @endif
+                <div style="color:#6b7280;font-size:13px;white-space:nowrap;margin-right:auto;">
+                    <span style="font-weight:700;color:#111827;">{{ $subjects->total() }}</span> مادة
+                </div>
             </div>
-            <button type="submit" style="padding:10px 20px;background:#0f766e;color:white;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;">بحث</button>
-            @if($search)
-            <a href="{{ route('admin.subjects.index') }}" style="padding:10px 16px;background:#f3f4f6;color:#6b7280;border-radius:10px;font-size:14px;text-decoration:none;">مسح</a>
+
+            {{-- Row 2: dropdowns --}}
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:10px;align-items:center;">
+
+                {{-- Status --}}
+                <div style="position:relative;">
+                    <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#9ca3af" stroke-width="2"
+                         style="position:absolute;right:11px;top:50%;transform:translateY(-50%);pointer-events:none;">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <select name="status"
+                            style="width:100%;padding:9px 34px 9px 12px;border:1.5px solid {{ $filters['status'] ? '#0d9488' : '#e5e7eb' }};border-radius:10px;font-size:13px;color:#374151;background:#f9fafb;outline:none;appearance:none;cursor:pointer;">
+                        <option value="">كل الحالات</option>
+                        <option value="active"    {{ $filters['status'] === 'active'    ? 'selected' : '' }}>نشط</option>
+                        <option value="inactive"  {{ $filters['status'] === 'inactive'  ? 'selected' : '' }}>غير نشط</option>
+                        <option value="completed" {{ $filters['status'] === 'completed' ? 'selected' : '' }}>مكتمل</option>
+                    </select>
+                    <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="#9ca3af" stroke-width="2.5"
+                         style="position:absolute;left:10px;top:50%;transform:translateY(-50%);pointer-events:none;">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </div>
+
+                {{-- Program --}}
+                <div style="position:relative;">
+                    <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#9ca3af" stroke-width="2"
+                         style="position:absolute;right:11px;top:50%;transform:translateY(-50%);pointer-events:none;">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                    </svg>
+                    <select name="program_id"
+                            style="width:100%;padding:9px 34px 9px 12px;border:1.5px solid {{ $filters['programId'] ? '#0d9488' : '#e5e7eb' }};border-radius:10px;font-size:13px;color:#374151;background:#f9fafb;outline:none;appearance:none;cursor:pointer;">
+                        <option value="">كل الدبلومات</option>
+                        @foreach($programs as $program)
+                        <option value="{{ $program->id }}" {{ $filters['programId'] == $program->id ? 'selected' : '' }}>
+                            {{ $program->name_ar ?: $program->name_en }}
+                        </option>
+                        @endforeach
+                    </select>
+                    <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="#9ca3af" stroke-width="2.5"
+                         style="position:absolute;left:10px;top:50%;transform:translateY(-50%);pointer-events:none;">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </div>
+
+                {{-- Teacher --}}
+                <div style="position:relative;">
+                    <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#9ca3af" stroke-width="2"
+                         style="position:absolute;right:11px;top:50%;transform:translateY(-50%);pointer-events:none;">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                    </svg>
+                    <select name="teacher_id"
+                            style="width:100%;padding:9px 34px 9px 12px;border:1.5px solid {{ $filters['teacherId'] ? '#0d9488' : '#e5e7eb' }};border-radius:10px;font-size:13px;color:#374151;background:#f9fafb;outline:none;appearance:none;cursor:pointer;">
+                        <option value="">كل المعلمين</option>
+                        @foreach($teachers as $teacher)
+                        <option value="{{ $teacher->id }}" {{ $filters['teacherId'] == $teacher->id ? 'selected' : '' }}>
+                            {{ $teacher->name }}
+                        </option>
+                        @endforeach
+                    </select>
+                    <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="#9ca3af" stroke-width="2.5"
+                         style="position:absolute;left:10px;top:50%;transform:translateY(-50%);pointer-events:none;">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </div>
+
+                {{-- Unassigned toggle --}}
+                <label style="display:inline-flex;align-items:center;gap:7px;cursor:pointer;white-space:nowrap;padding:9px 14px;border-radius:10px;border:1.5px solid {{ $filters['noTeacher'] ? '#dc2626' : '#e5e7eb' }};background:{{ $filters['noTeacher'] ? '#fef2f2' : '#f9fafb' }};">
+                    <input type="checkbox" name="no_teacher" value="1" {{ $filters['noTeacher'] ? 'checked' : '' }}
+                           style="width:14px;height:14px;accent-color:#dc2626;cursor:pointer;">
+                    <span style="font-size:13px;font-weight:500;color:{{ $filters['noTeacher'] ? '#dc2626' : '#6b7280' }};">بدون معلم</span>
+                </label>
+
+            </div>
+
+            {{-- Active filter chips --}}
+            @if($hasFilters)
+            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;padding-top:12px;border-top:1px dashed #e5e7eb;">
+                <span style="font-size:12px;color:#9ca3af;align-self:center;">فلاتر مفعّلة:</span>
+                @if($filters['search'])
+                <span style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;background:#ede9fe;color:#6d28d9;border-radius:20px;font-size:12px;font-weight:600;">
+                    بحث: {{ $filters['search'] }}
+                </span>
+                @endif
+                @if($filters['status'])
+                <span style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;background:#d1fae5;color:#065f46;border-radius:20px;font-size:12px;font-weight:600;">
+                    الحالة: {{ ['active'=>'نشط','inactive'=>'غير نشط','completed'=>'مكتمل'][$filters['status']] ?? $filters['status'] }}
+                </span>
+                @endif
+                @if($filters['programId'])
+                @php $selProg = $programs->firstWhere('id', $filters['programId']); @endphp
+                <span style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;background:#dbeafe;color:#1e40af;border-radius:20px;font-size:12px;font-weight:600;">
+                    الدبلومة: {{ $selProg?->name_ar ?: $selProg?->name_en }}
+                </span>
+                @endif
+                @if($filters['teacherId'])
+                @php $selTeacher = $teachers->firstWhere('id', $filters['teacherId']); @endphp
+                <span style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;background:#fef3c7;color:#92400e;border-radius:20px;font-size:12px;font-weight:600;">
+                    المعلم: {{ $selTeacher?->name }}
+                </span>
+                @endif
+                @if($filters['noTeacher'])
+                <span style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;background:#fee2e2;color:#991b1b;border-radius:20px;font-size:12px;font-weight:600;">
+                    بدون معلم
+                </span>
+                @endif
+            </div>
             @endif
         </form>
-        <div style="color:#6b7280;font-size:13px;white-space:nowrap;">
-            {{ $subjects->total() }} مادة
-        </div>
     </div>
 
     {{-- Table --}}
@@ -212,12 +336,12 @@
                                     </svg>
                                 </div>
                                 <div style="font-weight:600;color:#374151;font-size:16px;">
-                                    @if($search) لا توجد نتائج لـ "{{ $search }}" @else لا توجد مواد دراسية @endif
+                                    @if($hasFilters) لا توجد نتائج للفلاتر المحددة @else لا توجد مواد دراسية @endif
                                 </div>
                                 <div style="color:#9ca3af;font-size:14px;">
-                                    @if($search) جرب البحث بكلمات مختلفة @else ابدأ بإضافة أول مادة دراسية @endif
+                                    @if($hasFilters) جرب تغيير خيارات الفلترة @else ابدأ بإضافة أول مادة دراسية @endif
                                 </div>
-                                @if($search)
+                                @if($hasFilters)
                                 <a href="{{ route('admin.subjects.index') }}" style="margin-top:4px;padding:8px 18px;background:#0f766e;color:white;border-radius:10px;font-size:13px;text-decoration:none;">عرض الكل</a>
                                 @else
                                 <a href="{{ route('admin.subjects.create') }}" style="margin-top:4px;padding:8px 18px;background:#0f766e;color:white;border-radius:10px;font-size:13px;text-decoration:none;">إضافة مادة دراسية</a>
