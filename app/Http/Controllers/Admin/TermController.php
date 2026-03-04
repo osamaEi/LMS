@@ -81,13 +81,21 @@ class TermController extends Controller
         }]);
 
         // All subjects available to assign (with optional program hint)
-        $allSubjects = Subject::with('program')
+        $allSubjectsForJs = Subject::with('program')
             ->orderBy('name_ar')
-            ->get(['id', 'name_ar', 'name_en', 'code', 'program_id', 'teacher_id', 'status']);
+            ->get(['id', 'name_ar', 'code', 'program_id'])
+            ->map(function ($s) {
+                return [
+                    'id'      => $s->id,
+                    'name_ar' => $s->name_ar,
+                    'code'    => $s->code,
+                    'program' => $s->program ? $s->program->name_ar : null,
+                ];
+            })->values();
 
         $assignedIds = $term->subjects->pluck('id')->toArray();
 
-        return view('admin.terms.show', compact('term', 'allSubjects', 'assignedIds'));
+        return view('admin.terms.show', compact('term', 'allSubjectsForJs', 'assignedIds'));
     }
 
     public function edit(Term $term)

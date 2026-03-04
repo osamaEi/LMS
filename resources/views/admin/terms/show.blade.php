@@ -505,12 +505,7 @@ function subjectDrawer() {
     return {
         search: '',
         selected: @json($assignedIds),
-        allSubjects: @json($allSubjects->map(fn($s) => [
-            'id'      => $s->id,
-            'name_ar' => $s->name_ar,
-            'code'    => $s->code,
-            'program' => $s->program?->name_ar ?? null,
-        ])),
+        allSubjects: @json($allSubjectsForJs),
         get filtered() {
             const q = this.search.toLowerCase().trim();
             if (!q) return this.allSubjects;
