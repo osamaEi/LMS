@@ -8,12 +8,15 @@ use App\Models\Question;
 use App\Models\QuestionOption;
 use App\Models\QuizAttempt;
 use App\Models\Subject;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class QuizController extends Controller
 {
+    public function __construct(protected NotificationService $notificationService) {}
+
     /**
      * Display a listing of quizzes for a subject
      */
@@ -87,6 +90,9 @@ class QuizController extends Controller
                 'ends_at' => $validated['ends_at'] ?? null,
                 'is_active' => $request->boolean('is_active', true),
             ]);
+
+            // Notify enrolled students
+            $this->notificationService->notifyQuizCreated($quiz);
 
             return redirect()->route('teacher.quizzes.show', [$subjectId, $quiz->id])
                 ->with('success', 'تم إنشاء الاختبار بنجاح. يمكنك الآن إضافة الأسئلة.');

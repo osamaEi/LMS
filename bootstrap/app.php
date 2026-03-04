@@ -41,6 +41,9 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // Retry failed xAPI statements hourly (NELC Compliance)
         $schedule->command('xapi:retry-failed')->hourly();
+
+        // Send payment reminders daily at 9 AM for installments due in the next 3 days
+        $schedule->command('payments:send-reminders --days=3')->dailyAt('09:00');
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

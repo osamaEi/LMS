@@ -2,8 +2,12 @@
 
 namespace App\Services;
 
+use App\Models\Payment;
+use App\Models\Quiz;
 use App\Models\Session;
 use App\Models\User;
+use App\Notifications\PaymentCreatedNotification;
+use App\Notifications\QuizCreatedNotification;
 use App\Notifications\SessionCreatedNotification;
 use App\Notifications\SessionUpdatedNotification;
 use Illuminate\Support\Facades\Log;
@@ -89,6 +93,64 @@ class NotificationService
             Log::info("Processed batch notifications for " . count($sessionIds) . " sessions");
         } catch (\Exception $e) {
             Log::error("Failed to notify batch sessions: {$e->getMessage()}");
+        }
+    }
+
+    /**
+     * Notify student when admin creates a payment for them
+     */
+    public function notifyPaymentCreated(Payment $payment): void
+    {
+        try {
+            $student = $payment->user;
+
+            if (!$student || !$this->isUserActive($student)) {
+                return;
+            }
+
+            $student->notify(new PaymentCreatedNotification($payment));
+
+            Log::info("Sent payment created notification to student {$student->id} for payment {$payment->id}");
+        } catch (\Exception $e) {
+            Log::error("Failed to notify payment created {$payment->id}: {$e->getMessage()}");
+        }
+    }
+
+    /**
+     * Notify enrolled students when a teacher creates a new quiz/exam
+     */
+    public function notifyQuizCreated(Quiz $quiz): void
+    {
+        try {
+            $subject = $quiz->subject()->with('enrollments.student')->first();
+
+            if (!$subject) {
+                Log::warning("Subject not found for quiz {$quiz->id}");
+                return;
+            }
+
+            $notification = new QuizCreatedNotification($quiz);
+            $count = 0;
+
+            $subject->enrollments()
+                ->where('status', 'active')
+                ->with('student')
+                ->get()
+                ->each(function ($enrollment) use ($notification, &$count) {
+                    $student = $enrollment->student;
+                    if ($student && $this->isUserActive($student)) {
+                        try {
+                            $student->notify($notification);
+                            $count++;
+                        } catch (\Exception $e) {
+                            Log::error("Failed to send quiz notification to student {$student->id}: {$e->getMessage()}");
+                        }
+                    }
+                });
+
+            Log::info("Sent quiz created notifications for quiz {$quiz->id} to {$count} students");
+        } catch (\Exception $e) {
+            Log::error("Failed to notify quiz created {$quiz->id}: {$e->getMessage()}");
         }
     }
 

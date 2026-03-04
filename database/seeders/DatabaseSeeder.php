@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use Database\Seeders\PermissionSeeder;
+use Database\Seeders\SubjectsSeeder;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -17,7 +18,7 @@ class DatabaseSeeder extends Seeder
             PermissionSeeder::class,
 
             // 2. Super Admin user with all permissions
-            SuperAdminSeeder::class,
+            SubjectsSeeder::class,
         ]);
     }
 }

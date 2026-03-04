@@ -477,36 +477,65 @@
 
 {{-- ── Absent + Add Attendance ─────────────────────────────────── --}}
 @if($absentStudents->count() > 0)
+@php $totalAbsent = $absentStudents->count(); @endphp
 <div class="att-card fade-up d3" id="add-attendance"
-     x-data="{ selected: [], allIds: {{ json_encode($absentStudents->pluck('id')->values()) }} }">
+     x-data="{
+         selected: [],
+         allIds: {{ json_encode($absentStudents->pluck('id')->values()) }},
+         get allSelected() { return this.selected.length === this.allIds.length && this.allIds.length > 0; },
+         toggleAll() { this.selected = this.allSelected ? [] : [...this.allIds]; },
+         get pct() { return this.allIds.length > 0 ? Math.round((this.selected.length / this.allIds.length) * 100) : 0; }
+     }">
 
     {{-- Header --}}
-    <div class="att-card-header">
-        <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background:linear-gradient(135deg,#ef4444,#dc2626)">
-                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+    <div class="att-card-header flex-col gap-3 !items-stretch">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
+                     style="background:linear-gradient(135deg,#ef4444,#dc2626)">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h2 class="font-bold text-gray-900 dark:text-white">تسجيل الحضور اليدوي</h2>
+                    <p class="text-xs text-gray-400 mt-0.5">
+                        <span class="font-semibold text-red-500">{{ $totalAbsent }}</span> طالب غائب — انقر على البطاقة لتحديد الحاضرين
+                    </p>
+                </div>
+            </div>
+            {{-- Select-all toggle --}}
+            <button type="button" @click="toggleAll()"
+                    class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition"
+                    :class="allSelected
+                        ? 'text-red-600 bg-red-50 border border-red-200 hover:bg-red-100'
+                        : 'text-green-700 bg-green-50 border border-green-200 hover:bg-green-100'">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          x-show="!allSelected" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          x-show="allSelected" d="M6 18L18 6M6 6l12 12"/>
                 </svg>
-            </div>
-            <div>
-                <h2 class="font-bold text-gray-900 dark:text-white">الطلاب الغائبون</h2>
-                <p class="text-xs text-gray-400">{{ $absentStudents->count() }} طالب — انقر على البطاقة لتحديدها وتسجيل الحضور</p>
-            </div>
+                <span x-text="allSelected ? 'إلغاء الكل' : 'تحديد الكل'"></span>
+            </button>
         </div>
+
+        {{-- Progress bar --}}
         <div class="flex items-center gap-3">
-            <span class="text-xs font-semibold px-3 py-1.5 rounded-full"
-                  style="background:rgba(16,185,129,.1); color:#059669"
-                  x-text="selected.length + ' محدد'"></span>
-            <label class="flex items-center gap-1.5 text-sm font-medium text-gray-500 dark:text-gray-400 cursor-pointer">
-                <input type="checkbox" class="rounded"
-                       @change="selected = $event.target.checked ? [...allIds] : []">
-                <span class="text-xs">الكل</span>
-            </label>
+            <div class="flex-1 h-2 rounded-full bg-gray-100 dark:bg-gray-700 overflow-hidden">
+                <div class="h-full rounded-full transition-all duration-300"
+                     style="background:linear-gradient(90deg,#10b981,#34d399)"
+                     :style="'width:' + pct + '%'"></div>
+            </div>
+            <span class="text-xs font-bold w-28 text-right flex-shrink-0"
+                  :class="selected.length > 0 ? 'text-green-600' : 'text-gray-400'"
+                  x-text="selected.length > 0 ? selected.length + ' / {{ $totalAbsent }} محدد (' + pct + '%)' : 'لم يُحدَّد أحد'"></span>
         </div>
     </div>
 
+    {{-- Success flash --}}
     @if(session('success'))
-    <div class="mx-5 mt-4 flex items-center gap-2.5 rounded-xl px-4 py-3 text-sm font-medium text-green-700 border border-green-200"
+    <div class="mx-5 mt-4 flex items-center gap-2.5 rounded-xl px-4 py-3 text-sm font-semibold text-green-700 border border-green-200"
          style="background:#f0fdf4">
         <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -516,26 +545,57 @@
     @endif
 
     <form action="{{ route('teacher.my-subjects.sessions.attendance.save', [$subject->id, $session->id]) }}"
-          method="POST">
+          method="POST" id="attendance-form">
         @csrf
-        <div class="p-5">
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
-                @foreach($absentStudents as $student)
-                <label class="sel-card" :class="selected.includes({{ $student->id }}) ? 'selected' : ''">
+        <div class="p-5 pb-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
+                @foreach($absentStudents as $idx => $student)
+                <label class="sel-card" :class="selected.includes({{ $student->id }}) ? 'selected' : ''"
+                       style="animation-delay: {{ $idx * 0.04 }}s">
                     <input type="checkbox" name="student_ids[]" value="{{ $student->id }}"
                            class="sr-only" x-model="selected" :value="{{ $student->id }}">
-                    <div class="flex items-center gap-3">
-                        <img src="https://ui-avatars.com/api/?name={{ urlencode($student->name ?? 'N') }}&background=ef4444&color=fff&size=92&bold=true&rounded=true"
-                             alt="{{ $student->name }}"
-                             class="sel-avatar"
-                             :style="selected.includes({{ $student->id }}) ? 'border-color:#6ee7b7' : ''" />
-                        <div class="flex-1 min-w-0">
-                            <p class="text-sm font-semibold text-gray-900 dark:text-white truncate">{{ $student->name ?? 'غير معروف' }}</p>
-                            <p class="text-xs text-gray-400 truncate mt-0.5">{{ $student->email ?? '' }}</p>
-                            <p class="text-xs mt-1" :class="selected.includes({{ $student->id }}) ? 'text-green-600 font-semibold' : 'text-red-400'"
-                               x-text="selected.includes({{ $student->id }}) ? '✓ سيُسجَّل حضوره' : 'غائب'"></p>
+
+                    {{-- Selected overlay badge --}}
+                    <div class="absolute top-2 left-2 z-10 transition-all duration-200"
+                         :class="selected.includes({{ $student->id }}) ? 'opacity-100 scale-100' : 'opacity-0 scale-75'">
+                        <span class="inline-flex items-center gap-1 text-xs font-bold text-white px-2 py-0.5 rounded-full"
+                              style="background:linear-gradient(135deg,#10b981,#059669)">
+                            <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            حاضر
+                        </span>
+                    </div>
+
+                    <div class="flex items-center gap-3.5">
+                        {{-- Avatar --}}
+                        <div class="relative flex-shrink-0">
+                            <img src="https://ui-avatars.com/api/?name={{ urlencode($student->name ?? 'N') }}&background=64748b&color=fff&size=92&bold=true&rounded=true"
+                                 alt="{{ $student->name }}"
+                                 class="sel-avatar" />
+                            {{-- Online indicator dot (hidden/shown on select) --}}
+                            <span class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-white transition-all duration-200"
+                                  :class="selected.includes({{ $student->id }}) ? 'bg-green-400' : 'bg-red-400'"></span>
                         </div>
-                        <div class="check-ring">
+
+                        {{-- Info --}}
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-bold text-gray-900 dark:text-white truncate leading-tight">
+                                {{ $student->name ?? 'غير معروف' }}
+                            </p>
+                            <p class="text-xs text-gray-400 truncate mt-0.5">{{ $student->email ?? '' }}</p>
+                            <div class="mt-1.5 flex items-center gap-1.5">
+                                <span class="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full transition-all duration-200"
+                                      :class="selected.includes({{ $student->id }})
+                                          ? 'bg-green-100 text-green-700 border border-green-200'
+                                          : 'bg-red-50 text-red-500 border border-red-100'"
+                                      x-text="selected.includes({{ $student->id }}) ? '✓ سيُسجَّل حضوره' : 'غائب'">
+                                </span>
+                            </div>
+                        </div>
+
+                        {{-- Check ring --}}
+                        <div class="check-ring flex-shrink-0">
                             <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
                             </svg>
@@ -546,21 +606,35 @@
             </div>
         </div>
 
-        {{-- Footer --}}
-        <div class="flex items-center justify-between gap-4 border-t border-gray-100 dark:border-gray-700 px-5 py-4">
-            <p class="text-sm text-gray-500 dark:text-gray-400">
-                انقر على بطاقات الطلاب لتحديدهم ثم اضغط تسجيل
-            </p>
-            <button type="submit"
+        {{-- Sticky footer --}}
+        <div class="sticky bottom-0 z-20 flex items-center justify-between gap-4 px-5 py-3.5
+                    border-t border-gray-100 dark:border-gray-700
+                    bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-b-2xl">
+            <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+                     :class="selected.length > 0 ? 'bg-green-100' : 'bg-gray-100'">
+                    <svg class="w-4 h-4" :class="selected.length > 0 ? 'text-green-600' : 'text-gray-400'"
+                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+                <p class="text-sm text-gray-500 dark:text-gray-400" x-show="selected.length === 0">انقر على بطاقات الطلاب لتحديد الحاضرين</p>
+                <p class="text-sm font-semibold text-green-600" x-show="selected.length > 0"
+                   x-text="'تم تحديد ' + selected.length + ' طالب للتسجيل'"></p>
+            </div>
+            <button type="submit" form="attendance-form"
                     :disabled="selected.length === 0"
-                    class="inline-flex items-center gap-2 rounded-xl px-6 py-2.5 text-sm font-bold text-white shadow-lg transition"
-                    :class="selected.length === 0 ? 'opacity-40 cursor-not-allowed' : 'hover:shadow-xl hover:-translate-y-0.5'"
+                    class="inline-flex items-center gap-2 rounded-xl px-7 py-2.5 text-sm font-bold text-white transition-all duration-200"
+                    :class="selected.length === 0
+                        ? 'opacity-40 cursor-not-allowed shadow-none'
+                        : 'shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0'"
                     style="background:linear-gradient(135deg,#10b981,#059669)">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>
-                تسجيل حضور
-                <span class="bg-white/25 rounded-lg px-2 py-0.5 text-xs" x-show="selected.length > 0" x-text="'(' + selected.length + ')'"></span>
+                تسجيل الحضور
+                <span class="bg-white/30 rounded-lg px-2 py-0.5 text-xs font-black"
+                      x-show="selected.length > 0" x-text="selected.length"></span>
             </button>
         </div>
     </form>

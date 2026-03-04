@@ -7,6 +7,7 @@ use App\Models\Payment;
 use App\Models\PaymentInstallment;
 use App\Models\Program;
 use App\Models\User;
+use App\Services\NotificationService;
 use App\Services\PaymentService;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
@@ -14,10 +15,12 @@ use Carbon\Carbon;
 class PaymentController extends Controller
 {
     protected PaymentService $paymentService;
+    protected NotificationService $notificationService;
 
-    public function __construct(PaymentService $paymentService)
+    public function __construct(PaymentService $paymentService, NotificationService $notificationService)
     {
         $this->paymentService = $paymentService;
+        $this->notificationService = $notificationService;
     }
 
     /**
@@ -146,6 +149,9 @@ class PaymentController extends Controller
                 customDates: $customDates
             );
         }
+
+        // Notify student
+        $this->notificationService->notifyPaymentCreated($payment);
 
         return redirect()->route('admin.payments.show', $payment)
             ->with('success', 'تم إنشاء الدفعة بنجاح');
