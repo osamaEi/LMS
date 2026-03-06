@@ -11,7 +11,7 @@ class SessionController extends Controller
     public function show(Session $session)
     {
         // Load relationships
-        $session->load(['subject.term.program', 'files']);
+        $session->load(['subject.term.program', 'files', 'homework']);
 
         // Check if the teacher owns this session's subject
         if ($session->subject->teacher_id !== auth()->id()) {

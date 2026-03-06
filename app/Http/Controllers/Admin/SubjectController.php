@@ -115,16 +115,16 @@ class SubjectController extends Controller
     public function update(Request $request, Subject $subject)
     {
         $validated = $request->validate([
-            'program_id' => 'required|exists:programs,id',
+            'program_id' => 'nullable|exists:programs,id',
             'teacher_id' => 'nullable|exists:users,id',
-            'name_ar' => 'required|string|max:255',
-            'name_en' => 'required|string|max:255',
-            'code' => 'required|string|unique:subjects,code,' . $subject->id,
+            'name_ar' => 'nullable|string|max:255',
+            'name_en' => 'nullable|string|max:255',
+            'code' => 'nullable|string|unique:subjects,code,' . $subject->id,
             'description_ar' => 'nullable|string',
             'description_en' => 'nullable|string',
             'banner_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'credits' => 'nullable|integer|min:1',
-            'status' => 'required|in:active,inactive,completed',
+            'status' => 'nullable|in:active,inactive,completed',
         ]);
 
         if ($request->hasFile('banner_photo')) {

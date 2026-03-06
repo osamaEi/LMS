@@ -170,7 +170,16 @@
                         </div>
 
                         {{-- Action --}}
-                        @if($session->zoom_join_url)
+                        @if($session->zoom_start_url)
+                            <a href="{{ $session->zoom_start_url }}" target="_blank"
+                               class="flex-shrink-0 inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-bold text-white shadow transition"
+                               style="background:linear-gradient(135deg,#ef4444,#dc2626)">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/>
+                                </svg>
+                                بدء الجلسة
+                            </a>
+                        @elseif($session->zoom_join_url)
                             <a href="{{ $session->zoom_join_url }}" target="_blank"
                                class="flex-shrink-0 inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-bold text-white shadow transition"
                                style="background:linear-gradient(135deg,#22c55e,#16a34a)">

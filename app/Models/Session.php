@@ -88,6 +88,11 @@ class Session extends Model
         return $this->hasMany(SessionFile::class)->orderBy('order', 'asc');
     }
 
+    public function homework()
+    {
+        return $this->hasOne(Homework::class);
+    }
+
     // Helper Methods
     public function isLiveZoom(): bool
     {

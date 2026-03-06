@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Program;
+use App\Models\Term;
+use App\Models\Subject;
 use Illuminate\Http\Request;
 
 class ProgramController extends Controller
@@ -25,38 +27,71 @@ class ProgramController extends Controller
 
     public function create()
     {
-        return view('admin.programs.create');
+        $subjects = Subject::orderBy('name_ar')->get(['id', 'name_ar', 'name_en', 'code']);
+        return view('admin.programs.create', compact('subjects'));
     }
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'name_ar' => 'required|string|max:255',
-            'name_en' => 'required|string|max:255',
-            'code' => 'required|string|unique:programs,code',
-            'description_ar' => 'nullable|string',
-            'description_en' => 'nullable|string',
-            'duration_months' => 'nullable|integer|min:1',
-            'price' => 'nullable|numeric|min:0',
-            'status' => 'required|in:active,inactive',
+        $request->validate([
+            'name_ar'            => 'nullable|string|max:255',
+            'name_en'            => 'nullable|string|max:255',
+            'code'               => 'nullable|string|unique:programs,code',
+            'description_ar'     => 'nullable|string',
+            'description_en'     => 'nullable|string',
+            'duration_months'    => 'nullable|integer|min:1',
+            'price'              => 'nullable|numeric|min:0',
+            'status'             => 'nullable|in:active,inactive',
+            'terms'              => 'nullable|array',
+            'terms.*.name_ar'    => 'nullable|string|max:255',
+            'terms.*.name_en'    => 'nullable|string|max:255',
+            'terms.*.term_number'=> 'nullable|integer',
+            'terms.*.start_date' => 'nullable|date',
+            'terms.*.end_date'   => 'nullable|date',
+            'terms.*.status'     => 'nullable|in:active,inactive,upcoming,completed',
+            'terms.*.subjects'   => 'nullable|array',
+            'terms.*.subjects.*' => 'exists:subjects,id',
         ]);
 
-        Program::create($validated);
+        $program = Program::create($request->only([
+            'name_ar', 'name_en', 'code', 'description_ar', 'description_en',
+            'duration_months', 'price', 'status',
+        ]));
 
-        return redirect()->route('admin.programs.index')
+        foreach ($request->input('terms', []) as $i => $termData) {
+            $subjectIds = $termData['subjects'] ?? [];
+            $term = Term::create([
+                'program_id'  => $program->id,
+                'term_number' => $termData['term_number'] ?? ($i + 1),
+                'name_ar'     => $termData['name_ar'] ?? null,
+                'name_en'     => $termData['name_en'] ?? null,
+                'start_date'  => $termData['start_date'] ?? null,
+                'end_date'    => $termData['end_date'] ?? null,
+                'status'      => $termData['status'] ?? 'upcoming',
+            ]);
+            if (!empty($subjectIds)) {
+                $term->subjects()->sync($subjectIds);
+            }
+        }
+
+        return redirect()->route('admin.programs.show', $program)
             ->with('success', 'تم إضافة الدبلومة بنجاح');
     }
 
     public function show(Program $program)
     {
         $program->load([
-            'terms' => function($query) {
-                $query->withCount('subjects')->latest();
+            'terms' => function ($query) {
+                $query->withCount('subjects')
+                      ->with(['subjects' => fn($q) => $q->with('teacher:id,name')->orderBy('name_ar')])
+                      ->orderBy('term_number');
             },
             'tracks',
         ]);
 
-        return view('admin.programs.show', compact('program'));
+        $allSubjects = Subject::orderBy('name_ar')->get(['id', 'name_ar', 'name_en', 'code']);
+
+        return view('admin.programs.show', compact('program', 'allSubjects'));
     }
 
     public function edit(Program $program)
@@ -67,14 +102,14 @@ class ProgramController extends Controller
     public function update(Request $request, Program $program)
     {
         $validated = $request->validate([
-            'name_ar' => 'required|string|max:255',
-            'name_en' => 'required|string|max:255',
-            'code' => 'required|string|unique:programs,code,' . $program->id,
+            'name_ar' => 'nullable|string|max:255',
+            'name_en' => 'nullable|string|max:255',
+            'code' => 'nullable|string|unique:programs,code,' . $program->id,
             'description_ar' => 'nullable|string',
             'description_en' => 'nullable|string',
             'duration_months' => 'nullable|integer|min:1',
             'price' => 'nullable|numeric|min:0',
-            'status' => 'required|in:active,inactive',
+            'status' => 'nullable|in:active,inactive',
         ]);
 
         $program->update($validated);

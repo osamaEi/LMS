@@ -353,8 +353,11 @@ Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')
     // Attendance
     Route::get('/attendance', [\App\Http\Controllers\Teacher\SubjectController::class, 'attendanceOverview'])->name('attendance.index');
 
-    // Assignments (TODO: Create controller)
-    // Route::resource('assignments', \App\Http\Controllers\Teacher\AssignmentController::class);
+    // Homework
+    Route::get('/homework', [\App\Http\Controllers\Teacher\HomeworkController::class, 'index'])->name('homework.index');
+    Route::post('/sessions/{session}/homework', [\App\Http\Controllers\Teacher\HomeworkController::class, 'store'])->name('sessions.homework.store');
+    Route::put('/sessions/{session}/homework', [\App\Http\Controllers\Teacher\HomeworkController::class, 'update'])->name('sessions.homework.update');
+    Route::delete('/sessions/{session}/homework', [\App\Http\Controllers\Teacher\HomeworkController::class, 'destroy'])->name('sessions.homework.destroy');
 
     // Grades
     Route::get('/grades', function () {
@@ -426,6 +429,9 @@ Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')
     Route::get('/upcoming-sessions', [\App\Http\Controllers\Student\DashboardController::class, 'upcomingSessions'])->name('upcoming-sessions');
     Route::get('/sessions/{sessionId}/join-zoom', [\App\Http\Controllers\Student\DashboardController::class, 'joinZoom'])->name('sessions.join-zoom');
     Route::post('/sessions/{sessionId}/leave-zoom', [\App\Http\Controllers\Student\DashboardController::class, 'leaveZoom'])->name('sessions.leave-zoom');
+
+    // Homework
+    Route::get('/homework', [\App\Http\Controllers\Student\HomeworkController::class, 'index'])->name('homework.index');
 
     // Files & Resources
     Route::get('/files', [\App\Http\Controllers\Student\FileController::class, 'index'])->name('files.index');

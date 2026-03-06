@@ -57,12 +57,12 @@ class ScheduleController extends Controller
         $teacher = auth()->user();
 
         $request->validate([
-            'sessions'                  => 'required|array|min:1',
-            'sessions.*.subject_id'     => 'required|integer',
-            'sessions.*.title_ar'       => 'required|string|max:255',
-            'sessions.*.title_en'       => 'required|string|max:255',
-            'sessions.*.type'           => 'required|in:live_zoom,recorded_video',
-            'sessions.*.scheduled_at'   => 'required|date|after:now',
+            'sessions'                    => 'required|array|min:1',
+            'sessions.*.subject_id'       => 'nullable|integer',
+            'sessions.*.title_ar'         => 'nullable|string|max:255',
+            'sessions.*.title_en'         => 'nullable|string|max:255',
+            'sessions.*.type'             => 'nullable|in:live_zoom,recorded_video',
+            'sessions.*.scheduled_at'     => 'nullable|date',
             'sessions.*.duration_minutes' => 'nullable|integer|min:1|max:480',
         ]);
 
@@ -87,15 +87,16 @@ class ScheduleController extends Controller
 
         $created = 0;
         foreach ($request->sessions as $row) {
-            $sid = (int) $row['subject_id'];
+            $sid = (int) ($row['subject_id'] ?? 0);
+            if (!$allowed->contains($sid)) continue;
             $nextNumbers[$sid]++;
 
             Session::create([
                 'subject_id'       => $sid,
-                'title_ar'         => $row['title_ar'],
-                'title_en'         => $row['title_en'],
-                'type'             => $row['type'],
-                'scheduled_at'     => $row['scheduled_at'],
+                'title_ar'         => $row['title_ar'] ?? null,
+                'title_en'         => $row['title_en'] ?? null,
+                'type'             => $row['type'] ?? 'live_zoom',
+                'scheduled_at'     => $row['scheduled_at'] ?? null,
                 'duration_minutes' => $row['duration_minutes'] ?? 60,
                 'session_number'   => $nextNumbers[$sid],
                 'status'           => 'scheduled',

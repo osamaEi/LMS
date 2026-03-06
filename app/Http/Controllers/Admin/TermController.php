@@ -49,13 +49,13 @@ class TermController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'program_id' => 'required|exists:programs,id',
-            'term_number' => 'required|integer|min:1',
-            'name_ar' => 'required|string|max:255',
-            'name_en' => 'required|string|max:255',
-            'start_date' => 'required|date',
-            'end_date' => 'required|date|after:start_date',
-            'status' => 'required|in:upcoming,active,completed',
+            'program_id' => 'nullable|exists:programs,id',
+            'term_number' => 'nullable|integer|min:1',
+            'name_ar' => 'nullable|string|max:255',
+            'name_en' => 'nullable|string|max:255',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after:start_date',
+            'status' => 'nullable|in:upcoming,active,completed',
         ]);
 
         $term = Term::create($validated);
@@ -108,13 +108,13 @@ class TermController extends Controller
     public function update(Request $request, Term $term)
     {
         $validated = $request->validate([
-            'program_id' => 'required|exists:programs,id',
-            'term_number' => 'required|integer|min:1',
-            'name_ar' => 'required|string|max:255',
-            'name_en' => 'required|string|max:255',
-            'start_date' => 'required|date',
-            'end_date' => 'required|date|after:start_date',
-            'status' => 'required|in:upcoming,active,completed',
+            'program_id' => 'nullable|exists:programs,id',
+            'term_number' => 'nullable|integer|min:1',
+            'name_ar' => 'nullable|string|max:255',
+            'name_en' => 'nullable|string|max:255',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after:start_date',
+            'status' => 'nullable|in:upcoming,active,completed',
         ]);
 
         $term->update($validated);

@@ -185,7 +185,17 @@
 
                                 {{-- Actions --}}
                                 <div class="flex flex-shrink-0 flex-col items-center justify-center gap-2 border-l border-stroke px-4 py-4 dark:border-strokedark">
-                                    @if($session->zoom_join_url)
+                                    @if($session->zoom_start_url)
+                                        {{-- Start session (teacher host link) --}}
+                                        <a href="{{ $session->zoom_start_url }}" target="_blank"
+                                           class="inline-flex items-center gap-1.5 rounded-xl px-4 py-2 text-xs font-bold text-white shadow transition hover:opacity-90"
+                                           style="background:linear-gradient(135deg,#ef4444,#dc2626)">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/>
+                                            </svg>
+                                            بدء الجلسة
+                                        </a>
+                                    @elseif($session->zoom_join_url)
                                         {{-- Join via browser --}}
                                         <a href="{{ $session->zoom_join_url }}" target="_blank"
                                            class="inline-flex items-center gap-1.5 rounded-xl px-4 py-2 text-xs font-bold text-white shadow transition hover:opacity-90"
@@ -195,6 +205,8 @@
                                             </svg>
                                             انضم
                                         </a>
+                                    @endif
+                                    @if($session->zoom_join_url)
                                         {{-- Open in Zoom App --}}
                                         <button type="button"
                                                 onclick="openZoomApp('{{ $session->zoom_join_url }}')"
@@ -205,7 +217,8 @@
                                             </svg>
                                             التطبيق
                                         </button>
-                                    @else
+                                    @endif
+                                    @if(!$session->zoom_start_url && !$session->zoom_join_url)
                                         <a href="{{ route('teacher.my-subjects.show', $session->subject_id) }}"
                                            class="inline-flex items-center gap-1.5 rounded-xl px-4 py-2.5 text-xs font-bold text-white shadow-md transition hover:opacity-90"
                                            style="background:linear-gradient(135deg,#0071AA,#005a88)">
@@ -260,8 +273,8 @@
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400">المادة <span style="color:#ef4444">*</span></label>
-                                    <select name="sessions[0][subject_id]" required
+                                    <label class="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400">المادة</label>
+                                    <select name="sessions[0][subject_id]"
                                             class="w-full rounded-lg border border-stroke bg-white py-2 px-3 text-sm text-black outline-none focus:border-primary dark:border-strokedark dark:bg-boxdark dark:text-white">
                                         <option value="">— اختر المادة —</option>
                                         @foreach($subjects as $subject)
@@ -271,20 +284,20 @@
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400">عنوان الجلسة (عربي) <span style="color:#ef4444">*</span></label>
-                                    <input type="text" name="sessions[0][title_ar]" required placeholder="مثال: مقدمة في البرمجة"
+                                    <label class="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400">عنوان الجلسة (عربي)</label>
+                                    <input type="text" name="sessions[0][title_ar]" placeholder="مثال: مقدمة في البرمجة"
                                            class="w-full rounded-lg border border-stroke bg-white py-2 px-3 text-sm text-black outline-none focus:border-primary dark:border-strokedark dark:bg-boxdark dark:text-white">
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400">عنوان الجلسة (إنجليزي) <span style="color:#ef4444">*</span></label>
-                                    <input type="text" name="sessions[0][title_en]" required placeholder="e.g. Introduction to Programming"
+                                    <label class="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400">عنوان الجلسة (إنجليزي)</label>
+                                    <input type="text" name="sessions[0][title_en]" placeholder="e.g. Introduction to Programming"
                                            class="w-full rounded-lg border border-stroke bg-white py-2 px-3 text-sm text-black outline-none focus:border-primary dark:border-strokedark dark:bg-boxdark dark:text-white">
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400">النوع <span style="color:#ef4444">*</span></label>
-                                    <select name="sessions[0][type]" required
+                                    <label class="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400">النوع</label>
+                                    <select name="sessions[0][type]"
                                             class="w-full rounded-lg border border-stroke bg-white py-2 px-3 text-sm text-black outline-none focus:border-primary dark:border-strokedark dark:bg-boxdark dark:text-white">
                                         <option value="live_zoom">Zoom مباشر</option>
                                         <option value="recorded_video">مسجّل</option>
@@ -293,9 +306,8 @@
 
                                 <div class="grid grid-cols-2 gap-2">
                                     <div>
-                                        <label class="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400">التاريخ والوقت <span style="color:#ef4444">*</span></label>
-                                        <input type="datetime-local" name="sessions[0][scheduled_at]" required
-                                               min="{{ now()->addHour()->format('Y-m-d\TH:i') }}"
+                                        <label class="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400">التاريخ والوقت</label>
+                                        <input type="datetime-local" name="sessions[0][scheduled_at]"
                                                class="w-full rounded-lg border border-stroke bg-white py-2 px-3 text-xs text-black outline-none focus:border-primary dark:border-strokedark dark:bg-boxdark dark:text-white">
                                     </div>
                                     <div>
@@ -336,6 +348,93 @@
         </div>
 
     </div>
+
+    {{-- ══════════════════════════════════════
+         Past Sessions
+    ══════════════════════════════════════ --}}
+    @if($past->isNotEmpty())
+    <div class="mt-8">
+        <div class="mb-5 flex items-center gap-3">
+            <div class="flex h-9 w-9 items-center justify-center rounded-xl" style="background:linear-gradient(135deg,#6b7280,#4b5563)">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="white">
+                    <path d="M13 3a9 9 0 0 0-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42A8.954 8.954 0 0 0 13 21a9 9 0 0 0 0-18zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/>
+                </svg>
+            </div>
+            <h2 class="text-lg font-bold text-black dark:text-white">الجلسات السابقة</h2>
+            <span class="rounded-full px-3 py-1 text-xs font-medium" style="background:#f3f4f6;color:#6b7280">{{ $past->count() }}</span>
+        </div>
+
+        <div class="overflow-hidden rounded-2xl border border-stroke bg-white shadow-sm dark:border-strokedark dark:bg-boxdark">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr style="background:#f9fafb" class="dark:bg-meta-4">
+                        <th class="px-5 py-3 text-right text-xs font-semibold text-gray-500">الجلسة</th>
+                        <th class="px-5 py-3 text-right text-xs font-semibold text-gray-500">المادة</th>
+                        <th class="px-5 py-3 text-right text-xs font-semibold text-gray-500">التاريخ</th>
+                        <th class="px-5 py-3 text-right text-xs font-semibold text-gray-500">النوع</th>
+                        <th class="px-5 py-3 text-right text-xs font-semibold text-gray-500">الحالة</th>
+                        <th class="px-5 py-3 text-right text-xs font-semibold text-gray-500">الرابط</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-stroke dark:divide-strokedark">
+                    @foreach($past as $session)
+                    @php
+                        $dt = $session->scheduled_at ? \Carbon\Carbon::parse($session->scheduled_at) : null;
+                        $typeLabel = match($session->type ?? '') {
+                            'live_zoom'      => 'Zoom',
+                            'recorded_video' => 'مسجّل',
+                            'in_person'      => 'حضوري',
+                            default          => ucfirst($session->type ?? '—'),
+                        };
+                        $statusLabel = match($session->status ?? '') {
+                            'completed' => ['label' => 'مكتملة', 'bg' => '#dcfce7', 'color' => '#16a34a'],
+                            'live'      => ['label' => 'مباشر',  'bg' => '#fee2e2', 'color' => '#dc2626'],
+                            'cancelled' => ['label' => 'ملغاة',  'bg' => '#f3f4f6', 'color' => '#6b7280'],
+                            default     => ['label' => 'مجدولة', 'bg' => '#dbeafe', 'color' => '#1d4ed8'],
+                        };
+                    @endphp
+                    <tr class="hover:bg-gray-50 dark:hover:bg-meta-4 transition">
+                        <td class="px-5 py-3">
+                            <p class="font-medium text-black dark:text-white">{{ $session->title_ar ?: ($session->title_en ?: '—') }}</p>
+                            @if($session->session_number)
+                                <p class="text-xs text-gray-400">#{{ $session->session_number }}</p>
+                            @endif
+                        </td>
+                        <td class="px-5 py-3 text-gray-600 dark:text-gray-300">{{ $session->subject->name_ar ?? '—' }}</td>
+                        <td class="px-5 py-3 text-gray-500 text-xs">
+                            {{ $dt ? $dt->format('Y/m/d H:i') : '—' }}
+                        </td>
+                        <td class="px-5 py-3">
+                            <span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs" style="background:#f3f4f6;color:#4b5563">{{ $typeLabel }}</span>
+                        </td>
+                        <td class="px-5 py-3">
+                            <span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium"
+                                  style="background:{{ $statusLabel['bg'] }};color:{{ $statusLabel['color'] }}">
+                                {{ $statusLabel['label'] }}
+                            </span>
+                        </td>
+                        <td class="px-5 py-3">
+                            @if($session->zoom_join_url)
+                                <a href="{{ $session->zoom_join_url }}" target="_blank"
+                                   class="inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium text-white transition hover:opacity-90"
+                                   style="background:#2563eb">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/>
+                                    </svg>
+                                    الرابط
+                                </a>
+                            @else
+                                <span class="text-xs text-gray-400">—</span>
+                            @endif
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    </div>
+    @endif
+
 </div>
 
 <script>
@@ -355,33 +454,32 @@ function addRow() {
             </button>
         </div>
         <div class="mb-3">
-            <label class="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400">المادة <span style="color:#ef4444">*</span></label>
-            <select name="sessions[${idx}][subject_id]" required class="w-full rounded-lg border border-stroke bg-white py-2 px-3 text-sm text-black outline-none focus:border-primary dark:border-strokedark dark:bg-boxdark dark:text-white">
+            <label class="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400">المادة</label>
+            <select name="sessions[${idx}][subject_id]" class="w-full rounded-lg border border-stroke bg-white py-2 px-3 text-sm text-black outline-none focus:border-primary dark:border-strokedark dark:bg-boxdark dark:text-white">
                 <option value="">— اختر المادة —</option>${subjectOptions}
             </select>
         </div>
         <div class="mb-3">
-            <label class="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400">عنوان الجلسة (عربي) <span style="color:#ef4444">*</span></label>
-            <input type="text" name="sessions[${idx}][title_ar]" required placeholder="مثال: مقدمة في البرمجة"
+            <label class="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400">عنوان الجلسة (عربي)</label>
+            <input type="text" name="sessions[${idx}][title_ar]" placeholder="مثال: مقدمة في البرمجة"
                    class="w-full rounded-lg border border-stroke bg-white py-2 px-3 text-sm text-black outline-none focus:border-primary dark:border-strokedark dark:bg-boxdark dark:text-white">
         </div>
         <div class="mb-3">
-            <label class="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400">عنوان الجلسة (إنجليزي) <span style="color:#ef4444">*</span></label>
-            <input type="text" name="sessions[${idx}][title_en]" required placeholder="e.g. Introduction to Programming"
+            <label class="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400">عنوان الجلسة (إنجليزي)</label>
+            <input type="text" name="sessions[${idx}][title_en]" placeholder="e.g. Introduction to Programming"
                    class="w-full rounded-lg border border-stroke bg-white py-2 px-3 text-sm text-black outline-none focus:border-primary dark:border-strokedark dark:bg-boxdark dark:text-white">
         </div>
         <div class="mb-3">
-            <label class="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400">النوع <span style="color:#ef4444">*</span></label>
-            <select name="sessions[${idx}][type]" required class="w-full rounded-lg border border-stroke bg-white py-2 px-3 text-sm text-black outline-none focus:border-primary dark:border-strokedark dark:bg-boxdark dark:text-white">
+            <label class="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400">النوع</label>
+            <select name="sessions[${idx}][type]" class="w-full rounded-lg border border-stroke bg-white py-2 px-3 text-sm text-black outline-none focus:border-primary dark:border-strokedark dark:bg-boxdark dark:text-white">
                 <option value="live_zoom">Zoom مباشر</option>
                 <option value="recorded_video">مسجّل</option>
             </select>
         </div>
         <div class="grid grid-cols-2 gap-2">
             <div>
-                <label class="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400">التاريخ والوقت <span style="color:#ef4444">*</span></label>
-                <input type="datetime-local" name="sessions[${idx}][scheduled_at]" required
-                       min="{{ now()->addHour()->format('Y-m-d\TH:i') }}"
+                <label class="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400">التاريخ والوقت</label>
+                <input type="datetime-local" name="sessions[${idx}][scheduled_at]"
                        class="w-full rounded-lg border border-stroke bg-white py-2 px-3 text-xs text-black outline-none focus:border-primary dark:border-strokedark dark:bg-boxdark dark:text-white">
             </div>
             <div>

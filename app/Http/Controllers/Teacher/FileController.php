@@ -13,11 +13,14 @@ class FileController extends Controller
         $teacher = auth()->user();
 
         $subjects = Subject::where('teacher_id', $teacher->id)
-            ->with(['sessions' => function ($q) {
-                $q->with(['files' => function ($fq) {
-                    $fq->whereIn('type', ['pdf', 'video'])->orderBy('order');
-                }])->orderBy('session_number');
-            }])
+            ->with([
+                'files',
+                'sessions' => function ($q) {
+                    $q->with(['files' => function ($fq) {
+                        $fq->whereIn('type', ['pdf', 'video'])->orderBy('order');
+                    }])->orderBy('session_number');
+                },
+            ])
             ->get();
 
         $activeSubjectId = $request->integer('subject');

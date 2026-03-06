@@ -411,6 +411,165 @@
 
         </div>
     </div>
+
+    {{-- ══════════════════════════════════════
+         Homework Section
+    ══════════════════════════════════════ --}}
+    <div class="mt-6 overflow-hidden rounded-2xl border border-stroke bg-white shadow-sm dark:border-strokedark dark:bg-boxdark">
+        <div class="flex items-center gap-3 border-b border-stroke px-6 py-4 dark:border-strokedark"
+             style="background:linear-gradient(135deg,#f59e0b,#d97706)">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
+                <path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1s-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm2 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+            </svg>
+            <h3 class="font-bold text-white">الواجب المنزلي</h3>
+        </div>
+
+        <div class="p-6">
+            @if(session('success') && str_contains(session('success'), 'واجب'))
+            <div class="mb-4 rounded-xl px-4 py-3 text-sm font-medium" style="background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0">
+                {{ session('success') }}
+            </div>
+            @endif
+
+            @if($session->homework)
+                {{-- Show existing homework --}}
+                <div class="mb-6 rounded-xl p-4" style="background:#fffbeb;border:1px solid #fde68a">
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="flex-1">
+                            <h4 class="font-bold text-gray-800">{{ $session->homework->title_ar ?: $session->homework->title_en ?: 'واجب بدون عنوان' }}</h4>
+                            @if($session->homework->description_ar || $session->homework->description_en)
+                                <p class="mt-2 text-sm text-gray-600 whitespace-pre-line">{{ $session->homework->description_ar ?: $session->homework->description_en }}</p>
+                            @endif
+                            <div class="mt-3 flex flex-wrap gap-3 text-xs text-gray-500">
+                                @if($session->homework->due_date)
+                                    <span class="flex items-center gap-1">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg>
+                                        موعد التسليم: {{ $session->homework->due_date->format('Y/m/d') }}
+                                    </span>
+                                @endif
+                                @if($session->homework->file_path)
+                                    <a href="{{ asset('storage/' . $session->homework->file_path) }}" target="_blank"
+                                       class="flex items-center gap-1 font-medium" style="color:#0071AA">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
+                                        تحميل الملف ({{ $session->homework->file_name }})
+                                    </a>
+                                @endif
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="document.getElementById('edit-hw').classList.toggle('hidden')"
+                                    class="inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-bold text-white transition"
+                                    style="background:#0071AA">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+                                تعديل
+                            </button>
+                            <form action="{{ route('teacher.sessions.homework.destroy', $session) }}" method="POST"
+                                  onsubmit="return confirm('حذف الواجب؟')">
+                                @csrf @method('DELETE')
+                                <button type="submit"
+                                        class="inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-bold text-white transition"
+                                        style="background:#ef4444">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+                                    حذف
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Edit form (hidden by default) --}}
+                <div id="edit-hw" class="hidden">
+                    <form action="{{ route('teacher.sessions.homework.update', $session) }}" method="POST" enctype="multipart/form-data"
+                          class="rounded-xl border border-stroke p-4 dark:border-strokedark">
+                        @csrf @method('PUT')
+                        <p class="mb-3 text-sm font-bold text-gray-700 dark:text-gray-300">تعديل الواجب</p>
+                        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                            <div>
+                                <label class="mb-1 block text-xs font-medium text-gray-600">العنوان (عربي)</label>
+                                <input type="text" name="title_ar" value="{{ $session->homework->title_ar }}"
+                                       class="w-full rounded-lg border border-stroke bg-white py-2 px-3 text-sm outline-none focus:border-primary dark:border-strokedark dark:bg-boxdark dark:text-white">
+                            </div>
+                            <div>
+                                <label class="mb-1 block text-xs font-medium text-gray-600">العنوان (إنجليزي)</label>
+                                <input type="text" name="title_en" value="{{ $session->homework->title_en }}"
+                                       class="w-full rounded-lg border border-stroke bg-white py-2 px-3 text-sm outline-none focus:border-primary dark:border-strokedark dark:bg-boxdark dark:text-white">
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <label class="mb-1 block text-xs font-medium text-gray-600">الوصف (عربي)</label>
+                            <textarea name="description_ar" rows="3"
+                                      class="w-full rounded-lg border border-stroke bg-white py-2 px-3 text-sm outline-none focus:border-primary dark:border-strokedark dark:bg-boxdark dark:text-white">{{ $session->homework->description_ar }}</textarea>
+                        </div>
+                        <div class="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                            <div>
+                                <label class="mb-1 block text-xs font-medium text-gray-600">موعد التسليم</label>
+                                <input type="date" name="due_date" value="{{ $session->homework->due_date?->format('Y-m-d') }}"
+                                       class="w-full rounded-lg border border-stroke bg-white py-2 px-3 text-sm outline-none focus:border-primary dark:border-strokedark dark:bg-boxdark dark:text-white">
+                            </div>
+                            <div>
+                                <label class="mb-1 block text-xs font-medium text-gray-600">ملف جديد (اختياري)</label>
+                                <input type="file" name="file"
+                                       class="w-full rounded-lg border border-stroke bg-white py-2 px-3 text-sm outline-none focus:border-primary dark:border-strokedark dark:bg-boxdark dark:text-white">
+                            </div>
+                        </div>
+                        <div class="mt-3 flex gap-2">
+                            <button type="submit"
+                                    class="rounded-lg px-4 py-2 text-xs font-bold text-white"
+                                    style="background:#0071AA">حفظ التعديلات</button>
+                            <button type="button" onclick="document.getElementById('edit-hw').classList.add('hidden')"
+                                    class="rounded-lg px-4 py-2 text-xs font-medium" style="background:#f1f5f9;color:#374151">إلغاء</button>
+                        </div>
+                    </form>
+                </div>
+
+            @else
+                {{-- Add homework form --}}
+                <form action="{{ route('teacher.sessions.homework.store', $session) }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                        <div>
+                            <label class="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400">عنوان الواجب (عربي)</label>
+                            <input type="text" name="title_ar" placeholder="مثال: حل تمارين الفصل الثالث"
+                                   class="w-full rounded-lg border border-stroke bg-white py-2 px-3 text-sm outline-none focus:border-primary dark:border-strokedark dark:bg-boxdark dark:text-white">
+                        </div>
+                        <div>
+                            <label class="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400">عنوان الواجب (إنجليزي)</label>
+                            <input type="text" name="title_en" placeholder="e.g. Solve Chapter 3 exercises"
+                                   class="w-full rounded-lg border border-stroke bg-white py-2 px-3 text-sm outline-none focus:border-primary dark:border-strokedark dark:bg-boxdark dark:text-white">
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <label class="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400">وصف الواجب (عربي)</label>
+                        <textarea name="description_ar" rows="4" placeholder="اكتب تفاصيل الواجب هنا..."
+                                  class="w-full rounded-lg border border-stroke bg-white py-2 px-3 text-sm outline-none focus:border-primary dark:border-strokedark dark:bg-boxdark dark:text-white"></textarea>
+                    </div>
+                    <div class="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                        <div>
+                            <label class="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400">موعد التسليم</label>
+                            <input type="date" name="due_date"
+                                   class="w-full rounded-lg border border-stroke bg-white py-2 px-3 text-sm outline-none focus:border-primary dark:border-strokedark dark:bg-boxdark dark:text-white">
+                        </div>
+                        <div>
+                            <label class="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400">إرفاق ملف (اختياري)</label>
+                            <input type="file" name="file"
+                                   class="w-full rounded-lg border border-stroke bg-white py-2 px-3 text-sm outline-none focus:border-primary dark:border-strokedark dark:bg-boxdark dark:text-white">
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <button type="submit"
+                                class="inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-bold text-white shadow transition hover:opacity-90"
+                                style="background:linear-gradient(135deg,#f59e0b,#d97706)">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                            </svg>
+                            إضافة الواجب
+                        </button>
+                    </div>
+                </form>
+            @endif
+        </div>
+    </div>
+
 </div>
 
 <script>

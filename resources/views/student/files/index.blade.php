@@ -161,8 +161,8 @@
             </div>
             <div style="margin-right:auto;display:flex;gap:10px;flex-wrap:wrap">
                 @php
-                    $totalFiles = $subjects->sum(fn($s) => $s->sessions->sum(fn($sess) => $sess->files->count()));
-                    $totalPdfs  = $subjects->sum(fn($s) => $s->sessions->sum(fn($sess) => $sess->files->where('type','pdf')->count()));
+                    $totalFiles = $subjects->sum(fn($s) => $s->sessions->sum(fn($sess) => $sess->files->count()) + $s->files->count());
+                    $totalPdfs  = $subjects->sum(fn($s) => $s->sessions->sum(fn($sess) => $sess->files->where('type','pdf')->count()) + $s->files->where('file_type','pdf')->count());
                     $totalVids  = $subjects->sum(fn($s) => $s->sessions->sum(fn($sess) => $sess->files->where('type','video')->count()));
                 @endphp
                 @foreach([[$totalFiles,'إجمالي الملفات','#38bdf8'],[$totalPdfs,'PDF','#f87171'],[$totalVids,'فيديو','#60a5fa']] as [$count,$label,$color])
@@ -216,7 +216,7 @@
 
             @foreach($subjects as $subject)
             @php
-                $subjectFileCount = $subject->sessions->sum(fn($s) => $s->files->count());
+                $subjectFileCount = $subject->sessions->sum(fn($s) => $s->files->count()) + $subject->files->count();
                 $isActive = $activeSubjectId === $subject->id;
                 $subjectColor = $subject->color ?? '#0071AA';
             @endphp
@@ -243,7 +243,7 @@
                 $displaySubjects = $activeSubjectId
                     ? $subjects->where('id', $activeSubjectId)
                     : $subjects;
-                $hasAnyFiles = $displaySubjects->sum(fn($s) => $s->sessions->sum(fn($sess) => $sess->files->count())) > 0;
+                $hasAnyFiles = $displaySubjects->sum(fn($s) => $s->sessions->sum(fn($sess) => $sess->files->count()) + $s->files->count()) > 0;
             @endphp
 
             @if(!$hasAnyFiles)
@@ -259,9 +259,11 @@
             @else
             @foreach($displaySubjects as $subject)
             @php
-                $allFiles = $subject->sessions->flatMap(fn($s) => $s->files->map(fn($f) => ['file' => $f, 'session' => $s]));
+                $sessionFiles = $subject->sessions->flatMap(fn($s) => $s->files->map(fn($f) => ['file' => $f, 'session' => $s]));
+                $directFiles  = $subject->files;
+                $totalCount   = $sessionFiles->count() + $directFiles->count();
             @endphp
-            @if($allFiles->count())
+            @if($totalCount)
             <div style="margin-bottom:28px">
                 <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
                     <div style="width:36px;height:36px;border-radius:10px;background:{{ $subject->color ?? '#0071AA' }};display:flex;align-items:center;justify-content:center;flex-shrink:0">
@@ -271,98 +273,155 @@
                     </div>
                     <div>
                         <h2 style="font-size:1rem;font-weight:800;color:#111827;margin:0" class="dark:text-white">{{ $subject->name }}</h2>
-                        <span style="font-size:0.75rem;color:#6b7280">{{ $allFiles->count() }} ملف</span>
+                        <span style="font-size:0.75rem;color:#6b7280">{{ $totalCount }} ملف</span>
                     </div>
                     <div style="flex:1;height:1px;background:#e5e7eb;margin-right:8px" class="dark:bg-white/10"></div>
                 </div>
 
-                <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px">
-                    @foreach($allFiles as $item)
-                    @php
-                        $file    = $item['file'];
-                        $session = $item['session'];
-                        $isPdf   = $file->type === 'pdf';
-                        $isVideo = $file->type === 'video';
-                        $fileUrl = $file->getFileUrl();
-                    @endphp
-                    <div class="file-card"
-                         style="cursor:{{ $fileUrl ? 'pointer' : 'default' }}"
-                         @if($fileUrl)
-                         @click="openPreview({
-                             id: {{ $file->id }},
-                             title: @js($file->title ?? $session->title),
-                             type: '{{ $file->type }}',
-                             url: @js($fileUrl),
-                             session: @js($session->title),
-                             size: @js($file->getFormattedSize()),
-                             duration: @js($file->getDurationFormatted())
-                         })"
-                         @endif>
-                        <div style="height:4px;background:{{ $isPdf ? 'linear-gradient(90deg,#dc2626,#ef4444)' : 'linear-gradient(90deg,#0071AA,#38bdf8)' }}"></div>
-
-                        <div style="padding:16px">
-                            <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px">
-                                <div style="width:48px;height:48px;border-radius:12px;background:{{ $isPdf ? '#fee2e2' : '#e0f2fe' }};display:flex;align-items:center;justify-content:center">
-                                    @if($isPdf)
-                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="#dc2626">
-                                        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM8 17h8v-1.5H8V17zm0-3h8v-1.5H8V14zm0-3h5v-1.5H8V11z"/>
-                                    </svg>
-                                    @else
-                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="#0071AA">
-                                        <path d="M8 5v14l11-7L8 5z"/>
-                                    </svg>
-                                    @endif
-                                </div>
-                                <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
-                                    <span style="font-size:0.7rem;font-weight:700;padding:2px 8px;border-radius:999px" class="type-badge-{{ $file->type }}">
-                                        {{ $isPdf ? 'PDF' : 'فيديو' }}
+                {{-- Direct Subject Files --}}
+                @if($directFiles->count())
+                <div style="margin-bottom:16px">
+                    <div style="font-size:0.72rem;font-weight:700;color:#0071AA;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:6px">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm-1 1.5L18.5 9H13V3.5z"/>
+                        </svg>
+                        ملفات المادة
+                    </div>
+                    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px">
+                        @foreach($directFiles as $file)
+                        @php
+                            $isPdf = str_contains(strtolower($file->file_type ?? ''), 'pdf');
+                        @endphp
+                        <div class="file-card">
+                            <div style="height:4px;background:{{ $isPdf ? 'linear-gradient(90deg,#dc2626,#ef4444)' : 'linear-gradient(90deg,#7c3aed,#8b5cf6)' }}"></div>
+                            <div style="padding:16px">
+                                <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px">
+                                    <div style="width:48px;height:48px;border-radius:12px;background:{{ $isPdf ? '#fee2e2' : '#ede9fe' }};display:flex;align-items:center;justify-content:center">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="{{ $isPdf ? '#dc2626' : '#7c3aed' }}">
+                                            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM8 17h8v-1.5H8V17zm0-3h8v-1.5H8V14zm0-3h5v-1.5H8V11z"/>
+                                        </svg>
+                                    </div>
+                                    <span style="font-size:0.7rem;font-weight:700;padding:2px 8px;border-radius:999px;background:{{ $isPdf ? '#fee2e2' : '#ede9fe' }};color:{{ $isPdf ? '#dc2626' : '#7c3aed' }}">
+                                        {{ strtoupper($file->file_type ?? 'ملف') }}
                                     </span>
-                                    @if($fileUrl)
-                                    <span style="font-size:0.68rem;color:#22c55e;display:flex;align-items:center;gap:3px">
-                                        <span style="width:6px;height:6px;background:#22c55e;border-radius:50%;display:inline-block"></span>
-                                        متاح
-                                    </span>
-                                    @else
-                                    <span style="font-size:0.68rem;color:#9ca3af">لا يوجد</span>
-                                    @endif
                                 </div>
-                            </div>
-
-                            <h4 style="font-size:0.9rem;font-weight:700;color:#111827;margin:0 0 4px;line-height:1.3;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical" class="dark:text-white">
-                                {{ $file->title ?? $session->title }}
-                            </h4>
-
-                            <p style="font-size:0.75rem;color:#6b7280;margin:0 0 12px">
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline;vertical-align:middle">
-                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
-                                </svg>
-                                {{ $session->title }}
-                            </p>
-
-                            <div style="display:flex;align-items:center;justify-content:space-between;padding-top:10px;border-top:1px solid #f1f5f9" class="dark:border-white/10">
-                                <span style="font-size:0.72rem;color:#9ca3af">
-                                    @if($isVideo && $file->getDurationFormatted())
-                                        {{ $file->getDurationFormatted() }}
-                                    @elseif($file->getFormattedSize() !== 'Unknown')
-                                        {{ $file->getFormattedSize() }}
-                                    @else
-                                        &mdash;
-                                    @endif
-                                </span>
-                                @if($fileUrl)
-                                <span style="font-size:0.75rem;font-weight:600;color:#0071AA;display:flex;align-items:center;gap:4px">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                                    </svg>
-                                    معاينة
-                                </span>
+                                <h4 style="font-size:0.9rem;font-weight:700;color:#111827;margin:0 0 4px;line-height:1.3;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical" class="dark:text-white">
+                                    {{ $file->title }}
+                                </h4>
+                                @if($file->description)
+                                <p style="font-size:0.75rem;color:#6b7280;margin:0 0 8px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical">{{ $file->description }}</p>
                                 @endif
+                                <div style="display:flex;align-items:center;justify-content:space-between;padding-top:10px;border-top:1px solid #f1f5f9" class="dark:border-white/10">
+                                    <span style="font-size:0.72rem;color:#9ca3af">{{ $file->getFormattedSize() }}</span>
+                                    <a href="{{ asset('storage/' . $file->file_path) }}" target="_blank"
+                                       style="font-size:0.75rem;font-weight:600;color:#0071AA;display:flex;align-items:center;gap:4px;text-decoration:none">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                                        </svg>
+                                        تحميل
+                                    </a>
+                                </div>
                             </div>
                         </div>
+                        @endforeach
                     </div>
-                    @endforeach
                 </div>
+                @endif
+
+                {{-- Session Files --}}
+                @if($sessionFiles->count())
+                <div>
+                    <div style="font-size:0.72rem;font-weight:700;color:#6b7280;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:6px">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                        </svg>
+                        ملفات الجلسات
+                    </div>
+                    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px">
+                        @foreach($sessionFiles as $item)
+                        @php
+                            $file    = $item['file'];
+                            $session = $item['session'];
+                            $isPdf   = $file->type === 'pdf';
+                            $isVideo = $file->type === 'video';
+                            $fileUrl = $file->getFileUrl();
+                        @endphp
+                        <div class="file-card"
+                             style="cursor:{{ $fileUrl ? 'pointer' : 'default' }}"
+                             @if($fileUrl)
+                             @click="openPreview({
+                                 id: {{ $file->id }},
+                                 title: @js($file->title ?? $session->title),
+                                 type: '{{ $file->type }}',
+                                 url: @js($fileUrl),
+                                 session: @js($session->title),
+                                 size: @js($file->getFormattedSize()),
+                                 duration: @js($file->getDurationFormatted())
+                             })"
+                             @endif>
+                            <div style="height:4px;background:{{ $isPdf ? 'linear-gradient(90deg,#dc2626,#ef4444)' : 'linear-gradient(90deg,#0071AA,#38bdf8)' }}"></div>
+                            <div style="padding:16px">
+                                <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px">
+                                    <div style="width:48px;height:48px;border-radius:12px;background:{{ $isPdf ? '#fee2e2' : '#e0f2fe' }};display:flex;align-items:center;justify-content:center">
+                                        @if($isPdf)
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="#dc2626">
+                                            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM8 17h8v-1.5H8V17zm0-3h8v-1.5H8V14zm0-3h5v-1.5H8V11z"/>
+                                        </svg>
+                                        @else
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="#0071AA">
+                                            <path d="M8 5v14l11-7L8 5z"/>
+                                        </svg>
+                                        @endif
+                                    </div>
+                                    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+                                        <span style="font-size:0.7rem;font-weight:700;padding:2px 8px;border-radius:999px" class="type-badge-{{ $file->type }}">
+                                            {{ $isPdf ? 'PDF' : 'فيديو' }}
+                                        </span>
+                                        @if($fileUrl)
+                                        <span style="font-size:0.68rem;color:#22c55e;display:flex;align-items:center;gap:3px">
+                                            <span style="width:6px;height:6px;background:#22c55e;border-radius:50%;display:inline-block"></span>
+                                            متاح
+                                        </span>
+                                        @else
+                                        <span style="font-size:0.68rem;color:#9ca3af">لا يوجد</span>
+                                        @endif
+                                    </div>
+                                </div>
+                                <h4 style="font-size:0.9rem;font-weight:700;color:#111827;margin:0 0 4px;line-height:1.3;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical" class="dark:text-white">
+                                    {{ $file->title ?? $session->title }}
+                                </h4>
+                                <p style="font-size:0.75rem;color:#6b7280;margin:0 0 12px">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline;vertical-align:middle">
+                                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                                    </svg>
+                                    {{ $session->title }}
+                                </p>
+                                <div style="display:flex;align-items:center;justify-content:space-between;padding-top:10px;border-top:1px solid #f1f5f9" class="dark:border-white/10">
+                                    <span style="font-size:0.72rem;color:#9ca3af">
+                                        @if($isVideo && $file->getDurationFormatted())
+                                            {{ $file->getDurationFormatted() }}
+                                        @elseif($file->getFormattedSize() !== 'Unknown')
+                                            {{ $file->getFormattedSize() }}
+                                        @else
+                                            &mdash;
+                                        @endif
+                                    </span>
+                                    @if($fileUrl)
+                                    <span style="font-size:0.75rem;font-weight:600;color:#0071AA;display:flex;align-items:center;gap:4px">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                        </svg>
+                                        معاينة
+                                    </span>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+                @endif
             </div>
             @endif
             @endforeach

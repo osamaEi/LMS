@@ -18,11 +18,14 @@ class FileController extends Controller
             $subjects = Subject::whereHas('term', function ($q) use ($student) {
                 $q->where('program_id', $student->program_id);
             })
-            ->with(['sessions' => function ($q) {
-                $q->with(['files' => function ($fq) {
-                    $fq->whereIn('type', ['pdf', 'video'])->orderBy('order');
-                }])->orderBy('session_number');
-            }])
+            ->with([
+                'files',
+                'sessions' => function ($q) {
+                    $q->with(['files' => function ($fq) {
+                        $fq->whereIn('type', ['pdf', 'video'])->orderBy('order');
+                    }])->orderBy('session_number');
+                },
+            ])
             ->get();
         }
 

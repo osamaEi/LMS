@@ -245,13 +245,38 @@
                                     </div>
                                 </div>
                                 <div class="flex items-center gap-4 mt-3 mr-13">
+                                    @if($term->start_date && $term->end_date)
                                     <div class="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
                                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                         </svg>
                                         {{ $term->start_date->format('Y/m/d') }} - {{ $term->end_date->format('Y/m/d') }}
                                     </div>
+                                    @endif
                                 </div>
+                                {{-- Subjects under this term --}}
+                                @if($term->subjects->isNotEmpty())
+                                <div class="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800">
+                                    <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">المواد الدراسية:</p>
+                                    <div class="flex flex-wrap gap-2">
+                                        @foreach($term->subjects as $subject)
+                                        <span class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium"
+                                              style="background:#f3f0ff; color:#7c3aed;">
+                                            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                                            </svg>
+                                            {{ $subject->name_ar ?: $subject->name_en }}
+                                            @if($subject->code)
+                                            <span style="opacity:.6;">· {{ $subject->code }}</span>
+                                            @endif
+                                            @if($subject->teacher)
+                                            <span style="opacity:.7;">— {{ $subject->teacher->name }}</span>
+                                            @endif
+                                        </span>
+                                        @endforeach
+                                    </div>
+                                </div>
+                                @endif
                             </div>
                             <div class="flex items-center gap-3">
                                 @if($term->status === 'active')
@@ -439,28 +464,26 @@
     </div>
 </template>
 
-<!-- Subject Modal -->
+<!-- Subject Modal (assign existing subjects to term) -->
 <template x-teleport="body">
-    <div x-data="{ open: false, termId: null, termName: '' }"
-         x-init="$watch('$store.subjectModal', value => { open = value.open; termId = value.termId; termName = value.termName; })"
+    <div x-data="{ open: false, termId: null, termName: '', search: '' }"
+         x-init="$watch('$store.subjectModal', value => { open = value.open; termId = value.termId; termName = value.termName; search = ''; })"
          x-show="open"
          x-cloak
          style="position: fixed; inset: 0; z-index: 999999;">
 
-        <!-- Backdrop -->
         <div x-show="open" @click="open = false; $store.subjectModal = {open: false, termId: null, termName: ''}"
              style="position: fixed; inset: 0; background: rgba(0,0,0,0.6);"></div>
 
-        <!-- Modal -->
         <div style="position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; padding: 1rem;">
             <div x-show="open" @click.stop
-                 style="background: white; border-radius: 12px; width: 100%; max-width: 420px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);"
+                 style="background: white; border-radius: 12px; width: 100%; max-width: 520px; max-height: 80vh; display:flex; flex-direction:column; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);"
                  class="dark:bg-gray-800">
 
-                <div style="padding: 1rem; border-bottom: 1px solid #e5e7eb;" class="dark:border-gray-700 flex items-center justify-between">
+                <div style="padding: 1rem; border-bottom: 1px solid #e5e7eb;" class="dark:border-gray-700 flex items-center justify-between flex-shrink-0">
                     <div>
-                        <h3 style="font-size: 1rem; font-weight: 600;" class="text-gray-900 dark:text-white">إضافة مادة دراسية</h3>
-                        <p class="text-xs text-gray-500 dark:text-gray-400" x-text="termName"></p>
+                        <h3 style="font-size: 1rem; font-weight: 600;" class="text-gray-900 dark:text-white">تعيين مواد للربع</h3>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5" x-text="termName"></p>
                     </div>
                     <button @click="open = false; $store.subjectModal = {open: false, termId: null, termName: ''}" class="text-gray-400 hover:text-gray-600">
                         <svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -469,41 +492,30 @@
                     </button>
                 </div>
 
-                <form action="{{ route('admin.subjects.store') }}" method="POST">
+                <form :action="'/admin/terms/' + termId + '/subjects/sync'" method="POST" style="display:flex; flex-direction:column; overflow:hidden; flex:1;">
                     @csrf
-                    <input type="hidden" name="term_id" x-bind:value="termId">
-                    <div style="padding: 1rem; max-height: 50vh; overflow-y: auto;" class="space-y-3">
-                        <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">اسم المادة *</label>
-                                <input type="text" name="name" required class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="مقدمة في البرمجة">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">كود المادة *</label>
-                                <input type="text" name="code" required class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="CS101">
-                            </div>
-                        </div>
-                        <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">الساعات المعتمدة</label>
-                                <input type="number" name="credits" min="1" value="3" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">إجمالي الساعات</label>
-                                <input type="number" name="total_hours" min="1" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="45">
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">الحالة *</label>
-                            <select name="status" required class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                                <option value="active">نشطة</option>
-                                <option value="inactive">غير نشطة</option>
-                            </select>
+                    <div style="padding: 1rem; flex-shrink:0;">
+                        <input type="text" x-model="search" placeholder="بحث عن مادة..."
+                               class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                    </div>
+                    <div style="padding: 0 1rem 1rem; overflow-y:auto; flex:1;">
+                        <div class="flex flex-wrap gap-2">
+                            @foreach($allSubjects as $subject)
+                            <label x-show="search === '' || '{{ strtolower($subject->name_ar . ' ' . $subject->name_en . ' ' . $subject->code) }}'.includes(search.toLowerCase())"
+                                   class="inline-flex items-center gap-1.5 cursor-pointer rounded-full px-3 py-1.5 text-xs font-medium border transition-colors"
+                                   style="cursor:pointer;">
+                                <input type="checkbox" name="subject_ids[]" value="{{ $subject->id }}" class="sr-only peer"
+                                       @change="$el.closest('label').style.background = $el.checked ? 'linear-gradient(135deg,#7c3aed,#5b21b6)' : ''; $el.closest('label').style.color = $el.checked ? 'white' : ''; $el.closest('label').style.borderColor = $el.checked ? '#7c3aed' : '';">
+                                <span>{{ $subject->name_ar ?: $subject->name_en }}</span>
+                                @if($subject->code)<span style="opacity:.65;">· {{ $subject->code }}</span>@endif
+                            </label>
+                            @endforeach
                         </div>
                     </div>
-                    <div style="padding: 1rem; border-top: 1px solid #e5e7eb;" class="dark:border-gray-700 flex justify-end gap-2">
-                        <button type="button" @click="open = false; $store.subjectModal = {open: false, termId: null, termName: ''}" class="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300">إلغاء</button>
-                        <button type="submit" class="px-4 py-2 text-sm text-white bg-purple-600 rounded-lg hover:bg-purple-700">إضافة</button>
+                    <div style="padding: 1rem; border-top: 1px solid #e5e7eb; flex-shrink:0;" class="dark:border-gray-700 flex justify-end gap-2">
+                        <button type="button" @click="open = false; $store.subjectModal = {open: false, termId: null, termName: ''}"
+                                class="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300">إلغاء</button>
+                        <button type="submit" class="px-4 py-2 text-sm text-white rounded-lg" style="background:linear-gradient(135deg,#7c3aed,#5b21b6);">حفظ التعيين</button>
                     </div>
                 </form>
             </div>
