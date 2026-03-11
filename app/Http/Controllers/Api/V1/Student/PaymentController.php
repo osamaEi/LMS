@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1\Student;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\PaymentResource;
 use App\Models\Payment;
 use App\Services\PaymentService;
 use App\Services\TamaraPaymentService;
@@ -43,9 +44,9 @@ class PaymentController extends Controller
         return response()->json([
             'success' => true,
             'data' => [
-                'payments' => $payments,
-                'summary' => $summary,
-                'tamara_configured' => $this->tamaraService->isConfigured(),
+                'payments'           => PaymentResource::collection($payments),
+                'summary'            => $summary,
+                'tamara_configured'  => $this->tamaraService->isConfigured(),
                 'paytabs_configured' => !empty(config('services.paytabs.profile_id')),
             ],
         ]);
@@ -65,7 +66,7 @@ class PaymentController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $payment,
+            'data' => new PaymentResource($payment),
         ]);
     }
 
