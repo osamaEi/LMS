@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Http\Resources\UserResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -83,7 +84,7 @@ class LoginController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $user,
+            'data' => new UserResource($user),
         ]);
     }
 }
