@@ -24,27 +24,9 @@ Route::prefix('v1')->group(function () {
     Route::get('/programs', [App\Http\Controllers\Api\V1\ProgramController::class, 'index']);
     Route::get('/programs/{program}', [App\Http\Controllers\Api\V1\ProgramController::class, 'show']);
 
-    // Public News
-    Route::get('/news', function () {
-        $news = \App\Models\News::active()
-            ->latest('published_at')
-            ->paginate(request('per_page', 10));
-
-        $news->getCollection()->transform(function ($item) {
-            $item->image_url  = $item->image_url;
-            $item->detail_url = url('/api/v1/news/' . $item->id);
-            return $item;
-        });
-
-        return response()->json(['success' => true, 'data' => $news]);
-    });
-
-    // News detail
-    Route::get('/news/{id}', function ($id) {
-        $news = \App\Models\News::active()->findOrFail($id);
-        $news->image_url = $news->image_url;
-        return response()->json(['success' => true, 'data' => $news]);
-    });
+    // News
+    Route::get('/news', [App\Http\Controllers\Api\V1\NewsController::class, 'index']);
+    Route::get('/news/{news}', [App\Http\Controllers\Api\V1\NewsController::class, 'show']);
 
     // Authentication Routes (Public)
     Route::prefix('auth')->group(function () {
@@ -99,6 +81,8 @@ Route::prefix('v1')->group(function () {
 
             // Schedule (Calendar)
             Route::get('/schedule', [App\Http\Controllers\Api\V1\Student\ScheduleController::class, 'index']);
+            Route::get('/schedule/weekly', [App\Http\Controllers\Api\V1\Student\ScheduleController::class, 'weekly']);
+            Route::get('/schedule/calendar', [App\Http\Controllers\Api\V1\Student\ScheduleController::class, 'calendar']);
 
             // Subjects & Units
             Route::get('/subjects/{id}', [App\Http\Controllers\Api\V1\Student\SubjectController::class, 'show']);
