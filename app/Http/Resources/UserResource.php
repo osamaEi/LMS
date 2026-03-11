@@ -33,9 +33,9 @@ class UserResource extends JsonResource
             'profile_photo' => $this->profile_photo,
             'bio' => $this->bio,
             'email_verified_at' => $this->email_verified_at?->toIso8601String(),
-            'phone_verified_at' => $this->phone_verified_at?->toIso8601String(),
+          //  'phone_verified_at' => $this->phone_verified_at?->toIso8601String(),
             'nafath_verified_at' => $this->nafath_verified_at?->toIso8601String(),
-            'profile_completed_at' => $this->profile_completed_at?->toIso8601String(),
+            //'profile_completed_at' => $this->profile_completed_at?->toIso8601String(),
             //'documents' => $this->whenLoaded('documents'),
             //'created_at' => $this->created_at->toIso8601String(),
         ];
