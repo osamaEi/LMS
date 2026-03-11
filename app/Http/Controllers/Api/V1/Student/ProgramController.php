@@ -3,12 +3,15 @@
 namespace App\Http\Controllers\Api\V1\Student;
 
 use App\Http\Controllers\Controller;
-use App\Models\Program;
-use App\Models\Term;
-use App\Models\Subject;
-use App\Models\Session;
+use App\Http\Resources\ProgramResource;
+use App\Http\Resources\SubjectWithProgressResource;
+use App\Http\Resources\TermResource;
 use App\Models\Attendance;
 use App\Models\Enrollment;
+use App\Models\Program;
+use App\Models\Session;
+use App\Models\Subject;
+use App\Models\Term;
 use Illuminate\Http\Request;
 
 class ProgramController extends Controller
@@ -21,77 +24,117 @@ class ProgramController extends Controller
     {
         $student = auth()->user();
 
-        // Check pending status
+        // ─── Pending ───────────────────────────────────────────────────────────
         if ($student->program_status === 'pending') {
             return response()->json([
                 'success' => true,
                 'data' => [
                     'status'  => 'pending',
                     'message' => 'طلب التسجيل في انتظار موافقة الإدارة',
-                    'program' => $student->program,
-                    'track'   => $student->track,
+                    'program' => new ProgramResource($student->program),
                 ],
             ]);
         }
 
+        // ─── No program ────────────────────────────────────────────────────────
         $program = $student->program;
 
         if (!$program) {
-            $availablePrograms = Program::where('status', 'active')
-                ->withCount('terms')
-                ->get();
-
+            $available = Program::where('status', 'active')->withCount('terms')->get();
             return response()->json([
                 'success' => true,
                 'data' => [
-                    'status' => 'no_program',
-                    'available_programs' => $availablePrograms,
+                    'status'             => 'no_program',
+                    'available_programs' => ProgramResource::collection($available),
                 ],
             ]);
         }
 
-        $track = $student->track;
         $currentTermNumber = $student->current_term_number ?? 1;
 
-        $terms = Term::where('program_id', $program->id)
-            ->orderBy('term_number', 'asc')
-            ->with(['subjects' => function ($q) use ($student) {
-                $q->with(['teacher:id,name', 'sessions']);
-            }])
-            ->get();
+        // ─── Load program terms with pivot subjects ─────────────────────────────
+        $program->load(['terms' => fn($q) => $q->orderBy('term_number')
+            ->with(['subjects' => fn($sq) => $sq->with(['teacher:id,name', 'sessions:id,subject_id,type,duration_minutes'])
+                ->withCount('sessions')])
+            ->withCount('subjects')
+        ]);
 
+        $allTerms   = $program->terms;
+        $totalTerms = $allTerms->count();
+
+        // Current term
+        $currentTerm = $allTerms->firstWhere('term_number', $currentTermNumber);
+
+        // ─── Student enrollments keyed by subject_id ───────────────────────────
         $enrollments = Enrollment::where('student_id', $student->id)
-            ->with(['subject.term', 'subject.teacher:id,name'])
+            ->get()
+            ->keyBy('subject_id');
+
+        // ─── All enrolled subjects ──────────────────────────────────────────────
+        $enrolledSubjectIds = $enrollments->keys();
+
+        $allSubjects = Subject::whereIn('id', $enrolledSubjectIds)
+            ->with(['teacher:id,name', 'sessions:id,subject_id,type,duration_minutes', 'term:id,term_number,name_ar,name_en'])
             ->get();
 
-        $subjects = Subject::whereIn('term_id', $terms->pluck('id'))->get();
+        // Current term subjects
+        $currentTermSubjectIds = $currentTerm
+            ? $currentTerm->subjects->pluck('id')
+            : collect();
 
-        // Statistics
-        $totalSessions = Session::whereHas('subject.enrollments', fn($q) => $q->where('student_id', $student->id))->count();
-        $completedSessions = Session::whereHas('subject.enrollments', fn($q) => $q->where('student_id', $student->id))->whereNotNull('ended_at')->count();
-        $totalAttendances = Attendance::where('student_id', $student->id)->count();
+        $currentTermSubjects = $allSubjects->whereIn('id', $currentTermSubjectIds)->values();
+
+        $previousTermSubjects = $allSubjects->whereNotIn('id', $currentTermSubjectIds)->values();
+
+        // ─── Attendance stats for current term ─────────────────────────────────
+        $totalAttendances   = Attendance::where('student_id', $student->id)->count();
         $presentAttendances = Attendance::where('student_id', $student->id)->where('attended', true)->count();
-        $attendanceRate = $totalAttendances > 0 ? round(($presentAttendances / $totalAttendances) * 100, 1) : 0;
+        $attendanceRate     = $totalAttendances > 0
+            ? round(($presentAttendances / $totalAttendances) * 100, 1)
+            : 0;
 
-        $stats = [
-            'total_subjects' => $subjects->count(),
-            'total_sessions' => $totalSessions,
-            'completed_sessions' => $completedSessions,
-            'attendance_rate' => $attendanceRate,
-            'current_term' => $currentTermNumber,
-            'total_terms' => $terms->count(),
-            'progress_percentage' => $terms->count() > 0 ? round(($currentTermNumber / $terms->count()) * 100, 1) : 0,
+        // ─── Session stats ──────────────────────────────────────────────────────
+        $totalSessions     = Session::whereIn('subject_id', $enrolledSubjectIds)->count();
+        $completedSessions = Session::whereIn('subject_id', $enrolledSubjectIds)->whereNotNull('ended_at')->count();
+
+        // ─── Build current term data with completion percentage ─────────────────
+        $currentTermData = null;
+        if ($currentTerm) {
+            $currentTermData = array_merge(
+                (new TermResource($currentTerm))->resolve(),
+                [
+                    'completion_percentage'   => $attendanceRate,
+                    'min_attendance_required' => 80,
+                ]
+            );
+        }
+
+        // ─── Statistics ─────────────────────────────────────────────────────────
+        $statistics = [
+            'total_subjects'          => $allSubjects->count(),
+            'total_sessions'          => $totalSessions,
+            'completed_sessions'      => $completedSessions,
+            'attendance_rate'         => $attendanceRate,
+            'current_term_number'     => $currentTermNumber,
+            'total_terms'             => $totalTerms,
+            'overall_progress_percentage' => $totalTerms > 0
+                ? round(($currentTermNumber / $totalTerms) * 100, 1)
+                : 0,
         ];
 
         return response()->json([
             'success' => true,
             'data' => [
-                'status' => 'enrolled',
-                'program' => $program,
-                'track' => $track,
-                'terms' => $terms,
-                'enrollments' => $enrollments,
-                'statistics' => $stats,
+                'status'                 => 'enrolled',
+                'program'                => new ProgramResource($program),
+                'current_term'           => $currentTermData,
+                'statistics'             => $statistics,
+                'all_subjects'           => SubjectWithProgressResource::collection($allSubjects)
+                    ->additional(['enrollments' => $enrollments]),
+                'current_term_subjects'  => SubjectWithProgressResource::collection($currentTermSubjects)
+                    ->additional(['enrollments' => $enrollments]),
+                'previous_subjects'      => SubjectWithProgressResource::collection($previousTermSubjects)
+                    ->additional(['enrollments' => $enrollments]),
             ],
         ]);
     }
