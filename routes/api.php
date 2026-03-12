@@ -66,6 +66,12 @@ Route::prefix('v1')->group(function () {
 
         // Student Routes
         Route::prefix('student')->group(function () {
+            // Profile
+            Route::get('/profile', [App\Http\Controllers\Api\V1\Student\ProfileController::class, 'show']);
+            Route::put('/profile', [App\Http\Controllers\Api\V1\Student\ProfileController::class, 'update']);
+            Route::post('/profile/photo', [App\Http\Controllers\Api\V1\Student\ProfileController::class, 'updatePhoto']);
+            Route::post('/profile/change-password', [App\Http\Controllers\Api\V1\Student\ProfileController::class, 'changePassword']);
+
             // Dashboard
             Route::get('/dashboard', [App\Http\Controllers\Api\V1\Student\DashboardController::class, 'index']);
             Route::get('/my-subjects', [App\Http\Controllers\Api\V1\Student\DashboardController::class, 'mySubjects']);
@@ -105,6 +111,8 @@ Route::prefix('v1')->group(function () {
             Route::post('/tickets', [App\Http\Controllers\Api\V1\Student\TicketController::class, 'store']);
             Route::get('/tickets/{id}', [App\Http\Controllers\Api\V1\Student\TicketController::class, 'show']);
             Route::post('/tickets/{id}/reply', [App\Http\Controllers\Api\V1\Student\TicketController::class, 'reply']);
+            Route::post('/tickets/{id}/close', [App\Http\Controllers\Api\V1\Student\TicketController::class, 'close']);
+            Route::post('/tickets/{id}/rate', [App\Http\Controllers\Api\V1\Student\TicketController::class, 'rate']);
 
             // Surveys
             Route::get('/surveys', [App\Http\Controllers\Api\V1\Student\SurveyController::class, 'index']);

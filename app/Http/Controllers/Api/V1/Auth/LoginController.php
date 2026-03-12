@@ -80,7 +80,7 @@ class LoginController extends Controller
      */
     public function profile(Request $request)
     {
-        $user = $request->user()->load(['program', 'track']);
+        $user = $request->user()->load(['program.terms', 'track']);
 
         return response()->json([
             'success' => true,

@@ -1,0 +1,232 @@
+{
+  "info": {
+    "name": "LMS - Student Profile",
+    "_postman_id": "lms-student-profile-001",
+    "description": "Student profile endpoints: view, update, photo upload, change password",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "domain",
+      "value": "www.alertiqa.edu.sa"
+    },
+    {
+      "key": "token",
+      "value": "YOUR_SANCTUM_TOKEN_HERE"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "Get Student Profile",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "https://{{domain}}/api/v1/student/profile",
+          "protocol": "https",
+          "host": ["{{domain}}"],
+          "path": ["api", "v1", "student", "profile"]
+        },
+        "description": "Returns the authenticated student's full profile including program, track, and current term."
+      },
+      "response": [
+        {
+          "name": "200 OK - Profile",
+          "status": "OK",
+          "code": 200,
+          "header": [
+            { "key": "Content-Type", "value": "application/json" }
+          ],
+          "body": "{\n  \"success\": true,\n  \"data\": {\n    \"id\": 5,\n    \"name\": \"أحمد محمد العمري\",\n    \"email\": \"ahmed@example.com\",\n    \"phone\": \"0501234567\",\n    \"national_id\": \"1234567890\",\n    \"gender\": \"male\",\n    \"date_of_birth\": \"2000-06-15\",\n    \"bio\": null,\n    \"role\": \"student\",\n    \"status\": \"active\",\n    \"registration_number\": \"ST-2024-5\",\n    \"profile_photo\": \"https://www.alertiqa.edu.sa/storage/profile-photos/photo.jpg\",\n    \"program_id\": 1,\n    \"program_status\": \"active\",\n    \"program\": {\n      \"id\": 1,\n      \"name\": \"برنامج تطوير البرمجيات\",\n      \"code\": \"SDP-01\"\n    },\n    \"track\": {\n      \"id\": 2,\n      \"name\": \"المجموعة أ\",\n      \"code\": \"GRP-A\"\n    },\n    \"current_term_number\": 1,\n    \"current_term\": {\n      \"id\": 3,\n      \"name\": \"الفصل الأول\",\n      \"end_date\": \"2024-06-30\",\n      \"status\": \"active\"\n    },\n    \"is_confirm_user\": true,\n    \"email_verified_at\": \"2024-01-10T08:00:00+00:00\",\n    \"nafath_verified_at\": null,\n    \"date_of_register\": \"2024-01-05\",\n    \"created_at\": \"2024-01-05T10:00:00+00:00\"\n  }\n}"
+        },
+        {
+          "name": "401 Unauthorized",
+          "status": "Unauthorized",
+          "code": 401,
+          "header": [
+            { "key": "Content-Type", "value": "application/json" }
+          ],
+          "body": "{\n  \"message\": \"Unauthenticated.\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "Update Student Profile",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"أحمد محمد العمري\",\n  \"phone\": \"0509876543\",\n  \"email\": \"ahmed.new@example.com\",\n  \"bio\": \"طالب متحمس لتعلم البرمجة\",\n  \"gender\": \"male\",\n  \"date_of_birth\": \"2000-06-15\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://{{domain}}/api/v1/student/profile",
+          "protocol": "https",
+          "host": ["{{domain}}"],
+          "path": ["api", "v1", "student", "profile"]
+        },
+        "description": "Update editable profile fields. All fields are optional (use `sometimes` validation).\n\nEditable fields: name, phone, email, bio, gender, date_of_birth"
+      },
+      "response": [
+        {
+          "name": "200 OK - Updated",
+          "status": "OK",
+          "code": 200,
+          "header": [
+            { "key": "Content-Type", "value": "application/json" }
+          ],
+          "body": "{\n  \"success\": true,\n  \"message\": \"تم تحديث الملف الشخصي بنجاح\",\n  \"data\": {\n    \"id\": 5,\n    \"name\": \"أحمد محمد العمري\",\n    \"email\": \"ahmed.new@example.com\",\n    \"phone\": \"0509876543\",\n    \"national_id\": \"1234567890\",\n    \"gender\": \"male\",\n    \"date_of_birth\": \"2000-06-15\",\n    \"bio\": \"طالب متحمس لتعلم البرمجة\",\n    \"role\": \"student\",\n    \"status\": \"active\",\n    \"registration_number\": \"ST-2024-5\",\n    \"profile_photo\": null,\n    \"program_id\": 1,\n    \"program_status\": \"active\",\n    \"program\": {\n      \"id\": 1,\n      \"name\": \"برنامج تطوير البرمجيات\",\n      \"code\": \"SDP-01\"\n    },\n    \"track\": {\n      \"id\": 2,\n      \"name\": \"المجموعة أ\",\n      \"code\": \"GRP-A\"\n    },\n    \"current_term_number\": 1,\n    \"current_term\": {\n      \"id\": 3,\n      \"name\": \"الفصل الأول\",\n      \"end_date\": \"2024-06-30\",\n      \"status\": \"active\"\n    },\n    \"is_confirm_user\": true,\n    \"email_verified_at\": \"2024-01-10T08:00:00+00:00\",\n    \"nafath_verified_at\": null,\n    \"date_of_register\": \"2024-01-05\",\n    \"created_at\": \"2024-01-05T10:00:00+00:00\"\n  }\n}"
+        },
+        {
+          "name": "422 Validation Error",
+          "status": "Unprocessable Entity",
+          "code": 422,
+          "header": [
+            { "key": "Content-Type", "value": "application/json" }
+          ],
+          "body": "{\n  \"message\": \"The email has already been taken.\",\n  \"errors\": {\n    \"email\": [\"The email has already been taken.\"]\n  }\n}"
+        }
+      ]
+    },
+    {
+      "name": "Upload Profile Photo",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "photo",
+              "type": "file",
+              "src": "",
+              "description": "Profile photo (jpeg, png, jpg, webp — max 2MB)"
+            }
+          ]
+        },
+        "url": {
+          "raw": "https://{{domain}}/api/v1/student/profile/photo",
+          "protocol": "https",
+          "host": ["{{domain}}"],
+          "path": ["api", "v1", "student", "profile", "photo"]
+        },
+        "description": "Upload or replace the student's profile photo.\n\nAccepted formats: jpeg, png, jpg, webp\nMax size: 2MB\n\nUse `multipart/form-data` with key `photo`."
+      },
+      "response": [
+        {
+          "name": "200 OK - Photo Updated",
+          "status": "OK",
+          "code": 200,
+          "header": [
+            { "key": "Content-Type", "value": "application/json" }
+          ],
+          "body": "{\n  \"success\": true,\n  \"message\": \"تم تحديث الصورة الشخصية بنجاح\",\n  \"profile_photo\": \"https://www.alertiqa.edu.sa/storage/profile-photos/abc123.jpg\"\n}"
+        },
+        {
+          "name": "422 Validation Error",
+          "status": "Unprocessable Entity",
+          "code": 422,
+          "header": [
+            { "key": "Content-Type", "value": "application/json" }
+          ],
+          "body": "{\n  \"message\": \"The photo field is required.\",\n  \"errors\": {\n    \"photo\": [\"The photo field is required.\"]\n  }\n}"
+        }
+      ]
+    },
+    {
+      "name": "Change Password",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"current_password\": \"OldPassword123\",\n  \"password\": \"NewPassword456\",\n  \"password_confirmation\": \"NewPassword456\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://{{domain}}/api/v1/student/profile/change-password",
+          "protocol": "https",
+          "host": ["{{domain}}"],
+          "path": ["api", "v1", "student", "profile", "change-password"]
+        },
+        "description": "Change the student's password.\n\nRequires:\n- `current_password`: the existing password\n- `password`: new password (min 8 chars)\n- `password_confirmation`: must match `password`\n\nOn success, all other active tokens are revoked for security."
+      },
+      "response": [
+        {
+          "name": "200 OK - Password Changed",
+          "status": "OK",
+          "code": 200,
+          "header": [
+            { "key": "Content-Type", "value": "application/json" }
+          ],
+          "body": "{\n  \"success\": true,\n  \"message\": \"تم تغيير كلمة المرور بنجاح\"\n}"
+        },
+        {
+          "name": "422 Wrong Current Password",
+          "status": "Unprocessable Entity",
+          "code": 422,
+          "header": [
+            { "key": "Content-Type", "value": "application/json" }
+          ],
+          "body": "{\n  \"success\": false,\n  \"message\": \"كلمة المرور الحالية غير صحيحة\",\n  \"errors\": {\n    \"current_password\": [\"كلمة المرور الحالية غير صحيحة\"]\n  }\n}"
+        },
+        {
+          "name": "422 Validation Error (Confirmation Mismatch)",
+          "status": "Unprocessable Entity",
+          "code": 422,
+          "header": [
+            { "key": "Content-Type", "value": "application/json" }
+          ],
+          "body": "{\n  \"message\": \"The password confirmation does not match.\",\n  \"errors\": {\n    \"password\": [\"The password confirmation does not match.\"]\n  }\n}"
+        }
+      ]
+    }
+  ]
+}

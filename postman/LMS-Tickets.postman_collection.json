@@ -1,0 +1,277 @@
+{
+  "info": {
+    "name": "LMS - Ticket Support",
+    "_postman_id": "lms-tickets-v1",
+    "description": "Student support ticket endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "domain",    "value": "www.alertiqa.edu.sa", "type": "string" },
+    { "key": "token",     "value": "",                    "type": "string" },
+    { "key": "ticket_id", "value": "1",                   "type": "string" }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+  },
+  "item": [
+    {
+      "name": "List Tickets",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Accept",        "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": {
+          "raw": "https://{{domain}}/api/v1/student/tickets",
+          "protocol": "https",
+          "host": ["{{domain}}"],
+          "path": ["api", "v1", "student", "tickets"],
+          "query": [
+            { "key": "status",   "value": "open",      "disabled": true, "description": "open | in_progress | waiting_response | resolved | closed" },
+            { "key": "category", "value": "technical", "disabled": true, "description": "technical | academic | financial | account | other" },
+            { "key": "per_page", "value": "10",        "disabled": true }
+          ]
+        }
+      },
+      "response": [
+        {
+          "name": "200 OK",
+          "status": "OK",
+          "code": 200,
+          "originalRequest": {
+            "method": "GET",
+            "url": { "raw": "https://{{domain}}/api/v1/student/tickets" }
+          },
+          "header": [{ "key": "Content-Type", "value": "application/json" }],
+          "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"id\": 1,\n      \"ticket_number\": \"TKT-ABC123\",\n      \"subject\": \"مشكلة في الدخول إلى الكلاس\",\n      \"category\": \"technical\",\n      \"category_label\": \"دعم تقني\",\n      \"priority\": \"medium\",\n      \"priority_label\": \"متوسط\",\n      \"status\": \"open\",\n      \"status_label\": \"مفتوح\",\n      \"is_open\": true,\n      \"is_resolved\": false,\n      \"is_closed\": false,\n      \"can_reply\": true,\n      \"satisfaction_rating\": null,\n      \"replies_count\": 2,\n      \"created_at\": \"2024-11-01T10:00:00+00:00\"\n    }\n  ],\n  \"meta\": {\n    \"current_page\": 1,\n    \"last_page\": 1,\n    \"per_page\": 10,\n    \"total\": 1\n  },\n  \"stats\": {\n    \"total\": 5,\n    \"open\": 2,\n    \"in_progress\": 1,\n    \"resolved\": 2\n  }\n}"
+        }
+      ]
+    },
+    {
+      "name": "Create Ticket",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Accept",        "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            { "key": "subject",     "value": "مشكلة في الدخول إلى الكلاس",                                    "type": "text" },
+            { "key": "category",    "value": "technical",                                                       "type": "text", "description": "technical | academic | financial | account | other" },
+            { "key": "priority",    "value": "medium",                                                          "type": "text", "description": "low | medium | high | urgent" },
+            { "key": "description", "value": "لا أستطيع الدخول إلى الجلسة المباشرة رغم أنني مسجل في المادة.", "type": "text" },
+            { "key": "attachment",  "value": "",                                                                "type": "file", "disabled": true, "description": "Optional — jpeg,png,jpg,gif,webp,pdf,doc,docx — max 5MB" }
+          ]
+        },
+        "url": {
+          "raw": "https://{{domain}}/api/v1/student/tickets",
+          "protocol": "https",
+          "host": ["{{domain}}"],
+          "path": ["api", "v1", "student", "tickets"]
+        }
+      },
+      "response": [
+        {
+          "name": "201 Created",
+          "status": "Created",
+          "code": 201,
+          "originalRequest": {
+            "method": "POST",
+            "url": { "raw": "https://{{domain}}/api/v1/student/tickets" }
+          },
+          "header": [{ "key": "Content-Type", "value": "application/json" }],
+          "body": "{\n  \"success\": true,\n  \"message\": \"تم إنشاء التذكرة بنجاح. رقم التذكرة: TKT-ABC123\",\n  \"data\": {\n    \"id\": 1,\n    \"ticket_number\": \"TKT-ABC123\",\n    \"subject\": \"مشكلة في الدخول إلى الكلاس\",\n    \"description\": \"لا أستطيع الدخول إلى الجلسة المباشرة رغم أنني مسجل في المادة.\",\n    \"attachment_url\": null,\n    \"category\": \"technical\",\n    \"category_label\": \"دعم تقني\",\n    \"priority\": \"medium\",\n    \"priority_label\": \"متوسط\",\n    \"status\": \"open\",\n    \"status_label\": \"مفتوح\",\n    \"is_open\": true,\n    \"is_resolved\": false,\n    \"is_closed\": false,\n    \"can_reply\": true,\n    \"satisfaction_rating\": null,\n    \"created_at\": \"2024-11-01T10:00:00+00:00\"\n  }\n}"
+        },
+        {
+          "name": "422 Validation Error",
+          "status": "Unprocessable Entity",
+          "code": 422,
+          "originalRequest": {
+            "method": "POST",
+            "url": { "raw": "https://{{domain}}/api/v1/student/tickets" }
+          },
+          "header": [{ "key": "Content-Type", "value": "application/json" }],
+          "body": "{\n  \"message\": \"The subject field is required.\",\n  \"errors\": {\n    \"subject\": [\"The subject field is required.\"],\n    \"category\": [\"The selected category is invalid.\"]\n  }\n}"
+        }
+      ]
+    },
+    {
+      "name": "Show Ticket",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Accept",        "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": {
+          "raw": "https://{{domain}}/api/v1/student/tickets/{{ticket_id}}",
+          "protocol": "https",
+          "host": ["{{domain}}"],
+          "path": ["api", "v1", "student", "tickets", "{{ticket_id}}"]
+        }
+      },
+      "response": [
+        {
+          "name": "200 OK",
+          "status": "OK",
+          "code": 200,
+          "originalRequest": {
+            "method": "GET",
+            "url": { "raw": "https://{{domain}}/api/v1/student/tickets/1" }
+          },
+          "header": [{ "key": "Content-Type", "value": "application/json" }],
+          "body": "{\n  \"success\": true,\n  \"data\": {\n    \"id\": 1,\n    \"ticket_number\": \"TKT-ABC123\",\n    \"subject\": \"مشكلة في الدخول إلى الكلاس\",\n    \"description\": \"لا أستطيع الدخول إلى الجلسة المباشرة رغم أنني مسجل في المادة.\",\n    \"attachment_url\": null,\n    \"category\": \"technical\",\n    \"category_label\": \"دعم تقني\",\n    \"priority\": \"medium\",\n    \"priority_label\": \"متوسط\",\n    \"status\": \"open\",\n    \"status_label\": \"مفتوح\",\n    \"is_open\": true,\n    \"is_resolved\": false,\n    \"is_closed\": false,\n    \"can_reply\": true,\n    \"satisfaction_rating\": null,\n    \"replies_count\": 2,\n    \"first_response_at\": \"2024-11-01T11:00:00+00:00\",\n    \"resolved_at\": null,\n    \"closed_at\": null,\n    \"created_at\": \"2024-11-01T10:00:00+00:00\",\n    \"updated_at\": \"2024-11-01T11:00:00+00:00\",\n    \"replies\": [\n      {\n        \"id\": 1,\n        \"message\": \"سيتم مراجعة مشكلتك.\",\n        \"attachment_url\": null,\n        \"is_from_staff\": true,\n        \"is_from_me\": false,\n        \"user\": { \"id\": 2, \"name\": \"الدعم الفني\", \"role\": \"admin\", \"profile_photo\": null },\n        \"created_at\": \"2024-11-01T11:00:00+00:00\"\n      },\n      {\n        \"id\": 2,\n        \"message\": \"حاولت مرة أخرى ولكن المشكلة لا تزال موجودة.\",\n        \"attachment_url\": null,\n        \"is_from_staff\": false,\n        \"is_from_me\": true,\n        \"user\": { \"id\": 5, \"name\": \"محمود\", \"role\": \"student\", \"profile_photo\": null },\n        \"created_at\": \"2024-11-01T12:00:00+00:00\"\n      }\n    ]\n  }\n}"
+        },
+        {
+          "name": "404 Not Found",
+          "status": "Not Found",
+          "code": 404,
+          "originalRequest": {
+            "method": "GET",
+            "url": { "raw": "https://{{domain}}/api/v1/student/tickets/999" }
+          },
+          "header": [{ "key": "Content-Type", "value": "application/json" }],
+          "body": "{\n  \"message\": \"No query results for model [App\\\\Models\\\\Ticket].\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "Reply to Ticket",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Accept",        "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            { "key": "message",    "value": "حاولت مرة أخرى ولكن المشكلة لا تزال موجودة.", "type": "text" },
+            { "key": "attachment", "value": "",                                               "type": "file", "disabled": true, "description": "Optional — max 5MB" }
+          ]
+        },
+        "url": {
+          "raw": "https://{{domain}}/api/v1/student/tickets/{{ticket_id}}/reply",
+          "protocol": "https",
+          "host": ["{{domain}}"],
+          "path": ["api", "v1", "student", "tickets", "{{ticket_id}}", "reply"]
+        }
+      },
+      "response": [
+        {
+          "name": "200 OK",
+          "status": "OK",
+          "code": 200,
+          "originalRequest": {
+            "method": "POST",
+            "url": { "raw": "https://{{domain}}/api/v1/student/tickets/1/reply" }
+          },
+          "header": [{ "key": "Content-Type", "value": "application/json" }],
+          "body": "{\n  \"success\": true,\n  \"message\": \"تم إضافة ردك بنجاح\",\n  \"data\": {\n    \"id\": 3,\n    \"message\": \"حاولت مرة أخرى ولكن المشكلة لا تزال موجودة.\",\n    \"attachment_url\": null,\n    \"is_from_staff\": false,\n    \"is_from_me\": true,\n    \"user\": { \"id\": 5, \"name\": \"محمود\", \"role\": \"student\", \"profile_photo\": null },\n    \"created_at\": \"2024-11-01T13:00:00+00:00\"\n  }\n}"
+        },
+        {
+          "name": "422 Ticket Closed",
+          "status": "Unprocessable Entity",
+          "code": 422,
+          "originalRequest": {
+            "method": "POST",
+            "url": { "raw": "https://{{domain}}/api/v1/student/tickets/1/reply" }
+          },
+          "header": [{ "key": "Content-Type", "value": "application/json" }],
+          "body": "{\n  \"success\": false,\n  \"message\": \"لا يمكن الرد على تذكرة مغلقة\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "Close Ticket",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Accept",        "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "body": { "mode": "raw", "raw": "", "options": { "raw": { "language": "json" } } },
+        "url": {
+          "raw": "https://{{domain}}/api/v1/student/tickets/{{ticket_id}}/close",
+          "protocol": "https",
+          "host": ["{{domain}}"],
+          "path": ["api", "v1", "student", "tickets", "{{ticket_id}}", "close"]
+        }
+      },
+      "response": [
+        {
+          "name": "200 OK",
+          "status": "OK",
+          "code": 200,
+          "originalRequest": {
+            "method": "POST",
+            "url": { "raw": "https://{{domain}}/api/v1/student/tickets/1/close" }
+          },
+          "header": [{ "key": "Content-Type", "value": "application/json" }],
+          "body": "{\n  \"success\": true,\n  \"message\": \"تم إغلاق التذكرة بنجاح\",\n  \"data\": {\n    \"id\": 1,\n    \"status\": \"closed\",\n    \"status_label\": \"مغلق\",\n    \"is_closed\": true,\n    \"can_reply\": false,\n    \"closed_at\": \"2024-11-02T09:00:00+00:00\"\n  }\n}"
+        },
+        {
+          "name": "422 Already Closed",
+          "status": "Unprocessable Entity",
+          "code": 422,
+          "originalRequest": {
+            "method": "POST",
+            "url": { "raw": "https://{{domain}}/api/v1/student/tickets/1/close" }
+          },
+          "header": [{ "key": "Content-Type", "value": "application/json" }],
+          "body": "{\n  \"success\": false,\n  \"message\": \"التذكرة مغلقة بالفعل\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "Rate Ticket",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Accept",        "value": "application/json" },
+          { "key": "Content-Type",  "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"rating\": 5\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "https://{{domain}}/api/v1/student/tickets/{{ticket_id}}/rate",
+          "protocol": "https",
+          "host": ["{{domain}}"],
+          "path": ["api", "v1", "student", "tickets", "{{ticket_id}}", "rate"]
+        }
+      },
+      "response": [
+        {
+          "name": "200 OK",
+          "status": "OK",
+          "code": 200,
+          "originalRequest": {
+            "method": "POST",
+            "url": { "raw": "https://{{domain}}/api/v1/student/tickets/1/rate" }
+          },
+          "header": [{ "key": "Content-Type", "value": "application/json" }],
+          "body": "{\n  \"success\": true,\n  \"message\": \"شكراً على تقييمك\",\n  \"data\": {\n    \"satisfaction_rating\": 5\n  }\n}"
+        },
+        {
+          "name": "422 Not Resolved Yet",
+          "status": "Unprocessable Entity",
+          "code": 422,
+          "originalRequest": {
+            "method": "POST",
+            "url": { "raw": "https://{{domain}}/api/v1/student/tickets/1/rate" }
+          },
+          "header": [{ "key": "Content-Type", "value": "application/json" }],
+          "body": "{\n  \"success\": false,\n  \"message\": \"يمكن التقييم فقط بعد حل التذكرة\"\n}"
+        }
+      ]
+    }
+  ]
+}
