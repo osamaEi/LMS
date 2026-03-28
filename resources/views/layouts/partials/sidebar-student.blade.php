@@ -188,6 +188,15 @@
     <span style="font-size:0.68rem;font-weight:700;letter-spacing:0.1em;color:rgba(255,255,255,0.35);display:block;text-transform:uppercase">المساعدة</span>
 </li>
 
+<!-- المساعد الذكي -->
+<li>
+    <a href="{{ route('student.chat.index') }}"
+       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('student.chat.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
+        <svg class="fill-current" width="20" height="20" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12c0 1.85.5 3.58 1.37 5.07L2 22l4.93-1.37C8.42 21.5 10.15 22 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" fill=""/></svg>
+        <span>المساعد الذكي</span>
+    </a>
+</li>
+
 <!-- الدعم والمساعدة -->
 <li>
     <a href="{{ route('student.tickets.index') }}"

@@ -155,7 +155,7 @@ class ProgramController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'أنت مسجل بالفعل في برنامج دراسي',
-            ], 422);
+            ], 409);
         }
 
         $program = Program::where('id', $request->program_id)

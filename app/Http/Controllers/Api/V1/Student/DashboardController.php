@@ -31,7 +31,7 @@ class DashboardController extends Controller
                 'success' => false,
                 'message' => 'لم يتم تعيين برنامج دراسي',
                 'redirect' => 'my-program',
-            ], 200);
+            ], 404);
         }
 
         $subjects = Subject::whereHas('enrollments', function ($query) use ($student) {
@@ -120,7 +120,7 @@ class DashboardController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'لم يتم تعيين برنامج دراسي',
-            ], 200);
+            ], 404);
         }
 
         // Load all terms of the student's program with subjects
@@ -306,7 +306,7 @@ class DashboardController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'لم يتم تعيين برنامج دراسي',
-            ], 200);
+            ], 404);
         }
 
         // Subject IDs in the student's program
@@ -548,7 +548,7 @@ class DashboardController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'ليس لديك صلاحية الانضمام لهذه الجلسة',
-            ], 403);
+            ], 406);
         }
 
         if (empty($session->zoom_meeting_id)) {

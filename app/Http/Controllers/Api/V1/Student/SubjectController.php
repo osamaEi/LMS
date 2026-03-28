@@ -71,7 +71,7 @@ class SubjectController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'أنت غير مسجل في هذه المادة',
-            ], 403);
+            ], 406);
         }
 
         $sessions = Session::where('unit_id', $id)

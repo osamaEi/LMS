@@ -314,6 +314,17 @@ Route::middleware(['auth', 'role:admin,super_admin'])->prefix('admin')->name('ad
         Route::post('/clear', [\App\Http\Controllers\Admin\LogViewerController::class, 'clear'])->name('clear');
         Route::get('/download', [\App\Http\Controllers\Admin\LogViewerController::class, 'download'])->name('download');
     });
+
+    // WhatsApp AI Chat
+    Route::prefix('whatsapp-chat')->name('whatsapp-chat.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\WhatsAppChatController::class, 'index'])->name('index');
+        Route::get('/settings', [\App\Http\Controllers\Admin\WhatsAppChatController::class, 'settings'])->name('settings');
+        Route::post('/save-prompt', [\App\Http\Controllers\Admin\WhatsAppChatController::class, 'savePrompt'])->name('save-prompt');
+        Route::get('/{whatsappChat}', [\App\Http\Controllers\Admin\WhatsAppChatController::class, 'show'])->name('show');
+        Route::post('/{whatsappChat}/reply', [\App\Http\Controllers\Admin\WhatsAppChatController::class, 'reply'])->name('reply');
+        Route::post('/{whatsappChat}/close', [\App\Http\Controllers\Admin\WhatsAppChatController::class, 'close'])->name('close');
+        Route::get('/{whatsappChat}/messages', [\App\Http\Controllers\Admin\WhatsAppChatController::class, 'getNewMessages'])->name('messages');
+    });
 });
 
 // Teacher Routes
@@ -461,6 +472,14 @@ Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')
     Route::resource('tickets', \App\Http\Controllers\Student\TicketController::class)->only(['index', 'create', 'store', 'show']);
     Route::post('/tickets/{ticket}/reply', [\App\Http\Controllers\Student\TicketController::class, 'reply'])->name('tickets.reply');
 
+    // AI Chat (web-based, no WhatsApp needed)
+    Route::prefix('chat')->name('chat.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Student\ChatController::class, 'index'])->name('index');
+        Route::post('/', [\App\Http\Controllers\Student\ChatController::class, 'store'])->name('store');
+        Route::post('/{conversation}/send', [\App\Http\Controllers\Student\ChatController::class, 'sendMessage'])->name('send');
+        Route::get('/{conversation}/messages', [\App\Http\Controllers\Student\ChatController::class, 'getMessages'])->name('messages');
+    });
+
     // Teacher Ratings (NELC 2.4.9)
     Route::get('/teacher-ratings', [\App\Http\Controllers\Student\TeacherRatingController::class, 'index'])->name('teacher-ratings.index');
     Route::get('/teacher-ratings/{subject}/create', [\App\Http\Controllers\Student\TeacherRatingController::class, 'create'])->name('teacher-ratings.create');
@@ -501,6 +520,10 @@ Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')
 Route::post('/webhooks/tamara', [\App\Http\Controllers\Webhooks\TamaraWebhookController::class, 'handle'])->name('webhooks.tamara');
 Route::post('/webhooks/paytabs', [\App\Http\Controllers\Student\PaymentController::class, 'payTabsCallback'])->name('webhooks.paytabs');
 Route::post('/webhooks/nafath', [\App\Http\Controllers\Webhooks\NafathWebhookController::class, 'handle'])->name('webhooks.nafath');
+
+// WhatsApp Webhook (Meta verification + incoming messages)
+Route::get('/webhooks/whatsapp',  [\App\Http\Controllers\Webhooks\WhatsAppWebhookController::class, 'verify'])->name('webhooks.whatsapp.verify');
+Route::post('/webhooks/whatsapp', [\App\Http\Controllers\Webhooks\WhatsAppWebhookController::class, 'handle'])->name('webhooks.whatsapp');
 
 // Local Mock Nafath API (for development/testing)
 Route::prefix('mock-nafath/api/v1/mfa')->group(function () {

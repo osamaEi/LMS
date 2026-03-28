@@ -81,6 +81,17 @@ return [
         'bypass' => env('NAFATH_BYPASS', false),
     ],
 
+    'whatsapp' => [
+        'phone_number_id' => env('WHATSAPP_PHONE_NUMBER_ID'),
+        'access_token'    => env('WHATSAPP_ACCESS_TOKEN'),
+        'verify_token'    => env('WHATSAPP_VERIFY_TOKEN'),
+        'api_url'         => 'https://graph.facebook.com/v19.0',
+    ],
+
+    'anthropic' => [
+        'key' => env('ANTHROPIC_API_KEY'),
+    ],
+
     // NELC FutureX Integration
     'futurex' => [
         // SSO Configuration

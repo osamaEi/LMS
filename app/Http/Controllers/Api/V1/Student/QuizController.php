@@ -26,7 +26,7 @@ class QuizController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'أنت غير مسجل في هذه المادة',
-            ], 403);
+            ], 406);
         }
 
         $quizzes = Quiz::where('subject_id', $subjectId)
@@ -69,7 +69,7 @@ class QuizController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'أنت غير مسجل في هذه المادة',
-            ], 403);
+            ], 406);
         }
 
         $quiz = Quiz::where('subject_id', $subjectId)
@@ -112,7 +112,7 @@ class QuizController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'أنت غير مسجل في هذه المادة',
-            ], 403);
+            ], 406);
         }
 
         if (!$quiz->isAvailable()) {

@@ -60,7 +60,7 @@ class TeacherRatingController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'لست مسجلاً في هذه المادة',
-            ], 403);
+            ], 406);
         }
 
         $alreadyRated = TeacherRating::where('student_id', $student->id)
@@ -71,7 +71,7 @@ class TeacherRatingController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'لقد قمت بتقييم هذا المدرب مسبقاً',
-            ], 422);
+            ], 409);
         }
 
         return response()->json([
@@ -107,7 +107,7 @@ class TeacherRatingController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'لست مسجلاً في هذه المادة',
-            ], 403);
+            ], 406);
         }
 
         $alreadyRated = TeacherRating::where('student_id', $student->id)
@@ -118,7 +118,7 @@ class TeacherRatingController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'لقد قمت بتقييم هذا المدرب مسبقاً',
-            ], 422);
+            ], 409);
         }
 
         $validated = $request->validate([
