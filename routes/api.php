@@ -130,6 +130,9 @@ Route::prefix('v1')->group(function () {
             Route::post('/payments/{id}/pay-with-tamara', [App\Http\Controllers\Api\V1\Student\PaymentController::class, 'payWithTamara']);
             Route::post('/payments/{id}/pay-with-paytabs', [App\Http\Controllers\Api\V1\Student\PaymentController::class, 'payWithPayTabs']);
 
+            // Media Upload
+            Route::post('/upload-images', [App\Http\Controllers\Api\V1\Student\MediaUploadController::class, 'upload']);
+
             // Notifications
             Route::prefix('notifications')->group(function () {
                 Route::get('/', [App\Http\Controllers\NotificationController::class, 'index']);
