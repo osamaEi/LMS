@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api\V1\Student;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\ProgramResource;
 use App\Http\Resources\StudentProgramResource;
 use App\Models\Attendance;
 use App\Models\Enrollment;
@@ -24,13 +23,9 @@ class ProgramController extends Controller
 
         // ─── No program ────────────────────────────────────────────────────────
         if (!$program) {
-            $available = Program::where('status', 'active')->withCount('terms')->get();
             return response()->json([
                 'success' => true,
-                'data' => [
-                    'status'             => 'no_program',
-                    'available_programs' => ProgramResource::collection($available),
-                ],
+                'data'    => new StudentProgramResource(['status' => 'no_program']),
             ]);
         }
 
@@ -38,15 +33,14 @@ class ProgramController extends Controller
         if ($student->program_status === 'pending') {
             return response()->json([
                 'success' => true,
-                'data' => [
+                'data'    => new StudentProgramResource([
                     'status'  => 'pending',
-                    'message' => 'طلب التسجيل في انتظار موافقة الإدارة',
-                    'program' => new ProgramResource($program),
-                ],
+                    'program' => $program,
+                ]),
             ]);
         }
 
-        // ─── Load terms with subjects ───────────────────────────────────────────
+        // ─── Enrolled ──────────────────────────────────────────────────────────
         $program->load(['terms' => fn($q) => $q->orderBy('term_number')
             ->with(['subjects' => fn($sq) => $sq->with([
                 'teacher:id,name',
@@ -54,19 +48,16 @@ class ProgramController extends Controller
             ])])
         ]);
 
-        // ─── Enrollments ────────────────────────────────────────────────────────
         $enrollments    = Enrollment::where('student_id', $student->id)->get();
         $enrollmentsMap = $enrollments->keyBy('subject_id');
         $enrolledIds    = $enrollments->pluck('subject_id');
 
-        // ─── Attendance stats ────────────────────────────────────────────────────
         $totalAttendances   = Attendance::where('student_id', $student->id)->count();
         $presentAttendances = Attendance::where('student_id', $student->id)->where('attended', true)->count();
         $attendanceRate     = $totalAttendances > 0
             ? round(($presentAttendances / $totalAttendances) * 100, 1)
             : 0;
 
-        // ─── Session stats ───────────────────────────────────────────────────────
         $totalSessions     = Session::whereIn('subject_id', $enrolledIds)->count();
         $completedSessions = Session::whereIn('subject_id', $enrolledIds)->whereNotNull('ended_at')->count();
 
@@ -76,6 +67,7 @@ class ProgramController extends Controller
         return response()->json([
             'success' => true,
             'data'    => new StudentProgramResource([
+                'status'          => 'enrolled',
                 'program'         => $program,
                 'enrollments'     => $enrollments,
                 'enrollments_map' => $enrollmentsMap,
