@@ -24,6 +24,9 @@ Route::prefix('v1')->group(function () {
     Route::get('/programs', [App\Http\Controllers\Api\V1\ProgramController::class, 'index']);
     Route::get('/programs/{program}', [App\Http\Controllers\Api\V1\ProgramController::class, 'show']);
 
+    // Media Upload (Public)
+    Route::post('/upload-images', [App\Http\Controllers\Api\V1\Student\MediaUploadController::class, 'upload']);
+
     // News
     Route::get('/news', [App\Http\Controllers\Api\V1\NewsController::class, 'index']);
     Route::get('/news/{news}', [App\Http\Controllers\Api\V1\NewsController::class, 'show']);
@@ -130,8 +133,6 @@ Route::prefix('v1')->group(function () {
             Route::post('/payments/{id}/pay-with-tamara', [App\Http\Controllers\Api\V1\Student\PaymentController::class, 'payWithTamara']);
             Route::post('/payments/{id}/pay-with-paytabs', [App\Http\Controllers\Api\V1\Student\PaymentController::class, 'payWithPayTabs']);
 
-            // Media Upload
-            Route::post('/upload-images', [App\Http\Controllers\Api\V1\Student\MediaUploadController::class, 'upload']);
 
             // Notifications
             Route::prefix('notifications')->group(function () {
