@@ -22,7 +22,7 @@ class NewsController extends Controller
             'success' => true,
             'data'    => NewsResource::collection($news),
             'meta'    => [
-                'current_page' => $news->currentPage(),
+                'page' => $news->currentPage(),
                 'last_page'    => $news->lastPage(),
                 'per_page'     => $news->perPage(),
                 'total'        => $news->total(),
