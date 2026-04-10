@@ -66,7 +66,7 @@ class AiChatService
     {
         $name     = Setting::get('ai_name', '');
         $tone     = Setting::get('ai_tone', 'friendly');
-        $language = Setting::get('ai_language', 'ar');
+        $language = Setting::get('ai_language', 'both');
 
         $botName  = !empty($name) ? $name : 'المساعد الذكي';
 
@@ -112,7 +112,7 @@ class AiChatService
         $context = $this->buildContextBlock();
         if (!empty($context)) {
             $messages[] = ['role' => 'user',      'content' => $context];
-            $messages[] = ['role' => 'assistant', 'content' => 'فهمت جميع المعلومات والتعليمات. سأجيب على أسئلة العملاء بناء على هذه المعلومات فقط وبنص عادي بدون أي تنسيق.'];
+            $messages[] = ['role' => 'assistant', 'content' => 'Understood. I will answer customer questions based only on the provided information, in plain text without any formatting, and in the same language the customer uses.'];
         }
 
         // ── Conversation history (exclude the latest customer message to avoid duplication) ──
