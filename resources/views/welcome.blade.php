@@ -40,20 +40,20 @@
         a { text-decoration: none; color: inherit; }
 
         /* ── Saudi Top Bar ── */
-        .saudi-top-bar { background:#165d34; color:#fff; font-size:.78rem; padding:.35rem clamp(1rem,3vw,3rem); display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap; }
+        .saudi-top-bar { background:#fff; color:#1a1a1a; font-size:.78rem; padding:.35rem clamp(1rem,3vw,3rem); display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap; border-bottom:2px solid #006c35; }
         .saudi-top-bar .saudi-left { display:flex; align-items:center; gap:1.25rem; flex-wrap:wrap; }
         .saudi-top-bar .saudi-right { display:flex; align-items:center; gap:1rem; }
         .saudi-emblem { display:flex; align-items:center; gap:.5rem; font-weight:700; font-size:.82rem; }
-        .saudi-divider { width:1px; height:18px; background:rgba(255,255,255,.3); }
-        .saudi-badge { display:flex; align-items:center; gap:.4rem; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.25); border-radius:4px; padding:2px 8px; font-size:.72rem; }
-        .saudi-badge .dot { width:6px; height:6px; border-radius:50%; background:#4ade80; flex-shrink:0; animation:pulse-green 2s infinite; }
+        .saudi-divider { width:1px; height:18px; background:rgba(0,0,0,.15); }
+        .saudi-badge { display:flex; align-items:center; gap:.4rem; background:rgba(0,108,53,.07); border:1px solid rgba(0,108,53,.25); border-radius:4px; padding:2px 8px; font-size:.72rem; }
+        .saudi-badge .dot { width:6px; height:6px; border-radius:50%; background:#16a34a; flex-shrink:0; animation:pulse-green 2s infinite; }
         @keyframes pulse-green { 0%,100%{opacity:1} 50%{opacity:.4} }
-        .vision-badge { display:flex; align-items:center; gap:.4rem; font-weight:700; font-size:.75rem; opacity:.92; }
-        .vision-badge .v-year { background:rgba(255,255,255,.18); border-radius:3px; padding:1px 6px; font-weight:800; }
-        .saudi-date-time { font-size:.72rem; opacity:.85; white-space:nowrap; }
+        .vision-badge { display:flex; align-items:center; gap:.4rem; font-weight:700; font-size:.75rem; }
+        .vision-badge .v-year { background:#006c35; color:#fff; border-radius:3px; padding:1px 6px; font-weight:800; }
+        .saudi-date-time { font-size:.72rem; color:#555; white-space:nowrap; }
         .accessibility-btns { display:flex; gap:.4rem; }
-        .accessibility-btns button { background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.2); color:#fff; width:24px; height:24px; border-radius:4px; font-size:.7rem; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background .2s; padding:0; }
-        .accessibility-btns button:hover { background:rgba(255,255,255,.25); }
+        .accessibility-btns button { background:rgba(0,0,0,.06); border:1px solid rgba(0,0,0,.12); color:#333; width:24px; height:24px; border-radius:4px; font-size:.7rem; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background .2s; padding:0; }
+        .accessibility-btns button:hover { background:rgba(0,108,53,.12); color:#006c35; }
         @media(max-width:768px){ .saudi-top-bar{font-size:.7rem;padding:.3rem .75rem;} .vision-badge,.saudi-date-time,.accessibility-btns{display:none;} }
 
         /* ── Navbar ── */

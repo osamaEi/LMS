@@ -755,8 +755,8 @@
 
         /* ── Saudi Top Bar ── */
         .saudi-top-bar {
-            background: #165d34;
-            color: #fff;
+            background: #fff;
+            color: #1a1a1a;
             font-size: 0.78rem;
             padding: 0.35rem clamp(1rem, 3vw, 3rem);
             display: flex;
@@ -764,6 +764,7 @@
             justify-content: space-between;
             gap: 1rem;
             flex-wrap: wrap;
+            border-bottom: 2px solid #006c35;
         }
 
         .saudi-top-bar .saudi-left {
@@ -798,15 +799,15 @@
         .saudi-divider {
             width: 1px;
             height: 18px;
-            background: rgba(255,255,255,0.3);
+            background: rgba(0,0,0,0.15);
         }
 
         .saudi-badge {
             display: flex;
             align-items: center;
             gap: 0.4rem;
-            background: rgba(255,255,255,0.12);
-            border: 1px solid rgba(255,255,255,0.25);
+            background: rgba(0,108,53,0.07);
+            border: 1px solid rgba(0,108,53,0.25);
             border-radius: 4px;
             padding: 2px 8px;
             font-size: 0.72rem;
@@ -836,7 +837,8 @@
         }
 
         .vision-badge span.v-year {
-            background: rgba(255,255,255,0.18);
+            background: #006c35;
+            color: #fff;
             border-radius: 3px;
             padding: 1px 6px;
             font-weight: 800;
@@ -854,9 +856,9 @@
         }
 
         .accessibility-btns button {
-            background: rgba(255,255,255,0.12);
-            border: 1px solid rgba(255,255,255,0.2);
-            color: #fff;
+            background: rgba(0,0,0,0.06);
+            border: 1px solid rgba(0,0,0,0.12);
+            color: #333;
             width: 24px;
             height: 24px;
             border-radius: 4px;
@@ -870,7 +872,8 @@
         }
 
         .accessibility-btns button:hover {
-            background: rgba(255,255,255,0.25);
+            background: rgba(0,108,53,0.12);
+            color: #006c35;
         }
 
         @media (max-width: 768px) {
@@ -888,9 +891,25 @@
         <div class="saudi-left">
             <!-- National Emblem + Kingdom name -->
             <div class="saudi-emblem">
-                <svg width="22" height="28" viewBox="0 0 100 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M50 5 L95 30 L95 80 Q95 105 50 115 Q5 105 5 80 L5 30 Z" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.6)" stroke-width="3"/>
-                    <text x="50" y="72" text-anchor="middle" fill="white" font-size="38" font-family="serif">🌴</text>
+                <!-- Saudi Arabia Flag SVG -->
+                <svg width="38" height="26" viewBox="0 0 900 600" xmlns="http://www.w3.org/2000/svg" style="border-radius:3px;flex-shrink:0;box-shadow:0 1px 4px rgba(0,0,0,.4)">
+                    <rect width="900" height="600" fill="#006c35"/>
+                    <!-- Shahada text (La ilaha illallah Muhammadun rasulullah) -->
+                    <text x="450" y="230" text-anchor="middle" fill="white" font-size="110" font-family="'Traditional Arabic','Scheherazade New','Arial',serif" font-weight="bold">لا إله إلا الله</text>
+                    <text x="450" y="360" text-anchor="middle" fill="white" font-size="110" font-family="'Traditional Arabic','Scheherazade New','Arial',serif" font-weight="bold">محمد رسول الله</text>
+                    <!-- Sword -->
+                    <g transform="translate(450,460)">
+                        <!-- Blade -->
+                        <rect x="-180" y="-8" width="340" height="16" rx="4" fill="white"/>
+                        <!-- Tip -->
+                        <polygon points="160,-8 220,0 160,8" fill="white"/>
+                        <!-- Guard -->
+                        <rect x="-195" y="-28" width="20" height="56" rx="4" fill="white"/>
+                        <!-- Handle -->
+                        <rect x="-240" y="-10" width="50" height="20" rx="5" fill="white"/>
+                        <!-- Pommel -->
+                        <circle cx="-240" cy="0" r="14" fill="white"/>
+                    </g>
                 </svg>
                 <span>المملكة العربية السعودية</span>
             </div>
