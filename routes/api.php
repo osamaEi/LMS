@@ -110,6 +110,7 @@ Route::prefix('v1')->group(function () {
             Route::get('/subjects/{subjectId}/quizzes/{quizId}/result/{attemptId}', [App\Http\Controllers\Api\V1\Student\QuizController::class, 'result']);
 
             // Tickets (Support)
+            Route::get('/tickets/options', [App\Http\Controllers\Api\V1\Student\TicketController::class, 'options']);
             Route::get('/tickets', [App\Http\Controllers\Api\V1\Student\TicketController::class, 'index']);
             Route::post('/tickets', [App\Http\Controllers\Api\V1\Student\TicketController::class, 'store']);
             Route::get('/tickets/{id}', [App\Http\Controllers\Api\V1\Student\TicketController::class, 'show']);

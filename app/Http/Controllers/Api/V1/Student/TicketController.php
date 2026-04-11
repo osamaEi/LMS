@@ -12,6 +12,32 @@ use Illuminate\Http\Request;
 class TicketController extends Controller
 {
     /**
+     * GET /api/v1/student/tickets/options
+     * Return available categories, priorities, and statuses for ticket creation.
+     */
+    public function options()
+    {
+        return response()->json([
+            'success' => true,
+            'data'    => [
+                'categories' => [
+                    ['value' => 'technical',  'label' => 'دعم تقني'],
+                    ['value' => 'academic',   'label' => 'أكاديمي'],
+                    ['value' => 'financial',  'label' => 'مالي'],
+                    ['value' => 'account',    'label' => 'حساب'],
+                    ['value' => 'other',      'label' => 'أخرى'],
+                ],
+                'priorities' => [
+                    ['value' => 'low',    'label' => 'منخفض'],
+                    ['value' => 'medium', 'label' => 'متوسط'],
+                    ['value' => 'high',   'label' => 'مرتفع'],
+                    ['value' => 'urgent', 'label' => 'عاجل'],
+                ],
+            ],
+        ]);
+    }
+
+    /**
      * GET /api/v1/student/tickets
      * List student's tickets with stats summary.
      *

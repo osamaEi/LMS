@@ -32,12 +32,9 @@ class MediaUploadController extends Controller
             $urls[] = asset('storage/' . $path);
         }
 
-        return response()->json([
-            'success' => true,
-            'data'    => [
-                'urls'  => $urls,
-                'count' => count($urls),
-            ],
-        ], 201);
+        return response()->json(
+            count($urls) === 1 ? ['url' => $urls[0]] : ['urls' => $urls],
+            201
+        );
     }
 }
