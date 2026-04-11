@@ -6,31 +6,41 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ app()->getLocale() === 'ar' ? 'تسجيل الدخول' : 'Login' }} - ALERTIQA</title>
+    <link rel="preload" href="/font/static/Cairo-Regular.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/font/static/Cairo-Bold.woff2" as="font" type="font/woff2" crossorigin>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @font-face {
             font-family: 'Cairo';
-            src: url('/font/static/Cairo-Regular.ttf') format('truetype');
+            src: url('/font/static/Cairo-Regular.woff2') format('woff2'),
+                 url('/font/static/Cairo-Regular.ttf') format('truetype');
             font-weight: 400;
             font-style: normal;
+            font-display: swap;
         }
         @font-face {
             font-family: 'Cairo';
-            src: url('/font/static/Cairo-Medium.ttf') format('truetype');
+            src: url('/font/static/Cairo-Medium.woff2') format('woff2'),
+                 url('/font/static/Cairo-Medium.ttf') format('truetype');
             font-weight: 500;
             font-style: normal;
+            font-display: swap;
         }
         @font-face {
             font-family: 'Cairo';
-            src: url('/font/static/Cairo-SemiBold.ttf') format('truetype');
+            src: url('/font/static/Cairo-SemiBold.woff2') format('woff2'),
+                 url('/font/static/Cairo-SemiBold.ttf') format('truetype');
             font-weight: 600;
             font-style: normal;
+            font-display: swap;
         }
         @font-face {
             font-family: 'Cairo';
-            src: url('/font/static/Cairo-Bold.ttf') format('truetype');
+            src: url('/font/static/Cairo-Bold.woff2') format('woff2'),
+                 url('/font/static/Cairo-Bold.ttf') format('truetype');
             font-weight: 700;
             font-style: normal;
+            font-display: swap;
         }
 
         * {

@@ -6,7 +6,8 @@
     <title>{{ __('Al-Ertiqaa High Institute for Training') }}</title>
 
     <link rel="icon" type="image/png" href="{{ asset('images/Vector.png') }}" />
-    <!-- Preload first hero image -->
+    <!-- Preload Cairo font + hero image -->
+    <link rel="preload" href="/fonts/Cairo-VariableFont_slnt,wght.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" as="image" href="{{ asset('lms2-photo/14.webp') }}" />
 
     @if(app()->getLocale() == 'ar')
@@ -20,7 +21,8 @@
     <style>
         @font-face {
             font-family: 'Cairo';
-            src: url('/fonts/Cairo-VariableFont_slnt,wght.ttf') format('truetype');
+            src: url('/fonts/Cairo-VariableFont_slnt,wght.woff2') format('woff2'),
+                 url('/fonts/Cairo-VariableFont_slnt,wght.ttf') format('truetype');
             font-weight: 100 900;
             font-style: normal;
             font-display: swap;
