@@ -39,6 +39,23 @@
         body { font-size: 16px; font-weight: 400; line-height: 1.5; overflow-x: hidden; }
         a { text-decoration: none; color: inherit; }
 
+        /* ── Saudi Top Bar ── */
+        .saudi-top-bar { background:#165d34; color:#fff; font-size:.78rem; padding:.35rem clamp(1rem,3vw,3rem); display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap; }
+        .saudi-top-bar .saudi-left { display:flex; align-items:center; gap:1.25rem; flex-wrap:wrap; }
+        .saudi-top-bar .saudi-right { display:flex; align-items:center; gap:1rem; }
+        .saudi-emblem { display:flex; align-items:center; gap:.5rem; font-weight:700; font-size:.82rem; }
+        .saudi-divider { width:1px; height:18px; background:rgba(255,255,255,.3); }
+        .saudi-badge { display:flex; align-items:center; gap:.4rem; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.25); border-radius:4px; padding:2px 8px; font-size:.72rem; }
+        .saudi-badge .dot { width:6px; height:6px; border-radius:50%; background:#4ade80; flex-shrink:0; animation:pulse-green 2s infinite; }
+        @keyframes pulse-green { 0%,100%{opacity:1} 50%{opacity:.4} }
+        .vision-badge { display:flex; align-items:center; gap:.4rem; font-weight:700; font-size:.75rem; opacity:.92; }
+        .vision-badge .v-year { background:rgba(255,255,255,.18); border-radius:3px; padding:1px 6px; font-weight:800; }
+        .saudi-date-time { font-size:.72rem; opacity:.85; white-space:nowrap; }
+        .accessibility-btns { display:flex; gap:.4rem; }
+        .accessibility-btns button { background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.2); color:#fff; width:24px; height:24px; border-radius:4px; font-size:.7rem; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background .2s; padding:0; }
+        .accessibility-btns button:hover { background:rgba(255,255,255,.25); }
+        @media(max-width:768px){ .saudi-top-bar{font-size:.7rem;padding:.3rem .75rem;} .vision-badge,.saudi-date-time,.accessibility-btns{display:none;} }
+
         /* ── Navbar ── */
         nav.navbar { margin-top: 0 !important; padding-top: 0 !important; }
         .bottom-bar { padding: 0.75rem 1rem; border-bottom: 1px solid #e5e7eb; }
@@ -289,6 +306,37 @@
     </style>
 </head>
 <body>
+
+    <!-- Saudi National Identity Top Bar -->
+    <div class="saudi-top-bar" role="banner">
+        <div class="saudi-left">
+            <div class="saudi-emblem">
+                <svg width="22" height="26" viewBox="0 0 100 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M50 5 L95 30 L95 80 Q95 105 50 115 Q5 105 5 80 L5 30 Z" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.6)" stroke-width="3"/>
+                    <text x="50" y="72" text-anchor="middle" fill="white" font-size="38" font-family="serif">🌴</text>
+                </svg>
+                <span>المملكة العربية السعودية</span>
+            </div>
+            <div class="saudi-divider"></div>
+            <div class="saudi-badge">
+                <span class="dot"></span>
+                <span>موقع رسمي معتمد</span>
+            </div>
+            <div class="saudi-divider d-none d-md-block"></div>
+            <div class="vision-badge">
+                <span>رؤية</span>
+                <span class="v-year">2030</span>
+            </div>
+        </div>
+        <div class="saudi-right">
+            <div class="saudi-date-time" id="saudiDateTime"></div>
+            <div class="saudi-divider"></div>
+            <div class="accessibility-btns">
+                <button onclick="changeFontSize(1)" title="تكبير الخط">A+</button>
+                <button onclick="changeFontSize(-1)" title="تصغير الخط">A-</button>
+            </div>
+        </div>
+    </div>
 
     <!-- ════ Navbar ════ -->
     <nav class="navbar navbar-expand-lg d-flex flex-column shadow-sm sticky-top bg-white" style="z-index:1000">
@@ -742,6 +790,28 @@
     </footer>
 
     <script>
+        // ── Saudi Top Bar date/time ──
+        function updateSaudiTime() {
+            const el = document.getElementById('saudiDateTime');
+            if (!el) return;
+            const now = new Date();
+            const days = ['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+            const months = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+            let h = now.getHours(), m = now.getMinutes().toString().padStart(2,'0');
+            const period = h >= 12 ? 'م' : 'ص';
+            h = h % 12 || 12;
+            el.textContent = `${days[now.getDay()]} ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()} — ${h}:${m} ${period}`;
+        }
+        updateSaudiTime();
+        setInterval(updateSaudiTime, 30000);
+
+        // Font size accessibility
+        let currentFontSize = 100;
+        function changeFontSize(dir) {
+            currentFontSize = Math.min(130, Math.max(85, currentFontSize + dir * 5));
+            document.documentElement.style.fontSize = currentFontSize + '%';
+        }
+
         // ── Hero Slider ──
         let currentSlide = 0;
         const slides = document.querySelectorAll('.hero-slide');
