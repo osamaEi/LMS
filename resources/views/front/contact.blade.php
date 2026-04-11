@@ -18,7 +18,11 @@
     .form-section {
         background: white;
         padding: 40px;
-        border-radius: {{ app()->getLocale() == 'ar' ? '20px 0 0 20px' : '0 20px 20px 0' }};
+        border-radius: 0 20px 20px 0;
+    }
+
+    [dir="rtl"] .form-section {
+        border-radius: 20px 0 0 20px;
     }
 
     .form-title {
@@ -178,8 +182,13 @@
 
     .contact-details .bi-copy {
         cursor: pointer;
-        {{ app()->getLocale() == 'ar' ? 'margin-right' : 'margin-left' }}: 5px;
+        margin-left: 5px;
         color: #666;
+    }
+
+    [dir="rtl"] .contact-details .bi-copy {
+        margin-left: 0;
+        margin-right: 5px;
     }
 
     .social-section {
@@ -520,7 +529,7 @@
             </div>
             <div class="col-lg-6">
                 <div class="cta-image">
-                    <img src="{{ asset('images/contactUs.jpg') }}" alt="Contact Us" onerror="this.src='{{ asset('images/course.jpg') }}'" />
+                    <img src="{{ asset('lms2-photo/4.png') }}" alt="Contact Us" onerror="this.src='{{ asset('lms2-photo/11.png') }}'" />
                 </div>
             </div>
         </div>

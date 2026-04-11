@@ -519,7 +519,7 @@
             </div>
             <div class="col-lg-6">
                 <div class="contact-image">
-                    <img src="{{ asset('images/contactUs.jpg') }}" alt="Contact Us" onerror="this.src='{{ asset('images/course.jpg') }}'"/>
+                    <img src="{{ asset('lms2-photo/3.png') }}" alt="Contact Us" onerror="this.src='{{ asset('lms2-photo/11.png') }}'" />
                 </div>
             </div>
         </div>

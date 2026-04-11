@@ -77,7 +77,7 @@
     .course-badge {
         position: absolute;
         top: 15px;
-        {{ app()->getLocale() == 'ar' ? 'right' : 'left' }}: 15px;
+        right: 15px;
         background: var(--main-color);
         color: white;
         padding: 5px 12px;
@@ -85,8 +85,58 @@
         font-size: 0.8rem;
     }
 
+    [dir="ltr"] .course-badge {
+        right: auto;
+        left: 15px;
+    }
+
     .course-card-wrapper {
         position: relative;
+    }
+
+    /* Featured Banner */
+    .featured-banner {
+        margin: 0 clamp(1rem, 3vw, 3rem) 2rem;
+        border-radius: 20px;
+        overflow: hidden;
+        position: relative;
+        height: 300px;
+    }
+
+    .featured-banner img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center 30%;
+    }
+
+    .featured-banner .overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to left, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.1) 60%);
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        padding: 2rem clamp(1rem, 4vw, 4rem);
+    }
+
+    [dir="rtl"] .featured-banner .overlay {
+        background: linear-gradient(to right, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.1) 60%);
+    }
+
+    .featured-banner .overlay-text h3 {
+        color: white;
+        font-size: clamp(1.2rem, 3vw, 1.8rem);
+        margin-bottom: 0.5rem;
+    }
+
+    .featured-banner .overlay-text p {
+        color: rgba(255,255,255,0.85);
+        font-size: 0.95rem;
+    }
+
+    @media (max-width: 768px) {
+        .featured-banner { height: 200px; margin: 0 1rem 1.5rem; }
     }
 
     /* Mockup Section */
@@ -231,6 +281,17 @@
         <h2>{{ __('Short Courses') }}</h2>
     </section>
 
+    <!-- Featured Banner -->
+    <div class="featured-banner">
+        <img src="{{ asset('lms2-photo/15.png') }}" alt="Short Courses" onerror="this.src='{{ asset('lms2-photo/14.png') }}'" />
+        <div class="overlay">
+            <div class="overlay-text">
+                <h3>{{ __('Professional Short Courses') }}</h3>
+                <p>{{ __('Flexible, accredited, and designed for your success') }}</p>
+            </div>
+        </div>
+    </div>
+
     <!-- Courses Section -->
     <section class="courses-section mb-5">
         <div class="head">
@@ -243,11 +304,21 @@
         @if($programs->isEmpty())
             <p class="text-center text-muted py-5">{{ __('No courses available at the moment.') }}</p>
         @else
+        @php
+            $courseImages = [
+                'lms-photos/2.png',
+                'lms-photos/8.png',
+                'lms-photos/5.png',
+                'lms2-photo/14.png',
+                'lms-photos/10.png',
+                'lms2-photo/6.png',
+            ];
+        @endphp
         <div class="courses-container">
             @foreach($programs as $program)
             <div class="course-card-wrapper">
                 <div class="course-card">
-                    <img src="{{ asset('images/course.jpg') }}" alt="{{ $program->name_ar }}" />
+                    <img src="{{ asset($courseImages[$loop->index % count($courseImages)]) }}" alt="{{ $program->name_ar }}" />
                     <div class="card-body">
                         <h5 class="card-title">{{ app()->getLocale() === 'en' ? ($program->name_en ?: $program->name_ar) : $program->name_ar }}</h5>
                         <p class="card-text">{{ Str::limit(app()->getLocale() === 'en' ? ($program->description_en ?: $program->description_ar) : $program->description_ar, 100) }}</p>
@@ -297,7 +368,7 @@
                 </div>
             </div>
             <div class="col-lg-6 text-center">
-                <img src="{{ asset('images/mockup.png') }}" alt="App Mockup" style="max-width: 400px;" onerror="this.style.display='none'" />
+                <img src="{{ asset('lms2-photo/4.png') }}" alt="App Mockup" style="max-width: 450px; border-radius: 20px;" onerror="this.style.display='none'" />
             </div>
         </div>
     </section>

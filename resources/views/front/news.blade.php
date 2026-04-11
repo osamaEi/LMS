@@ -107,7 +107,39 @@
         background: transparent;
     }
 
+    /* News Banner */
+    .news-banner {
+        margin: 0 clamp(1rem, 3vw, 3rem) 2rem;
+        border-radius: 20px;
+        overflow: hidden;
+        position: relative;
+        height: 260px;
+    }
+
+    .news-banner img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center 40%;
+    }
+
+    .news-banner .overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.55) 100%);
+        display: flex;
+        align-items: flex-end;
+        padding: 2rem;
+    }
+
+    .news-banner .overlay p {
+        color: rgba(255,255,255,0.9);
+        font-size: 1rem;
+        margin: 0;
+    }
+
     @media (max-width: 768px) {
+        .news-banner { height: 180px; margin: 0 1rem 1.5rem; }
         .news-section {
             padding: 1.5rem 1rem;
         }
@@ -145,6 +177,14 @@
         </p>
     </section>
 
+    <!-- News Banner -->
+    <div class="news-banner">
+        <img src="{{ asset('lms2-photo/9.png') }}" alt="News" onerror="this.src='{{ asset('lms2-photo/5.png') }}'" />
+        <div class="overlay">
+            <p>{{ __('Follow the latest updates, official announcements, and events at the institute.') }}</p>
+        </div>
+    </div>
+
     <!-- News Section -->
     <section class="news-section container-fluid">
         @if($news->isEmpty())
@@ -156,9 +196,13 @@
             @foreach($news as $item)
             <div class="news-card">
                 @if($item->image)
-                    <img src="{{ Storage::url($item->image) }}" alt="{{ $item->title_ar }}" onerror="this.src='{{ asset('images/card.png') }}'" />
+                    <img src="{{ Storage::url($item->image) }}" alt="{{ $item->title_ar }}" onerror="this.src='{{ asset('lms2-photo/14.png') }}'" />
                 @else
-                    <img src="{{ asset('images/card.png') }}" alt="{{ $item->title_ar }}" onerror="this.src='{{ asset('images/course.jpg') }}'" />
+                    @php
+                        $newsImages = ['lms2-photo/14.png','lms-photos/8.png','lms2-photo/5.png','lms-photos/2.png','lms2-photo/11.png'];
+                        $newsImg = $newsImages[$loop->index % count($newsImages)];
+                    @endphp
+                    <img src="{{ asset($newsImg) }}" alt="{{ $item->title_ar }}" />
                 @endif
                 <div class="card-body">
                     <p class="card-date">{{ $item->published_at ? $item->published_at->format('Y-m-d') : $item->created_at->format('Y-m-d') }}</p>

@@ -59,13 +59,23 @@
 
     .vision-card.one {
         top: 24px;
-        {{ app()->getLocale() == 'ar' ? 'right: 20px' : 'right: 20px' }};
+        right: 20px;
+    }
+
+    [dir="ltr"] .vision-card.one {
+        right: auto;
+        left: 20px;
     }
 
     .vision-card.two {
         bottom: 24px;
         top: auto;
-        {{ app()->getLocale() == 'ar' ? 'left: 20px' : 'left: 20px' }};
+        left: 20px;
+    }
+
+    [dir="ltr"] .vision-card.two {
+        left: auto;
+        right: 20px;
     }
 
     .vision-card .icon {
@@ -143,6 +153,64 @@
         font-size: 0.9rem;
         color: rgba(56, 66, 80, 1);
         line-height: 1.6;
+    }
+
+    /* Gallery Section */
+    .gallery-section {
+        padding: 2rem clamp(1rem, 3vw, 3rem);
+    }
+
+    .gallery-section .head {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .gallery-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        grid-template-rows: repeat(2, 220px);
+        gap: 12px;
+        border-radius: 20px;
+        overflow: hidden;
+    }
+
+    .gallery-grid .g-item {
+        overflow: hidden;
+        border-radius: 12px;
+    }
+
+    .gallery-grid .g-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.4s ease;
+    }
+
+    .gallery-grid .g-item:hover img {
+        transform: scale(1.06);
+    }
+
+    .gallery-grid .g-item.wide {
+        grid-column: span 2;
+    }
+
+    .gallery-grid .g-item.tall {
+        grid-row: span 2;
+    }
+
+    @media (max-width: 768px) {
+        .gallery-grid {
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: auto;
+        }
+        .gallery-grid .g-item.wide,
+        .gallery-grid .g-item.tall {
+            grid-column: span 1;
+            grid-row: span 1;
+        }
+        .gallery-grid .g-item {
+            height: 160px;
+        }
     }
 
     /* Contact Section */
@@ -249,7 +317,7 @@
     <!-- Vision & Mission Section -->
     <section class="vision-section">
         <div class="center">
-            <img class="main-img" src="{{ asset('images/nd-center.jpg') }}" alt="Vision" onerror="this.src='{{ asset('images/course.jpg') }}'" />
+            <img class="main-img" src="{{ asset('lms2-photo/2.png') }}" alt="Vision" onerror="this.src='{{ asset('lms2-photo/14.png') }}'" />
 
             <div class="vision-card one">
                 <div class="icon">
@@ -310,6 +378,34 @@
         </div>
     </section>
 
+    <!-- Gallery Section -->
+    <section class="gallery-section">
+        <div class="head">
+            <p class="st-p">{{ __('Training That Meets Your Needs') }}</p>
+            <h2>{{ __('From Our Institute') }}</h2>
+        </div>
+        <div class="gallery-grid">
+            <div class="g-item tall">
+                <img src="{{ asset('lms2-photo/1.png') }}" alt="Institute" />
+            </div>
+            <div class="g-item">
+                <img src="{{ asset('lms2-photo/5.png') }}" alt="Graduation" />
+            </div>
+            <div class="g-item">
+                <img src="{{ asset('lms2-photo/8.png') }}" alt="Study" />
+            </div>
+            <div class="g-item">
+                <img src="{{ asset('lms2-photo/11.png') }}" alt="Learning" />
+            </div>
+            <div class="g-item wide">
+                <img src="{{ asset('lms2-photo/14.png') }}" alt="Computer Lab" />
+            </div>
+            <div class="g-item">
+                <img src="{{ asset('lms2-photo/7.png') }}" alt="Training" />
+            </div>
+        </div>
+    </section>
+
     <!-- Contact Section -->
     <section class="contact-section">
         <div class="row">
@@ -325,7 +421,7 @@
             </div>
             <div class="col-lg-6">
                 <div class="contact-image">
-                    <img src="{{ asset('images/contactUs.jpg') }}" alt="Contact Us" onerror="this.src='{{ asset('images/course.jpg') }}'" />
+                    <img src="{{ asset('lms2-photo/3.png') }}" alt="Contact Us" onerror="this.src='{{ asset('lms2-photo/11.png') }}'" />
                 </div>
             </div>
         </div>

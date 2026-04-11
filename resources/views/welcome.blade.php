@@ -5,24 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ __('Al-Ertiqaa High Institute for Training') }}</title>
 
-    <!-- Favicon -->
     <link rel="icon" type="image/png" href="{{ asset('images/Vector.png') }}" />
 
-    <!-- Bootstrap CSS -->
     @if(app()->getLocale() == 'ar')
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
     @else
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     @endif
-
-    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
 
     <style>
-        /* Cairo Local Font */
         @font-face {
             font-family: 'Cairo';
             src: url('/fonts/Cairo-VariableFont_slnt,wght.ttf') format('truetype');
@@ -30,1153 +23,308 @@
             font-style: normal;
             font-display: swap;
         }
-
-        /* Colors */
         :root {
             --main-color: rgba(0, 113, 170, 1);
+            --main-dark: #005a8a;
             --second-color: rgba(243, 244, 246, 1);
         }
 
-        /* Global */
-        * {
-            @if(app()->getLocale() == 'ar')
-            font-family: 'Cairo', sans-serif !important;
-            @else
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
-            @endif
-            box-sizing: border-box;
-        }
+        /* Font families */
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important; }
+        [lang="ar"] * { font-family: 'Cairo', sans-serif !important; }
+        .fa, .fas, .far, .fab { font-family: "Font Awesome 6 Free" !important; font-weight: 900; }
 
-        body {
-            @if(app()->getLocale() == 'ar')
-            font-family: 'Cairo', sans-serif !important;
-            @else
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            @endif
-            font-size: 16px;
-            font-weight: 400;
-            line-height: 1.5;
-            overflow-x: hidden;
-        }
+        body { font-size: 16px; font-weight: 400; line-height: 1.5; overflow-x: hidden; }
+        a { text-decoration: none; color: inherit; }
 
-        /* Font Awesome fix */
-        .fa, .fas, .far, .fab {
-            font-family: "Font Awesome 6 Free" !important;
-            font-weight: 900;
+        /* ── Navbar ── */
+        nav.navbar { margin-top: 0 !important; padding-top: 0 !important; }
+        .bottom-bar { padding: 0.75rem 1rem; border-bottom: 1px solid #e5e7eb; }
+        .navbar-brand img { max-width: 120px; height: auto; }
+        .nav-item a { color: black !important; padding: 5px 10px; border-radius: 20px; transition: all .3s; }
+        .nav-item a:hover, .nav-item a.active { color: var(--main-color) !important; background: #eaf5fb; }
+        .navbar-nav { gap: .5rem; }
+        .btn-outline {
+            white-space: nowrap; padding: .375rem .75rem; font-size: .9rem;
+            border: 1px solid #dee2e6; background: transparent; border-radius: 5px; transition: all .3s;
         }
+        .btn-outline:hover { background: #f8f9fa; }
 
-        a {
-            text-decoration: none;
-            color: inherit;
-        }
-
-        /* Navbar Styles */
-        nav.navbar {
-            margin-top: 0 !important;
-            padding-top: 0 !important;
-        }
-
-        .bg-gray {
-            background-color: rgba(243, 244, 246, 1);
-        }
-
-        .top-bar {
-            padding: 0.25rem 1rem;
-            border-bottom: 1px solid #d1d5db;
-        }
-
-        .middle-bar {
-            padding: 0.35rem 1rem;
-            border-bottom: 1px solid #d1d5db;
-        }
-
-        .middle-bar .info-section {
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-
-        .middle-bar .info-section > div {
-            font-size: 0.9rem;
-        }
-
-        .middle-bar .icons-section {
-            flex-shrink: 0;
-            gap: 0.75rem;
-        }
-
-        .middle-bar .icons-section i {
-            cursor: pointer;
-            font-size: 1.1rem;
-        }
-
-        .middle-bar p,
-        .middle-bar i {
-            white-space: nowrap;
-        }
-
-        .bottom-bar {
-            padding: 0.75rem 1rem;
-            border-bottom: 1px solid #e5e7eb;
-        }
-
-        .navbar-brand img {
-            max-width: 120px;
-            height: auto;
-        }
-
-        .nav-item a {
-            color: black !important;
-            text-decoration: none;
-            padding: 5px 10px;
-            border-radius: 20px;
-            transition: all 0.3s;
-        }
-
-        .nav-item a:hover,
-        .nav-item a.active {
-            color: var(--main-color) !important;
-            background: #eaf5fb;
-        }
-
-        .navbar-nav {
-            gap: 0.5rem;
-        }
-
-        .bottom-bar .btn-outline {
-            white-space: nowrap;
-            padding: 0.375rem 0.75rem;
-            font-size: 0.9rem;
-            border: 1px solid #dee2e6;
-            background: transparent;
-            border-radius: 5px;
-            transition: all 0.3s;
-        }
-
-        .bottom-bar .btn-outline:hover {
-            background: #f8f9fa;
-        }
-
-        /* Mobile Menu Styles */
-        .mobile-menu-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 9998;
-        }
-
-        .mobile-menu-overlay.active {
-            display: block;
-        }
-
+        /* ── Mobile Menu ── */
+        .mobile-menu-overlay { display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,.5); z-index:9998; }
+        .mobile-menu-overlay.active { display:block; }
         .mobile-menu {
-            display: none;
-            position: fixed;
-            top: 0;
-            {{ app()->getLocale() == 'ar' ? 'right' : 'left' }}: 0;
-            width: 383px;
-            height: 100vh;
-            background: #fff;
-            z-index: 9999;
-            overflow-y: auto;
-            box-shadow: {{ app()->getLocale() == 'ar' ? '-5px' : '5px' }} 0 15px rgba(0, 0, 0, 0.3);
-            flex-direction: column;
-        }
-
-        .mobile-menu.active {
-            display: flex;
-            {{ app()->getLocale() == 'ar' ? 'padding-right' : 'padding-left' }}: 117px;
-        }
-
-        .mobile-menu-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px;
-            border-bottom: 1px solid #e5e7eb;
-            background: #f9fafb;
-        }
-
-        .mobile-menu-header .navbar-brand img {
-            max-width: 100px;
-            height: auto;
-        }
-
-        .close-menu-btn {
-            width: 40px;
-            height: 40px;
-            background: #f0f0f0;
-            border: none;
-            font-size: 1.25rem;
-            color: #333;
-            cursor: pointer;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s;
-        }
-
-        .close-menu-btn:hover {
-            background: var(--main-color);
-            color: #fff;
-        }
-
-        .mobile-nav-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            flex: 1;
-        }
-
-        .mobile-nav-list li {
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        .mobile-nav-list li a {
-            display: block;
-            padding: 15px 20px;
-            color: #333;
-            text-decoration: none;
-            transition: all 0.3s;
-            font-size: 1rem;
-        }
-
-        .mobile-nav-list li a:hover,
-        .mobile-nav-list li a.active {
-            background: #eaf5fb;
-            color: var(--main-color);
-            {{ app()->getLocale() == 'ar' ? 'padding-right' : 'padding-left' }}: 25px;
-        }
-
-        .mobile-menu-buttons {
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            border-top: 1px solid #e5e7eb;
-            background: #f9fafb;
-        }
-
-        .mobile-menu-buttons .btn-outline {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            padding: 12px;
-            font-size: 0.9rem;
-            border: 1px solid #dee2e6;
-            background: #fff;
-            border-radius: 8px;
-            color: #333;
-            text-decoration: none;
-            cursor: pointer;
-        }
-
-        .mobile-menu-buttons .btn-outline:hover {
-            background: var(--main-color);
-            color: #fff;
-            border-color: var(--main-color);
-        }
-
-        /* Prevent body scroll when menu is open */
-        body.menu-open {
-            overflow: hidden;
-        }
-
-        /* Hide mobile menu on desktop */
-        @media (min-width: 992px) {
-            .mobile-menu,
-            .mobile-menu-overlay,
-            .navbar-toggler {
-                display: none !important;
-            }
-        }
-
-        /* Landing Section */
-        .section-wrapper {
-            background: linear-gradient(271deg, var(--Neutral-surface-container, #fff) 0.63%, var(--Accent-Gradient-gradient-lightest, #f5f6ff) 99.37%);
-            padding: 0 clamp(1rem, 3vw, 3rem);
-        }
-
-        .section-content {
-            padding: clamp(2rem, 4vw, 4rem) 0;
-            margin: 0 auto;
-        }
-
-        .st-p {
-            background: #eaf5fb;
-            color: var(--main-color);
-            width: fit-content;
-            padding: 5px 15px;
-            border-radius: 20px;
-        }
-
-        .nd-p {
-            margin: 20px 0;
-            line-height: 1.6;
-            color: rgba(56, 66, 80, 1);
-        }
-
-        .full-btn {
-            background-color: var(--main-color);
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            white-space: nowrap;
-            transition: all 0.3s;
-            cursor: pointer;
-        }
-
-        .notfull-btn {
-            background-color: transparent;
-            color: var(--main-color);
-            padding: 10px 20px;
-            border: 1px solid var(--main-color);
-            border-radius: 5px;
-            white-space: nowrap;
-            transition: all 0.3s;
-            cursor: pointer;
-        }
-
-        .full-btn:hover,
-        .notfull-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-        }
-
-        .left-sec {
-            position: relative;
-            display: flex;
-            justify-content: {{ app()->getLocale() == 'ar' ? 'end' : 'start' }};
-            align-items: center;
-            min-height: 400px;
-            margin-top: 30px;
-        }
-
-        .main-img {
-            max-width: 100%;
-            height: auto;
-        }
-
-        .abs-btn {
-            position: absolute;
-            top: clamp(40px, 15%, 80px);
-            {{ app()->getLocale() == 'ar' ? 'right: 15%' : 'right: 15%' }};
-            background-color: var(--main-color);
-            color: white;
-            padding: 7px 15px;
-            border: none;
-            border-radius: 5px;
-            white-space: nowrap;
-        }
-
-        .img-abs {
-            position: absolute;
-            top: 37%;
-
-            {{ app()->getLocale() == 'ar' ? 'right: 26%' : 'right: 30%' }};
-            max-width: clamp(30px, 5vw, 50px);
-            height: auto;
-        }
-        .coming-abs {
-                top: {{ app()->getLocale() == 'ar' ? '37%' : '27%' }};
-               right: {{ app()->getLocale() == 'ar' ? '26%' : '28%' }};
-
-        }
-        .land-abs {
-            top: 30%;
-            right: 40%;
-        }
-        .train-abs{
-            top: 30%;
-
-        }
-        .How-abs{
-            top: {{ app()->getLocale() == 'ar' ? '20%' : '20%' }} ;
-            right:{{ app()->getLocale() == 'ar' ? '20%' : '15%' }} ;
-        }
-        .How-abs-btn{
-            top: {{ app()->getLocale() == 'ar' ? '5%' : '15%' }} ;
-            right: {{ app()->getLocale() == 'ar' ? '5%' : '2%' }};
-        }
-        .trainers-abs{
-            top: {{ app()->getLocale() == 'ar' ? '20%' : '23%' }};
-
-            right:{{ app()->getLocale() == 'ar' ? '17%' : '16%' }};
-        }
-        .trainers-abs-btn{
-            top: 2%;
-            right: {{ app()->getLocale() == 'ar' ? '5%' : '2%' }};
-        }
-        .faq-abs{
-            top: {{ app()->getLocale() == 'ar' ? '25%' : '17%' }};
-            right: {{ app()->getLocale() == 'ar' ? '19%' : '14%' }};
-        }
-        .faq-abs-btn{
-            top: {{ app()->getLocale() == 'ar' ? '5%' : '0%' }};
-            right: {{ app()->getLocale() == 'ar' ? '5%' : '0%' }};
-        }
-        .fedback-abs{
-            top: {{ app()->getLocale() == 'ar' ? '20%' : '15%' }};
-            right: {{ app()->getLocale() == 'ar' ? '22%' : '18%' }};
-        }
-        .fedback-abs-btn{
-            top: {{ app()->getLocale() == 'ar' ? '10%' : '5%' }};
-            right: {{ app()->getLocale() == 'ar' ? '7%' : '3%' }};
-        }
-        /* Section Container */
-        .section-container {
-            padding: clamp(2rem, 5vw, 5rem) clamp(1rem, 3vw, 3rem);
-            margin: 0 auto;
-        }
-
-        /* Cards */
-        .card {
-            border: none;
-            border-radius: 16px;
-            background: linear-gradient(180deg, rgba(255, 255, 255, 1) 0%, rgba(82, 154, 255, 0.2) 75%);
-            padding: 15px;
-            height: 100%;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-        }
-
-        .card h5 {
-            margin-top: 10px;
-        }
-
-        .bi-shield-fill-check {
-            font-size: 75px;
-            color: var(--main-color);
-        }
-
-        /* Courses Container */
-        .courses-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.5rem;
-            padding: 0 15px;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        .course-card {
-            box-sizing: border-box;
-            display: flex;
-            flex-direction: column;
-            transition: 0.3s;
-            background: white;
-            border-radius: 10px;
-            overflow: hidden;
-        }
-
-        .course-card img {
-            width: 100%;
-            height: auto;
-            object-fit: cover;
-            aspect-ratio: 16/9;
-        }
-
-        .course-card p {
-            flex-grow: 1;
-        }
-
-        .marks {
-            margin-bottom: 1rem;
-        }
-
-        .marks div {
-            border: 1px solid black;
-            padding: 1px 7px;
-            border-radius: 7px;
-            white-space: nowrap;
-            font-size: 12px;
-        }
-
-        .marks .nd {
-            color: var(--main-color);
-            background-color: rgba(239, 248, 255, 1);
-            border: 1px solid rgba(178, 221, 255, 1) !important;
-        }
-
-        .marks .th {
-            color: rgba(8, 93, 58, 1);
-            background-color: rgba(236, 253, 243, 1);
-            border: 1px solid rgba(171, 239, 198, 1) !important;
-        }
-
-        /* How It Works Section */
-        .content-wrapper {
-            flex-direction: {{ app()->getLocale() == 'ar' ? 'row-reverse' : 'row' }};
-            align-items: flex-start;
-            gap: 20px;
-        }
-
-        .right-sec-steps {
-            flex: 1;
-            position: relative;
-            margin: 20px 20px 0;
-            min-width: 0;
-        }
-
-        .right-sec-steps::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            {{ app()->getLocale() == 'ar' ? 'right' : 'left' }}: -22px;
-            width: 4px;
-            height: 100%;
-            background: linear-gradient(to bottom, #e5e7eb 0%, #e5e7eb 1%, var(--main-color) 1%, var(--main-color) 25%, #e5e7eb 25%, #e5e7eb 100%);
-        }
-
-        .right-sec-steps h4 {
-            margin-bottom: 10px;
-        }
-
-        .section-item {
-            margin-bottom: 30px;
-        }
-
-        .image-container {
-            flex: 1;
-            min-width: 0;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-        }
-
-        .image-container img {
-            max-width: 100%;
-            height: auto;
-            display: block;
-        }
-
-        /* App Section */
-        .app-section {
-            background-color: rgba(234, 245, 251, 1);
-        }
-
-        .store-buttons {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .store-btn {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background-color: #000;
-            color: #fff;
-            padding: 10px 15px;
-            border-radius: 10px;
-            text-decoration: none;
-            width: 160px;
-            height: 60px;
-            transition: all 0.3s;
-        }
-
-        .store-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
-            color: #fff;
-        }
-
-        .store-btn .text {
-            display: flex;
-            flex-direction: column;
-            line-height: 1.2;
-        }
-
-        .store-btn .text .small {
-            font-size: 10px;
-            opacity: 0.9;
-        }
-
-        .store-btn .text .big {
-            font-size: 14px;
-            font-weight: 600;
-        }
-
-        /* Trainers Section */
-        .trainers-card {
-            max-width: 450px;
-            border: none;
-            border-radius: clamp(12px, 1.5vw, 20px);
-            background: linear-gradient(180deg, rgba(255, 255, 255, 1) 0%, rgba(82, 154, 255, 0.2) 75%);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            height: 100%;
-            text-align: center;
-            padding: 20px;
-        }
-
-        .trainers-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-        }
-
-        .trainers-card .top-img img {
-            width: clamp(50px, 6vw, 90px);
-            height: clamp(50px, 6vw, 90px);
-            border-radius: 50%;
-            object-fit: cover;
-        }
-
-        .trainers-card .bottom-img img {
-            width: clamp(35px, 4.5vw, 70px);
-            height: clamp(35px, 4.5vw, 70px);
-            border-radius: 50%;
-            object-fit: cover;
-        }
-
-        .center-card {
-            border: none;
-            height: 100%;
-        }
-
-        .center-card img {
-            width: 100%;
-            height: auto;
-            border-radius: clamp(12px, 1.5vw, 24px);
-            object-fit: cover;
-            max-height: clamp(300px, 40vw, 600px);
-        }
-
-        /* Feedback Section */
-        .feedback-section {
-            background-color: rgba(243, 244, 246, 1);
-        }
-
-        .feedback {
-            margin-top: clamp(2rem, 4vw, 5rem);
-            flex-wrap: wrap;
-            gap: clamp(1.5rem, 3vw, 4rem);
-            max-width: clamp(1200px, 90vw, 1800px);
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .feedback .img img {
-            width: clamp(200px, 20vw, 300px);
-            height: auto;
-            border-radius: 50%;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-        }
-
-        .feedback .text {
-            position: relative;
-            flex: 1.5;
-        }
-
-        .feedback .text .bi-quote {
-            position: absolute;
-            top: -110px;
-            {{ app()->getLocale() == 'ar' ? 'right' : 'left' }}: {{ app()->getLocale() == 'ar' ? '-130px' : '-130px' }};
-            color: rgba(189, 188, 188, 0.6);
-            transform: rotate(180deg);
-            font-size: 160px;
-        }
-
-        .feedback .text h3 {
-            line-height: 1.7;
-            margin-bottom: clamp(1rem, 2vw, 2rem);
-        }
-
-        .imgs-av img {
-            width: clamp(45px, 5vw, 70px);
-            height: clamp(45px, 5vw, 70px);
-            border-radius: 50%;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            border: 2px solid transparent;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .imgs-av img:hover,
-        .imgs-av img.active {
-            border-color: var(--main-color);
-        }
-
-        /* FAQ Section */
-        .accordion {
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-
-        .accordion-button {
-            background-color: #fff;
-            color: #000;
-            box-shadow: none !important;
-            justify-content: space-between;
-        }
-
-        .accordion-button::after {
-            {{ app()->getLocale() == 'ar' ? 'margin-left: 0; margin-right: auto;' : 'margin-right: 0; margin-left: auto;' }}
-        }
-
-        .accordion-button:not(.collapsed) {
-            background-color: rgba(249, 250, 251, 1);
-            color: #000;
-        }
-
-        .accordion-button:focus {
-            box-shadow: none !important;
-        }
-
-        .accordion-body {
-            background-color: rgba(249, 250, 251, 1);
-            line-height: 1.6;
-        }
-
-        /* Footer */
-        .foot {
-            background-color: #1d6b8f;
-            color: white;
-            padding: clamp(2rem, 4vw, 6rem) clamp(1rem, 3vw, 5rem);
-        }
-
-        .head-top {
-            display: flex;
-            gap: clamp(2rem, 4vw, 5rem);
-            margin-bottom: clamp(2rem, 4vw, 5rem);
-            flex-wrap: wrap;
-            max-width: 100%;
-            margin-left: auto;
-            margin-right: auto;
-            justify-content: space-between;
-        }
-
-        .footer-intro {
-            flex: 1;
-            min-width: 320px;
+            display: none; position: fixed; top: 0; left: 0;
+            width: 320px; height: 100vh; background: #fff; z-index: 9999;
+            overflow-y: auto; box-shadow: 5px 0 15px rgba(0,0,0,.3); flex-direction: column;
+        }
+        [dir="rtl"] .mobile-menu { left: auto; right: 0; box-shadow: -5px 0 15px rgba(0,0,0,.3); }
+        .mobile-menu.active { display: flex; }
+        .mobile-menu-header { display:flex; justify-content:space-between; align-items:center; padding:15px; border-bottom:1px solid #e5e7eb; background:#f9fafb; }
+        .mobile-menu-header .navbar-brand img { max-width:100px; }
+        .close-menu-btn { width:40px; height:40px; background:#f0f0f0; border:none; font-size:1.25rem; color:#333; cursor:pointer; border-radius:50%; display:flex; align-items:center; justify-content:center; transition:all .3s; }
+        .close-menu-btn:hover { background:var(--main-color); color:#fff; }
+        .mobile-nav-list { list-style:none; padding:0; margin:0; flex:1; }
+        .mobile-nav-list li { border-bottom:1px solid #f0f0f0; }
+        .mobile-nav-list li a { display:block; padding:15px 20px; color:#333; transition:all .3s; }
+        .mobile-nav-list li a:hover, .mobile-nav-list li a.active { color:var(--main-color); background:#eaf5fb; }
+        .mobile-menu-buttons { padding:15px; display:flex; flex-direction:column; gap:10px; border-top:1px solid #e5e7eb; }
+        .mobile-menu-buttons .btn-outline { width:100%; text-align:center; }
+        body.menu-open { overflow:hidden; }
+
+        /* ── Hero Slider ── */
+        .hero-section { position: relative; height: 100vh; min-height: 600px; overflow: hidden; }
+        .hero-slides { position: absolute; inset: 0; }
+        .hero-slide {
+            position: absolute; inset: 0;
+            background-size: cover; background-position: center;
+            opacity: 0; transition: opacity 1s ease-in-out;
+        }
+        .hero-slide.active { opacity: 1; }
+        .hero-slide::after {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(90deg, rgba(0,40,70,.85) 0%, rgba(0,80,130,.6) 45%, rgba(0,0,0,.15) 100%);
+        }
+        [dir="rtl"] .hero-slide::after {
+            background: linear-gradient(270deg, rgba(0,40,70,.85) 0%, rgba(0,80,130,.6) 45%, rgba(0,0,0,.15) 100%);
+        }
+        .hero-content {
+            position: relative; z-index: 2; height: 100%;
+            display: flex; flex-direction: column; justify-content: center;
+            padding: 0 clamp(1.5rem, 6vw, 8rem);
             max-width: 700px;
         }
+        .hero-content h1 { color: #fff; font-size: clamp(2rem, 4.5vw, 3.5rem); font-weight: 800; line-height: 1.25; margin-bottom: 1.25rem; }
+        .hero-content h1 span { color: #7dd3fc; }
+        .hero-content p { color: rgba(255,255,255,.88); font-size: clamp(.95rem, 1.8vw, 1.15rem); margin-bottom: 2rem; line-height: 1.8; }
+        .hero-btns { display: flex; gap: 1rem; flex-wrap: wrap; }
 
-        .footer-intro img {
-            max-width: clamp(200px, 25vw, 350px);
-            height: auto;
+        .full-btn {
+            background: var(--main-color); color: #fff; padding: .65rem 1.75rem;
+            border-radius: 8px; border: none; font-size: 1rem; transition: all .3s; cursor: pointer;
         }
-
-        .footer-intro h2 {
-            margin-top: clamp(1rem, 2vw, 2rem);
-            margin-bottom: clamp(0.5rem, 1vw, 1rem);
-            line-height: 1.4;
+        .full-btn:hover { background: var(--main-dark); transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,113,170,.4); color: #fff; }
+        .notfull-btn {
+            background: transparent; color: #fff; padding: .65rem 1.75rem;
+            border-radius: 8px; border: 2px solid rgba(255,255,255,.7);
+            font-size: 1rem; transition: all .3s; cursor: pointer;
         }
+        .notfull-btn:hover { background: rgba(255,255,255,.15); border-color: #fff; }
 
-        .intro-text {
-            width: 100%;
-            max-width: 100%;
-            line-height: 1.8;
-            opacity: 0.95;
+        .hero-dots {
+            position: absolute; bottom: 2rem; z-index: 3;
+            left: 50%; transform: translateX(-50%);
+            display: flex; gap: .5rem;
         }
+        [dir="rtl"] .hero-dots { left: auto; right: 50%; transform: translateX(50%); }
+        .hero-dot { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,.45); border: none; cursor: pointer; transition: all .3s; }
+        .hero-dot.active { background: #fff; width: 28px; border-radius: 5px; }
 
-        .mobile-apps {
-            flex: 0 1 auto;
-            min-width: 300px;
-            max-width: 500px;
+        .hero-scroll-hint {
+            position: absolute; bottom: 2.5rem; right: 2.5rem; z-index: 3;
+            display: flex; flex-direction: column; align-items: center; gap: .4rem;
+            color: rgba(255,255,255,.6); font-size: .75rem;
+            animation: bounce 2s infinite;
         }
+        [dir="rtl"] .hero-scroll-hint { right: auto; left: 2.5rem; }
+        @keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(6px); } }
 
-        .apps-title {
-            margin-bottom: clamp(1rem, 2vw, 2rem);
-        }
-
-        .footer-store-buttons {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: clamp(10px, 1.5vw, 18px);
-            max-width: 100%;
-        }
-
-        .footer-store-btn {
+        /* ── Stats Bar ── */
+        .stats-bar { background: var(--main-color); padding: 2.5rem clamp(1rem,4vw,4rem); }
+        .stats-bar .stats-inner {
             display: flex;
-            flex-direction: row;
+            justify-content: space-around;
             align-items: center;
-            gap: clamp(8px, 1vw, 14px);
-            background-color: #000;
-            color: #fff;
-            padding: clamp(12px, 1.5vw, 18px) clamp(14px, 1.8vw, 22px);
-            border-radius: clamp(10px, 1.2vw, 16px);
-            text-decoration: none;
-            transition: all 0.3s ease;
-            justify-content: center;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-        }
-
-        .footer-store-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
-            color: #fff;
-        }
-
-        .footer-section {
-            margin-bottom: clamp(2rem, 3vw, 3rem);
-        }
-
-        .footer-section h5 {
-            margin: 0 !important;
-            margin-bottom: 0.5rem !important;
-        }
-
-        .footer-section hr {
-            margin: clamp(0.5rem, 1vw, 1rem) 0 !important;
-            opacity: 0.4;
-            border-color: rgba(255, 255, 255, 0.3);
-        }
-
-        .footer-section a {
-            color: white;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            display: block;
-            opacity: 0.9;
-            margin-bottom: 8px;
-        }
-
-        .footer-section a:hover {
-            opacity: 1;
-            transform: translateX({{ app()->getLocale() == 'ar' ? '-5px' : '5px' }});
-            {{ app()->getLocale() == 'ar' ? 'padding-right' : 'padding-left' }}: 5px;
-        }
-
-        .foot-foot {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: clamp(2rem, 4vw, 5rem);
-            padding-top: clamp(1.5rem, 2.5vw, 3rem);
-            border-top: 2px solid rgba(255, 255, 255, 0.25);
             flex-wrap: wrap;
-            gap: clamp(1rem, 2vw, 2rem);
+            gap: 1.5rem 0;
+        }
+        .stats-bar .stat-item {
+            text-align: center;
+            color: #fff;
+            flex: 1 1 0;
+            min-width: 140px;
+            position: relative;
+        }
+        .stats-bar .stat-item:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            top: 50%; right: 0;
+            transform: translateY(-50%);
+            width: 1px; height: 50px;
+            background: rgba(255,255,255,.3);
+        }
+        [dir="rtl"] .stats-bar .stat-item:not(:last-child)::after { right: auto; left: 0; }
+        .stats-bar .stat-number { font-size: clamp(2rem,3.5vw,3rem); font-weight: 800; display: block; line-height: 1.1; }
+        .stats-bar .stat-label { font-size: .9rem; opacity: .85; margin-top: .3rem; display: block; }
+        @media (max-width: 576px) {
+            .stats-bar .stat-item { min-width: 45%; }
+            .stats-bar .stat-item:not(:last-child)::after { display: none; }
         }
 
-        .foot-foot p {
-            margin: 0;
-            opacity: 0.9;
+        /* ── Section Heads ── */
+        .section-head { text-align: center; margin-bottom: 3rem; }
+        .section-head .badge-tag { display: inline-block; background: #eaf5fb; color: var(--main-color); padding: .3rem 1rem; border-radius: 20px; font-size: .85rem; margin-bottom: .75rem; }
+        .section-head h2 { font-size: clamp(1.6rem,3vw,2.4rem); font-weight: 800; margin-bottom: .75rem; }
+        .section-head p { color: #555; max-width: 650px; margin: 0 auto; line-height: 1.8; }
+
+        /* ── Why Cards ── */
+        .why-section { padding: clamp(3rem,6vw,6rem) clamp(1rem,4vw,4rem); }
+        .why-card {
+            border: none; border-radius: 16px;
+            background: linear-gradient(160deg, #fff 0%, rgba(82,154,255,.12) 100%);
+            padding: 1.75rem 1.25rem; height: 100%;
+            transition: transform .3s, box-shadow .3s;
+            box-shadow: 0 2px 12px rgba(0,0,0,.06);
         }
+        .why-card:hover { transform: translateY(-6px); box-shadow: 0 12px 28px rgba(0,113,170,.15); }
+        .why-icon { width: 64px; height: 64px; border-radius: 14px; background: linear-gradient(135deg, var(--main-color), #0099d6); display: flex; align-items: center; justify-content: center; margin-bottom: 1rem; }
+        .why-icon i { color: #fff; font-size: 1.6rem; }
+        .why-card h5 { font-weight: 700; margin-bottom: .5rem; }
+        .why-card p { color: #666; font-size: .9rem; margin: 0; }
 
-        .footer-meta {
-            display: flex;
-            gap: clamp(1.5rem, 2.5vw, 3rem);
-            flex-wrap: wrap;
-        }
+        /* ── Programs ── */
+        .programs-section { padding: clamp(3rem,6vw,6rem) clamp(1rem,4vw,4rem); background: var(--second-color); }
+        .courses-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(300px,1fr)); gap: 1.5rem; max-width: 1300px; margin: 0 auto; }
+        .course-card { background: #fff; border-radius: 14px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,.07); transition: all .3s; }
+        .course-card:hover { transform: translateY(-5px); box-shadow: 0 12px 28px rgba(0,0,0,.12); }
+        .course-card img { width: 100%; height: 200px; object-fit: cover; }
+        .course-card-body { padding: 1.25rem; }
+        .course-card h4 { font-weight: 700; margin-bottom: .5rem; font-size: 1.1rem; }
+        .course-card p { color: #666; font-size: .9rem; flex-grow: 1; }
+        .marks { display: flex; gap: .5rem; flex-wrap: wrap; margin: .75rem 0; }
+        .marks span { padding: .2rem .6rem; border-radius: 6px; font-size: .78rem; font-weight: 600; white-space: nowrap; }
+        .marks .st { background: #f3f4f6; border: 1px solid #d1d5db; color: #374151; }
+        .marks .nd { background: #eff8ff; border: 1px solid #b2ddff; color: var(--main-color); }
+        .marks .th { background: #ecfdf3; border: 1px solid #abefb6; color: #085d3a; }
+        .course-btns { display: flex; gap: .75rem; margin-top: 1rem; }
+        .course-btns a { flex: 1; text-align: center; padding: .5rem; border-radius: 8px; font-size: .9rem; font-weight: 600; transition: all .3s; }
+        .course-btns .btn-primary-course { background: var(--main-color); color: #fff; }
+        .course-btns .btn-primary-course:hover { background: var(--main-dark); }
+        .course-btns .btn-outline-course { border: 1.5px solid var(--main-color); color: var(--main-color); }
+        .course-btns .btn-outline-course:hover { background: #eaf5fb; }
 
-        /* Responsive */
+        /* ── Gallery ── */
+        .gallery-section { padding: clamp(3rem,6vw,6rem) clamp(1rem,4vw,4rem); }
+        .gallery-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; max-width: 1300px; margin: 0 auto; }
+        .gallery-item { border-radius: 12px; overflow: hidden; position: relative; cursor: pointer; }
+        .gallery-item img { width: 100%; height: 100%; object-fit: cover; transition: transform .4s ease; display: block; }
+        .gallery-item:hover img { transform: scale(1.05); }
+        .gallery-item .overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,60,100,.6) 0%, transparent 60%); opacity: 0; transition: .3s; }
+        .gallery-item:hover .overlay { opacity: 1; }
+        .gallery-item-1 { grid-column: span 2; grid-row: span 2; height: 420px; }
+        .gallery-item-2, .gallery-item-3, .gallery-item-4, .gallery-item-5 { height: 204px; }
+        .gallery-item-6 { grid-column: span 2; height: 204px; }
+        .gallery-item-7, .gallery-item-8 { height: 204px; }
 
-        /* Medium screens - Tablets */
+        /* ── How It Works ── */
+        .how-section { padding: clamp(3rem,6vw,6rem) clamp(1rem,4vw,4rem); background: var(--second-color); }
+        .how-image { border-radius: 20px; overflow: hidden; box-shadow: 0 12px 40px rgba(0,0,0,.12); }
+        .how-image img { width: 100%; height: 100%; object-fit: cover; }
+        .how-steps { display: flex; flex-direction: column; gap: 1.75rem; }
+        .how-step { display: flex; gap: 1.25rem; align-items: flex-start; }
+        .how-step-number { flex-shrink: 0; width: 48px; height: 48px; border-radius: 12px; background: var(--main-color); color: #fff; font-size: 1.2rem; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+        .how-step-text h5 { font-weight: 700; margin-bottom: .3rem; }
+        .how-step-text p { color: #666; font-size: .9rem; margin: 0; line-height: 1.7; }
+
+        /* ── Testimonials ── */
+        .testimonials-section { padding: clamp(3rem,6vw,6rem) clamp(1rem,4vw,4rem); }
+        .testimonial-card { background: #fff; border-radius: 16px; padding: 1.75rem; box-shadow: 0 4px 20px rgba(0,0,0,.08); height: 100%; border-top: 4px solid var(--main-color); display: flex; flex-direction: column; gap: 1rem; }
+        .testimonial-stars { color: #f59e0b; }
+        .testimonial-text { color: #444; line-height: 1.8; font-size: .95rem; flex: 1; }
+        .testimonial-author { display: flex; align-items: center; gap: .75rem; border-top: 1px solid #f0f0f0; padding-top: 1rem; }
+        .testimonial-author .name { font-weight: 700; font-size: .9rem; }
+        .testimonial-author .role { font-size: .8rem; color: #888; }
+
+        /* ── App Section ── */
+        .app-section { background: linear-gradient(135deg, #004e7e 0%, var(--main-color) 100%); padding: clamp(3rem,6vw,6rem) clamp(1rem,4vw,4rem); color: #fff; }
+        .app-section h2 { font-size: clamp(1.6rem,3vw,2.4rem); font-weight: 800; margin-bottom: 1rem; }
+        .app-section p { opacity: .88; line-height: 1.8; max-width: 500px; }
+        .store-buttons { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1.75rem; }
+        .store-btn { display: flex; align-items: center; gap: .75rem; background: rgba(255,255,255,.12); backdrop-filter: blur(10px); color: #fff; padding: .8rem 1.25rem; border-radius: 12px; border: 1.5px solid rgba(255,255,255,.25); transition: all .3s; min-width: 160px; }
+        .store-btn:hover { background: rgba(255,255,255,.22); transform: translateY(-3px); color: #fff; }
+        .store-btn .text { display: flex; flex-direction: column; line-height: 1.2; }
+        .store-btn .text small { font-size: .7rem; opacity: .8; }
+        .store-btn .text span { font-size: 1rem; font-weight: 700; }
+
+
+        /* ── Footer ── */
+        .foot { background: #1d3a52; color: #fff; padding: clamp(3rem,5vw,6rem) clamp(1rem,4vw,5rem); }
+        .footer-logo img { max-width: 180px; margin-bottom: 1rem; }
+        .footer-desc { opacity: .8; line-height: 1.8; font-size: .9rem; margin-bottom: 1.5rem; }
+        .footer-social-wrap { display: flex; gap: .75rem; }
+        .footer-social-wrap a { width: 38px; height: 38px; border-radius: 50%; background: rgba(255,255,255,.1); color: #fff; display: flex; align-items: center; justify-content: center; transition: all .3s; text-decoration: none; font-size: 1rem; }
+        .footer-social-wrap a:hover { background: var(--main-color); color: #fff; }
+        .footer-heading { font-weight: 700; margin-bottom: 1.25rem; font-size: 1rem; border-bottom: 2px solid rgba(255,255,255,.15); padding-bottom: .75rem; }
+        .footer-links { display: flex; flex-direction: column; gap: .6rem; }
+        .footer-links a { color: rgba(255,255,255,.75); font-size: .9rem; transition: all .3s; text-decoration: none; }
+        .footer-links a:hover { color: #fff; padding-right: 6px; }
+        [dir="ltr"] .footer-links a:hover { padding-right: 0; padding-left: 6px; }
+        .footer-contact-item { display: flex; align-items: center; gap: .75rem; margin-bottom: .9rem; color: rgba(255,255,255,.8); font-size: .9rem; }
+        .footer-contact-item i { color: var(--main-color); font-size: 1.1rem; flex-shrink: 0; }
+        .footer-bottom { border-top: 1px solid rgba(255,255,255,.15); margin-top: 3rem; padding-top: 1.5rem; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
+        .footer-bottom p { margin: 0; font-size: .85rem; opacity: .7; }
+
+        /* ── Responsive ── */
         @media (max-width: 991px) {
-            .navbar-toggler {
-                border: 1px solid #dee2e6;
-                padding: 0.5rem 0.75rem;
-            }
-
-            .middle-bar .info-section {
-                gap: 0.5rem;
-            }
+            .gallery-grid { grid-template-columns: repeat(2, 1fr); }
+            .gallery-item-1 { grid-column: span 2; height: 280px; }
+            .gallery-item-6 { grid-column: span 2; }
+            .stats-divider { display: none; }
         }
-
         @media (max-width: 768px) {
-            /* Top bar adjustments */
-            .top-bar {
-                padding: 0.25rem 0.5rem;
-                flex-wrap: wrap;
-            }
-
-            .top-bar img {
-                width: 24px;
-            }
-
-            .top-text {
-                font-size: 0.75rem;
-            }
-
-            /* Middle bar adjustments */
-            .middle-bar {
-                padding: 0.35rem 0.5rem;
-                flex-wrap: wrap;
-                gap: 0.5rem;
-            }
-
-            .middle-bar .info-section {
-                gap: 0.5rem;
-                justify-content: flex-start;
-                width: 100%;
-            }
-
-            .middle-bar .info-section > div {
-                font-size: 0.7rem;
-            }
-
-            .middle-bar .icons-section {
-                display: none;
-            }
-
-            /* Bottom bar adjustments */
-            .bottom-bar {
-                padding: 0.5rem;
-            }
-
-            .navbar-brand img {
-                max-width: 100px;
-            }
-
-            .left-sec {
-                margin-top: 40px;
-                min-height: 300px;
-            }
-
-            .abs-btn {
-                position: static;
-                transform: none;
-                margin-top: 15px;
-            }
-
-            .img-abs {
-                display: none;
-            }
-
-            .content-wrapper {
-                flex-direction: column;
-            }
-
-            .right-sec-steps {
-                margin: 20px 0 0;
-            }
-
-            .right-sec-steps::before {
-                {{ app()->getLocale() == 'ar' ? 'right' : 'left' }}: -15px;
-            }
-
-            .image-container {
-                width: 100%;
-                margin-top: 30px;
-            }
-
-            .feedback {
-                flex-direction: column;
-            }
-
-            .feedback .img {
-                display: flex;
-                justify-content: center;
-            }
-
-            .feedback .text .bi-quote {
-                {{ app()->getLocale() == 'ar' ? 'right' : 'left' }}: -20px;
-                top: -30px;
-                font-size: 40px;
-            }
-
-            .footer-store-buttons {
-                grid-template-columns: 1fr;
-            }
-
-            .foot-foot {
-                flex-direction: column;
-                align-items: flex-start;
-                text-align: {{ app()->getLocale() == 'ar' ? 'right' : 'left' }};
-            }
-
-            .footer-meta {
-                flex-direction: column;
-                gap: 0.5rem;
-            }
+            .hero-section { height: 85vh; }
+            .hero-content { max-width: 100%; padding: 0 1.5rem; }
+            .gallery-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+            .gallery-item-1 { height: 220px; }
+            .gallery-item-2, .gallery-item-3, .gallery-item-4, .gallery-item-5,
+            .gallery-item-6, .gallery-item-7, .gallery-item-8 { height: 160px; }
+            .how-image { height: 260px; }
+            .footer-bottom { flex-direction: column; gap: .5rem; }
         }
-
-        @media (max-width: 575px) {
-            /* Top bar - hide on very small screens or simplify */
-            .top-bar {
-                padding: 0.2rem 0.5rem;
-            }
-
-            .top-bar img {
-                width: 20px;
-            }
-
-            .top-text {
-                font-size: 0.65rem;
-            }
-
-            /* Middle bar - show only essential info */
-            .middle-bar {
-                padding: 0.25rem 0.5rem;
-            }
-
-            .middle-bar .info-section {
-                gap: 0.35rem;
-            }
-
-            .middle-bar .info-section > div {
-                font-size: 0.6rem;
-            }
-
-            .middle-bar .info-section > div:nth-child(n+3) {
-                display: none;
-            }
-
-            /* Bottom bar */
-            .navbar-brand img {
-                max-width: 80px;
-            }
-
-            .navbar-toggler {
-                padding: 0.35rem 0.5rem;
-                font-size: 0.85rem;
-            }
-
-            .nav-item a {
-                font-size: 0.9rem;
-                padding: 0.6rem 0.75rem;
-            }
-
-            .navbar-collapse form .btn-outline {
-                font-size: 0.85rem;
-                padding: 0.5rem;
-            }
-
-            .courses-container {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media (max-width: 400px) {
-            .top-bar {
-                justify-content: center;
-            }
-
-            .middle-bar .info-section > div:nth-child(n+2) {
-                display: none;
-            }
-
-            .navbar-brand img {
-                max-width: 70px;
-            }
-        }
-
-        @media (min-width: 1920px) {
-            .abs-btn {
-                border-radius: 20px;
-            }
-
-            .img-abs {
-                top: 130px;
-                {{ app()->getLocale() == 'ar' ? 'right' : 'left' }}: 36%;
-                width: 40px;
-            }
+        @media (max-width: 480px) {
+            .hero-content h1 { font-size: 1.75rem; }
         }
     </style>
 </head>
 <body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg d-flex flex-column shadow-sm">
-        {{-- <!-- Container 1 -->
-        <div class="container-fluid bg-gray d-flex justify-content-start gap-3 align-items-center top-bar">
-            <img src="https://flagcdn.com/sa.svg" width="30" alt="Saudi Flag" />
-            <p class="top-text mb-0">{{ __('Official government site registered with the Digital Government Authority') }}</p>
-        </div>
 
-        <!-- Container 2 -->
-        <div class="container-fluid middle-bar bg-gray d-flex justify-content-between align-items-center">
-            <div class="d-flex gap-4 info-section">
-                <div class="d-flex gap-1 align-items-center">
-                    <i class="bi bi-cloud"></i>
-                    <p class="mb-0">{{ __('Cloudy') }}</p>
-                </div>
-                <div class="d-flex gap-1 align-items-center">
-                    <i class="bi bi-calendar"></i>
-                    <p class="mb-0" id="currentDate"></p>
-                </div>
-                <div class="d-flex gap-1 align-items-center">
-                    <i class="bi bi-clock"></i>
-                    <p class="mb-0" id="currentTime"></p>
-                </div>
-                <div class="d-flex gap-1 align-items-center">
-                    <i class="bi bi-geo-alt"></i>
-                    <p class="mb-0">{{ __('Riyadh') }}</p>
-                </div>
-            </div>
-        </div> --}}
-
-        <!-- Container 3 -->
-        <div class="container-fluid bottom-bar bg-white d-flex align-items-center justify-content-between">
-            <a class="navbar-brand" href="/">
-                <img src="{{ asset('images/nav.png') }}" alt="Logo" />
-            </a>
-
-            <button class="navbar-toggler d-lg-none" type="button" onclick="toggleMobileMenu()">
+    <!-- ════ Navbar ════ -->
+    <nav class="navbar navbar-expand-lg d-flex flex-column shadow-sm sticky-top bg-white" style="z-index:1000">
+        <div class="container-fluid bottom-bar d-flex align-items-center justify-content-between">
+            <a class="navbar-brand" href="/"><img src="{{ asset('images/nav.png') }}" alt="Logo" /></a>
+            <button class="navbar-toggler d-lg-none border" type="button" onclick="toggleMobileMenu()">
                 <span class="navbar-toggler-icon"></span>
             </button>
-
-            <!-- Desktop Menu -->
-            <div class="desktop-menu d-none d-lg-flex align-items-center justify-content-between flex-grow-1">
-                <ul class="navbar-nav d-flex flex-row mb-0">
-                    <li class="nav-item">
-                        <a href="{{ route('home') }}" class="active">{{ __('Home') }}</a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{{ route('short-courses') }}">{{ __('Short Courses') }}</a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{{ route('about') }}">{{ __('About Us') }}</a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{{ route('faq') }}">{{ __('FAQ') }}</a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{{ route('contact') }}">{{ __('Contact Us') }}</a>
-                    </li>
+            <div class="d-none d-lg-flex align-items-center justify-content-between flex-grow-1">
+                <ul class="navbar-nav d-flex flex-row mb-0 mx-4">
+                    <li class="nav-item"><a href="{{ route('home') }}" class="active">{{ __('Home') }}</a></li>
+                    <li class="nav-item"><a href="{{ route('short-courses') }}">{{ __('Short Courses') }}</a></li>
+                    <li class="nav-item"><a href="{{ route('about') }}">{{ __('About Us') }}</a></li>
+                    <li class="nav-item"><a href="{{ route('faq') }}">{{ __('FAQ') }}</a></li>
+                    <li class="nav-item"><a href="{{ route('contact') }}">{{ __('Contact Us') }}</a></li>
                 </ul>
-
                 <div class="d-flex gap-2">
-                    <button class="btn btn-outline" type="button">
-                        <i class="bi bi-search"></i> {{ __('Search') }}
-                    </button>
                     @if(app()->getLocale() == 'ar')
-                        <a href="{{ route('lang.switch', 'en') }}" class="btn btn-outline">
-                            <i class="bi bi-translate"></i> English
-                        </a>
+                        <a href="{{ route('lang.switch', 'en') }}" class="btn btn-outline"><i class="bi bi-translate"></i> English</a>
                     @else
-                        <a href="{{ route('lang.switch', 'ar') }}" class="btn btn-outline">
-                            <i class="bi bi-translate"></i> العربية
-                        </a>
+                        <a href="{{ route('lang.switch', 'ar') }}" class="btn btn-outline"><i class="bi bi-translate"></i> العربية</a>
                     @endif
-                    @if (Route::has('login'))
-                        @auth
-                            <a href="{{ url('/dashboard') }}" class="btn btn-outline">
-                                <i class="bi bi-person"></i> {{ __('Dashboard') }}
-                            </a>
-                        @else
-                            <a href="{{ route('login') }}" class="btn btn-outline">
-                                <i class="bi bi-person"></i> {{ __('Login') }}
-                            </a>
-                        @endauth
-                    @endif
+                    @auth
+                        <a href="{{ url('/dashboard') }}" class="btn btn-outline"><i class="bi bi-grid"></i> {{ __('Dashboard') }}</a>
+                    @else
+                        <a href="{{ route('login') }}" class="full-btn" style="font-size:.9rem"><i class="bi bi-person"></i> {{ __('Login') }}</a>
+                    @endauth
                 </div>
             </div>
         </div>
-
     </nav>
 
     <!-- Mobile Menu Overlay -->
     <div class="mobile-menu-overlay" id="mobileMenuOverlay" onclick="closeMobileMenu()"></div>
-
-    <!-- Mobile Menu -->
     <div class="mobile-menu" id="mobileMenu">
         <div class="mobile-menu-header">
-            <a class="navbar-brand" href="/">
-                <img src="{{ asset('images/nav.png') }}" alt="Logo" />
-            </a>
-            <button class="close-menu-btn" type="button" onclick="closeMobileMenu()">
-                <i class="bi bi-x-lg"></i>
-            </button>
+            <a class="navbar-brand" href="/"><img src="{{ asset('images/nav.png') }}" alt="Logo" /></a>
+            <button class="close-menu-btn" onclick="closeMobileMenu()"><i class="bi bi-x-lg"></i></button>
         </div>
         <ul class="mobile-nav-list">
             <li><a href="{{ route('home') }}" class="active">{{ __('Home') }}</a></li>
@@ -1186,529 +334,439 @@
             <li><a href="{{ route('contact') }}">{{ __('Contact Us') }}</a></li>
         </ul>
         <div class="mobile-menu-buttons">
-            <button class="btn btn-outline" type="button">
-                <i class="bi bi-search"></i> {{ __('Search') }}
-            </button>
             @if(app()->getLocale() == 'ar')
-                <a href="{{ route('lang.switch', 'en') }}" class="btn btn-outline">
-                    <i class="bi bi-translate"></i> English
-                </a>
+                <a href="{{ route('lang.switch', 'en') }}" class="btn btn-outline"><i class="bi bi-translate"></i> English</a>
             @else
-                <a href="{{ route('lang.switch', 'ar') }}" class="btn btn-outline">
-                    <i class="bi bi-translate"></i> العربية
-                </a>
+                <a href="{{ route('lang.switch', 'ar') }}" class="btn btn-outline"><i class="bi bi-translate"></i> العربية</a>
             @endif
-            @if (Route::has('login'))
-                @auth
-                    <a href="{{ url('/dashboard') }}" class="btn btn-outline">
-                        <i class="bi bi-person"></i> {{ __('Dashboard') }}
-                    </a>
-                @else
-                    <a href="{{ route('login') }}" class="btn btn-outline">
-                        <i class="bi bi-person"></i> {{ __('Login') }}
-                    </a>
-                @endauth
-            @endif
+            @auth
+                <a href="{{ url('/dashboard') }}" class="btn btn-outline"><i class="bi bi-grid"></i> {{ __('Dashboard') }}</a>
+            @else
+                <a href="{{ route('login') }}" class="full-btn text-center"><i class="bi bi-person"></i> {{ __('Login') }}</a>
+            @endauth
         </div>
     </div>
 
-    <!-- Landing Section -->
-    <section class="container-fluid section-wrapper">
-        <div class="row section-content">
-            <div class="col-sm-12 col-md-6 d-flex flex-column justify-content-center">
-                <h1>
-                    {{ __('Distinguished training opens doors to') }}
-                    <span style="color: var(--main-color);">{{ __('tomorrow') }}</span>
-                </h1>
-                <p class="nd-p">
-                    {{ __('With over 10 years of experience, we make a real difference in the lives of individuals and organizations. We guide you with the training compass towards your specialization and profession with confidence, to be your first gateway to a future that keeps pace with Vision 2030 targets.') }}
-                </p>
-                <div class="d-flex gap-3 flex-wrap">
-                    <button class="btn full-btn">{{ __('Start Your Trial Journey') }}</button>
-                    <button class="btn notfull-btn">{{ __('Explore Our Programs') }}</button>
-                </div>
+    <!-- ════ Hero ════ -->
+    <section class="hero-section">
+        <div class="hero-slides">
+            <div class="hero-slide active" style="background-image:url('{{ asset('lms2-photo/14.png') }}')"></div>
+            <div class="hero-slide"        style="background-image:url('{{ asset('lms2-photo/1.png') }}')"></div>
+            <div class="hero-slide"        style="background-image:url('{{ asset('lms2-photo/4.png') }}')"></div>
+            <div class="hero-slide"        style="background-image:url('{{ asset('lms2-photo/11.png') }}')"></div>
+        </div>
+        <div class="hero-content">
+            <h1>
+                {{ __('Distinguished training opens doors to') }}
+                <span>{{ __('tomorrow') }}</span>
+            </h1>
+            <p>{{ __('With over 10 years of experience, we make a real difference in the lives of individuals and organizations. We guide you with the training compass towards your specialization and profession with confidence, to be your first gateway to a future that keeps pace with Vision 2030 targets.') }}</p>
+            <div class="hero-btns">
+                <a href="{{ route('login') }}" class="full-btn">{{ __('Start Your Trial Journey') }}</a>
+                <a href="{{ route('training-paths') }}" class="notfull-btn">{{ __('Explore Our Programs') }}</a>
             </div>
-            <div class="col-sm-12 col-md-6 left-sec">
-                <img src="{{ asset('images/person.png') }}" alt="" class="main-img" />
-            </div>
+        </div>
+        <div class="hero-dots" id="heroDots">
+            <button class="hero-dot active" onclick="goToSlide(0)"></button>
+            <button class="hero-dot"        onclick="goToSlide(1)"></button>
+            <button class="hero-dot"        onclick="goToSlide(2)"></button>
+            <button class="hero-dot"        onclick="goToSlide(3)"></button>
+        </div>
+        <div class="hero-scroll-hint">
+            <span>{{ app()->getLocale()=='ar' ? 'اكتشف' : 'Scroll' }}</span>
+            <i class="bi bi-chevron-double-down"></i>
         </div>
     </section>
 
-    <!-- About Section -->
-
-
-    <!-- Why Choose Us Section -->
-    <section class="section-container">
-        <div class="head text-center d-flex justify-content-center align-items-center flex-column position-relative">
-            <h1>{{ __('Why Choose Us') }}</h1>
-            <p class="nd-p">
-                {{ __('We offer an integrated training system that combines quality, flexibility, and modern technologies to ensure the best educational experience.') }}
-            </p>
-        </div>
-        <div class="row text-center mt-4 container-fluid gx-4 gy-4 mx-auto">
-            <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-                <div class="card">
-                    <i class="bi bi-shield-fill-check"></i>
-                    <h5>{{ __('Continuous Support') }}</h5>
-                    <p>{{ __('24/7 technical support service helps you overcome any technical problem.') }}</p>
+    <!-- ════ Stats Bar ════ -->
+    <section class="stats-bar">
+        <div class="container">
+            <div class="stats-inner">
+                <div class="stat-item">
+                    <span class="stat-number">10+</span>
+                    <span class="stat-label">{{ __('Years of Excellence') }}</span>
                 </div>
-            </div>
-            <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-                <div class="card">
-                    <i class="bi bi-shield-fill-check"></i>
-                    <h5>{{ __('Specialized Trainers') }}</h5>
-                    <p>{{ __('Training is conducted by elite certified trainers with academic and professional experience.') }}</p>
+                <div class="stat-item">
+                    <span class="stat-number">500+</span>
+                    <span class="stat-label">{{ __('Graduates') }}</span>
                 </div>
-            </div>
-            <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-                <div class="card">
-                    <i class="bi bi-shield-fill-check"></i>
-                    <h5>{{ __('Digital Education') }}</h5>
-                    <p>{{ __('A smooth, secure educational experience compatible with trainees needs.') }}</p>
+                <div class="stat-item">
+                    <span class="stat-number">20+</span>
+                    <span class="stat-label">{{ __('Training Programs') }}</span>
                 </div>
-            </div>
-            <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-                <div class="card">
-                    <i class="bi bi-shield-fill-check"></i>
-                    <h5>{{ __('Accredited Training') }}</h5>
-                    <p>{{ __('Accredited by official authorities within the Kingdom, ensuring a reliable path for developing your professional skills.') }}</p>
-                </div>
-            </div>
-            <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-                <div class="card">
-                    <i class="bi bi-shield-fill-check"></i>
-                    <h5>{{ __('Official Certificates') }}</h5>
-                    <p>{{ __('After completing programs, trainees receive officially accredited certificates that enhance their career opportunities.') }}</p>
-                </div>
-            </div>
-            <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-                <div class="card">
-                    <i class="bi bi-shield-fill-check"></i>
-                    <h5>{{ __('Multiple Payment Methods') }}</h5>
-                    <p>{{ __('We provide a flexible payment system that suits all trainees needs.') }}</p>
-                </div>
-            </div>
-            <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-                <div class="card">
-                    <i class="bi bi-shield-fill-check"></i>
-                    <h5>{{ __('Interactive Content') }}</h5>
-                    <p>{{ __('Video lessons, files, assessments, and tests that enhance understanding and support learning by practice.') }}</p>
-                </div>
-            </div>
-            <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-                <div class="card">
-                    <i class="bi bi-shield-fill-check"></i>
-                    <h5>{{ __('Clear Paths') }}</h5>
-                    <p>{{ __('Educational plans built on clear paths extending up to 10 training quarters.') }}</p>
+                <div class="stat-item">
+                    <span class="stat-number">98%</span>
+                    <span class="stat-label">{{ __('Trainee Satisfaction') }}</span>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Training Paths Section -->
-    <section class="container-fluid py-5" style="background: #f3f4f6">
-        <div class="head d-flex justify-content-center align-items-center flex-column py-5 text-center">
-            <h1>{{ __('Comprehensive training paths to build your future') }}</h1>
-            <p class="phead">{{ __('We provide training paths spanning two and a half years through 10 training quarters, plus short and specialized courses for various professional goals.') }}</p>
-        </div>
-        <div class="courses-container">
-            @forelse($featuredPrograms ?? [] as $program)
-            <div class="course-card card p-2">
-                <img src="{{ asset('images/course.jpg') }}" class="rounded" />
-                <h4 class="mt-2">{{ $program->name }}</h4>
-                <p>{{ Str::limit($program->description ?? __('A comprehensive training program designed to develop professional skills and build practical competencies.'), 100) }}</p>
-                <div class="marks my-1 d-flex gap-2 flex-wrap">
-                    @if($program->duration_months)
-                    <div class="st">
-                        <i class="bi bi-clock"></i>
-                        {{ $program->duration_months }} {{ __('months') }}
-                    </div>
-                    @endif
-                    @if($program->price && $program->price > 0)
-                    <div class="nd">
-                        <i class="bi bi-tag"></i>
-                        {{ number_format($program->price, 0) }} {{ __('SAR') }}
-                    </div>
-                    @else
-                    <div class="nd">
-                        <i class="bi bi-check-circle"></i>
-                        {{ __('Free') }}
-                    </div>
-                    @endif
-                    <div class="th">
-                        <i class="bi bi-mortarboard"></i>
-                        {{ $program->code ?? __('Program') }}
-                    </div>
-                </div>
-                <div class="d-flex gap-2 w-100 flex-wrap flex-sm-nowrap mt-2">
-                    <a href="{{ route('training-paths') }}" class="notfull-btn w-100 text-center text-decoration-none">{{ __('View Details') }}</a>
-                    <a href="{{ auth()->check() ? route('student.my-program') : route('login') }}" class="full-btn w-100 text-center text-decoration-none">{{ __('Register Now') }}</a>
-                </div>
+    <!-- ════ Why Choose Us ════ -->
+    <section class="why-section">
+        <div class="container">
+            <div class="section-head">
+                <div class="badge-tag">{{ __('Why Us') }}</div>
+                <h2>{{ __('Why Choose Us') }}</h2>
+                <p>{{ __('We offer an integrated training system that combines quality, flexibility, and modern technologies to ensure the best educational experience.') }}</p>
             </div>
-            @empty
-            @for ($i = 0; $i < 3; $i++)
-            <div class="course-card card p-2">
-                <img src="{{ asset('images/course.jpg') }}" class="rounded" />
-                <h4 class="mt-2">{{ __('Management Skills Development') }}</h4>
-                <p>{{ __('Modern management fundamentals: leadership, planning, and practical decision-making.') }}</p>
-                <div class="marks my-1 d-flex gap-2 flex-wrap">
-                    <div class="st"><i class="bi bi-clock"></i> 12 {{ __('months') }}</div>
-                    <div class="nd"><i class="bi bi-tag"></i> {{ __('Free') }}</div>
-                    <div class="th"><i class="bi bi-mortarboard"></i> {{ __('Program') }}</div>
+            <div class="row g-4">
+                @php
+                $cards = [
+                    ['icon'=>'bi-headset',           'title'=>__('Continuous Support'),      'text'=>__('24/7 technical support service helps you overcome any technical problem.')],
+                    ['icon'=>'bi-person-badge',       'title'=>__('Specialized Trainers'),    'text'=>__('Training is conducted by elite certified trainers with academic and professional experience.')],
+                    ['icon'=>'bi-laptop',             'title'=>__('Digital Education'),       'text'=>__('A smooth, secure educational experience compatible with trainees needs.')],
+                    ['icon'=>'bi-patch-check',        'title'=>__('Accredited Training'),     'text'=>__('Accredited by official authorities within the Kingdom, ensuring a reliable path for developing your professional skills.')],
+                    ['icon'=>'bi-award',              'title'=>__('Official Certificates'),   'text'=>__('After completing programs, trainees receive officially accredited certificates that enhance their career opportunities.')],
+                    ['icon'=>'bi-credit-card',        'title'=>__('Multiple Payment Methods'),'text'=>__('We provide a flexible payment system that suits all trainees needs.')],
+                    ['icon'=>'bi-play-btn',           'title'=>__('Interactive Content'),     'text'=>__('Video lessons, files, assessments, and tests that enhance understanding and support learning by practice.')],
+                    ['icon'=>'bi-map',                'title'=>__('Clear Paths'),             'text'=>__('Educational plans built on clear paths extending up to 10 training quarters.')],
+                ];
+                @endphp
+                @foreach($cards as $card)
+                <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                    <div class="why-card">
+                        <div class="why-icon"><i class="bi {{ $card['icon'] }}"></i></div>
+                        <h5>{{ $card['title'] }}</h5>
+                        <p>{{ $card['text'] }}</p>
+                    </div>
                 </div>
-                <div class="d-flex gap-2 w-100 flex-wrap flex-sm-nowrap mt-2">
-                    <a href="{{ route('training-paths') }}" class="notfull-btn w-100 text-center text-decoration-none">{{ __('View Details') }}</a>
-                    <a href="{{ route('login') }}" class="full-btn w-100 text-center text-decoration-none">{{ __('Register Now') }}</a>
-                </div>
+                @endforeach
             </div>
-            @endfor
-            @endforelse
         </div>
     </section>
 
-    <!-- How It Works Section -->
-    <section class="container-fluid py-5 " >
-        <div class="head d-flex justify-content-center align-items-center flex-column py-5 text-center">
-            <h2>{{ __('How does our training system work?') }}</h2>
-            <p>
-                {{ __('An integrated training system that ensures a clear, organized educational journey with measurable results. From registration to certification, we designed our system to be simple, effective, and compliant with private training standards in the Kingdom.') }}
-            </p>
-            <button class="notfull-btn mt-3">{{ __('View All Courses') }}</button>
-        </div>
-        <div class="row container-fluid content-wrapper How-sec {{ app()->getLocale() == 'ar' ?  '': 'flex-row-reverse' }}">
-
-            <div class="col-sm-12 col-md-6 image-container">
-                    <img src="{{ asset('images/sixthMedia.png') }}" alt="" />
+    <!-- ════ Training Programs ════ -->
+    <section class="programs-section">
+        <div class="container">
+            <div class="section-head">
+                <div class="badge-tag">{{ __('Programs') }}</div>
+                <h2>{{ __('Comprehensive training paths to build your future') }}</h2>
+                <p>{{ __('We provide training paths spanning two and a half years through 10 training quarters, plus short and specialized courses for various professional goals.') }}</p>
             </div>
-            <div class="col-sm-12 col-md-6 right-sec-steps">
-                    <div class="section-item">
-                        <h4>{{ __('Registration and Getting Started') }}</h4>
-                        <p class="nd-p">
-                            {{ __('Start your educational journey easily by creating an account or logging in through Nafath, then discover programs and paths designed to suit your goals and aspirations.') }}
-                        </p>
+            <div class="courses-grid">
+                @php $programImages = ['lms-photos/2.png','lms-photos/8.png','lms-photos/5.png']; @endphp
+                @forelse($featuredPrograms ?? [] as $i => $program)
+                <div class="course-card">
+                    <img src="{{ asset($programImages[$i % count($programImages)]) }}" alt="{{ $program->name }}" />
+                    <div class="course-card-body d-flex flex-column">
+                        <h4>{{ $program->name }}</h4>
+                        <p>{{ Str::limit($program->description ?? __('A comprehensive training program designed to develop professional skills.'), 100) }}</p>
+                        <div class="marks">
+                            @if($program->duration_months)
+                            <span class="st"><i class="bi bi-clock"></i> {{ $program->duration_months }} {{ __('months') }}</span>
+                            @endif
+                            @if($program->price && $program->price > 0)
+                            <span class="nd"><i class="bi bi-tag"></i> {{ number_format($program->price,0) }} {{ __('SAR') }}</span>
+                            @else
+                            <span class="nd"><i class="bi bi-check-circle"></i> {{ __('Free') }}</span>
+                            @endif
+                            <span class="th"><i class="bi bi-mortarboard"></i> {{ $program->code ?? __('Program') }}</span>
+                        </div>
+                        <div class="course-btns">
+                            <a href="{{ route('training-paths') }}" class="btn-outline-course">{{ __('View Details') }}</a>
+                            <a href="{{ auth()->check() ? route('student.my-program') : route('login') }}" class="btn-primary-course">{{ __('Register Now') }}</a>
+                        </div>
                     </div>
-
-                    <div class="section-item">
-                        <h4>{{ __('Choosing the Right Program for You') }}</h4>
-                        <p class="nd-p">
-                            {{ __('Whether youre looking for an academic path spanning two and a half years (10 quarters), or a short course lasting weeks or months... you will find what suits your goals and professional aspirations.') }}
-                        </p>
+                </div>
+                @empty
+                @foreach([
+                    ['lms-photos/2.png',  __('Computer Science Diploma'),    __('Foundations of computing, programming, networks, and databases.'),           12, 5000, 'CS-101'],
+                    ['lms-photos/8.png',  __('Business Administration'),     __('Modern management fundamentals: leadership, planning, and decision-making.'), 12, null,  'BA-201'],
+                    ['lms-photos/5.png',  __('Digital Marketing Diploma'),   __('SEO, social media, paid ads, and analytics strategies.'),                     10, 4500, 'DM-301'],
+                ] as [$img,$name,$desc,$months,$price,$code])
+                <div class="course-card">
+                    <img src="{{ asset($img) }}" alt="{{ $name }}" />
+                    <div class="course-card-body d-flex flex-column">
+                        <h4>{{ $name }}</h4>
+                        <p>{{ $desc }}</p>
+                        <div class="marks">
+                            <span class="st"><i class="bi bi-clock"></i> {{ $months }} {{ __('months') }}</span>
+                            @if($price)
+                            <span class="nd"><i class="bi bi-tag"></i> {{ number_format($price,0) }} {{ __('SAR') }}</span>
+                            @else
+                            <span class="nd"><i class="bi bi-check-circle"></i> {{ __('Free') }}</span>
+                            @endif
+                            <span class="th"><i class="bi bi-mortarboard"></i> {{ $code }}</span>
+                        </div>
+                        <div class="course-btns">
+                            <a href="{{ route('training-paths') }}" class="btn-outline-course">{{ __('View Details') }}</a>
+                            <a href="{{ route('login') }}" class="btn-primary-course">{{ __('Register Now') }}</a>
+                        </div>
                     </div>
-
-                    <div class="section-item">
-                        <h4>{{ __('Learning and Follow-up') }}</h4>
-                        <p class="nd-p">
-                            {{ __('Study through visual and organized content, with an attendance system, clear training progress, and direct communication with trainers, ensuring an integrated and smooth learning experience.') }}
-                        </p>
-                    </div>
-
-                    <div class="section-item">
-                        <h4>{{ __('Assessment and Certification') }}</h4>
-                        <p class="nd-p">
-                            {{ __('After completing your training requirements, you will be evaluated and your achievement accredited, then your accredited digital certificate will be issued to start your professional step with confidence.') }}
-                        </p>
-                    </div>
+                </div>
+                @endforeach
+                @endforelse
             </div>
-
-
         </div>
-
     </section>
 
-    <!-- Footer -->
-    <footer class="p-5 foot container-fluid">
-        <div class="head-top">
-            <div class="footer-intro">
-                <img src="{{ asset('images/footlogooo.png') }}" alt="" />
-                <h2>{{ __('Al-Ertiqaa High Institute for Training') }}</h2>
-                <p class="intro-text">
-                    {{ __('An accredited training institute offering professional development programs and educational paths for over 10 years. We help students and trainees acquire future skills, providing accredited programs aligned with Saudi Vision 2030, supervised by elite trainers and experts to ensure training quality and outcomes.') }}
-                </p>
+    <!-- ════ Gallery ════ -->
+    <section class="gallery-section">
+        <div class="container-fluid px-4">
+            <div class="section-head">
+                <div class="badge-tag">{{ __('Gallery') }}</div>
+                <h2>{{ __('Institute Life') }}</h2>
+                <p>{{ __('A glimpse into our training environment, graduation ceremonies, and daily student life at Al-Ertiqaa.') }}</p>
             </div>
-            <div class="mobile-apps">
-                <p class="apps-title">{{ __('Mobile Apps') }}</p>
-                <div class="footer-store-buttons" dir="ltr">
-                    <!-- Huawei AppGallery -->
-                    <a href="#" class="footer-store-btn">
-                        <img src="{{ asset('images/huawei-appgallery-thumb.png') }}" style="width: 40px; border-radius: 10px" />
-                        <div class="text">
-                            <span class="small">EXPLORE IT ON</span>
-                            <span class="big">AppGallery</span>
-                        </div>
-                    </a>
-
-                    <!-- Apple App Store -->
-                    <a href="#" class="footer-store-btn">
-                        <i class="bi bi-apple" style="font-size: 24px;"></i>
-                        <div class="text">
-                            <span class="small">Download on the</span>
-                            <span class="big">App Store</span>
-                        </div>
-                    </a>
-
-                    <!-- Google Play -->
-                    <a href="#" class="footer-store-btn pt-3 pb-3">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="21" height="24" viewBox="0 0 21 24" fill="none">
-                            <path d="M9.80482 11.4617L0.0895996 22.0059C0.0905121 22.0078 0.090512 22.0106 0.0914244 22.0125C0.389807 23.1574 1.41179 24 2.62539 24C3.11083 24 3.56616 23.8656 3.95671 23.6305L3.98773 23.6118L14.9229 17.1593L9.80482 11.4617Z" fill="#EA4335"/>
-                            <path d="M19.6332 9.66424L19.624 9.6577L14.9029 6.85928L9.58398 11.6994L14.922 17.1562L19.6177 14.3858C20.4407 13.9305 21.0001 13.0431 21.0001 12.0204C21.0001 11.0033 20.4489 10.1205 19.6332 9.66424Z" fill="#FBBC04"/>
-                            <path d="M0.0894234 1.9952C0.0310244 2.21542 0 2.44683 0 2.68571V21.3182C0 21.5571 0.0310245 21.7885 0.0903359 22.0078L10.1386 11.7332L0.0894234 1.9952Z" fill="#4285F4"/>
-                            <path d="M9.87666 12L14.9044 6.85945L3.98201 0.383598C3.58508 0.140054 3.12154 8.67844e-05 2.62606 8.67844e-05C1.41246 8.67844e-05 0.38865 0.84456 0.0902675 1.99043C0.0902675 1.99136 0.0893555 1.9923 0.0893555 1.99323L9.87666 12Z" fill="#34A853"/>
-                        </svg>
-                        <div class="text">
-                            <span class="small">GET IT ON</span>
-                            <span class="big">Google Play</span>
-                        </div>
-                    </a>
+            <div class="gallery-grid">
+                <div class="gallery-item gallery-item-1">
+                    <img src="{{ asset('lms2-photo/2.png') }}" alt="Institute Building" />
+                    <div class="overlay"></div>
+                </div>
+                <div class="gallery-item gallery-item-2">
+                    <img src="{{ asset('lms2-photo/14.png') }}" alt="Computer Lab" />
+                    <div class="overlay"></div>
+                </div>
+                <div class="gallery-item gallery-item-3">
+                    <img src="{{ asset('lms2-photo/1.png') }}" alt="Student" />
+                    <div class="overlay"></div>
+                </div>
+                <div class="gallery-item gallery-item-4">
+                    <img src="{{ asset('lms2-photo/3.png') }}" alt="Consultation" />
+                    <div class="overlay"></div>
+                </div>
+                <div class="gallery-item gallery-item-5">
+                    <img src="{{ asset('lms2-photo/4.png') }}" alt="Learning" />
+                    <div class="overlay"></div>
+                </div>
+                <div class="gallery-item gallery-item-6">
+                    <img src="{{ asset('lms2-photo/5.png') }}" alt="Graduation" />
+                    <div class="overlay"></div>
+                </div>
+                <div class="gallery-item gallery-item-7">
+                    <img src="{{ asset('lms2-photo/9.png') }}" alt="Award" />
+                    <div class="overlay"></div>
+                </div>
+                <div class="gallery-item gallery-item-8">
+                    <img src="{{ asset('lms2-photo/11.png') }}" alt="Discussion" />
+                    <div class="overlay"></div>
                 </div>
             </div>
         </div>
-        <div class="foot-body">
-            <div class="row">
-                <div class="col-lg-4 col-md-6 col-12 d-flex flex-column gap-3 footer-section">
-                    <h5>{{ __('Important Links') }}</h5>
-                    <hr />
-                    <a href="{{ route('home') }}">{{ __('Home') }}</a>
-                    <a href="{{ route('about') }}">{{ __('About Us') }}</a>
-                    <a href="{{ route('training-paths') }}">{{ __('Training Paths') }}</a>
-                    <a href="{{ route('short-courses') }}">{{ __('Upcoming Courses') }}</a>
-                    <a href="#">{{ __('Trainers') }}</a>
-                    <a href="{{ route('news') }}">{{ __('News') }}</a>
-                    <a href="{{ route('contact') }}">{{ __('Contact Us') }}</a>
+    </section>
+
+    <!-- ════ How It Works ════ -->
+    <section class="how-section">
+        <div class="container">
+            <div class="section-head">
+                <div class="badge-tag">{{ __('Process') }}</div>
+                <h2>{{ __('How does our training system work?') }}</h2>
+                <p>{{ __('An integrated training system that ensures a clear, organized educational journey with measurable results.') }}</p>
+            </div>
+            <div class="row align-items-center g-5">
+                <div class="col-lg-6 {{ app()->getLocale()=='ar' ? 'order-2' : 'order-1' }}">
+                    <div class="how-image" style="height:420px">
+                        <img src="{{ asset('lms2-photo/4.png') }}" alt="How It Works" />
+                    </div>
                 </div>
-                <div class="col-lg-4 col-md-6 col-12 d-flex flex-column gap-3 footer-section">
-                    <h5>{{ __('Institute Services') }}</h5>
-                    <hr />
-                    <a href="#">{{ __('Term System and Professional Programs') }}</a>
-                    <a href="{{ route('short-courses') }}">{{ __('Short Courses') }}</a>
-                    <a href="#">{{ __('Remote Training') }}</a>
-                    <a href="#">{{ __('Certificate Accreditation') }}</a>
-                    <a href="#">{{ __('Student Registration') }}</a>
-                    <a href="#">{{ __('Trainer Enrollment') }}</a>
-                    <a href="{{ route('faq') }}">{{ __('Technical Support and Follow-up') }}</a>
-                </div>
-                <div class="col-lg-4 col-md-12 col-12 d-flex flex-column gap-3 footer-section">
-                    <h5>{{ __('Contact Information') }}</h5>
-                    <hr />
-                    <a href="#">
-                        <div>
-                            <i class="bi bi-telephone"></i>
-                            {{ __('Phone Number') }}
+                <div class="col-lg-6 {{ app()->getLocale()=='ar' ? 'order-1' : 'order-2' }}">
+                    <div class="how-steps">
+                        <div class="how-step">
+                            <div class="how-step-number">1</div>
+                            <div class="how-step-text">
+                                <h5>{{ __('Registration and Getting Started') }}</h5>
+                                <p>{{ __('Start your educational journey easily by creating an account or logging in through Nafath, then discover programs and paths designed to suit your goals.') }}</p>
+                            </div>
                         </div>
-                        <div>
-                            9200343222
-                            <i class="bi bi-copy"></i>
+                        <div class="how-step">
+                            <div class="how-step-number">2</div>
+                            <div class="how-step-text">
+                                <h5>{{ __('Choosing the Right Program for You') }}</h5>
+                                <p>{{ __('Whether you\'re looking for an academic path spanning two and a half years, or a short course, you will find what suits your goals.') }}</p>
+                            </div>
                         </div>
-                    </a>
-                    <a href="#">
-                        <div>
-                            <i class="bi bi-envelope"></i>
-                            {{ __('Email') }}
+                        <div class="how-step">
+                            <div class="how-step-number">3</div>
+                            <div class="how-step-text">
+                                <h5>{{ __('Learning and Follow-up') }}</h5>
+                                <p>{{ __('Study through visual and organized content, with an attendance system, clear training progress, and direct communication with trainers.') }}</p>
+                            </div>
                         </div>
-                        <div>
-                            help@company.sa
-                            <i class="bi bi-copy"></i>
+                        <div class="how-step">
+                            <div class="how-step-number">4</div>
+                            <div class="how-step-text">
+                                <h5>{{ __('Assessment and Certification') }}</h5>
+                                <p>{{ __('After completing your training requirements, you will be evaluated and your accredited digital certificate will be issued.') }}</p>
+                            </div>
                         </div>
-                    </a>
-                    <a href="#">
-                        <div>
-                            <i class="bi bi-geo-alt-fill"></i>
-                            {{ __('Location') }}
-                        </div>
-                        <div>
-                            {{ __('Riyadh') }}
-                            <i class="bi bi-link-45deg"></i>
-                        </div>
-                    </a>
-                    <a href="#">
-                        <div>{{ __('Follow Us') }}</div>
-                        <div class="d-flex gap-3">
-                            <i class="bi bi-instagram"></i>
-                            <i class="bi bi-linkedin"></i>
-                            <i class="bi bi-twitter-x"></i>
-                        </div>
-                    </a>
+                    </div>
                 </div>
             </div>
         </div>
+    </section>
 
-        <div class="foot-foot">
-            <div class="copyright">
-                <p>{{ __('Al-Ertiqaa High Institute for Training') }}. {{ __('All rights reserved') }} &copy; 2024.</p>
+    <!-- ════ Testimonials ════ -->
+    <section class="testimonials-section">
+        <div class="container">
+            <div class="section-head">
+                <div class="badge-tag">{{ __('Reviews') }}</div>
+                <h2>{{ __('What Our Trainees Say') }}</h2>
+                <p>{{ __('Real experiences from our graduates who made a difference in their careers.') }}</p>
             </div>
-            <div class="footer-meta">
-                <p>{{ __('Last modified') }}: 04/12/2020</p>
+            <div class="row g-4">
+                @php
+                $testimonials = app()->getLocale() === 'ar' ? [
+                    ['text'=>'رحلة تدريبية مميزة وواضحة من البداية للنهاية، متابعة التيرم والدروس كانت سهلة جدًا، والتطبيق ساعدني أتابع تقدمي بشكل يومي.', 'author'=>'سلمان .م', 'role'=>'دبلومة الحاسب وتقنية المعلومات'],
+                    ['text'=>'تجربتي مع المعهد كانت رائعة، المدربون محترفون والمحتوى التعليمي ممتاز. أنصح الجميع بالتسجيل في برامجهم التدريبية.', 'author'=>'أحمد .ع', 'role'=>'دبلومة إدارة الأعمال'],
+                    ['text'=>'الدعم الفني متميز والاستجابة سريعة. البرنامج التدريبي ساعدني على تطوير مهاراتي المهنية بشكل ملحوظ.', 'author'=>'نورة .س', 'role'=>'دبلومة التسويق الرقمي'],
+                ] : [
+                    ['text'=>'A distinctive training journey from start to finish. Following the term and lessons was very easy, and the app helped me track my daily progress.', 'author'=>'Salman M.', 'role'=>'Computer & IT Diploma'],
+                    ['text'=>'My experience with the institute was wonderful. The trainers are professional and the content is excellent.', 'author'=>'Ahmed A.', 'role'=>'Business Administration Diploma'],
+                    ['text'=>'Outstanding technical support and fast response. The training program helped me develop my professional skills noticeably.', 'author'=>'Noura S.', 'role'=>'Digital Marketing Diploma'],
+                ];
+                @endphp
+                @foreach($testimonials as $t)
+                <div class="col-md-4">
+                    <div class="testimonial-card">
+                        <div class="testimonial-stars">
+                            <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+                        </div>
+                        <p class="testimonial-text">"{{ $t['text'] }}"</p>
+                        <div class="testimonial-author">
+                            <div style="width:48px;height:48px;border-radius:50%;background:var(--main-color);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:1.2rem;flex-shrink:0">
+                                {{ mb_substr($t['author'],0,1) }}
+                            </div>
+                            <div>
+                                <div class="name">{{ $t['author'] }}</div>
+                                <div class="role">{{ $t['role'] }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @endforeach
+            </div>
+        </div>
+    </section>
+
+    <!-- ════ App Section ════ -->
+    <section class="app-section">
+        <div class="container">
+            <div class="row align-items-center g-5">
+                <div class="col-lg-6">
+                    <h2>{{ __('Download the App & Learn Anywhere') }}</h2>
+                    <p>{{ __('Follow your courses, attend live sessions, and track your progress — all from your phone.') }}</p>
+                    <div class="store-buttons">
+                        <a href="#" class="store-btn">
+                            <i class="bi bi-apple" style="font-size:1.8rem"></i>
+                            <div class="text"><small>{{ __('Download on the') }}</small><span>App Store</span></div>
+                        </a>
+                        <a href="#" class="store-btn">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="28" viewBox="0 0 21 24" fill="none">
+                                <path d="M9.80482 11.4617L0.0895996 22.0059C0.389807 23.1574 1.41179 24 2.62539 24C3.11083 24 3.56616 23.8656 3.95671 23.6305L14.9229 17.1593L9.80482 11.4617Z" fill="#EA4335"/>
+                                <path d="M19.6332 9.66424L14.9029 6.85928L9.58398 11.6994L14.922 17.1562L19.6177 14.3858C20.4407 13.9305 21.0001 13.0431 21.0001 12.0204C21.0001 11.0033 20.4489 10.1205 19.6332 9.66424Z" fill="#FBBC04"/>
+                                <path d="M0.0894234 1.9952C0.0310244 2.21542 0 2.44683 0 2.68571V21.3182C0 21.5571 0.0310245 21.7885 0.0903359 22.0078L10.1386 11.7332L0.0894234 1.9952Z" fill="#4285F4"/>
+                                <path d="M9.87666 12L14.9044 6.85945L3.98201 0.383598C3.58508 0.140054 3.12154 0 2.62606 0C1.41246 0 0.38865 0.84456 0.0902675 1.99043L9.87666 12Z" fill="#34A853"/>
+                            </svg>
+                            <div class="text"><small>{{ __('Get it on') }}</small><span>Google Play</span></div>
+                        </a>
+                        <a href="#" class="store-btn">
+                            <img src="{{ asset('images/huawei-appgallery-thumb.png') }}" style="width:28px;border-radius:6px" onerror="this.style.display='none'" />
+                            <div class="text"><small>{{ __('Explore it on') }}</small><span>AppGallery</span></div>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-6 text-center">
+                    <img src="{{ asset('lms2-photo/4.png') }}" alt="App" style="max-width:100%;border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,.3);max-height:360px;object-fit:cover" />
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- ════ Footer ════ -->
+    <footer class="foot">
+        <div class="container-fluid">
+            <div class="row g-5">
+                <div class="col-lg-4 col-md-12">
+                    <div class="footer-logo">
+                        <img src="{{ asset('images/footlogooo.png') }}" alt="Logo" onerror="this.style.display='none'" />
+                    </div>
+                    <p class="footer-desc">{{ __('An accredited training institute offering professional development programs and educational paths for over 10 years, aligned with Saudi Vision 2030.') }}</p>
+                    <div class="footer-social-wrap">
+                        <a href="#"><i class="bi bi-youtube"></i></a>
+                        <a href="#"><i class="bi bi-twitter-x"></i></a>
+                        <a href="#"><i class="bi bi-linkedin"></i></a>
+                        <a href="#"><i class="bi bi-instagram"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-4 col-6">
+                    <div class="footer-heading">{{ __('Quick Links') }}</div>
+                    <div class="footer-links">
+                        <a href="{{ route('home') }}">{{ __('Home') }}</a>
+                        <a href="{{ route('about') }}">{{ __('About Us') }}</a>
+                        <a href="{{ route('training-paths') }}">{{ __('Training Paths') }}</a>
+                        <a href="{{ route('short-courses') }}">{{ __('Short Courses') }}</a>
+                        <a href="{{ route('news') }}">{{ __('News') }}</a>
+                        <a href="{{ route('contact') }}">{{ __('Contact Us') }}</a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-4 col-6">
+                    <div class="footer-heading">{{ __('Services') }}</div>
+                    <div class="footer-links">
+                        <a href="{{ route('training-paths') }}">{{ __('Term System Programs') }}</a>
+                        <a href="{{ route('short-courses') }}">{{ __('Short Courses') }}</a>
+                        <a href="{{ route('short-courses') }}">{{ __('Remote Training') }}</a>
+                        <a href="{{ route('contact') }}">{{ __('Certificate Accreditation') }}</a>
+                        <a href="{{ route('faq') }}">{{ __('Technical Support') }}</a>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-4 col-12">
+                    <div class="footer-heading">{{ __('Contact Information') }}</div>
+                    <div class="footer-contact-item">
+                        <i class="bi bi-telephone-fill"></i>
+                        <span>9200343222</span>
+                    </div>
+                    <div class="footer-contact-item">
+                        <i class="bi bi-envelope-fill"></i>
+                        <span>help@alertiqa.edu.sa</span>
+                    </div>
+                    <div class="footer-contact-item">
+                        <i class="bi bi-geo-alt-fill"></i>
+                        <span>{{ __('Riyadh, Saudi Arabia') }}</span>
+                    </div>
+                    <div class="footer-contact-item">
+                        <i class="bi bi-clock-fill"></i>
+                        <span>{{ __('Sun – Thu: 8:00 AM – 5:00 PM') }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© {{ date('Y') }} {{ __('Al-Ertiqaa High Institute for Training') }}. {{ __('All rights reserved') }}.</p>
                 <p>{{ __('Developed and maintained by Al-Ertiqaa') }}</p>
             </div>
         </div>
     </footer>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
     <script>
-        // Get current locale
-        const currentLocale = '{{ app()->getLocale() }}';
+        // ── Hero Slider ──
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.hero-slide');
+        const dots   = document.querySelectorAll('.hero-dot');
 
-        // Update date and time
-        function updateDateTime() {
-            const now = new Date();
-
-            if (currentLocale === 'ar') {
-                const arabicMonths = [
-                    "يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو",
-                    "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"
-                ];
-
-                const day = now.getDate();
-                const month = arabicMonths[now.getMonth()];
-                const year = now.getFullYear();
-                document.getElementById('currentDate').textContent = `${day}-${month}-${year}`;
-
-                let hours = now.getHours();
-                const minutes = now.getMinutes().toString().padStart(2, '0');
-                const period = hours >= 12 ? 'مساءً' : 'صباحاً';
-                hours = hours % 12 || 12;
-                document.getElementById('currentTime').textContent = `${hours}:${minutes} ${period}`;
-            } else {
-                const englishMonths = [
-                    "January", "February", "March", "April", "May", "June",
-                    "July", "August", "September", "October", "November", "December"
-                ];
-
-                const day = now.getDate();
-                const month = englishMonths[now.getMonth()];
-                const year = now.getFullYear();
-                document.getElementById('currentDate').textContent = `${day}-${month}-${year}`;
-
-                let hours = now.getHours();
-                const minutes = now.getMinutes().toString().padStart(2, '0');
-                const period = hours >= 12 ? 'PM' : 'AM';
-                hours = hours % 12 || 12;
-                document.getElementById('currentTime').textContent = `${hours}:${minutes} ${period}`;
-            }
+        function goToSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            dots[currentSlide].classList.remove('active');
+            currentSlide = (n + slides.length) % slides.length;
+            slides[currentSlide].classList.add('active');
+            dots[currentSlide].classList.add('active');
         }
 
-        updateDateTime();
-        setInterval(updateDateTime, 1000);
+        const heroTimer = setInterval(() => goToSlide(currentSlide + 1), 5000);
 
-        // Mobile Menu Functions
+        // ── Mobile Menu ──
         function toggleMobileMenu() {
-            const mobileMenu = document.getElementById('mobileMenu');
-            const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
-
-            mobileMenu.classList.add('active');
-            mobileMenuOverlay.classList.add('active');
+            document.getElementById('mobileMenu').classList.add('active');
+            document.getElementById('mobileMenuOverlay').classList.add('active');
             document.body.classList.add('menu-open');
         }
-
         function closeMobileMenu() {
-            const mobileMenu = document.getElementById('mobileMenu');
-            const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
-
-            mobileMenu.classList.remove('active');
-            mobileMenuOverlay.classList.remove('active');
+            document.getElementById('mobileMenu').classList.remove('active');
+            document.getElementById('mobileMenuOverlay').classList.remove('active');
             document.body.classList.remove('menu-open');
         }
-
-        // Close menu on escape key
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                closeMobileMenu();
-            }
-        });
-
-        // Testimonial Data
-        const testimonials = currentLocale === 'ar' ? [
-            {
-                img: "{{ asset('images/avatar.png') }}",
-                text: "رحلة تدريبية مميزة وواضحة من البداية للنهاية، متابعة التيرم والدروس كانت سهلة جدًا، والتطبيق ساعدني أتابع تقدمي بشكل يومي.",
-                author: "سلمان .م - دبلومة الحاسب وتقنية المعلومات"
-            },
-            {
-                img: "{{ asset('images/person.png') }}",
-                text: "تجربتي مع المعهد كانت رائعة، المدربون محترفون والمحتوى التعليمي ممتاز. أنصح الجميع بالتسجيل في برامجهم التدريبية.",
-                author: "أحمد .ع - دبلومة إدارة الأعمال"
-            },
-            {
-                img: "{{ asset('images/right.png') }}",
-                text: "الدعم الفني متميز والاستجابة سريعة. البرنامج التدريبي ساعدني على تطوير مهاراتي المهنية بشكل ملحوظ.",
-                author: "محمد .ك - دبلومة التسويق الرقمي"
-            },
-            {
-                img: "{{ asset('images/Media.png') }}",
-                text: "شكراً لمعهد الارتقاء على هذه التجربة التعليمية المتميزة. الشهادة المعتمدة ساعدتني في الحصول على فرصة عمل جديدة.",
-                author: "خالد .س - دبلومة الأمن السيبراني"
-            }
-        ] : [
-            {
-                img: "{{ asset('images/avatar.png') }}",
-                text: "A distinctive and clear training journey from beginning to end, following the term and lessons was very easy, and the app helped me track my progress daily.",
-                author: "Salman M. - Computer and IT Path"
-            },
-            {
-                img: "{{ asset('images/person.png') }}",
-                text: "My experience with the institute was wonderful, the trainers are professional and the educational content is excellent. I recommend everyone to register in their training programs.",
-                author: "Ahmed A. - Business Administration Path"
-            },
-            {
-                img: "{{ asset('images/right.png') }}",
-                text: "The technical support is excellent and the response is fast. The training program helped me develop my professional skills significantly.",
-                author: "Mohammed K. - Digital Marketing Path"
-            },
-            {
-                img: "{{ asset('images/Media.png') }}",
-                text: "Thanks to Al-Ertiqaa Institute for this distinguished educational experience. The accredited certificate helped me get a new job opportunity.",
-                author: "Khalid S. - Cybersecurity Path"
-            }
-        ];
-
-        // Change Testimonial Function
-        function changeTestimonial(index) {
-            const testimonial = testimonials[index];
-
-            // Update main image with fade effect
-            const mainImg = document.getElementById('mainTestimonialImg');
-            mainImg.style.opacity = '0';
-            setTimeout(() => {
-                mainImg.src = testimonial.img;
-                mainImg.style.opacity = '1';
-            }, 200);
-
-            // Update text with fade effect
-            const textEl = document.getElementById('testimonialText');
-            const authorEl = document.getElementById('testimonialAuthor');
-
-            textEl.style.opacity = '0';
-            authorEl.style.opacity = '0';
-
-            setTimeout(() => {
-                textEl.textContent = testimonial.text;
-                authorEl.textContent = testimonial.author;
-                textEl.style.opacity = '1';
-                authorEl.style.opacity = '1';
-            }, 200);
-
-            // Update active state on thumbnails
-            const thumbnails = document.querySelectorAll('.imgs-av img');
-            thumbnails.forEach((thumb, i) => {
-                if (i === index) {
-                    thumb.classList.add('active');
-                } else {
-                    thumb.classList.remove('active');
-                }
-            });
-        }
-
-        // Add transition styles for smooth fade
-        document.addEventListener('DOMContentLoaded', function() {
-            const mainImg = document.getElementById('mainTestimonialImg');
-            const textEl = document.getElementById('testimonialText');
-            const authorEl = document.getElementById('testimonialAuthor');
-
-            if (mainImg) mainImg.style.transition = 'opacity 0.3s ease';
-            if (textEl) textEl.style.transition = 'opacity 0.3s ease';
-            if (authorEl) authorEl.style.transition = 'opacity 0.3s ease';
-        });
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMobileMenu(); });
     </script>
 </body>
 </html>

@@ -91,6 +91,13 @@
             font-weight: 400;
             line-height: 1.5;
             overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .page-body {
+            flex: 1;
         }
 
         /* Font Awesome fix */
@@ -208,19 +215,30 @@
             display: none;
             position: fixed;
             top: 0;
-            {{ app()->getLocale() == 'ar' ? 'right' : 'left' }}: 0;
+            right: 0;
             width: 383px;
             height: 100vh;
             background: #fff;
             z-index: 9999;
             overflow-y: auto;
-            box-shadow: {{ app()->getLocale() == 'ar' ? '-5px' : '5px' }} 0 15px rgba(0, 0, 0, 0.3);
+            box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
             flex-direction: column;
+        }
+
+        [dir="ltr"] .mobile-menu {
+            right: auto;
+            left: 0;
+            box-shadow: 5px 0 15px rgba(0, 0, 0, 0.3);
         }
 
         .mobile-menu.active {
             display: flex;
-            {{ app()->getLocale() == 'ar' ? 'padding-right' : 'padding-left' }}: 20px;
+            padding-right: 20px;
+        }
+
+        [dir="ltr"] .mobile-menu.active {
+            padding-right: 0;
+            padding-left: 20px;
         }
 
         .mobile-menu-header {
@@ -281,7 +299,13 @@
         .mobile-nav-list li a.active {
             background: #eaf5fb;
             color: var(--main-color);
-            {{ app()->getLocale() == 'ar' ? 'padding-right: 25px;' : 'padding-left: 25px;' }}
+            padding-right: 25px;
+        }
+
+        [dir="ltr"] .mobile-nav-list li a:hover,
+        [dir="ltr"] .mobile-nav-list li a.active {
+            padding-right: 0;
+            padding-left: 25px;
         }
 
         .mobile-menu-buttons {
@@ -534,7 +558,7 @@
 
         .search-input-wrapper .search-submit-btn {
             position: absolute;
-            {{ app()->getLocale() == 'ar' ? 'left' : 'right' }}: 10px;
+            left: 10px;
             top: 50%;
             transform: translateY(-50%);
             background: var(--main-color);
@@ -545,6 +569,11 @@
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.3s;
+        }
+
+        [dir="ltr"] .search-input-wrapper .search-submit-btn {
+            left: auto;
+            right: 10px;
         }
 
         .search-input-wrapper .search-submit-btn:hover {
@@ -584,108 +613,22 @@
             margin: 0 auto;
         }
 
-        /* Footer */
-        .foot {
-            background-color: #1d6b8f;
-            color: white;
-            padding: clamp(2rem, 4vw, 6rem) clamp(1rem, 3vw, 5rem);
-        }
-
-        .head-top {
-            display: flex;
-            gap: clamp(2rem, 4vw, 5rem);
-            margin-bottom: clamp(2rem, 4vw, 5rem);
-            flex-wrap: wrap;
-            justify-content: space-between;
-        }
-
-        .footer-intro {
-            flex: 1;
-            min-width: 320px;
-            max-width: 700px;
-        }
-
-        .footer-intro img {
-            max-width: clamp(200px, 25vw, 350px);
-            height: auto;
-        }
-
-        .footer-intro h2 {
-            margin-top: clamp(1rem, 2vw, 2rem);
-            margin-bottom: clamp(0.5rem, 1vw, 1rem);
-            line-height: 1.4;
-        }
-
-        .intro-text {
-            line-height: 1.8;
-            opacity: 0.95;
-        }
-
-        .mobile-apps {
-            flex: 0 1 auto;
-            min-width: 300px;
-            max-width: 500px;
-        }
-
-        .apps-title {
-            margin-bottom: clamp(1rem, 2vw, 2rem);
-        }
-
-        .footer-store-buttons {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: clamp(10px, 1.5vw, 18px);
-        }
-
-        .footer-store-btn {
-            display: flex;
-            align-items: center;
-            gap: clamp(8px, 1vw, 14px);
-            background-color: #000;
-            color: #fff;
-            padding: clamp(12px, 1.5vw, 18px) clamp(14px, 1.8vw, 22px);
-            border-radius: clamp(10px, 1.2vw, 16px);
-            text-decoration: none;
-            transition: all 0.3s ease;
-            justify-content: center;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-        }
-
-        .footer-store-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
-            color: #fff;
-        }
-
-        .footer-section {
-            margin-bottom: clamp(2rem, 3vw, 3rem);
-        }
-
-        .footer-section h5 {
-            margin: 0 !important;
-            margin-bottom: 0.5rem !important;
-        }
-
-        .footer-section hr {
-            margin: clamp(0.5rem, 1vw, 1rem) 0 !important;
-            opacity: 0.4;
-            border-color: rgba(255, 255, 255, 0.3);
-        }
-
-        .footer-section a {
-            color: white;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            display: block;
-            opacity: 0.9;
-            margin-bottom: 8px;
-        }
-
-        .footer-section a:hover {
-            opacity: 1;
-            transform: translateX({{ app()->getLocale() == 'ar' ? '-5px' : '5px' }});
-            {{ app()->getLocale() == 'ar' ? 'padding-right' : 'padding-left' }}: 5px;
-        }
+        /* ── Footer ── */
+        .foot { background: #1d3a52; color: #fff; padding: clamp(3rem,5vw,6rem) clamp(1rem,4vw,5rem); }
+        .footer-logo img { max-width: 180px; margin-bottom: 1rem; }
+        .footer-desc { opacity: .8; line-height: 1.8; font-size: .9rem; margin-bottom: 1.5rem; }
+        .footer-social-wrap { display: flex; gap: .75rem; }
+        .footer-social-wrap a { width: 38px; height: 38px; border-radius: 50%; background: rgba(255,255,255,.1); color: #fff; display: flex; align-items: center; justify-content: center; transition: all .3s; text-decoration: none; font-size: 1rem; }
+        .footer-social-wrap a:hover { background: var(--main-color); color: #fff; }
+        .footer-heading { font-weight: 700; margin-bottom: 1.25rem; font-size: 1rem; border-bottom: 2px solid rgba(255,255,255,.15); padding-bottom: .75rem; }
+        .footer-links { display: flex; flex-direction: column; gap: .6rem; }
+        .footer-links a { color: rgba(255,255,255,.75); font-size: .9rem; transition: all .3s; text-decoration: none; }
+        .footer-links a:hover { color: #fff; padding-right: 6px; }
+        [dir="ltr"] .footer-links a:hover { padding-right: 0; padding-left: 6px; }
+        .footer-contact-item { display: flex; align-items: center; gap: .75rem; margin-bottom: .9rem; color: rgba(255,255,255,.8); font-size: .9rem; }
+        .footer-contact-item i { color: var(--main-color); font-size: 1.1rem; flex-shrink: 0; }
+        .footer-bottom { border-top: 1px solid rgba(255,255,255,.15); margin-top: 3rem; padding-top: 1.5rem; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
+        .footer-bottom p { margin: 0; font-size: .85rem; opacity: .7; }
 
         /* Language Switcher */
         .lang-switcher {
@@ -699,27 +642,6 @@
             text-decoration: none;
         }
 
-        .foot-foot {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: clamp(2rem, 4vw, 5rem);
-            padding-top: clamp(1.5rem, 2.5vw, 3rem);
-            border-top: 2px solid rgba(255, 255, 255, 0.25);
-            flex-wrap: wrap;
-            gap: clamp(1rem, 2vw, 2rem);
-        }
-
-        .foot-foot p {
-            margin: 0;
-            opacity: 0.9;
-        }
-
-        .footer-meta {
-            display: flex;
-            gap: clamp(1.5rem, 2.5vw, 3rem);
-            flex-wrap: wrap;
-        }
 
         /* Responsive */
         @media (max-width: 991px) {
@@ -782,19 +704,9 @@
                 padding: 2rem 1.5rem;
             }
 
-            .footer-store-buttons {
-                grid-template-columns: 1fr;
-            }
-
-            .foot-foot {
+            .footer-bottom {
                 flex-direction: column;
-                align-items: flex-start;
-                text-align: {{ app()->getLocale() == 'ar' ? 'right' : 'left' }};
-            }
-
-            .footer-meta {
-                flex-direction: column;
-                gap: 0.5rem;
+                gap: .5rem;
             }
         }
 
@@ -958,7 +870,9 @@
     </div>
 
     <!-- Main Content -->
-    @yield('content')
+    <div class="page-body">
+        @yield('content')
+    </div>
 
     <!-- Search Modal -->
     <div class="search-modal-overlay" id="searchModalOverlay" onclick="closeSearchModal(event)">
@@ -981,103 +895,64 @@
     </div>
 
     <!-- Footer -->
-    <footer class="p-5 foot container-fluid">
-        <div class="head-top">
-            <div class="footer-intro">
-                <img src="{{ asset('images/footlogooo.png') }}" alt="" />
-                <h2>{{ __('Al-Ertiqaa High Institute for Training') }}</h2>
-                <p class="intro-text">
-                    {{ __('An accredited training institute offering professional development programs and educational paths for over 10 years. We help students and trainees acquire future skills, providing accredited programs aligned with Saudi Vision 2030, supervised by elite trainers and experts to ensure training quality and outcomes.') }}
-                </p>
-            </div>
-            <div class="mobile-apps">
-                <p class="apps-title">{{ __('Mobile Apps') }}</p>
-                <div class="footer-store-buttons">
-                    <a href="#" class="footer-store-btn">
-                        <img src="{{ asset('images/huawei-appgallery-thumb.png') }}" style="width: 40px; border-radius: 10px" />
-                        <div class="text">
-                            <span class="small">EXPLORE IT ON</span>
-                            <span class="big">AppGallery</span>
-                        </div>
-                    </a>
-                    <a href="#" class="footer-store-btn">
-                        <i class="bi bi-apple" style="font-size: 24px;"></i>
-                        <div class="text">
-                            <span class="small">Download on the</span>
-                            <span class="big">App Store</span>
-                        </div>
-                    </a>
-                    <a href="#" class="footer-store-btn pt-3 pb-3">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="21" height="24" viewBox="0 0 21 24" fill="none">
-                            <path d="M9.80482 11.4617L0.0895996 22.0059C0.0905121 22.0078 0.090512 22.0106 0.0914244 22.0125C0.389807 23.1574 1.41179 24 2.62539 24C3.11083 24 3.56616 23.8656 3.95671 23.6305L3.98773 23.6118L14.9229 17.1593L9.80482 11.4617Z" fill="#EA4335"/>
-                            <path d="M19.6332 9.66424L19.624 9.6577L14.9029 6.85928L9.58398 11.6994L14.922 17.1562L19.6177 14.3858C20.4407 13.9305 21.0001 13.0431 21.0001 12.0204C21.0001 11.0033 20.4489 10.1205 19.6332 9.66424Z" fill="#FBBC04"/>
-                            <path d="M0.0894234 1.9952C0.0310244 2.21542 0 2.44683 0 2.68571V21.3182C0 21.5571 0.0310245 21.7885 0.0903359 22.0078L10.1386 11.7332L0.0894234 1.9952Z" fill="#4285F4"/>
-                            <path d="M9.87666 12L14.9044 6.85945L3.98201 0.383598C3.58508 0.140054 3.12154 8.67844e-05 2.62606 8.67844e-05C1.41246 8.67844e-05 0.38865 0.84456 0.0902675 1.99043C0.0902675 1.99136 0.0893555 1.9923 0.0893555 1.99323L9.87666 12Z" fill="#34A853"/>
-                        </svg>
-                        <div class="text">
-                            <span class="small">GET IT ON</span>
-                            <span class="big">Google Play</span>
-                        </div>
-                    </a>
+    <footer class="foot">
+        <div class="container-fluid">
+            <div class="row g-5">
+                <div class="col-lg-4 col-md-12">
+                    <div class="footer-logo">
+                        <img src="{{ asset('images/footlogooo.png') }}" alt="Logo" onerror="this.style.display='none'" />
+                    </div>
+                    <p class="footer-desc">{{ __('An accredited training institute offering professional development programs and educational paths for over 10 years, aligned with Saudi Vision 2030.') }}</p>
+                    <div class="footer-social-wrap">
+                        <a href="#"><i class="bi bi-youtube"></i></a>
+                        <a href="#"><i class="bi bi-twitter-x"></i></a>
+                        <a href="#"><i class="bi bi-linkedin"></i></a>
+                        <a href="#"><i class="bi bi-instagram"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-4 col-6">
+                    <div class="footer-heading">{{ __('Quick Links') }}</div>
+                    <div class="footer-links">
+                        <a href="{{ route('home') }}">{{ __('Home') }}</a>
+                        <a href="{{ route('about') }}">{{ __('About Us') }}</a>
+                        <a href="{{ route('training-paths') }}">{{ __('Training Paths') }}</a>
+                        <a href="{{ route('short-courses') }}">{{ __('Short Courses') }}</a>
+                        <a href="{{ route('news') }}">{{ __('News') }}</a>
+                        <a href="{{ route('contact') }}">{{ __('Contact Us') }}</a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-4 col-6">
+                    <div class="footer-heading">{{ __('Services') }}</div>
+                    <div class="footer-links">
+                        <a href="{{ route('training-paths') }}">{{ __('Term System Programs') }}</a>
+                        <a href="{{ route('short-courses') }}">{{ __('Short Courses') }}</a>
+                        <a href="{{ route('short-courses') }}">{{ __('Remote Training') }}</a>
+                        <a href="{{ route('contact') }}">{{ __('Certificate Accreditation') }}</a>
+                        <a href="{{ route('faq') }}">{{ __('Technical Support') }}</a>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-4 col-12">
+                    <div class="footer-heading">{{ __('Contact Information') }}</div>
+                    <div class="footer-contact-item">
+                        <i class="bi bi-telephone-fill"></i>
+                        <span>9200343222</span>
+                    </div>
+                    <div class="footer-contact-item">
+                        <i class="bi bi-envelope-fill"></i>
+                        <span>help@alertiqa.edu.sa</span>
+                    </div>
+                    <div class="footer-contact-item">
+                        <i class="bi bi-geo-alt-fill"></i>
+                        <span>{{ __('Riyadh, Saudi Arabia') }}</span>
+                    </div>
+                    <div class="footer-contact-item">
+                        <i class="bi bi-clock-fill"></i>
+                        <span>{{ __('Sun – Thu: 8:00 AM – 5:00 PM') }}</span>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="foot-body">
-            <div class="row">
-                <div class="col-lg-4 col-md-6 col-12 d-flex flex-column gap-3 footer-section">
-                    <h5>{{ __('Important Links') }}</h5>
-                    <hr />
-                    <a href="{{ route('home') }}">{{ __('Home') }}</a>
-                    <a href="{{ route('about') }}">{{ __('About Us') }}</a>
-                    <a href="{{ route('training-paths') }}">{{ __('Training Paths') }}</a>
-                    <a href="{{ route('short-courses') }}">{{ __('Upcoming Courses') }}</a>
-                    <a href="#">{{ __('Trainers') }}</a>
-                    <a href="{{ route('news') }}">{{ __('News') }}</a>
-                    <a href="{{ route('contact') }}">{{ __('Contact Us') }}</a>
-                </div>
-                <div class="col-lg-4 col-md-6 col-12 d-flex flex-column gap-3 footer-section">
-                    <h5>{{ __('Institute Services') }}</h5>
-                    <hr />
-                    <a href="#">{{ __('Term System and Professional Programs') }}</a>
-                    <a href="{{ route('short-courses') }}">{{ __('Short Courses') }}</a>
-                    <a href="#">{{ __('Remote Training') }}</a>
-                    <a href="#">{{ __('Certificate Accreditation') }}</a>
-                    <a href="#">{{ __('Student Registration') }}</a>
-                    <a href="#">{{ __('Trainer Enrollment') }}</a>
-                    <a href="#">{{ __('Technical Support and Follow-up') }}</a>
-                </div>
-                <div class="col-lg-4 col-md-12 col-12 d-flex flex-column gap-3 footer-section">
-                    <h5>{{ __('Contact Information') }}</h5>
-                    <hr />
-                    <a href="#">
-                        <div><i class="bi bi-telephone"></i> {{ __('Phone Number') }}</div>
-                        <div>9200343222 <i class="bi bi-copy"></i></div>
-                    </a>
-                    <a href="#">
-                        <div><i class="bi bi-envelope"></i> {{ __('Email') }}</div>
-                        <div>help@company.sa <i class="bi bi-copy"></i></div>
-                    </a>
-                    <a href="#">
-                        <div><i class="bi bi-geo-alt-fill"></i> {{ __('Location') }}</div>
-                        <div>{{ __('Riyadh') }} <i class="bi bi-link-45deg"></i></div>
-                    </a>
-                    <a href="#">
-                        <div>{{ __('Follow Us') }}</div>
-                        <div class="d-flex gap-3">
-                            <i class="bi bi-instagram"></i>
-                            <i class="bi bi-linkedin"></i>
-                            <i class="bi bi-twitter-x"></i>
-                        </div>
-                    </a>
-                </div>
-            </div>
-        </div>
-        <div class="foot-foot">
-            <div class="copyright">
-                <p>{{ __('Al-Ertiqaa High Institute for Training') }}. {{ __('All rights reserved') }} &copy; {{ date('Y') }}.</p>
-            </div>
-            <div class="footer-meta">
-                <p>{{ __('Last modified') }}: {{ date('d/m/Y') }}</p>
+            <div class="footer-bottom">
+                <p>© {{ date('Y') }} {{ __('Al-Ertiqaa High Institute for Training') }}. {{ __('All rights reserved') }}.</p>
                 <p>{{ __('Developed and maintained by Al-Ertiqaa') }}</p>
             </div>
         </div>
