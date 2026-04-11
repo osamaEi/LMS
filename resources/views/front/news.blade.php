@@ -179,7 +179,7 @@
 
     <!-- News Banner -->
     <div class="news-banner">
-        <img src="{{ asset('lms2-photo/9.png') }}" alt="News" onerror="this.src='{{ asset('lms2-photo/5.png') }}'" />
+        <img loading="lazy" src="{{ asset('lms2-photo/9.webp') }}" alt="News" onerror="this.src='{{ asset('lms2-photo/5.webp') }}'" />
         <div class="overlay">
             <p>{{ __('Follow the latest updates, official announcements, and events at the institute.') }}</p>
         </div>
@@ -196,10 +196,10 @@
             @foreach($news as $item)
             <div class="news-card">
                 @if($item->image)
-                    <img src="{{ Storage::url($item->image) }}" alt="{{ $item->title_ar }}" onerror="this.src='{{ asset('lms2-photo/14.png') }}'" />
+                    <img src="{{ Storage::url($item->image) }}" alt="{{ $item->title_ar }}" onerror="this.src='{{ asset('lms2-photo/14.webp') }}'" />
                 @else
                     @php
-                        $newsImages = ['lms2-photo/14.png','lms-photos/8.png','lms2-photo/5.png','lms-photos/2.png','lms2-photo/11.png'];
+                        $newsImages = ['lms2-photo/14.webp','lms-photos/8.webp','lms2-photo/5.webp','lms-photos/2.webp','lms2-photo/11.webp'];
                         $newsImg = $newsImages[$loop->index % count($newsImages)];
                     @endphp
                     <img src="{{ asset($newsImg) }}" alt="{{ $item->title_ar }}" />

@@ -529,7 +529,7 @@
             </div>
             <div class="col-lg-6">
                 <div class="cta-image">
-                    <img src="{{ asset('lms2-photo/4.png') }}" alt="Contact Us" onerror="this.src='{{ asset('lms2-photo/11.png') }}'" />
+                    <img loading="lazy" src="{{ asset('lms2-photo/4.webp') }}" alt="Contact Us" onerror="this.src='{{ asset('lms2-photo/11.webp') }}'" />
                 </div>
             </div>
         </div>

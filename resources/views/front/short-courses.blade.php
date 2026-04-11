@@ -283,7 +283,7 @@
 
     <!-- Featured Banner -->
     <div class="featured-banner">
-        <img src="{{ asset('lms2-photo/15.png') }}" alt="Short Courses" onerror="this.src='{{ asset('lms2-photo/14.png') }}'" />
+        <img loading="lazy" src="{{ asset('lms2-photo/15.webp') }}" alt="Short Courses" onerror="this.src='{{ asset('lms2-photo/14.webp') }}'" />
         <div class="overlay">
             <div class="overlay-text">
                 <h3>{{ __('Professional Short Courses') }}</h3>
@@ -306,12 +306,12 @@
         @else
         @php
             $courseImages = [
-                'lms-photos/2.png',
-                'lms-photos/8.png',
-                'lms-photos/5.png',
-                'lms2-photo/14.png',
-                'lms-photos/10.png',
-                'lms2-photo/6.png',
+                'lms-photos/2.webp',
+                'lms-photos/8.webp',
+                'lms-photos/5.webp',
+                'lms2-photo/14.webp',
+                'lms-photos/10.webp',
+                'lms2-photo/6.webp',
             ];
         @endphp
         <div class="courses-container">
@@ -368,7 +368,7 @@
                 </div>
             </div>
             <div class="col-lg-6 text-center">
-                <img src="{{ asset('lms2-photo/4.png') }}" alt="App Mockup" style="max-width: 450px; border-radius: 20px;" onerror="this.style.display='none'" />
+                <img loading="lazy" src="{{ asset('lms2-photo/4.webp') }}" alt="App Mockup" style="max-width: 450px; border-radius: 20px;" onerror="this.style.display='none'" />
             </div>
         </div>
     </section>

@@ -6,6 +6,8 @@
     <title>{{ __('Al-Ertiqaa High Institute for Training') }}</title>
 
     <link rel="icon" type="image/png" href="{{ asset('images/Vector.png') }}" />
+    <!-- Preload first hero image -->
+    <link rel="preload" as="image" href="{{ asset('lms2-photo/14.webp') }}" />
 
     @if(app()->getLocale() == 'ar')
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
@@ -350,10 +352,10 @@
     <!-- ════ Hero ════ -->
     <section class="hero-section">
         <div class="hero-slides">
-            <div class="hero-slide active" style="background-image:url('{{ asset('lms2-photo/14.png') }}')"></div>
-            <div class="hero-slide"        style="background-image:url('{{ asset('lms2-photo/1.png') }}')"></div>
-            <div class="hero-slide"        style="background-image:url('{{ asset('lms2-photo/4.png') }}')"></div>
-            <div class="hero-slide"        style="background-image:url('{{ asset('lms2-photo/11.png') }}')"></div>
+            <div class="hero-slide active" style="background-image:url('{{ asset('lms2-photo/14.webp') }}')"></div>
+            <div class="hero-slide"        style="background-image:url('{{ asset('lms2-photo/1.webp') }}')"></div>
+            <div class="hero-slide"        style="background-image:url('{{ asset('lms2-photo/4.webp') }}')"></div>
+            <div class="hero-slide"        style="background-image:url('{{ asset('lms2-photo/11.webp') }}')"></div>
         </div>
         <div class="hero-content">
             <h1>
@@ -445,7 +447,7 @@
                 <p>{{ __('We provide training paths spanning two and a half years through 10 training quarters, plus short and specialized courses for various professional goals.') }}</p>
             </div>
             <div class="courses-grid">
-                @php $programImages = ['lms-photos/2.png','lms-photos/8.png','lms-photos/5.png']; @endphp
+                @php $programImages = ['lms-photos/2.webp','lms-photos/8.webp','lms-photos/5.webp']; @endphp
                 @forelse($featuredPrograms ?? [] as $i => $program)
                 <div class="course-card">
                     <img src="{{ asset($programImages[$i % count($programImages)]) }}" alt="{{ $program->name }}" />
@@ -471,9 +473,9 @@
                 </div>
                 @empty
                 @foreach([
-                    ['lms-photos/2.png',  __('Computer Science Diploma'),    __('Foundations of computing, programming, networks, and databases.'),           12, 5000, 'CS-101'],
-                    ['lms-photos/8.png',  __('Business Administration'),     __('Modern management fundamentals: leadership, planning, and decision-making.'), 12, null,  'BA-201'],
-                    ['lms-photos/5.png',  __('Digital Marketing Diploma'),   __('SEO, social media, paid ads, and analytics strategies.'),                     10, 4500, 'DM-301'],
+                    ['lms-photos/2.webp',  __('Computer Science Diploma'),    __('Foundations of computing, programming, networks, and databases.'),           12, 5000, 'CS-101'],
+                    ['lms-photos/8.webp',  __('Business Administration'),     __('Modern management fundamentals: leadership, planning, and decision-making.'), 12, null,  'BA-201'],
+                    ['lms-photos/5.webp',  __('Digital Marketing Diploma'),   __('SEO, social media, paid ads, and analytics strategies.'),                     10, 4500, 'DM-301'],
                 ] as [$img,$name,$desc,$months,$price,$code])
                 <div class="course-card">
                     <img src="{{ asset($img) }}" alt="{{ $name }}" />
@@ -511,35 +513,35 @@
             </div>
             <div class="gallery-grid">
                 <div class="gallery-item gallery-item-1">
-                    <img src="{{ asset('lms2-photo/2.png') }}" alt="Institute Building" />
+                    <img loading="lazy" src="{{ asset('lms2-photo/2.webp') }}" alt="Institute Building" />
                     <div class="overlay"></div>
                 </div>
                 <div class="gallery-item gallery-item-2">
-                    <img src="{{ asset('lms2-photo/14.png') }}" alt="Computer Lab" />
+                    <img loading="lazy" src="{{ asset('lms2-photo/14.webp') }}" alt="Computer Lab" />
                     <div class="overlay"></div>
                 </div>
                 <div class="gallery-item gallery-item-3">
-                    <img src="{{ asset('lms2-photo/1.png') }}" alt="Student" />
+                    <img loading="lazy" src="{{ asset('lms2-photo/1.webp') }}" alt="Student" />
                     <div class="overlay"></div>
                 </div>
                 <div class="gallery-item gallery-item-4">
-                    <img src="{{ asset('lms2-photo/3.png') }}" alt="Consultation" />
+                    <img loading="lazy" src="{{ asset('lms2-photo/3.webp') }}" alt="Consultation" />
                     <div class="overlay"></div>
                 </div>
                 <div class="gallery-item gallery-item-5">
-                    <img src="{{ asset('lms2-photo/4.png') }}" alt="Learning" />
+                    <img loading="lazy" src="{{ asset('lms2-photo/4.webp') }}" alt="Learning" />
                     <div class="overlay"></div>
                 </div>
                 <div class="gallery-item gallery-item-6">
-                    <img src="{{ asset('lms2-photo/5.png') }}" alt="Graduation" />
+                    <img loading="lazy" src="{{ asset('lms2-photo/5.webp') }}" alt="Graduation" />
                     <div class="overlay"></div>
                 </div>
                 <div class="gallery-item gallery-item-7">
-                    <img src="{{ asset('lms2-photo/9.png') }}" alt="Award" />
+                    <img loading="lazy" src="{{ asset('lms2-photo/9.webp') }}" alt="Award" />
                     <div class="overlay"></div>
                 </div>
                 <div class="gallery-item gallery-item-8">
-                    <img src="{{ asset('lms2-photo/11.png') }}" alt="Discussion" />
+                    <img loading="lazy" src="{{ asset('lms2-photo/11.webp') }}" alt="Discussion" />
                     <div class="overlay"></div>
                 </div>
             </div>
@@ -557,7 +559,7 @@
             <div class="row align-items-center g-5">
                 <div class="col-lg-6 {{ app()->getLocale()=='ar' ? 'order-2' : 'order-1' }}">
                     <div class="how-image" style="height:420px">
-                        <img src="{{ asset('lms2-photo/4.png') }}" alt="How It Works" />
+                        <img loading="lazy" src="{{ asset('lms2-photo/4.webp') }}" alt="How It Works" />
                     </div>
                 </div>
                 <div class="col-lg-6 {{ app()->getLocale()=='ar' ? 'order-1' : 'order-2' }}">
@@ -667,7 +669,7 @@
                     </div>
                 </div>
                 <div class="col-lg-6 text-center">
-                    <img src="{{ asset('lms2-photo/4.png') }}" alt="App" style="max-width:100%;border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,.3);max-height:360px;object-fit:cover" />
+                    <img loading="lazy" src="{{ asset('lms2-photo/4.webp') }}" alt="App" style="max-width:100%;border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,.3);max-height:360px;object-fit:cover" />
                 </div>
             </div>
         </div>
