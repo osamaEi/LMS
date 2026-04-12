@@ -4,7 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Collection;
+
 
 class StudentProgramResource extends JsonResource
 {
@@ -33,15 +33,14 @@ class StudentProgramResource extends JsonResource
         $enrollments    = $this->resource['enrollments'] ?? collect();
         $enrollmentsMap = $this->resource['enrollments_map'] ?? collect();
 
-        return [
+        $data = [
             'status'      => $this->resource['status'],
-            'program'     => $program ? [
+            'program'     => $program ? array_filter([
                 'id'          => $program->id,
                 'name'        => $program->name,
                 'description' => $program->description,
                 'price'       => (float) $program->price,
-            ] : null,
-            'track'       => null,
+            ], fn($v) => $v !== null) : null,
             'terms'       => $program && $program->relationLoaded('terms')
                 ? $program->terms
                     ->sortBy('term_number')
@@ -54,5 +53,7 @@ class StudentProgramResource extends JsonResource
             'enrollments' => EnrollmentResource::collection($enrollments),
             'statistics'  => $this->resource['statistics'] ?? self::$emptyStatistics,
         ];
+
+        return array_filter($data, fn($v) => $v !== null);
     }
 }

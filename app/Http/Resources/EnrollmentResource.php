@@ -9,7 +9,7 @@ class EnrollmentResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
-        return [
+        return array_filter([
             'id'              => $this->id,
             'subject_id'      => $this->subject_id,
             'status'          => $this->status,
@@ -18,6 +18,6 @@ class EnrollmentResource extends JsonResource
             'grade_letter'    => $this->grade_letter,
             'enrolled_at'     => $this->enrolled_at?->toIso8601String(),
             'completion_date' => $this->completion_date?->format('Y-m-d'),
-        ];
+        ], fn($v) => $v !== null);
     }
 }

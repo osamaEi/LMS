@@ -34,32 +34,24 @@ class SubjectWithProgressResource extends JsonResource
             $remainingMinutes = (int) round($totalMinutes * (1 - $progress / 100));
         }
 
-        return [
-            'id'           => $this->id,
-            'name'         => $this->name,
-            'name_ar'      => $this->name_ar,
-            'name_en'      => $this->name_en,
-            'description'  => $this->description,
-            'code'         => $this->code,
-            'color'        => $this->color,
-            'banner_photo' => $this->banner_photo
-                ? asset('storage/' . $this->banner_photo)
-                : null,
+        $data = [
+            'id'             => $this->id,
+            'name'           => $this->name,
+            'name_ar'        => $this->name_ar ?: null,
+            'name_en'        => $this->name_en ?: null,
+            'description'    => $this->description,
+            'code'           => $this->code,
+            'color'          => $this->color,
+            'banner_photo'   => $this->banner_photo ? asset('storage/' . $this->banner_photo) : null,
             'session_type'   => $sessionType,
             'sessions_count' => $sessions instanceof \Illuminate\Database\Eloquent\Collection
                 ? $sessions->count()
                 : ($this->sessions_count ?? 0),
             'total_hours'    => $totalHours,
-            'teacher'        => $this->whenLoaded('teacher', fn() => [
-                'id'   => $this->teacher->id,
-                'name' => $this->teacher->name,
-            ]),
-            'term' => $this->whenLoaded('term', fn() => [
-                'id'          => $this->term->id,
-                'term_number' => $this->term->term_number,
-                'name'        => $this->term->name,
-            ]),
-            'enrollment' => $enrollment ? [
+            'teacher'        => $this->teacher_id && $this->relationLoaded('teacher') && $this->teacher
+                ? ['id' => $this->teacher->id, 'name' => $this->teacher->name]
+                : null,
+            'enrollment'     => $enrollment ? array_filter([
                 'status'            => $enrollment->status,
                 'progress'          => $progress,
                 'remaining_minutes' => $remainingMinutes,
@@ -67,7 +59,9 @@ class SubjectWithProgressResource extends JsonResource
                 'final_grade'       => $enrollment->final_grade,
                 'grade_letter'      => $enrollment->grade_letter,
                 'completion_date'   => $enrollment->completion_date?->format('Y-m-d'),
-            ] : null,
+            ], fn($v) => $v !== null) : null,
         ];
+
+        return array_filter($data, fn($v) => $v !== null);
     }
 }
