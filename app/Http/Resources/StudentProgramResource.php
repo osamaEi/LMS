@@ -33,14 +33,15 @@ class StudentProgramResource extends JsonResource
         $enrollments    = $this->resource['enrollments'] ?? collect();
         $enrollmentsMap = $this->resource['enrollments_map'] ?? collect();
 
-        $data = [
+        return [
             'status'      => $this->resource['status'],
-            'program'     => $program ? array_filter([
+            'program'     => $program ? [
                 'id'          => $program->id,
                 'name'        => $program->name,
                 'description' => $program->description,
                 'price'       => (float) $program->price,
-            ], fn($v) => $v !== null) : null,
+            ] : null,
+            'track'       => null,
             'terms'       => $program && $program->relationLoaded('terms')
                 ? $program->terms
                     ->sortBy('term_number')
@@ -53,7 +54,5 @@ class StudentProgramResource extends JsonResource
             'enrollments' => EnrollmentResource::collection($enrollments),
             'statistics'  => $this->resource['statistics'] ?? self::$emptyStatistics,
         ];
-
-        return array_filter($data, fn($v) => $v !== null);
     }
 }
