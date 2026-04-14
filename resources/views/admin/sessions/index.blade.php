@@ -185,6 +185,9 @@
     .day-btn.active { background: linear-gradient(135deg, #0071AA 0%, #005a88 100%); border-color: transparent; color: white; }
     .options-panel { background: #f9fafb; border-radius: 12px; padding: 1rem; margin-top: 1rem; }
     .dark .options-panel { background: #111827; }
+
+    .subject-option:hover { background: #f0f9ff; }
+    .subject-option:last-child { border-bottom: none; }
 </style>
 @endpush
 
@@ -381,14 +384,34 @@
         <div class="modal-body">
             <input type="hidden" id="modal_scheduled_date">
 
-            <div class="form-group">
+            <div class="form-group" style="position:relative;">
                 <label class="form-label">المادة الدراسية <span style="color: #ef4444;">*</span></label>
-                <select id="modal_subject_id" class="form-select" required>
-                    <option value="">اختر المادة</option>
+                <input type="hidden" id="modal_subject_id">
+                <div style="position:relative;">
+                    <input type="text" id="subject_search_input" class="form-input" autocomplete="off"
+                           placeholder="ابحث عن المادة..." oninput="filterSubjects(this.value)" onfocus="showSubjectDropdown()"
+                           style="padding-left:2.5rem;">
+                    <svg style="position:absolute;right:12px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:#9ca3af;pointer-events:none;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z"/>
+                    </svg>
+                </div>
+                <div id="subject_dropdown" style="display:none;position:absolute;z-index:9999;width:100%;background:white;border:2px solid #e5e7eb;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,0.12);max-height:220px;overflow-y:auto;margin-top:4px;">
                     @foreach($subjects as $subject)
-                        <option value="{{ $subject->id }}">{{ $subject->name }} ({{ $subject->code }})</option>
+                    <div class="subject-option" data-id="{{ $subject->id }}"
+                         data-label="{{ $subject->name }} ({{ $subject->code }})"
+                         onclick="selectSubject(this)"
+                         style="padding:10px 14px;cursor:pointer;font-size:0.875rem;border-bottom:1px solid #f3f4f6;display:flex;align-items:center;gap:8px;">
+                        @if($subject->color)
+                        <span style="width:8px;height:8px;border-radius:50%;background:{{ $subject->color }};flex-shrink:0;"></span>
+                        @endif
+                        <div>
+                            <div style="font-weight:600;color:#111827;">{{ $subject->name }}</div>
+                            <div style="font-size:11px;color:#9ca3af;">{{ $subject->code }} @if($subject->term) · {{ $subject->term->name }} @endif</div>
+                        </div>
+                    </div>
                     @endforeach
-                </select>
+                    <div id="subject_no_results" style="display:none;padding:16px;text-align:center;color:#9ca3af;font-size:0.875rem;">لا توجد نتائج</div>
+                </div>
             </div>
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
@@ -660,8 +683,43 @@ document.addEventListener('DOMContentLoaded', function() {
     if (subjectId) {
         setTimeout(() => {
             document.getElementById('modal_subject_id').value = subjectId;
+            // pre-fill the search label
+            const opt = document.querySelector(`.subject-option[data-id="${subjectId}"]`);
+            if (opt) document.getElementById('subject_search_input').value = opt.dataset.label;
             showCreateModal();
         }, 500);
+    }
+});
+
+// ── Subject search ──────────────────────────────────────────────────────────
+window.showSubjectDropdown = function() {
+    document.getElementById('subject_dropdown').style.display = 'block';
+    filterSubjects(document.getElementById('subject_search_input').value);
+};
+
+window.filterSubjects = function(query) {
+    const q = query.toLowerCase().trim();
+    const options = document.querySelectorAll('.subject-option');
+    let visible = 0;
+    options.forEach(opt => {
+        const label = opt.dataset.label.toLowerCase();
+        const show = !q || label.includes(q);
+        opt.style.display = show ? 'flex' : 'none';
+        if (show) visible++;
+    });
+    document.getElementById('subject_no_results').style.display = visible === 0 ? 'block' : 'none';
+    document.getElementById('subject_dropdown').style.display = 'block';
+};
+
+window.selectSubject = function(el) {
+    document.getElementById('modal_subject_id').value = el.dataset.id;
+    document.getElementById('subject_search_input').value = el.dataset.label;
+    document.getElementById('subject_dropdown').style.display = 'none';
+};
+
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('#subject_dropdown') && !e.target.closest('#subject_search_input')) {
+        document.getElementById('subject_dropdown').style.display = 'none';
     }
 });
 </script>
