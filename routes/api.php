@@ -85,6 +85,7 @@ Route::prefix('v1')->group(function () {
 
             // Sessions
             Route::get('/sessions', [App\Http\Controllers\Api\V1\Student\SessionController::class, 'index']);
+            Route::post('/sessions/{sessionId}/join', [App\Http\Controllers\Api\V1\Student\SessionController::class, 'join']);
             Route::post('/sessions/{sessionId}/join-zoom', [App\Http\Controllers\Api\V1\Student\DashboardController::class, 'joinZoom']);
             Route::post('/sessions/{sessionId}/leave-zoom', [App\Http\Controllers\Api\V1\Student\DashboardController::class, 'leaveZoom']);
 
