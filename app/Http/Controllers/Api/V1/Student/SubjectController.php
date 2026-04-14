@@ -55,6 +55,57 @@ class SubjectController extends Controller
     }
 
     /**
+     * GET /api/v1/student/subjects/{id}/sessions
+     * List all sessions for a subject with join links and schedule
+     */
+    public function sessions($id)
+    {
+        $student = auth()->user();
+
+        $subject = Subject::whereHas('enrollments', fn($q) => $q->where('student_id', $student->id))
+            ->findOrFail($id);
+
+        $sessions = Session::where('subject_id', $id)
+            ->orderBy('session_number', 'asc')
+            ->get();
+
+        $attendances = Attendance::where('student_id', $student->id)
+            ->whereIn('session_id', $sessions->pluck('id'))
+            ->get()
+            ->keyBy('session_id');
+
+        $data = $sessions->map(function ($session) use ($attendances) {
+            $attendance = $attendances->get($session->id);
+
+            $status = match (true) {
+                !is_null($session->ended_at)   => 'ended',
+                !is_null($session->started_at) => 'live',
+                default                        => 'upcoming',
+            };
+
+            return [
+                'id'             => $session->id,
+                'title'          => $session->title,
+                'type'           => $session->type,
+                'session_number' => $session->session_number,
+                'scheduled_at'   => $session->scheduled_at,
+                'duration_minutes' => $session->duration_minutes,
+                'status'         => $status,
+                'join_url'       => $session->type === 'live_zoom' ? $session->zoom_join_url : null,
+                'video_url'      => $session->type === 'recorded_video' ? $session->getVideoUrl() : null,
+                'attended'       => $attendance?->attended ?? false,
+                'watch_percentage' => $attendance?->watch_percentage ?? 0,
+            ];
+        });
+
+        return response()->json([
+            'success'  => true,
+            'subject'  => ['id' => $subject->id, 'name' => $subject->name],
+            'data'     => $data,
+        ]);
+    }
+
+    /**
      * GET /api/v1/student/units/{id}
      * Show unit details with its sessions
      */
