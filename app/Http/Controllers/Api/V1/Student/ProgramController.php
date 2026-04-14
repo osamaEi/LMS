@@ -38,9 +38,7 @@ class ProgramController extends Controller
         }
 
         // ─── Enrolled ──────────────────────────────────────────────────────────
-        $currentTerm = $student->current_term_number
-            ? $program->terms()->where('term_number', $student->current_term_number)->first()
-            : $program->terms()->orderBy('term_number')->first();
+        $currentTerm =  $program->terms()->orderBy('term_number')->first();
 
         $currentTermNumber = $currentTerm?->term_number ?? 1;
 
