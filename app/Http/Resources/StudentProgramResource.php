@@ -24,9 +24,10 @@ class StudentProgramResource extends JsonResource
         return [
             'status'       => $this->resource['status'],
             'name'         => $program?->name,
-            'description'  => $program?->description,
+            'description'  => $program?->description ?? 'description',
             'period'       => $program?->duration_months,
-            'current_term' => $this->resource['current_term'] ?? null,
+            'current_term'      => $this->resource['current_term'] ?? null,
+            'current_term_name' => $this->resource['current_term_name'] ?? null,
         ];
     }
 }

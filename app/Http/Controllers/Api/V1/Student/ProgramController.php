@@ -38,12 +38,16 @@ class ProgramController extends Controller
         }
 
         // ─── Enrolled ──────────────────────────────────────────────────────────
+        $currentTermNumber = $student->current_term_number ?? 1;
+        $currentTerm = $program->terms()->where('term_number', $currentTermNumber)->first();
+
         return response()->json([
             'success' => true,
             'data'    => new StudentProgramResource([
                 'status'       => 'enrolled',
                 'program'      => $program,
-                'current_term' => $student->current_term_number ?? 1,
+                'current_term' => $currentTermNumber,
+                'current_term_name' => $currentTerm?->name,
             ]),
         ]);
     }
