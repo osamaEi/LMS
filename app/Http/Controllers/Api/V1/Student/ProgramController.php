@@ -69,18 +69,11 @@ class ProgramController extends Controller
             return response()->json(['success' => false, 'message' => 'غير مسجل في برنامج'], 403);
         }
 
-        $filter = $request->query('filter', 'current'); // current | upcoming | past
-
-        $statusMap = [
-            'current'  => ['active'],
-            'upcoming' => ['upcoming'],
-            'past'     => ['completed'],
-        ];
-
-        $statuses = $statusMap[$filter] ?? $statusMap['current'];
+        $filter = $request->query('filter', 'current'); // current | past | all
 
         $terms = $program->terms()
-            ->whereIn('status', $statuses)
+            ->when($filter === 'current', fn($q) => $q->where('status', 'active'))
+            ->when($filter === 'past',    fn($q) => $q->where('status', 'completed'))
             ->orderBy('term_number')
             ->with(['subjects' => fn($q) => $q->with('teacher:id,name')])
             ->get();
