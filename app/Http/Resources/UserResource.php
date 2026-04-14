@@ -27,7 +27,7 @@ class UserResource extends JsonResource
             'national_id'         => $this->national_id,
             'gender'              => $this->gender,
             'date_of_birth'       => $this->date_of_birth?->format('Y-m-d'),
-            'bio'                 => $this->bio,
+          //  'bio'                 => $this->bio,
             'role'                => $this->role,
             'status'              => $this->status,
             'registration_number' => $registrationNumber,
@@ -37,30 +37,30 @@ class UserResource extends JsonResource
                 ? asset('storage/' . $this->profile_photo)
                 : null,
 
-            // Program & term
-            'program_id'     => $this->program_id,
-            'program_status' => $this->program_status,
-            'program'        => $this->whenLoaded('program', fn() => $this->program ? [
-                'id'   => $this->program->id,
-                'name' => $this->program->name,
-                'code' => $this->program->code,
-            ] : null),
+            // // Program & term
+            // 'program_id'     => $this->program_id,
+            // 'program_status' => $this->program_status,
+            // 'program'        => $this->whenLoaded('program', fn() => $this->program ? [
+            //     'id'   => $this->program->id,
+            //     'name' => $this->program->name,
+            //     'code' => $this->program->code,
+            // ] : null),
 
             // Track / Group
-            'track' => $this->whenLoaded('track', fn() => $this->track ? [
-                'id'   => $this->track->id,
-                'name' => $this->track->name,
-                'code' => $this->track->code ?? null,
-            ] : null),
+            // 'track' => $this->whenLoaded('track', fn() => $this->track ? [
+            //     'id'   => $this->track->id,
+            //     'name' => $this->track->name,
+            //     'code' => $this->track->code ?? null,
+            // ] : null),
 
             // Current term
-            'current_term_number' => $this->current_term_number,
-            'current_term'        => $currentTerm ? [
-                'id'       => $currentTerm->id,
-                'name'     => $currentTerm->name,
-                'end_date' => $currentTerm->end_date?->format('Y-m-d'),
-                'status'   => $currentTerm->status,
-            ] : null,
+            // 'current_term_number' => $this->current_term_number,
+            // 'current_term'        => $currentTerm ? [
+            //     'id'       => $currentTerm->id,
+            //     'name'     => $currentTerm->name,
+            //     'end_date' => $currentTerm->end_date?->format('Y-m-d'),
+            //     'status'   => $currentTerm->status,
+            // ] : null,
 
             // Verification flags
             'is_confirm_user'    => $this->is_confirm_user,
