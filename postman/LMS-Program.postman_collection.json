@@ -1,0 +1,238 @@
+{
+  "info": {
+    "name": "LMS — Program & Sessions",
+    "_postman_id": "lms-program-sessions-v1",
+    "description": "Endpoints for student program, subjects, term attendance, and session joining.\n\nBase URL: {{base_url}}/api/v1\nAuthentication: Bearer Token (Sanctum)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "https://www.alertiqa.edu.sa",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "subject_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "session_id",
+      "value": "1",
+      "type": "string"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "Program",
+      "item": [
+        {
+          "name": "My Program",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/student/my-program",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "student", "my-program"]
+            },
+            "description": "Returns the student's current program info: name, description, period (duration_months), current term number and name."
+          },
+          "response": [
+            {
+              "name": "Enrolled",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"status\": \"enrolled\",\n    \"name\": \"دبلوم البرمجة\",\n    \"description\": \"وصف البرنامج\",\n    \"period\": 10,\n    \"current_term\": 1,\n    \"current_term_name\": \"الفصل الأول\"\n  }\n}"
+            },
+            {
+              "name": "Pending",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"status\": \"pending\",\n    \"name\": \"دبلوم البرمجة\",\n    \"description\": \"وصف البرنامج\",\n    \"period\": 10,\n    \"current_term\": null,\n    \"current_term_name\": null\n  }\n}"
+            },
+            {
+              "name": "No Program",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"status\": \"no_program\",\n    \"name\": null,\n    \"description\": null,\n    \"period\": null,\n    \"current_term\": null,\n    \"current_term_name\": null\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Program Subjects — Current",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/student/program-subjects?filter=current",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "student", "program-subjects"],
+              "query": [
+                {
+                  "key": "filter",
+                  "value": "current",
+                  "description": "current | past | all"
+                }
+              ]
+            },
+            "description": "Returns subjects grouped by term.\n\nfilter options:\n- current → active terms only\n- past    → completed terms only\n- all     → all terms"
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"success\": true,\n  \"filter\": \"current\",\n  \"data\": [\n    {\n      \"term_id\": 1,\n      \"term_name\": \"الفصل الأول\",\n      \"term_number\": 1,\n      \"term_status\": \"active\",\n      \"subjects\": [\n        {\n          \"id\": 5,\n          \"name\": \"مهارات الإكسل\",\n          \"code\": \"EXC-101\",\n          \"credits\": 3,\n          \"color\": \"#3B82F6\",\n          \"teacher\": \"أحمد محمد\",\n          \"is_enrolled\": true\n        }\n      ]\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Program Subjects — Past",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/student/program-subjects?filter=past",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "student", "program-subjects"],
+              "query": [
+                {
+                  "key": "filter",
+                  "value": "past"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Program Subjects — All",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/student/program-subjects?filter=all",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "student", "program-subjects"],
+              "query": [
+                {
+                  "key": "filter",
+                  "value": "all"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Term Attendance",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/student/term-attendance",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "student", "term-attendance"]
+            },
+            "description": "Returns the student's attendance stats for their current active term.\n\nFields:\n- term_name / term_number\n- total_sessions / attended_sessions\n- attendance_rate (percentage)\n- minimum_required: 80\n- is_at_risk: true if below 80%"
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"term_name\": \"الفصل الأول\",\n    \"term_number\": 1,\n    \"total_sessions\": 20,\n    \"attended_sessions\": 15,\n    \"attendance_rate\": 75.0,\n    \"minimum_required\": 80,\n    \"is_at_risk\": true\n  }\n}"
+            },
+            {
+              "name": "No Active Term",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"success\": true,\n  \"data\": null\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Sessions",
+      "item": [
+        {
+          "name": "Subject Sessions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/student/subjects/{{subject_id}}/sessions",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "student", "subjects", "{{subject_id}}", "sessions"]
+            },
+            "description": "Returns all sessions for a subject.\n\nSession status values:\n- upcoming → not started yet (use scheduled_at as 'when to join')\n- live     → started, not ended (join link is active now)\n- ended    → completed (video_url available if recorded)\n\nReturns 404 if student is not enrolled in the subject."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"success\": true,\n  \"subject\": { \"id\": 5, \"name\": \"مهارات الإكسل\" },\n  \"data\": [\n    {\n      \"id\": 12,\n      \"title\": \"الجلسة الأولى — مقدمة\",\n      \"type\": \"live_zoom\",\n      \"session_number\": 1,\n      \"scheduled_at\": \"2026-04-20T10:00:00.000000Z\",\n      \"duration_minutes\": 90,\n      \"status\": \"upcoming\",\n      \"join_url\": \"https://zoom.us/j/123456789\",\n      \"video_url\": null,\n      \"attended\": false,\n      \"watch_percentage\": 0\n    },\n    {\n      \"id\": 13,\n      \"title\": \"الجلسة الثانية — الجداول\",\n      \"type\": \"recorded_video\",\n      \"session_number\": 2,\n      \"scheduled_at\": null,\n      \"duration_minutes\": 60,\n      \"status\": \"ended\",\n      \"join_url\": null,\n      \"video_url\": \"https://cdn.example.com/video.mp4\",\n      \"attended\": true,\n      \"watch_percentage\": 95.5\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Join Session",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/student/sessions/{{session_id}}/join",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "student", "sessions", "{{session_id}}", "join"]
+            },
+            "description": "Student joins a session. Records attendance automatically.\n\nFor live_zoom → returns zoom_join_url + zoom_signature.\nFor recorded_video → returns video_url.\n\nErrors:\n- 403 if not enrolled in the subject\n- 400 if zoom/video not set up yet"
+          },
+          "response": [
+            {
+              "name": "Live Zoom",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"success\": true,\n  \"type\": \"live_zoom\",\n  \"attendance_id\": 42,\n  \"data\": {\n    \"zoom_meeting_id\": \"123456789\",\n    \"zoom_join_url\": \"https://zoom.us/j/123456789\",\n    \"zoom_password\": \"abc123\",\n    \"zoom_signature\": \"eyJ...\"\n  }\n}"
+            },
+            {
+              "name": "Recorded Video",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"success\": true,\n  \"type\": \"recorded_video\",\n  \"attendance_id\": 42,\n  \"data\": {\n    \"video_url\": \"https://cdn.example.com/video.mp4\",\n    \"video_duration\": 5400\n  }\n}"
+            },
+            {
+              "name": "Not Enrolled",
+              "status": "Forbidden",
+              "code": 403,
+              "body": "{\n  \"success\": false,\n  \"message\": \"ليس لديك صلاحية الانضمام لهذه الجلسة\"\n}"
+            },
+            {
+              "name": "Zoom Not Ready",
+              "status": "Bad Request",
+              "code": 400,
+              "body": "{\n  \"success\": false,\n  \"message\": \"لم يتم إعداد اجتماع Zoom لهذه الجلسة بعد\"\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -150,6 +150,11 @@ class SessionController extends Controller
             }
         }
 
+        if ($request->filled('subject_id')) {
+            return redirect()->route('admin.subjects.show', $session->subject_id)
+                ->with('session_success', 'تم إضافة الدرس بنجاح');
+        }
+
         return redirect()->route('admin.sessions.index')
             ->with('success', 'تم إضافة الدرس بنجاح');
     }

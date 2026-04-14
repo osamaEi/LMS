@@ -272,6 +272,200 @@
                 </div>
             </div>
 
+            {{-- Sessions Section --}}
+            <div style="background:white;border-radius:16px;border:1px solid #e5e7eb;overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,0.06);">
+                <div style="padding:18px 24px;border-bottom:1px solid #f3f4f6;display:flex;align-items:center;justify-content:space-between;">
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <div style="width:36px;height:36px;background:#ede9fe;border-radius:10px;display:flex;align-items:center;justify-content:center;">
+                            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#7c3aed" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                        <h2 style="font-size:16px;font-weight:700;color:#111827;margin:0;">الدروس ({{ $subject->sessions->count() }})</h2>
+                    </div>
+                    <button onclick="document.getElementById('session-form').classList.toggle('hidden')"
+                            style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:#7c3aed;color:white;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">
+                        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        إضافة درس
+                    </button>
+                </div>
+
+                {{-- Add Session Form --}}
+                <div id="session-form" class="hidden" style="padding:20px 24px;border-bottom:1px solid #f3f4f6;background:#faf8ff;">
+                    @if(session('session_success'))
+                    <div style="margin-bottom:12px;padding:10px 14px;background:#dcfce7;border-radius:8px;color:#166534;font-size:13px;">
+                        {{ session('session_success') }}
+                    </div>
+                    @endif
+                    <form action="{{ route('admin.sessions.store') }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="subject_id" value="{{ $subject->id }}">
+
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+                            <div>
+                                <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:6px;">العنوان (عربي) <span style="color:#ef4444;">*</span></label>
+                                <input type="text" name="title_ar" required placeholder="مثال: الدرس الأول - مقدمة"
+                                       style="width:100%;border:1px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size:13px;box-sizing:border-box;">
+                            </div>
+                            <div>
+                                <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:6px;">العنوان (إنجليزي) <span style="color:#ef4444;">*</span></label>
+                                <input type="text" name="title_en" required placeholder="e.g. Lesson 1 - Introduction"
+                                       style="width:100%;border:1px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size:13px;box-sizing:border-box;">
+                            </div>
+                            <div>
+                                <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:6px;">نوع الدرس <span style="color:#ef4444;">*</span></label>
+                                <select name="type" required onchange="toggleSessionFields(this.value)"
+                                        style="width:100%;border:1px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size:13px;box-sizing:border-box;background:white;">
+                                    <option value="live_zoom">بث مباشر (Zoom)</option>
+                                    <option value="recorded_video">فيديو مسجل</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:6px;">رقم الدرس <span style="color:#ef4444;">*</span></label>
+                                <input type="number" name="session_number" required min="1"
+                                       value="{{ $subject->sessions->count() + 1 }}"
+                                       style="width:100%;border:1px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size:13px;box-sizing:border-box;">
+                            </div>
+                            <div>
+                                <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:6px;">الموعد المحدد</label>
+                                <input type="datetime-local" name="scheduled_at"
+                                       style="width:100%;border:1px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size:13px;box-sizing:border-box;">
+                            </div>
+                            <div>
+                                <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:6px;">المدة (بالدقائق)</label>
+                                <input type="number" name="duration_minutes" min="1" placeholder="90"
+                                       style="width:100%;border:1px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size:13px;box-sizing:border-box;">
+                            </div>
+                            @if($subject->units->count())
+                            <div style="grid-column:span 2;">
+                                <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:6px;">الوحدة (اختياري)</label>
+                                <select name="unit_id" style="width:100%;border:1px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size:13px;box-sizing:border-box;background:white;">
+                                    <option value="">— بدون وحدة —</option>
+                                    @foreach($subject->units as $unit)
+                                    <option value="{{ $unit->id }}">{{ $unit->title }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            @endif
+                        </div>
+
+                        {{-- Zoom Fields --}}
+                        <div id="zoom-fields" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px;">
+                            <div>
+                                <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:6px;">Zoom Meeting ID</label>
+                                <input type="text" name="zoom_meeting_id" placeholder="123456789"
+                                       style="width:100%;border:1px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size:13px;box-sizing:border-box;">
+                            </div>
+                            <div>
+                                <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:6px;">رابط الانضمام</label>
+                                <input type="url" name="zoom_join_url" placeholder="https://zoom.us/j/..."
+                                       style="width:100%;border:1px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size:13px;box-sizing:border-box;">
+                            </div>
+                            <div>
+                                <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:6px;">كلمة مرور Zoom</label>
+                                <input type="text" name="zoom_password" placeholder="abc123"
+                                       style="width:100%;border:1px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size:13px;box-sizing:border-box;">
+                            </div>
+                        </div>
+
+                        {{-- Video Fields --}}
+                        <div id="video-fields" style="display:none;margin-bottom:14px;">
+                            <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:6px;">رابط الفيديو</label>
+                            <input type="url" name="video_url" placeholder="https://youtube.com/..."
+                                   style="width:100%;border:1px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size:13px;box-sizing:border-box;">
+                        </div>
+
+                        <div style="display:flex;gap:10px;">
+                            <button type="submit"
+                                    style="padding:9px 20px;background:#7c3aed;color:white;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">
+                                حفظ الدرس
+                            </button>
+                            <button type="button" onclick="document.getElementById('session-form').classList.add('hidden')"
+                                    style="padding:9px 20px;background:#f3f4f6;color:#374151;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">
+                                إلغاء
+                            </button>
+                        </div>
+                    </form>
+                    <script>
+                        function toggleSessionFields(type) {
+                            document.getElementById('zoom-fields').style.display = type === 'live_zoom' ? 'grid' : 'none';
+                            document.getElementById('video-fields').style.display = type === 'recorded_video' ? 'block' : 'none';
+                        }
+                    </script>
+                </div>
+
+                {{-- Sessions List --}}
+                <div style="padding:16px 24px;">
+                    @forelse($subject->sessions as $session)
+                    @php
+                        $sessionStatus = match(true) {
+                            !is_null($session->ended_at)   => ['label'=>'منتهي',  'bg'=>'#f3f4f6','text'=>'#6b7280'],
+                            !is_null($session->started_at) => ['label'=>'مباشر',  'bg'=>'#dcfce7','text'=>'#166534'],
+                            default                        => ['label'=>'قادم',   'bg'=>'#eff6ff','text'=>'#1d4ed8'],
+                        };
+                        $typeIcon = $session->type === 'live_zoom'
+                            ? 'M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z'
+                            : 'M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z M21 12a9 9 0 11-18 0 9 9 0 0118 0z';
+                    @endphp
+                    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:#f9fafb;border-radius:10px;margin-bottom:10px;border:1px solid #e5e7eb;">
+                        <div style="display:flex;align-items:center;gap:12px;flex:1;min-width:0;">
+                            <div style="width:36px;height:36px;background:#ede9fe;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                <span style="font-size:13px;font-weight:700;color:#7c3aed;">#{{ $session->session_number }}</span>
+                            </div>
+                            <div style="min-width:0;">
+                                <div style="font-size:14px;font-weight:600;color:#111827;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                                    {{ $session->title }}
+                                </div>
+                                <div style="display:flex;align-items:center;gap:8px;margin-top:3px;flex-wrap:wrap;">
+                                    <span style="font-size:11px;color:#9ca3af;">
+                                        {{ $session->type === 'live_zoom' ? 'Zoom' : 'فيديو' }}
+                                    </span>
+                                    @if($session->scheduled_at)
+                                    <span style="font-size:11px;color:#9ca3af;">· {{ $session->scheduled_at->format('Y/m/d H:i') }}</span>
+                                    @endif
+                                    @if($session->duration_minutes)
+                                    <span style="font-size:11px;color:#9ca3af;">· {{ $session->duration_minutes }} د</span>
+                                    @endif
+                                    <span style="background:{{ $sessionStatus['bg'] }};color:{{ $sessionStatus['text'] }};font-size:11px;font-weight:600;padding:2px 8px;border-radius:6px;">
+                                        {{ $sessionStatus['label'] }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
+                            <a href="{{ route('admin.sessions.show', $session) }}"
+                               style="display:inline-flex;align-items:center;gap:4px;padding:6px 10px;background:#ede9fe;color:#7c3aed;border-radius:7px;font-size:12px;font-weight:600;text-decoration:none;">
+                                عرض
+                            </a>
+                            <a href="{{ route('admin.sessions.edit', $session) }}"
+                               style="display:inline-flex;align-items:center;gap:4px;padding:6px 10px;background:#f0fdfa;color:#0d9488;border-radius:7px;font-size:12px;font-weight:600;text-decoration:none;">
+                                تعديل
+                            </a>
+                            <form action="{{ route('admin.sessions.destroy', $session) }}" method="POST"
+                                  onsubmit="return confirm('هل أنت متأكد من حذف هذا الدرس؟')">
+                                @csrf @method('DELETE')
+                                <button type="submit"
+                                        style="display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;background:#fee2e2;color:#dc2626;border:none;border-radius:7px;cursor:pointer;">
+                                    <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                    </svg>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    @empty
+                    <div style="text-align:center;padding:32px 20px;color:#9ca3af;">
+                        <svg width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" style="margin:0 auto 12px;display:block;color:#d1d5db;">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                        </svg>
+                        <p style="font-size:13px;margin:0;">لا توجد دروس بعد. اضغط "إضافة درس" لإنشاء أول درس.</p>
+                    </div>
+                    @endforelse
+                </div>
+            </div>
+
             {{-- Quick Actions Card --}}
             <div style="background:white;border-radius:16px;border:1px solid #e5e7eb;overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,0.06);">
                 <div style="padding:18px 24px;border-bottom:1px solid #f3f4f6;display:flex;align-items:center;gap:10px;">

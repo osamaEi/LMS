@@ -97,8 +97,8 @@ class SubjectController extends Controller
 
     public function show(Subject $subject)
     {
-        $subject->load(['program', 'teacher', 'files', 'sessions' => function ($q) {
-            $q->latest();
+        $subject->load(['program', 'teacher', 'files', 'units', 'sessions' => function ($q) {
+            $q->orderBy('session_number');
         }]);
 
         return view('admin.subjects.show', compact('subject'));
