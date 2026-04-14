@@ -38,8 +38,11 @@ class ProgramController extends Controller
         }
 
         // ─── Enrolled ──────────────────────────────────────────────────────────
-        $currentTermNumber = $student->current_term_number ?? 1;
-        $currentTerm = $program->terms()->where('term_number', $currentTermNumber)->first();
+        $currentTerm = $student->current_term_number
+            ? $program->terms()->where('term_number', $student->current_term_number)->first()
+            : $program->terms()->orderBy('term_number')->first();
+
+        $currentTermNumber = $currentTerm?->term_number ?? 1;
 
         return response()->json([
             'success' => true,
