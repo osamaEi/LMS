@@ -4,7 +4,10 @@ namespace App\Http\Controllers\Api\V1\Student;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\StudentProgramResource;
+use App\Models\Attendance;
+use App\Models\Enrollment;
 use App\Models\Program;
+use App\Models\Session;
 use Illuminate\Http\Request;
 
 class ProgramController extends Controller
@@ -50,6 +53,58 @@ class ProgramController extends Controller
                 'current_term' => $currentTermNumber,
                 'current_term_name' => $currentTerm?->name,
             ]),
+        ]);
+    }
+
+    /**
+     * GET /api/v1/student/term-attendance
+     * Get student's attendance stats for their current term
+     */
+    public function termAttendance()
+    {
+        $student = auth()->user();
+        $program = $student->program;
+
+        if (!$program || $student->program_status === 'pending') {
+            return response()->json(['success' => false, 'message' => 'غير مسجل في برنامج'], 403);
+        }
+
+        $currentTerm = $program->terms()->orderBy('term_number')->where('status', 'active')->first();
+
+        if (!$currentTerm) {
+            return response()->json(['success' => true, 'data' => null]);
+        }
+
+        // Subjects in this term that the student is enrolled in
+        $termSubjectIds = $currentTerm->subjects()->pluck('subjects.id');
+
+        $enrolledSubjectIds = Enrollment::where('student_id', $student->id)
+            ->whereIn('subject_id', $termSubjectIds)
+            ->pluck('subject_id');
+
+        $sessionIds = Session::whereIn('subject_id', $enrolledSubjectIds)->pluck('id');
+        $totalSessions  = $sessionIds->count();
+
+        $attendedSessions = Attendance::where('student_id', $student->id)
+            ->whereIn('session_id', $sessionIds)
+            ->where('attended', true)
+            ->count();
+
+        $attendanceRate = $totalSessions > 0
+            ? round(($attendedSessions / $totalSessions) * 100, 1)
+            : 0;
+
+        return response()->json([
+            'success' => true,
+            'data'    => [
+                'term_name'        => $currentTerm->name,
+                'term_number'      => $currentTerm->term_number,
+                'total_sessions'   => $totalSessions,
+                'attended_sessions'=> $attendedSessions,
+                'attendance_rate'  => $attendanceRate,
+                'minimum_required' => 80,
+                'is_at_risk'       => $attendanceRate < 80,
+            ],
         ]);
     }
 
