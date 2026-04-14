@@ -35,7 +35,7 @@ class UserResource extends JsonResource
             // Profile photo — full URL
             'profile_photo'       => $this->profile_photo
                 ? asset('storage/' . $this->profile_photo)
-                : null,
+                : asset('images/placeholder-avatar.png'),
 
             // // Program & term
             // 'program_id'     => $this->program_id,
@@ -64,8 +64,8 @@ class UserResource extends JsonResource
 
             // Verification flags
             'is_confirm_user'    => $this->is_confirm_user,
-            'email_verified_at'  => $this->email_verified_at?->toIso8601String(),
-            'nafath_verified_at' => $this->nafath_verified_at?->toIso8601String(),
+            // 'email_verified_at'  => $this->email_verified_at?->toIso8601String(),
+            // 'nafath_verified_at' => $this->nafath_verified_at?->toIso8601String(),
 
             'date_of_register'   => $this->date_of_register?->format('Y-m-d'),
             'created_at'         => $this->created_at->toIso8601String(),
