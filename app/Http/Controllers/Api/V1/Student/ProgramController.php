@@ -57,6 +57,62 @@ class ProgramController extends Controller
     }
 
     /**
+     * GET /api/v1/student/program-subjects?filter=current|upcoming|past
+     * Get all subjects in student's program grouped by term, with optional filter
+     */
+    public function subjects(Request $request)
+    {
+        $student = auth()->user();
+        $program = $student->program;
+
+        if (!$program || $student->program_status === 'pending') {
+            return response()->json(['success' => false, 'message' => 'غير مسجل في برنامج'], 403);
+        }
+
+        $filter = $request->query('filter', 'current'); // current | upcoming | past
+
+        $statusMap = [
+            'current'  => ['active'],
+            'upcoming' => ['upcoming'],
+            'past'     => ['completed'],
+        ];
+
+        $statuses = $statusMap[$filter] ?? $statusMap['current'];
+
+        $terms = $program->terms()
+            ->whereIn('status', $statuses)
+            ->orderBy('term_number')
+            ->with(['subjects' => fn($q) => $q->with('teacher:id,name')])
+            ->get();
+
+        $enrolledSubjectIds = Enrollment::where('student_id', $student->id)
+            ->pluck('subject_id')
+            ->flip();
+
+        $data = $terms->map(fn($term) => [
+            'term_id'     => $term->id,
+            'term_name'   => $term->name,
+            'term_number' => $term->term_number,
+            'term_status' => $term->status,
+            'subjects'    => $term->subjects->map(fn($subject) => [
+                'id'          => $subject->id,
+                'name'        => $subject->name,
+                'code'        => $subject->code,
+                'credits'     => $subject->credits,
+                'color'       => $subject->color,
+                'teacher'     => $subject->teacher?->name,
+                'is_enrolled' => $enrolledSubjectIds->has($subject->id),
+            ])->values(),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'filter'  => $filter,
+            'data'    => $data,
+        ]);
+    }
+
+    /**
      * GET /api/v1/student/term-attendance
      * Get student's attendance stats for their current term
      */
