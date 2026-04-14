@@ -299,6 +299,20 @@
                         {{ session('session_success') }}
                     </div>
                     @endif
+                    {{-- Tabs --}}
+                    <div style="display:flex;gap:4px;margin-bottom:18px;">
+                        <button type="button" onclick="switchTab('single')" id="tab-single"
+                                style="padding:7px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:#7c3aed;color:white;">
+                            درس واحد
+                        </button>
+                        <button type="button" onclick="switchTab('weekly')" id="tab-weekly"
+                                style="padding:7px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid #d1d5db;background:white;color:#6b7280;">
+                            أسبوعي متكرر
+                        </button>
+                    </div>
+
+                    {{-- Single Session Form --}}
+                    <div id="panel-single">
                     <form action="{{ route('admin.sessions.store') }}" method="POST">
                         @csrf
                         <input type="hidden" name="subject_id" value="{{ $subject->id }}">
@@ -380,6 +394,93 @@
                         function toggleSessionFields(type) {
                             document.getElementById('video-fields').style.display = type === 'recorded_video' ? 'block' : 'none';
                             document.getElementById('zoom-note').style.display  = type === 'live_zoom'       ? 'block' : 'none';
+                        }
+                    </script>
+                    </div>{{-- end panel-single --}}
+
+                    {{-- Weekly Recurring Form --}}
+                    <div id="panel-weekly" style="display:none;">
+                    <form action="{{ route('admin.sessions.store-weekly') }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="subject_id" value="{{ $subject->id }}">
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+                            <div style="grid-column:span 2;">
+                                <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:6px;">عنوان الدرس <span style="color:#ef4444;">*</span></label>
+                                <input type="text" name="title_ar" required placeholder="مثال: محاضرة أسبوعية"
+                                       style="width:100%;border:1px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size:13px;box-sizing:border-box;">
+                                <p style="font-size:11px;color:#9ca3af;margin:4px 0 0;">سيُضاف تلقائياً «- الأسبوع 1»، «- الأسبوع 2»... لكل درس</p>
+                            </div>
+                            <div>
+                                <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:6px;">نوع الدرس <span style="color:#ef4444;">*</span></label>
+                                <select name="type" required
+                                        style="width:100%;border:1px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size:13px;box-sizing:border-box;background:white;">
+                                    <option value="live_zoom">بث مباشر (Zoom)</option>
+                                    <option value="recorded_video">فيديو مسجل</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:6px;">المدة</label>
+                                <select name="duration_minutes"
+                                        style="width:100%;border:1px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size:13px;box-sizing:border-box;background:white;">
+                                    <option value="30">30 دقيقة</option>
+                                    <option value="45">45 دقيقة</option>
+                                    <option value="60">ساعة (60 د)</option>
+                                    <option value="90" selected>ساعة ونصف (90 د)</option>
+                                    <option value="120">ساعتان (120 د)</option>
+                                    <option value="150">ساعتان ونصف (150 د)</option>
+                                    <option value="180">3 ساعات (180 د)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:6px;">موعد الدرس الأول <span style="color:#ef4444;">*</span></label>
+                                <input type="datetime-local" name="scheduled_at" required
+                                       style="width:100%;border:1px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size:13px;box-sizing:border-box;">
+                            </div>
+                            <div>
+                                <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:6px;">عدد الأسابيع <span style="color:#ef4444;">*</span></label>
+                                <select name="weeks_count" required onchange="updateWeeklyPreview()"
+                                        style="width:100%;border:1px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size:13px;box-sizing:border-box;background:white;">
+                                    @for($w = 1; $w <= 24; $w++)
+                                    <option value="{{ $w }}" {{ $w == 8 ? 'selected' : '' }}>{{ $w }} أسبوع</option>
+                                    @endfor
+                                </select>
+                            </div>
+                        </div>
+
+                        <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:10px 14px;margin-bottom:14px;">
+                            <p style="font-size:12px;color:#166534;margin:0;">
+                                سيتم إنشاء <strong id="weekly-count">8</strong> درس، كل أسبوع بنفس الوقت.
+                                سيتم إنشاء اجتماع Zoom تلقائياً لكل درس.
+                            </p>
+                        </div>
+
+                        <div style="display:flex;gap:10px;">
+                            <button type="submit"
+                                    style="padding:9px 20px;background:#7c3aed;color:white;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">
+                                إنشاء الدروس الأسبوعية
+                            </button>
+                            <button type="button" onclick="document.getElementById('session-form').classList.add('hidden')"
+                                    style="padding:9px 20px;background:#f3f4f6;color:#374151;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">
+                                إلغاء
+                            </button>
+                        </div>
+                    </form>
+                    </div>{{-- end panel-weekly --}}
+
+                    <script>
+                        function switchTab(tab) {
+                            document.getElementById('panel-single').style.display = tab === 'single' ? 'block' : 'none';
+                            document.getElementById('panel-weekly').style.display = tab === 'weekly' ? 'block' : 'none';
+                            document.getElementById('tab-single').style.background = tab === 'single' ? '#7c3aed' : 'white';
+                            document.getElementById('tab-single').style.color      = tab === 'single' ? 'white'   : '#6b7280';
+                            document.getElementById('tab-single').style.border     = tab === 'single' ? 'none'    : '1px solid #d1d5db';
+                            document.getElementById('tab-weekly').style.background = tab === 'weekly' ? '#7c3aed' : 'white';
+                            document.getElementById('tab-weekly').style.color      = tab === 'weekly' ? 'white'   : '#6b7280';
+                            document.getElementById('tab-weekly').style.border     = tab === 'weekly' ? 'none'    : '1px solid #d1d5db';
+                        }
+                        function updateWeeklyPreview() {
+                            const sel = document.querySelector('[name="weeks_count"]');
+                            if (sel) document.getElementById('weekly-count').textContent = sel.value;
                         }
                     </script>
                 </div>

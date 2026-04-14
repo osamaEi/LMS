@@ -500,6 +500,11 @@ class SessionController extends Controller
                 ]);
             }
 
+            if ($request->filled('subject_id') && !$request->expectsJson()) {
+                return redirect()->route('admin.subjects.show', $request->subject_id)
+                    ->with('session_success', $message);
+            }
+
             return redirect()->route('admin.sessions.index')->with('success', $message);
         }
 
@@ -513,6 +518,39 @@ class SessionController extends Controller
 
         return redirect()->route('admin.sessions.create')
             ->with('error', 'فشل إنشاء الجلسات. يرجى المحاولة مرة أخرى.');
+    }
+
+    public function storeWeekly(Request $request)
+    {
+        $request->validate([
+            'subject_id'       => 'required|exists:subjects,id',
+            'title_ar'         => 'required|string|max:255',
+            'type'             => 'required|in:live_zoom,recorded_video',
+            'scheduled_at'     => 'required|date',
+            'duration_minutes' => 'nullable|integer|min:1',
+            'weeks_count'      => 'required|integer|min:1|max:52',
+        ]);
+
+        $nextNumber = Session::where('subject_id', $request->subject_id)->max('session_number') ?? 0;
+        $startDate  = \Carbon\Carbon::parse($request->scheduled_at);
+        $sessions   = [];
+
+        for ($i = 0; $i < $request->weeks_count; $i++) {
+            $nextNumber++;
+            $sessions[] = [
+                'subject_id'       => $request->subject_id,
+                'title_ar'         => $request->title_ar . ' - ' . __('الأسبوع') . ' ' . ($i + 1),
+                'title_en'         => $request->title_ar . ' - Week ' . ($i + 1),
+                'session_number'   => $nextNumber,
+                'type'             => $request->type,
+                'scheduled_at'     => $startDate->copy()->addWeeks($i)->toDateTimeString(),
+                'duration_minutes' => $request->duration_minutes,
+            ];
+        }
+
+        $request->merge(['sessions' => $sessions]);
+
+        return $this->storeBatch($request);
     }
 
     public function reschedule(Request $request, Session $session)

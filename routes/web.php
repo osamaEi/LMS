@@ -185,6 +185,8 @@ Route::middleware(['auth', 'role:admin,super_admin'])->prefix('admin')->name('ad
         ->name('sessions.files.delete');
     Route::post('/sessions/store-batch', [\App\Http\Controllers\Admin\SessionController::class, 'storeBatch'])
         ->name('sessions.store-batch');
+    Route::post('/sessions/store-weekly', [\App\Http\Controllers\Admin\SessionController::class, 'storeWeekly'])
+        ->name('sessions.store-weekly');
     Route::post('/sessions/{session}/reschedule', [\App\Http\Controllers\Admin\SessionController::class, 'reschedule'])
         ->name('sessions.reschedule');
 
