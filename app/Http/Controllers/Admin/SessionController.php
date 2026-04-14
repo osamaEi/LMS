@@ -44,11 +44,22 @@ class SessionController extends Controller
 
     public function store(Request $request)
     {
+        // Auto-fill title_en from title_ar if not provided
+        if ($request->filled('title_ar') && !$request->filled('title_en')) {
+            $request->merge(['title_en' => $request->title_ar]);
+        }
+
+        // Auto-set session_number to next available if not provided
+        if (!$request->filled('session_number') && $request->filled('subject_id')) {
+            $max = Session::where('subject_id', $request->subject_id)->max('session_number') ?? 0;
+            $request->merge(['session_number' => $max + 1]);
+        }
+
         $validated = $request->validate([
             'subject_id' => 'required|exists:subjects,id',
             'unit_id' => 'nullable|exists:units,id',
             'title_ar' => 'required|string|max:255',
-            'title_en' => 'required|string|max:255',
+            'title_en' => 'nullable|string|max:255',
             'description_ar' => 'nullable|string',
             'description_en' => 'nullable|string',
             'session_number' => 'required|integer|min:1',

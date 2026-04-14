@@ -304,16 +304,13 @@
                         <input type="hidden" name="subject_id" value="{{ $subject->id }}">
 
                         <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
-                            <div>
-                                <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:6px;">العنوان (عربي) <span style="color:#ef4444;">*</span></label>
+                            {{-- Single title --}}
+                            <div style="grid-column:span 2;">
+                                <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:6px;">عنوان الدرس <span style="color:#ef4444;">*</span></label>
                                 <input type="text" name="title_ar" required placeholder="مثال: الدرس الأول - مقدمة"
                                        style="width:100%;border:1px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size:13px;box-sizing:border-box;">
                             </div>
-                            <div>
-                                <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:6px;">العنوان (إنجليزي) <span style="color:#ef4444;">*</span></label>
-                                <input type="text" name="title_en" required placeholder="e.g. Lesson 1 - Introduction"
-                                       style="width:100%;border:1px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size:13px;box-sizing:border-box;">
-                            </div>
+                            {{-- Type --}}
                             <div>
                                 <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:6px;">نوع الدرس <span style="color:#ef4444;">*</span></label>
                                 <select name="type" required onchange="toggleSessionFields(this.value)"
@@ -322,24 +319,29 @@
                                     <option value="recorded_video">فيديو مسجل</option>
                                 </select>
                             </div>
-                            <div>
-                                <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:6px;">رقم الدرس <span style="color:#ef4444;">*</span></label>
-                                <input type="number" name="session_number" required min="1"
-                                       value="{{ $subject->sessions->count() + 1 }}"
-                                       style="width:100%;border:1px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size:13px;box-sizing:border-box;">
-                            </div>
+                            {{-- Scheduled at --}}
                             <div>
                                 <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:6px;">الموعد المحدد</label>
                                 <input type="datetime-local" name="scheduled_at"
                                        style="width:100%;border:1px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size:13px;box-sizing:border-box;">
                             </div>
+                            {{-- Duration dropdown --}}
                             <div>
-                                <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:6px;">المدة (بالدقائق)</label>
-                                <input type="number" name="duration_minutes" min="1" placeholder="90"
-                                       style="width:100%;border:1px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size:13px;box-sizing:border-box;">
+                                <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:6px;">المدة</label>
+                                <select name="duration_minutes"
+                                        style="width:100%;border:1px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size:13px;box-sizing:border-box;background:white;">
+                                    <option value="">— اختر المدة —</option>
+                                    <option value="30">30 دقيقة</option>
+                                    <option value="45">45 دقيقة</option>
+                                    <option value="60">ساعة (60 د)</option>
+                                    <option value="90" selected>ساعة ونصف (90 د)</option>
+                                    <option value="120">ساعتان (120 د)</option>
+                                    <option value="150">ساعتان ونصف (150 د)</option>
+                                    <option value="180">3 ساعات (180 د)</option>
+                                </select>
                             </div>
                             @if($subject->units->count())
-                            <div style="grid-column:span 2;">
+                            <div>
                                 <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:6px;">الوحدة (اختياري)</label>
                                 <select name="unit_id" style="width:100%;border:1px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size:13px;box-sizing:border-box;background:white;">
                                     <option value="">— بدون وحدة —</option>
@@ -351,31 +353,17 @@
                             @endif
                         </div>
 
-                        {{-- Zoom Fields --}}
-                        <div id="zoom-fields" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px;">
-                            <div>
-                                <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:6px;">Zoom Meeting ID</label>
-                                <input type="text" name="zoom_meeting_id" placeholder="123456789"
-                                       style="width:100%;border:1px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size:13px;box-sizing:border-box;">
-                            </div>
-                            <div>
-                                <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:6px;">رابط الانضمام</label>
-                                <input type="url" name="zoom_join_url" placeholder="https://zoom.us/j/..."
-                                       style="width:100%;border:1px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size:13px;box-sizing:border-box;">
-                            </div>
-                            <div>
-                                <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:6px;">كلمة مرور Zoom</label>
-                                <input type="text" name="zoom_password" placeholder="abc123"
-                                       style="width:100%;border:1px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size:13px;box-sizing:border-box;">
-                            </div>
-                        </div>
-
-                        {{-- Video Fields --}}
+                        {{-- Video URL (recorded only) --}}
                         <div id="video-fields" style="display:none;margin-bottom:14px;">
                             <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:6px;">رابط الفيديو</label>
                             <input type="url" name="video_url" placeholder="https://youtube.com/..."
                                    style="width:100%;border:1px solid #d1d5db;border-radius:8px;padding:9px 12px;font-size:13px;box-sizing:border-box;">
                         </div>
+
+                        {{-- Zoom auto note --}}
+                        <p id="zoom-note" style="font-size:12px;color:#7c3aed;margin:0 0 14px;background:#f5f3ff;padding:8px 12px;border-radius:8px;border:1px solid #ede9fe;">
+                            سيتم إنشاء اجتماع Zoom تلقائياً عند حفظ الدرس.
+                        </p>
 
                         <div style="display:flex;gap:10px;">
                             <button type="submit"
@@ -390,8 +378,8 @@
                     </form>
                     <script>
                         function toggleSessionFields(type) {
-                            document.getElementById('zoom-fields').style.display = type === 'live_zoom' ? 'grid' : 'none';
                             document.getElementById('video-fields').style.display = type === 'recorded_video' ? 'block' : 'none';
+                            document.getElementById('zoom-note').style.display  = type === 'live_zoom'       ? 'block' : 'none';
                         }
                     </script>
                 </div>
