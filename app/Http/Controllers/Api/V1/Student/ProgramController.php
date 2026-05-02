@@ -80,7 +80,15 @@ class ProgramController extends Controller
             ->when($filter === 'current', fn($q) => $q->where('status', 'active'))
             ->when($filter === 'past',    fn($q) => $q->where('status', 'completed'))
             ->orderBy('term_number')
-            ->with(['subjects' => fn($q) => $q->with('teacher:id,name')])
+            ->with(['subjects' => fn($q) => $q
+                ->with('teacher:id,name')
+                ->withCount([
+                    'sessions',
+                    'sessions as recordings_count' => fn($q) => $q->where(fn($q) =>
+                        $q->whereNotNull('video_path')->orWhereNotNull('video_url')
+                    ),
+                ])
+            ])
             ->get();
 
         $enrolledSubjectIds = Enrollment::where('student_id', $student->id)
@@ -88,18 +96,14 @@ class ProgramController extends Controller
             ->flip();
 
         $data = $terms->map(fn($term) => [
-            'term_id'     => $term->id,
-            'term_name'   => $term->name,
-            'term_number' => $term->term_number,
-            'term_status' => $term->status,
-            'subjects'    => $term->subjects->map(fn($subject) => [
-                'id'          => $subject->id,
-                'name'        => $subject->name,
-                'code'        => $subject->code,
-                'credits'     => $subject->credits,
-                'color'       => $subject->color,
-                'teacher'     => $subject->teacher?->name,
-                'is_enrolled' => $enrolledSubjectIds->has($subject->id),
+            'subjects' => $term->subjects->map(fn($subject) => [
+                'id'               => $subject->id,
+                'name'             => $subject->name,
+                'description'      => $subject->description,
+                'credits'          => $subject->credits,
+                'teacher'          => $subject->teacher?->name,
+                'sessions_count'   => $subject->sessions_count,
+                'recordings_count' => $subject->recordings_count,
             ])->values(),
         ]);
 
