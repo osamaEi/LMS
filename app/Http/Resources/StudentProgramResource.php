@@ -51,26 +51,20 @@ class StudentProgramResource extends JsonResource
         return [
             'status'       => $this->resource['status'],
             'name'         => $isEn ? ($program->name_en ?: $program->name_ar) : $program->name_ar,
-            'description'  => $isEn ? ($program->description_en ?: $program->description_ar) : $program->description_ar,
+            'description'  => ($isEn ? ($program->description_en ?: $program->description_ar) : $program->description_ar) ?? 'description',
             'period'       => $program->duration_months,
             'type'         => $program->type,
             'type_label'   => $typeLabels[$program->type] ?? null,
             'photo'        => $program->image ? Storage::url($program->image) : null,
-            'current_term' => $this->resource['current_term'] ?? null,
+           // 'current_term' => $this->resource['current_term'] ?? null,
             'current_term_name' => $currentTerm
                 ? ($isEn ? ($currentTerm->name_en ?: $currentTerm->name_ar) : $currentTerm->name_ar)
                 : ($this->resource['current_term_name'] ?? null),
             'supervisor'   => $supervisor ? [
-                'id'             => $supervisor->id,
                 'name'           => $supervisor->name,
-                'email'          => $supervisor->email,
-                'phone'          => $supervisor->phone,
-                'specialization' => $supervisor->specialization,
-                'photo'          => $supervisor->profile_photo
-                    ? Storage::url($supervisor->profile_photo)
-                    : null,
+              
             ] : null,
-            'teachers'     => $teachers,
+           // 'teachers'     => $teachers,
         ];
     }
 }
