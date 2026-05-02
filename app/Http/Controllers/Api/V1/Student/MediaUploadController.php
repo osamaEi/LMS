@@ -25,15 +25,15 @@ class MediaUploadController extends Controller
             ? $request->file('images')
             : [$request->file('image')];
 
-        $urls = [];
+        $names = [];
 
         foreach ($files as $file) {
-            $path   = $file->store('uploads/images', 'public');
-            $urls[] = asset('storage/' . $path);
+            $path    = $file->store('uploads/images', 'public');
+            $names[] = basename($path);
         }
 
         return response()->json(
-            count($urls) === 1 ? ['url' => $urls[0]] : ['urls' => $urls],
+            count($names) === 1 ? ['name' => $names[0]] : ['names' => $names],
             201
         );
     }

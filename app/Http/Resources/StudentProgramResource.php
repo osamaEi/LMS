@@ -55,7 +55,7 @@ class StudentProgramResource extends JsonResource
             'period'       => $program->duration_months,
             'type'         => $program->type,
             'type_label'   => $typeLabels[$program->type] ?? null,
-            'photo'        => $program->image ? Storage::url($program->image) : null,
+            'photo'        => $program->image ? $program->image : null,
            // 'current_term' => $this->resource['current_term'] ?? null,
             'current_term_name' => $currentTerm
                 ? ($isEn ? ($currentTerm->name_en ?: $currentTerm->name_ar) : $currentTerm->name_ar)
