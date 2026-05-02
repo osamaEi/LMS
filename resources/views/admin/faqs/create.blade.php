@@ -25,7 +25,7 @@
 
 /* ── Language tab switcher ── */
 .lang-tabs { display:flex; background:#f1f5f9; border-radius:10px; padding:4px; gap:3px; margin-bottom:16px; width:fit-content; }
-.lang-tab { padding:7px 18px; border-radius:7px; font-size:.8rem; font-weight:700; cursor:pointer; border:none; background:transparent; color:#64748b; transition:all .15s; }
+.lang-tab { padding:7px 18px; border-radius:7px; font-size:.8rem; font-weight:700; cursor:pointer; border:none; background:transparent; color:rgba(255,255,255,0.6); transition:all .15s; }
 .lang-tab.active { background:#fff; color:#0071AA; box-shadow:0 1px 4px rgba(0,0,0,.1); }
 .lang-panel { display:none; }
 .lang-panel.active { display:block; }

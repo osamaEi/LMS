@@ -22,8 +22,8 @@
 .panel-body { padding:18px; }
 
 .lang-tabs { display:flex; background:rgba(255,255,255,.15); border-radius:10px; padding:4px; gap:3px; }
-.lang-tab { padding:7px 18px; border-radius:7px; font-size:.8rem; font-weight:700; cursor:pointer; border:none; background:transparent; transition:all .15s; }
-.lang-tab.active { background:rgba(255,255,255,.25); color:#fff; }
+.lang-tab { padding:7px 18px; border-radius:7px; font-size:.8rem; font-weight:700; cursor:pointer; border:none; background:transparent; color:rgba(255,255,255,0.6); transition:all .15s; }
+.lang-tab.active { background:#fff; color:#0071AA; box-shadow:0 1px 4px rgba(0,0,0,.1); }
 .lang-tab:not(.active) { color:rgba(255,255,255,.6); }
 .lang-panel { display:none; }
 .lang-panel.active { display:block; }

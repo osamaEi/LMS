@@ -19,6 +19,9 @@ class DatabaseSeeder extends Seeder
 
             // 2. Super Admin user with all permissions
            // SubjectsSeeder::class,
+
+            // 3. FAQ content
+            FaqSeeder::class,
         ]);
     }
 }
