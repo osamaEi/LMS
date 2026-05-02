@@ -205,17 +205,15 @@
     </a>
 </li>
 
-{{-- ════════════════════════════════════════ --}}
-{{-- التقارير والتقييم                      --}}
-{{-- ════════════════════════════════════════ --}}
-@canany(['view-reports','view-activity-logs','manage-xapi','view-surveys','view-ratings'])
+
+<!-- @canany(['view-reports','view-activity-logs','manage-xapi','view-surveys','view-ratings'])
 <li class="mt-4 mb-1">
     <span class="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider px-4">التقارير والتقييم</span>
 </li>
-@endcanany
+@endcanany -->
 
 {{-- التقارير والإحصائيات --}}
-@can('view-reports')
+<!-- @can('view-reports')
 <li>
     <a href="{{ route('admin.reports.index') }}"
        class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('admin.reports.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
@@ -223,7 +221,7 @@
         <span>التقارير والإحصائيات</span>
     </a>
 </li>
-@endcan
+@endcan -->
 
 {{-- سجل النشاطات --}}
 @can('view-activity-logs')
