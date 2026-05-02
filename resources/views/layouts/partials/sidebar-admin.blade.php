@@ -86,13 +86,13 @@
 
 {{-- ملفات المواد الدراسية --}}
 @can('view-subjects')
-<li>
+<!-- <li>
     <a href="{{ route('admin.subjects.index') }}"
        class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('admin.subjects.show') ? 'menu-item-active' : 'menu-item-inactive' }}">
         <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20"><path d="M15.8333 5.83333H10L8.33333 4.16667H4.16667C3.25 4.16667 2.5 4.91667 2.5 5.83333V14.1667C2.5 15.0833 3.25 15.8333 4.16667 15.8333H15.8333C16.75 15.8333 17.5 15.0833 17.5 14.1667V7.5C17.5 6.58333 16.75 5.83333 15.8333 5.83333ZM13.3333 12.5H6.66667V10.8333H13.3333V12.5ZM13.3333 10H6.66667V8.33333H13.3333V10Z" fill=""/></svg>
         <span>ملفات المواد الدراسية</span>
     </a>
-</li>
+</li> -->
 @endcan
 
 {{-- الدروس والمحاضرات --}}
