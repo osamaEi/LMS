@@ -75,7 +75,7 @@
 .btn-cancel:hover { background:#f1f5f9; border-color:#cbd5e1; color:#475569; }
 
 .hero-banner { background:linear-gradient(135deg,#0071AA 0%,#005a88 55%,#003d5c 100%); border-radius:16px; padding:22px 26px; color:#fff; position:relative; overflow:hidden; margin-bottom:24px; }
-.hero-banner::before { content:''; position:absolute; inset:0; background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E'); }
+.hero-banner::before { content:''; position:absolute; inset:0; opacity:.06; background-image:radial-gradient(circle,#fff 1px,transparent 1px); background-size:20px 20px; }
 .hero-back { width:36px; height:36px; border-radius:10px; background:rgba(255,255,255,.15); border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; text-decoration:none; transition:background .15s; }
 .hero-back:hover { background:rgba(255,255,255,.25); }
 .hero-step { display:inline-flex; align-items:center; gap:5px; background:rgba(255,255,255,.15); border-radius:20px; padding:4px 12px; font-size:.72rem; font-weight:700; margin-bottom:6px; width:fit-content; }
@@ -92,7 +92,7 @@
     <div class="hero-banner">
         <div style="position:relative;z-index:1;display:flex;align-items:center;gap:14px;">
             <a href="{{ route('admin.faqs.index') }}" class="hero-back">
-                <svg fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2.5" style="width:16px;height:16px;">
+                <svg style="width:16px;height:16px;flex-shrink:0;" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
                 </svg>
             </a>
