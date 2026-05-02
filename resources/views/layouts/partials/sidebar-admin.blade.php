@@ -202,6 +202,15 @@
     </a>
 </li>
 
+{{-- الأسئلة الشائعة --}}
+<li>
+    <a href="{{ route('admin.faqs.index') }}"
+       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('admin.faqs.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
+        <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20"><path d="M10 1.667A8.333 8.333 0 1 0 10 18.333 8.333 8.333 0 0 0 10 1.667zm.833 12.5H9.167v-1.667h1.666v1.667zm0-3.334H9.167V5.833h1.666v5z" fill=""/></svg>
+        <span>الأسئلة الشائعة</span>
+    </a>
+</li>
+
 {{-- رسائل التواصل --}}
 <li>
     <a href="{{ route('admin.contacts.index') }}"

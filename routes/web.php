@@ -57,9 +57,7 @@ Route::get('/about', function () {
 
 Route::get('/news', [\App\Http\Controllers\Front\NewsController::class, 'index'])->name('news');
 
-Route::get('/faq', function () {
-    return view('front.faq');
-})->name('faq');
+Route::get('/faq', [\App\Http\Controllers\Front\FaqController::class, 'index'])->name('faq');
 
 Route::get('/contact', [\App\Http\Controllers\Front\ContactController::class, 'index'])->name('contact');
 Route::post('/contact', [\App\Http\Controllers\Front\ContactController::class, 'store'])->name('contact.store');
@@ -282,6 +280,10 @@ Route::middleware(['auth', 'role:admin,super_admin'])->prefix('admin')->name('ad
     // News Management
     Route::resource('news', \App\Http\Controllers\Admin\NewsController::class)->except(['show']);
     Route::post('/news/{news}/toggle-status', [\App\Http\Controllers\Admin\NewsController::class, 'toggleStatus'])->name('news.toggle-status');
+
+    // FAQ Management
+    Route::resource('faqs', \App\Http\Controllers\Admin\FaqController::class)->except(['show']);
+    Route::post('/faqs/{faq}/toggle-status', [\App\Http\Controllers\Admin\FaqController::class, 'toggleStatus'])->name('faqs.toggle-status');
 
     // Contact Requests Management
     Route::prefix('contacts')->name('contacts.')->group(function () {

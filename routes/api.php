@@ -31,6 +31,9 @@ Route::prefix('v1')->group(function () {
     Route::get('/news', [App\Http\Controllers\Api\V1\NewsController::class, 'index']);
     Route::get('/news/{news}', [App\Http\Controllers\Api\V1\NewsController::class, 'show']);
 
+    // FAQ
+    Route::get('/faqs', [App\Http\Controllers\Api\V1\FaqController::class, 'index']);
+
     // Authentication Routes (Public)
     Route::prefix('auth')->group(function () {
         Route::post('/register', [App\Http\Controllers\Api\V1\Auth\RegisterController::class, 'register']);
