@@ -120,30 +120,33 @@
                 {{-- صورة الدبلومة --}}
                 <div class="md:col-span-2">
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">صورة الدبلومة</label>
-                    <div class="flex items-start gap-5">
-                        {{-- Preview box --}}
-                        <div id="imagePreviewWrap" class="flex-shrink-0 w-28 h-28 rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 flex items-center justify-center overflow-hidden">
-                            <svg id="imagePreviewIcon" class="w-10 h-10 text-gray-300 dark:text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                            </svg>
-                            <img id="imagePreview" src="" alt="" class="w-full h-full object-cover hidden">
+                    <label for="programImage" class="block cursor-pointer">
+                        <div id="imagePreviewWrap"
+                             class="relative w-full rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 overflow-hidden transition-colors hover:border-blue-400"
+                             style="height:220px;">
+                            {{-- Empty state --}}
+                            <div id="imageEmptyState" class="absolute inset-0 flex flex-col items-center justify-center gap-3">
+                                <div class="w-14 h-14 rounded-full bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center">
+                                    <svg class="w-7 h-7 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                    </svg>
+                                </div>
+                                <div class="text-center">
+                                    <p class="text-sm font-medium text-gray-700 dark:text-gray-300">انقر لرفع صورة الدبلومة</p>
+                                    <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">JPEG, PNG, GIF, WebP — الحد الأقصى 2 ميجابايت</p>
+                                </div>
+                            </div>
+                            {{-- Preview --}}
+                            <img id="imagePreview" src="" alt="" class="hidden w-full h-full object-cover">
+                            {{-- Overlay on hover when image selected --}}
+                            <div id="imageOverlay" class="hidden absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                                <span class="text-white text-sm font-medium">تغيير الصورة</span>
+                            </div>
                         </div>
-                        {{-- Upload controls --}}
-                        <div class="flex-1">
-                            <label for="programImage"
-                                   class="inline-flex items-center gap-2 cursor-pointer rounded-lg px-4 py-2.5 text-sm font-medium text-white transition-colors"
-                                   style="background:linear-gradient(135deg,#3b82f6,#1d4ed8);">
-                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
-                                </svg>
-                                اختر صورة
-                            </label>
-                            <input id="programImage" type="file" name="image" accept="image/*" class="hidden"
-                                   onchange="previewImage(this)">
-                            <p id="imageFileName" class="mt-2 text-xs text-gray-500 dark:text-gray-400">لم يتم اختيار ملف</p>
-                            <p class="mt-1 text-xs text-gray-400 dark:text-gray-500">JPEG, PNG, GIF, WebP — الحد الأقصى 2 ميجابايت</p>
-                        </div>
-                    </div>
+                        <input id="programImage" type="file" name="image" accept="image/*" class="hidden"
+                               onchange="previewImage(this)">
+                    </label>
+                    <p id="imageFileName" class="mt-2 text-xs text-gray-500 dark:text-gray-400">لم يتم اختيار ملف</p>
                 </div>
             </div>
         </div>
@@ -202,18 +205,20 @@
 
 <script>
 function previewImage(input) {
-    const preview = document.getElementById('imagePreview');
-    const icon    = document.getElementById('imagePreviewIcon');
-    const label   = document.getElementById('imageFileName');
+    const preview    = document.getElementById('imagePreview');
+    const emptyState = document.getElementById('imageEmptyState');
+    const overlay    = document.getElementById('imageOverlay');
+    const label      = document.getElementById('imageFileName');
     if (input.files && input.files[0]) {
         const reader = new FileReader();
         reader.onload = e => {
             preview.src = e.target.result;
             preview.classList.remove('hidden');
-            icon.classList.add('hidden');
+            if (emptyState) emptyState.classList.add('hidden');
+            if (overlay)    overlay.classList.remove('hidden');
         };
         reader.readAsDataURL(input.files[0]);
-        label.textContent = input.files[0].name;
+        if (label) label.textContent = input.files[0].name;
     }
 }
 
