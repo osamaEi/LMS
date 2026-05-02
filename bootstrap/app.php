@@ -24,6 +24,11 @@ return Application::configure(basePath: dirname(__DIR__))
             \App\Http\Middleware\EnsureUserIsActive::class,
         ]);
 
+        // Add SetLocale to API group so ?lang= and Accept-Language work for all API endpoints
+        $middleware->api(append: [
+            \App\Http\Middleware\SetLocale::class,
+        ]);
+
         // Exclude webhooks from CSRF verification
         $middleware->validateCsrfTokens(except: [
             'webhooks/*',

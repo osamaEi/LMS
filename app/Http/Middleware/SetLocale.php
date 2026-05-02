@@ -17,12 +17,26 @@ class SetLocale
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // Get locale from session, default to Arabic
-        $locale = Session::get('locale', 'ar');
+        // Priority: ?lang= query param → Accept-Language header → session → default ar
+        $locale = $request->query('lang')
+            ?? $this->parseAcceptLanguage($request->header('Accept-Language'))
+            ?? Session::get('locale')
+            ?? 'ar';
 
-        // Set application locale
+        if (!in_array($locale, ['ar', 'en'])) {
+            $locale = 'ar';
+        }
+
         App::setLocale($locale);
+        Session::put('locale', $locale);
 
         return $next($request);
+    }
+
+    private function parseAcceptLanguage(?string $header): ?string
+    {
+        if (!$header) return null;
+        $primary = strtolower(substr(trim(explode(',', $header)[0]), 0, 2));
+        return in_array($primary, ['ar', 'en']) ? $primary : null;
     }
 }

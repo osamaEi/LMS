@@ -2,79 +2,222 @@
 	"info": {
 		"_postman_id": "lms-faq-collection-2026",
 		"name": "LMS — FAQ API",
-		"description": "FAQ (Frequently Asked Questions) public endpoints.\n\nBase URL: `{{base_url}}` (e.g. https://www.alertiqa.edu.sa/api/v1)\n\nAll FAQ endpoints are **public** — no authentication required.",
+		"description": "## FAQ Public Endpoints\n\nBase URL: `{{base_url}}`\n\n### Language Switching\nEvery endpoint supports two methods to switch language:\n\n| Method | How |\n|---|---|\n| Query param | `?lang=ar` or `?lang=en` |\n| Header | `Accept-Language: ar` or `Accept-Language: en` |\n\n> **Default language is Arabic (`ar`)** if neither is provided.\n\nThe `question` and `answer` fields in the response reflect the chosen language automatically. The raw `question_ar`, `question_en`, `answer_ar`, `answer_en` fields are always returned regardless of language.\n\n### No Authentication Required\nAll FAQ endpoints are fully public.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"variable": [
 		{
 			"key": "base_url",
 			"value": "https://www.alertiqa.edu.sa/api/v1",
-			"type": "string"
+			"type": "string",
+			"description": "API base URL"
+		},
+		{
+			"key": "lang",
+			"value": "ar",
+			"type": "string",
+			"description": "Language: ar | en"
 		}
 	],
 	"item": [
+
 		{
-			"name": "Get All FAQs",
-			"request": {
-				"auth": { "type": "noauth" },
-				"method": "GET",
-				"header": [
-					{ "key": "Accept", "value": "application/json" }
-				],
-				"url": {
-					"raw": "{{base_url}}/faqs",
-					"host": ["{{base_url}}"],
-					"path": ["faqs"]
-				},
-				"description": "Returns all active FAQs ordered by `sort_order` then `id`.\n\nResponse includes:\n- `data` — flat array of all FAQs\n- `grouped` — FAQs keyed by category\n- `total` — total count\n\n**No authentication required.**"
-			},
-			"response": [
+			"name": "🇸🇦 Arabic (Default)",
+			"description": "FAQ requests with Arabic locale. Either omit lang entirely or set lang=ar.",
+			"item": [
 				{
-					"name": "200 — Success",
-					"status": "OK",
-					"code": 200,
-					"_postman_previewlanguage": "json",
-					"header": [
-						{ "key": "Content-Type", "value": "application/json" }
-					],
-					"body": "{\n    \"success\": true,\n    \"data\": [\n        {\n            \"id\": 1,\n            \"question\": \"كيف أتسجل في المعهد؟\",\n            \"question_ar\": \"كيف أتسجل في المعهد؟\",\n            \"question_en\": \"How do I register at the institute?\",\n            \"answer\": \"يمكنك التسجيل بسهولة عبر حساب نفاذ أو إنشاء حساب داخلي.\",\n            \"answer_ar\": \"يمكنك التسجيل بسهولة عبر حساب نفاذ أو إنشاء حساب داخلي.\",\n            \"answer_en\": \"You can register easily via Nafath or create an internal account.\",\n            \"category\": \"registration\",\n            \"sort_order\": 0\n        },\n        {\n            \"id\": 2,\n            \"question\": \"هل الشهادات معتمدة؟\",\n            \"question_ar\": \"هل الشهادات معتمدة؟\",\n            \"question_en\": \"Are the certificates accredited?\",\n            \"answer\": \"نعم، جميع شهاداتنا معتمدة من المؤسسة العامة للتدريب التقني والمهني.\",\n            \"answer_ar\": \"نعم، جميع شهاداتنا معتمدة من المؤسسة العامة للتدريب التقني والمهني.\",\n            \"answer_en\": \"Yes, all our certificates are accredited by TVTC.\",\n            \"category\": \"certificates\",\n            \"sort_order\": 0\n        }\n    ],\n    \"grouped\": {\n        \"registration\": [\n            {\n                \"id\": 1,\n                \"question\": \"كيف أتسجل في المعهد؟\",\n                \"question_ar\": \"كيف أتسجل في المعهد؟\",\n                \"question_en\": \"How do I register at the institute?\",\n                \"answer\": \"يمكنك التسجيل بسهولة عبر حساب نفاذ أو إنشاء حساب داخلي.\",\n                \"answer_ar\": \"يمكنك التسجيل بسهولة عبر حساب نفاذ أو إنشاء حساب داخلي.\",\n                \"answer_en\": \"You can register easily via Nafath or create an internal account.\",\n                \"category\": \"registration\",\n                \"sort_order\": 0\n            }\n        ],\n        \"certificates\": [\n            {\n                \"id\": 2,\n                \"question\": \"هل الشهادات معتمدة؟\",\n                \"question_ar\": \"هل الشهادات معتمدة؟\",\n                \"question_en\": \"Are the certificates accredited?\",\n                \"answer\": \"نعم، جميع شهاداتنا معتمدة من المؤسسة العامة للتدريب التقني والمهني.\",\n                \"answer_ar\": \"نعم، جميع شهاداتنا معتمدة من المؤسسة العامة للتدريب التقني والمهني.\",\n                \"answer_en\": \"Yes, all our certificates are accredited by TVTC.\",\n                \"category\": \"certificates\",\n                \"sort_order\": 0\n            }\n        ]\n    },\n    \"total\": 2\n}"
-				}
-			]
-		},
-		{
-			"name": "Get FAQs — Filter by Category",
-			"request": {
-				"auth": { "type": "noauth" },
-				"method": "GET",
-				"header": [
-					{ "key": "Accept", "value": "application/json" }
-				],
-				"url": {
-					"raw": "{{base_url}}/faqs?category=registration",
-					"host": ["{{base_url}}"],
-					"path": ["faqs"],
-					"query": [
+					"name": "Get All FAQs — AR",
+					"request": {
+						"auth": { "type": "noauth" },
+						"method": "GET",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Accept-Language", "value": "ar", "description": "Returns Arabic question/answer in the 'question' and 'answer' fields" }
+						],
+						"url": {
+							"raw": "{{base_url}}/faqs",
+							"host": ["{{base_url}}"],
+							"path": ["faqs"]
+						},
+						"description": "Returns all active FAQs in **Arabic**.\n\nThe `question` and `answer` fields return Arabic text.\n\n**Two equivalent ways to request Arabic:**\n```\nAccept-Language: ar\n```\nor\n```\nGET /faqs?lang=ar\n```"
+					},
+					"response": [
 						{
-							"key": "category",
-							"value": "registration",
-							"description": "Filter by category. Allowed values: registration | courses | certificates | platform | support"
+							"name": "200 — All FAQs (Arabic)",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [{ "key": "Content-Type", "value": "application/json" }],
+							"body": "{\n    \"success\": true,\n    \"data\": [\n        {\n            \"id\": 1,\n            \"question\": \"كيف أتسجل في المعهد؟\",\n            \"question_ar\": \"كيف أتسجل في المعهد؟\",\n            \"question_en\": \"How do I register at the institute?\",\n            \"answer\": \"يمكنك التسجيل بسهولة عبر حساب نفاذ أو إنشاء حساب داخلي.\",\n            \"answer_ar\": \"يمكنك التسجيل بسهولة عبر حساب نفاذ أو إنشاء حساب داخلي.\",\n            \"answer_en\": \"You can register easily via Nafath or create an internal account.\",\n            \"category\": \"registration\",\n            \"sort_order\": 1\n        }\n    ],\n    \"grouped\": {\n        \"registration\": [\n            {\n                \"id\": 1,\n                \"question\": \"كيف أتسجل في المعهد؟\",\n                \"question_ar\": \"كيف أتسجل في المعهد؟\",\n                \"question_en\": \"How do I register at the institute?\",\n                \"answer\": \"يمكنك التسجيل بسهولة عبر حساب نفاذ أو إنشاء حساب داخلي.\",\n                \"answer_ar\": \"يمكنك التسجيل بسهولة عبر حساب نفاذ أو إنشاء حساب داخلي.\",\n                \"answer_en\": \"You can register easily via Nafath or create an internal account.\",\n                \"category\": \"registration\",\n                \"sort_order\": 1\n            }\n        ]\n    },\n    \"total\": 27\n}"
 						}
 					]
 				},
-				"description": "Returns active FAQs filtered by a specific category.\n\n**Allowed category values:**\n| Value | Label |\n|---|---|\n| `registration` | التسجيل والدفع |\n| `courses` | الدورات والدبلومات |\n| `certificates` | الشهادات والاعتماد |\n| `platform` | منصة الطالب |\n| `support` | الدعم التقني |\n\n**No authentication required.**"
-			},
-			"response": [
 				{
-					"name": "200 — Filtered by registration",
-					"status": "OK",
-					"code": 200,
-					"_postman_previewlanguage": "json",
-					"header": [
-						{ "key": "Content-Type", "value": "application/json" }
-					],
-					"body": "{\n    \"success\": true,\n    \"data\": [\n        {\n            \"id\": 1,\n            \"question\": \"كيف أتسجل في المعهد؟\",\n            \"question_ar\": \"كيف أتسجل في المعهد؟\",\n            \"question_en\": \"How do I register at the institute?\",\n            \"answer\": \"يمكنك التسجيل بسهولة عبر حساب نفاذ أو إنشاء حساب داخلي.\",\n            \"answer_ar\": \"يمكنك التسجيل بسهولة عبر حساب نفاذ أو إنشاء حساب داخلي.\",\n            \"answer_en\": \"You can register easily via Nafath or create an internal account.\",\n            \"category\": \"registration\",\n            \"sort_order\": 0\n        }\n    ],\n    \"grouped\": {\n        \"registration\": [\n            {\n                \"id\": 1,\n                \"question\": \"كيف أتسجل في المعهد؟\",\n                \"question_ar\": \"كيف أتسجل في المعهد؟\",\n                \"question_en\": \"How do I register at the institute?\",\n                \"answer\": \"يمكنك التسجيل بسهولة عبر حساب نفاذ أو إنشاء حساب داخلي.\",\n                \"answer_ar\": \"يمكنك التسجيل بسهولة عبر حساب نفاذ أو إنشاء حساب داخلي.\",\n                \"answer_en\": \"You can register easily via Nafath or create an internal account.\",\n                \"category\": \"registration\",\n                \"sort_order\": 0\n            }\n        ]\n    },\n    \"total\": 1\n}"
+					"name": "Get FAQs by Category — AR",
+					"request": {
+						"auth": { "type": "noauth" },
+						"method": "GET",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Accept-Language", "value": "ar" }
+						],
+						"url": {
+							"raw": "{{base_url}}/faqs?category=registration",
+							"host": ["{{base_url}}"],
+							"path": ["faqs"],
+							"query": [
+								{
+									"key": "category",
+									"value": "registration",
+									"description": "registration | courses | certificates | platform | support"
+								}
+							]
+						},
+						"description": "Filter FAQs by category in Arabic.\n\n**Category values:**\n| Value | Arabic label |\n|---|---|\n| `registration` | التسجيل والدفع |\n| `courses` | الدورات والدبلومات |\n| `certificates` | الشهادات والاعتماد |\n| `platform` | منصة الطالب |\n| `support` | الدعم التقني |"
+					},
+					"response": []
+				}
+			]
+		},
+
+		{
+			"name": "🇬🇧 English",
+			"description": "FAQ requests with English locale. Use Accept-Language: en header OR ?lang=en query param.",
+			"item": [
+				{
+					"name": "Get All FAQs — EN (via header)",
+					"request": {
+						"auth": { "type": "noauth" },
+						"method": "GET",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Accept-Language", "value": "en", "description": "Returns English question/answer in the 'question' and 'answer' fields" }
+						],
+						"url": {
+							"raw": "{{base_url}}/faqs",
+							"host": ["{{base_url}}"],
+							"path": ["faqs"]
+						},
+						"description": "Returns all active FAQs in **English** using the `Accept-Language` header.\n\nThe `question` and `answer` fields return English text (falls back to Arabic if English is not set)."
+					},
+					"response": [
+						{
+							"name": "200 — All FAQs (English)",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [{ "key": "Content-Type", "value": "application/json" }],
+							"body": "{\n    \"success\": true,\n    \"data\": [\n        {\n            \"id\": 1,\n            \"question\": \"How do I register at the institute?\",\n            \"question_ar\": \"كيف أتسجل في المعهد؟\",\n            \"question_en\": \"How do I register at the institute?\",\n            \"answer\": \"You can register easily via Nafath or create an internal account.\",\n            \"answer_ar\": \"يمكنك التسجيل بسهولة عبر حساب نفاذ أو إنشاء حساب داخلي.\",\n            \"answer_en\": \"You can register easily via Nafath or create an internal account.\",\n            \"category\": \"registration\",\n            \"sort_order\": 1\n        }\n    ],\n    \"grouped\": {\n        \"registration\": [\n            {\n                \"id\": 1,\n                \"question\": \"How do I register at the institute?\",\n                \"question_ar\": \"كيف أتسجل في المعهد؟\",\n                \"question_en\": \"How do I register at the institute?\",\n                \"answer\": \"You can register easily via Nafath or create an internal account.\",\n                \"answer_ar\": \"يمكنك التسجيل بسهولة عبر حساب نفاذ أو إنشاء حساب داخلي.\",\n                \"answer_en\": \"You can register easily via Nafath or create an internal account.\",\n                \"category\": \"registration\",\n                \"sort_order\": 1\n            }\n        ]\n    },\n    \"total\": 27\n}"
+						}
+					]
+				},
+				{
+					"name": "Get All FAQs — EN (via ?lang=en)",
+					"request": {
+						"auth": { "type": "noauth" },
+						"method": "GET",
+						"header": [
+							{ "key": "Accept", "value": "application/json" }
+						],
+						"url": {
+							"raw": "{{base_url}}/faqs?lang=en",
+							"host": ["{{base_url}}"],
+							"path": ["faqs"],
+							"query": [
+								{
+									"key": "lang",
+									"value": "en",
+									"description": "ar | en — overrides Accept-Language header"
+								}
+							]
+						},
+						"description": "Returns all active FAQs in **English** using the `?lang=en` query parameter.\n\nThis is the easiest approach for REST clients and mobile apps."
+					},
+					"response": []
+				},
+				{
+					"name": "Get FAQs by Category — EN",
+					"request": {
+						"auth": { "type": "noauth" },
+						"method": "GET",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Accept-Language", "value": "en" }
+						],
+						"url": {
+							"raw": "{{base_url}}/faqs?category=support",
+							"host": ["{{base_url}}"],
+							"path": ["faqs"],
+							"query": [
+								{
+									"key": "category",
+									"value": "support",
+									"description": "registration | courses | certificates | platform | support"
+								}
+							]
+						},
+						"description": "Filter FAQs by category in English."
+					},
+					"response": []
+				}
+			]
+		},
+
+		{
+			"name": "🔀 Dynamic (use {{lang}} variable)",
+			"description": "Use the collection variable `lang` to switch language without changing individual requests.\n\nSet `lang = ar` or `lang = en` in the collection/environment variables.",
+			"item": [
+				{
+					"name": "Get All FAQs — {{lang}}",
+					"request": {
+						"auth": { "type": "noauth" },
+						"method": "GET",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Accept-Language", "value": "{{lang}}", "description": "Change the 'lang' collection variable to switch between ar and en" }
+						],
+						"url": {
+							"raw": "{{base_url}}/faqs",
+							"host": ["{{base_url}}"],
+							"path": ["faqs"]
+						},
+						"description": "Reusable request that uses the `{{lang}}` collection variable.\n\n**To switch language:**\n1. Click the collection → Variables tab\n2. Change `lang` from `ar` to `en` (or vice versa)\n3. All requests in this folder update automatically\n\nAlternatively, create two **Environments**: one with `lang=ar` and one with `lang=en`."
+					},
+					"response": []
+				},
+				{
+					"name": "Get FAQs by Category — {{lang}}",
+					"request": {
+						"auth": { "type": "noauth" },
+						"method": "GET",
+						"header": [
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Accept-Language", "value": "{{lang}}" }
+						],
+						"url": {
+							"raw": "{{base_url}}/faqs?category=registration",
+							"host": ["{{base_url}}"],
+							"path": ["faqs"],
+							"query": [
+								{
+									"key": "category",
+									"value": "registration",
+									"description": "registration | courses | certificates | platform | support"
+								},
+								{
+									"key": "lang",
+									"value": "{{lang}}",
+									"description": "Optional — same as Accept-Language header. Can use either or both.",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Filter by category using the `{{lang}}` variable."
+					},
+					"response": []
 				}
 			]
 		}
+
 	]
 }
