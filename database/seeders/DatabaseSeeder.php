@@ -3,8 +3,7 @@
 namespace Database\Seeders;
 
 use Database\Seeders\FaqSeeder;
-use Database\Seeders\PermissionSeeder;
-use Database\Seeders\SubjectsSeeder;
+
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder

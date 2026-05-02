@@ -175,16 +175,7 @@
         @endif
     </a>
 </li>
-<li>
-    <a href="{{ route('admin.whatsapp-chat.settings') }}"
-       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('admin.whatsapp-chat.settings') ? 'menu-item-active' : 'menu-item-inactive' }}">
-        <svg class="fill-current" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="3"/>
-            <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
-        </svg>
-        <span>تدريب الـ AI</span>
-    </a>
-</li>
+
 
 {{-- ════════════════════════════════════════ --}}
 {{-- المحتوى                                --}}
@@ -246,57 +237,57 @@
 
 {{-- سجل النشاطات --}}
 @can('view-activity-logs')
-<li>
+<!-- <li>
     <a href="{{ route('admin.activity-logs.index') }}"
        class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('admin.activity-logs.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
         <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20"><path d="M12 2C11.45 2 11 2.45 11 3V11C11 11.55 11.45 12 12 12H18C18.55 12 19 11.55 19 11V3C19 2.45 18.55 2 18 2H12ZM13 10V4H17V10H13ZM11 16V14H3V16H11ZM3 12H11V10H3V12ZM3 6V8H9V6H3Z" fill=""/></svg>
         <span>سجل النشاطات</span>
     </a>
-</li>
+</li> -->
 @endcan
 
 {{-- استبيانات الرضا --}}
 @can('view-surveys')
-<li>
+<!-- <li>
     <a href="{{ route('admin.surveys.index') }}"
        class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('admin.surveys.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
         <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20"><path d="M15.8333 2.5H4.16667C3.25 2.5 2.5 3.25 2.5 4.16667V15.8333C2.5 16.75 3.25 17.5 4.16667 17.5H15.8333C16.75 17.5 17.5 16.75 17.5 15.8333V4.16667C17.5 3.25 16.75 2.5 15.8333 2.5ZM8.33333 13.3333L5 10L6.175 8.825L8.33333 10.975L13.825 5.48333L15 6.66667L8.33333 13.3333Z" fill=""/></svg>
         <span>استبيانات الرضا</span>
     </a>
-</li>
+</li> -->
 @endcan
 
 {{-- تقييم المدربين --}}
 @can('view-ratings')
-<li>
+<!-- <li>
     <a href="{{ route('admin.teacher-ratings.index') }}"
        class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('admin.teacher-ratings.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
         <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20"><path d="M10 1.66667L12.575 6.88334L18.3333 7.725L14.1667 11.7833L15.15 17.5167L10 14.8083L4.85 17.5167L5.83333 11.7833L1.66667 7.725L7.425 6.88334L10 1.66667Z" fill=""/></svg>
         <span>تقييم المدربين</span>
     </a>
-</li>
+</li> -->
 @endcan
 
 {{-- لوحة الامتثال NELC --}}
 @canany(['manage-system','view-reports'])
-<li>
+<!-- <li>
     <a href="{{ route('admin.nelc-compliance') }}"
        class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('admin.nelc-compliance') ? 'menu-item-active' : 'menu-item-inactive' }}">
         <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20"><path d="M10 1.66667L3.33333 5V9.16667C3.33333 13.0833 6.2 16.7333 10 17.5C13.8 16.7333 16.6667 13.0833 16.6667 9.16667V5L10 1.66667ZM8.33333 13.3333L5.83333 10.8333L7.01667 9.65L8.33333 10.9583L12.9833 6.30833L14.1667 7.5L8.33333 13.3333Z" fill=""/></svg>
         <span>لوحة امتثال NELC</span>
     </a>
-</li>
+</li> -->
 @endcanany
 
 {{-- xAPI لوحة التتبع --}}
 @canany(['manage-system','manage-xapi'])
-<li>
+<!-- <li>
     <a href="{{ route('admin.xapi.index') }}"
        class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('admin.xapi.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
         <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20"><path d="M3.33333 3.33333H16.6667C17.5833 3.33333 18.3333 4.08333 18.3333 5V15C18.3333 15.9167 17.5833 16.6667 16.6667 16.6667H3.33333C2.41667 16.6667 1.66667 15.9167 1.66667 15V5C1.66667 4.08333 2.41667 3.33333 3.33333 3.33333ZM3.33333 5V15H16.6667V5H3.33333ZM5 12.5L7.5 8.33333L10 11.6667L12.5 7.5L15 12.5H5Z" fill=""/></svg>
         <span>لوحة xAPI</span>
     </a>
-</li>
+</li> -->
 @endcanany
 
 
