@@ -247,7 +247,7 @@ class QuizController extends Controller
             // Handle image upload
             $imagePath = null;
             if ($request->hasFile('image')) {
-                $imagePath = $request->file('image')->store('question-images', 'public');
+                $imagePath = $request->file('image')->store('uploads/images', 'public');
             }
 
             $question = Question::create([
@@ -376,7 +376,7 @@ class QuizController extends Controller
                 if ($question->image) {
                     Storage::disk('public')->delete($question->image);
                 }
-                $imagePath = $request->file('image')->store('question-images', 'public');
+                $imagePath = $request->file('image')->store('uploads/images', 'public');
             }
 
             $question->update([

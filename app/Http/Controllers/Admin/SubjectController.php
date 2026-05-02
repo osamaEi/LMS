@@ -86,7 +86,7 @@ class SubjectController extends Controller
         ]);
 
         if ($request->hasFile('banner_photo')) {
-            $validated['banner_photo'] = $request->file('banner_photo')->store('subjects', 'public');
+            $validated['banner_photo'] = $request->file('banner_photo')->store('uploads/images', 'public');
         }
 
         $subject = Subject::create($validated);
@@ -128,7 +128,7 @@ class SubjectController extends Controller
         ]);
 
         if ($request->hasFile('banner_photo')) {
-            $validated['banner_photo'] = $request->file('banner_photo')->store('subjects', 'public');
+            $validated['banner_photo'] = $request->file('banner_photo')->store('uploads/images', 'public');
         }
 
         $subject->update($validated);

@@ -33,7 +33,7 @@ class NewsController extends Controller
         ]);
 
         if ($request->hasFile('image')) {
-            $validated['image'] = $request->file('image')->store('news', 'public');
+            $validated['image'] = $request->file('image')->store('uploads/images', 'public');
         }
 
         if (empty($validated['published_at'])) {
@@ -67,7 +67,7 @@ class NewsController extends Controller
             if ($news->image) {
                 Storage::disk('public')->delete($news->image);
             }
-            $validated['image'] = $request->file('image')->store('news', 'public');
+            $validated['image'] = $request->file('image')->store('uploads/images', 'public');
         }
 
         $news->update($validated);

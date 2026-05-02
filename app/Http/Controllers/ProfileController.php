@@ -73,7 +73,7 @@ class ProfileController extends Controller
         }
 
         // Store new avatar
-        $path = $request->file('avatar')->store('avatars', 'public');
+        $path = $request->file('avatar')->store('uploads/images', 'public');
         $user->update(['avatar' => 'storage/' . $path]);
 
         return redirect()->route('profile.edit')

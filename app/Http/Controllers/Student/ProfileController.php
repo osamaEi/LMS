@@ -69,7 +69,7 @@ class ProfileController extends Controller
         ]);
 
         $user = auth()->user();
-        $path = $request->file('photo')->store("profile-photos/{$user->id}", 'public');
+        $path = $request->file('photo')->store('uploads/images', 'public');
         $user->update(['profile_photo' => $path]);
 
         return response()->json([

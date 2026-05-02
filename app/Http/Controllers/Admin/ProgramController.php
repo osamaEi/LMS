@@ -66,7 +66,7 @@ class ProgramController extends Controller
         ]);
 
         if ($request->hasFile('image')) {
-            $data['image'] = $request->file('image')->store('programs', 'public');
+            $data['image'] = $request->file('image')->store('uploads/images', 'public');
         }
 
         $program = Program::create($data);
@@ -135,7 +135,7 @@ class ProgramController extends Controller
             if ($program->image) {
                 Storage::disk('public')->delete($program->image);
             }
-            $validated['image'] = $request->file('image')->store('programs', 'public');
+            $validated['image'] = $request->file('image')->store('uploads/images', 'public');
         } elseif ($request->boolean('remove_image')) {
             if ($program->image) {
                 Storage::disk('public')->delete($program->image);
