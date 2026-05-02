@@ -108,13 +108,13 @@
 
 {{-- التسجيلات --}}
 @can('view-recordings')
-<li>
+<!-- <li>
     <a href="{{ route('admin.recordings.index') }}"
        class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('admin.recordings.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
         <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20"><path d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
         <span>التسجيلات</span>
     </a>
-</li>
+</li> -->
 @endcan
 
 {{-- ════════════════════════════════════════ --}}
