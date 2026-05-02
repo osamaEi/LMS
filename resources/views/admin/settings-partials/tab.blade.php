@@ -1,43 +1,61 @@
 {{--
     Generic settings tab card.
-    Variables: $tabTitle, $tabDesc, $tabIcon, $group, $settingsGroup (array of settings)
+    Variables: $tabTitle, $tabDesc, $tabIcon, $tabColor, $tabGrad, $tabLight, $group, $settingsGroup
 --}}
-<div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
-    <div class="px-8 py-6 border-b border-gray-100 dark:border-gray-700"
-         style="background:linear-gradient(135deg,rgba(0,113,170,.05),rgba(0,90,136,.03))">
-        <h2 class="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
-            <div class="p-2 rounded-lg" style="background:rgba(0,113,170,.12)">
-                <svg class="w-5 h-5" style="color:#0071AA" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $tabIcon }}"/>
+@php
+    $tabColor ??= '#0071AA';
+    $tabGrad  ??= '#0071AA,#005a88';
+    $tabLight ??= '#e0f2fe';
+@endphp
+
+<div style="background:white;border-radius:16px;border:1px solid #e5e7eb;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.06);">
+    <div style="padding:20px 24px;border-bottom:1px solid #f3f4f6;background:linear-gradient(135deg,{{ $tabLight }},white);">
+        <div style="display:flex;align-items:center;gap:14px;">
+            <div style="width:44px;height:44px;background:linear-gradient(135deg,{{ $tabGrad }});border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 12px rgba(0,0,0,0.18);">
+                <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="{{ $tabIcon }}"/>
                 </svg>
             </div>
-            {{ $tabTitle }}
-        </h2>
-        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">{{ $tabDesc }}</p>
+            <div>
+                <h2 style="font-size:16px;font-weight:700;color:#111827;margin:0;">{{ $tabTitle }}</h2>
+                <p style="font-size:13px;color:#9ca3af;margin:3px 0 0;">{{ $tabDesc }}</p>
+            </div>
+            @if(!empty($settingsGroup))
+            <div style="margin-right:auto;display:inline-flex;align-items:center;gap:5px;background:white;border:1px solid #e5e7eb;padding:4px 10px;border-radius:20px;box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+                <span style="color:{{ $tabColor }};font-size:13px;font-weight:700;">{{ count($settingsGroup) }}</span>
+                <span style="color:#9ca3af;font-size:12px;">حقل</span>
+            </div>
+            @endif
+        </div>
     </div>
 
-    <form action="{{ route('admin.settings.update-group', $group) }}" method="POST" enctype="multipart/form-data" class="p-8">
+    <form action="{{ route('admin.settings.update-group', $group) }}" method="POST" enctype="multipart/form-data" style="padding:24px;">
         @csrf
         @method('PUT')
 
         @if(empty($settingsGroup))
-        <div class="flex flex-col items-center py-12 text-center">
-            <svg class="w-12 h-12 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
-            <p class="text-gray-500 dark:text-gray-400">لا توجد إعدادات في هذا القسم</p>
+        <div style="display:flex;flex-direction:column;align-items:center;padding:48px 0;text-align:center;">
+            <div style="width:64px;height:64px;background:#f9fafb;border:2px dashed #e5e7eb;border-radius:16px;display:flex;align-items:center;justify-content:center;margin-bottom:14px;">
+                <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="#d1d5db" stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+            </div>
+            <p style="color:#9ca3af;font-size:14px;font-weight:500;margin:0;">لا توجد إعدادات في هذا القسم</p>
         </div>
         @else
-        <div class="space-y-6">
+        <div style="display:flex;flex-direction:column;gap:16px;">
             @foreach($settingsGroup as $setting)
-                @include('admin.settings-partials.field', ['setting' => $setting])
+                @include('admin.settings-partials.field', ['setting' => $setting, 'accentColor' => $tabColor])
             @endforeach
         </div>
 
-        <div class="flex items-center justify-end pt-6 mt-8 border-t border-gray-200 dark:border-gray-700">
+        <div style="display:flex;justify-content:flex-end;padding-top:20px;margin-top:20px;border-top:1px solid #f3f4f6;">
             <button type="submit"
-                    class="px-8 py-3 text-white font-semibold rounded-xl transition-all shadow-lg hover:shadow-xl"
-                    style="background:linear-gradient(135deg,#0071AA,#005a88)">
+                    style="padding:11px 28px;background:linear-gradient(135deg,{{ $tabGrad }});color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 3px 10px rgba(0,0,0,0.15);display:inline-flex;align-items:center;gap:8px;transition:opacity .15s;"
+                    onmouseover="this.style.opacity='.9'" onmouseout="this.style.opacity='1'">
+                <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                </svg>
                 حفظ التغييرات
             </button>
         </div>

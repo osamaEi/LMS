@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\Program;
 use App\Models\Term;
 use App\Models\Subject;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ProgramController extends Controller
 {
@@ -27,8 +29,10 @@ class ProgramController extends Controller
 
     public function create()
     {
-        $subjects = Subject::orderBy('name_ar')->get(['id', 'name_ar', 'name_en', 'code']);
-        return view('admin.programs.create', compact('subjects'));
+        $subjects    = Subject::orderBy('name_ar')->get(['id', 'name_ar', 'name_en', 'code']);
+        $supervisors = User::whereIn('role', ['admin', 'super_admin', 'teacher'])
+                           ->orderBy('name')->get(['id', 'name', 'role']);
+        return view('admin.programs.create', compact('subjects', 'supervisors'));
     }
 
     public function store(Request $request)
@@ -42,6 +46,9 @@ class ProgramController extends Controller
             'duration_months'    => 'nullable|integer|min:1',
             'price'              => 'nullable|numeric|min:0',
             'status'             => 'nullable|in:active,inactive',
+            'type'               => 'nullable|in:diploma,training,certificate',
+            'supervisor_id'      => 'nullable|exists:users,id',
+            'image'              => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'terms'              => 'nullable|array',
             'terms.*.name_ar'    => 'nullable|string|max:255',
             'terms.*.name_en'    => 'nullable|string|max:255',
@@ -53,10 +60,16 @@ class ProgramController extends Controller
             'terms.*.subjects.*' => 'exists:subjects,id',
         ]);
 
-        $program = Program::create($request->only([
+        $data = $request->only([
             'name_ar', 'name_en', 'code', 'description_ar', 'description_en',
-            'duration_months', 'price', 'status',
-        ]));
+            'duration_months', 'price', 'status', 'type', 'supervisor_id',
+        ]);
+
+        if ($request->hasFile('image')) {
+            $data['image'] = $request->file('image')->store('programs', 'public');
+        }
+
+        $program = Program::create($data);
 
         foreach ($request->input('terms', []) as $i => $termData) {
             $subjectIds = $termData['subjects'] ?? [];
@@ -96,22 +109,41 @@ class ProgramController extends Controller
 
     public function edit(Program $program)
     {
-        return view('admin.programs.edit', compact('program'));
+        $supervisors = User::whereIn('role', ['admin', 'super_admin', 'teacher'])
+                           ->orderBy('name')->get(['id', 'name', 'role']);
+        return view('admin.programs.edit', compact('program', 'supervisors'));
     }
 
     public function update(Request $request, Program $program)
     {
         $validated = $request->validate([
-            'name_ar' => 'nullable|string|max:255',
-            'name_en' => 'nullable|string|max:255',
-            'code' => 'nullable|string|unique:programs,code,' . $program->id,
-            'description_ar' => 'nullable|string',
-            'description_en' => 'nullable|string',
+            'name_ar'         => 'nullable|string|max:255',
+            'name_en'         => 'nullable|string|max:255',
+            'code'            => 'nullable|string|unique:programs,code,' . $program->id,
+            'description_ar'  => 'nullable|string',
+            'description_en'  => 'nullable|string',
             'duration_months' => 'nullable|integer|min:1',
-            'price' => 'nullable|numeric|min:0',
-            'status' => 'nullable|in:active,inactive',
+            'price'           => 'nullable|numeric|min:0',
+            'status'          => 'nullable|in:active,inactive',
+            'type'            => 'nullable|in:diploma,training,certificate',
+            'supervisor_id'   => 'nullable|exists:users,id',
+            'image'           => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'remove_image'    => 'nullable|boolean',
         ]);
 
+        if ($request->hasFile('image')) {
+            if ($program->image) {
+                Storage::disk('public')->delete($program->image);
+            }
+            $validated['image'] = $request->file('image')->store('programs', 'public');
+        } elseif ($request->boolean('remove_image')) {
+            if ($program->image) {
+                Storage::disk('public')->delete($program->image);
+            }
+            $validated['image'] = null;
+        }
+
+        unset($validated['remove_image']);
         $program->update($validated);
 
         return redirect()->route('admin.programs.index')

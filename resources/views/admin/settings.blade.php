@@ -7,12 +7,14 @@
 
     {{-- Hero --}}
     <div style="background:linear-gradient(135deg,#0f172a 0%,#1e293b 60%,#0f172a 100%);border-radius:20px;padding:32px 28px;margin-bottom:26px;position:relative;overflow:hidden;">
-        <div style="position:absolute;top:-50px;left:-50px;width:200px;height:200px;background:rgba(0,113,170,0.15);border-radius:50%;"></div>
-        <div style="position:absolute;bottom:-60px;right:15%;width:240px;height:240px;background:rgba(99,102,241,0.08);border-radius:50%;"></div>
-
+        <div style="position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:none;">
+            <div style="position:absolute;top:-60px;left:-60px;width:220px;height:220px;background:rgba(0,113,170,.15);border-radius:50%;"></div>
+            <div style="position:absolute;bottom:-70px;right:10%;width:260px;height:260px;background:rgba(99,102,241,.08);border-radius:50%;"></div>
+            <div style="position:absolute;top:20px;right:30%;width:120px;height:120px;background:rgba(255,255,255,.03);border-radius:50%;"></div>
+        </div>
         <div style="position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;">
-            <div style="display:flex;align-items:center;gap:14px;">
-                <div style="width:52px;height:52px;background:linear-gradient(135deg,#0071AA,#005a88);border-radius:14px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(0,113,170,0.4);flex-shrink:0;">
+            <div style="display:flex;align-items:center;gap:16px;">
+                <div style="width:54px;height:54px;background:linear-gradient(135deg,#0071AA,#005a88);border-radius:14px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(0,113,170,0.4);flex-shrink:0;">
                     <svg width="26" height="26" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -23,17 +25,14 @@
                     <p style="color:rgba(255,255,255,0.55);font-size:13px;margin:3px 0 0;">إدارة وتخصيص إعدادات التطبيق والنظام</p>
                 </div>
             </div>
-            {{-- Quick Info Chips --}}
+            @php $totalSettings = collect($settings)->flatten(1)->count(); @endphp
             <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                @php
-                    $totalSettings = collect($settings)->flatten(1)->count();
-                @endphp
                 <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);padding:7px 14px;border-radius:20px;">
                     <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="rgba(255,255,255,0.7)" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
                     <span style="color:rgba(255,255,255,0.75);font-size:12px;">{{ $totalSettings }} إعداد</span>
                 </div>
                 <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);padding:7px 14px;border-radius:20px;">
-                    <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="rgba(255,255,255,0.7)" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                    <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="rgba(255,255,255,0.7)" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
                     <span style="color:rgba(255,255,255,0.75);font-size:12px;">{{ count($settings) }} أقسام</span>
                 </div>
             </div>
@@ -54,18 +53,16 @@
     </div>
     @endif
 
-    <div style="display:flex;gap:20px;align-items:flex-start;">
+    <div style="display:flex;gap:22px;align-items:flex-start;">
 
         {{-- ── Sidebar ── --}}
-        <div style="width:250px;flex-shrink:0;position:sticky;top:20px;">
+        <div style="width:264px;flex-shrink:0;position:sticky;top:20px;">
             <div style="background:white;border-radius:16px;border:1px solid #e5e7eb;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.06);">
 
-                {{-- Sidebar Header --}}
-                <div style="padding:16px 18px;background:linear-gradient(135deg,#f8f9fa,#f0f4f8);border-bottom:1px solid #e5e7eb;">
-                    <p style="font-size:11px;font-weight:700;color:#9ca3af;letter-spacing:1px;text-transform:uppercase;margin:0;">أقسام الإعدادات</p>
+                <div style="padding:14px 16px 10px;background:linear-gradient(135deg,#f8f9fa,#f0f4f8);border-bottom:1px solid #e5e7eb;">
+                    <p style="font-size:11px;font-weight:700;color:#9ca3af;letter-spacing:1.2px;text-transform:uppercase;margin:0;">أقسام الإعدادات</p>
                 </div>
 
-                {{-- Tab Buttons --}}
                 @php
                 $tabs = [
                     ['id'=>'general',       'label'=>'الإعدادات العامة',    'grad'=>'#0071AA,#005a88', 'light'=>'#e0f2fe','text'=>'#0071AA','icon'=>'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z'],
@@ -80,10 +77,11 @@
 
                 <nav style="padding:8px;">
                     @foreach($tabs as $tab)
+                    @php $cnt = count($settings[$tab['id']] ?? []); @endphp
                     <button @click="activeTab = '{{ $tab['id'] }}'"
-                            x-bind:style="activeTab === '{{ $tab['id'] }}' ? 'background:linear-gradient(135deg,{{ $tab['grad'] }});color:white;box-shadow:0 2px 8px rgba(0,0,0,0.15);' : 'background:transparent;color:#374151;'"
+                            x-bind:style="activeTab === '{{ $tab['id'] }}' ? 'background:linear-gradient(135deg,{{ $tab['grad'] }});color:white;box-shadow:0 3px 10px rgba(0,0,0,0.18);' : 'background:transparent;color:#374151;'"
                             style="width:100%;display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;border:none;cursor:pointer;font-size:13px;font-weight:600;text-align:right;transition:all .15s;margin-bottom:3px;">
-                        <div x-bind:style="activeTab === '{{ $tab['id'] }}' ? 'background:rgba(255,255,255,0.2)' : 'background:{{ $tab['light'] }}'"
+                        <div x-bind:style="activeTab === '{{ $tab['id'] }}' ? 'background:rgba(255,255,255,0.22)' : 'background:{{ $tab['light'] }}'"
                              style="width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;">
                             <svg width="16" height="16" fill="none" viewBox="0 0 24 24"
                                  x-bind:stroke="activeTab === '{{ $tab['id'] }}' ? 'white' : '{{ $tab['text'] }}'"
@@ -91,18 +89,23 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" d="{{ $tab['icon'] }}"/>
                             </svg>
                         </div>
-                        <span>{{ $tab['label'] }}</span>
+                        <span style="flex:1;">{{ $tab['label'] }}</span>
+                        @if($cnt > 0)
+                        <span x-bind:style="activeTab === '{{ $tab['id'] }}' ? 'background:rgba(255,255,255,0.22);color:white;' : 'background:{{ $tab['light'] }};color:{{ $tab['text'] }};'"
+                              style="font-size:11px;font-weight:700;padding:2px 7px;border-radius:10px;transition:all .15s;">{{ $cnt }}</span>
+                        @endif
                     </button>
                     @endforeach
                 </nav>
 
                 {{-- Cache Clear --}}
-                <div style="padding:12px;border-top:1px solid #f3f4f6;">
+                <div style="padding:10px 12px 12px;border-top:1px solid #f3f4f6;">
                     <form action="{{ route('admin.settings.clear-cache') }}" method="POST">
                         @csrf
                         <button type="submit"
-                                style="width:100%;display:flex;align-items:center;justify-content:center;gap:7px;padding:10px;background:#f3f4f6;border:none;border-radius:10px;font-size:12px;font-weight:600;color:#6b7280;cursor:pointer;transition:all .15s;"
-                                onmouseover="this.style.background='#fee2e2';this.style.color='#dc2626'" onmouseout="this.style.background='#f3f4f6';this.style.color='#6b7280'">
+                                style="width:100%;display:flex;align-items:center;justify-content:center;gap:7px;padding:10px;background:#f9fafb;border:1.5px solid #e5e7eb;border-radius:10px;font-size:12px;font-weight:600;color:#6b7280;cursor:pointer;transition:all .15s;"
+                                onmouseover="this.style.background='#fee2e2';this.style.borderColor='#fecaca';this.style.color='#dc2626'"
+                                onmouseout="this.style.background='#f9fafb';this.style.borderColor='#e5e7eb';this.style.color='#6b7280'">
                             <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
                             </svg>
@@ -149,33 +152,42 @@
             {{-- EMAIL --}}
             <div x-show="activeTab === 'email'" x-cloak>
                 <div style="background:white;border-radius:16px;border:1px solid #e5e7eb;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.06);">
-                    {{-- Card Header --}}
-                    <div style="padding:20px 24px;border-bottom:1px solid #f3f4f6;background:linear-gradient(135deg,#fff7ed,#fffbeb);">
-                        <div style="display:flex;align-items:center;gap:12px;">
-                            <div style="width:40px;height:40px;background:linear-gradient(135deg,#ea580c,#c2410c);border-radius:10px;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 10px rgba(234,88,12,0.3);">
+                    <div style="padding:20px 24px;border-bottom:1px solid #f3f4f6;background:linear-gradient(135deg,#ffedd5,white);">
+                        <div style="display:flex;align-items:center;gap:14px;">
+                            <div style="width:44px;height:44px;background:linear-gradient(135deg,#ea580c,#c2410c);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 12px rgba(234,88,12,0.3);">
                                 <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
                             </div>
                             <div>
                                 <h2 style="font-size:16px;font-weight:700;color:#111827;margin:0;">إعدادات البريد الإلكتروني</h2>
-                                <p style="font-size:13px;color:#9ca3af;margin:2px 0 0;">إعدادات SMTP لإرسال رسائل البريد الإلكتروني</p>
+                                <p style="font-size:13px;color:#9ca3af;margin:3px 0 0;">إعدادات SMTP لإرسال رسائل البريد الإلكتروني</p>
                             </div>
+                            @if(!empty($settings['email']))
+                            <div style="margin-right:auto;display:inline-flex;align-items:center;gap:5px;background:white;border:1px solid #e5e7eb;padding:4px 10px;border-radius:20px;box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+                                <span style="color:#ea580c;font-size:13px;font-weight:700;">{{ count($settings['email']) }}</span>
+                                <span style="color:#9ca3af;font-size:12px;">حقل</span>
+                            </div>
+                            @endif
                         </div>
                     </div>
                     <form action="{{ route('admin.settings.update-group', 'email') }}" method="POST" style="padding:24px;">
                         @csrf
                         @method('PUT')
-                        <div style="display:flex;flex-direction:column;gap:18px;">
+                        <div style="display:flex;flex-direction:column;gap:16px;">
                             @foreach($settings['email'] ?? [] as $setting)
                                 @include('admin.settings-partials.field', ['setting' => $setting, 'accentColor' => '#ea580c'])
                             @endforeach
                         </div>
                         <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:20px;margin-top:20px;border-top:1px solid #f3f4f6;">
                             <button type="button" id="test-email-btn" onclick="testEmail()"
-                                    style="display:inline-flex;align-items:center;gap:7px;padding:10px 18px;background:linear-gradient(135deg,#059669,#047857);color:white;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;box-shadow:0 2px 8px rgba(5,150,105,0.3);">
+                                    style="display:inline-flex;align-items:center;gap:7px;padding:10px 18px;background:linear-gradient(135deg,#059669,#047857);color:white;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;box-shadow:0 2px 8px rgba(5,150,105,0.3);transition:opacity .15s;"
+                                    onmouseover="this.style.opacity='.9'" onmouseout="this.style.opacity='1'">
                                 <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
                                 إرسال بريد تجريبي
                             </button>
-                            <button type="submit" style="padding:10px 24px;background:linear-gradient(135deg,#ea580c,#c2410c);color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 3px 10px rgba(234,88,12,0.3);">
+                            <button type="submit"
+                                    style="padding:10px 24px;background:linear-gradient(135deg,#ea580c,#c2410c);color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 3px 10px rgba(234,88,12,0.25);display:inline-flex;align-items:center;gap:8px;transition:opacity .15s;"
+                                    onmouseover="this.style.opacity='.9'" onmouseout="this.style.opacity='1'">
+                                <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
                                 حفظ التغييرات
                             </button>
                         </div>
@@ -207,19 +219,24 @@
             {{-- ZOOM --}}
             <div x-show="activeTab === 'zoom'" x-cloak>
                 <div style="background:white;border-radius:16px;border:1px solid #e5e7eb;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.06);">
-                    <div style="padding:20px 24px;border-bottom:1px solid #f3f4f6;background:linear-gradient(135deg,#eff6ff,#eef2ff);">
-                        <div style="display:flex;align-items:center;gap:12px;">
-                            <div style="width:40px;height:40px;background:linear-gradient(135deg,#2563eb,#1d4ed8);border-radius:10px;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 10px rgba(37,99,235,0.3);">
+                    <div style="padding:20px 24px;border-bottom:1px solid #f3f4f6;background:linear-gradient(135deg,#dbeafe,white);">
+                        <div style="display:flex;align-items:center;gap:14px;">
+                            <div style="width:44px;height:44px;background:linear-gradient(135deg,#2563eb,#1d4ed8);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 12px rgba(37,99,235,0.3);">
                                 <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
                             </div>
                             <div>
                                 <h2 style="font-size:16px;font-weight:700;color:#111827;margin:0;">إعدادات Zoom</h2>
-                                <p style="font-size:13px;color:#9ca3af;margin:2px 0 0;">مفاتيح API والتكامل مع منصة Zoom للاجتماعات</p>
+                                <p style="font-size:13px;color:#9ca3af;margin:3px 0 0;">مفاتيح API والتكامل مع منصة Zoom للاجتماعات</p>
                             </div>
+                            @if(!empty($settings['zoom']))
+                            <div style="margin-right:auto;display:inline-flex;align-items:center;gap:5px;background:white;border:1px solid #e5e7eb;padding:4px 10px;border-radius:20px;box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+                                <span style="color:#2563eb;font-size:13px;font-weight:700;">{{ count($settings['zoom']) }}</span>
+                                <span style="color:#9ca3af;font-size:12px;">حقل</span>
+                            </div>
+                            @endif
                         </div>
                     </div>
 
-                    {{-- Info Banner --}}
                     <div style="margin:20px 24px 0;padding:14px 16px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;display:flex;align-items:flex-start;gap:10px;">
                         <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#2563eb" stroke-width="2" style="flex-shrink:0;margin-top:1px;"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                         <p style="font-size:13px;color:#1e40af;margin:0;line-height:1.6;">
@@ -230,13 +247,16 @@
                     <form action="{{ route('admin.settings.update-group', 'zoom') }}" method="POST" style="padding:24px;">
                         @csrf
                         @method('PUT')
-                        <div style="display:flex;flex-direction:column;gap:18px;">
+                        <div style="display:flex;flex-direction:column;gap:16px;">
                             @foreach($settings['zoom'] ?? [] as $setting)
-                                @include('admin.settings-partials.field', ['setting' => $setting, 'isPassword' => str_contains($setting['key'], 'secret'), 'accentColor' => '#2563eb'])
+                                @include('admin.settings-partials.field', ['setting' => $setting, 'accentColor' => '#2563eb'])
                             @endforeach
                         </div>
                         <div style="display:flex;justify-content:flex-end;padding-top:20px;margin-top:20px;border-top:1px solid #f3f4f6;">
-                            <button type="submit" style="padding:10px 24px;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 3px 10px rgba(37,99,235,0.3);">
+                            <button type="submit"
+                                    style="padding:10px 24px;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 3px 10px rgba(37,99,235,0.25);display:inline-flex;align-items:center;gap:8px;transition:opacity .15s;"
+                                    onmouseover="this.style.opacity='.9'" onmouseout="this.style.opacity='1'">
+                                <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
                                 حفظ التغييرات
                             </button>
                         </div>
@@ -250,13 +270,18 @@
 
 <script>
 function testEmail() {
-    const btn = document.getElementById('test-email-btn');
+    const btn    = document.getElementById('test-email-btn');
     const result = document.getElementById('email-test-result');
     btn.disabled = true;
-    btn.innerHTML = '<svg class="animate-spin" width="15" height="15" fill="none" viewBox="0 0 24 24"><circle style="opacity:.25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path style="opacity:.75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg> جاري الإرسال...';
-    fetch('{{ route('admin.settings.test-email') }}', {
+    btn.innerHTML = '<svg style="animation:spin 1s linear infinite" width="15" height="15" viewBox="0 0 24 24" fill="none"><circle style="opacity:.25" cx="12" cy="12" r="10" stroke="white" stroke-width="4"/><path style="opacity:.75" fill="white" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg> جاري الإرسال...';
+
+    fetch("{{ route('admin.settings.test-email') }}", {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content, 'Accept': 'application/json' }
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            'Accept': 'application/json'
+        }
     })
     .then(r => r.json())
     .then(data => {
@@ -279,4 +304,5 @@ function testEmail() {
     });
 }
 </script>
+<style>@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }</style>
 @endsection

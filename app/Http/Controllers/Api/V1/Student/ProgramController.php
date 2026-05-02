@@ -41,17 +41,22 @@ class ProgramController extends Controller
         }
 
         // ─── Enrolled ──────────────────────────────────────────────────────────
-        $currentTerm =  $program->terms()->orderBy('term_number')->where('status', 'active')->first();
+        $program->loadMissing('supervisor');
 
-        $currentTermNumber = $currentTerm?->term_number ?? 1;
+        $currentTerm = $program->terms()
+            ->where('status', 'active')
+            ->orderBy('term_number')
+            ->with(['subjects' => fn($q) => $q->with('teacher:id,name,specialization,profile_photo')])
+            ->first();
 
         return response()->json([
             'success' => true,
             'data'    => new StudentProgramResource([
-                'status'       => 'enrolled',
-                'program'      => $program,
-                'current_term' => $currentTermNumber,
-                'current_term_name' => $currentTerm?->name,
+                'status'           => 'enrolled',
+                'program'          => $program,
+                'current_term'     => $currentTerm?->term_number ?? 1,
+                'current_term_name'=> $currentTerm?->name,
+                'current_term_obj' => $currentTerm,
             ]),
         ]);
     }

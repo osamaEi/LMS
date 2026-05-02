@@ -18,6 +18,9 @@ class Program extends Model
         'duration_months',
         'price',
         'status',
+        'image',
+        'type',
+        'supervisor_id',
     ];
 
     /**
@@ -43,6 +46,11 @@ class Program extends Model
         return [
             'price' => 'decimal:2',
         ];
+    }
+
+    public function supervisor()
+    {
+        return $this->belongsTo(User::class, 'supervisor_id');
     }
 
     public function users()
