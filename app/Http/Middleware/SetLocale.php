@@ -17,10 +17,10 @@ class SetLocale
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // Priority: ?lang= query param → Accept-Language header → session → default ar
+        // Priority: ?lang= query param → session → Accept-Language header → default ar
         $locale = $request->query('lang')
-            ?? $this->parseAcceptLanguage($request->header('Accept-Language'))
             ?? Session::get('locale')
+            ?? $this->parseAcceptLanguage($request->header('Accept-Language'))
             ?? 'ar';
 
         if (!in_array($locale, ['ar', 'en'])) {
