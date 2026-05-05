@@ -258,7 +258,7 @@
         <div class="courses-container">
             @foreach($programs as $program)
             <div class="course-card">
-                <img src="{{ asset('images/course.jpg') }}" alt="{{ $program->name_ar }}" />
+                <img src="{{ $program->image ? asset('storage/' . $program->image) : asset('images/course.jpg') }}" alt="{{ $program->name_ar }}" />
                 <div class="card-body">
                     <h5 class="card-title">{{ app()->getLocale() === 'en' ? ($program->name_en ?: $program->name_ar) : $program->name_ar }}</h5>
                     <p class="card-text">{{ Str::limit(app()->getLocale() === 'en' ? ($program->description_en ?: $program->description_ar) : $program->description_ar, 100) }}</p>

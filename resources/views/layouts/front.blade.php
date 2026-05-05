@@ -986,6 +986,9 @@
                         <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}">{{ __('Home') }}</a>
                     </li>
                     <li class="nav-item">
+                        <a href="{{ route('training-paths') }}" class="{{ request()->routeIs('training-paths') ? 'active' : '' }}">{{ __('Training Paths') }}</a>
+                    </li>
+                    <li class="nav-item">
                         <a href="{{ route('short-courses') }}" class="{{ request()->routeIs('short-courses') ? 'active' : '' }}">{{ __('Short Courses') }}</a>
                     </li>
                     <li class="nav-item">
@@ -1045,6 +1048,7 @@
         </div>
         <ul class="mobile-nav-list">
             <li><a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}">{{ __('Home') }}</a></li>
+            <li><a href="{{ route('training-paths') }}" class="{{ request()->routeIs('training-paths') ? 'active' : '' }}">{{ __('Training Paths') }}</a></li>
             <li><a href="{{ route('short-courses') }}" class="{{ request()->routeIs('short-courses') ? 'active' : '' }}">{{ __('Short Courses') }}</a></li>
             <li><a href="{{ route('about') }}" class="{{ request()->routeIs('about') ? 'active' : '' }}">{{ __('About Us') }}</a></li>
             <li><a href="{{ route('news') }}" class="{{ request()->routeIs('news*') ? 'active' : '' }}">{{ __('News') }}</a></li>
@@ -1102,69 +1106,7 @@
         </div>
     </div>
 
-    <!-- Footer -->
-    <footer class="foot">
-        <div class="container-fluid">
-            <div class="row g-5">
-                <div class="col-lg-4 col-md-12">
-                    <div class="footer-logo">
-                        <img src="{{ asset('images/footlogooo.png') }}" alt="Logo" onerror="this.style.display='none'" />
-                    </div>
-                    <p class="footer-desc">{{ __('An accredited training institute offering professional development programs and educational paths for over 10 years, aligned with Saudi Vision 2030.') }}</p>
-                    <div class="footer-social-wrap">
-                        <a href="#"><i class="bi bi-youtube"></i></a>
-                        <a href="#"><i class="bi bi-twitter-x"></i></a>
-                        <a href="#"><i class="bi bi-linkedin"></i></a>
-                        <a href="#"><i class="bi bi-instagram"></i></a>
-                    </div>
-                </div>
-                <div class="col-lg-2 col-md-4 col-6">
-                    <div class="footer-heading">{{ __('Quick Links') }}</div>
-                    <div class="footer-links">
-                        <a href="{{ route('home') }}">{{ __('Home') }}</a>
-                        <a href="{{ route('about') }}">{{ __('About Us') }}</a>
-                        <a href="{{ route('training-paths') }}">{{ __('Training Paths') }}</a>
-                        <a href="{{ route('short-courses') }}">{{ __('Short Courses') }}</a>
-                        <a href="{{ route('news') }}">{{ __('News') }}</a>
-                        <a href="{{ route('contact') }}">{{ __('Contact Us') }}</a>
-                    </div>
-                </div>
-                <div class="col-lg-2 col-md-4 col-6">
-                    <div class="footer-heading">{{ __('Services') }}</div>
-                    <div class="footer-links">
-                        <a href="{{ route('training-paths') }}">{{ __('Term System Programs') }}</a>
-                        <a href="{{ route('short-courses') }}">{{ __('Short Courses') }}</a>
-                        <a href="{{ route('short-courses') }}">{{ __('Remote Training') }}</a>
-                        <a href="{{ route('contact') }}">{{ __('Certificate Accreditation') }}</a>
-                        <a href="{{ route('faq') }}">{{ __('Technical Support') }}</a>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-4 col-12">
-                    <div class="footer-heading">{{ __('Contact Information') }}</div>
-                    <div class="footer-contact-item">
-                        <i class="bi bi-telephone-fill"></i>
-                        <span>9200343222</span>
-                    </div>
-                    <div class="footer-contact-item">
-                        <i class="bi bi-envelope-fill"></i>
-                        <span>help@alertiqa.edu.sa</span>
-                    </div>
-                    <div class="footer-contact-item">
-                        <i class="bi bi-geo-alt-fill"></i>
-                        <span>{{ __('Riyadh, Saudi Arabia') }}</span>
-                    </div>
-                    <div class="footer-contact-item">
-                        <i class="bi bi-clock-fill"></i>
-                        <span>{{ __('Sun – Thu: 8:00 AM – 5:00 PM') }}</span>
-                    </div>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>© {{ date('Y') }} {{ __('Al-Ertiqaa High Institute for Training') }}. {{ __('All rights reserved') }}.</p>
-                <p>{{ __('Developed and maintained by Al-Ertiqaa') }}</p>
-            </div>
-        </div>
-    </footer>
+    @include('layouts.partials.footer')
 
     @include('layouts.partials.toaster')
     <!-- Bootstrap JS -->

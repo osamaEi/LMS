@@ -5,7 +5,7 @@
 @section('content')
 <div class="mb-6">
     <h1 class="text-2xl font-bold text-gray-900 dark:text-white">موادي</h1>
-    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">عرض وإدارة المواد الدراسية المسندة إليك</p>
+    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">عرض وإدارة المقررات  الدراسية المسندة إليك</p>
 </div>
 
 @if(session('success'))
@@ -24,7 +24,7 @@
                 </svg>
             </div>
             <div>
-                <p class="text-sm" style="color: rgba(255,255,255,0.8);">إجمالي المواد</p>
+                <p class="text-sm" style="color: rgba(255,255,255,0.8);">إجمالي المقررات </p>
                 <p class="text-2xl font-bold text-white">{{ $subjects->count() }}</p>
             </div>
         </div>

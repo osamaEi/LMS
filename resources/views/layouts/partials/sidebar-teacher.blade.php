@@ -154,11 +154,6 @@
 {{-- ═══ فاصل ═══ --}}
 <li style="margin:6px 16px;height:1px;background:rgba(255,255,255,0.1)"></li>
 
-{{-- ═══ المتابعة ═══ --}}
-<li style="padding:8px 16px 4px">
-    <span style="font-size:0.68rem;font-weight:700;letter-spacing:0.1em;color:rgba(255,255,255,0.35);display:block;text-transform:uppercase">المتابعة</span>
-</li>
-
 <!-- التقييمات -->
 <!-- <li>
     <a href="{{ route('teacher.grades.index') }}"

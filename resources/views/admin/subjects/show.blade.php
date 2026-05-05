@@ -588,7 +588,7 @@
                         <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#6b7280" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
                         </svg>
-                        <span style="font-size:12px;font-weight:600;color:#6b7280;text-align:center;">جميع المواد</span>
+                        <span style="font-size:12px;font-weight:600;color:#6b7280;text-align:center;">جميع المقررات </span>
                     </a>
                 </div>
             </div>

@@ -12,7 +12,7 @@
                 : $userRole . '.dashboard';
         @endphp
         <a href="{{ route($dashboardRoute) }}">
-            <img src="{{ asset('images/logo/logo.png') }}" alt="Logo" class="h-12" style="filter: brightness(0) invert(1);" />
+            <img src="{{ asset('images/logo/logo.png') }}" alt="Logo" class="h-16" style="filter: brightness(0) invert(1);" />
         </a>
     </div>
 

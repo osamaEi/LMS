@@ -54,7 +54,7 @@ class CompleteSystemSeeder extends Seeder
                     }
                 }
 
-                // 7. تسجيل الطلاب في المواد
+                // 7. تسجيل الطلاب في المقررات 
                 if ($term->term_number == 1) {
                     $this->command->info("    Enrolling students in subjects...");
                     $this->enrollStudentsInSubjects($students, $subjects);

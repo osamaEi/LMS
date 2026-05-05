@@ -53,7 +53,7 @@
             </div>
             <div>
                 <p class="text-2xl font-black text-black dark:text-white">{{ $stats['subjects_count'] }}</p>
-                <p class="text-xs text-gray-500">المواد الدراسية</p>
+                <p class="text-xs text-gray-500">المقررات  الدراسية</p>
             </div>
         </div>
 

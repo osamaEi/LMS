@@ -1,6 +1,6 @@
 @extends('layouts.front')
 
-@section('title', __('Short Courses') . ' - ' . __('Al-Ertiqaa High Institute for Training'))
+@section('title', __('Courses') . ' - ' . __('Al-Ertiqaa High Institute for Training'))
 
 @section('styles')
 <style>
@@ -276,17 +276,17 @@
         <div class="breadcrumb-nav">
             <a href="{{ route('home') }}">{{ __('Home') }}</a>
             <span>></span>
-            <span>{{ __('Short Courses') }}</span>
+            <span>{{ __('Courses') }}</span>
         </div>
-        <h2>{{ __('Short Courses') }}</h2>
+        <h2>{{ __('Courses') }}</h2>
     </section>
 
     <!-- Featured Banner -->
     <div class="featured-banner">
-        <img loading="lazy" src="{{ asset('lms2-photo/15.webp') }}" alt="Short Courses" onerror="this.src='{{ asset('lms2-photo/14.webp') }}'" />
+        <img loading="lazy" src="{{ asset('lms-photos/3.png') }}" alt="All Courses" onerror="this.src='{{ asset('lms-photos/1.png') }}'" />
         <div class="overlay">
             <div class="overlay-text">
-                <h3>{{ __('Professional Short Courses') }}</h3>
+                <h3>{{ __('All Our Professional Courses') }}</h3>
                 <p>{{ __('Flexible, accredited, and designed for your success') }}</p>
             </div>
         </div>
@@ -295,9 +295,9 @@
     <!-- Courses Section -->
     <section class="courses-section mb-5">
         <div class="head">
-            <h2>{{ __('Choose the Right Short Course for You') }}</h2>
+            <h2>{{ __('Choose the Right Course for You') }}</h2>
             <p>
-                {{ __('Short courses are designed to develop your skills quickly and effectively in multiple fields, officially accredited and suitable for students and professionals seeking to enhance their expertise without committing to a long path.') }}
+                {{ __('Our courses are designed to develop your skills quickly and effectively in multiple fields, officially accredited and suitable for students and professionals seeking to enhance their expertise without committing to a long path.') }}
             </p>
         </div>
 
@@ -306,19 +306,19 @@
         @else
         @php
             $courseImages = [
-                'lms-photos/2.webp',
-                'lms-photos/8.webp',
-                'lms-photos/5.webp',
-                'lms2-photo/14.webp',
-                'lms-photos/10.webp',
-                'lms2-photo/6.webp',
+                'lms-photos/2.png',
+                'lms-photos/8.png',
+                'lms-photos/5.png',
+                'lms2-photo/14.png',
+                'lms-photos/10.png',
+                'lms2-photo/6.png',
             ];
         @endphp
         <div class="courses-container">
             @foreach($programs as $program)
             <div class="course-card-wrapper">
                 <div class="course-card">
-                    <img src="{{ asset($courseImages[$loop->index % count($courseImages)]) }}" alt="{{ $program->name_ar }}" />
+                    <img src="{{ $program->image ? asset('storage/' . $program->image) : asset($courseImages[$loop->index % count($courseImages)]) }}" alt="{{ $program->name_ar }}" />
                     <div class="card-body">
                         <h5 class="card-title">{{ app()->getLocale() === 'en' ? ($program->name_en ?: $program->name_ar) : $program->name_ar }}</h5>
                         <p class="card-text">{{ Str::limit(app()->getLocale() === 'en' ? ($program->description_en ?: $program->description_ar) : $program->description_ar, 100) }}</p>
@@ -368,7 +368,7 @@
                 </div>
             </div>
             <div class="col-lg-6 text-center">
-                <img loading="lazy" src="{{ asset('lms2-photo/4.webp') }}" alt="App Mockup" style="max-width: 450px; border-radius: 20px;" onerror="this.style.display='none'" />
+                <img loading="lazy" src="{{ asset('lms2-photo/4.png') }}" alt="App Mockup" style="max-width: 450px; border-radius: 20px;" onerror="this.style.display='none'" />
             </div>
         </div>
     </section>
@@ -410,12 +410,12 @@
             <div class="accordion-item">
                 <h2 class="accordion-header">
                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
-                        {{ __('What is the duration of a short course?') }}
+                        {{ __('What is the duration of a course?') }}
                     </button>
                 </h2>
                 <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
                     <div class="accordion-body">
-                        {{ __('Short courses range from two weeks to 8 weeks depending on the nature and content of the course.') }}
+                        {{ __('Courses range from two weeks to 8 weeks depending on the nature and content of the course.') }}
                     </div>
                 </div>
             </div>

@@ -148,7 +148,7 @@
             <h4 class="mb-6 text-xl font-bold text-black dark:text-white">الإحصائيات</h4>
             <div class="space-y-4">
                 <div class="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 pb-3">
-                    <span class="text-gray-700 dark:text-gray-300">عدد المواد</span>
+                    <span class="text-gray-700 dark:text-gray-300">عدد المقررات </span>
                     <span class="text-xl font-bold text-brand-600 dark:text-brand-400">{{ $teacher->subjects->count() }}</span>
                 </div>
                 <div class="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 pb-3">
@@ -205,7 +205,7 @@
         <!-- Subjects List -->
         @if($teacher->subjects->count() > 0)
         <div class="mb-6 rounded-lg bg-white p-6 shadow dark:bg-gray-800">
-            <h4 class="mb-6 text-xl font-bold text-black dark:text-white">المواد الدراسية</h4>
+            <h4 class="mb-6 text-xl font-bold text-black dark:text-white">المقررات  الدراسية</h4>
             <div class="space-y-3">
                 @foreach($teacher->subjects as $subject)
                 <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-700">

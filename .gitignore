@@ -19,6 +19,7 @@
 /storage/*.key
 /storage/pail
 /vendor
+/bootstrap/cache/*.php
 /lms_front
 Homestead.json
 Homestead.yaml

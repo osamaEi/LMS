@@ -547,7 +547,7 @@
                 </div>
                 <div>
                     <div class="stat-val">{{ $stats['total_subjects'] }}</div>
-                    <div class="stat-label">المواد المسجلة</div>
+                    <div class="stat-label">المقررات  المسجلة</div>
                 </div>
             </div>
             <div class="stat-card">
@@ -922,7 +922,7 @@
                     </div>
                     <div>
                         <div class="help-title">معلومات مهمة</div>
-                        <div class="help-desc">بعد التسجيل في البرنامج، ستتمكن من متابعة المواد والجلسات والحضور من لوحة التحكم.</div>
+                        <div class="help-desc">بعد التسجيل في البرنامج، ستتمكن من متابعة المقررات  والجلسات والحضور من لوحة التحكم.</div>
                     </div>
                 </div>
             </div>

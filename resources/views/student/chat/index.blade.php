@@ -234,7 +234,7 @@
     <div class="start-box">
         <div class="text-5xl mb-4">💬</div>
         <h2 class="text-xl font-bold text-gray-800 mb-2">ابدأ محادثة مع المساعد الذكي</h2>
-        <p class="text-gray-500 text-sm mb-6">اسأل عن أي شيء — التسجيل، المواد، الدفع، أو أي مساعدة أخرى</p>
+        <p class="text-gray-500 text-sm mb-6">اسأل عن أي شيء — التسجيل، المقررات ، الدفع، أو أي مساعدة أخرى</p>
 
         <form action="{{ route('student.chat.store') }}" method="POST" class="max-w-lg mx-auto">
             @csrf

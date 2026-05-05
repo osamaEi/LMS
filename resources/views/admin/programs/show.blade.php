@@ -82,7 +82,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <div class="text-3xl font-bold text-purple-500">{{ $program->terms->sum('subjects_count') }}</div>
-                    <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">المواد الدراسية</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">المقررات  الدراسية</div>
                 </div>
                 <div class="w-12 h-12 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
                     <svg class="w-6 h-6 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -257,7 +257,7 @@
                                 {{-- Subjects under this term --}}
                                 @if($term->subjects->isNotEmpty())
                                 <div class="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800">
-                                    <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">المواد الدراسية:</p>
+                                    <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">المقررات  الدراسية:</p>
                                     <div class="flex flex-wrap gap-2">
                                         @foreach($term->subjects as $subject)
                                         <span class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium"
@@ -368,7 +368,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                             </svg>
                         </div>
-                        عرض جميع المواد
+                        عرض جميع المقررات 
                     </a>
                 </div>
             </div>

@@ -29,7 +29,7 @@
         <div class="flex-1 min-w-[200px]">
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">المادة</label>
             <select name="subject_id" class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white">
-                <option value="">جميع المواد</option>
+                <option value="">جميع المقررات </option>
                 @foreach($subjects as $subject)
                 <option value="{{ $subject->id }}" {{ request('subject_id') == $subject->id ? 'selected' : '' }}>
                     {{ $subject->name_ar }}

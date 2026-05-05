@@ -1,6 +1,6 @@
 @extends('layouts.dashboard')
 
-@section('title', 'إدارة المواد الدراسية')
+@section('title', 'إدارة المقررات  الدراسية')
 
 @section('content')
 <div style="direction:rtl; font-family:'Segoe UI',sans-serif;">
@@ -19,8 +19,8 @@
                         </svg>
                     </div>
                     <div>
-                        <h1 style="color:white;font-size:24px;font-weight:700;margin:0;">المواد الدراسية</h1>
-                        <p style="color:rgba(255,255,255,0.75);font-size:14px;margin:2px 0 0;">إدارة جميع المواد الدراسية في النظام</p>
+                        <h1 style="color:white;font-size:24px;font-weight:700;margin:0;">المقررات  الدراسية</h1>
+                        <p style="color:rgba(255,255,255,0.75);font-size:14px;margin:2px 0 0;">إدارة جميع المقررات  الدراسية في النظام</p>
                     </div>
                 </div>
             </div>
@@ -37,7 +37,7 @@
         <div style="position:relative;z-index:1;display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:28px;">
             @php
                 $statItems = [
-                    ['label'=>'إجمالي المواد','value'=>$stats['total'],'icon'=>'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253','bg'=>'rgba(255,255,255,0.18)'],
+                    ['label'=>'إجمالي المقررات ','value'=>$stats['total'],'icon'=>'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253','bg'=>'rgba(255,255,255,0.18)'],
                     ['label'=>'مواد نشطة','value'=>$stats['active'],'icon'=>'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z','bg'=>'rgba(167,243,208,0.25)'],
                     ['label'=>'مواد غير نشطة','value'=>$stats['inactive'],'icon'=>'M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z','bg'=>'rgba(254,202,202,0.25)'],
                     ['label'=>'مواد مكتملة','value'=>$stats['completed'],'icon'=>'M5 13l4 4L19 7','bg'=>'rgba(255,255,255,0.1)'],

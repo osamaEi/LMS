@@ -127,15 +127,15 @@
             </div>
         </div>
 
-            <!-- المواد الدراسية -->
+            <!-- المقررات  الدراسية -->
             <div class="md:col-span-2" id="subjects-section" style="display:none;">
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    المواد الدراسية المرتبطة بهذا الربع
+                    المقررات  الدراسية المرتبطة بهذا الربع
                 </label>
                 <div id="subjects-list" class="rounded-lg border border-gray-200 dark:border-gray-700 divide-y divide-gray-100 dark:divide-gray-800 max-h-64 overflow-y-auto">
-                    <p class="text-sm text-gray-400 p-4 text-center">اختر الدبلوم أولاً لعرض المواد المتاحة</p>
+                    <p class="text-sm text-gray-400 p-4 text-center">اختر الدبلوم أولاً لعرض المقررات  المتاحة</p>
                 </div>
-                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">اختر المواد التي ستُدرَّس في هذا الربع</p>
+                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">اختر المقررات  التي ستُدرَّس في هذا الربع</p>
             </div>
         </div>
 

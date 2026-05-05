@@ -14,7 +14,7 @@
     <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8 w-full">
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 hover:shadow-lg transition">
             <div class="text-4xl font-bold text-blue-600 dark:text-blue-400">{{ $stats['subjects_count'] }}</div>
-            <p class="text-gray-600 dark:text-gray-400 mt-2">المواد الدراسية</p>
+            <p class="text-gray-600 dark:text-gray-400 mt-2">المقررات  الدراسية</p>
         </div>
 
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 hover:shadow-lg transition">
@@ -41,7 +41,7 @@
             <!-- My Subjects Section -->
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
                 <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4">
-                    <h2 class="text-lg font-bold text-white">المواد الدراسية</h2>
+                    <h2 class="text-lg font-bold text-white">المقررات  الدراسية</h2>
                 </div>
                 <div class="p-6">
                     @if($subjects->count() > 0)

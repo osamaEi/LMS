@@ -75,7 +75,7 @@ class ScheduleController extends Controller
         foreach ($subjectIds as $sid) {
             if (!$allowed->contains($sid)) {
                 return back()->withInput()
-                    ->withErrors(['sessions' => 'إحدى المواد غير مصرح لك بها.']);
+                    ->withErrors(['sessions' => 'إحدى المقررات  غير مصرح لك بها.']);
             }
         }
 

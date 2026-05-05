@@ -317,7 +317,7 @@
     <!-- Vision & Mission Section -->
     <section class="vision-section">
         <div class="center">
-            <img class="main-img" src="{{ asset('lms2-photo/2.webp') }}" alt="Vision" onerror="this.src='{{ asset('lms2-photo/14.webp') }}'" />
+            <img class="main-img" src="{{ asset('lms2-photo/2.png') }}" alt="Vision" onerror="this.src='{{ asset('lms2-photo/14.png') }}'" />
 
             <div class="vision-card one">
                 <div class="icon">
@@ -386,22 +386,22 @@
         </div>
         <div class="gallery-grid">
             <div class="g-item tall">
-                <img loading="lazy" src="{{ asset('lms2-photo/1.webp') }}" alt="Institute" />
+                <img loading="lazy" src="{{ asset('lms2-photo/1.png') }}" alt="Institute" />
             </div>
             <div class="g-item">
-                <img loading="lazy" src="{{ asset('lms2-photo/5.webp') }}" alt="Graduation" />
+                <img loading="lazy" src="{{ asset('lms2-photo/5.png') }}" alt="Graduation" />
             </div>
             <div class="g-item">
-                <img loading="lazy" src="{{ asset('lms2-photo/8.webp') }}" alt="Study" />
+                <img loading="lazy" src="{{ asset('lms2-photo/8.png') }}" alt="Study" />
             </div>
             <div class="g-item">
-                <img loading="lazy" src="{{ asset('lms2-photo/11.webp') }}" alt="Learning" />
+                <img loading="lazy" src="{{ asset('lms2-photo/11.png') }}" alt="Learning" />
             </div>
             <div class="g-item wide">
-                <img loading="lazy" src="{{ asset('lms2-photo/14.webp') }}" alt="Computer Lab" />
+                <img loading="lazy" src="{{ asset('lms2-photo/14.png') }}" alt="Computer Lab" />
             </div>
             <div class="g-item">
-                <img loading="lazy" src="{{ asset('lms2-photo/7.webp') }}" alt="Training" />
+                <img loading="lazy" src="{{ asset('lms2-photo/7.png') }}" alt="Training" />
             </div>
         </div>
     </section>
@@ -421,7 +421,7 @@
             </div>
             <div class="col-lg-6">
                 <div class="contact-image">
-                    <img loading="lazy" src="{{ asset('lms2-photo/3.webp') }}" alt="Contact Us" onerror="this.src='{{ asset('lms2-photo/11.webp') }}'" />
+                    <img loading="lazy" src="{{ asset('lms2-photo/3.png') }}" alt="Contact Us" onerror="this.src='{{ asset('lms2-photo/11.png') }}'" />
                 </div>
             </div>
         </div>

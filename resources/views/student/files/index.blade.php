@@ -196,7 +196,7 @@
         {{-- Subject Sidebar --}}
         <div style="background:#fff;border-radius:18px;border:1.5px solid #f1f5f9;padding:12px;position:sticky;top:80px" class="dark:bg-slate-800 dark:border-white/10">
             <div style="font-size:0.72rem;font-weight:700;color:#9ca3af;letter-spacing:0.08em;padding:4px 8px 10px;text-transform:uppercase">
-                المواد الدراسية
+                المقررات  الدراسية
             </div>
 
             <a href="{{ route('student.files.index') }}"
@@ -207,7 +207,7 @@
                     </svg>
                 </div>
                 <span style="font-size:0.875rem;font-weight:600;color:{{ $activeSubjectId === 0 ? '#fff' : '#374151' }}" class="{{ $activeSubjectId === 0 ? '' : 'dark:text-white' }}">
-                    جميع المواد
+                    جميع المقررات 
                 </span>
                 <span class="tab-count">{{ $totalFiles }}</span>
             </a>

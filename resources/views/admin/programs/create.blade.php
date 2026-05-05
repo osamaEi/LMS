@@ -13,7 +13,7 @@
         </a>
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white">إضافة دبلومة تعليمي جديد</h1>
     </div>
-    <p class="text-sm text-gray-500 dark:text-gray-400">أدخل بيانات الدبلومة والأرباع الدراسية وقم بتعيين المواد في خطوة واحدة</p>
+    <p class="text-sm text-gray-500 dark:text-gray-400">أدخل بيانات الدبلومة والأرباع الدراسية وقم بتعيين المقررات  في خطوة واحدة</p>
 </div>
 
 @if($errors->any())
@@ -86,23 +86,17 @@
                     <select name="type"
                             class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
                         <option value="">-- اختر النوع --</option>
-                        <option value="diploma"     {{ old('type') === 'diploma'     ? 'selected' : '' }}>دبلوم</option>
-                        <option value="training"    {{ old('type') === 'training'    ? 'selected' : '' }}>تدريب</option>
-                        <option value="certificate" {{ old('type') === 'certificate' ? 'selected' : '' }}>شهادة</option>
+                        <option value="training"     {{ old('type') === 'training'     ? 'selected' : '' }}>تدريبي</option>
+                        <option value="developmental"{{ old('type') === 'developmental'? 'selected' : '' }}>تطويري</option>
+                        <option value="qualifying"   {{ old('type') === 'qualifying'   ? 'selected' : '' }}>تأهيلي</option>
+                        <option value="diploma"      {{ old('type') === 'diploma'      ? 'selected' : '' }}>دبلوم</option>
                     </select>
                 </div>
                 <div class="md:col-span-2">
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">المشرف الأكاديمي</label>
-                    <select name="supervisor_id"
-                            class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
-                        <option value="">-- بدون مشرف --</option>
-                        @foreach($supervisors as $sup)
-                        <option value="{{ $sup->id }}" {{ old('supervisor_id') == $sup->id ? 'selected' : '' }}>
-                            {{ $sup->name }}
-                            @if($sup->role === 'teacher') (معلم) @elseif($sup->role === 'admin') (مدير) @endif
-                        </option>
-                        @endforeach
-                    </select>
+                    <input type="text" name="supervisor_name" value="{{ old('supervisor_name') }}"
+                           class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                           placeholder="اكتب اسم المشرف الأكاديمي">
                 </div>
                 <div class="md:col-span-2">
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">الوصف (عربي)</label>
@@ -162,7 +156,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
                     </div>
-                    <h2 class="text-base font-bold text-white">الأرباع الدراسية والمواد</h2>
+                    <h2 class="text-base font-bold text-white">الأرباع الدراسية والمقررات </h2>
                 </div>
                 <button type="button" onclick="addTerm()"
                         class="flex items-center gap-2 rounded-lg bg-white/20 hover:bg-white/30 px-4 py-2 text-sm font-medium text-white transition-colors">
@@ -304,7 +298,7 @@ function buildTermHTML(idx, num) {
         </div>
         <div>
             <div class="flex items-center justify-between mb-2">
-                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400">المواد الدراسية <span id="selectedCount_${idx}" class="text-purple-600 font-bold">(0 محدد)</span></label>
+                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400">المقررات  الدراسية <span id="selectedCount_${idx}" class="text-purple-600 font-bold">(0 محدد)</span></label>
                 <input type="text" oninput="filterSubjects(this, ${idx})" placeholder="بحث..."
                        class="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs dark:bg-gray-800 dark:border-gray-700 dark:text-white w-40">
             </div>

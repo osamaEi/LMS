@@ -77,7 +77,7 @@ class FaqSeeder extends Seeder
                 'sort_order'  => 3,
                 'question_ar' => 'هل يوجد تدريب عن بعد؟',
                 'question_en' => 'Is remote training available?',
-                'answer_ar'   => 'نعم، نوفر خيارات التدريب عن بعد لمعظم دوراتنا ودبلوماتنا التدريبية، مع توفر جميع المواد التعليمية والموارد إلكترونياً.',
+                'answer_ar'   => 'نعم، نوفر خيارات التدريب عن بعد لمعظم دوراتنا ودبلوماتنا التدريبية، مع توفر جميع المقررات  التعليمية والموارد إلكترونياً.',
                 'answer_en'   => 'Yes, we provide remote training options for most of our courses and diploma programs, with all educational materials and resources available electronically.',
             ],
             [
@@ -91,9 +91,9 @@ class FaqSeeder extends Seeder
             [
                 'category'    => 'courses',
                 'sort_order'  => 5,
-                'question_ar' => 'كم عدد المواد في كل برنامج؟',
+                'question_ar' => 'كم عدد المقررات  في كل برنامج؟',
                 'question_en' => 'How many subjects are in each program?',
-                'answer_ar'   => 'يتفاوت عدد المواد حسب البرنامج. يتكون كل فصل دراسي عادةً من 4 إلى 8 مواد دراسية، ويمكنك الاطلاع على الخطة الدراسية التفصيلية لكل برنامج من صفحة البرامج.',
+                'answer_ar'   => 'يتفاوت عدد المقررات  حسب البرنامج. يتكون كل فصل دراسي عادةً من 4 إلى 8 مواد دراسية، ويمكنك الاطلاع على الخطة الدراسية التفصيلية لكل برنامج من صفحة البرامج.',
                 'answer_en'   => 'The number of subjects varies by program. Each term typically consists of 4 to 8 subjects. You can view the detailed study plan for each program on the programs page.',
             ],
             [
@@ -151,9 +151,9 @@ class FaqSeeder extends Seeder
             [
                 'category'    => 'platform',
                 'sort_order'  => 1,
-                'question_ar' => 'كيف أصل إلى المواد الدراسية؟',
+                'question_ar' => 'كيف أصل إلى المقررات  الدراسية؟',
                 'question_en' => 'How do I access study materials?',
-                'answer_ar'   => 'بعد التسجيل، يمكنك الوصول إلى جميع المواد الدراسية من قائمة "ملفاتي" في القائمة الجانبية. تشمل المواد: ملفات PDF، فيديوهات المحاضرات، وروابط جلسات Zoom.',
+                'answer_ar'   => 'بعد التسجيل، يمكنك الوصول إلى جميع المقررات  الدراسية من قائمة "ملفاتي" في القائمة الجانبية. تشمل المقررات : ملفات PDF، فيديوهات المحاضرات، وروابط جلسات Zoom.',
                 'answer_en'   => 'After registration, you can access all study materials from the "My Files" section in the sidebar. Materials include PDF files, lecture videos, and Zoom session links.',
             ],
             [

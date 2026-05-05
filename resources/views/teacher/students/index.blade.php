@@ -29,7 +29,7 @@
         <div class="bg-white rounded-lg shadow p-6">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-gray-600 text-sm">المواد</p>
+                    <p class="text-gray-600 text-sm">المقررات </p>
                     <p class="text-2xl font-bold text-gray-900 mt-1">{{ $subjects->count() }}</p>
                 </div>
                 <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
@@ -69,8 +69,8 @@
                             <tr class="border-b">
                                 <th class="text-right py-3 px-4 text-sm font-bold text-gray-700">الطالب</th>
                                 <th class="text-right py-3 px-4 text-sm font-bold text-gray-700">البريد الإلكتروني</th>
-                                <th class="text-right py-3 px-4 text-sm font-bold text-gray-700">المواد المسجلة</th>
-                                <th class="text-right py-3 px-4 text-sm font-bold text-gray-700">عدد المواد</th>
+                                <th class="text-right py-3 px-4 text-sm font-bold text-gray-700">المقررات  المسجلة</th>
+                                <th class="text-right py-3 px-4 text-sm font-bold text-gray-700">عدد المقررات </th>
                             </tr>
                         </thead>
                         <tbody>

@@ -25,7 +25,7 @@ class PermissionHelper
         'students'             => ['name' => 'إدارة الطلاب',                    'match' => ['student']],
         'programs'             => ['name' => 'الدبلومات  التعليمية',              'match' => ['program']],
         'terms'                => ['name' => 'الفصول الدراسية',                'match' => ['term']],
-        'subjects'             => ['name' => 'المواد الدراسية',                 'match' => ['subject']],
+        'subjects'             => ['name' => 'المقررات  الدراسية',                 'match' => ['subject']],
         'sessions'             => ['name' => 'الجلسات والمحاضرات',              'match' => ['session', 'zoom']],
         'recordings'           => ['name' => 'التسجيلات',                       'match' => ['recording']],
         'enrollments'          => ['name' => 'التسجيل والقبول',                 'match' => ['enrollment']],

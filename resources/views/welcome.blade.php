@@ -8,7 +8,7 @@
     <link rel="icon" type="image/png" href="{{ asset('images/Vector.png') }}" />
     <!-- Preload Cairo font + hero image -->
     <link rel="preload" href="/fonts/Cairo-VariableFont_slnt,wght.woff2" as="font" type="font/woff2" crossorigin>
-    <link rel="preload" as="image" href="{{ asset('lms2-photo/14.webp') }}" />
+    <link rel="preload" as="image" href="{{ asset('lms2-photo/14.png') }}" />
 
     @if(app()->getLocale() == 'ar')
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
@@ -42,20 +42,20 @@
         a { text-decoration: none; color: inherit; }
 
         /* ── Saudi Top Bar ── */
-        .saudi-top-bar { background:#fff; color:#1a1a1a; font-size:.78rem; padding:.35rem clamp(1rem,3vw,3rem); display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap; border-bottom:2px solid #006c35; }
+        .saudi-top-bar { background:#fff; color:#1a1a1a; font-size:.78rem; padding:.42rem clamp(1rem,3vw,3rem); display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap; border-bottom:2.5px solid #006c35; box-shadow:0 1px 6px rgba(0,108,53,.1); }
         .saudi-top-bar .saudi-left { display:flex; align-items:center; gap:1.25rem; flex-wrap:wrap; }
-        .saudi-top-bar .saudi-right { display:flex; align-items:center; gap:1rem; }
-        .saudi-emblem { display:flex; align-items:center; gap:.5rem; font-weight:700; font-size:.82rem; }
-        .saudi-divider { width:1px; height:18px; background:rgba(0,0,0,.15); }
-        .saudi-badge { display:flex; align-items:center; gap:.4rem; background:rgba(0,108,53,.07); border:1px solid rgba(0,108,53,.25); border-radius:4px; padding:2px 8px; font-size:.72rem; }
-        .saudi-badge .dot { width:6px; height:6px; border-radius:50%; background:#16a34a; flex-shrink:0; animation:pulse-green 2s infinite; }
-        @keyframes pulse-green { 0%,100%{opacity:1} 50%{opacity:.4} }
+        .saudi-top-bar .saudi-right { display:flex; align-items:center; gap:.85rem; }
+        .saudi-emblem { display:flex; align-items:center; gap:.5rem; font-weight:700; font-size:.82rem; color:#0d2e0d; letter-spacing:.01em; }
+        .saudi-divider { width:1px; height:18px; background:rgba(0,0,0,.14); flex-shrink:0; }
+        .saudi-badge { display:flex; align-items:center; gap:.4rem; background:rgba(0,108,53,.07); border:1px solid rgba(0,108,53,.22); border-radius:5px; padding:3px 9px; font-size:.72rem; color:#006c35; font-weight:600; }
+        .saudi-badge .dot { width:7px; height:7px; border-radius:50%; background:#16a34a; flex-shrink:0; animation:pulse-green 2s infinite; }
+        @keyframes pulse-green { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.45;transform:scale(.8)} }
         .vision-badge { display:flex; align-items:center; gap:.4rem; font-weight:700; font-size:.75rem; }
-        .vision-badge .v-year { background:#006c35; color:#fff; border-radius:3px; padding:1px 6px; font-weight:800; }
+        .vision-badge .v-year { background:#006c35; color:#fff; border-radius:3px; padding:1px 7px; font-weight:800; letter-spacing:.04em; }
         .saudi-date-time { font-size:.72rem; color:#555; white-space:nowrap; }
-        .accessibility-btns { display:flex; gap:.4rem; }
-        .accessibility-btns button { background:rgba(0,0,0,.06); border:1px solid rgba(0,0,0,.12); color:#333; width:24px; height:24px; border-radius:4px; font-size:.7rem; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background .2s; padding:0; }
-        .accessibility-btns button:hover { background:rgba(0,108,53,.12); color:#006c35; }
+        .accessibility-btns { display:flex; gap:.35rem; }
+        .accessibility-btns button { background:rgba(0,108,53,.06); border:1px solid rgba(0,108,53,.2); color:#006c35; min-width:30px; height:24px; border-radius:4px; font-size:.7rem; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .2s; padding:0 5px; }
+        .accessibility-btns button:hover { background:rgba(0,108,53,.14); border-color:#006c35; }
         @media(max-width:768px){ .saudi-top-bar{font-size:.7rem;padding:.3rem .75rem;} .vision-badge,.saudi-date-time,.accessibility-btns{display:none;} }
 
         /* ── Navbar ── */
@@ -99,25 +99,59 @@
         .hero-slide {
             position: absolute; inset: 0;
             background-size: cover; background-position: center;
-            opacity: 0; transition: opacity 1s ease-in-out;
+            opacity: 0;
+            transition: opacity 1.3s ease-in-out, transform 8s ease;
+            transform: scale(1.04);
         }
-        .hero-slide.active { opacity: 1; }
+        .hero-slide.active { opacity: 1; transform: scale(1); }
         .hero-slide::after {
             content: ''; position: absolute; inset: 0;
-            background: linear-gradient(90deg, rgba(0,40,70,.85) 0%, rgba(0,80,130,.6) 45%, rgba(0,0,0,.15) 100%);
+            background: linear-gradient(90deg, rgba(0,0,0,.52) 0%, rgba(0,0,0,.28) 38%, transparent 65%);
         }
         [dir="rtl"] .hero-slide::after {
-            background: linear-gradient(270deg, rgba(0,40,70,.85) 0%, rgba(0,80,130,.6) 45%, rgba(0,0,0,.15) 100%);
+            background: linear-gradient(270deg, rgba(0,0,0,.52) 0%, rgba(0,0,0,.28) 38%, transparent 65%);
         }
+        /* Subtle vertical separator line */
+        .hero-vline {
+            position: absolute; top: 15%; bottom: 15%;
+            right: 42%; width: 1px;
+            background: linear-gradient(to bottom, transparent, rgba(255,255,255,.12) 30%, rgba(255,255,255,.12) 70%, transparent);
+            z-index: 1;
+        }
+        [dir="rtl"] .hero-vline { right: auto; left: 42%; }
+        @media(max-width:991px){ .hero-vline{display:none;} }
+
         .hero-content {
             position: relative; z-index: 2; height: 100%;
             display: flex; flex-direction: column; justify-content: center;
             padding: 0 clamp(1.5rem, 6vw, 8rem);
-            max-width: 700px;
+            max-width: 760px;
+            animation: heroFadeUp 1s ease .15s both;
         }
-        .hero-content h1 { color: #fff; font-size: clamp(2rem, 4.5vw, 3.5rem); font-weight: 800; line-height: 1.25; margin-bottom: 1.25rem; }
+        @keyframes heroFadeUp {
+            from { opacity:0; transform:translateY(35px); }
+            to   { opacity:1; transform:translateY(0); }
+        }
+        /* Tag badge above heading */
+        .hero-tag {
+            display: inline-flex; align-items: center; gap: .5rem;
+            background: rgba(255,255,255,.13); backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,.22); border-radius: 50px;
+            padding: .38rem 1.1rem; color: rgba(255,255,255,.95); font-size: .8rem;
+            margin-bottom: 1rem; width: fit-content;
+        }
+        .hero-tag .tag-dot { width:7px; height:7px; border-radius:50%; background:#4ade80; flex-shrink:0; animation:pulse-green 2s infinite; }
+        /* Accent divider */
+        .hero-accent-line {
+            width: 52px; height: 3px;
+            background: linear-gradient(to right, #7dd3fc, rgba(125,211,252,.25));
+            border-radius: 3px; margin-bottom: 1.2rem;
+        }
+        [dir="rtl"] .hero-accent-line { background: linear-gradient(to left, #7dd3fc, rgba(125,211,252,.25)); }
+
+        .hero-content h1 { color: #fff; font-size: clamp(2rem, 4.5vw, 3.6rem); font-weight: 800; line-height: 1.3; margin-bottom: 1.2rem; }
         .hero-content h1 span { color: #7dd3fc; }
-        .hero-content p { color: rgba(255,255,255,.88); font-size: clamp(.95rem, 1.8vw, 1.15rem); margin-bottom: 2rem; line-height: 1.8; }
+        .hero-content p { color: rgba(255,255,255,.86); font-size: clamp(.9rem, 1.7vw, 1.1rem); margin-bottom: 2rem; line-height: 1.9; max-width: 580px; }
         .hero-btns { display: flex; gap: 1rem; flex-wrap: wrap; }
 
         .full-btn {
@@ -127,10 +161,27 @@
         .full-btn:hover { background: var(--main-dark); transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,113,170,.4); color: #fff; }
         .notfull-btn {
             background: transparent; color: #fff; padding: .65rem 1.75rem;
-            border-radius: 8px; border: 2px solid rgba(255,255,255,.7);
+            border-radius: 8px; border: 2px solid rgba(255,255,255,.65);
             font-size: 1rem; transition: all .3s; cursor: pointer;
         }
-        .notfull-btn:hover { background: rgba(255,255,255,.15); border-color: #fff; }
+        .notfull-btn:hover { background: rgba(255,255,255,.13); border-color: #fff; }
+
+        /* Floating stats cards inside hero */
+        .hero-float-stats {
+            position: absolute; bottom: 4.5rem;
+            left: clamp(1.5rem, 6vw, 8rem); z-index: 3;
+            display: flex; gap: .65rem;
+            animation: heroFadeUp 1s ease .5s both;
+        }
+        [dir="rtl"] .hero-float-stats { left: auto; right: clamp(1.5rem, 6vw, 8rem); }
+        .hfs-pill {
+            background: rgba(255,255,255,.11); backdrop-filter: blur(14px);
+            border: 1px solid rgba(255,255,255,.18); border-radius: 12px;
+            padding: .7rem 1.1rem; color: #fff; text-align: center; min-width: 74px;
+        }
+        .hfs-pill .hfs-n { font-size: 1.45rem; font-weight: 800; display:block; line-height:1; }
+        .hfs-pill .hfs-l { font-size: .67rem; opacity: .82; margin-top: .2rem; display:block; }
+        @media(max-width:991px){ .hero-float-stats{display:none;} }
 
         .hero-dots {
             position: absolute; bottom: 2rem; z-index: 3;
@@ -138,17 +189,17 @@
             display: flex; gap: .5rem;
         }
         [dir="rtl"] .hero-dots { left: auto; right: 50%; transform: translateX(50%); }
-        .hero-dot { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,.45); border: none; cursor: pointer; transition: all .3s; }
-        .hero-dot.active { background: #fff; width: 28px; border-radius: 5px; }
+        .hero-dot { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,.4); border: none; cursor: pointer; transition: all .3s; }
+        .hero-dot.active { background: #fff; width: 32px; border-radius: 5px; }
 
         .hero-scroll-hint {
-            position: absolute; bottom: 2.5rem; right: 2.5rem; z-index: 3;
+            position: absolute; bottom: 2rem; right: 2.5rem; z-index: 3;
             display: flex; flex-direction: column; align-items: center; gap: .4rem;
-            color: rgba(255,255,255,.6); font-size: .75rem;
+            color: rgba(255,255,255,.5); font-size: .72rem;
             animation: bounce 2s infinite;
         }
         [dir="rtl"] .hero-scroll-hint { right: auto; left: 2.5rem; }
-        @keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(6px); } }
+        @keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(7px); } }
 
         /* ── Stats Bar ── */
         .stats-bar { background: var(--main-color); padding: 2.5rem clamp(1rem,4vw,4rem); }
@@ -313,9 +364,20 @@
     <div class="saudi-top-bar" role="banner">
         <div class="saudi-left">
             <div class="saudi-emblem">
-                <svg width="22" height="26" viewBox="0 0 100 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M50 5 L95 30 L95 80 Q95 105 50 115 Q5 105 5 80 L5 30 Z" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.6)" stroke-width="3"/>
-                    <text x="50" y="72" text-anchor="middle" fill="white" font-size="38" font-family="serif">🌴</text>
+                <svg width="22" height="26" viewBox="0 0 60 70" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <!-- trunk -->
+                    <rect x="26" y="32" width="8" height="28" rx="3" fill="#006c35"/>
+                    <!-- fronds -->
+                    <path d="M30 32 C26 24 16 21 8 24 C16 19 27 22 30 30" fill="#006c35"/>
+                    <path d="M30 32 C34 24 44 21 52 24 C44 19 33 22 30 30" fill="#006c35"/>
+                    <path d="M30 32 C27 20 20 13 13 10 C21 15 28 22 30 30" fill="#006c35"/>
+                    <path d="M30 32 C33 20 40 13 47 10 C39 15 32 22 30 30" fill="#006c35"/>
+                    <path d="M30 32 C30 18 30 10 30 4 C31 14 31 22 30 32" fill="#006c35"/>
+                    <!-- crossed swords -->
+                    <line x1="4" y1="52" x2="56" y2="64" stroke="#006c35" stroke-width="3.5" stroke-linecap="round"/>
+                    <line x1="56" y1="52" x2="4" y2="64" stroke="#006c35" stroke-width="3.5" stroke-linecap="round"/>
+                    <rect x="1" y="50" width="9" height="5" rx="1.5" fill="#006c35"/>
+                    <rect x="50" y="50" width="9" height="5" rx="1.5" fill="#006c35"/>
                 </svg>
                 <span>المملكة العربية السعودية</span>
             </div>
@@ -332,11 +394,6 @@
         </div>
         <div class="saudi-right">
             <div class="saudi-date-time" id="saudiDateTime"></div>
-            <div class="saudi-divider"></div>
-            <div class="accessibility-btns">
-                <button onclick="changeFontSize(1)" title="تكبير الخط">A+</button>
-                <button onclick="changeFontSize(-1)" title="تصغير الخط">A-</button>
-            </div>
         </div>
     </div>
 
@@ -350,8 +407,10 @@
             <div class="d-none d-lg-flex align-items-center justify-content-between flex-grow-1">
                 <ul class="navbar-nav d-flex flex-row mb-0 mx-4">
                     <li class="nav-item"><a href="{{ route('home') }}" class="active">{{ __('Home') }}</a></li>
+                    <li class="nav-item"><a href="{{ route('training-paths') }}">{{ __('Training Paths') }}</a></li>
                     <li class="nav-item"><a href="{{ route('short-courses') }}">{{ __('Short Courses') }}</a></li>
                     <li class="nav-item"><a href="{{ route('about') }}">{{ __('About Us') }}</a></li>
+                    <li class="nav-item"><a href="{{ route('news') }}">{{ __('News') }}</a></li>
                     <li class="nav-item"><a href="{{ route('faq') }}">{{ __('FAQ') }}</a></li>
                     <li class="nav-item"><a href="{{ route('contact') }}">{{ __('Contact Us') }}</a></li>
                 </ul>
@@ -380,8 +439,10 @@
         </div>
         <ul class="mobile-nav-list">
             <li><a href="{{ route('home') }}" class="active">{{ __('Home') }}</a></li>
+            <li><a href="{{ route('training-paths') }}">{{ __('Training Paths') }}</a></li>
             <li><a href="{{ route('short-courses') }}">{{ __('Short Courses') }}</a></li>
             <li><a href="{{ route('about') }}">{{ __('About Us') }}</a></li>
+            <li><a href="{{ route('news') }}">{{ __('News') }}</a></li>
             <li><a href="{{ route('faq') }}">{{ __('FAQ') }}</a></li>
             <li><a href="{{ route('contact') }}">{{ __('Contact Us') }}</a></li>
         </ul>
@@ -402,12 +463,18 @@
     <!-- ════ Hero ════ -->
     <section class="hero-section">
         <div class="hero-slides">
-            <div class="hero-slide active" style="background-image:url('{{ asset('lms2-photo/14.webp') }}')"></div>
-            <div class="hero-slide"        style="background-image:url('{{ asset('lms2-photo/1.webp') }}')"></div>
-            <div class="hero-slide"        style="background-image:url('{{ asset('lms2-photo/4.webp') }}')"></div>
-            <div class="hero-slide"        style="background-image:url('{{ asset('lms2-photo/11.webp') }}')"></div>
+            <div class="hero-slide active" style="background-image:url('{{ asset('lms2-photo/14.png') }}')"></div>
+            <div class="hero-slide"        style="background-image:url('{{ asset('lms2-photo/1.png') }}')"></div>
+            <div class="hero-slide"        style="background-image:url('{{ asset('lms2-photo/4.png') }}')"></div>
+            <div class="hero-slide"        style="background-image:url('{{ asset('lms2-photo/11.png') }}')"></div>
         </div>
+        <div class="hero-vline"></div>
         <div class="hero-content">
+            <div class="hero-tag">
+                <span class="tag-dot"></span>
+                {{ app()->getLocale()=='ar' ? 'معهد الارتقاء العالي للتدريب — معتمد رسمياً' : 'Al-Ertiqaa Institute — Officially Accredited' }}
+            </div>
+            <div class="hero-accent-line"></div>
             <h1>
                 {{ __('Distinguished training opens doors to') }}
                 <span>{{ __('tomorrow') }}</span>
@@ -416,6 +483,25 @@
             <div class="hero-btns">
                 <a href="{{ route('login') }}" class="full-btn">{{ __('Start Your Trial Journey') }}</a>
                 <a href="{{ route('training-paths') }}" class="notfull-btn">{{ __('Explore Our Programs') }}</a>
+            </div>
+        </div>
+        <!-- Floating stats (desktop only) -->
+        <div class="hero-float-stats">
+            <div class="hfs-pill">
+                <span class="hfs-n">10+</span>
+                <span class="hfs-l">{{ app()->getLocale()=='ar' ? 'سنوات خبرة' : 'Years' }}</span>
+            </div>
+            <div class="hfs-pill">
+                <span class="hfs-n">500+</span>
+                <span class="hfs-l">{{ app()->getLocale()=='ar' ? 'خريج' : 'Graduates' }}</span>
+            </div>
+            <div class="hfs-pill">
+                <span class="hfs-n">20+</span>
+                <span class="hfs-l">{{ app()->getLocale()=='ar' ? 'برنامج' : 'Programs' }}</span>
+            </div>
+            <div class="hfs-pill">
+                <span class="hfs-n">98%</span>
+                <span class="hfs-l">{{ app()->getLocale()=='ar' ? 'رضا المتدرب' : 'Satisfaction' }}</span>
             </div>
         </div>
         <div class="hero-dots" id="heroDots">
@@ -497,10 +583,10 @@
                 <p>{{ __('We provide training paths spanning two and a half years through 10 training quarters, plus short and specialized courses for various professional goals.') }}</p>
             </div>
             <div class="courses-grid">
-                @php $programImages = ['lms-photos/2.webp','lms-photos/8.webp','lms-photos/5.webp']; @endphp
+                @php $programImages = ['lms-photos/2.png','lms-photos/8.png','lms-photos/5.png']; @endphp
                 @forelse($featuredPrograms ?? [] as $i => $program)
                 <div class="course-card">
-                    <img src="{{ asset($programImages[$i % count($programImages)]) }}" alt="{{ $program->name }}" />
+                    <img src="{{ $program->image ? asset('storage/' . $program->image) : asset($programImages[$i % count($programImages)]) }}" alt="{{ $program->name }}" />
                     <div class="course-card-body d-flex flex-column">
                         <h4>{{ $program->name }}</h4>
                         <p>{{ Str::limit($program->description ?? __('A comprehensive training program designed to develop professional skills.'), 100) }}</p>
@@ -523,9 +609,9 @@
                 </div>
                 @empty
                 @foreach([
-                    ['lms-photos/2.webp',  __('Computer Science Diploma'),    __('Foundations of computing, programming, networks, and databases.'),           12, 5000, 'CS-101'],
-                    ['lms-photos/8.webp',  __('Business Administration'),     __('Modern management fundamentals: leadership, planning, and decision-making.'), 12, null,  'BA-201'],
-                    ['lms-photos/5.webp',  __('Digital Marketing Diploma'),   __('SEO, social media, paid ads, and analytics strategies.'),                     10, 4500, 'DM-301'],
+                    ['lms-photos/2.png',  __('Computer Science Diploma'),    __('Foundations of computing, programming, networks, and databases.'),           12, 5000, 'CS-101'],
+                    ['lms-photos/8.png',  __('Business Administration'),     __('Modern management fundamentals: leadership, planning, and decision-making.'), 12, null,  'BA-201'],
+                    ['lms-photos/5.png',  __('Digital Marketing Diploma'),   __('SEO, social media, paid ads, and analytics strategies.'),                     10, 4500, 'DM-301'],
                 ] as [$img,$name,$desc,$months,$price,$code])
                 <div class="course-card">
                     <img src="{{ asset($img) }}" alt="{{ $name }}" />
@@ -563,35 +649,35 @@
             </div>
             <div class="gallery-grid">
                 <div class="gallery-item gallery-item-1">
-                    <img loading="lazy" src="{{ asset('lms2-photo/2.webp') }}" alt="Institute Building" />
+                    <img loading="lazy" src="{{ asset('lms2-photo/2.png') }}" alt="Institute Building" />
                     <div class="overlay"></div>
                 </div>
                 <div class="gallery-item gallery-item-2">
-                    <img loading="lazy" src="{{ asset('lms2-photo/14.webp') }}" alt="Computer Lab" />
+                    <img loading="lazy" src="{{ asset('lms2-photo/14.png') }}" alt="Computer Lab" />
                     <div class="overlay"></div>
                 </div>
                 <div class="gallery-item gallery-item-3">
-                    <img loading="lazy" src="{{ asset('lms2-photo/1.webp') }}" alt="Student" />
+                    <img loading="lazy" src="{{ asset('lms2-photo/1.png') }}" alt="Student" />
                     <div class="overlay"></div>
                 </div>
                 <div class="gallery-item gallery-item-4">
-                    <img loading="lazy" src="{{ asset('lms2-photo/3.webp') }}" alt="Consultation" />
+                    <img loading="lazy" src="{{ asset('lms2-photo/3.png') }}" alt="Consultation" />
                     <div class="overlay"></div>
                 </div>
                 <div class="gallery-item gallery-item-5">
-                    <img loading="lazy" src="{{ asset('lms2-photo/4.webp') }}" alt="Learning" />
+                    <img loading="lazy" src="{{ asset('lms2-photo/4.png') }}" alt="Learning" />
                     <div class="overlay"></div>
                 </div>
                 <div class="gallery-item gallery-item-6">
-                    <img loading="lazy" src="{{ asset('lms2-photo/5.webp') }}" alt="Graduation" />
+                    <img loading="lazy" src="{{ asset('lms2-photo/5.png') }}" alt="Graduation" />
                     <div class="overlay"></div>
                 </div>
                 <div class="gallery-item gallery-item-7">
-                    <img loading="lazy" src="{{ asset('lms2-photo/9.webp') }}" alt="Award" />
+                    <img loading="lazy" src="{{ asset('lms2-photo/9.png') }}" alt="Award" />
                     <div class="overlay"></div>
                 </div>
                 <div class="gallery-item gallery-item-8">
-                    <img loading="lazy" src="{{ asset('lms2-photo/11.webp') }}" alt="Discussion" />
+                    <img loading="lazy" src="{{ asset('lms2-photo/11.png') }}" alt="Discussion" />
                     <div class="overlay"></div>
                 </div>
             </div>
@@ -609,7 +695,7 @@
             <div class="row align-items-center g-5">
                 <div class="col-lg-6 {{ app()->getLocale()=='ar' ? 'order-2' : 'order-1' }}">
                     <div class="how-image" style="height:420px">
-                        <img loading="lazy" src="{{ asset('lms2-photo/4.webp') }}" alt="How It Works" />
+                        <img loading="lazy" src="{{ asset('lms2-photo/4.png') }}" alt="How It Works" />
                     </div>
                 </div>
                 <div class="col-lg-6 {{ app()->getLocale()=='ar' ? 'order-1' : 'order-2' }}">
@@ -719,7 +805,7 @@
                     </div>
                 </div>
                 <div class="col-lg-6 text-center">
-                    <img loading="lazy" src="{{ asset('lms2-photo/4.webp') }}" alt="App" style="max-width:100%;border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,.3);max-height:360px;object-fit:cover" />
+                    <img loading="lazy" src="{{ asset('lms2-photo/4.png') }}" alt="App" style="max-width:100%;border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,.3);max-height:360px;object-fit:cover" />
                 </div>
             </div>
         </div>
@@ -727,69 +813,7 @@
 
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- ════ Footer ════ -->
-    <footer class="foot">
-        <div class="container-fluid">
-            <div class="row g-5">
-                <div class="col-lg-4 col-md-12">
-                    <div class="footer-logo">
-                        <img src="{{ asset('images/footlogooo.png') }}" alt="Logo" onerror="this.style.display='none'" />
-                    </div>
-                    <p class="footer-desc">{{ __('An accredited training institute offering professional development programs and educational paths for over 10 years, aligned with Saudi Vision 2030.') }}</p>
-                    <div class="footer-social-wrap">
-                        <a href="#"><i class="bi bi-youtube"></i></a>
-                        <a href="#"><i class="bi bi-twitter-x"></i></a>
-                        <a href="#"><i class="bi bi-linkedin"></i></a>
-                        <a href="#"><i class="bi bi-instagram"></i></a>
-                    </div>
-                </div>
-                <div class="col-lg-2 col-md-4 col-6">
-                    <div class="footer-heading">{{ __('Quick Links') }}</div>
-                    <div class="footer-links">
-                        <a href="{{ route('home') }}">{{ __('Home') }}</a>
-                        <a href="{{ route('about') }}">{{ __('About Us') }}</a>
-                        <a href="{{ route('training-paths') }}">{{ __('Training Paths') }}</a>
-                        <a href="{{ route('short-courses') }}">{{ __('Short Courses') }}</a>
-                        <a href="{{ route('news') }}">{{ __('News') }}</a>
-                        <a href="{{ route('contact') }}">{{ __('Contact Us') }}</a>
-                    </div>
-                </div>
-                <div class="col-lg-2 col-md-4 col-6">
-                    <div class="footer-heading">{{ __('Services') }}</div>
-                    <div class="footer-links">
-                        <a href="{{ route('training-paths') }}">{{ __('Term System Programs') }}</a>
-                        <a href="{{ route('short-courses') }}">{{ __('Short Courses') }}</a>
-                        <a href="{{ route('short-courses') }}">{{ __('Remote Training') }}</a>
-                        <a href="{{ route('contact') }}">{{ __('Certificate Accreditation') }}</a>
-                        <a href="{{ route('faq') }}">{{ __('Technical Support') }}</a>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-4 col-12">
-                    <div class="footer-heading">{{ __('Contact Information') }}</div>
-                    <div class="footer-contact-item">
-                        <i class="bi bi-telephone-fill"></i>
-                        <span>9200343222</span>
-                    </div>
-                    <div class="footer-contact-item">
-                        <i class="bi bi-envelope-fill"></i>
-                        <span>help@alertiqa.edu.sa</span>
-                    </div>
-                    <div class="footer-contact-item">
-                        <i class="bi bi-geo-alt-fill"></i>
-                        <span>{{ __('Riyadh, Saudi Arabia') }}</span>
-                    </div>
-                    <div class="footer-contact-item">
-                        <i class="bi bi-clock-fill"></i>
-                        <span>{{ __('Sun – Thu: 8:00 AM – 5:00 PM') }}</span>
-                    </div>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>© {{ date('Y') }} {{ __('Al-Ertiqaa High Institute for Training') }}. {{ __('All rights reserved') }}.</p>
-                <p>{{ __('Developed and maintained by Al-Ertiqaa') }}</p>
-            </div>
-        </div>
-    </footer>
+    @include('layouts.partials.footer')
 
     <script>
         // ── Saudi Top Bar date/time ──

@@ -42,12 +42,16 @@ Route::get('/', function () {
 
 // Front pages routes
 Route::get('/training-paths', function () {
-    $programs = \App\Models\Program::where('status', 'active')->get();
+    $programs = \App\Models\Program::where('status', 'active')
+        ->where(fn($q) => $q->whereNull('type')->orWhere('type', '!=', 'course'))
+        ->get();
     return view('front.training-paths', compact('programs'));
 })->name('training-paths');
 
 Route::get('/short-courses', function () {
-    $programs = \App\Models\Program::where('status', 'active')->get();
+    $programs = \App\Models\Program::where('status', 'active')
+        ->where('type', 'course')
+        ->get();
     return view('front.short-courses', compact('programs'));
 })->name('short-courses');
 
@@ -61,6 +65,8 @@ Route::get('/faq', [\App\Http\Controllers\Front\FaqController::class, 'index'])-
 
 Route::get('/contact', [\App\Http\Controllers\Front\ContactController::class, 'index'])->name('contact');
 Route::post('/contact', [\App\Http\Controllers\Front\ContactController::class, 'store'])->name('contact.store');
+
+Route::get('/page/{slug}', [\App\Http\Controllers\Front\PageController::class, 'show'])->name('page.show');
 
 // NELC Public Pages (Policies, Guides, Open Content)
 Route::prefix('nelc')->name('nelc.')->group(function () {
@@ -161,6 +167,9 @@ Route::middleware(['auth', 'role:admin,super_admin'])->prefix('admin')->name('ad
     // Program (Path) Management
     Route::get('/programs/export', [\App\Http\Controllers\Admin\ProgramController::class, 'export'])->name('programs.export');
     Route::resource('programs', \App\Http\Controllers\Admin\ProgramController::class);
+
+    // Courses Management
+    Route::resource('courses', \App\Http\Controllers\Admin\CourseController::class);
 
     // Term (Semester) Management
     Route::resource('terms', \App\Http\Controllers\Admin\TermController::class);
@@ -329,6 +338,16 @@ Route::middleware(['auth', 'role:admin,super_admin'])->prefix('admin')->name('ad
         Route::post('/{whatsappChat}/close', [\App\Http\Controllers\Admin\WhatsAppChatController::class, 'close'])->name('close');
         Route::get('/{whatsappChat}/messages', [\App\Http\Controllers\Admin\WhatsAppChatController::class, 'getNewMessages'])->name('messages');
     });
+
+    // Footer Settings
+    Route::get('/footer-settings', [\App\Http\Controllers\Admin\FooterSettingsController::class, 'index'])->name('footer-settings.index');
+    Route::put('/footer-settings', [\App\Http\Controllers\Admin\FooterSettingsController::class, 'update'])->name('footer-settings.update');
+    Route::post('/footer-settings/links', [\App\Http\Controllers\Admin\FooterSettingsController::class, 'storeLink'])->name('footer-settings.links.store');
+    Route::patch('/footer-settings/links/{link}/toggle', [\App\Http\Controllers\Admin\FooterSettingsController::class, 'toggleLink'])->name('footer-settings.links.toggle');
+    Route::delete('/footer-settings/links/{link}', [\App\Http\Controllers\Admin\FooterSettingsController::class, 'destroyLink'])->name('footer-settings.links.destroy');
+
+    // Pages Management
+    Route::resource('pages', \App\Http\Controllers\Admin\PagesController::class)->except(['show']);
 });
 
 // Teacher Routes

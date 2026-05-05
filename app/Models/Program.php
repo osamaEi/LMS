@@ -21,6 +21,7 @@ class Program extends Model
         'image',
         'type',
         'supervisor_id',
+        'supervisor_name',
     ];
 
     /**

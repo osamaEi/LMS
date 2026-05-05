@@ -282,7 +282,7 @@
             </div>
             <div>
                 <div class="s-val">{{ $stats['subjects_count'] }}</div>
-                <div class="s-lbl">المواد المسجلة</div>
+                <div class="s-lbl">المقررات  المسجلة</div>
             </div>
         </div>
         <div class="stat-box">
@@ -532,7 +532,7 @@
                 <div class="icon-wrap" style="background: #ecfdf5;">
                     <svg class="w-4.5 h-4.5" style="color: #059669;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
                 </div>
-                <span class="text-sm font-bold text-gray-900 dark:text-white flex-1">تقدم المواد</span>
+                <span class="text-sm font-bold text-gray-900 dark:text-white flex-1">تقدم المقررات </span>
                 <a href="{{ route('student.attendance') }}" class="link-all" style="background: #ecfdf5; color: #059669;">سجل الحضور</a>
             </div>
             <div class="p-5 space-y-4">

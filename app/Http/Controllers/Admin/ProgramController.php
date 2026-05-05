@@ -14,14 +14,17 @@ class ProgramController extends Controller
 {
     public function index()
     {
-        $programs = Program::withCount(['terms', 'tracks'])
+        $programs = Program::where(function ($q) {
+                $q->whereNull('type')->orWhere('type', '!=', 'course');
+            })
+            ->withCount(['terms', 'tracks'])
             ->latest()
             ->paginate(15);
 
         $stats = [
-            'total' => Program::count(),
-            'active' => Program::where('status', 'active')->count(),
-            'inactive' => Program::where('status', 'inactive')->count(),
+            'total'    => Program::where(fn($q) => $q->whereNull('type')->orWhere('type', '!=', 'course'))->count(),
+            'active'   => Program::where(fn($q) => $q->whereNull('type')->orWhere('type', '!=', 'course'))->where('status', 'active')->count(),
+            'inactive' => Program::where(fn($q) => $q->whereNull('type')->orWhere('type', '!=', 'course'))->where('status', 'inactive')->count(),
         ];
 
         return view('admin.programs.index', compact('programs', 'stats'));
@@ -46,8 +49,8 @@ class ProgramController extends Controller
             'duration_months'    => 'nullable|integer|min:1',
             'price'              => 'nullable|numeric|min:0',
             'status'             => 'nullable|in:active,inactive',
-            'type'               => 'nullable|in:diploma,training,certificate',
-            'supervisor_id'      => 'nullable|exists:users,id',
+            'type'               => 'nullable|in:diploma,training,developmental,qualifying,course',
+            'supervisor_name'    => 'nullable|string|max:255',
             'image'              => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'terms'              => 'nullable|array',
             'terms.*.name_ar'    => 'nullable|string|max:255',
@@ -62,7 +65,7 @@ class ProgramController extends Controller
 
         $data = $request->only([
             'name_ar', 'name_en', 'code', 'description_ar', 'description_en',
-            'duration_months', 'price', 'status', 'type', 'supervisor_id',
+            'duration_months', 'price', 'status', 'type', 'supervisor_name',
         ]);
 
         if ($request->hasFile('image')) {
@@ -125,8 +128,8 @@ class ProgramController extends Controller
             'duration_months' => 'nullable|integer|min:1',
             'price'           => 'nullable|numeric|min:0',
             'status'          => 'nullable|in:active,inactive',
-            'type'            => 'nullable|in:diploma,training,certificate',
-            'supervisor_id'   => 'nullable|exists:users,id',
+            'type'            => 'nullable|in:diploma,training,developmental,qualifying,course',
+            'supervisor_name' => 'nullable|string|max:255',
             'image'           => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'remove_image'    => 'nullable|boolean',
         ]);
