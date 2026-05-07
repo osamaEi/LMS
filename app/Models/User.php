@@ -44,7 +44,28 @@ class User extends Authenticatable
         'specialization_type',
         'level',
         'date_of_graduation',
+        'student_code',
     ];
+
+    protected static function booted(): void
+    {
+        static::creating(function (User $user) {
+            if ($user->role === 'student' && empty($user->student_code)) {
+                $user->student_code = static::generateStudentCode();
+            }
+        });
+    }
+
+    public static function generateStudentCode(): string
+    {
+        $last = static::where('student_code', 'like', 'STU-%')
+            ->orderByRaw('CAST(SUBSTRING(student_code, 5) AS UNSIGNED) DESC')
+            ->value('student_code');
+
+        $next = $last ? ((int) substr($last, 4)) + 1 : 1;
+
+        return 'STU-' . str_pad($next, 6, '0', STR_PAD_LEFT);
+    }
 
     /**
      * The attributes that should be hidden for serialization.

@@ -369,6 +369,7 @@
                 <thead>
                     <tr>
                         <th style="width:44px">#</th>
+                        <th>كود الطالب</th>
                         <th>الطالب</th>
                         <th>البريد الإلكتروني</th>
                         <th>رقم الهوية</th>
@@ -396,6 +397,13 @@
                         {{-- Row # --}}
                         <td style="color:#9ca3af;font-size:0.78rem;font-weight:600;font-family:monospace">
                             {{ $students->firstItem() + $i }}
+                        </td>
+
+                        {{-- Student Code --}}
+                        <td>
+                            <span style="display:inline-block;padding:3px 10px;border-radius:999px;background:#eff6ff;color:#1d4ed8;font-size:0.75rem;font-weight:700;font-family:monospace;letter-spacing:.5px;border:1px solid #bfdbfe;">
+                                {{ $student->student_code ?? '—' }}
+                            </span>
                         </td>
 
                         {{-- Student --}}

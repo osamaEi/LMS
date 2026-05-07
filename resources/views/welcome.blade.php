@@ -1,3 +1,4 @@
+@php use Illuminate\Support\Facades\Storage; @endphp
 <!DOCTYPE html>
 <html lang="{{ app()->getLocale() }}" dir="{{ app()->getLocale() == 'ar' ? 'rtl' : 'ltr' }}">
 <head>
@@ -306,6 +307,84 @@
         .testimonial-author { display: flex; align-items: center; gap: .75rem; border-top: 1px solid #f0f0f0; padding-top: 1rem; }
         .testimonial-author .name { font-weight: 700; font-size: .9rem; }
         .testimonial-author .role { font-size: .8rem; color: #888; }
+
+        /* ── Partners Section ── */
+        .partners-section {
+            padding: clamp(3rem,6vw,5.5rem) 0;
+            background: linear-gradient(180deg, #f8fafc 0%, #fff 100%);
+            position: relative; overflow: hidden;
+        }
+        .partners-section::before {
+            content: '';
+            position: absolute; top: 0; left: 0; right: 0; height: 3px;
+            background: linear-gradient(90deg, transparent, var(--main-color), #38bdf8, var(--main-color), transparent);
+        }
+        .partners-head {
+            text-align: center; padding: 0 1rem; margin-bottom: 2.75rem;
+            position: relative; z-index: 2;
+        }
+        .partners-badge {
+            display: inline-flex; align-items: center; gap: .5rem;
+            background: #eaf5fb; color: var(--main-color) !important;
+            padding: .35rem 1.1rem; border-radius: 50px;
+            font-size: .82rem; font-weight: 700; margin-bottom: .85rem;
+            border: 1px solid rgba(0,113,170,.15);
+        }
+        .partners-badge::before {
+            content: ''; width: 7px; height: 7px; border-radius: 50%;
+            background: var(--main-color); display: inline-block; vertical-align: middle;
+        }
+        .partners-head h2 {
+            font-size: clamp(1.5rem,3vw,2.1rem) !important; font-weight: 800 !important;
+            color: #0f172a !important; margin-bottom: .4rem !important;
+            display: block !important; visibility: visible !important;
+        }
+        .partners-head p { color: #64748b !important; font-size: .92rem; margin: 0; }
+        /* Marquee container — always LTR to keep scroll direction correct */
+        .partners-marquee-outer {
+            position: relative; overflow: hidden;
+            padding: .5rem 0;
+        }
+        .partners-marquee-outer::before,
+        .partners-marquee-outer::after {
+            content: ''; position: absolute; top: 0; bottom: 0; width: 120px; z-index: 3; pointer-events: none;
+        }
+        .partners-marquee-outer::before { left: 0;  background: linear-gradient(to right,  #f8fafc 0%, transparent 100%); }
+        .partners-marquee-outer::after  { right: 0; background: linear-gradient(to left,   #f8fafc 0%, transparent 100%); }
+        .partners-marquee-track {
+            display: flex; gap: 1.75rem; align-items: center;
+            width: max-content;
+            animation: partnersTicker 30s linear infinite;
+        }
+        .partners-marquee-track:hover { animation-play-state: paused; }
+        @keyframes partnersTicker {
+            0%   { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        .p-logo-card {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            width: 164px; min-height: 108px; flex-shrink: 0;
+            background: #fff; border-radius: 16px;
+            border: 1.5px solid #e2e8f0;
+            box-shadow: 0 2px 8px rgba(0,0,0,.04);
+            padding: 14px 16px 12px; gap: 8px;
+            transition: all .3s ease;
+        }
+        .p-logo-card:hover {
+            border-color: var(--main-color);
+            box-shadow: 0 8px 28px rgba(0,113,170,.13);
+            transform: translateY(-4px);
+        }
+        .p-logo-card img {
+            max-width: 110px; max-height: 46px; object-fit: contain;
+            filter: grayscale(25%) opacity(.85); transition: filter .3s;
+        }
+        .p-logo-card:hover img { filter: grayscale(0%) opacity(1); }
+        .p-logo-card .p-name {
+            font-size: .72rem; font-weight: 700; color: #475569;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            max-width: 136px; text-align: center; display: block;
+        }
 
         /* ── App Section ── */
         .app-section { background: linear-gradient(135deg, #004e7e 0%, var(--main-color) 100%); padding: clamp(3rem,6vw,6rem) clamp(1rem,4vw,4rem); color: #fff; }
@@ -811,6 +890,54 @@
         </div>
     </section>
 
+
+    @php
+        $partners = \App\Models\Partner::where('is_active', true)->orderBy('sort_order')->orderBy('id')->get();
+    @endphp
+    @if($partners->isNotEmpty())
+    <section class="partners-section">
+        <div class="partners-head">
+            <div class="partners-badge">
+                {{ app()->getLocale() === 'ar' ? 'شركاؤنا' : 'Our Partners' }}
+            </div>
+            <h2>{{ app()->getLocale() === 'ar' ? 'الشركاء والجهات المتعاونة' : 'Partners & Affiliates' }}</h2>
+            <p>{{ app()->getLocale() === 'ar' ? 'نفخر بشراكتنا مع عدد من الجهات والمنظمات الرائدة' : 'Proud to work alongside leading organizations and institutions' }}</p>
+        </div>
+
+        {{-- dir="ltr" forces left-to-right scroll regardless of page RTL --}}
+        <div class="partners-marquee-outer" dir="ltr">
+            <div class="partners-marquee-track">
+                @php $logoItems = $partners->values(); @endphp
+                {{-- First copy --}}
+                @foreach($logoItems as $p)
+                <div class="p-logo-card">
+                    @if($p->url)
+                    <a href="{{ $p->url }}" target="_blank" rel="noopener" style="display:contents">
+                        <img src="{{ Storage::url($p->logo) }}" alt="{{ $p->name }}">
+                    </a>
+                    @else
+                    <img src="{{ Storage::url($p->logo) }}" alt="{{ $p->name }}">
+                    @endif
+                    <span class="p-name">{{ $p->name }}</span>
+                </div>
+                @endforeach
+                {{-- Duplicate for seamless infinite loop --}}
+                @foreach($logoItems as $p)
+                <div class="p-logo-card">
+                    @if($p->url)
+                    <a href="{{ $p->url }}" target="_blank" rel="noopener" style="display:contents">
+                        <img src="{{ Storage::url($p->logo) }}" alt="{{ $p->name }}">
+                    </a>
+                    @else
+                    <img src="{{ Storage::url($p->logo) }}" alt="{{ $p->name }}">
+                    @endif
+                    <span class="p-name">{{ $p->name }}</span>
+                </div>
+                @endforeach
+            </div>
+        </div>
+    </section>
+    @endif
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     @include('layouts.partials.footer')

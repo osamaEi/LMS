@@ -81,16 +81,9 @@
                 </div>
                 <div class="md:col-span-2">
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">المشرف الأكاديمي</label>
-                    <select name="supervisor_id"
-                            class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 focus:border-amber-500 focus:ring-2 focus:ring-amber-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
-                        <option value="">-- بدون مشرف --</option>
-                        @foreach($supervisors as $sup)
-                        <option value="{{ $sup->id }}" {{ old('supervisor_id', $program->supervisor_id) == $sup->id ? 'selected' : '' }}>
-                            {{ $sup->name }}
-                            @if($sup->role === 'teacher') (معلم) @elseif($sup->role === 'admin') (مدير) @endif
-                        </option>
-                        @endforeach
-                    </select>
+                    <input type="text" name="supervisor_name" value="{{ old('supervisor_name', $program->supervisor_name) }}"
+                           class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 focus:border-amber-500 focus:ring-2 focus:ring-amber-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                           placeholder="اكتب اسم المشرف الأكاديمي">
                 </div>
                 <div class="md:col-span-2">
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">الوصف (عربي)</label>

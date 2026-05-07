@@ -348,6 +348,13 @@ Route::middleware(['auth', 'role:admin,super_admin'])->prefix('admin')->name('ad
 
     // Pages Management
     Route::resource('pages', \App\Http\Controllers\Admin\PagesController::class)->except(['show']);
+
+    // Partners
+    Route::get('/partners', [\App\Http\Controllers\Admin\PartnersController::class, 'index'])->name('partners.index');
+    Route::post('/partners', [\App\Http\Controllers\Admin\PartnersController::class, 'store'])->name('partners.store');
+    Route::put('/partners/{partner}', [\App\Http\Controllers\Admin\PartnersController::class, 'update'])->name('partners.update');
+    Route::patch('/partners/{partner}/toggle', [\App\Http\Controllers\Admin\PartnersController::class, 'toggle'])->name('partners.toggle');
+    Route::delete('/partners/{partner}', [\App\Http\Controllers\Admin\PartnersController::class, 'destroy'])->name('partners.destroy');
 });
 
 // Teacher Routes

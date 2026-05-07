@@ -1308,7 +1308,10 @@
 
             <!-- Info -->
             <div class="flex-1">
-                <h1 class="text-3xl font-bold text-white mb-2">{{ $student->name }}</h1>
+                <h1 class="text-3xl font-bold text-white mb-1">{{ $student->name }}</h1>
+                @if($student->student_code)
+                <p class="text-white/60 text-xs font-mono font-bold mb-1 tracking-widest">{{ $student->student_code }}</p>
+                @endif
                 <p class="text-white/80 text-lg mb-4">{{ $student->email }}</p>
 
                 <!-- Info Chips -->
@@ -1489,6 +1492,19 @@
                                 <div class="content">
                                     <div class="label">الاسم الكامل</div>
                                     <div class="value">{{ $student->name }}</div>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <div class="icon-box" style="background: linear-gradient(135deg, #1d4ed8, #2563eb);">
+                                    <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"/>
+                                    </svg>
+                                </div>
+                                <div class="content">
+                                    <div class="label">كود الطالب</div>
+                                    <div class="value" style="font-family:monospace;font-weight:800;color:#1d4ed8;letter-spacing:.5px;">
+                                        {{ $student->student_code ?? '—' }}
+                                    </div>
                                 </div>
                             </div>
                             <div class="info-item">
