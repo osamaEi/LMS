@@ -164,6 +164,10 @@ Route::middleware(['auth', 'role:admin,super_admin'])->prefix('admin')->name('ad
         Route::delete('/bulk-reject', [\App\Http\Controllers\Admin\ProgramEnrollmentController::class, 'bulkReject'])->name('bulk-reject');
     });
 
+    // Offers & Discounts
+    Route::resource('offers', \App\Http\Controllers\Admin\OfferController::class);
+    Route::patch('offers/{offer}/toggle-status', [\App\Http\Controllers\Admin\OfferController::class, 'toggleStatus'])->name('offers.toggle-status');
+
     // Program (Path) Management
     Route::get('/programs/export', [\App\Http\Controllers\Admin\ProgramController::class, 'export'])->name('programs.export');
     Route::resource('programs', \App\Http\Controllers\Admin\ProgramController::class);
@@ -474,6 +478,9 @@ Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')
     Route::get('/upcoming-sessions', [\App\Http\Controllers\Student\DashboardController::class, 'upcomingSessions'])->name('upcoming-sessions');
     Route::get('/sessions/{sessionId}/join-zoom', [\App\Http\Controllers\Student\DashboardController::class, 'joinZoom'])->name('sessions.join-zoom');
     Route::post('/sessions/{sessionId}/leave-zoom', [\App\Http\Controllers\Student\DashboardController::class, 'leaveZoom'])->name('sessions.leave-zoom');
+
+    // Offers & Discounts
+    Route::get('/offers', [\App\Http\Controllers\Student\OfferController::class, 'index'])->name('offers.index');
 
     // Homework
     Route::get('/homework', [\App\Http\Controllers\Student\HomeworkController::class, 'index'])->name('homework.index');
