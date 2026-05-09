@@ -87,10 +87,41 @@ class ProgramEnrollmentController extends Controller
                 ->with('error', 'هذا الطالب ليس لديه طلب تسجيل معلق');
         }
 
-        $user->update(['program_status' => 'approved']);
+        $program = $user->program()->with('terms.subjects')->first();
 
-        return redirect()->route('admin.program-enrollments.index')
-            ->with('success', 'تم قبول طلب التسجيل في البرنامج للطالب: ' . $user->name);
+        $user->update([
+            'program_status'      => 'approved',
+            'status'              => 'active',
+            'current_term_number' => $user->current_term_number ?? 1,
+        ]);
+
+        // Auto-enroll in all program subjects
+        $enrolledCount = 0;
+        if ($program) {
+            foreach ($program->terms as $term) {
+                foreach ($term->subjects as $subject) {
+                    $exists = \App\Models\Enrollment::where('student_id', $user->id)
+                        ->where('subject_id', $subject->id)
+                        ->exists();
+                    if (!$exists) {
+                        \App\Models\Enrollment::create([
+                            'student_id'  => $user->id,
+                            'subject_id'  => $subject->id,
+                            'enrolled_at' => now(),
+                            'status'      => 'active',
+                        ]);
+                        $enrolledCount++;
+                    }
+                }
+            }
+        }
+
+        $msg = 'تم قبول طلب التسجيل للطالب: ' . $user->name;
+        if ($enrolledCount > 0) {
+            $msg .= " وتسجيله في {$enrolledCount} مادة";
+        }
+
+        return redirect()->back()->with('success', $msg);
     }
 
     /**
@@ -111,7 +142,7 @@ class ProgramEnrollmentController extends Controller
             'current_term_number' => null,
         ]);
 
-        return redirect()->route('admin.program-enrollments.index')
+        return redirect()->back()
             ->with('success', 'تم رفض طلب التسجيل في البرنامج للطالب: ' . $user->name);
     }
 
@@ -125,9 +156,38 @@ class ProgramEnrollmentController extends Controller
             'user_ids.*' => 'exists:users,id',
         ]);
 
-        $count = User::whereIn('id', $request->user_ids)
+        $users = User::whereIn('id', $request->user_ids)
             ->where('program_status', 'pending')
-            ->update(['program_status' => 'approved']);
+            ->with('program.terms.subjects')
+            ->get();
+
+        $count = 0;
+        foreach ($users as $user) {
+            $user->update([
+                'program_status'      => 'approved',
+                'status'              => 'active',
+                'current_term_number' => $user->current_term_number ?? 1,
+            ]);
+
+            if ($user->program) {
+                foreach ($user->program->terms as $term) {
+                    foreach ($term->subjects as $subject) {
+                        $exists = \App\Models\Enrollment::where('student_id', $user->id)
+                            ->where('subject_id', $subject->id)
+                            ->exists();
+                        if (!$exists) {
+                            \App\Models\Enrollment::create([
+                                'student_id'  => $user->id,
+                                'subject_id'  => $subject->id,
+                                'enrolled_at' => now(),
+                                'status'      => 'active',
+                            ]);
+                        }
+                    }
+                }
+            }
+            $count++;
+        }
 
         return redirect()->route('admin.program-enrollments.index')
             ->with('success', "تم قبول {$count} طلب تسجيل بنجاح");

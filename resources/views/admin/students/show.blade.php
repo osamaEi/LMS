@@ -1729,33 +1729,71 @@
                     </div>
                     <div class="info-card-body">
                         @if($student->program)
-                            <div class="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl p-4 mb-4">
-                                <div class="flex items-center gap-3 mb-2">
-                                    <div class="w-10 h-10 rounded-lg bg-gradient-to-r from-green-500 to-emerald-500 flex items-center justify-center">
-                                        <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            @if($student->program_status === 'pending')
+                                {{-- Pending approval state --}}
+                                <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-xl p-4 mb-4">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <svg class="w-5 h-5 text-amber-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                         </svg>
+                                        <span class="text-sm font-bold text-amber-700 dark:text-amber-400">طلب تسجيل بانتظار الموافقة</span>
                                     </div>
-                                    <div>
-                                        <p class="font-semibold text-gray-900 dark:text-white">{{ $student->program->name }}</p>
-                                        <p class="text-xs text-gray-500">{{ $student->program->code }}</p>
+                                    <p class="font-semibold text-gray-900 dark:text-white">{{ $student->program->name }}</p>
+                                    @if($student->program->code)
+                                        <p class="text-xs text-gray-500 mt-0.5">{{ $student->program->code }}</p>
+                                    @endif
+                                </div>
+                                <div class="flex gap-2">
+                                    <form action="{{ route('admin.program-enrollments.approve', $student) }}" method="POST" class="flex-1">
+                                        @csrf
+                                        <button type="submit" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-green-500 text-white hover:bg-green-600 transition-colors font-medium text-sm">
+                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                            </svg>
+                                            قبول
+                                        </button>
+                                    </form>
+                                    <form action="{{ route('admin.program-enrollments.reject', $student) }}" method="POST" class="flex-1" onsubmit="return confirm('هل أنت متأكد من رفض طلب التسجيل؟');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-900/20 dark:text-red-400 transition-colors font-medium text-sm">
+                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                            </svg>
+                                            رفض
+                                        </button>
+                                    </form>
+                                </div>
+                            @else
+                                {{-- Approved / assigned state --}}
+                                <div class="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl p-4 mb-4">
+                                    <div class="flex items-center gap-3 mb-2">
+                                        <div class="w-10 h-10 rounded-lg bg-gradient-to-r from-green-500 to-emerald-500 flex items-center justify-center">
+                                            <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <p class="font-semibold text-gray-900 dark:text-white">{{ $student->program->name }}</p>
+                                            <p class="text-xs text-gray-500">{{ $student->program->code }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center justify-between text-sm">
+                                        <span class="text-gray-500">المدة: {{ $student->program->duration_months }} شهر</span>
+                                        <span class="text-green-600 font-medium">{{ number_format($student->program->price) }} ر.س</span>
                                     </div>
                                 </div>
-                                <div class="flex items-center justify-between text-sm">
-                                    <span class="text-gray-500">المدة: {{ $student->program->duration_months }} شهر</span>
-                                    <span class="text-green-600 font-medium">{{ number_format($student->program->price) }} ر.س</span>
-                                </div>
-                            </div>
-                            <form action="{{ route('admin.students.remove-program', $student) }}" method="POST" onsubmit="return confirm('هل أنت متأكد من إزالة البرنامج من هذا الطالب؟');">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/30 transition-colors font-medium text-sm">
-                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                    </svg>
-                                    إزالة البرنامج
-                                </button>
-                            </form>
+                                <form action="{{ route('admin.students.remove-program', $student) }}" method="POST" onsubmit="return confirm('هل أنت متأكد من إزالة البرنامج من هذا الطالب؟');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/30 transition-colors font-medium text-sm">
+                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                        </svg>
+                                        إزالة البرنامج
+                                    </button>
+                                </form>
+                            @endif
                         @else
                             <div class="text-center py-4">
                                 <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
