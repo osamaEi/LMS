@@ -562,6 +562,36 @@
     .mb-3 {
         margin-bottom: 1.25rem;
     }
+
+    /* Receipt review card */
+    .receipt-pending-card {
+        background: linear-gradient(135deg,#fffbeb,#fef3c7);
+        border: 2px solid #fde68a;
+        border-radius: 20px;
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+    }
+    .receipt-pending-head {
+        padding: 1.1rem 1.5rem;
+        border-bottom: 1px solid #fde68a;
+        display: flex; align-items: center; gap: .75rem;
+        background: rgba(253,230,138,.3);
+    }
+    .receipt-item {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid #fde68a;
+        display: flex; align-items: flex-start; gap: 1rem; flex-wrap: wrap;
+    }
+    .receipt-item:last-child { border-bottom: none; }
+    .receipt-img-wrap {
+        width: 80px; height: 80px; border-radius: 12px; overflow: hidden;
+        background: #f1f5f9; flex-shrink: 0; border: 2px solid #e5e7eb;
+        display: flex; align-items: center; justify-content: center;
+    }
+    .receipt-img-wrap img { width: 100%; height: 100%; object-fit: cover; }
+    .badge-receipt-pending  { background: rgba(245,158,11,.15); color: #d97706; }
+    .badge-receipt-approved { background: rgba(16,185,129,.15);  color: #059669; }
+    .badge-receipt-rejected { background: rgba(239,68,68,.15);   color: #dc2626; }
 </style>
 @endpush
 
@@ -915,6 +945,78 @@
                 </div>
             @endif
 
+            {{-- ══ PENDING RECEIPTS FOR REVIEW ══ --}}
+            @php
+                $pendingReceipts = $payment->transactions->where('payment_method','bank_transfer')->where('receipt_status','pending');
+            @endphp
+            @if($pendingReceipts->count() > 0)
+            <div class="receipt-pending-card">
+                <div class="receipt-pending-head">
+                    <div class="pay-card-icon" style="background:linear-gradient(135deg,#f59e0b,#d97706);">
+                        <svg style="width:20px;height:20px;color:#fff;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v8"/>
+                        </svg>
+                    </div>
+                    <div style="flex:1;">
+                        <div style="font-size:.95rem;font-weight:800;color:#92400e;">إيصالات بانتظار المراجعة</div>
+                        <div style="font-size:.78rem;color:#b45309;margin-top:.15rem;">{{ $pendingReceipts->count() }} إيصال بحاجة للموافقة أو الرفض</div>
+                    </div>
+                    <span class="table-badge badge-warning" style="font-size:.75rem;">{{ $pendingReceipts->count() }} معلق</span>
+                </div>
+
+                @foreach($pendingReceipts as $receipt)
+                <div class="receipt-item">
+                    {{-- Receipt image/icon --}}
+                    <div class="receipt-img-wrap">
+                        @if($receipt->receipt_path)
+                            @php $ext = strtolower(pathinfo($receipt->receipt_path, PATHINFO_EXTENSION)); @endphp
+                            @if(in_array($ext,['jpg','jpeg','png']))
+                                <img src="{{ asset('storage/' . $receipt->receipt_path) }}" alt="إيصال">
+                            @else
+                                <svg style="width:32px;height:32px;color:#6b7280;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                            @endif
+                        @else
+                            <svg style="width:32px;height:32px;color:#6b7280;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        @endif
+                    </div>
+
+                    {{-- Info --}}
+                    <div style="flex:1;min-width:160px;">
+                        <div style="font-size:.95rem;font-weight:800;color:#111827;">{{ number_format($receipt->amount,2) }} ر.س</div>
+                        <div style="font-size:.78rem;color:#6b7280;margin-top:.2rem;">{{ $receipt->created_at->format('Y/m/d H:i') }}</div>
+                        @if($receipt->notes)
+                        <div style="font-size:.78rem;color:#6b7280;margin-top:.15rem;">{{ $receipt->notes }}</div>
+                        @endif
+                        @if($receipt->receipt_path)
+                        <a href="{{ asset('storage/' . $receipt->receipt_path) }}" target="_blank"
+                           style="display:inline-flex;align-items:center;gap:.25rem;margin-top:.4rem;font-size:.75rem;font-weight:700;color:#0071AA;">
+                            <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                            عرض الإيصال كاملاً
+                        </a>
+                        @endif
+                    </div>
+
+                    {{-- Actions --}}
+                    <div style="display:flex;flex-direction:column;gap:.5rem;flex-shrink:0;">
+                        <form action="{{ route('admin.payments.transactions.approve-receipt', $receipt) }}" method="POST">
+                            @csrf
+                            <button type="submit" class="btn btn-success" style="padding:.5rem 1rem;font-size:.8rem;width:100%;"
+                                    onclick="return confirm('تأكيد قبول الإيصال وتسجيل الدفعة؟')">
+                                <svg style="width:15px;height:15px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                قبول
+                            </button>
+                        </form>
+                        <button type="button" class="btn btn-danger" style="padding:.5rem 1rem;font-size:.8rem;"
+                                onclick="openRejectModal({{ $receipt->id }})">
+                            <svg style="width:15px;height:15px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                            رفض
+                        </button>
+                    </div>
+                </div>
+                @endforeach
+            </div>
+            @endif
+
             <!-- Transactions -->
             <div class="pay-card">
                 <div class="pay-card-head">
@@ -938,6 +1040,7 @@
                                     <th>طريقة الدفع</th>
                                     <th>المرجع</th>
                                     <th>الحالة</th>
+                                    <th>الإيصال</th>
                                     <th>تم بواسطة</th>
                                     <th>التاريخ</th>
                                 </tr>
@@ -957,18 +1060,12 @@
                                             @endif
                                         </td>
                                         <td>
-                                            @if($transaction->payment_method == 'cash')
-                                                نقدي
-                                            @elseif($transaction->payment_method == 'bank_transfer')
-                                                تحويل بنكي
-                                            @elseif($transaction->payment_method == 'tamara')
-                                                تمارا
-                                            @elseif($transaction->payment_method == 'paytabs')
-                                                PayTabs
-                                            @elseif($transaction->payment_method == 'waived')
-                                                معفي
-                                            @else
-                                                {{ $transaction->payment_method }}
+                                            @if($transaction->payment_method == 'cash') نقدي
+                                            @elseif($transaction->payment_method == 'bank_transfer') تحويل بنكي
+                                            @elseif($transaction->payment_method == 'tamara') تمارا
+                                            @elseif($transaction->payment_method == 'paytabs') PayTabs
+                                            @elseif($transaction->payment_method == 'waived') معفي
+                                            @else {{ $transaction->payment_method }}
                                             @endif
                                         </td>
                                         <td>{{ $transaction->transaction_reference ?? '--' }}</td>
@@ -979,6 +1076,17 @@
                                                 <span class="table-badge badge-warning">قيد المعالجة</span>
                                             @elseif($transaction->status == 'failed')
                                                 <span class="table-badge badge-danger">فشل</span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if($transaction->receipt_status == 'pending')
+                                                <span class="table-badge badge-receipt-pending">⏳ قيد المراجعة</span>
+                                            @elseif($transaction->receipt_status == 'approved')
+                                                <span class="table-badge badge-receipt-approved">✓ مقبول</span>
+                                            @elseif($transaction->receipt_status == 'rejected')
+                                                <span class="table-badge badge-receipt-rejected">✕ مرفوض</span>
+                                            @else
+                                                --
                                             @endif
                                         </td>
                                         <td>{{ $transaction->creator->name ?? '--' }}</td>
@@ -1614,6 +1722,48 @@
     </button>
 </div>
 
+<!-- ⑦ Reject Receipt Modal -->
+<div class="modal fade" id="rejectReceiptModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="rejectReceiptForm" method="POST">
+                @csrf
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <svg style="width:22px;height:22px;color:#ef4444;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        رفض الإيصال
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert-warning" style="margin-bottom:1.25rem;">
+                        <svg style="width:20px;height:20px;color:#d97706;flex-shrink:0;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                        </svg>
+                        <div>سيتم إشعار الطالب برفض الإيصال وسبب الرفض حتى يتمكن من إعادة الرفع.</div>
+                    </div>
+                    <div class="mb-3" style="margin-bottom:0;">
+                        <label class="form-label">سبب الرفض <span style="color:#ef4444;">*</span></label>
+                        <textarea name="rejection_reason" class="form-control" rows="4" required
+                                  placeholder="وضّح سبب رفض الإيصال بالتفصيل..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">تراجع</button>
+                    <button type="submit" class="btn btn-danger">
+                        <svg style="width:18px;height:18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                        تأكيد الرفض
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 @push('head-scripts')
 <!-- Bootstrap JS for Modals -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -1621,20 +1771,14 @@
 
 @push('scripts')
 <script>
-    // Initialize Bootstrap modals when page loads
     document.addEventListener('DOMContentLoaded', function() {
-        // Get all modal trigger buttons
         const modalButtons = document.querySelectorAll('[data-bs-toggle="modal"]');
-
-        // Add click event listeners to each button
         modalButtons.forEach(button => {
             button.addEventListener('click', function(e) {
                 e.preventDefault();
                 const targetModalId = this.getAttribute('data-bs-target');
                 const modalElement = document.querySelector(targetModalId);
-
                 if (modalElement) {
-                    // Create and show Bootstrap modal
                     const modal = new bootstrap.Modal(modalElement);
                     modal.show();
                 }
@@ -1648,6 +1792,14 @@
             form.action = `/admin/payments/installments/${installmentId}/record-payment`;
             form.submit();
         }
+    }
+
+    function openRejectModal(transactionId) {
+        var form = document.getElementById('rejectReceiptForm');
+        form.action = '/admin/payments/transactions/' + transactionId + '/reject-receipt';
+        var modalEl = document.getElementById('rejectReceiptModal');
+        var modal = new bootstrap.Modal(modalEl);
+        modal.show();
     }
 </script>
 @endpush

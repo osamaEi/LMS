@@ -21,6 +21,9 @@ class PaymentTransaction extends Model
         'metadata',
         'created_by',
         'notes',
+        'receipt_path',
+        'receipt_status',
+        'receipt_rejection_reason',
     ];
 
     protected $casts = [

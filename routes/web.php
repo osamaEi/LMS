@@ -284,6 +284,10 @@ Route::middleware(['auth', 'role:admin,super_admin'])->prefix('admin')->name('ad
 
         // Overdue
         Route::get('/overdue/installments', [\App\Http\Controllers\Admin\PaymentController::class, 'overdueInstallments'])->name('overdue');
+
+        // Receipt Approval
+        Route::post('/transactions/{transaction}/approve-receipt', [\App\Http\Controllers\Admin\PaymentController::class, 'approveReceipt'])->name('transactions.approve-receipt');
+        Route::post('/transactions/{transaction}/reject-receipt', [\App\Http\Controllers\Admin\PaymentController::class, 'rejectReceipt'])->name('transactions.reject-receipt');
     });
 
     // News Management
@@ -529,6 +533,9 @@ Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')
     Route::prefix('payments')->name('payments.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Student\PaymentController::class, 'index'])->name('index');
         Route::get('/{payment}', [\App\Http\Controllers\Student\PaymentController::class, 'show'])->name('show');
+
+        // Bank Transfer Receipt Upload
+        Route::post('/{payment}/upload-receipt', [\App\Http\Controllers\Student\PaymentController::class, 'uploadReceipt'])->name('upload-receipt');
 
         // Tamara Integration
         Route::post('/{payment}/pay-with-tamara', [\App\Http\Controllers\Student\PaymentController::class, 'payWithTamara'])->name('pay-tamara');

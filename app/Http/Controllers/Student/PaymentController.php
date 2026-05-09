@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
 use App\Models\Payment;
+use App\Models\PaymentTransaction;
 use App\Services\PaymentService;
 use App\Services\TamaraPaymentService;
 use App\Services\PayTabsService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class PaymentController extends Controller
 {
@@ -58,6 +60,55 @@ class PaymentController extends Controller
         $payment->load(['program', 'installments', 'transactions']);
 
         return view('student.payments.show', compact('payment'));
+    }
+
+    /**
+     * Upload bank transfer receipt
+     */
+    public function uploadReceipt(Request $request, Payment $payment)
+    {
+        if ($payment->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        if ($payment->isFullyPaid()) {
+            return redirect()->route('student.payments.show', $payment)
+                ->with('error', 'الدفعة مكتملة بالفعل');
+        }
+
+        if ($payment->isCancelled()) {
+            return redirect()->route('student.payments.show', $payment)
+                ->with('error', 'الدفعة ملغاة');
+        }
+
+        $request->validate([
+            'receipt'  => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'amount'   => 'required|numeric|min:1',
+            'notes'    => 'nullable|string|max:500',
+        ], [
+            'receipt.required' => 'يرجى إرفاق صورة الإيصال',
+            'receipt.mimes'    => 'يجب أن يكون الملف بصيغة JPG أو PNG أو PDF',
+            'receipt.max'      => 'حجم الملف يجب أن لا يتجاوز 5 ميغابايت',
+            'amount.required'  => 'يرجى إدخال المبلغ',
+            'amount.min'       => 'المبلغ يجب أن يكون أكبر من صفر',
+        ]);
+
+        $path = $request->file('receipt')->store('receipts', 'public');
+
+        PaymentTransaction::create([
+            'payment_id'     => $payment->id,
+            'amount'         => $request->amount,
+            'type'           => 'payment',
+            'payment_method' => 'bank_transfer',
+            'status'         => 'pending',
+            'notes'          => $request->notes,
+            'created_by'     => auth()->id(),
+            'receipt_path'   => $path,
+            'receipt_status' => 'pending',
+        ]);
+
+        return redirect()->route('student.payments.show', $payment)
+            ->with('success', 'تم رفع الإيصال بنجاح. سيتم مراجعته من قبل الإدارة وتأكيد الدفعة.');
     }
 
     /**

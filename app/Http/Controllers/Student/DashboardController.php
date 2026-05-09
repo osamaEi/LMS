@@ -641,17 +641,18 @@ class DashboardController extends Controller
             ->where('status', 'active')
             ->firstOrFail();
 
-        // If program has a price, redirect to payments
-        if ($program->price && $program->price > 0) {
-            return back()->with('error', 'يرجى التواصل مع الإدارة لإتمام التسجيل في هذا البرنامج.');
-        }
+        $isPaid = $program->price && $program->price > 0;
 
-        // Free program - set pending status
         $student->update([
             'program_id' => $program->id,
             'program_status' => 'pending',
             'current_term_number' => 1,
         ]);
+
+        if ($isPaid) {
+            return redirect()->route('student.my-program')
+                ->with('info', 'يرجى التواصل مع الإدارة لإتمام التسجيل في هذا البرنامج.');
+        }
 
         return redirect()->route('student.my-program')
             ->with('success', 'تم إرسال طلب التسجيل في البرنامج: ' . $program->name . '. في انتظار موافقة الإدارة.');

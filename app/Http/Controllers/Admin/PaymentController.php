@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Payment;
 use App\Models\PaymentInstallment;
+use App\Models\PaymentTransaction;
 use App\Models\Program;
 use App\Models\User;
 use App\Services\NotificationService;
@@ -364,6 +365,51 @@ class PaymentController extends Controller
         ]);
 
         return redirect()->back()->with('success', 'تم تسجيل الاسترداد بنجاح');
+    }
+
+    /**
+     * Approve a bank transfer receipt and record the payment
+     */
+    public function approveReceipt(Request $request, PaymentTransaction $transaction)
+    {
+        if ($transaction->receipt_status !== 'pending') {
+            return redirect()->back()->with('error', 'هذا الإيصال تمت مراجعته مسبقاً');
+        }
+
+        $payment = $transaction->payment;
+
+        $transaction->update([
+            'status'         => 'success',
+            'receipt_status' => 'approved',
+        ]);
+
+        $payment->updatePaidAmount();
+
+        return redirect()->back()->with('success', 'تم قبول الإيصال وتسجيل الدفعة بمبلغ ' . number_format($transaction->amount, 2) . ' ريال');
+    }
+
+    /**
+     * Reject a bank transfer receipt
+     */
+    public function rejectReceipt(Request $request, PaymentTransaction $transaction)
+    {
+        if ($transaction->receipt_status !== 'pending') {
+            return redirect()->back()->with('error', 'هذا الإيصال تمت مراجعته مسبقاً');
+        }
+
+        $request->validate([
+            'rejection_reason' => 'required|string|max:500',
+        ], [
+            'rejection_reason.required' => 'يرجى إدخال سبب الرفض',
+        ]);
+
+        $transaction->update([
+            'status'                   => 'failed',
+            'receipt_status'           => 'rejected',
+            'receipt_rejection_reason' => $request->rejection_reason,
+        ]);
+
+        return redirect()->back()->with('success', 'تم رفض الإيصال وإشعار الطالب');
     }
 
     /**

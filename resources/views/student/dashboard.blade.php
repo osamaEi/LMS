@@ -8,9 +8,9 @@
 
     /* Header */
     .dash-header {
-        background: linear-gradient(135deg, #0071AA 0%, #004d77 100%);
+        background: linear-gradient(135deg, #0071AA 0%, #005a88 40%, #003d5c 100%);
         border-radius: 24px;
-        padding: 2rem 2.5rem;
+        padding: 2.25rem 2.5rem 0;
         color: #fff;
         position: relative;
         overflow: hidden;
@@ -18,23 +18,85 @@
     .dash-header::before {
         content: '';
         position: absolute;
-        top: -60%;
-        left: -8%;
-        width: 350px;
-        height: 350px;
-        background: radial-gradient(circle, rgba(255,255,255,0.07) 0%, transparent 70%);
+        top: -40%; left: -5%;
+        width: 420px; height: 420px;
+        background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 65%);
         border-radius: 50%;
+        pointer-events: none;
     }
     .dash-header::after {
         content: '';
         position: absolute;
-        bottom: -70%;
-        right: -3%;
-        width: 280px;
-        height: 280px;
-        background: radial-gradient(circle, rgba(255,255,255,0.04) 0%, transparent 70%);
+        bottom: -60%; right: -2%;
+        width: 320px; height: 320px;
+        background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 65%);
         border-radius: 50%;
+        pointer-events: none;
     }
+    .dash-header .hdr-glow {
+        position: absolute;
+        top: 30%; left: 50%;
+        transform: translate(-50%, -50%);
+        width: 600px; height: 200px;
+        background: radial-gradient(ellipse, rgba(255,255,255,0.04) 0%, transparent 70%);
+        pointer-events: none;
+    }
+    /* Avatar ring */
+    .hdr-avatar {
+        width: 72px; height: 72px;
+        border-radius: 20px;
+        border: 2.5px solid rgba(255,255,255,0.25);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+        flex-shrink: 0;
+    }
+    /* Code badge */
+    .hdr-code {
+        display: inline-flex; align-items: center; gap: .4rem;
+        background: rgba(255,255,255,0.12);
+        border: 1px solid rgba(255,255,255,0.2);
+        border-radius: 8px;
+        padding: .25rem .75rem;
+        font-size: .72rem; font-weight: 800;
+        letter-spacing: .06em; color: #fff;
+        backdrop-filter: blur(8px);
+    }
+    .hdr-code .code-dot {
+        width: 6px; height: 6px; border-radius: 50%;
+        background: #4ade80;
+        animation: blink 1.4s ease-in-out infinite;
+    }
+    /* Bottom chips strip */
+    .hdr-chips {
+        display: flex; align-items: center; gap: 0;
+        margin-top: 1.75rem;
+        border-top: 1px solid rgba(255,255,255,0.1);
+    }
+    .hdr-chip {
+        flex: 1; display: flex; flex-direction: column; align-items: center;
+        padding: .9rem .5rem;
+        border-left: 1px solid rgba(255,255,255,0.08);
+        transition: background .2s;
+        text-decoration: none; color: #fff;
+    }
+    .hdr-chip:first-child { border-left: none; }
+    .hdr-chip:hover { background: rgba(255,255,255,0.06); }
+    .hdr-chip .chip-val { font-size: 1.25rem; font-weight: 900; line-height: 1; }
+    .hdr-chip .chip-lbl { font-size: .7rem; opacity: .6; margin-top: .25rem; font-weight: 600; }
+    /* Nav buttons */
+    .hdr-nav {
+        display: flex; align-items: center; gap: .6rem; flex-wrap: wrap;
+    }
+    .hdr-btn {
+        display: inline-flex; align-items: center; gap: .4rem;
+        padding: .55rem 1.1rem; border-radius: 12px;
+        font-size: .82rem; font-weight: 700;
+        background: rgba(255,255,255,0.12);
+        border: 1px solid rgba(255,255,255,0.15);
+        color: #fff; text-decoration: none;
+        transition: background .2s;
+    }
+    .hdr-btn:hover { background: rgba(255,255,255,0.2); color: #fff; }
+    .hdr-btn svg { flex-shrink: 0; }
 
     /* Card */
     .d-card {
@@ -228,29 +290,85 @@
 <div class="dash-page space-y-6">
     <!-- Header -->
     <div class="dash-header">
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 relative z-10">
+        <div class="hdr-glow"></div>
+
+        {{-- Top row: avatar + info | nav buttons --}}
+        <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-5 relative z-10">
+
+            {{-- Left: avatar + identity --}}
             <div class="flex items-center gap-4">
-                <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}&background=ffffff&color=0071AA&size=96&bold=true"
+                <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}&background=ffffff&color=0071AA&size=144&bold=true"
                      alt="{{ auth()->user()->name }}"
-                     class="w-14 h-14 rounded-2xl border-2 border-white/20 shadow-lg" />
+                     class="hdr-avatar" />
                 <div>
-                    <p class="text-sm opacity-65">مرحباً بك في معهد الارتقاء</p>
-                    <h1 class="text-2xl font-extrabold tracking-tight">{{ auth()->user()->name }}</h1>
-                    <div class="flex items-center gap-2 mt-0.5 flex-wrap">
+                    <p class="text-xs font-semibold mb-1" style="opacity:.55;">مرحباً بك في معهد الارتقاء 👋</p>
+                    <h1 class="text-3xl font-black tracking-tight leading-none mb-2">{{ auth()->user()->name }}</h1>
+                    <div class="flex items-center gap-2 flex-wrap">
+                        @if(auth()->user()->student_code)
+                        <div class="hdr-code">
+                            <span class="code-dot"></span>
+                            {{ auth()->user()->student_code }}
+                        </div>
+                        @endif
                         @if(auth()->user()->program)
-                            <p class="text-sm opacity-55">{{ auth()->user()->program->name }}</p>
+                        <span class="text-xs font-semibold" style="opacity:.65;">
+                            {{ auth()->user()->program->name }}
+                        </span>
                         @endif
                         @if(auth()->user()->level)
-                            <span class="text-xs font-bold px-2 py-0.5 rounded-full" style="background: rgba(255,255,255,0.2); color: #fff;">{{ auth()->user()->level }}</span>
+                        <span class="text-xs font-bold px-2 py-0.5 rounded-full" style="background:rgba(255,255,255,0.18);">
+                            {{ auth()->user()->level }}
+                        </span>
                         @endif
                     </div>
                 </div>
             </div>
-            <div class="flex gap-2 flex-wrap">
-                <a href="{{ route('student.my-sessions') }}" class="px-4 py-2 rounded-xl text-sm font-semibold" style="background: rgba(255,255,255,0.12);">جلساتي</a>
-                <a href="{{ route('student.attendance') }}" class="px-4 py-2 rounded-xl text-sm font-semibold" style="background: rgba(255,255,255,0.12);">سجل الحضور</a>
-                <a href="{{ route('student.my-program') }}" class="px-4 py-2 rounded-xl text-sm font-semibold" style="background: rgba(255,255,255,0.12);">برنامجي</a>
+
+            {{-- Right: nav buttons --}}
+            <div class="hdr-nav">
+                <a href="{{ route('student.my-sessions') }}" class="hdr-btn">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                    جلساتي
+                </a>
+                <a href="{{ route('student.attendance') }}" class="hdr-btn">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+                    سجل الحضور
+                </a>
+                <a href="{{ route('student.my-program') }}" class="hdr-btn">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                    برنامجي
+                </a>
             </div>
+        </div>
+
+        {{-- Bottom chips strip --}}
+        <div class="hdr-chips relative z-10">
+            <div class="hdr-chip">
+                <span class="chip-val">{{ $stats['subjects_count'] }}</span>
+                <span class="chip-lbl">المقررات</span>
+            </div>
+            <div class="hdr-chip">
+                <span class="chip-val">{{ $stats['total_sessions'] }}</span>
+                <span class="chip-lbl">الجلسات</span>
+            </div>
+            <div class="hdr-chip">
+                <span class="chip-val">{{ $stats['completed_sessions'] }}</span>
+                <span class="chip-lbl">مكتملة</span>
+            </div>
+            <div class="hdr-chip">
+                <span class="chip-val">{{ $overallAttendance }}<small style="font-size:.75rem;">%</small></span>
+                <span class="chip-lbl">نسبة الحضور</span>
+            </div>
+            @if(auth()->user()->national_id)
+            <div class="hdr-chip" style="border-left:1px solid rgba(255,255,255,0.08);">
+                <span class="chip-val" style="font-size:.9rem;letter-spacing:.04em;">{{ auth()->user()->national_id }}</span>
+                <span class="chip-lbl">رقم الهوية</span>
+            </div>
+            @endif
+            <a href="{{ route('student.payments.index') }}" class="hdr-chip">
+                <span class="chip-val" style="font-size:.95rem;">💳</span>
+                <span class="chip-lbl">المدفوعات</span>
+            </a>
         </div>
     </div>
 
