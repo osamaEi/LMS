@@ -592,523 +592,569 @@
     .badge-receipt-pending  { background: rgba(245,158,11,.15); color: #d97706; }
     .badge-receipt-approved { background: rgba(16,185,129,.15);  color: #059669; }
     .badge-receipt-rejected { background: rgba(239,68,68,.15);   color: #dc2626; }
+
+    /* Stat boxes */
+    .stat-box {
+        background: #fff;
+        border-radius: 20px;
+        padding: 1.25rem 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06);
+    }
+    .dark .stat-box { background: #1f2937; }
+    .s-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    .s-val {
+        font-size: 1.5rem;
+        font-weight: 900;
+        color: #111827;
+        line-height: 1;
+        margin-bottom: 0.25rem;
+    }
+    .dark .s-val { color: #f9fafb; }
+    .s-lbl {
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: #6b7280;
+        white-space: nowrap;
+    }
+    .dark .s-lbl { color: #9ca3af; }
+
+    @keyframes blink {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.6; }
+    }
+
+    /* Timeline transaction dot + card */
+    .tx-dot { width:20px; height:20px; border-radius:50%; flex-shrink:0; margin-top:2px; border:3px solid #fff; }
+    .tx-payment-dot { background:#10b981; box-shadow:0 0 0 2px #10b981; }
+    .tx-refund-dot  { background:#ef4444; box-shadow:0 0 0 2px #ef4444; }
+    .tx-adjust-dot  { background:#f59e0b; box-shadow:0 0 0 2px #f59e0b; }
+    .tx-card { flex:1; border-radius:12px; padding:1rem 1.25rem; }
+    .tx-payment-card { background:#d1fae5; border:1px solid rgba(16,185,129,.2); }
+    .tx-refund-card  { background:#fee2e2; border:1px solid rgba(239,68,68,.2); }
+    .tx-adjust-card  { background:#fef3c7; border:1px solid rgba(245,158,11,.2); }
+    .tx-payment-lbl { font-weight:800; font-size:0.95rem; color:#10b981; }
+    .tx-refund-lbl  { font-weight:800; font-size:0.95rem; color:#ef4444; }
+    .tx-adjust-lbl  { font-weight:800; font-size:0.95rem; color:#f59e0b; }
+
+    /* Print receipt status */
+    .rs-completed { background:#d1fae5; }
+    .rs-cancelled { background:#fee2e2; }
+    .rs-other     { background:#fef3c7; }
+    .rs-txt-completed { color:#065f46; }
+    .rs-txt-cancelled { color:#991b1b; }
+    .rs-txt-other     { color:#92400e; }
+
+    /* Flash messages */
+    .flash-msg     { display:flex; align-items:center; gap:.75rem; padding:.9rem 1.25rem; border-radius:14px; font-size:.88rem; font-weight:600; margin-bottom:.75rem; }
+    .flash-success { background:#f0fdf4; border:1px solid #bbf7d0; color:#15803d; }
+    .flash-error   { background:#fef2f2; border:1px solid #fecaca; color:#dc2626; }
+    .flash-warning { background:#fffbeb; border:1px solid #fde68a; color:#92400e; }
+    .flash-info    { background:#eff6ff; border:1px solid #bfdbfe; color:#1d4ed8; }
+
+    /* Custom modal overlay */
+    .m-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,.55);
+        z-index: 1050;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        overflow-y: auto;
+    }
+    .m-overlay.open { display: flex; }
+    .m-overlay .modal-dialog {
+        width: 100%;
+        max-width: 520px;
+        margin: auto;
+        position: relative;
+        animation: mSlideIn .22s ease;
+    }
+    .m-overlay .modal-dialog.modal-lg { max-width: 720px; }
+    @keyframes mSlideIn {
+        from { transform: translateY(-18px) scale(.97); opacity: 0; }
+        to   { transform: translateY(0) scale(1); opacity: 1; }
+    }
+    .m-overlay .modal-content {
+        border-radius: 20px;
+        border: none;
+        overflow: hidden;
+        background: #fff;
+        box-shadow: 0 20px 60px rgba(0,0,0,.25);
+    }
+    .dark .m-overlay .modal-content { background: #1f2937; }
 </style>
 @endpush
 
 @section('content')
-<div class="payment-page">
-    @if(session('success'))
-        <div class="alert-success">
-            <div class="alert-success-icon">
-                <svg style="width: 18px; height: 18px; color: #fff;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                </svg>
-            </div>
-            <span class="alert-success-text">{{ session('success') }}</span>
-        </div>
-    @endif
+@php
+    $pct      = $payment->total_amount > 0 ? ($payment->paid_amount / $payment->total_amount) * 100 : 0;
+    $pctRound = round($pct, 1);
+    $remPct   = min(100, round(100 - $pct, 1));
+    $r        = 44;
+    $circ     = 2 * pi() * $r;
+    $dash     = $circ * (1 - $pct / 100);
+    $barColor = $pct >= 100 ? '#10b981' : ($pct >= 50 ? '#0071AA' : '#f59e0b');
+    $pendingReceipts = $payment->transactions->where('payment_method','bank_transfer')->where('receipt_status','pending');
+@endphp
+<script>
+document.addEventListener('DOMContentLoaded',function(){
+    document.documentElement.style.setProperty('--dyn-pct','{{ $pctRound }}%');
+    document.documentElement.style.setProperty('--dyn-rem','{{ $remPct }}%');
+});
+</script>
 
-    @if(session('error'))
-        <div class="alert-danger">
-            <div class="alert-danger-icon">
-                <svg style="width: 18px; height: 18px; color: #fff;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                </svg>
-            </div>
-            <span class="alert-danger-text">{{ session('error') }}</span>
-        </div>
-    @endif
+<div class="payment-page space-y-6" dir="rtl">
 
-    <!-- Header -->
-    <div class="payment-header">
-        <div class="flex items-start gap-4 relative z-10">
-            <a href="{{ route('admin.payments.index') }}" class="back-btn">
-                <svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                </svg>
-            </a>
-            <div class="flex-1">
-                <div class="flex items-center justify-between flex-wrap gap-4">
-                    <div>
-                        <h1 class="text-2xl font-extrabold mb-1">تفاصيل الدفعة #{{ $payment->id }}</h1>
-                        <p class="opacity-75 text-sm">عرض التفاصيل الكاملة للدفعة والمعاملات</p>
-                    </div>
-                    <div class="header-actions">
-                        {{-- Always visible --}}
-                        <button type="button" class="header-btn" style="background:rgba(255,255,255,0.2);" data-bs-toggle="modal" data-bs-target="#receiptModal">
-                            <svg style="width:18px;height:18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
-                            </svg>
-                            طباعة إيصال
-                        </button>
-                        <button type="button" class="header-btn" style="background:rgba(99,102,241,0.85);" data-bs-toggle="modal" data-bs-target="#emailReceiptModal">
-                            <svg style="width:18px;height:18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                            </svg>
-                            إرسال إيصال
-                        </button>
-                        @if(!$payment->isCancelled() && !$payment->isFullyPaid())
-                        <button type="button" class="header-btn header-btn-success" data-bs-toggle="modal" data-bs-target="#recordPaymentModal">
-                            <svg style="width: 18px; height: 18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                            تسجيل دفعة
-                        </button>
-                        <button type="button" class="header-btn header-btn-warning" data-bs-toggle="modal" data-bs-target="#waiveModal">
-                            <svg style="width: 18px; height: 18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/>
-                            </svg>
-                            إعفاء
-                        </button>
-                        <button type="button" class="header-btn" style="background:rgba(16,185,129,0.85);" data-bs-toggle="modal" data-bs-target="#editAmountModal">
-                            <svg style="width:18px;height:18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                            </svg>
-                            تعديل المبلغ
-                        </button>
-                        <button type="button" class="header-btn header-btn-danger" data-bs-toggle="modal" data-bs-target="#cancelModal">
-                            <svg style="width: 18px; height: 18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                            إلغاء
-                        </button>
-                        @endif
-                        @if($payment->isFullyPaid())
-                        <button type="button" class="header-btn" style="background:rgba(239,68,68,0.85);" data-bs-toggle="modal" data-bs-target="#refundModal">
-                            <svg style="width:18px;height:18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/>
-                            </svg>
-                            استرداد
-                        </button>
-                        @endif
-                    </div>
+{{-- ══ FLASH MESSAGES ══ --}}
+@foreach(['success'=>'flash-success','error'=>'flash-error','warning'=>'flash-warning','info'=>'flash-info'] as $k=>$cls)
+@if(session($k))
+<div class="flash-msg {{ $cls }}">
+    <svg style="width:18px;height:18px;flex-shrink:0;" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
+    {{ session($k) }}
+</div>
+@endif
+@endforeach
+
+{{-- ══ HEADER ══ --}}
+<div class="payment-header">
+    <div style="position:relative;z-index:10;">
+        <div style="display:flex;align-items:flex-start;gap:1rem;flex-wrap:wrap;">
+            {{-- Back + icon --}}
+            <div style="display:flex;align-items:center;gap:1rem;">
+                <a href="{{ route('admin.payments.index') }}" class="back-btn" title="العودة">
+                    <svg style="width:20px;height:20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                </a>
+                <div style="width:56px;height:56px;border-radius:16px;background:rgba(255,255,255,.15);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <svg style="width:28px;height:28px;color:#fff;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                    </svg>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <div class="row">
-        <!-- Sidebar -->
-        <div class="col-md-4">
-            <!-- Payment Summary -->
-            <div class="pay-card">
-                <div class="pay-card-head">
-                    <div class="pay-card-title">
-                        <div class="pay-card-icon" style="background: linear-gradient(135deg, #0071AA, #005a88);">
-                            <svg style="width: 20px; height: 20px; color: #fff;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-                            </svg>
-                        </div>
-                        ملخص الدفعة
-                    </div>
-                </div>
-                <div class="pay-card-body">
-                    <div class="mb-4">
-                        @if($payment->status == 'pending')
-                            <span class="status-badge status-pending">
-                                <svg style="width: 14px; height: 14px;" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
-                                </svg>
-                                قيد الانتظار
-                            </span>
-                        @elseif($payment->status == 'partial')
-                            <span class="status-badge status-partial">
-                                <svg style="width: 14px; height: 14px;" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm-1-6a1 1 0 011-1h4a1 1 0 110 2h-4a1 1 0 01-1-1z" clip-rule="evenodd"/>
-                                </svg>
-                                دفع جزئي
-                            </span>
-                        @elseif($payment->status == 'completed')
-                            <span class="status-badge status-completed">
-                                <svg style="width: 14px; height: 14px;" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                                </svg>
-                                مكتملة
-                            </span>
-                        @elseif($payment->status == 'cancelled')
-                            <span class="status-badge status-cancelled">
-                                <svg style="width: 14px; height: 14px;" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
-                                </svg>
-                                ملغاة
-                            </span>
-                        @elseif($payment->status == 'refunded')
-                            <span class="status-badge status-refunded">
-                                <svg style="width: 14px; height: 14px;" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"/>
-                                </svg>
-                                مستردة
-                            </span>
-                        @endif
-                    </div>
-
-                    <div class="summary-item">
-                        <span class="summary-label">إجمالي المبلغ</span>
-                        <span class="summary-value">{{ number_format($payment->total_amount, 2) }} ر.س</span>
-                    </div>
-
-                    @if($payment->discount_amount > 0)
-                        <div class="summary-item">
-                            <span class="summary-label">الخصم</span>
-                            <span class="summary-value summary-value-danger">- {{ number_format($payment->discount_amount, 2) }} ر.س</span>
-                        </div>
+            {{-- Title + meta --}}
+            <div style="flex:1;min-width:0;">
+                <p style="font-size:.78rem;font-weight:600;opacity:.6;margin:0 0 .2rem;">دفعة #{{ $payment->id }} — {{ $payment->program->name_ar }}</p>
+                <h1 style="font-size:1.75rem;font-weight:900;letter-spacing:-.5px;margin:0 0 .5rem;">{{ $payment->user->name }}</h1>
+                <div style="display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;">
+                    @if($payment->status=='pending')
+                        <span style="background:rgba(245,158,11,.2);color:#fef3c7;padding:.25rem .75rem;border-radius:20px;font-size:.75rem;font-weight:700;">⏳ قيد الانتظار</span>
+                    @elseif($payment->status=='partial')
+                        <span style="background:rgba(59,130,246,.2);color:#bfdbfe;padding:.25rem .75rem;border-radius:20px;font-size:.75rem;font-weight:700;">◑ مدفوع جزئياً</span>
+                    @elseif($payment->status=='completed')
+                        <span style="background:rgba(16,185,129,.2);color:#a7f3d0;padding:.25rem .75rem;border-radius:20px;font-size:.75rem;font-weight:700;">✓ مكتملة</span>
+                    @elseif($payment->status=='cancelled')
+                        <span style="background:rgba(239,68,68,.2);color:#fecaca;padding:.25rem .75rem;border-radius:20px;font-size:.75rem;font-weight:700;">✕ ملغاة</span>
                     @endif
-
-                    <div class="summary-item">
-                        <span class="summary-label">المدفوع</span>
-                        <span class="summary-value summary-value-success">{{ number_format($payment->paid_amount, 2) }} ر.س</span>
-                    </div>
-
-                    <div class="summary-item">
-                        <span class="summary-label">المتبقي</span>
-                        <span class="summary-value summary-value-primary">{{ number_format($payment->remaining_amount, 2) }} ر.س</span>
-                    </div>
-
-                    <div class="mt-4">
-                        @php
-                            $percentage = $payment->total_amount > 0 ? ($payment->paid_amount / $payment->total_amount) * 100 : 0;
-                        @endphp
-                        <div class="progress-bar-container">
-                            <div class="progress-bar-fill" style="width: {{ $percentage }}%">
-                                {{ number_format($percentage, 1) }}%
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Student & Program Info -->
-            <div class="pay-card">
-                <div class="pay-card-head">
-                    <div class="pay-card-title">
-                        <div class="pay-card-icon" style="background: linear-gradient(135deg, #8b5cf6, #6d28d9);">
-                            <svg style="width: 20px; height: 20px; color: #fff;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                            </svg>
-                        </div>
-                        معلومات الطالب
-                    </div>
-                </div>
-                <div class="pay-card-body">
-                    <div class="info-item">
-                        <div class="info-label">الطالب</div>
-                        <div class="info-value">{{ $payment->user->name }}</div>
-                        <div class="info-subvalue">{{ $payment->user->email }}</div>
-                    </div>
-
-                    <div class="info-item">
-                        <div class="info-label">البرنامج</div>
-                        <div class="info-value">{{ $payment->program->name_ar }}</div>
-                    </div>
-
-                    <div class="info-item">
-                        <div class="info-label">نوع الدفع</div>
-                        <div>
-                            @if($payment->payment_type == 'full')
-                                <span class="payment-type-badge payment-type-full">دفعة كاملة</span>
-                            @else
-                                <span class="payment-type-badge payment-type-installment">تقسيط</span>
-                            @endif
-                        </div>
-                    </div>
-
-                    @if($payment->payment_method)
-                        <div class="info-item">
-                            <div class="info-label">طريقة الدفع</div>
-                            <div class="info-value">
-                                @if($payment->payment_method == 'cash')
-                                    نقدي
-                                @elseif($payment->payment_method == 'bank_transfer')
-                                    تحويل بنكي
-                                @elseif($payment->payment_method == 'tamara')
-                                    تمارا
-                                @elseif($payment->payment_method == 'paytabs')
-                                    PayTabs
-                                @elseif($payment->payment_method == 'waived')
-                                    معفي
-                                @else
-                                    {{ $payment->payment_method }}
-                                @endif
-                            </div>
-                        </div>
-                    @endif
-
-                    <div class="info-item">
-                        <div class="info-label">تاريخ الإنشاء</div>
-                        <div class="info-value">{{ $payment->created_at->format('Y-m-d H:i') }}</div>
-                    </div>
-                </div>
-            </div>
-
-            @if($payment->notes)
-                <div class="pay-card">
-                    <div class="pay-card-head">
-                        <div class="pay-card-title">
-                            <div class="pay-card-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
-                                <svg style="width: 20px; height: 20px; color: #fff;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/>
-                                </svg>
-                            </div>
-                            ملاحظات
-                        </div>
-                    </div>
-                    <div class="pay-card-body">
-                        <p style="margin: 0; color: #374151; line-height: 1.6;">{{ $payment->notes }}</p>
-                    </div>
-                </div>
-            @endif
-        </div>
-
-        <!-- Main Content -->
-        <div class="col-md-8">
-            <!-- Installments -->
-            @if($payment->payment_type == 'installment')
-                <div class="pay-card">
-                    <div class="pay-card-head">
-                        <div class="pay-card-title">
-                            <div class="pay-card-icon" style="background: linear-gradient(135deg, #10b981, #059669);">
-                                <svg style="width: 20px; height: 20px; color: #fff;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
-                                </svg>
-                            </div>
-                            الأقساط
-                        </div>
-                        @if($payment->installments->count() == 0 && !$payment->isCancelled())
-                            <button type="button" class="action-btn action-btn-primary" data-bs-toggle="modal" data-bs-target="#createInstallmentModal">
-                                <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                                </svg>
-                                إنشاء خطة تقسيط
-                            </button>
-                        @endif
-                    </div>
-                    <div class="pay-card-body" style="padding: 0; overflow-x: auto;">
-                        @if($payment->installments->count() > 0)
-                            <table class="custom-table">
-                                <thead>
-                                    <tr>
-                                        <th>القسط</th>
-                                        <th>المبلغ</th>
-                                        <th>تاريخ الاستحقاق</th>
-                                        <th>الحالة</th>
-                                        <th>تاريخ الدفع</th>
-                                        <th>الإجراءات</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($payment->installments as $installment)
-                                        <tr>
-                                            <td>القسط #{{ $installment->installment_number }}</td>
-                                            <td>{{ number_format($installment->amount, 2) }} ر.س</td>
-                                            <td>{{ $installment->due_date->format('Y-m-d') }}</td>
-                                            <td>
-                                                @if($installment->status == 'pending')
-                                                    @if($installment->isOverdue())
-                                                        <span class="table-badge badge-danger">متأخر</span>
-                                                    @else
-                                                        <span class="table-badge badge-warning">قيد الانتظار</span>
-                                                    @endif
-                                                @elseif($installment->status == 'paid')
-                                                    <span class="table-badge badge-success">مدفوع</span>
-                                                @elseif($installment->status == 'cancelled')
-                                                    <span class="table-badge badge-secondary">ملغي</span>
-                                                @endif
-                                            </td>
-                                            <td>
-                                                @if($installment->paid_at)
-                                                    {{ $installment->paid_at->format('Y-m-d') }}
-                                                @else
-                                                    --
-                                                @endif
-                                            </td>
-                                            <td>
-                                                @if($installment->status == 'pending')
-                                                    <button type="button" class="action-btn action-btn-success" onclick="recordInstallmentPayment({{ $installment->id }})">
-                                                        <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                                                        </svg>
-                                                        تسجيل
-                                                    </button>
-                                                @endif
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        @else
-                            <div class="empty-state">
-                                <div class="empty-state-icon">📋</div>
-                                <p class="empty-state-text">لم يتم إنشاء خطة تقسيط بعد</p>
-                            </div>
-                        @endif
-                    </div>
-                </div>
-            @endif
-
-            {{-- ══ PENDING RECEIPTS FOR REVIEW ══ --}}
-            @php
-                $pendingReceipts = $payment->transactions->where('payment_method','bank_transfer')->where('receipt_status','pending');
-            @endphp
-            @if($pendingReceipts->count() > 0)
-            <div class="receipt-pending-card">
-                <div class="receipt-pending-head">
-                    <div class="pay-card-icon" style="background:linear-gradient(135deg,#f59e0b,#d97706);">
-                        <svg style="width:20px;height:20px;color:#fff;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v8"/>
-                        </svg>
-                    </div>
-                    <div style="flex:1;">
-                        <div style="font-size:.95rem;font-weight:800;color:#92400e;">إيصالات بانتظار المراجعة</div>
-                        <div style="font-size:.78rem;color:#b45309;margin-top:.15rem;">{{ $pendingReceipts->count() }} إيصال بحاجة للموافقة أو الرفض</div>
-                    </div>
-                    <span class="table-badge badge-warning" style="font-size:.75rem;">{{ $pendingReceipts->count() }} معلق</span>
-                </div>
-
-                @foreach($pendingReceipts as $receipt)
-                <div class="receipt-item">
-                    {{-- Receipt image/icon --}}
-                    <div class="receipt-img-wrap">
-                        @if($receipt->receipt_path)
-                            @php $ext = strtolower(pathinfo($receipt->receipt_path, PATHINFO_EXTENSION)); @endphp
-                            @if(in_array($ext,['jpg','jpeg','png']))
-                                <img src="{{ asset('storage/' . $receipt->receipt_path) }}" alt="إيصال">
-                            @else
-                                <svg style="width:32px;height:32px;color:#6b7280;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
-                            @endif
-                        @else
-                            <svg style="width:32px;height:32px;color:#6b7280;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                        @endif
-                    </div>
-
-                    {{-- Info --}}
-                    <div style="flex:1;min-width:160px;">
-                        <div style="font-size:.95rem;font-weight:800;color:#111827;">{{ number_format($receipt->amount,2) }} ر.س</div>
-                        <div style="font-size:.78rem;color:#6b7280;margin-top:.2rem;">{{ $receipt->created_at->format('Y/m/d H:i') }}</div>
-                        @if($receipt->notes)
-                        <div style="font-size:.78rem;color:#6b7280;margin-top:.15rem;">{{ $receipt->notes }}</div>
-                        @endif
-                        @if($receipt->receipt_path)
-                        <a href="{{ asset('storage/' . $receipt->receipt_path) }}" target="_blank"
-                           style="display:inline-flex;align-items:center;gap:.25rem;margin-top:.4rem;font-size:.75rem;font-weight:700;color:#0071AA;">
-                            <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
-                            عرض الإيصال كاملاً
-                        </a>
-                        @endif
-                    </div>
-
-                    {{-- Actions --}}
-                    <div style="display:flex;flex-direction:column;gap:.5rem;flex-shrink:0;">
-                        <form action="{{ route('admin.payments.transactions.approve-receipt', $receipt) }}" method="POST">
-                            @csrf
-                            <button type="submit" class="btn btn-success" style="padding:.5rem 1rem;font-size:.8rem;width:100%;"
-                                    onclick="return confirm('تأكيد قبول الإيصال وتسجيل الدفعة؟')">
-                                <svg style="width:15px;height:15px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                                قبول
-                            </button>
-                        </form>
-                        <button type="button" class="btn btn-danger" style="padding:.5rem 1rem;font-size:.8rem;"
-                                onclick="openRejectModal({{ $receipt->id }})">
-                            <svg style="width:15px;height:15px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                            رفض
-                        </button>
-                    </div>
-                </div>
-                @endforeach
-            </div>
-            @endif
-
-            <!-- Transactions -->
-            <div class="pay-card">
-                <div class="pay-card-head">
-                    <div class="pay-card-title">
-                        <div class="pay-card-icon" style="background: linear-gradient(135deg, #3b82f6, #2563eb);">
-                            <svg style="width: 20px; height: 20px; color: #fff;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                            </svg>
-                        </div>
-                        سجل المعاملات
-                    </div>
-                </div>
-                <div class="pay-card-body" style="padding: 0; overflow-x: auto;">
-                    @if($payment->transactions->count() > 0)
-                        <table class="custom-table">
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>المبلغ</th>
-                                    <th>النوع</th>
-                                    <th>طريقة الدفع</th>
-                                    <th>المرجع</th>
-                                    <th>الحالة</th>
-                                    <th>الإيصال</th>
-                                    <th>تم بواسطة</th>
-                                    <th>التاريخ</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($payment->transactions as $transaction)
-                                    <tr>
-                                        <td>{{ $transaction->id }}</td>
-                                        <td>{{ number_format($transaction->amount, 2) }} ر.س</td>
-                                        <td>
-                                            @if($transaction->type == 'payment')
-                                                <span class="table-badge badge-success">دفعة</span>
-                                            @elseif($transaction->type == 'refund')
-                                                <span class="table-badge badge-danger">استرداد</span>
-                                            @elseif($transaction->type == 'adjustment')
-                                                <span class="table-badge badge-info">تعديل</span>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            @if($transaction->payment_method == 'cash') نقدي
-                                            @elseif($transaction->payment_method == 'bank_transfer') تحويل بنكي
-                                            @elseif($transaction->payment_method == 'tamara') تمارا
-                                            @elseif($transaction->payment_method == 'paytabs') PayTabs
-                                            @elseif($transaction->payment_method == 'waived') معفي
-                                            @else {{ $transaction->payment_method }}
-                                            @endif
-                                        </td>
-                                        <td>{{ $transaction->transaction_reference ?? '--' }}</td>
-                                        <td>
-                                            @if($transaction->status == 'success')
-                                                <span class="table-badge badge-success">ناجح</span>
-                                            @elseif($transaction->status == 'pending')
-                                                <span class="table-badge badge-warning">قيد المعالجة</span>
-                                            @elseif($transaction->status == 'failed')
-                                                <span class="table-badge badge-danger">فشل</span>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            @if($transaction->receipt_status == 'pending')
-                                                <span class="table-badge badge-receipt-pending">⏳ قيد المراجعة</span>
-                                            @elseif($transaction->receipt_status == 'approved')
-                                                <span class="table-badge badge-receipt-approved">✓ مقبول</span>
-                                            @elseif($transaction->receipt_status == 'rejected')
-                                                <span class="table-badge badge-receipt-rejected">✕ مرفوض</span>
-                                            @else
-                                                --
-                                            @endif
-                                        </td>
-                                        <td>{{ $transaction->creator->name ?? '--' }}</td>
-                                        <td>{{ $transaction->created_at->format('Y-m-d H:i') }}</td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    @else
-                        <div class="empty-state">
-                            <div class="empty-state-icon">🧾</div>
-                            <p class="empty-state-text">لا توجد معاملات بعد</p>
-                        </div>
+                    <span style="font-size:.75rem;opacity:.55;">{{ $payment->payment_type=='full'?'دفعة كاملة':'تقسيط' }}</span>
+                    <span style="font-size:.75rem;opacity:.55;">{{ $payment->created_at->format('Y/m/d') }}</span>
+                    @if($pendingReceipts->count() > 0)
+                    <span style="background:rgba(239,68,68,.25);color:#fecaca;padding:.25rem .75rem;border-radius:20px;font-size:.73rem;font-weight:800;animation:blink 1.5s infinite;">
+                        🔔 {{ $pendingReceipts->count() }} إيصال بانتظار المراجعة
+                    </span>
                     @endif
                 </div>
+            </div>
+
+            {{-- Action buttons --}}
+            <div class="header-actions" style="align-self:center;">
+                <button type="button" class="header-btn" style="background:rgba(255,255,255,.18);font-size:.8rem;padding:.55rem 1rem;" data-bs-toggle="modal" data-bs-target="#receiptModal">
+                    <svg style="width:16px;height:16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                    طباعة
+                </button>
+                @if(!$payment->isCancelled() && !$payment->isFullyPaid())
+                <button type="button" class="header-btn header-btn-success" style="font-size:.8rem;padding:.55rem 1rem;" data-bs-toggle="modal" data-bs-target="#recordPaymentModal">
+                    <svg style="width:16px;height:16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    تسجيل دفعة
+                </button>
+                <button type="button" class="header-btn header-btn-warning" style="font-size:.8rem;padding:.55rem 1rem;" data-bs-toggle="modal" data-bs-target="#waiveModal">
+                    إعفاء
+                </button>
+                <button type="button" class="header-btn header-btn-danger" style="font-size:.8rem;padding:.55rem 1rem;" data-bs-toggle="modal" data-bs-target="#cancelModal">
+                    إلغاء
+                </button>
+                <button type="button" class="header-btn" style="background:rgba(99,102,241,.85);font-size:.8rem;padding:.55rem 1rem;" data-bs-toggle="modal" data-bs-target="#editAmountModal">
+                    تعديل
+                </button>
+                @endif
+                @if($payment->isFullyPaid())
+                <button type="button" class="header-btn" style="background:rgba(239,68,68,.85);font-size:.8rem;padding:.55rem 1rem;" data-bs-toggle="modal" data-bs-target="#refundModal">
+                    استرداد
+                </button>
+                @endif
             </div>
         </div>
     </div>
 </div>
 
+{{-- ══ STAT BOXES ══ --}}
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;">
+    <div class="stat-box">
+        <div class="s-icon" style="background:linear-gradient(135deg,#0071AA,#004d77);">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </div>
+        <div>
+            <div class="s-val">{{ number_format($payment->total_amount,0) }}<small style="font-size:.75rem;"> ر.س</small></div>
+            <div class="s-lbl">إجمالي المبلغ</div>
+        </div>
+    </div>
+    <div class="stat-box">
+        <div class="s-icon" style="background:linear-gradient(135deg,#10b981,#059669);">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </div>
+        <div>
+            <div class="s-val">{{ number_format($payment->paid_amount,0) }}<small style="font-size:.75rem;"> ر.س</small></div>
+            <div class="s-lbl">المدفوع</div>
+        </div>
+    </div>
+    <div class="stat-box">
+        <div class="s-icon" style="background:linear-gradient(135deg,#f59e0b,#d97706);">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </div>
+        <div>
+            <div class="s-val">{{ number_format($payment->remaining_amount,0) }}<small style="font-size:.75rem;"> ر.س</small></div>
+            <div class="s-lbl">المتبقي</div>
+        </div>
+    </div>
+    <div class="stat-box">
+        <div class="s-icon" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed);">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+        </div>
+        <div>
+            <div class="s-val">{{ number_format($pct,0) }}<small style="font-size:.8rem;">%</small></div>
+            <div class="s-lbl">نسبة الدفع</div>
+        </div>
+    </div>
+</div>
+
+{{-- ══ ROW: Progress + Info ══ --}}
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
+
+    {{-- Progress card --}}
+    <div class="pay-card" style="margin-bottom:0;">
+        <div class="pay-card-head">
+            <div class="pay-card-title">
+                <div class="pay-card-icon" style="background:linear-gradient(135deg,#3b82f6,#2563eb);">
+                    <svg style="width:18px;height:18px;color:#fff;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                </div>
+                تقدم السداد
+            </div>
+            <button type="button" class="action-btn action-btn-primary" style="font-size:.75rem;" data-bs-toggle="modal" data-bs-target="#addNoteModal">
+                <svg style="width:13px;height:13px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                ملاحظة
+            </button>
+        </div>
+        <div class="pay-card-body" style="display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap;">
+            {{-- Donut --}}
+            <div style="position:relative;width:100px;height:100px;flex-shrink:0;">
+                <svg width="100" height="100" viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="{{ $r }}" fill="none" stroke="#f3f4f6" stroke-width="9"/>
+                    <circle cx="50" cy="50" r="{{ $r }}" fill="none" stroke="{{ $barColor }}" stroke-width="9"
+                            stroke-dasharray="{{ $circ }}" stroke-dashoffset="{{ $dash }}"
+                            stroke-linecap="round" transform="rotate(-90 50 50)"
+                            style="transition:stroke-dashoffset 1s ease;"/>
+                </svg>
+                <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+                    <span style="font-size:1.2rem;font-weight:900;color:#111827;">{{ number_format($pct,0) }}%</span>
+                    <span style="font-size:.6rem;color:#9ca3af;">مكتمل</span>
+                </div>
+            </div>
+
+            {{-- Bars --}}
+            <div style="flex:1;min-width:150px;">
+                <div style="margin-bottom:.75rem;">
+                    <div style="display:flex;justify-content:space-between;margin-bottom:.25rem;">
+                        <span style="font-size:.75rem;color:#6b7280;">المدفوع</span>
+                        <span style="font-size:.75rem;font-weight:700;color:#10b981;">{{ number_format($payment->paid_amount,0) }} ر.س</span>
+                    </div>
+                    <div style="height:7px;background:#f3f4f6;border-radius:4px;overflow:hidden;">
+                        <div style="height:100%;border-radius:4px;background:#10b981;width:var(--dyn-pct);transition:width .8s ease;"></div>
+                    </div>
+                </div>
+                @if($payment->discount_amount > 0)
+                <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:.5rem .8rem;display:flex;justify-content:space-between;font-size:.75rem;margin-bottom:.75rem;">
+                    <span style="color:#991b1b;">خصم مطبّق</span>
+                    <span style="font-weight:700;color:#dc2626;">{{ number_format($payment->discount_amount,0) }} ر.س</span>
+                </div>
+                @endif
+                <div style="background:#f8fafc;border-radius:10px;padding:.6rem .9rem;">
+                    <div style="display:flex;justify-content:space-between;font-size:.75rem;margin-bottom:.3rem;">
+                        <span style="color:#6b7280;">المتبقي</span>
+                        <span style="font-weight:700;color:#f59e0b;">{{ number_format($payment->remaining_amount,0) }} ر.س</span>
+                    </div>
+                    <div style="height:7px;background:#f3f4f6;border-radius:4px;overflow:hidden;">
+                        <div style="height:100%;border-radius:4px;background:#f59e0b;width:var(--dyn-rem);"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Quick actions strip --}}
+        @if(!$payment->isCancelled() && !$payment->isFullyPaid())
+        <div style="padding:.85rem 1.5rem;border-top:1px solid #f1f5f9;background:#fafafa;display:flex;gap:.5rem;flex-wrap:wrap;">
+            <button type="button" class="action-btn action-btn-success" style="font-size:.75rem;" data-bs-toggle="modal" data-bs-target="#recordPaymentModal">
+                + تسجيل دفعة يدوية
+            </button>
+            <button type="button" class="action-btn action-btn-primary" style="font-size:.75rem;" data-bs-toggle="modal" data-bs-target="#editAmountModal">
+                تعديل المبلغ
+            </button>
+            <button type="button" class="action-btn" style="font-size:.75rem;background:rgba(245,158,11,.1);color:#d97706;" data-bs-toggle="modal" data-bs-target="#waiveModal">
+                إعفاء جزئي
+            </button>
+        </div>
+        @endif
+    </div>
+
+    {{-- Student + Program Info --}}
+    <div class="pay-card" style="margin-bottom:0;">
+        <div class="pay-card-head">
+            <div class="pay-card-title">
+                <div class="pay-card-icon" style="background:linear-gradient(135deg,#8b5cf6,#6d28d9);">
+                    <svg style="width:18px;height:18px;color:#fff;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                </div>
+                بيانات الطالب والدفعة
+            </div>
+            <a href="{{ route('admin.students.show', $payment->user) }}" class="action-btn action-btn-primary" style="font-size:.73rem;text-decoration:none;">
+                ملف الطالب ←
+            </a>
+        </div>
+        <div>
+            @php
+                $rows = [
+                    ['الطالب',      $payment->user->name],
+                    ['البريد',      $payment->user->email],
+                    ['رقم الطالب',  $payment->user->student_code ?? '--'],
+                    ['البرنامج',    $payment->program->name_ar],
+                    ['نوع الدفع',   $payment->payment_type=='full'?'دفعة كاملة':'تقسيط'],
+                    ['تاريخ الإنشاء', $payment->created_at->format('Y/m/d H:i')],
+                ];
+                if($payment->payment_method){
+                    $methodMap = ['cash'=>'نقدي','bank_transfer'=>'تحويل بنكي','tamara'=>'تمارا','paytabs'=>'PayTabs','waived'=>'معفي'];
+                    $rows[] = ['طريقة الدفع', $methodMap[$payment->payment_method] ?? $payment->payment_method];
+                }
+                if($payment->creator) $rows[] = ['أنشأ بواسطة', $payment->creator->name];
+            @endphp
+            @foreach($rows as $r)
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:.65rem 1.5rem;border-bottom:1px solid #f8fafc;font-size:.83rem;">
+                <span style="color:#6b7280;font-weight:500;">{{ $r[0] }}</span>
+                <span style="font-weight:700;color:#111827;text-align:left;max-width:55%;word-break:break-word;">{{ $r[1] }}</span>
+            </div>
+            @endforeach
+            @if($payment->notes)
+            <div style="padding:.85rem 1.5rem;background:#fffbeb;border-top:1px dashed #fde68a;">
+                <div style="font-size:.72rem;color:#d97706;font-weight:700;margin-bottom:.3rem;">ملاحظات</div>
+                <div style="font-size:.82rem;color:#92400e;line-height:1.6;">{{ $payment->notes }}</div>
+            </div>
+            @endif
+        </div>
+    </div>
+</div>
+
+{{-- ══ INSTALLMENTS ══ --}}
+@if($payment->payment_type == 'installment')
+@php
+    $paidInst    = $payment->installments->where('status','paid')->count();
+    $overdueInst = $payment->installments->filter(fn($i)=>$i->isOverdue())->count();
+    $pendingInst = $payment->installments->filter(fn($i)=>$i->status=='pending'&&!$i->isOverdue())->count();
+@endphp
+<div class="pay-card" style="margin-bottom:0;">
+    <div class="pay-card-head">
+        <div class="pay-card-title">
+            <div class="pay-card-icon" style="background:linear-gradient(135deg,#10b981,#059669);">
+                <svg style="width:18px;height:18px;color:#fff;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+            </div>
+            الأقساط
+        </div>
+        <div style="display:flex;gap:.5rem;align-items:center;">
+            @if($paidInst > 0)<span class="table-badge badge-success">{{ $paidInst }} مدفوع</span>@endif
+            @if($pendingInst > 0)<span class="table-badge badge-warning">{{ $pendingInst }} قادم</span>@endif
+            @if($overdueInst > 0)<span class="table-badge badge-danger">{{ $overdueInst }} متأخر</span>@endif
+            @if($payment->installments->count() == 0 && !$payment->isCancelled())
+            <button type="button" class="action-btn action-btn-primary" style="font-size:.75rem;" data-bs-toggle="modal" data-bs-target="#createInstallmentModal">
+                <svg style="width:13px;height:13px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+                إنشاء خطة
+            </button>
+            @endif
+        </div>
+    </div>
+    <div style="overflow-x:auto;">
+        @if($payment->installments->count() > 0)
+        <table class="custom-table">
+            <thead><tr>
+                <th>القسط</th><th>المبلغ</th><th>الاستحقاق</th><th>الحالة</th><th>تاريخ الدفع</th><th>إجراء</th>
+            </tr></thead>
+            <tbody>
+            @foreach($payment->installments as $inst)
+            <tr>
+                <td><strong>#{{ $inst->installment_number }}</strong></td>
+                <td><strong>{{ number_format($inst->amount,2) }} ر.س</strong></td>
+                <td>{{ $inst->due_date->format('Y/m/d') }}</td>
+                <td>
+                    @if($inst->status=='paid') <span class="table-badge badge-success">مدفوع</span>
+                    @elseif($inst->isOverdue()) <span class="table-badge badge-danger">متأخر</span>
+                    @elseif($inst->status=='cancelled') <span class="table-badge badge-secondary">ملغي</span>
+                    @else <span class="table-badge badge-warning">قيد الانتظار</span>
+                    @endif
+                </td>
+                <td>{{ $inst->paid_at ? $inst->paid_at->format('Y/m/d') : '--' }}</td>
+                <td>
+                    @if($inst->status=='pending')
+                    <button type="button" class="action-btn action-btn-success" style="font-size:.75rem;" data-inst-id="{{ $inst->id }}" onclick="recordInstallmentPayment(this.dataset.instId)">
+                        <svg style="width:13px;height:13px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                        تسجيل
+                    </button>
+                    @else --
+                    @endif
+                </td>
+            </tr>
+            @endforeach
+            </tbody>
+        </table>
+        @else
+        <div class="empty-state"><div class="empty-state-icon">📋</div><p class="empty-state-text">لم يتم إنشاء خطة تقسيط بعد</p></div>
+        @endif
+    </div>
+</div>
+@endif
+
+{{-- ══ PENDING RECEIPTS ══ --}}
+@if($pendingReceipts->count() > 0)
+<div class="receipt-pending-card">
+    <div class="receipt-pending-head">
+        <div class="pay-card-icon" style="background:linear-gradient(135deg,#f59e0b,#d97706);">
+            <svg style="width:20px;height:20px;color:#fff;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v8"/>
+            </svg>
+        </div>
+        <div style="flex:1;">
+            <div style="font-size:.95rem;font-weight:800;color:#92400e;">إيصالات بانتظار المراجعة</div>
+            <div style="font-size:.78rem;color:#b45309;margin-top:.1rem;">{{ $pendingReceipts->count() }} إيصال بحاجة للموافقة أو الرفض</div>
+        </div>
+        <span class="table-badge badge-warning">{{ $pendingReceipts->count() }} معلق</span>
+    </div>
+    @foreach($pendingReceipts as $receipt)
+    <div class="receipt-item">
+        <div class="receipt-img-wrap">
+            @if($receipt->receipt_path)
+                @php $ext = strtolower(pathinfo($receipt->receipt_path,PATHINFO_EXTENSION)); @endphp
+                @if(in_array($ext,['jpg','jpeg','png']))
+                    <img src="{{ asset('storage/'.$receipt->receipt_path) }}" alt="إيصال">
+                @else
+                    <svg style="width:28px;height:28px;color:#6b7280;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                @endif
+            @else
+                <svg style="width:28px;height:28px;color:#6b7280;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            @endif
+        </div>
+        <div style="flex:1;min-width:140px;">
+            <div style="font-size:.95rem;font-weight:800;color:#111827;">{{ number_format($receipt->amount,2) }} ر.س</div>
+            <div style="font-size:.75rem;color:#6b7280;margin-top:.15rem;">{{ $receipt->created_at->format('Y/m/d H:i') }}</div>
+            @if($receipt->notes)<div style="font-size:.75rem;color:#6b7280;margin-top:.1rem;">{{ $receipt->notes }}</div>@endif
+            @if($receipt->receipt_path)
+            <a href="{{ asset('storage/'.$receipt->receipt_path) }}" target="_blank"
+               style="display:inline-flex;align-items:center;gap:.25rem;margin-top:.4rem;font-size:.73rem;font-weight:700;color:#0071AA;">
+                <svg style="width:13px;height:13px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                عرض كامل
+            </a>
+            @endif
+        </div>
+        <div style="display:flex;flex-direction:column;gap:.5rem;flex-shrink:0;">
+            <form action="{{ route('admin.payments.transactions.approve-receipt', $receipt) }}" method="POST">
+                @csrf
+                <button type="submit" class="btn btn-success" style="padding:.45rem .9rem;font-size:.78rem;width:100%;" onclick="return confirm('تأكيد قبول الإيصال وتسجيل الدفعة؟')">
+                    <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                    قبول
+                </button>
+            </form>
+            <button type="button" class="btn btn-danger" style="padding:.45rem .9rem;font-size:.78rem;" data-receipt-id="{{ $receipt->id }}" onclick="openRejectModal(this.dataset.receiptId)">
+                <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                رفض
+            </button>
+        </div>
+    </div>
+    @endforeach
+</div>
+@endif
+
+{{-- ══ TRANSACTIONS ══ --}}
+<div class="pay-card" style="margin-bottom:0;">
+    <div class="pay-card-head">
+        <div class="pay-card-title">
+            <div class="pay-card-icon" style="background:linear-gradient(135deg,#3b82f6,#2563eb);">
+                <svg style="width:18px;height:18px;color:#fff;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+            </div>
+            سجل المعاملات
+        </div>
+        <button class="action-btn action-btn-primary" style="font-size:.73rem;" data-bs-toggle="modal" data-bs-target="#timelineModal">
+            <svg style="width:13px;height:13px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            جدول الأحداث
+        </button>
+    </div>
+    <div style="overflow-x:auto;">
+        @if($payment->transactions->count() > 0)
+        <table class="custom-table">
+            <thead><tr>
+                <th>#</th><th>المبلغ</th><th>النوع</th><th>طريقة الدفع</th><th>المرجع</th><th>الحالة</th><th>الإيصال</th><th>بواسطة</th><th>التاريخ</th>
+            </tr></thead>
+            <tbody>
+            @foreach($payment->transactions as $trx)
+            <tr>
+                <td style="color:#9ca3af;font-size:.78rem;">{{ $trx->id }}</td>
+                <td><strong>{{ number_format($trx->amount,2) }} ر.س</strong></td>
+                <td>
+                    @if($trx->type=='payment') <span class="table-badge badge-success">دفعة</span>
+                    @elseif($trx->type=='refund') <span class="table-badge badge-danger">استرداد</span>
+                    @else <span class="table-badge badge-info">تعديل</span>
+                    @endif
+                </td>
+                <td>
+                    @php $mmap=['cash'=>'نقدي','bank_transfer'=>'تحويل بنكي','tamara'=>'تمارا','paytabs'=>'PayTabs','waived'=>'معفي']; @endphp
+                    {{ $mmap[$trx->payment_method] ?? $trx->payment_method }}
+                </td>
+                <td style="font-size:.78rem;color:#6b7280;">{{ $trx->transaction_reference ?? '--' }}</td>
+                <td>
+                    @if($trx->status=='success') <span class="table-badge badge-success">ناجح</span>
+                    @elseif($trx->status=='pending') <span class="table-badge badge-warning">معالجة</span>
+                    @else <span class="table-badge badge-danger">فشل</span>
+                    @endif
+                </td>
+                <td>
+                    @if($trx->receipt_status=='pending') <span class="table-badge badge-receipt-pending">⏳ مراجعة</span>
+                    @elseif($trx->receipt_status=='approved') <span class="table-badge badge-receipt-approved">✓ مقبول</span>
+                    @elseif($trx->receipt_status=='rejected') <span class="table-badge badge-receipt-rejected">✕ مرفوض</span>
+                    @else <span style="color:#d1d5db;">--</span>
+                    @endif
+                </td>
+                <td style="font-size:.78rem;">{{ $trx->creator->name ?? '--' }}</td>
+                <td style="font-size:.75rem;color:#6b7280;">{{ $trx->created_at->format('Y/m/d H:i') }}</td>
+            </tr>
+            @endforeach
+            </tbody>
+        </table>
+        @else
+        <div class="empty-state"><div class="empty-state-icon">🧾</div><p class="empty-state-text">لا توجد معاملات بعد</p></div>
+        @endif
+    </div>
+</div>
+
+</div>{{-- end .payment-page --}}
+
 <!-- Record Payment Modal -->
-<div class="modal fade" id="recordPaymentModal" tabindex="-1">
+<div class="m-overlay" id="recordPaymentModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
             <form action="{{ route('admin.payments.record-payment', $payment) }}" method="POST">
@@ -1169,7 +1215,7 @@
 </div>
 
 <!-- Waive Modal -->
-<div class="modal fade" id="waiveModal" tabindex="-1">
+<div class="m-overlay" id="waiveModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
             <form action="{{ route('admin.payments.waive', $payment) }}" method="POST">
@@ -1216,7 +1262,7 @@
 </div>
 
 <!-- Cancel Modal -->
-<div class="modal fade" id="cancelModal" tabindex="-1">
+<div class="m-overlay" id="cancelModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
             <form action="{{ route('admin.payments.cancel', $payment) }}" method="POST">
@@ -1268,7 +1314,7 @@
 
 <!-- Create Installment Plan Modal -->
 @if($payment->payment_type == 'installment' && $payment->installments->count() == 0)
-<div class="modal fade" id="createInstallmentModal" tabindex="-1">
+<div class="m-overlay" id="createInstallmentModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
             <form action="{{ route('admin.payments.installment-plan', $payment) }}" method="POST">
@@ -1324,7 +1370,7 @@
 {{-- ════════════════════════════ NEW MODALS ════════════════════════════ --}}
 
 <!-- ① Print Receipt Modal -->
-<div class="modal fade" id="receiptModal" tabindex="-1">
+<div class="m-overlay" id="receiptModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -1401,8 +1447,12 @@
                         </div>
                     </div>
                     <!-- Status -->
-                    <div style="text-align:center;padding:1rem;background:{{ $payment->status=='completed' ? '#d1fae5' : ($payment->status=='cancelled' ? '#fee2e2' : '#fef3c7') }};border-radius:12px;margin-bottom:1.5rem">
-                        <span style="font-weight:800;color:{{ $payment->status=='completed' ? '#065f46' : ($payment->status=='cancelled' ? '#991b1b' : '#92400e') }};font-size:1rem">
+                    @php
+                        $rsBg  = $payment->status=='completed' ? 'rs-completed' : ($payment->status=='cancelled' ? 'rs-cancelled' : 'rs-other');
+                        $rsTxt = $payment->status=='completed' ? 'rs-txt-completed' : ($payment->status=='cancelled' ? 'rs-txt-cancelled' : 'rs-txt-other');
+                    @endphp
+                    <div class="{{ $rsBg }}" style="text-align:center;padding:1rem;border-radius:12px;margin-bottom:1.5rem">
+                        <span class="{{ $rsTxt }}" style="font-weight:800;font-size:1rem">
                             {{ $payment->status=='completed' ? '✅ مكتملة' : ($payment->status=='cancelled' ? '❌ ملغاة' : ($payment->status=='partial' ? '🔄 جزئية' : '⏳ قيد الانتظار')) }}
                         </span>
                     </div>
@@ -1427,7 +1477,7 @@
 </div>
 
 <!-- ② Send Email Receipt Modal -->
-<div class="modal fade" id="emailReceiptModal" tabindex="-1">
+<div class="m-overlay" id="emailReceiptModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -1465,7 +1515,7 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
                 <button type="button" class="btn" style="background:linear-gradient(135deg,#6366f1,#4f46e5);color:#fff;box-shadow:0 4px 12px rgba(99,102,241,0.3)"
-                        onclick="alert('تم إرسال الإيصال بنجاح إلى: ' + document.getElementById('receiptEmail').value); bootstrap.Modal.getInstance(document.getElementById('emailReceiptModal')).hide();">
+                        onclick="alert('تم إرسال الإيصال بنجاح إلى: ' + document.getElementById('receiptEmail').value); closeModal(document.getElementById('emailReceiptModal'));">
                     <svg style="width:18px;height:18px" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
                     </svg>
@@ -1478,7 +1528,7 @@
 
 <!-- ③ Edit Amount Modal -->
 @if(!$payment->isCancelled() && !$payment->isFullyPaid())
-<div class="modal fade" id="editAmountModal" tabindex="-1">
+<div class="m-overlay" id="editAmountModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
             <form action="{{ route('admin.payments.update', $payment) }}" method="POST">
@@ -1533,7 +1583,7 @@
 
 <!-- ④ Refund Modal -->
 @if($payment->isFullyPaid())
-<div class="modal fade" id="refundModal" tabindex="-1">
+<div class="m-overlay" id="refundModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
             <form action="{{ route('admin.payments.refund', $payment) }}" method="POST">
@@ -1601,7 +1651,7 @@
 @endif
 
 <!-- ⑤ Payment Timeline Modal -->
-<div class="modal fade" id="timelineModal" tabindex="-1">
+<div class="m-overlay" id="timelineModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -1619,15 +1669,16 @@
                     <div style="position:absolute;right:9px;top:0;bottom:0;width:2px;background:linear-gradient(to bottom,#8b5cf6,#e5e7eb)"></div>
                     @foreach($payment->transactions as $i => $tx)
                     @php
-                        $txColor = $tx->type=='payment' ? '#10b981' : ($tx->type=='refund' ? '#ef4444' : '#f59e0b');
-                        $txBg    = $tx->type=='payment' ? '#d1fae5' : ($tx->type=='refund' ? '#fee2e2' : '#fef3c7');
+                        $txDot = $tx->type=='payment' ? 'tx-payment-dot' : ($tx->type=='refund' ? 'tx-refund-dot' : 'tx-adjust-dot');
+                        $txCard= $tx->type=='payment' ? 'tx-payment-card' : ($tx->type=='refund' ? 'tx-refund-card' : 'tx-adjust-card');
+                        $txLbl = $tx->type=='payment' ? 'tx-payment-lbl' : ($tx->type=='refund' ? 'tx-refund-lbl' : 'tx-adjust-lbl');
                         $txLabel = $tx->type=='payment' ? 'دفعة' : ($tx->type=='refund' ? 'استرداد' : 'تعديل');
                     @endphp
                     <div style="display:flex;gap:1rem;margin-bottom:1.5rem;align-items:flex-start">
-                        <div style="width:20px;height:20px;border-radius:50%;background:{{ $txColor }};border:3px solid #fff;box-shadow:0 0 0 2px {{ $txColor }};flex-shrink:0;margin-top:2px"></div>
-                        <div style="flex:1;background:{{ $txBg }};border-radius:12px;padding:1rem 1.25rem;border:1px solid {{ $txColor }}33">
+                        <div class="tx-dot {{ $txDot }}"></div>
+                        <div class="tx-card {{ $txCard }}">
                             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-                                <span style="font-weight:800;color:{{ $txColor }};font-size:0.95rem">{{ $txLabel }}</span>
+                                <span class="{{ $txLbl }}">{{ $txLabel }}</span>
                                 <span style="font-size:0.75rem;color:#6b7280">{{ $tx->created_at->format('Y/m/d H:i') }}</span>
                             </div>
                             <div style="font-size:1.1rem;font-weight:900;color:#111827;margin-bottom:4px">
@@ -1665,7 +1716,7 @@
 </div>
 
 <!-- ⑥ Add Note Modal -->
-<div class="modal fade" id="addNoteModal" tabindex="-1">
+<div class="m-overlay" id="addNoteModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
             <form action="{{ route('admin.payments.update', $payment) }}" method="POST">
@@ -1723,7 +1774,7 @@
 </div>
 
 <!-- ⑦ Reject Receipt Modal -->
-<div class="modal fade" id="rejectReceiptModal" tabindex="-1">
+<div class="m-overlay" id="rejectReceiptModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
             <form id="rejectReceiptForm" method="POST">
@@ -1764,43 +1815,68 @@
     </div>
 </div>
 
-@push('head-scripts')
-<!-- Bootstrap JS for Modals -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-@endpush
-
 @push('scripts')
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const modalButtons = document.querySelectorAll('[data-bs-toggle="modal"]');
-        modalButtons.forEach(button => {
-            button.addEventListener('click', function(e) {
-                e.preventDefault();
-                const targetModalId = this.getAttribute('data-bs-target');
-                const modalElement = document.querySelector(targetModalId);
-                if (modalElement) {
-                    const modal = new bootstrap.Modal(modalElement);
-                    modal.show();
-                }
-            });
+function openModal(id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.classList.add('open');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeModal(trigger) {
+    var overlay = trigger.classList && trigger.classList.contains('m-overlay')
+        ? trigger
+        : trigger.closest ? trigger.closest('.m-overlay') : null;
+    if (overlay) {
+        overlay.classList.remove('open');
+        document.body.style.overflow = '';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Open modals via data-bs-target buttons
+    document.querySelectorAll('[data-bs-toggle="modal"]').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            var id = (this.getAttribute('data-bs-target') || '').replace('#', '');
+            if (id) openModal(id);
         });
     });
 
-    function recordInstallmentPayment(installmentId) {
-        if (confirm('هل تريد تسجيل دفع هذا القسط؟')) {
-            const form = document.getElementById('recordInstallmentForm');
-            form.action = `/admin/payments/installments/${installmentId}/record-payment`;
-            form.submit();
+    // Close via data-bs-dismiss or backdrop click
+    document.addEventListener('click', function(e) {
+        if (e.target.hasAttribute && e.target.hasAttribute('data-bs-dismiss') && e.target.getAttribute('data-bs-dismiss') === 'modal') {
+            closeModal(e.target);
         }
-    }
+        if (e.target.classList && e.target.classList.contains('m-overlay')) {
+            closeModal(e.target);
+        }
+    });
 
-    function openRejectModal(transactionId) {
-        var form = document.getElementById('rejectReceiptForm');
-        form.action = '/admin/payments/transactions/' + transactionId + '/reject-receipt';
-        var modalEl = document.getElementById('rejectReceiptModal');
-        var modal = new bootstrap.Modal(modalEl);
-        modal.show();
+    // ESC key to close
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            document.querySelectorAll('.m-overlay.open').forEach(function(el) {
+                el.classList.remove('open');
+                document.body.style.overflow = '';
+            });
+        }
+    });
+});
+
+function recordInstallmentPayment(installmentId) {
+    if (confirm('هل تريد تسجيل دفع هذا القسط؟')) {
+        var form = document.getElementById('recordInstallmentForm');
+        form.action = '/admin/payments/installments/' + installmentId + '/record-payment';
+        form.submit();
     }
+}
+
+function openRejectModal(transactionId) {
+    document.getElementById('rejectReceiptForm').action = '/admin/payments/transactions/' + transactionId + '/reject-receipt';
+    openModal('rejectReceiptModal');
+}
 </script>
 @endpush
 @endsection
