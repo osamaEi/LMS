@@ -42,12 +42,13 @@ class CourseController extends Controller
             'price'           => 'nullable|numeric|min:0',
             'status'          => 'nullable|in:active,inactive',
             'supervisor_name' => 'nullable|string|max:255',
+            'course_type'     => 'nullable|in:developmental,qualifying',
             'image'           => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
         ]);
 
         $data = $request->only([
             'name_ar', 'name_en', 'code', 'description_ar', 'description_en',
-            'duration_months', 'price', 'status', 'supervisor_name',
+            'duration_months', 'price', 'status', 'supervisor_name', 'course_type',
         ]);
 
         $data['type'] = 'course';
@@ -79,6 +80,7 @@ class CourseController extends Controller
             'price'           => 'nullable|numeric|min:0',
             'status'          => 'nullable|in:active,inactive',
             'supervisor_name' => 'nullable|string|max:255',
+            'course_type'     => 'nullable|in:developmental,qualifying',
             'image'           => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'remove_image'    => 'nullable|boolean',
         ]);

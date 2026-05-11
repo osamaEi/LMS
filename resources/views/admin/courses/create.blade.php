@@ -81,6 +81,15 @@
                         <option value="inactive" {{ old('status') === 'inactive' ? 'selected' : '' }}>غير نشط</option>
                     </select>
                 </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">نوع الدورة</label>
+                    <select name="course_type"
+                            class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 focus:border-amber-500 focus:ring-2 focus:ring-amber-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
+                        <option value="">— اختر النوع —</option>
+                        <option value="developmental" {{ old('course_type') === 'developmental' ? 'selected' : '' }}>تطويري</option>
+                        <option value="qualifying"    {{ old('course_type') === 'qualifying'    ? 'selected' : '' }}>تأهيلي</option>
+                    </select>
+                </div>
                 <div class="md:col-span-2">
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">المشرف الأكاديمي</label>
                     <input type="text" name="supervisor_name" value="{{ old('supervisor_name') }}"

@@ -20,6 +20,7 @@ class Program extends Model
         'status',
         'image',
         'type',
+        'course_type',
         'supervisor_id',
         'supervisor_name',
     ];

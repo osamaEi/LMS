@@ -9,7 +9,7 @@
     <link rel="icon" type="image/png" href="{{ asset('images/Vector.png') }}" />
     <!-- Preload Cairo font + hero image -->
     <link rel="preload" href="/fonts/Cairo-VariableFont_slnt,wght.woff2" as="font" type="font/woff2" crossorigin>
-    <link rel="preload" as="image" href="{{ asset('lms2-photo/14.png') }}" />
+    <link rel="preload" as="image" href="{{ asset('lms2-photo/2.png') }}" />
 
     @if(app()->getLocale() == 'ar')
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
@@ -95,22 +95,22 @@
         body.menu-open { overflow:hidden; }
 
         /* ── Hero Slider ── */
-        .hero-section { position: relative; height: 100vh; min-height: 600px; overflow: hidden; }
+        .hero-section { position: relative; height: 65vh; min-height: 480px; overflow: hidden; }
         .hero-slides { position: absolute; inset: 0; }
         .hero-slide {
             position: absolute; inset: 0;
-            background-size: cover; background-position: center;
+            background-size: cover; background-position: center 20%;
             opacity: 0;
             transition: opacity 1.3s ease-in-out, transform 8s ease;
-            transform: scale(1.04);
+            transform: scale(1.02);
         }
         .hero-slide.active { opacity: 1; transform: scale(1); }
         .hero-slide::after {
             content: ''; position: absolute; inset: 0;
-            background: linear-gradient(90deg, rgba(0,0,0,.52) 0%, rgba(0,0,0,.28) 38%, transparent 65%);
+            background: linear-gradient(90deg, rgba(0,0,0,.38) 0%, rgba(0,0,0,.15) 40%, transparent 70%);
         }
         [dir="rtl"] .hero-slide::after {
-            background: linear-gradient(270deg, rgba(0,0,0,.52) 0%, rgba(0,0,0,.28) 38%, transparent 65%);
+            background: linear-gradient(270deg, rgba(0,0,0,.38) 0%, rgba(0,0,0,.15) 40%, transparent 70%);
         }
         /* Subtle vertical separator line */
         .hero-vline {
@@ -260,7 +260,7 @@
         .courses-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(300px,1fr)); gap: 1.5rem; max-width: 1300px; margin: 0 auto; }
         .course-card { background: #fff; border-radius: 14px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,.07); transition: all .3s; }
         .course-card:hover { transform: translateY(-5px); box-shadow: 0 12px 28px rgba(0,0,0,.12); }
-        .course-card img { width: 100%; height: 200px; object-fit: cover; }
+        .course-card img { width: 100%; height: 200px; object-fit: cover; object-position: center 20%; }
         .course-card-body { padding: 1.25rem; }
         .course-card h4 { font-weight: 700; margin-bottom: .5rem; font-size: 1.1rem; }
         .course-card p { color: #666; font-size: .9rem; flex-grow: 1; }
@@ -280,19 +280,17 @@
         .gallery-section { padding: clamp(3rem,6vw,6rem) clamp(1rem,4vw,4rem); }
         .gallery-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; max-width: 1300px; margin: 0 auto; }
         .gallery-item { border-radius: 12px; overflow: hidden; position: relative; cursor: pointer; }
-        .gallery-item img { width: 100%; height: 100%; object-fit: cover; transition: transform .4s ease; display: block; }
+        .gallery-item img { width: 100%; height: 100%; object-fit: cover; object-position: center 20%; transition: transform .4s ease; display: block; }
         .gallery-item:hover img { transform: scale(1.05); }
         .gallery-item .overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,60,100,.6) 0%, transparent 60%); opacity: 0; transition: .3s; }
         .gallery-item:hover .overlay { opacity: 1; }
         .gallery-item-1 { grid-column: span 2; grid-row: span 2; height: 420px; }
         .gallery-item-2, .gallery-item-3, .gallery-item-4, .gallery-item-5 { height: 204px; }
-        .gallery-item-6 { grid-column: span 2; height: 204px; }
-        .gallery-item-7, .gallery-item-8 { height: 204px; }
 
         /* ── How It Works ── */
         .how-section { padding: clamp(3rem,6vw,6rem) clamp(1rem,4vw,4rem); background: var(--second-color); }
         .how-image { border-radius: 20px; overflow: hidden; box-shadow: 0 12px 40px rgba(0,0,0,.12); }
-        .how-image img { width: 100%; height: 100%; object-fit: cover; }
+        .how-image img { width: 100%; height: 100%; object-fit: cover; object-position: center 20%; }
         .how-steps { display: flex; flex-direction: column; gap: 1.75rem; }
         .how-step { display: flex; gap: 1.25rem; align-items: flex-start; }
         .how-step-number { flex-shrink: 0; width: 48px; height: 48px; border-radius: 12px; background: var(--main-color); color: #fff; font-size: 1.2rem; font-weight: 800; display: flex; align-items: center; justify-content: center; }
@@ -310,81 +308,96 @@
 
         /* ── Partners Section ── */
         .partners-section {
-            padding: clamp(3rem,6vw,5.5rem) 0;
-            background: linear-gradient(180deg, #f8fafc 0%, #fff 100%);
+            padding: clamp(4rem,7vw,6.5rem) 0;
+            background:
+                radial-gradient(ellipse 70% 80% at 15% 50%, rgba(0,113,170,.14) 0%, transparent 65%),
+                radial-gradient(ellipse 55% 70% at 85% 25%, rgba(56,189,248,.09) 0%, transparent 60%),
+                radial-gradient(rgba(255,255,255,.028) 1px, transparent 1px),
+                linear-gradient(135deg, #060f1d 0%, #0b2040 55%, #071626 100%);
+            background-size: 100% 100%, 100% 100%, 28px 28px, 100% 100%;
             position: relative; overflow: hidden;
         }
         .partners-section::before {
             content: '';
-            position: absolute; top: 0; left: 0; right: 0; height: 3px;
-            background: linear-gradient(90deg, transparent, var(--main-color), #38bdf8, var(--main-color), transparent);
+            position: absolute; top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, transparent 0%, rgba(0,113,170,.7) 30%, #38bdf8 50%, rgba(0,113,170,.7) 70%, transparent 100%);
+            z-index: 2;
+        }
+        .partners-section::after {
+            content: '';
+            position: absolute; bottom: 0; left: 0; right: 0; height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,.07), transparent);
         }
         .partners-head {
-            text-align: center; padding: 0 1rem; margin-bottom: 2.75rem;
+            text-align: center; padding: 0 1rem; margin-bottom: 3rem;
             position: relative; z-index: 2;
         }
         .partners-badge {
             display: inline-flex; align-items: center; gap: .5rem;
-            background: #eaf5fb; color: var(--main-color) !important;
-            padding: .35rem 1.1rem; border-radius: 50px;
-            font-size: .82rem; font-weight: 700; margin-bottom: .85rem;
-            border: 1px solid rgba(0,113,170,.15);
+            background: rgba(0,113,170,.22); color: #93c5fd !important;
+            padding: .38rem 1.2rem; border-radius: 50px;
+            font-size: .82rem; font-weight: 700; margin-bottom: 1rem;
+            border: 1px solid rgba(147,197,253,.22);
         }
         .partners-badge::before {
             content: ''; width: 7px; height: 7px; border-radius: 50%;
-            background: var(--main-color); display: inline-block; vertical-align: middle;
+            background: #60a5fa; display: inline-block; vertical-align: middle;
+            animation: pulse-blue 2s infinite;
         }
+        @keyframes pulse-blue { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.35;transform:scale(.65)} }
         .partners-head h2 {
-            font-size: clamp(1.5rem,3vw,2.1rem) !important; font-weight: 800 !important;
-            color: #0f172a !important; margin-bottom: .4rem !important;
+            font-size: clamp(1.6rem,3vw,2.3rem) !important; font-weight: 800 !important;
+            color: #fff !important; margin-bottom: .5rem !important;
             display: block !important; visibility: visible !important;
+            text-shadow: 0 2px 24px rgba(0,113,170,.5);
         }
-        .partners-head p { color: #64748b !important; font-size: .92rem; margin: 0; }
-        /* Marquee container — always LTR to keep scroll direction correct */
-        .partners-marquee-outer {
-            position: relative; overflow: hidden;
-            padding: .5rem 0;
+        .partners-head p { color: rgba(255,255,255,.5) !important; font-size: .92rem; margin: 0; }
+        .partners-count-row {
+            display: flex; align-items: center; justify-content: center; gap: 1.25rem;
+            margin-top: 1.5rem; flex-wrap: wrap;
         }
-        .partners-marquee-outer::before,
-        .partners-marquee-outer::after {
-            content: ''; position: absolute; top: 0; bottom: 0; width: 120px; z-index: 3; pointer-events: none;
+        .p-count-chip {
+            display: inline-flex; align-items: center; gap: .45rem;
+            background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1);
+            border-radius: 8px; padding: .4rem 1rem;
+            color: rgba(255,255,255,.6); font-size: .78rem;
         }
-        .partners-marquee-outer::before { left: 0;  background: linear-gradient(to right,  #f8fafc 0%, transparent 100%); }
-        .partners-marquee-outer::after  { right: 0; background: linear-gradient(to left,   #f8fafc 0%, transparent 100%); }
-        .partners-marquee-track {
-            display: flex; gap: 1.75rem; align-items: center;
-            width: max-content;
-            animation: partnersTicker 30s linear infinite;
-        }
-        .partners-marquee-track:hover { animation-play-state: paused; }
-        @keyframes partnersTicker {
-            0%   { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
+        .p-count-chip strong { color: #60a5fa; font-size: .92rem; font-weight: 800; }
+        .p-count-chip i { font-size: .9rem; opacity: .7; }
+        /* Grid */
+        .partners-grid-wrap {
+            display: flex; flex-wrap: wrap; justify-content: center;
+            gap: 1.5rem; padding: 0 clamp(1rem,4vw,4rem) 1rem;
+            max-width: 1200px; margin: 0 auto;
         }
         .p-logo-card {
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            width: 164px; min-height: 108px; flex-shrink: 0;
-            background: #fff; border-radius: 16px;
-            border: 1.5px solid #e2e8f0;
-            box-shadow: 0 2px 8px rgba(0,0,0,.04);
-            padding: 14px 16px 12px; gap: 8px;
-            transition: all .3s ease;
+            width: 188px; min-height: 124px; flex-shrink: 0;
+            background: rgba(255,255,255,.06);
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,.1);
+            backdrop-filter: blur(14px);
+            box-shadow: 0 4px 28px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.09);
+            padding: 20px 22px 16px; gap: 10px;
+            transition: all .35s ease;
         }
         .p-logo-card:hover {
-            border-color: var(--main-color);
-            box-shadow: 0 8px 28px rgba(0,113,170,.13);
-            transform: translateY(-4px);
+            background: rgba(0,113,170,.2);
+            border-color: rgba(96,165,250,.45);
+            box-shadow: 0 16px 48px rgba(0,113,170,.4), inset 0 1px 0 rgba(255,255,255,.15);
+            transform: translateY(-7px);
         }
         .p-logo-card img {
-            max-width: 110px; max-height: 46px; object-fit: contain;
-            filter: grayscale(25%) opacity(.85); transition: filter .3s;
+            max-width: 126px; max-height: 54px; object-fit: contain;
+            filter: brightness(1.35) opacity(.78); transition: filter .35s;
         }
-        .p-logo-card:hover img { filter: grayscale(0%) opacity(1); }
+        .p-logo-card:hover img { filter: brightness(1.5) opacity(1); }
         .p-logo-card .p-name {
-            font-size: .72rem; font-weight: 700; color: #475569;
+            font-size: .73rem; font-weight: 700; color: rgba(255,255,255,.6);
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-            max-width: 136px; text-align: center; display: block;
+            max-width: 156px; text-align: center; display: block;
         }
+        .p-logo-card:hover .p-name { color: rgba(255,255,255,.92); }
 
         /* ── App Section ── */
         .app-section { background: linear-gradient(135deg, #004e7e 0%, var(--main-color) 100%); padding: clamp(3rem,6vw,6rem) clamp(1rem,4vw,4rem); color: #fff; }
@@ -415,20 +428,33 @@
         .footer-bottom { border-top: 1px solid rgba(255,255,255,.15); margin-top: 3rem; padding-top: 1.5rem; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
         .footer-bottom p { margin: 0; font-size: .85rem; opacity: .7; }
 
+        /* ── Photo Strip ── */
+        .photo-strip-section { padding: 0; background: #0c1a27; overflow: hidden; }
+        .photo-strip-outer { position: relative; overflow: hidden; padding: 16px 0; }
+        .photo-strip-outer::before,
+        .photo-strip-outer::after { content:''; position:absolute; top:0; bottom:0; width:120px; z-index:2; pointer-events:none; }
+        .photo-strip-outer::before { left:0; background:linear-gradient(to right, #0c1a27, transparent); }
+        .photo-strip-outer::after  { right:0; background:linear-gradient(to left, #0c1a27, transparent); }
+        .photo-strip-track { display:flex; gap:14px; align-items:center; width:max-content; animation:stripScroll 45s linear infinite; }
+        .photo-strip-track:hover { animation-play-state:paused; }
+        .photo-strip-track-rev { animation-direction: reverse; animation-duration: 38s; }
+        @keyframes stripScroll { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+        .strip-photo { flex-shrink:0; width:240px; height:160px; border-radius:12px; overflow:hidden; border:2px solid rgba(255,255,255,.06); }
+        .strip-photo img { width:100%; height:100%; object-fit:cover; transition:transform .5s ease; }
+        .strip-photo:hover img { transform:scale(1.1); }
+
         /* ── Responsive ── */
         @media (max-width: 991px) {
             .gallery-grid { grid-template-columns: repeat(2, 1fr); }
             .gallery-item-1 { grid-column: span 2; height: 280px; }
-            .gallery-item-6 { grid-column: span 2; }
             .stats-divider { display: none; }
         }
         @media (max-width: 768px) {
-            .hero-section { height: 85vh; }
+            .hero-section { height: 55vh; min-height: 400px; }
             .hero-content { max-width: 100%; padding: 0 1.5rem; }
             .gallery-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
             .gallery-item-1 { height: 220px; }
-            .gallery-item-2, .gallery-item-3, .gallery-item-4, .gallery-item-5,
-            .gallery-item-6, .gallery-item-7, .gallery-item-8 { height: 160px; }
+            .gallery-item-2, .gallery-item-3, .gallery-item-4, .gallery-item-5 { height: 160px; }
             .how-image { height: 260px; }
             .footer-bottom { flex-direction: column; gap: .5rem; }
         }
@@ -486,9 +512,10 @@
             <div class="d-none d-lg-flex align-items-center justify-content-between flex-grow-1">
                 <ul class="navbar-nav d-flex flex-row mb-0 mx-4">
                     <li class="nav-item"><a href="{{ route('home') }}" class="active">{{ __('Home') }}</a></li>
+                    <li class="nav-item"><a href="{{ route('about') }}">{{ __('About Us') }}</a></li>
                     <li class="nav-item"><a href="{{ route('training-paths') }}">{{ __('Training Paths') }}</a></li>
                     <li class="nav-item"><a href="{{ route('short-courses') }}">{{ __('Short Courses') }}</a></li>
-                    <li class="nav-item"><a href="{{ route('about') }}">{{ __('About Us') }}</a></li>
+                    
                     <li class="nav-item"><a href="{{ route('news') }}">{{ __('News') }}</a></li>
                     <li class="nav-item"><a href="{{ route('faq') }}">{{ __('FAQ') }}</a></li>
                     <li class="nav-item"><a href="{{ route('contact') }}">{{ __('Contact Us') }}</a></li>
@@ -542,9 +569,8 @@
     <!-- ════ Hero ════ -->
     <section class="hero-section">
         <div class="hero-slides">
-            <div class="hero-slide active" style="background-image:url('{{ asset('lms2-photo/14.png') }}')"></div>
-            <div class="hero-slide"        style="background-image:url('{{ asset('lms2-photo/1.png') }}')"></div>
-            <div class="hero-slide"        style="background-image:url('{{ asset('lms2-photo/4.png') }}')"></div>
+            <div class="hero-slide active" style="background-image:url('{{ asset('lms2-photo/2.png') }}')"></div>
+            <div class="hero-slide"        style="background-image:url('{{ asset('lms2-photo/14.png') }}')"></div>
             <div class="hero-slide"        style="background-image:url('{{ asset('lms2-photo/11.png') }}')"></div>
         </div>
         <div class="hero-vline"></div>
@@ -587,7 +613,6 @@
             <button class="hero-dot active" onclick="goToSlide(0)"></button>
             <button class="hero-dot"        onclick="goToSlide(1)"></button>
             <button class="hero-dot"        onclick="goToSlide(2)"></button>
-            <button class="hero-dot"        onclick="goToSlide(3)"></button>
         </div>
         <div class="hero-scroll-hint">
             <span>{{ app()->getLocale()=='ar' ? 'اكتشف' : 'Scroll' }}</span>
@@ -662,7 +687,7 @@
                 <p>{{ __('We provide training paths spanning two and a half years through 10 training quarters, plus short and specialized courses for various professional goals.') }}</p>
             </div>
             <div class="courses-grid">
-                @php $programImages = ['lms-photos/2.png','lms-photos/8.png','lms-photos/5.png']; @endphp
+                @php $programImages = ['lms2-photo/2.png','lms2-photo/8.png','lms2-photo/5.png']; @endphp
                 @forelse($featuredPrograms ?? [] as $i => $program)
                 <div class="course-card">
                     <img src="{{ $program->image ? asset('storage/' . $program->image) : asset($programImages[$i % count($programImages)]) }}" alt="{{ $program->name }}" />
@@ -688,9 +713,9 @@
                 </div>
                 @empty
                 @foreach([
-                    ['lms-photos/2.png',  __('Computer Science Diploma'),    __('Foundations of computing, programming, networks, and databases.'),           12, 5000, 'CS-101'],
-                    ['lms-photos/8.png',  __('Business Administration'),     __('Modern management fundamentals: leadership, planning, and decision-making.'), 12, null,  'BA-201'],
-                    ['lms-photos/5.png',  __('Digital Marketing Diploma'),   __('SEO, social media, paid ads, and analytics strategies.'),                     10, 4500, 'DM-301'],
+                    ['lms2-photo/2.png',  __('Computer Science Diploma'),    __('Foundations of computing, programming, networks, and databases.'),           12, 5000, 'CS-101'],
+                    ['lms2-photo/8.png',  __('Business Administration'),     __('Modern management fundamentals: leadership, planning, and decision-making.'), 12, null,  'BA-201'],
+                    ['lms2-photo/5.png',  __('Digital Marketing Diploma'),   __('SEO, social media, paid ads, and analytics strategies.'),                     10, 4500, 'DM-301'],
                 ] as [$img,$name,$desc,$months,$price,$code])
                 <div class="course-card">
                     <img src="{{ asset($img) }}" alt="{{ $name }}" />
@@ -740,23 +765,11 @@
                     <div class="overlay"></div>
                 </div>
                 <div class="gallery-item gallery-item-4">
-                    <img loading="lazy" src="{{ asset('lms2-photo/3.png') }}" alt="Consultation" />
-                    <div class="overlay"></div>
-                </div>
-                <div class="gallery-item gallery-item-5">
-                    <img loading="lazy" src="{{ asset('lms2-photo/4.png') }}" alt="Learning" />
-                    <div class="overlay"></div>
-                </div>
-                <div class="gallery-item gallery-item-6">
                     <img loading="lazy" src="{{ asset('lms2-photo/5.png') }}" alt="Graduation" />
                     <div class="overlay"></div>
                 </div>
-                <div class="gallery-item gallery-item-7">
+                <div class="gallery-item gallery-item-5">
                     <img loading="lazy" src="{{ asset('lms2-photo/9.png') }}" alt="Award" />
-                    <div class="overlay"></div>
-                </div>
-                <div class="gallery-item gallery-item-8">
-                    <img loading="lazy" src="{{ asset('lms2-photo/11.png') }}" alt="Discussion" />
                     <div class="overlay"></div>
                 </div>
             </div>
@@ -774,7 +787,7 @@
             <div class="row align-items-center g-5">
                 <div class="col-lg-6 {{ app()->getLocale()=='ar' ? 'order-2' : 'order-1' }}">
                     <div class="how-image" style="height:420px">
-                        <img loading="lazy" src="{{ asset('lms2-photo/4.png') }}" alt="How It Works" />
+                        <img loading="lazy" src="{{ asset('lms2-photo/1.png') }}" alt="How It Works" />
                     </div>
                 </div>
                 <div class="col-lg-6 {{ app()->getLocale()=='ar' ? 'order-1' : 'order-2' }}">
@@ -884,7 +897,7 @@
                     </div>
                 </div>
                 <div class="col-lg-6 text-center">
-                    <img loading="lazy" src="{{ asset('lms2-photo/4.png') }}" alt="App" style="max-width:100%;border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,.3);max-height:360px;object-fit:cover" />
+                    <img loading="lazy" src="{{ asset('lms2-photo/14.png') }}" alt="App" style="max-width:100%;border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,.3);max-height:360px;object-fit:cover" />
                 </div>
             </div>
         </div>
@@ -902,39 +915,32 @@
             </div>
             <h2>{{ app()->getLocale() === 'ar' ? 'الشركاء والجهات المتعاونة' : 'Partners & Affiliates' }}</h2>
             <p>{{ app()->getLocale() === 'ar' ? 'نفخر بشراكتنا مع عدد من الجهات والمنظمات الرائدة' : 'Proud to work alongside leading organizations and institutions' }}</p>
+            <div class="partners-count-row">
+                <div class="p-count-chip">
+                    <i class="bi bi-buildings"></i>
+                    <strong>{{ $partners->count() }}+</strong>
+                    <span>{{ app()->getLocale() === 'ar' ? 'جهة شريكة' : 'Partner Organizations' }}</span>
+                </div>
+                <div class="p-count-chip">
+                    <i class="bi bi-patch-check-fill" style="color:#60a5fa"></i>
+                    <span>{{ app()->getLocale() === 'ar' ? 'شراكات موثوقة ومعتمدة' : 'Verified & Accredited' }}</span>
+                </div>
+            </div>
         </div>
 
-        {{-- dir="ltr" forces left-to-right scroll regardless of page RTL --}}
-        <div class="partners-marquee-outer" dir="ltr">
-            <div class="partners-marquee-track">
-                @php $logoItems = $partners->values(); @endphp
-                {{-- First copy --}}
-                @foreach($logoItems as $p)
-                <div class="p-logo-card">
-                    @if($p->url)
-                    <a href="{{ $p->url }}" target="_blank" rel="noopener" style="display:contents">
-                        <img src="{{ Storage::url($p->logo) }}" alt="{{ $p->name }}">
-                    </a>
-                    @else
+        <div class="partners-grid-wrap">
+            @foreach($partners as $p)
+            <div class="p-logo-card">
+                @if($p->url)
+                <a href="{{ $p->url }}" target="_blank" rel="noopener" style="display:contents">
                     <img src="{{ Storage::url($p->logo) }}" alt="{{ $p->name }}">
-                    @endif
-                    <span class="p-name">{{ $p->name }}</span>
-                </div>
-                @endforeach
-                {{-- Duplicate for seamless infinite loop --}}
-                @foreach($logoItems as $p)
-                <div class="p-logo-card">
-                    @if($p->url)
-                    <a href="{{ $p->url }}" target="_blank" rel="noopener" style="display:contents">
-                        <img src="{{ Storage::url($p->logo) }}" alt="{{ $p->name }}">
-                    </a>
-                    @else
-                    <img src="{{ Storage::url($p->logo) }}" alt="{{ $p->name }}">
-                    @endif
-                    <span class="p-name">{{ $p->name }}</span>
-                </div>
-                @endforeach
+                </a>
+                @else
+                <img src="{{ Storage::url($p->logo) }}" alt="{{ $p->name }}">
+                @endif
+                <span class="p-name">{{ $p->name }}</span>
             </div>
+            @endforeach
         </div>
     </section>
     @endif
