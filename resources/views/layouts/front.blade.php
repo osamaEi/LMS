@@ -135,6 +135,8 @@
         nav.navbar {
             margin-top: 0 !important;
             padding-top: 0 !important;
+            position: relative;
+            z-index: 500;
         }
 
         .bg-gray {
