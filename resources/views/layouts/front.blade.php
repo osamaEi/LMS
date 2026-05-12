@@ -650,63 +650,72 @@
         .footer-bottom { border-top: 1px solid rgba(255,255,255,.15); margin-top: 3rem; padding-top: 1.5rem; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
         .footer-bottom p { margin: 0; font-size: .85rem; opacity: .7; }
 
-        /* ── Nav Dropdown ── */
+        /* ── Nav Dropdown — click-only, no hover trap ── */
+        .nav-dropdown-wrap { position: relative; }
         .nav-dropdown-menu {
             display: none;
             position: absolute;
-            top: calc(100% + 8px);
+            top: calc(100% + 6px);
             right: 0;
-            min-width: 220px;
+            min-width: 230px;
             background: #fff;
             border: 1px solid #e5e7eb;
-            border-radius: 12px;
-            box-shadow: 0 8px 30px rgba(0,0,0,.12);
-            padding: .4rem 0;
-            z-index: 9000;
+            border-radius: 14px;
+            box-shadow: 0 10px 36px rgba(0,0,0,.13);
+            padding: .45rem 0;
+            z-index: 9999;
             list-style: none;
             margin: 0;
-            animation: ddFadeIn .18s ease;
+            pointer-events: none;
+            opacity: 0;
+            transform: translateY(-8px);
+            transition: opacity .18s ease, transform .18s ease;
         }
         [dir="ltr"] .nav-dropdown-menu { right: auto; left: 0; }
-        @keyframes ddFadeIn {
-            from { opacity:0; transform:translateY(-6px); }
-            to   { opacity:1; transform:translateY(0); }
+        .nav-dropdown-menu.open {
+            display: block;
+            pointer-events: auto;
+            opacity: 1;
+            transform: translateY(0);
         }
-        .nav-item.dropdown:hover .nav-dropdown-menu,
-        .nav-dropdown-menu.open { display: block; }
-        .nav-item.dropdown:hover .dd-caret { transform: rotate(180deg); }
+        .dd-caret { opacity:.55; transition: transform .2s; }
+        .nav-dropdown-wrap.open .dd-caret { transform: rotate(180deg); opacity:.8; }
         .nav-dropdown-menu li a {
-            display: flex; align-items: center; gap: .55rem;
-            padding: .6rem 1.1rem;
-            font-size: .875rem; color: #374151;
-            text-decoration: none; transition: all .15s;
-            border-radius: 0;
+            display: flex; align-items: center; gap: .6rem;
+            padding: .65rem 1.15rem;
+            font-size: .875rem; color: #374151 !important;
+            text-decoration: none; transition: background .12s, color .12s;
         }
         .nav-dropdown-menu li a i { font-size: .95rem; color: var(--main-color); flex-shrink:0; }
-        .nav-dropdown-menu li a:hover { background: #eaf5fb; color: var(--main-color); }
-        .nav-dropdown-menu li a.active { color: var(--main-color); font-weight: 700; background: #eaf5fb; }
-        .dropdown-divider-item { height: 1px; background: #f3f4f6; margin: .3rem 0; }
+        .nav-dropdown-menu li a:hover { background: #eaf5fb; color: var(--main-color) !important; }
+        .nav-dropdown-menu li a.active { color: var(--main-color) !important; font-weight: 700; background: #eaf5fb; }
+        .dropdown-divider-item { height: 1px; background: #f3f4f6; margin: .35rem 0; }
         .dd-badge {
             margin-right: auto; font-size: .68rem; font-weight: 700;
             background: #dbeafe; color: #1d4ed8;
-            border-radius: 20px; padding: .1rem .5rem;
+            border-radius: 20px; padding: .1rem .55rem; white-space: nowrap;
         }
         [dir="ltr"] .dd-badge { margin-right: 0; margin-left: auto; }
 
-        /* mobile dropdown sub-items */
+        /* ── Offers badge ── */
+        .nav-offers-badge {
+            display:inline-block; background:#ef4444; color:#fff;
+            font-size:.58rem; font-weight:900; padding:.05rem .38rem;
+            border-radius:20px; line-height:1.5; vertical-align:middle;
+            margin-right:.15rem;
+        }
+
+        /* ── Mobile sub-items ── */
         .mobile-sub-item a {
-            padding-right: 3rem !important;
-            font-size: .88rem !important;
-            color: #555 !important;
-            border-top: none !important;
+            padding-right: 2.75rem !important;
+            font-size: .875rem !important;
+            color: #6b7280 !important;
+            background: #fafafa !important;
         }
-        [dir="ltr"] .mobile-sub-item a { padding-right: 1.25rem !important; padding-left: 3rem !important; }
-        .mobile-sub-item a::before {
-            content: '—';
-            color: #d1d5db;
-            margin-left: .4rem;
-        }
+        [dir="ltr"] .mobile-sub-item a { padding-right: 1rem !important; padding-left: 2.75rem !important; }
+        .mobile-sub-item a::before { content: '—'; color: #d1d5db; margin-left: .4rem; }
         [dir="ltr"] .mobile-sub-item a::before { margin-left: 0; margin-right: .4rem; }
+        .mobile-sub-item a:hover, .mobile-sub-item a.active { color: var(--main-color) !important; background: #eaf5fb !important; }
 
         /* Language Switcher */
         .lang-switcher {
@@ -1038,107 +1047,98 @@
             </button>
 
             <!-- Desktop Menu -->
+            @php $activeOffersCount = \App\Models\Offer::active()->count(); @endphp
             <div class="desktop-menu d-none d-lg-flex align-items-center justify-content-between flex-grow-1">
                 <ul class="navbar-nav d-flex flex-row mb-0">
+
                     <li class="nav-item">
                         <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}">{{ __('Home') }}</a>
                     </li>
+
                     <li class="nav-item">
                         <a href="{{ route('training-paths') }}" class="{{ request()->routeIs('training-paths') ? 'active' : '' }}">{{ __('Training Paths') }}</a>
                     </li>
-                    <li class="nav-item dropdown" style="position:relative;">
-                        <a href="{{ route('short-courses') }}"
-                           class="dropdown-toggle-custom {{ request()->routeIs('short-courses') || request()->routeIs('english-courses') ? 'active' : '' }}"
-                           id="coursesDropdown"
-                           style="display:inline-flex;align-items:center;gap:.3rem;cursor:pointer;">
+
+                    {{-- Courses dropdown --}}
+                    <li class="nav-item nav-dropdown-wrap" id="coursesWrap">
+                        <a href="#" id="coursesToggle"
+                           class="{{ request()->routeIs('short-courses') || request()->routeIs('english-courses') ? 'active' : '' }}"
+                           style="display:inline-flex;align-items:center;gap:.3rem;">
                             {{ __('Short Courses') }}
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="opacity:.6;transition:transform .2s;" class="dd-caret"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="dd-caret"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
                         </a>
                         <ul class="nav-dropdown-menu" id="coursesMenu">
                             <li>
                                 <a href="{{ route('short-courses') }}" class="{{ request()->routeIs('short-courses') ? 'active' : '' }}">
-                                    <i class="bi bi-grid-3x3-gap"></i>
-                                    الدورات القصيرة
+                                    <i class="bi bi-grid-3x3-gap"></i> الدورات القصيرة
                                 </a>
                             </li>
                             <li class="dropdown-divider-item"></li>
                             <li>
                                 <a href="{{ route('english-courses') }}" class="{{ request()->routeIs('english-courses') ? 'active' : '' }}">
-                                    <i class="bi bi-translate"></i>
-                                    اللغة الإنجليزية
+                                    <i class="bi bi-translate"></i> اللغة الإنجليزية
                                     <span class="dd-badge">15 مستوى</span>
                                 </a>
                             </li>
                             <li>
                                 <a href="{{ route('english-courses', ['tab' => 'foundation']) }}">
-                                    <i class="bi bi-1-circle"></i>
-                                    مستويات التمهيد (0–2)
+                                    <i class="bi bi-arrow-return-left" style="opacity:.5"></i> مستويات التمهيد (0–2)
                                 </a>
                             </li>
                             <li>
                                 <a href="{{ route('english-courses', ['tab' => 'core-a']) }}">
-                                    <i class="bi bi-bar-chart-steps"></i>
-                                    المستويات 1 — 6
+                                    <i class="bi bi-arrow-return-left" style="opacity:.5"></i> المستويات 1–6
                                 </a>
                             </li>
                             <li>
                                 <a href="{{ route('english-courses', ['tab' => 'core-b']) }}">
-                                    <i class="bi bi-trophy"></i>
-                                    المستويات 7 — 12
+                                    <i class="bi bi-arrow-return-left" style="opacity:.5"></i> المستويات 7–12
                                 </a>
                             </li>
                         </ul>
                     </li>
+
                     <li class="nav-item">
-                        <a href="{{ route('offers') }}"
-                           class="{{ request()->routeIs('offers') ? 'active' : '' }}"
-                           style="{{ request()->routeIs('offers') ? '' : '' }}">
-                            <span style="display:inline-flex;align-items:center;gap:.3rem;">
-                                🏷️ العروض
-                                @php $activeOffersCount = \App\Models\Offer::active()->count(); @endphp
-                                @if($activeOffersCount > 0)
-                                <span style="background:#ef4444;color:#fff;font-size:.6rem;font-weight:900;padding:.05rem .4rem;border-radius:20px;line-height:1.4;">{{ $activeOffersCount }}</span>
-                                @endif
-                            </span>
+                        <a href="{{ route('offers') }}" class="{{ request()->routeIs('offers') ? 'active' : '' }}">
+                            {{ __('Offers') }}@if($activeOffersCount > 0)<span class="nav-offers-badge">{{ $activeOffersCount }}</span>@endif
                         </a>
                     </li>
+
                     <li class="nav-item">
                         <a href="{{ route('about') }}" class="{{ request()->routeIs('about') ? 'active' : '' }}">{{ __('About Us') }}</a>
                     </li>
+
                     <li class="nav-item">
                         <a href="{{ route('news') }}" class="{{ request()->routeIs('news*') ? 'active' : '' }}">{{ __('News') }}</a>
                     </li>
-                    <li class="nav-item">
-                        <a href="{{ route('faq') }}" class="{{ request()->routeIs('faq') ? 'active' : '' }}">{{ __('FAQ') }}</a>
-                    </li>
+
                     <li class="nav-item">
                         <a href="{{ route('contact') }}" class="{{ request()->routeIs('contact') ? 'active' : '' }}">{{ __('Contact Us') }}</a>
                     </li>
+
                 </ul>
 
-                <div class="d-flex gap-2">
-                    <button class="btn btn-outline" type="button" onclick="openSearchModal()">
-                        <i class="bi bi-search"></i> {{ __('Search') }}
+                <div class="d-flex align-items-center gap-2">
+                    <button class="btn btn-outline" type="button" onclick="openSearchModal()" title="{{ __('Search') }}">
+                        <i class="bi bi-search"></i>
                     </button>
                     <div class="btn btn-outline lang-switcher">
                         <i class="bi bi-translate"></i>
                         @if(app()->getLocale() == 'ar')
-                            <a href="{{ route('lang.switch', 'en') }}">English</a>
+                            <a href="{{ route('lang.switch', 'en') }}">EN</a>
                         @else
-                            <a href="{{ route('lang.switch', 'ar') }}">العربية</a>
+                            <a href="{{ route('lang.switch', 'ar') }}">ع</a>
                         @endif
                     </div>
-                    @if (Route::has('login'))
-                        @auth
-                            <a href="{{ url('/dashboard') }}" class="btn btn-outline">
-                                <i class="bi bi-person"></i> {{ __('Dashboard') }}
-                            </a>
-                        @else
-                            <a href="{{ route('login') }}" class="btn btn-outline">
-                                <i class="bi bi-person"></i> {{ __('Login') }}
-                            </a>
-                        @endauth
-                    @endif
+                    @auth
+                        <a href="{{ url('/dashboard') }}" class="btn btn-outline">
+                            <i class="bi bi-person-circle"></i> {{ __('Dashboard') }}
+                        </a>
+                    @else
+                        <a href="{{ route('login') }}" class="btn btn-outline" style="background:var(--main-color);color:#fff;border-color:var(--main-color);">
+                            <i class="bi bi-person"></i> {{ __('Login') }}
+                        </a>
+                    @endauth
                 </div>
             </div>
         </div>
@@ -1158,24 +1158,38 @@
             </button>
         </div>
         <ul class="mobile-nav-list">
-            <li><a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}">{{ __('Home') }}</a></li>
-            <li><a href="{{ route('training-paths') }}" class="{{ request()->routeIs('training-paths') ? 'active' : '' }}">{{ __('Training Paths') }}</a></li>
-            <li><a href="{{ route('short-courses') }}" class="{{ request()->routeIs('short-courses') ? 'active' : '' }}">{{ __('Short Courses') }}</a></li>
-            <li class="mobile-sub-item"><a href="{{ route('english-courses') }}" class="{{ request()->routeIs('english-courses') ? 'active' : '' }}"><i class="bi bi-translate" style="color:var(--main-color);margin-left:.35rem;"></i>اللغة الإنجليزية</a></li>
-            <li class="mobile-sub-item"><a href="{{ route('english-courses', ['tab' => 'foundation']) }}">مستويات التمهيد</a></li>
-            <li class="mobile-sub-item"><a href="{{ route('english-courses', ['tab' => 'core-a']) }}">المستويات 1 — 6</a></li>
-            <li class="mobile-sub-item"><a href="{{ route('english-courses', ['tab' => 'core-b']) }}">المستويات 7 — 12</a></li>
-            <li><a href="{{ route('offers') }}" class="{{ request()->routeIs('offers') ? 'active' : '' }}">🏷️ العروض</a></li>
-            <li><a href="{{ route('about') }}" class="{{ request()->routeIs('about') ? 'active' : '' }}">{{ __('About Us') }}</a></li>
-            <li><a href="{{ route('news') }}" class="{{ request()->routeIs('news*') ? 'active' : '' }}">{{ __('News') }}</a></li>
-            <li><a href="{{ route('faq') }}" class="{{ request()->routeIs('faq') ? 'active' : '' }}">{{ __('FAQ') }}</a></li>
-            <li><a href="{{ route('contact') }}" class="{{ request()->routeIs('contact') ? 'active' : '' }}">{{ __('Contact Us') }}</a></li>
+            <li><a href="{{ route('home') }}"           class="{{ request()->routeIs('home')          ? 'active' : '' }}"><i class="bi bi-house-door" style="margin-left:.4rem;opacity:.6"></i>{{ __('Home') }}</a></li>
+            <li><a href="{{ route('training-paths') }}" class="{{ request()->routeIs('training-paths') ? 'active' : '' }}"><i class="bi bi-signpost-split" style="margin-left:.4rem;opacity:.6"></i>{{ __('Training Paths') }}</a></li>
+            <li><a href="{{ route('short-courses') }}"  class="{{ request()->routeIs('short-courses')  ? 'active' : '' }}"><i class="bi bi-grid-3x3-gap" style="margin-left:.4rem;opacity:.6"></i>{{ __('Short Courses') }}</a></li>
+            <li class="mobile-sub-item"><a href="{{ route('english-courses') }}" class="{{ request()->routeIs('english-courses') ? 'active' : '' }}"><i class="bi bi-translate"></i> اللغة الإنجليزية</a></li>
+            <li class="mobile-sub-item"><a href="{{ route('english-courses', ['tab' => 'foundation']) }}">مستويات التمهيد (0–2)</a></li>
+            <li class="mobile-sub-item"><a href="{{ route('english-courses', ['tab' => 'core-a']) }}">المستويات 1–6</a></li>
+            <li class="mobile-sub-item"><a href="{{ route('english-courses', ['tab' => 'core-b']) }}">المستويات 7–12</a></li>
+            <li>
+                <a href="{{ route('offers') }}" class="{{ request()->routeIs('offers') ? 'active' : '' }}">
+                    <i class="bi bi-tags" style="margin-left:.4rem;opacity:.6"></i>{{ __('Offers') }}
+                    @if($activeOffersCount > 0)<span class="nav-offers-badge" style="margin-right:.25rem;">{{ $activeOffersCount }}</span>@endif
+                </a>
+            </li>
+            <li><a href="{{ route('about') }}"   class="{{ request()->routeIs('about')   ? 'active' : '' }}"><i class="bi bi-info-circle" style="margin-left:.4rem;opacity:.6"></i>{{ __('About Us') }}</a></li>
+            <li><a href="{{ route('news') }}"    class="{{ request()->routeIs('news*')    ? 'active' : '' }}"><i class="bi bi-newspaper" style="margin-left:.4rem;opacity:.6"></i>{{ __('News') }}</a></li>
+            <li><a href="{{ route('faq') }}"     class="{{ request()->routeIs('faq')      ? 'active' : '' }}"><i class="bi bi-question-circle" style="margin-left:.4rem;opacity:.6"></i>{{ __('FAQ') }}</a></li>
+            <li><a href="{{ route('contact') }}" class="{{ request()->routeIs('contact')  ? 'active' : '' }}"><i class="bi bi-envelope" style="margin-left:.4rem;opacity:.6"></i>{{ __('Contact Us') }}</a></li>
         </ul>
         <div class="mobile-menu-buttons">
-            <button class="btn btn-outline" type="button" onclick="openSearchModal(); closeMobileMenu();">
+            <button class="btn btn-outline w-100" type="button" onclick="openSearchModal(); closeMobileMenu();">
                 <i class="bi bi-search"></i> {{ __('Search') }}
             </button>
-            <div class="btn btn-outline lang-switcher">
+            @auth
+                <a href="{{ url('/dashboard') }}" class="btn btn-outline w-100">
+                    <i class="bi bi-person-circle"></i> {{ __('Dashboard') }}
+                </a>
+            @else
+                <a href="{{ route('login') }}" class="btn w-100" style="background:var(--main-color);color:#fff;border-color:var(--main-color);">
+                    <i class="bi bi-person"></i> {{ __('Login') }}
+                </a>
+            @endauth
+            <div class="btn btn-outline w-100 lang-switcher justify-content-center">
                 <i class="bi bi-translate"></i>
                 @if(app()->getLocale() == 'ar')
                     <a href="{{ route('lang.switch', 'en') }}">English</a>
@@ -1183,17 +1197,6 @@
                     <a href="{{ route('lang.switch', 'ar') }}">العربية</a>
                 @endif
             </div>
-            @if (Route::has('login'))
-                @auth
-                    <a href="{{ url('/dashboard') }}" class="btn btn-outline">
-                        <i class="bi bi-person"></i> {{ __('Dashboard') }}
-                    </a>
-                @else
-                    <a href="{{ route('login') }}" class="btn btn-outline">
-                        <i class="bi bi-person"></i> {{ __('Login') }}
-                    </a>
-                @endauth
-            @endif
         </div>
     </div>
 
@@ -1329,20 +1332,30 @@
             }
         });
 
-        // Nav Dropdown — click to toggle on touch / click
+        // Nav Dropdown — click-only toggle
         (function () {
-            const toggle = document.getElementById('coursesDropdown');
+            const wrap   = document.getElementById('coursesWrap');
+            const toggle = document.getElementById('coursesToggle');
             const menu   = document.getElementById('coursesMenu');
-            if (!toggle || !menu) return;
+            if (!toggle || !menu || !wrap) return;
 
             toggle.addEventListener('click', function (e) {
                 e.preventDefault();
-                menu.classList.toggle('open');
+                const isOpen = wrap.classList.contains('open');
+                // close all first
+                document.querySelectorAll('.nav-dropdown-wrap.open').forEach(function(el) {
+                    el.classList.remove('open');
+                    el.querySelector('.nav-dropdown-menu') && el.querySelector('.nav-dropdown-menu').classList.remove('open');
+                });
+                if (!isOpen) {
+                    wrap.classList.add('open');
+                    menu.classList.add('open');
+                }
             });
 
-            // close when clicking outside
             document.addEventListener('click', function (e) {
-                if (!toggle.closest('.nav-item').contains(e.target)) {
+                if (!wrap.contains(e.target)) {
+                    wrap.classList.remove('open');
                     menu.classList.remove('open');
                 }
             });
