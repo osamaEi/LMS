@@ -77,9 +77,22 @@
 @can('view-programs')
 <li>
     <a href="{{ route('admin.english.index') }}"
-       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('admin.english.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
-        <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/></svg>
-        <span>اللغة الإنجليزية</span>
+       class="group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium transition-all duration-200 text-white shadow-md"
+       style="background:linear-gradient(135deg,#2563eb,#0ea5e9);">
+
+        {{-- colored icon wrapper --}}
+        <span class="flex items-center justify-center w-6 h-6 rounded-md flex-shrink-0 text-white">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/>
+            </svg>
+        </span>
+
+        <span class="flex-1">اللغة الإنجليزية</span>
+
+        {{-- "EN" pill --}}
+        <span class="text-[10px] font-bold px-1.5 py-0.5 rounded leading-none bg-white/25 text-white">
+            EN
+        </span>
     </a>
 </li>
 @endcan
@@ -173,6 +186,27 @@
     </a>
 </li>
 @endcan
+
+{{-- العروض والخصومات --}}
+<li>
+    <a href="{{ route('admin.offers.index') }}"
+       class="group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium transition-all duration-200
+              {{ request()->routeIs('admin.offers.*') ? 'text-white shadow-md' : 'menu-item-inactive' }}"
+       style="{{ request()->routeIs('admin.offers.*') ? 'background:linear-gradient(135deg,#d97706,#f59e0b);' : '' }}">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0">
+            <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/>
+            <line x1="7" y1="7" x2="7.01" y2="7"/>
+        </svg>
+        <span class="flex-1">العروض والخصومات</span>
+        @php $activeOffers = \App\Models\Offer::active()->count(); @endphp
+        @if($activeOffers > 0)
+        <span class="text-[10px] font-bold px-1.5 py-0.5 rounded leading-none
+                     {{ request()->routeIs('admin.offers.*') ? 'bg-white/25 text-white' : 'bg-amber-100 text-amber-700' }}">
+            {{ $activeOffers }}
+        </span>
+        @endif
+    </a>
+</li>
 
 {{-- الدعم الفني --}}
 @can('view-tickets')

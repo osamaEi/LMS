@@ -2,8 +2,7 @@
 
 namespace Database\Seeders;
 
-use Database\Seeders\FaqSeeder;
-
+use Database\Seeders\ProgramSeeder;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -20,7 +19,7 @@ class DatabaseSeeder extends Seeder
            // SubjectsSeeder::class,
 
             // 3. FAQ content
-            FaqSeeder::class,
+            ProgramSeeder::class,
         ]);
     }
 }

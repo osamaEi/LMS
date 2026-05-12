@@ -650,6 +650,64 @@
         .footer-bottom { border-top: 1px solid rgba(255,255,255,.15); margin-top: 3rem; padding-top: 1.5rem; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
         .footer-bottom p { margin: 0; font-size: .85rem; opacity: .7; }
 
+        /* ── Nav Dropdown ── */
+        .nav-dropdown-menu {
+            display: none;
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            min-width: 220px;
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0,0,0,.12);
+            padding: .4rem 0;
+            z-index: 9000;
+            list-style: none;
+            margin: 0;
+            animation: ddFadeIn .18s ease;
+        }
+        [dir="ltr"] .nav-dropdown-menu { right: auto; left: 0; }
+        @keyframes ddFadeIn {
+            from { opacity:0; transform:translateY(-6px); }
+            to   { opacity:1; transform:translateY(0); }
+        }
+        .nav-item.dropdown:hover .nav-dropdown-menu,
+        .nav-dropdown-menu.open { display: block; }
+        .nav-item.dropdown:hover .dd-caret { transform: rotate(180deg); }
+        .nav-dropdown-menu li a {
+            display: flex; align-items: center; gap: .55rem;
+            padding: .6rem 1.1rem;
+            font-size: .875rem; color: #374151;
+            text-decoration: none; transition: all .15s;
+            border-radius: 0;
+        }
+        .nav-dropdown-menu li a i { font-size: .95rem; color: var(--main-color); flex-shrink:0; }
+        .nav-dropdown-menu li a:hover { background: #eaf5fb; color: var(--main-color); }
+        .nav-dropdown-menu li a.active { color: var(--main-color); font-weight: 700; background: #eaf5fb; }
+        .dropdown-divider-item { height: 1px; background: #f3f4f6; margin: .3rem 0; }
+        .dd-badge {
+            margin-right: auto; font-size: .68rem; font-weight: 700;
+            background: #dbeafe; color: #1d4ed8;
+            border-radius: 20px; padding: .1rem .5rem;
+        }
+        [dir="ltr"] .dd-badge { margin-right: 0; margin-left: auto; }
+
+        /* mobile dropdown sub-items */
+        .mobile-sub-item a {
+            padding-right: 3rem !important;
+            font-size: .88rem !important;
+            color: #555 !important;
+            border-top: none !important;
+        }
+        [dir="ltr"] .mobile-sub-item a { padding-right: 1.25rem !important; padding-left: 3rem !important; }
+        .mobile-sub-item a::before {
+            content: '—';
+            color: #d1d5db;
+            margin-left: .4rem;
+        }
+        [dir="ltr"] .mobile-sub-item a::before { margin-left: 0; margin-right: .4rem; }
+
         /* Language Switcher */
         .lang-switcher {
             display: inline-flex;
@@ -988,8 +1046,61 @@
                     <li class="nav-item">
                         <a href="{{ route('training-paths') }}" class="{{ request()->routeIs('training-paths') ? 'active' : '' }}">{{ __('Training Paths') }}</a>
                     </li>
+                    <li class="nav-item dropdown" style="position:relative;">
+                        <a href="{{ route('short-courses') }}"
+                           class="dropdown-toggle-custom {{ request()->routeIs('short-courses') || request()->routeIs('english-courses') ? 'active' : '' }}"
+                           id="coursesDropdown"
+                           style="display:inline-flex;align-items:center;gap:.3rem;cursor:pointer;">
+                            {{ __('Short Courses') }}
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="opacity:.6;transition:transform .2s;" class="dd-caret"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                        </a>
+                        <ul class="nav-dropdown-menu" id="coursesMenu">
+                            <li>
+                                <a href="{{ route('short-courses') }}" class="{{ request()->routeIs('short-courses') ? 'active' : '' }}">
+                                    <i class="bi bi-grid-3x3-gap"></i>
+                                    الدورات القصيرة
+                                </a>
+                            </li>
+                            <li class="dropdown-divider-item"></li>
+                            <li>
+                                <a href="{{ route('english-courses') }}" class="{{ request()->routeIs('english-courses') ? 'active' : '' }}">
+                                    <i class="bi bi-translate"></i>
+                                    اللغة الإنجليزية
+                                    <span class="dd-badge">15 مستوى</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('english-courses', ['tab' => 'foundation']) }}">
+                                    <i class="bi bi-1-circle"></i>
+                                    مستويات التمهيد (0–2)
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('english-courses', ['tab' => 'core-a']) }}">
+                                    <i class="bi bi-bar-chart-steps"></i>
+                                    المستويات 1 — 6
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('english-courses', ['tab' => 'core-b']) }}">
+                                    <i class="bi bi-trophy"></i>
+                                    المستويات 7 — 12
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
                     <li class="nav-item">
-                        <a href="{{ route('short-courses') }}" class="{{ request()->routeIs('short-courses') ? 'active' : '' }}">{{ __('Short Courses') }}</a>
+                        <a href="{{ route('offers') }}"
+                           class="{{ request()->routeIs('offers') ? 'active' : '' }}"
+                           style="{{ request()->routeIs('offers') ? '' : '' }}">
+                            <span style="display:inline-flex;align-items:center;gap:.3rem;">
+                                🏷️ العروض
+                                @php $activeOffersCount = \App\Models\Offer::active()->count(); @endphp
+                                @if($activeOffersCount > 0)
+                                <span style="background:#ef4444;color:#fff;font-size:.6rem;font-weight:900;padding:.05rem .4rem;border-radius:20px;line-height:1.4;">{{ $activeOffersCount }}</span>
+                                @endif
+                            </span>
+                        </a>
                     </li>
                     <li class="nav-item">
                         <a href="{{ route('about') }}" class="{{ request()->routeIs('about') ? 'active' : '' }}">{{ __('About Us') }}</a>
@@ -1050,6 +1161,11 @@
             <li><a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}">{{ __('Home') }}</a></li>
             <li><a href="{{ route('training-paths') }}" class="{{ request()->routeIs('training-paths') ? 'active' : '' }}">{{ __('Training Paths') }}</a></li>
             <li><a href="{{ route('short-courses') }}" class="{{ request()->routeIs('short-courses') ? 'active' : '' }}">{{ __('Short Courses') }}</a></li>
+            <li class="mobile-sub-item"><a href="{{ route('english-courses') }}" class="{{ request()->routeIs('english-courses') ? 'active' : '' }}"><i class="bi bi-translate" style="color:var(--main-color);margin-left:.35rem;"></i>اللغة الإنجليزية</a></li>
+            <li class="mobile-sub-item"><a href="{{ route('english-courses', ['tab' => 'foundation']) }}">مستويات التمهيد</a></li>
+            <li class="mobile-sub-item"><a href="{{ route('english-courses', ['tab' => 'core-a']) }}">المستويات 1 — 6</a></li>
+            <li class="mobile-sub-item"><a href="{{ route('english-courses', ['tab' => 'core-b']) }}">المستويات 7 — 12</a></li>
+            <li><a href="{{ route('offers') }}" class="{{ request()->routeIs('offers') ? 'active' : '' }}">🏷️ العروض</a></li>
             <li><a href="{{ route('about') }}" class="{{ request()->routeIs('about') ? 'active' : '' }}">{{ __('About Us') }}</a></li>
             <li><a href="{{ route('news') }}" class="{{ request()->routeIs('news*') ? 'active' : '' }}">{{ __('News') }}</a></li>
             <li><a href="{{ route('faq') }}" class="{{ request()->routeIs('faq') ? 'active' : '' }}">{{ __('FAQ') }}</a></li>
@@ -1212,6 +1328,25 @@
                 closeSearchModal();
             }
         });
+
+        // Nav Dropdown — click to toggle on touch / click
+        (function () {
+            const toggle = document.getElementById('coursesDropdown');
+            const menu   = document.getElementById('coursesMenu');
+            if (!toggle || !menu) return;
+
+            toggle.addEventListener('click', function (e) {
+                e.preventDefault();
+                menu.classList.toggle('open');
+            });
+
+            // close when clicking outside
+            document.addEventListener('click', function (e) {
+                if (!toggle.closest('.nav-item').contains(e.target)) {
+                    menu.classList.remove('open');
+                }
+            });
+        })();
 
         // Search Modal Functions
         function openSearchModal() {

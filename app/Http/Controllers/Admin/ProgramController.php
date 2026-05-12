@@ -14,17 +14,19 @@ class ProgramController extends Controller
 {
     public function index()
     {
-        $programs = Program::where(function ($q) {
-                $q->whereNull('type')->orWhere('type', '!=', 'course');
+        $excluded = ['course', 'english'];
+
+        $programs = Program::where(function ($q) use ($excluded) {
+                $q->whereNull('type')->orWhereNotIn('type', $excluded);
             })
             ->withCount(['terms', 'tracks'])
             ->latest()
             ->paginate(15);
 
         $stats = [
-            'total'    => Program::where(fn($q) => $q->whereNull('type')->orWhere('type', '!=', 'course'))->count(),
-            'active'   => Program::where(fn($q) => $q->whereNull('type')->orWhere('type', '!=', 'course'))->where('status', 'active')->count(),
-            'inactive' => Program::where(fn($q) => $q->whereNull('type')->orWhere('type', '!=', 'course'))->where('status', 'inactive')->count(),
+            'total'    => Program::where(fn($q) => $q->whereNull('type')->orWhereNotIn('type', $excluded))->count(),
+            'active'   => Program::where(fn($q) => $q->whereNull('type')->orWhereNotIn('type', $excluded))->where('status', 'active')->count(),
+            'inactive' => Program::where(fn($q) => $q->whereNull('type')->orWhereNotIn('type', $excluded))->where('status', 'inactive')->count(),
         ];
 
         return view('admin.programs.index', compact('programs', 'stats'));

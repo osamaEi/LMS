@@ -150,20 +150,26 @@
                 <label class="f-label"><span class="f-required">*</span>نوع الخصم</label>
                 <div class="f-radio-group">
                     <label class="f-radio-option">
-                        <input type="radio" name="discount_type" value="percentage" {{ old('discount_type','percentage')=='percentage'?'checked':'' }}>
+                        <input type="radio" name="discount_type" value="percentage" {{ old('discount_type','percentage')=='percentage'?'checked':'' }} onchange="toggleDiscountFields(this.value)">
                         <span class="f-radio-lbl">📊 نسبة مئوية (%)</span>
                     </label>
                     <label class="f-radio-option">
-                        <input type="radio" name="discount_type" value="fixed" {{ old('discount_type')=='fixed'?'checked':'' }}>
+                        <input type="radio" name="discount_type" value="fixed" {{ old('discount_type')=='fixed'?'checked':'' }} onchange="toggleDiscountFields(this.value)">
                         <span class="f-radio-lbl">💰 مبلغ ثابت (ر.س)</span>
+                    </label>
+                    <label class="f-radio-option">
+                        <input type="radio" name="discount_type" value="override" {{ old('discount_type')=='override'?'checked':'' }} onchange="toggleDiscountFields(this.value)">
+                        <span class="f-radio-lbl">🏷️ سعر مباشر (تجاوز)</span>
                     </label>
                 </div>
             </div>
-            <div class="f-grid">
+
+            {{-- discount_value row (hidden when override) --}}
+            <div id="row-discount-value" class="f-grid">
                 <div class="f-group">
-                    <label class="f-label"><span class="f-required">*</span>قيمة الخصم</label>
-                    <input name="discount_value" class="f-input" type="number" step="0.01" min="0.01" value="{{ old('discount_value') }}" placeholder="مثال: 20">
-                    <span class="f-hint">للنسبة: أدخل 20 تعني 20% — للمبلغ الثابت: أدخل 100 تعني 100 ر.س</span>
+                    <label class="f-label" id="lbl-discount-value"><span class="f-required">*</span>قيمة الخصم</label>
+                    <input name="discount_value" id="inp-discount-value" class="f-input" type="number" step="0.01" min="0.01" value="{{ old('discount_value') }}" placeholder="مثال: 20">
+                    <span class="f-hint" id="hint-discount-value">للنسبة: أدخل 20 تعني 20% — للمبلغ الثابت: أدخل 100 تعني 100 ر.س</span>
                     @error('discount_value')<span class="error-msg">{{ $message }}</span>@enderror
                 </div>
                 <div class="f-group">
@@ -171,6 +177,21 @@
                     <input name="code" class="f-input" type="text" value="{{ old('code') }}" placeholder="SUMMER20" style="text-transform:uppercase;font-family:monospace;letter-spacing:1px;">
                     <span class="f-hint">اتركه فارغاً وسيُنشأ تلقائياً</span>
                     @error('code')<span class="error-msg">{{ $message }}</span>@enderror
+                </div>
+            </div>
+
+            {{-- offer_price row (visible only when override) --}}
+            <div id="row-offer-price" style="display:none;" class="f-grid">
+                <div class="f-group">
+                    <label class="f-label"><span class="f-required">*</span>السعر الجديد بعد العرض (ر.س)</label>
+                    <input name="offer_price" id="inp-offer-price" class="f-input" type="number" step="0.01" min="0" value="{{ old('offer_price') }}" placeholder="مثال: 499">
+                    <span class="f-hint">هذا السعر سيحل محل سعر البرنامج الأصلي بالكامل</span>
+                    @error('offer_price')<span class="error-msg">{{ $message }}</span>@enderror
+                </div>
+                <div class="f-group">
+                    <label class="f-label">كود العرض</label>
+                    <input name="code" class="f-input" type="text" value="{{ old('code') }}" placeholder="SUMMER20" style="text-transform:uppercase;font-family:monospace;letter-spacing:1px;" disabled>
+                    <span class="f-hint" style="color:#f59e0b;">⚡ سعر العرض المباشر لا يحتاج كوداً — يُطبَّق تلقائياً</span>
                 </div>
             </div>
         </div>
@@ -273,6 +294,31 @@ function previewImg(input) {
         reader.readAsDataURL(input.files[0]);
     }
 }
+
+function toggleDiscountFields(type) {
+    var rowDiscount = document.getElementById('row-discount-value');
+    var rowOverride = document.getElementById('row-offer-price');
+    var inpDiscount = document.getElementById('inp-discount-value');
+    var inpOverride = document.getElementById('inp-offer-price');
+
+    if (type === 'override') {
+        rowDiscount.style.display = 'none';
+        rowOverride.style.display = '';
+        inpDiscount.removeAttribute('required');
+        inpOverride.setAttribute('required', '');
+    } else {
+        rowDiscount.style.display = '';
+        rowOverride.style.display = 'none';
+        inpDiscount.setAttribute('required', '');
+        inpOverride.removeAttribute('required');
+    }
+}
+
+// Init on page load based on old value
+(function() {
+    var checked = document.querySelector('input[name="discount_type"]:checked');
+    if (checked) toggleDiscountFields(checked.value);
+})();
 </script>
 @endpush
 @endsection

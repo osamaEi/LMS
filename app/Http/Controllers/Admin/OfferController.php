@@ -31,7 +31,7 @@ class OfferController extends Controller
         }
 
         $offers   = $query->orderBy('created_at', 'desc')->paginate(12);
-        $programs = Program::where('status', 'active')->orderBy('name_ar')->get();
+        $programs = Program::orderBy('name_ar')->get();
 
         $stats = [
             'total'    => Offer::count(),
@@ -45,20 +45,23 @@ class OfferController extends Controller
 
     public function create()
     {
-        $programs = Program::where('status', 'active')->orderBy('name_ar')->get();
+        $programs = Program::orderBy('name_ar')->get();
         return view('admin.offers.create', compact('programs'));
     }
 
     public function store(Request $request)
     {
+        $isOverride = $request->input('discount_type') === 'override';
+
         $data = $request->validate([
             'title_ar'       => 'required|string|max:255',
             'title_en'       => 'nullable|string|max:255',
             'description_ar' => 'nullable|string',
             'description_en' => 'nullable|string',
             'code'           => 'nullable|string|max:50|unique:offers,code',
-            'discount_type'  => 'required|in:percentage,fixed',
-            'discount_value' => 'required|numeric|min:0.01',
+            'discount_type'  => 'required|in:percentage,fixed,override',
+            'discount_value' => $isOverride ? 'nullable|numeric|min:0' : 'required|numeric|min:0.01',
+            'offer_price'    => $isOverride ? 'required|numeric|min:0' : 'nullable|numeric|min:0',
             'program_id'     => 'nullable|exists:programs,id',
             'start_date'     => 'required|date',
             'end_date'       => 'required|date|after_or_equal:start_date',
@@ -66,12 +69,13 @@ class OfferController extends Controller
             'status'         => 'required|in:active,inactive',
             'image'          => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ], [
-            'title_ar.required'    => 'العنوان بالعربية مطلوب',
+            'title_ar.required'       => 'العنوان بالعربية مطلوب',
             'discount_value.required' => 'قيمة الخصم مطلوبة',
-            'start_date.required'  => 'تاريخ البداية مطلوب',
-            'end_date.required'    => 'تاريخ الانتهاء مطلوب',
+            'offer_price.required'    => 'سعر العرض المباشر مطلوب عند اختيار هذا النوع',
+            'start_date.required'     => 'تاريخ البداية مطلوب',
+            'end_date.required'       => 'تاريخ الانتهاء مطلوب',
             'end_date.after_or_equal' => 'تاريخ الانتهاء يجب أن يكون بعد تاريخ البداية',
-            'code.unique'          => 'كود العرض مستخدم مسبقاً',
+            'code.unique'             => 'كود العرض مستخدم مسبقاً',
         ]);
 
         if ($request->hasFile('image')) {
@@ -100,20 +104,23 @@ class OfferController extends Controller
 
     public function edit(Offer $offer)
     {
-        $programs = Program::where('status', 'active')->orderBy('name_ar')->get();
+        $programs = Program::orderBy('name_ar')->get();
         return view('admin.offers.edit', compact('offer', 'programs'));
     }
 
     public function update(Request $request, Offer $offer)
     {
+        $isOverride = $request->input('discount_type') === 'override';
+
         $data = $request->validate([
             'title_ar'       => 'required|string|max:255',
             'title_en'       => 'nullable|string|max:255',
             'description_ar' => 'nullable|string',
             'description_en' => 'nullable|string',
             'code'           => 'nullable|string|max:50|unique:offers,code,' . $offer->id,
-            'discount_type'  => 'required|in:percentage,fixed',
-            'discount_value' => 'required|numeric|min:0.01',
+            'discount_type'  => 'required|in:percentage,fixed,override',
+            'discount_value' => $isOverride ? 'nullable|numeric|min:0' : 'required|numeric|min:0.01',
+            'offer_price'    => $isOverride ? 'required|numeric|min:0' : 'nullable|numeric|min:0',
             'program_id'     => 'nullable|exists:programs,id',
             'start_date'     => 'required|date',
             'end_date'       => 'required|date|after_or_equal:start_date',
@@ -121,10 +128,11 @@ class OfferController extends Controller
             'status'         => 'required|in:active,inactive',
             'image'          => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ], [
-            'title_ar.required'    => 'العنوان بالعربية مطلوب',
+            'title_ar.required'       => 'العنوان بالعربية مطلوب',
             'discount_value.required' => 'قيمة الخصم مطلوبة',
+            'offer_price.required'    => 'سعر العرض المباشر مطلوب عند اختيار هذا النوع',
             'end_date.after_or_equal' => 'تاريخ الانتهاء يجب أن يكون بعد تاريخ البداية',
-            'code.unique'          => 'كود العرض مستخدم مسبقاً',
+            'code.unique'             => 'كود العرض مستخدم مسبقاً',
         ]);
 
         if ($request->hasFile('image')) {

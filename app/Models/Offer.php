@@ -4,13 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
+use App\Models\Program;
 
 class Offer extends Model
 {
     protected $fillable = [
         'title_ar', 'title_en',
         'description_ar', 'description_en',
-        'code', 'discount_type', 'discount_value',
+        'code', 'discount_type', 'discount_value', 'offer_price',
         'program_id', 'start_date', 'end_date',
         'max_uses', 'uses_count', 'image',
         'status', 'created_by',
@@ -22,6 +23,7 @@ class Offer extends Model
             'start_date'     => 'date',
             'end_date'       => 'date',
             'discount_value' => 'decimal:2',
+            'offer_price'    => 'decimal:2',
         ];
     }
 
@@ -66,9 +68,27 @@ class Offer extends Model
 
     public function getDiscountLabelAttribute(): string
     {
+        if ($this->discount_type === 'override') {
+            return number_format($this->offer_price, 0) . ' ر.س (سعر ثابت)';
+        }
         return $this->discount_type === 'percentage'
             ? number_format($this->discount_value, 0) . '%'
             : number_format($this->discount_value, 0) . ' ر.س';
+    }
+
+    public function getEffectivePriceForProgram(Program $program): float
+    {
+        $original = (float) $program->price;
+
+        if ($this->discount_type === 'override') {
+            return max(0, (float) $this->offer_price);
+        }
+
+        if ($this->discount_type === 'percentage') {
+            return max(0, $original - ($original * $this->discount_value / 100));
+        }
+
+        return max(0, $original - (float) $this->discount_value);
     }
 
     public function getIsActiveAttribute(): bool

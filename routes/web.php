@@ -55,6 +55,31 @@ Route::get('/short-courses', function () {
     return view('front.short-courses', compact('programs'));
 })->name('short-courses');
 
+Route::get('/english-courses', function () {
+    $programs = \App\Models\Program::where('status', 'active')
+        ->where('type', 'english')
+        ->orderBy('level')
+        ->get();
+    return view('front.english-courses', compact('programs'));
+})->name('english-courses');
+
+Route::get('/offers', function () {
+    $offers = \App\Models\Offer::with('program')
+        ->where('status', 'active')
+        ->orderByRaw("CASE WHEN start_date <= NOW() AND end_date >= NOW() THEN 0 WHEN start_date > NOW() THEN 1 ELSE 2 END")
+        ->orderBy('end_date')
+        ->get();
+
+    $stats = [
+        'total'        => $offers->count(),
+        'active'       => $offers->filter(fn($o) => $o->is_active)->count(),
+        'upcoming'     => $offers->filter(fn($o) => $o->is_upcoming)->count(),
+        'has_override' => $offers->where('discount_type', 'override')->count() > 0,
+    ];
+
+    return view('front.offers', compact('offers', 'stats'));
+})->name('offers');
+
 Route::get('/about', function () {
     return view('front.about');
 })->name('about');
