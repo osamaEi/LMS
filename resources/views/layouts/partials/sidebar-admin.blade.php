@@ -73,6 +73,17 @@
 </li>
 @endcan
 
+{{-- دورات اللغة الإنجليزية --}}
+@can('view-programs')
+<li>
+    <a href="{{ route('admin.english.index') }}"
+       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('admin.english.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
+        <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/></svg>
+        <span>اللغة الإنجليزية</span>
+    </a>
+</li>
+@endcan
+
 {{-- الأرباع الدراسية --}}
 @can('view-terms')
 <li>

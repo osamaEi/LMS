@@ -175,6 +175,9 @@ Route::middleware(['auth', 'role:admin,super_admin'])->prefix('admin')->name('ad
     // Courses Management
     Route::resource('courses', \App\Http\Controllers\Admin\CourseController::class);
 
+    // English Language Courses
+    Route::resource('english', \App\Http\Controllers\Admin\EnglishController::class);
+
     // Term (Semester) Management
     Route::resource('terms', \App\Http\Controllers\Admin\TermController::class);
 

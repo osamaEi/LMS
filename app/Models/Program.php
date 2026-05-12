@@ -23,6 +23,7 @@ class Program extends Model
         'course_type',
         'supervisor_id',
         'supervisor_name',
+        'level',
     ];
 
     /**

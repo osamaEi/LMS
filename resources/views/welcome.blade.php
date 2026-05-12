@@ -308,25 +308,19 @@
 
         /* ── Partners Section ── */
         .partners-section {
-            padding: clamp(4rem,7vw,6.5rem) 0;
-            background:
-                radial-gradient(ellipse 70% 80% at 15% 50%, rgba(0,113,170,.14) 0%, transparent 65%),
-                radial-gradient(ellipse 55% 70% at 85% 25%, rgba(56,189,248,.09) 0%, transparent 60%),
-                radial-gradient(rgba(255,255,255,.028) 1px, transparent 1px),
-                linear-gradient(135deg, #060f1d 0%, #0b2040 55%, #071626 100%);
-            background-size: 100% 100%, 100% 100%, 28px 28px, 100% 100%;
+            padding: clamp(4rem,7vw,6rem) 0;
+            background: #fff;
             position: relative; overflow: hidden;
         }
         .partners-section::before {
             content: '';
-            position: absolute; top: 0; left: 0; right: 0; height: 2px;
-            background: linear-gradient(90deg, transparent 0%, rgba(0,113,170,.7) 30%, #38bdf8 50%, rgba(0,113,170,.7) 70%, transparent 100%);
-            z-index: 2;
+            position: absolute; top: 0; left: 0; right: 0; height: 3px;
+            background: linear-gradient(90deg, transparent, var(--main-color), #38bdf8, var(--main-color), transparent);
         }
         .partners-section::after {
             content: '';
             position: absolute; bottom: 0; left: 0; right: 0; height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,.07), transparent);
+            background: linear-gradient(90deg, transparent, #e2e8f0, transparent);
         }
         .partners-head {
             text-align: center; padding: 0 1rem; margin-bottom: 3rem;
@@ -334,35 +328,34 @@
         }
         .partners-badge {
             display: inline-flex; align-items: center; gap: .5rem;
-            background: rgba(0,113,170,.22); color: #93c5fd !important;
+            background: #eaf5fb; color: var(--main-color) !important;
             padding: .38rem 1.2rem; border-radius: 50px;
             font-size: .82rem; font-weight: 700; margin-bottom: 1rem;
-            border: 1px solid rgba(147,197,253,.22);
+            border: 1px solid rgba(0,113,170,.15);
         }
         .partners-badge::before {
             content: ''; width: 7px; height: 7px; border-radius: 50%;
-            background: #60a5fa; display: inline-block; vertical-align: middle;
+            background: var(--main-color); display: inline-block; vertical-align: middle;
             animation: pulse-blue 2s infinite;
         }
         @keyframes pulse-blue { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.35;transform:scale(.65)} }
         .partners-head h2 {
             font-size: clamp(1.6rem,3vw,2.3rem) !important; font-weight: 800 !important;
-            color: #fff !important; margin-bottom: .5rem !important;
+            color: #0f172a !important; margin-bottom: .5rem !important;
             display: block !important; visibility: visible !important;
-            text-shadow: 0 2px 24px rgba(0,113,170,.5);
         }
-        .partners-head p { color: rgba(255,255,255,.5) !important; font-size: .92rem; margin: 0; }
+        .partners-head p { color: #64748b !important; font-size: .92rem; margin: 0; }
         .partners-count-row {
             display: flex; align-items: center; justify-content: center; gap: 1.25rem;
             margin-top: 1.5rem; flex-wrap: wrap;
         }
         .p-count-chip {
             display: inline-flex; align-items: center; gap: .45rem;
-            background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1);
+            background: #f1f5f9; border: 1px solid #e2e8f0;
             border-radius: 8px; padding: .4rem 1rem;
-            color: rgba(255,255,255,.6); font-size: .78rem;
+            color: #64748b; font-size: .78rem;
         }
-        .p-count-chip strong { color: #60a5fa; font-size: .92rem; font-weight: 800; }
+        .p-count-chip strong { color: var(--main-color); font-size: .92rem; font-weight: 800; }
         .p-count-chip i { font-size: .9rem; opacity: .7; }
         /* Grid */
         .partners-grid-wrap {
@@ -373,31 +366,29 @@
         .p-logo-card {
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             width: 188px; min-height: 124px; flex-shrink: 0;
-            background: rgba(255,255,255,.06);
-            border-radius: 20px;
-            border: 1px solid rgba(255,255,255,.1);
-            backdrop-filter: blur(14px);
-            box-shadow: 0 4px 28px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.09);
+            background: #fff;
+            border-radius: 16px;
+            border: 1.5px solid #e2e8f0;
+            box-shadow: 0 2px 12px rgba(0,0,0,.05);
             padding: 20px 22px 16px; gap: 10px;
-            transition: all .35s ease;
+            transition: all .3s ease;
         }
         .p-logo-card:hover {
-            background: rgba(0,113,170,.2);
-            border-color: rgba(96,165,250,.45);
-            box-shadow: 0 16px 48px rgba(0,113,170,.4), inset 0 1px 0 rgba(255,255,255,.15);
-            transform: translateY(-7px);
+            border-color: var(--main-color);
+            box-shadow: 0 10px 32px rgba(0,113,170,.14);
+            transform: translateY(-5px);
         }
         .p-logo-card img {
             max-width: 126px; max-height: 54px; object-fit: contain;
-            filter: brightness(1.35) opacity(.78); transition: filter .35s;
+            filter: grayscale(20%) opacity(.85); transition: filter .3s;
         }
-        .p-logo-card:hover img { filter: brightness(1.5) opacity(1); }
+        .p-logo-card:hover img { filter: grayscale(0%) opacity(1); }
         .p-logo-card .p-name {
-            font-size: .73rem; font-weight: 700; color: rgba(255,255,255,.6);
+            font-size: .73rem; font-weight: 700; color: #475569;
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
             max-width: 156px; text-align: center; display: block;
         }
-        .p-logo-card:hover .p-name { color: rgba(255,255,255,.92); }
+        .p-logo-card:hover .p-name { color: var(--main-color); }
 
         /* ── App Section ── */
         .app-section { background: linear-gradient(135deg, #004e7e 0%, var(--main-color) 100%); padding: clamp(3rem,6vw,6rem) clamp(1rem,4vw,4rem); color: #fff; }
