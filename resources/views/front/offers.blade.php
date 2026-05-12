@@ -6,59 +6,101 @@
 <style>
 /* ── Hero ── */
 .offers-hero {
-    background: linear-gradient(135deg, #92400e 0%, #d97706 40%, #f59e0b 70%, #fbbf24 100%);
-    padding: 4rem clamp(1.5rem, 5vw, 5rem) 5rem;
+    background: linear-gradient(135deg, #7c2d12 0%, #b45309 30%, #d97706 60%, #f59e0b 85%, #fbbf24 100%);
+    padding: 4rem clamp(1.5rem, 5vw, 5rem) 6rem;
     position: relative;
     overflow: hidden;
 }
 .offers-hero::before {
     content:'';
     position:absolute; inset:0;
-    background: radial-gradient(ellipse at 20% 50%, rgba(255,255,255,.08) 0%, transparent 60%),
-                radial-gradient(ellipse at 80% 20%, rgba(255,255,255,.06) 0%, transparent 50%);
+    background:
+        radial-gradient(ellipse at 15% 60%, rgba(255,255,255,.12) 0%, transparent 55%),
+        radial-gradient(ellipse at 85% 15%, rgba(251,191,36,.25) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 100%, rgba(0,0,0,.15) 0%, transparent 60%);
 }
 .hero-blob {
     position:absolute; border-radius:50%;
-    background: rgba(255,255,255,.07);
+    background: rgba(255,255,255,.08);
     animation: floatBlob 8s ease-in-out infinite;
+}
+.hero-blob-2 {
+    position:absolute; border-radius:50%;
+    background: rgba(251,191,36,.18);
+    animation: floatBlob 11s ease-in-out infinite reverse;
 }
 @keyframes floatBlob {
     0%,100% { transform: translateY(0) scale(1); }
-    50%      { transform: translateY(-15px) scale(1.05); }
+    50%      { transform: translateY(-18px) scale(1.06); }
 }
 .offers-hero .container { position:relative; z-index:2; }
 
+/* ── Hero label badge ── */
+.hero-label-badge {
+    display:inline-flex; align-items:center; gap:.55rem;
+    background: rgba(255,255,255,.2); backdrop-filter:blur(10px);
+    border: 1.5px solid rgba(255,255,255,.4);
+    border-radius: 50px; padding:.4rem 1.1rem;
+    margin-bottom: 1rem;
+}
+.hero-label-badge .badge-dot {
+    width:8px; height:8px; border-radius:50%;
+    background:#fde68a; box-shadow:0 0 0 3px rgba(253,230,138,.35);
+    flex-shrink:0; animation: pulseDot 2s infinite;
+}
+@keyframes pulseDot {
+    0%,100%{ box-shadow:0 0 0 3px rgba(253,230,138,.35); }
+    50%    { box-shadow:0 0 0 7px rgba(253,230,138,.12); }
+}
+.hero-label-badge span { color:#fef3c7; font-size:.8rem; font-weight:800; letter-spacing:.04em; }
+
 /* ── Stat chips ── */
-.stat-chips { display:flex; gap:1rem; flex-wrap:wrap; margin-top:1.5rem; }
+.stat-chips { display:flex; gap:.85rem; flex-wrap:wrap; margin-top:1.75rem; }
 .stat-chip {
     display:inline-flex; align-items:center; gap:.5rem;
-    background: rgba(255,255,255,.18); backdrop-filter:blur(8px);
-    border: 1px solid rgba(255,255,255,.25);
-    border-radius: 50px; padding: .45rem 1.1rem;
+    background: rgba(255,255,255,.18); backdrop-filter:blur(10px);
+    border: 1.5px solid rgba(255,255,255,.3);
+    border-radius: 50px; padding: .5rem 1.15rem;
     color:#fff; font-size:.82rem; font-weight:700;
+    box-shadow: 0 2px 12px rgba(0,0,0,.12);
 }
-.stat-chip i { font-size:.95rem; }
+.stat-chip i { font-size:1rem; color:#fde68a; }
+.stat-chip .chip-num { font-size:1.05rem; font-weight:900; }
 
 /* ── Filter bar ── */
 .filter-bar {
-    background:#fff; border-radius:16px;
-    box-shadow: 0 4px 20px rgba(0,0,0,.07);
+    background:#fff; border-radius:20px;
+    box-shadow: 0 8px 30px rgba(0,0,0,.1), 0 1px 4px rgba(0,0,0,.05);
     padding:1rem 1.5rem;
-    display:flex; align-items:center; gap:1rem; flex-wrap:wrap;
+    display:flex; align-items:center; gap:.75rem; flex-wrap:wrap;
     margin: -2.5rem auto 2.5rem;
     position:relative; z-index:10;
+    border: 1px solid rgba(0,0,0,.04);
 }
+.filter-bar-label {
+    font-size:.75rem; font-weight:800; color:#9ca3af;
+    text-transform:uppercase; letter-spacing:.08em;
+    white-space:nowrap; margin-left:.25rem;
+}
+[dir="ltr"] .filter-bar-label { margin-left:0; margin-right:.25rem; }
 .filter-btn {
-    padding:.45rem 1.1rem; border-radius:50px; font-size:.82rem; font-weight:700;
-    border: 2px solid #e5e7eb; background:#fff; color:#6b7280;
-    cursor:pointer; transition:all .2s; white-space:nowrap;
+    padding:.5rem 1.15rem; border-radius:50px; font-size:.82rem; font-weight:700;
+    border: 2px solid #e5e7eb; background:#f9fafb; color:#6b7280;
+    cursor:pointer; transition:all .22s; white-space:nowrap;
+    display:inline-flex; align-items:center; gap:.35rem;
 }
-.filter-btn.active, .filter-btn:hover {
-    border-color:#d97706; background:#d97706; color:#fff;
+.filter-btn:hover {
+    border-color:#d97706; background:#fff7ed; color:#d97706;
+    transform:translateY(-1px);
+}
+.filter-btn.active {
+    border-color:#d97706; background:linear-gradient(135deg,#d97706,#f59e0b); color:#fff;
+    box-shadow: 0 3px 12px rgba(217,119,6,.35);
 }
 .filter-count {
     margin-right:auto;
-    font-size:.8rem; color:#9ca3af; font-weight:600;
+    font-size:.8rem; color:#6b7280; font-weight:700;
+    background:#f3f4f6; padding:.3rem .85rem; border-radius:20px;
 }
 [dir="ltr"] .filter-count { margin-right:0; margin-left:auto; }
 
@@ -200,49 +242,73 @@
 
 {{-- ── Hero ── --}}
 <div class="offers-hero">
-    <div class="hero-blob" style="width:320px;height:320px;top:-80px;right:-60px;animation-delay:0s;"></div>
-    <div class="hero-blob" style="width:180px;height:180px;bottom:-40px;left:10%;animation-delay:3s;"></div>
+    {{-- floating blobs --}}
+    <div class="hero-blob"   style="width:360px;height:360px;top:-100px;right:-70px;animation-delay:0s;"></div>
+    <div class="hero-blob"   style="width:200px;height:200px;bottom:-50px;left:8%;animation-delay:3s;"></div>
+    <div class="hero-blob-2" style="width:140px;height:140px;top:30%;left:3%;animation-delay:1.5s;"></div>
+    <div class="hero-blob-2" style="width:90px;height:90px;bottom:15%;right:20%;animation-delay:5s;"></div>
 
     <div class="container">
-        <div class="breadcrumb-nav" style="margin-bottom:1.25rem;">
-            <a href="{{ route('home') }}" style="color:rgba(255,255,255,.75);font-size:.82rem;">الرئيسية</a>
-            <span style="color:rgba(255,255,255,.5);margin:0 .4rem;">/</span>
-            <span style="color:#fff;font-size:.82rem;font-weight:700;">العروض والخصومات</span>
+        {{-- breadcrumb --}}
+        <div style="display:flex;align-items:center;gap:.4rem;margin-bottom:1.5rem;">
+            <a href="{{ route('home') }}" style="color:rgba(255,255,255,.65);font-size:.8rem;text-decoration:none;transition:color .2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,.65)'">الرئيسية</a>
+            <i class="bi bi-chevron-left" style="color:rgba(255,255,255,.4);font-size:.65rem;"></i>
+            <span style="color:#fde68a;font-size:.8rem;font-weight:700;">العروض والخصومات</span>
         </div>
 
-        <div style="display:flex;align-items:flex-start;gap:1.5rem;flex-wrap:wrap;">
-            <div style="flex:1;min-width:260px;">
-                <div style="display:inline-flex;align-items:center;gap:.5rem;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:50px;padding:.3rem .85rem;margin-bottom:.85rem;">
-                    <span style="color:#fde68a;font-size:.75rem;font-weight:800;">🏷️ عروض حصرية</span>
+        <div style="display:flex;align-items:center;gap:2rem;flex-wrap:wrap;">
+            <div style="flex:1;min-width:280px;">
+
+                {{-- label badge --}}
+                <div class="hero-label-badge">
+                    <span class="badge-dot"></span>
+                    <span>🏷️ عروض حصرية ومحدودة</span>
                 </div>
-                <h1 style="color:#fff;font-size:clamp(1.6rem,4vw,2.5rem);font-weight:900;line-height:1.2;margin:0 0 .75rem;">
-                    العروض والخصومات
+
+                {{-- main heading --}}
+                <h1 style="color:#fff;font-size:clamp(1.75rem,4.5vw,2.8rem);font-weight:900;line-height:1.18;margin:0 0 1rem;text-shadow:0 2px 16px rgba(0,0,0,.25);">
+                    العروض<br>
+                    <span style="color:#fde68a;">والخصومات</span>
                 </h1>
-                <p style="color:rgba(255,255,255,.85);font-size:.95rem;line-height:1.7;max-width:520px;margin:0;">
-                    استفد من عروضنا الحصرية على البرامج التدريبية — وفّر على رسوم التسجيل واستثمر في مستقبلك المهني.
+
+                {{-- sub text --}}
+                <p style="color:rgba(255,255,255,.9);font-size:.95rem;line-height:1.75;max-width:500px;margin:0;text-shadow:0 1px 6px rgba(0,0,0,.2);">
+                    استفد من عروضنا الحصرية على البرامج التدريبية —
+                    <strong style="color:#fde68a;">وفّر على رسوم التسجيل</strong>
+                    واستثمر في مستقبلك المهني.
                 </p>
 
+                {{-- stat chips --}}
                 <div class="stat-chips">
                     <div class="stat-chip">
                         <i class="bi bi-tags-fill"></i>
-                        <span>{{ $stats['total'] }} عرض متاح</span>
+                        <span class="chip-num">{{ $stats['total'] }}</span>
+                        <span>عرض متاح</span>
                     </div>
                     <div class="stat-chip">
-                        <i class="bi bi-lightning-fill"></i>
-                        <span>{{ $stats['active'] }} نشط الآن</span>
+                        <i class="bi bi-lightning-charge-fill"></i>
+                        <span class="chip-num">{{ $stats['active'] }}</span>
+                        <span>نشط الآن</span>
                     </div>
                     @if($stats['upcoming'] > 0)
                     <div class="stat-chip">
-                        <i class="bi bi-clock"></i>
-                        <span>{{ $stats['upcoming'] }} قادم قريباً</span>
+                        <i class="bi bi-hourglass-split"></i>
+                        <span class="chip-num">{{ $stats['upcoming'] }}</span>
+                        <span>قادم قريباً</span>
                     </div>
                     @endif
                 </div>
             </div>
 
-            {{-- big discount icon --}}
-            <div style="flex-shrink:0;width:110px;height:110px;background:rgba(255,255,255,.15);border-radius:24px;display:flex;align-items:center;justify-content:center;font-size:3.5rem;backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.25);">
-                🏷️
+            {{-- decorative icon box --}}
+            <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:1rem;">
+                <div style="width:120px;height:120px;background:rgba(255,255,255,.18);border-radius:28px;display:flex;align-items:center;justify-content:center;font-size:4rem;backdrop-filter:blur(12px);border:2px solid rgba(255,255,255,.35);box-shadow:0 8px 32px rgba(0,0,0,.2);">
+                    🏷️
+                </div>
+                <div style="background:rgba(253,230,138,.25);border:1.5px solid rgba(253,230,138,.5);border-radius:12px;padding:.45rem 1rem;text-align:center;">
+                    <div style="color:#fde68a;font-size:1.4rem;font-weight:900;line-height:1;">{{ $stats['active'] }}</div>
+                    <div style="color:rgba(255,255,255,.8);font-size:.68rem;font-weight:700;margin-top:.1rem;">عرض نشط</div>
+                </div>
             </div>
         </div>
     </div>
@@ -253,7 +319,8 @@
 
     {{-- Filter bar --}}
     <div class="filter-bar">
-        <button class="filter-btn active" onclick="filterOffers('all', this)">الكل</button>
+        <span class="filter-bar-label"><i class="bi bi-funnel-fill" style="color:#d97706;"></i> تصفية</span>
+        <button class="filter-btn active" onclick="filterOffers('all', this)">🔍 الكل</button>
         <button class="filter-btn" onclick="filterOffers('percentage', this)">📊 نسبة مئوية</button>
         <button class="filter-btn" onclick="filterOffers('fixed', this)">💰 مبلغ ثابت</button>
         @if($stats['has_override'])
