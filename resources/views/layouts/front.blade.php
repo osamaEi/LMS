@@ -1237,46 +1237,6 @@
         // Current locale
         const currentLocale = '{{ app()->getLocale() }}';
 
-        // Update date and time
-        function updateDateTime() {
-            const now = new Date();
-
-            if (currentLocale === 'ar') {
-                const arabicMonths = [
-                    "يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو",
-                    "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"
-                ];
-                const day = now.getDate();
-                const month = arabicMonths[now.getMonth()];
-                const year = now.getFullYear();
-                document.getElementById('currentDate').textContent = `${day}-${month}-${year}`;
-
-                let hours = now.getHours();
-                const minutes = now.getMinutes().toString().padStart(2, '0');
-                const period = hours >= 12 ? 'مساءً' : 'صباحاً';
-                hours = hours % 12 || 12;
-                document.getElementById('currentTime').textContent = `${hours}:${minutes} ${period}`;
-            } else {
-                const months = [
-                    "January", "February", "March", "April", "May", "June",
-                    "July", "August", "September", "October", "November", "December"
-                ];
-                const day = now.getDate();
-                const month = months[now.getMonth()];
-                const year = now.getFullYear();
-                document.getElementById('currentDate').textContent = `${month} ${day}, ${year}`;
-
-                let hours = now.getHours();
-                const minutes = now.getMinutes().toString().padStart(2, '0');
-                const period = hours >= 12 ? 'PM' : 'AM';
-                hours = hours % 12 || 12;
-                document.getElementById('currentTime').textContent = `${hours}:${minutes} ${period}`;
-            }
-        }
-
-        updateDateTime();
-        setInterval(updateDateTime, 1000);
-
         // Saudi Top Bar — live date/time
         (function updateSaudiTime() {
             const el = document.getElementById('saudiDateTime');
