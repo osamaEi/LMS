@@ -1072,7 +1072,7 @@
                         <ul class="nav-dropdown-menu" id="coursesMenu">
                             <li>
                                 <a href="{{ route('short-courses') }}" class="{{ request()->routeIs('short-courses') ? 'active' : '' }}">
-                                    <i class="bi bi-grid-3x3-gap"></i> الدورات القصيرة
+                                    <i class="bi bi-grid-3x3-gap"></i> الدورات
                                 </a>
                             </li>
                             <li class="dropdown-divider-item"></li>

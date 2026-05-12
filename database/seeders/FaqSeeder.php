@@ -19,7 +19,7 @@ class FaqSeeder extends Seeder
                 'sort_order'  => 1,
                 'question_ar' => 'كيف أتسجل في المعهد؟',
                 'question_en' => 'How do I register at the institute?',
-                'answer_ar'   => 'يمكنك التسجيل بسهولة عبر حساب نفاذ أو إنشاء حساب داخلي. بعد التسجيل، يمكنك اختيار الدبلومة الأكاديمي أو الدورات القصيرة التي تناسبك. ستتلقى رسالة تأكيد على بريدك الإلكتروني بعد إتمام التسجيل.',
+                'answer_ar'   => 'يمكنك التسجيل بسهولة عبر حساب نفاذ أو إنشاء حساب داخلي. بعد التسجيل، يمكنك اختيار الدبلومة الأكاديمي أو الدورات التي تناسبك. ستتلقى رسالة تأكيد على بريدك الإلكتروني بعد إتمام التسجيل.',
                 'answer_en'   => 'You can register easily via your Nafath account or by creating an internal account. After registering, you can choose the academic diploma or short courses that suit you. You will receive a confirmation email once registration is complete.',
             ],
             [
@@ -85,7 +85,7 @@ class FaqSeeder extends Seeder
                 'sort_order'  => 4,
                 'question_ar' => 'ما مدة الدورة القصيرة؟',
                 'question_en' => 'How long is a short course?',
-                'answer_ar'   => 'تتراوح الدورات القصيرة بين أسبوعين إلى 8 أسابيع تبعاً لطبيعة الدورة ومحتواها.',
+                'answer_ar'   => 'تتراوح الدورات بين أسبوعين إلى 8 أسابيع تبعاً لطبيعة الدورة ومحتواها.',
                 'answer_en'   => 'Short courses range from two weeks to 8 weeks depending on the nature and content of the course.',
             ],
             [

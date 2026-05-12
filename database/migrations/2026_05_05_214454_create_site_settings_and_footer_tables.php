@@ -58,7 +58,7 @@ return new class extends Migration
             ['label_ar' => 'الأخبار',         'label_en' => 'News',             'url' => '/news',             'section' => 'quick',    'sort_order' => 5],
             ['label_ar' => 'تواصل معنا',      'label_en' => 'Contact Us',       'url' => '/contact',          'section' => 'quick',    'sort_order' => 6],
             ['label_ar' => 'برامج الترم',     'label_en' => 'Term Programs',    'url' => '/training-paths',   'section' => 'services', 'sort_order' => 1],
-            ['label_ar' => 'الدورات القصيرة', 'label_en' => 'Short Courses',    'url' => '/short-courses',    'section' => 'services', 'sort_order' => 2],
+            ['label_ar' => 'الدورات', 'label_en' => 'Short Courses',    'url' => '/short-courses',    'section' => 'services', 'sort_order' => 2],
             ['label_ar' => 'التدريب عن بُعد', 'label_en' => 'Remote Training',  'url' => '/short-courses',    'section' => 'services', 'sort_order' => 3],
             ['label_ar' => 'الدعم الفني',     'label_en' => 'Technical Support','url' => '/faq',              'section' => 'services', 'sort_order' => 4],
             ['label_ar' => 'سياسة الخصوصية', 'label_en' => 'Privacy Policy',   'url' => '/page/privacy-policy','section'=>'services', 'sort_order' => 5],
