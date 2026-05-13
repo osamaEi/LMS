@@ -1,5 +1,5 @@
 @extends('layouts.dashboard')
-@section('title', 'الشركاء والجهات')
+@section('title', 'شركائنا')
 
 @push('styles')
 <style>
@@ -82,7 +82,7 @@
                 </svg>
             </div>
             <div>
-                <h1 class="text-xl font-bold">الشركاء والجهات</h1>
+                <h1 class="text-xl font-bold">شركائنا</h1>
                 <p class="text-purple-200 text-xs mt-0.5">شعارات الشركاء تظهر في قسم خاص بالصفحة الرئيسية</p>
             </div>
             <div class="mr-auto text-sm font-bold bg-white/15 px-3 py-1.5 rounded-lg">

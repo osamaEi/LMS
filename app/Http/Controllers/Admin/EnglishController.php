@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Storage;
 class EnglishController extends Controller
 {
     private static array $levelNames = [
-        0  => 'التمهيدي',
+        0  => 'التمهيديي',
         1  => 'التأسيسي',
         2  => 'المبتدئ',
         3  => 'المستوى الأول',

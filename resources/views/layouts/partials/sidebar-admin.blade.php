@@ -382,7 +382,7 @@
     <a href="{{ route('admin.partners.index') }}"
        class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('admin.partners*') ? 'menu-item-active' : 'menu-item-inactive' }}">
         <svg class="fill-current" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
-        <span>الشركاء والجهات</span>
+        <span>شركائنا</span>
     </a>
 </li>
 

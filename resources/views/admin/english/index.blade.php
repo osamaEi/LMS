@@ -40,7 +40,7 @@ $palette = [
             <div>
                 <p class="text-blue-200 text-xs font-bold uppercase tracking-widest mb-0.5">إدارة البرامج</p>
                 <h1 class="text-white text-xl font-black leading-tight">برامج اللغة الإنجليزية</h1>
-                <p class="text-blue-100 text-sm opacity-80 mt-0.5">{{ $stats['total'] }} مستوى • من التمهيدي إلى الثاني عشر</p>
+                <p class="text-blue-100 text-sm opacity-80 mt-0.5">{{ $stats['total'] }} مستوى • من التمهيديي إلى الثاني عشر</p>
             </div>
         </div>
         <div class="flex items-center gap-3 flex-wrap">
@@ -136,7 +136,7 @@ $palette = [
                 @if($lv === 0)
                 <tr><td colspan="6" class="px-5 pt-4 pb-1.5">
                     <div class="flex items-center gap-2">
-                        <span class="text-[9px] font-black uppercase tracking-widest" style="color:#0ea5e9;">مستويات التمهيد</span>
+                        <span class="text-[9px] font-black uppercase tracking-widest" style="color:#0ea5e9;">مستويات التمهيدي</span>
                         <div class="flex-1 h-px" style="background:linear-gradient(90deg,#bae6fd,transparent);"></div>
                     </div>
                 </td></tr>

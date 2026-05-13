@@ -1084,7 +1084,7 @@
                             </li>
                             <li>
                                 <a href="{{ route('english-courses', ['tab' => 'foundation']) }}">
-                                    <i class="bi bi-arrow-return-left" style="opacity:.5"></i> مستويات التمهيد (0–2)
+                                    <i class="bi bi-arrow-return-left" style="opacity:.5"></i> مستويات التمهيدي (0–2)
                                 </a>
                             </li>
                             <li>
@@ -1164,7 +1164,7 @@
             <li><a href="{{ route('training-paths') }}" class="{{ request()->routeIs('training-paths') ? 'active' : '' }}"><i class="bi bi-signpost-split" style="margin-left:.4rem;opacity:.6"></i>{{ __('Training Paths') }}</a></li>
             <li><a href="{{ route('short-courses') }}"  class="{{ request()->routeIs('short-courses')  ? 'active' : '' }}"><i class="bi bi-grid-3x3-gap" style="margin-left:.4rem;opacity:.6"></i>{{ __('Short Courses') }}</a></li>
             <li class="mobile-sub-item"><a href="{{ route('english-courses') }}" class="{{ request()->routeIs('english-courses') ? 'active' : '' }}"><i class="bi bi-translate"></i> اللغة الإنجليزية</a></li>
-            <li class="mobile-sub-item"><a href="{{ route('english-courses', ['tab' => 'foundation']) }}">مستويات التمهيد (0–2)</a></li>
+            <li class="mobile-sub-item"><a href="{{ route('english-courses', ['tab' => 'foundation']) }}">مستويات التمهيدي (0–2)</a></li>
             <li class="mobile-sub-item"><a href="{{ route('english-courses', ['tab' => 'core-a']) }}">المستويات 1–6</a></li>
             <li class="mobile-sub-item"><a href="{{ route('english-courses', ['tab' => 'core-b']) }}">المستويات 7–12</a></li>
             <li>

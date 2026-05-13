@@ -483,7 +483,7 @@
 <section class="partners-section">
     <div class="partners-head">
         <div class="partners-badge">{{ app()->getLocale() === 'ar' ? 'شركاؤنا' : 'Our Partners' }}</div>
-        <h2>{{ app()->getLocale() === 'ar' ? 'الشركاء والجهات المتعاونة' : 'Partners & Affiliates' }}</h2>
+        <h2>{{ app()->getLocale() === 'ar' ? 'شركائنا المتعاونة' : 'Partners & Affiliates' }}</h2>
         <p>{{ app()->getLocale() === 'ar' ? 'نفخر بشراكتنا مع عدد من الجهات والمنظمات الرائدة' : 'Proud to work alongside leading organizations and institutions' }}</p>
         <div class="partners-count-row">
             <div class="p-count-chip"><i class="bi bi-buildings"></i><strong>{{ $partners->count() }}+</strong><span>{{ app()->getLocale() === 'ar' ? 'جهة شريكة' : 'Partner Organizations' }}</span></div>
