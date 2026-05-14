@@ -1,4 +1,4 @@
-@extends('layouts.dashboard')
+﻿@extends('layouts.dashboard')
 
 @section('title', 'تعديل العرض: ' . $offer->title_ar)
 
@@ -118,7 +118,7 @@
                     </label>
                     <label class="f-radio-option">
                         <input type="radio" name="discount_type" value="fixed" {{ old('discount_type',$offer->discount_type)=='fixed'?'checked':'' }} onchange="toggleDiscountFields(this.value)">
-                        <span class="f-radio-lbl">💰 مبلغ ثابت (ر.س)</span>
+                        <span class="f-radio-lbl">💰 مبلغ ثابت (<x-riyal />)</span>
                     </label>
                     <label class="f-radio-option">
                         <input type="radio" name="discount_type" value="override" {{ old('discount_type',$offer->discount_type)=='override'?'checked':'' }} onchange="toggleDiscountFields(this.value)">
@@ -132,7 +132,7 @@
                 <div class="f-group">
                     <label class="f-label"><span class="f-required">*</span>قيمة الخصم</label>
                     <input name="discount_value" id="inp-discount-value" class="f-input" type="number" step="0.01" min="0.01" value="{{ old('discount_value',$offer->discount_value) }}">
-                    <span class="f-hint">للنسبة: أدخل 20 تعني 20% — للمبلغ الثابت: أدخل 100 تعني 100 ر.س</span>
+                    <span class="f-hint">للنسبة: أدخل 20 تعني 20% — للمبلغ الثابت: أدخل 100 تعني 100 <x-riyal /></span>
                     @error('discount_value')<span class="error-msg">{{ $message }}</span>@enderror
                 </div>
                 <div class="f-group">
@@ -145,7 +145,7 @@
             {{-- offer_price row (visible only when override) --}}
             <div id="row-offer-price" style="display:none;" class="f-grid">
                 <div class="f-group">
-                    <label class="f-label"><span class="f-required">*</span>السعر الجديد بعد العرض (ر.س)</label>
+                    <label class="f-label"><span class="f-required">*</span>السعر الجديد بعد العرض (<x-riyal />)</label>
                     <input name="offer_price" id="inp-offer-price" class="f-input" type="number" step="0.01" min="0" value="{{ old('offer_price',$offer->offer_price) }}" placeholder="مثال: 499">
                     <span class="f-hint">هذا السعر سيحل محل سعر البرنامج الأصلي بالكامل</span>
                     @error('offer_price')<span class="error-msg">{{ $message }}</span>@enderror

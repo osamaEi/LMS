@@ -1,4 +1,4 @@
-@extends('layouts.dashboard')
+﻿@extends('layouts.dashboard')
 
 @section('title', 'إدارة الدفعات')
 
@@ -631,7 +631,7 @@
             </div>
             <div class="stat-content">
                 <div class="stat-label">إجمالي المبلغ</div>
-                <div class="stat-value" style="color: #3b82f6; font-size: 1.4rem;">{{ number_format($payments->sum('total_amount'), 0) }} <span style="font-size: 1rem;">ر.س</span></div>
+                <div class="stat-value" style="color: #3b82f6; font-size: 1.4rem;">{{ number_format($payments->sum('total_amount'), 0) }} <span style="font-size: 1rem;"><x-riyal /></span></div>
             </div>
         </div>
     </div>
@@ -788,7 +788,7 @@
                                 <td>
                                     <div class="payment-progress">
                                         <div class="progress-text">
-                                            <span class="progress-amount">{{ number_format($payment->paid_amount, 0) }} ر.س</span>
+                                            <span class="progress-amount">{{ number_format($payment->paid_amount, 0) }} <x-riyal /></span>
                                             <span class="progress-percentage">{{ $payment->total_amount > 0 ? number_format(($payment->paid_amount / $payment->total_amount) * 100, 0) : 0 }}%</span>
                                         </div>
                                         <div class="progress-bar-container">

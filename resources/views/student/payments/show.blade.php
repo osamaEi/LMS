@@ -1,4 +1,4 @@
-@extends('layouts.dashboard')
+﻿@extends('layouts.dashboard')
 
 @section('title', 'تفاصيل الدفعة')
 
@@ -222,7 +222,7 @@
                 <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
             </div>
             <div>
-                <div class="s-val">{{ number_format($payment->total_amount,0) }}<small style="font-size:.8rem;"> ر.س</small></div>
+                <div class="s-val">{{ number_format($payment->total_amount,0) }}<small style="font-size:.8rem;"> <x-riyal /></small></div>
                 <div class="s-lbl">إجمالي المبلغ</div>
             </div>
         </div>
@@ -231,7 +231,7 @@
                 <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
             </div>
             <div>
-                <div class="s-val">{{ number_format($payment->paid_amount,0) }}<small style="font-size:.8rem;"> ر.س</small></div>
+                <div class="s-val">{{ number_format($payment->paid_amount,0) }}<small style="font-size:.8rem;"> <x-riyal /></small></div>
                 <div class="s-lbl">المبلغ المدفوع</div>
             </div>
         </div>
@@ -240,7 +240,7 @@
                 <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
             </div>
             <div>
-                <div class="s-val">{{ number_format($payment->remaining_amount,0) }}<small style="font-size:.8rem;"> ر.س</small></div>
+                <div class="s-val">{{ number_format($payment->remaining_amount,0) }}<small style="font-size:.8rem;"> <x-riyal /></small></div>
                 <div class="s-lbl">المبلغ المتبقي</div>
             </div>
         </div>
@@ -290,7 +290,7 @@
                     <div style="margin-bottom:.9rem;">
                         <div style="display:flex;justify-content:space-between;margin-bottom:.3rem;">
                             <span style="font-size:.78rem;color:#6b7280;">المدفوع</span>
-                            <span style="font-size:.78rem;font-weight:700;color:#10b981;">{{ number_format($payment->paid_amount,0) }} ر.س</span>
+                            <span style="font-size:.78rem;font-weight:700;color:#10b981;">{{ number_format($payment->paid_amount,0) }} <x-riyal /></span>
                         </div>
                         <div class="prog-track">
                             <div class="prog-fill prog-paid"></div>
@@ -299,7 +299,7 @@
                     <div style="margin-bottom:.9rem;">
                         <div style="display:flex;justify-content:space-between;margin-bottom:.3rem;">
                             <span style="font-size:.78rem;color:#6b7280;">المتبقي</span>
-                            <span style="font-size:.78rem;font-weight:700;color:#f59e0b;">{{ number_format($payment->remaining_amount,0) }} ر.س</span>
+                            <span style="font-size:.78rem;font-weight:700;color:#f59e0b;">{{ number_format($payment->remaining_amount,0) }} <x-riyal /></span>
                         </div>
                         <div class="prog-track">
                             <div class="prog-fill prog-rem"></div>
@@ -308,7 +308,7 @@
                     @if($payment->discount_amount > 0)
                     <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:.6rem .9rem;display:flex;justify-content:space-between;">
                         <span style="font-size:.78rem;color:#15803d;">خصم مطبّق</span>
-                        <span style="font-size:.78rem;font-weight:700;color:#15803d;">{{ number_format($payment->discount_amount,0) }} ر.س</span>
+                        <span style="font-size:.78rem;font-weight:700;color:#15803d;">{{ number_format($payment->discount_amount,0) }} <x-riyal /></span>
                     </div>
                     @endif
                 </div>
@@ -434,7 +434,7 @@
                     @endif
                 </div>
                 <div style="text-align:left;flex-shrink:0;">
-                    <div class="text-sm font-bold text-gray-900 dark:text-white">{{ number_format($inst->amount,0) }} ر.س</div>
+                    <div class="text-sm font-bold text-gray-900 dark:text-white">{{ number_format($inst->amount,0) }} <x-riyal /></div>
                     @if($inst->status == 'paid')
                         <span class="badge badge-completed" style="font-size:.65rem;">✓ مدفوع</span>
                     @elseif($inst->isOverdue())
@@ -491,7 +491,7 @@
                     </div>
                     <div class="bank-row">
                         <span class="text-gray-500 font-medium">المبلغ المطلوب</span>
-                        <span class="font-bold" style="color:#0071AA;">{{ number_format($payment->remaining_amount,2) }} ر.س</span>
+                        <span class="font-bold" style="color:#0071AA;">{{ number_format($payment->remaining_amount,2) }} <x-riyal /></span>
                     </div>
                 </div>
                 <div style="margin-top:1rem;padding:.85rem 1rem;background:#fffbeb;border:1px solid #fde68a;border-radius:12px;display:flex;align-items:flex-start;gap:.6rem;">
@@ -515,7 +515,7 @@
 
                     {{-- Amount field --}}
                     <div style="margin-bottom:1rem;">
-                        <label style="display:block;font-size:.8rem;font-weight:700;color:#374151;margin-bottom:.4rem;">المبلغ المحوّل (ر.س) <span style="color:#dc2626;">*</span></label>
+                        <label style="display:block;font-size:.8rem;font-weight:700;color:#374151;margin-bottom:.4rem;">المبلغ المحوّل (<x-riyal />) <span style="color:#dc2626;">*</span></label>
                         <input type="number" name="amount" step="0.01" min="1" max="{{ $payment->remaining_amount }}"
                                value="{{ old('amount', $payment->remaining_amount) }}"
                                style="width:100%;padding:.6rem .9rem;border:1.5px solid #e5e7eb;border-radius:10px;font-size:.88rem;transition:border-color .2s;"
@@ -590,7 +590,7 @@
                 @endif
             </div>
             <div style="flex:1;min-width:0;">
-                <div class="text-sm font-bold text-gray-900 dark:text-white">{{ number_format($trx->amount,2) }} ر.س</div>
+                <div class="text-sm font-bold text-gray-900 dark:text-white">{{ number_format($trx->amount,2) }} <x-riyal /></div>
                 <div style="display:flex;align-items:center;gap:.5rem;margin-top:.2rem;flex-wrap:wrap;">
                     <span class="text-xs text-gray-400">{{ $trx->created_at->format('Y/m/d H:i') }}</span>
                     <span class="method-badge">

@@ -1,4 +1,4 @@
-@extends('layouts.front')
+﻿@extends('layouts.front')
 
 @section('title', 'برامج اللغة الإنجليزية - معهد الارتقاء العالي للتدريب')
 
@@ -239,7 +239,7 @@ $byLevel = $programs->keyBy('level');
                         <span class="meta-chip"><i class="bi bi-clock"></i> {{ $prog->duration_months ?? 1 }} شهر</span>
                         <span class="meta-chip"><i class="bi bi-journal-bookmark"></i> 40 ساعة</span>
                         @if($prog->price > 0)
-                        <span class="meta-chip"><i class="bi bi-tag"></i> {{ number_format($prog->price,0) }} ر.س</span>
+                        <span class="meta-chip"><i class="bi bi-tag"></i> {{ number_format($prog->price,0) }} <x-riyal /></span>
                         @else
                         <span class="meta-chip" style="background:#dcfce7;color:#16a34a;"><i class="bi bi-gift" style="color:#16a34a;"></i> مجاني</span>
                         @endif

@@ -85,6 +85,58 @@
             font-style: normal;
             font-display: swap;
         }
+        /* ── Thmanyah Sans ── */
+        @font-face {
+            font-family: 'ThmanyahSans';
+            src: url('/thumany/thmanyah typeface/thmanyahsans/woff2/thmanyahsans-Light.woff2') format('woff2');
+            font-weight: 300; font-style: normal; font-display: swap;
+        }
+        @font-face {
+            font-family: 'ThmanyahSans';
+            src: url('/thumany/thmanyah typeface/thmanyahsans/woff2/thmanyahsans-Regular.woff2') format('woff2');
+            font-weight: 400; font-style: normal; font-display: swap;
+        }
+        @font-face {
+            font-family: 'ThmanyahSans';
+            src: url('/thumany/thmanyah typeface/thmanyahsans/woff2/thmanyahsans-Medium.woff2') format('woff2');
+            font-weight: 500; font-style: normal; font-display: swap;
+        }
+        @font-face {
+            font-family: 'ThmanyahSans';
+            src: url('/thumany/thmanyah typeface/thmanyahsans/woff2/thmanyahsans-Bold.woff2') format('woff2');
+            font-weight: 700; font-style: normal; font-display: swap;
+        }
+        @font-face {
+            font-family: 'ThmanyahSans';
+            src: url('/thumany/thmanyah typeface/thmanyahsans/woff2/thmanyahsans-Black.woff2') format('woff2');
+            font-weight: 900; font-style: normal; font-display: swap;
+        }
+        /* ── Thmanyah Serif Display (headings) ── */
+        @font-face {
+            font-family: 'ThmanyahDisplay';
+            src: url('/thumany/thmanyah typeface/thmanyahserifdisplay/woff2/thmanyahserifdisplay-Light.woff2') format('woff2');
+            font-weight: 300; font-style: normal; font-display: swap;
+        }
+        @font-face {
+            font-family: 'ThmanyahDisplay';
+            src: url('/thumany/thmanyah typeface/thmanyahserifdisplay/woff2/thmanyahserifdisplay-Regular.woff2') format('woff2');
+            font-weight: 400; font-style: normal; font-display: swap;
+        }
+        @font-face {
+            font-family: 'ThmanyahDisplay';
+            src: url('/thumany/thmanyah typeface/thmanyahserifdisplay/woff2/thmanyahserifdisplay-Medium.woff2') format('woff2');
+            font-weight: 500; font-style: normal; font-display: swap;
+        }
+        @font-face {
+            font-family: 'ThmanyahDisplay';
+            src: url('/thumany/thmanyah typeface/thmanyahserifdisplay/woff2/thmanyahserifdisplay-Bold.woff2') format('woff2');
+            font-weight: 700; font-style: normal; font-display: swap;
+        }
+        @font-face {
+            font-family: 'ThmanyahDisplay';
+            src: url('/thumany/thmanyah typeface/thmanyahserifdisplay/woff2/thmanyahserifdisplay-Black.woff2') format('woff2');
+            font-weight: 900; font-style: normal; font-display: swap;
+        }
     </style>
 
     <!-- Bootstrap Icons -->
@@ -116,6 +168,7 @@
             min-height: 100vh;
         }
 
+
         .page-body {
             flex: 1;
         }
@@ -140,7 +193,7 @@
         }
 
         .bottom-bar {
-            height: 64px;
+            height: 87px;
             padding: 0 1.5rem;
             border-bottom: 1px solid #e5e7eb;
             background: #fff;
@@ -157,7 +210,7 @@
         [dir="ltr"] .navbar-brand { margin-left: 0; margin-right: 1.25rem; }
 
         .navbar-brand img {
-            max-width: 140px;
+            max-width: 183px;
             height: auto;
             display: block;
         }
@@ -713,7 +766,7 @@
 
         /* ── Footer ── */
         .foot { background: #1d3a52; color: #fff; padding: clamp(3rem,5vw,6rem) clamp(1rem,4vw,5rem); }
-        .footer-logo img { max-width: 260px; margin-bottom: 1rem; }
+        .footer-logo img { max-width: 320px; width: 100%; margin-bottom: 1rem; }
         .footer-desc { opacity: .8; line-height: 1.8; font-size: .9rem; margin-bottom: 1.5rem; }
         .footer-social-wrap { display: flex; gap: .75rem; }
         .footer-social-wrap a { width: 38px; height: 38px; border-radius: 50%; background: rgba(255,255,255,.1); color: #fff; display: flex; align-items: center; justify-content: center; transition: all .3s; text-decoration: none; font-size: 1rem; }
@@ -1077,7 +1130,7 @@
                         <circle cx="-240" cy="0" r="14" fill="white"/>
                     </g>
                 </svg>
-                <span>المملكة العربية السعودية</span>
+                <span>{{ __('Saudi Arabia') }}</span>
             </div>
 
             <div class="saudi-divider"></div>
@@ -1085,14 +1138,14 @@
             <!-- Official site badge -->
             <div class="saudi-badge">
                 <span class="dot"></span>
-                <span>موقع رسمي معتمد</span>
+                <span>{{ __('Official Accredited Site') }}</span>
             </div>
 
             <div class="saudi-divider d-none d-md-block"></div>
 
             <!-- Vision 2030 -->
             <div class="vision-badge">
-                <span>رؤية</span>
+                <span>{{ __('Vision') }}</span>
                 <span class="v-year">2030</span>
             </div>
         </div>
@@ -1139,40 +1192,42 @@
                     <li class="nav-item">
                         <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}">{{ __('Home') }}</a>
                     </li>
-
+  <li class="nav-item">
+                        <a href="{{ route('about') }}" class="{{ request()->routeIs('about') ? 'active' : '' }}">{{ __('About Us') }}</a>
+                    </li>
                     <li class="nav-item">
                         <a href="{{ route('training-paths') }}" class="{{ request()->routeIs('training-paths') ? 'active' : '' }}">{{ __('Training Paths') }}</a>
                     </li>
-
+                          <li  class="nav-item">
+                                <a href="{{ route('training-programs') }}" class="{{ request()->routeIs('training-programs') ? 'active' : '' }}">
+                                    {{ __('Training Programs') }}
+                                </a>
+                            </li>
                     {{-- Courses dropdown --}}
                     <li class="nav-item nav-dropdown-wrap" id="coursesWrap">
                         <a href="#" id="coursesToggle"
-                           class="{{ request()->routeIs('courses.*') || request()->routeIs('english-courses') || request()->routeIs('training-programs') ? 'active' : '' }}">
-                            الدورات
+                           class="{{ request()->routeIs('courses.*') || request()->routeIs('english-courses')  ? 'active' : '' }}">
+                            {{ __('Courses') }}
                             <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="dd-caret"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
                         </a>
                         <ul class="nav-dropdown-menu" id="coursesMenu">
                             <li>
                                 <a href="{{ route('courses.developmental') }}" class="{{ request()->routeIs('courses.developmental') ? 'active' : '' }}">
-                                    <i class="bi bi-graph-up-arrow" style="color:#2563eb;"></i> تطويري
+                                    <i class="bi bi-graph-up-arrow" style="color:#2563eb;"></i> {{ __('Developmental') }}
                                 </a>
                             </li>
                             <li>
                                 <a href="{{ route('courses.qualifying') }}" class="{{ request()->routeIs('courses.qualifying') ? 'active' : '' }}">
-                                    <i class="bi bi-mortarboard-fill" style="color:#7c3aed;"></i> تأهيلي
+                                    <i class="bi bi-mortarboard-fill" style="color:#7c3aed;"></i> {{ __('Qualifying') }}
                                 </a>
                             </li>
                             <li class="dropdown-divider-item"></li>
                             <li>
                                 <a href="{{ route('english-courses') }}" class="{{ request()->routeIs('english-courses') ? 'active' : '' }}">
-                                    <i class="bi bi-translate" style="color:#0071AA;"></i> اللغة الإنجليزية
+                                    <i class="bi bi-translate" style="color:#0071AA;"></i> {{ __('English Language') }}
                                 </a>
                             </li>
-                            <li>
-                                <a href="{{ route('training-programs') }}" class="{{ request()->routeIs('training-programs') ? 'active' : '' }}">
-                                    <i class="bi bi-clipboard-check-fill" style="color:#059669;"></i> البرامج التدريبية
-                                </a>
-                            </li>
+                           
                         </ul>
                     </li>
 
@@ -1182,9 +1237,7 @@
                         </a>
                     </li>
 
-                    <li class="nav-item">
-                        <a href="{{ route('about') }}" class="{{ request()->routeIs('about') ? 'active' : '' }}">{{ __('About Us') }}</a>
-                    </li>
+                  
 
                     <li class="nav-item">
                         <a href="{{ route('news') }}" class="{{ request()->routeIs('news*') ? 'active' : '' }}">{{ __('News') }}</a>
@@ -1246,23 +1299,23 @@
             </button>
         </div>
         <ul class="mobile-nav-list">
-            <li><a href="{{ route('home') }}"           class="{{ request()->routeIs('home')          ? 'active' : '' }}"><i class="bi bi-house-door" style="margin-left:.4rem;opacity:.6"></i>{{ __('Home') }}</a></li>
-            <li><a href="{{ route('training-paths') }}" class="{{ request()->routeIs('training-paths') ? 'active' : '' }}"><i class="bi bi-signpost-split" style="margin-left:.4rem;opacity:.6"></i>{{ __('Training Paths') }}</a></li>
-            <li><a href="#" style="font-weight:700;"><i class="bi bi-book" style="margin-left:.4rem;opacity:.6"></i>الدورات</a></li>
-            <li class="mobile-sub-item"><a href="{{ route('courses.developmental') }}" class="{{ request()->routeIs('courses.developmental') ? 'active' : '' }}"><i class="bi bi-graph-up-arrow" style="color:#2563eb;"></i> تطويري</a></li>
-            <li class="mobile-sub-item"><a href="{{ route('courses.qualifying') }}" class="{{ request()->routeIs('courses.qualifying') ? 'active' : '' }}"><i class="bi bi-mortarboard-fill" style="color:#7c3aed;"></i> تأهيلي</a></li>
-            <li class="mobile-sub-item"><a href="{{ route('english-courses') }}" class="{{ request()->routeIs('english-courses') ? 'active' : '' }}"><i class="bi bi-translate" style="color:#0071AA;"></i> اللغة الإنجليزية</a></li>
-            <li class="mobile-sub-item"><a href="{{ route('training-programs') }}" class="{{ request()->routeIs('training-programs') ? 'active' : '' }}"><i class="bi bi-clipboard-check-fill" style="color:#059669;"></i> البرامج التدريبية</a></li>
+            <li><a href="{{ route('home') }}"           class="{{ request()->routeIs('home')          ? 'active' : '' }}"><i class="bi bi-house-door" style="margin-inline-end:.4rem;opacity:.6"></i>{{ __('Home') }}</a></li>
+            <li><a href="{{ route('training-paths') }}" class="{{ request()->routeIs('training-paths') ? 'active' : '' }}"><i class="bi bi-signpost-split" style="margin-inline-end:.4rem;opacity:.6"></i>{{ __('Training Paths') }}</a></li>
+            <li><a href="#" style="font-weight:700;"><i class="bi bi-book" style="margin-inline-end:.4rem;opacity:.6"></i>{{ __('Courses') }}</a></li>
+            <li class="mobile-sub-item"><a href="{{ route('courses.developmental') }}" class="{{ request()->routeIs('courses.developmental') ? 'active' : '' }}"><i class="bi bi-graph-up-arrow" style="color:#2563eb;"></i> {{ __('Developmental') }}</a></li>
+            <li class="mobile-sub-item"><a href="{{ route('courses.qualifying') }}" class="{{ request()->routeIs('courses.qualifying') ? 'active' : '' }}"><i class="bi bi-mortarboard-fill" style="color:#7c3aed;"></i> {{ __('Qualifying') }}</a></li>
+            <li class="mobile-sub-item"><a href="{{ route('english-courses') }}" class="{{ request()->routeIs('english-courses') ? 'active' : '' }}"><i class="bi bi-translate" style="color:#0071AA;"></i> {{ __('English Language') }}</a></li>
+            <li class="mobile-sub-item"><a href="{{ route('training-programs') }}" class="{{ request()->routeIs('training-programs') ? 'active' : '' }}"><i class="bi bi-clipboard-check-fill" style="color:#059669;"></i> {{ __('Training Programs') }}</a></li>
             <li>
                 <a href="{{ route('offers') }}" class="{{ request()->routeIs('offers') ? 'active' : '' }}">
-                    <i class="bi bi-tags" style="margin-left:.4rem;opacity:.6"></i>{{ __('Offers') }}
-                    @if($activeOffersCount > 0)<span class="nav-offers-badge" style="margin-right:.25rem;">{{ $activeOffersCount }}</span>@endif
+                    <i class="bi bi-tags" style="margin-inline-end:.4rem;opacity:.6"></i>{{ __('Offers') }}
+                    @if($activeOffersCount > 0)<span class="nav-offers-badge" style="margin-inline-end:.25rem;">{{ $activeOffersCount }}</span>@endif
                 </a>
             </li>
-            <li><a href="{{ route('about') }}"   class="{{ request()->routeIs('about')   ? 'active' : '' }}"><i class="bi bi-info-circle" style="margin-left:.4rem;opacity:.6"></i>{{ __('About Us') }}</a></li>
-            <li><a href="{{ route('news') }}"    class="{{ request()->routeIs('news*')    ? 'active' : '' }}"><i class="bi bi-newspaper" style="margin-left:.4rem;opacity:.6"></i>{{ __('News') }}</a></li>
-            <li><a href="{{ route('faq') }}"     class="{{ request()->routeIs('faq')      ? 'active' : '' }}"><i class="bi bi-question-circle" style="margin-left:.4rem;opacity:.6"></i>{{ __('FAQ') }}</a></li>
-            <li><a href="{{ route('contact') }}" class="{{ request()->routeIs('contact')  ? 'active' : '' }}"><i class="bi bi-envelope" style="margin-left:.4rem;opacity:.6"></i>{{ __('Contact Us') }}</a></li>
+            <li><a href="{{ route('about') }}"   class="{{ request()->routeIs('about')   ? 'active' : '' }}"><i class="bi bi-info-circle" style="margin-inline-end:.4rem;opacity:.6"></i>{{ __('About Us') }}</a></li>
+            <li><a href="{{ route('news') }}"    class="{{ request()->routeIs('news*')    ? 'active' : '' }}"><i class="bi bi-newspaper" style="margin-inline-end:.4rem;opacity:.6"></i>{{ __('News') }}</a></li>
+            <li><a href="{{ route('faq') }}"     class="{{ request()->routeIs('faq')      ? 'active' : '' }}"><i class="bi bi-question-circle" style="margin-inline-end:.4rem;opacity:.6"></i>{{ __('FAQ') }}</a></li>
+            <li><a href="{{ route('contact') }}" class="{{ request()->routeIs('contact')  ? 'active' : '' }}"><i class="bi bi-envelope" style="margin-inline-end:.4rem;opacity:.6"></i>{{ __('Contact Us') }}</a></li>
         </ul>
         <div class="mobile-menu-buttons">
             <button class="btn btn-outline w-100" type="button" onclick="openSearchModal(); closeMobileMenu();">
@@ -1323,29 +1376,27 @@
         // Current locale
         const currentLocale = '{{ app()->getLocale() }}';
 
-        // Saudi Top Bar — live date/time
-        (function updateSaudiTime() {
-            const el = document.getElementById('saudiDateTime');
-            if (!el) return;
-            const now = new Date();
-            const days = ['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
-            const months = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
-            let h = now.getHours(), m = now.getMinutes().toString().padStart(2,'0');
-            const period = h >= 12 ? 'م' : 'ص';
-            h = h % 12 || 12;
-            el.textContent = `${days[now.getDay()]} ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()} — ${h}:${m} ${period}`;
+        // Saudi Top Bar — live date/time (bilingual)
+        (function () {
+            const isAr = currentLocale === 'ar';
+            const days = isAr
+                ? ['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت']
+                : ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+            const months = isAr
+                ? ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر']
+                : ['January','February','March','April','May','June','July','August','September','October','November','December'];
+            function updateTime() {
+                const el = document.getElementById('saudiDateTime');
+                if (!el) return;
+                const now = new Date();
+                let h = now.getHours(), m = now.getMinutes().toString().padStart(2,'0');
+                const period = isAr ? (h >= 12 ? 'م' : 'ص') : (h >= 12 ? 'PM' : 'AM');
+                h = h % 12 || 12;
+                el.textContent = `${days[now.getDay()]} ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()} — ${h}:${m} ${period}`;
+            }
+            updateTime();
+            setInterval(updateTime, 30000);
         })();
-        setInterval(function() {
-            const el = document.getElementById('saudiDateTime');
-            if (!el) return;
-            const now = new Date();
-            const days = ['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
-            const months = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
-            let h = now.getHours(), m = now.getMinutes().toString().padStart(2,'0');
-            const period = h >= 12 ? 'م' : 'ص';
-            h = h % 12 || 12;
-            el.textContent = `${days[now.getDay()]} ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()} — ${h}:${m} ${period}`;
-        }, 30000);
 
         // Font size accessibility
         let currentFontSize = 100;

@@ -1,4 +1,4 @@
-@extends('layouts.dashboard')
+﻿@extends('layouts.dashboard')
 
 @section('title', 'إنشاء دفعة جديدة')
 
@@ -490,7 +490,7 @@
                                                 @endif
                                             </div>
                                             <div style="display:flex;align-items:center;gap:.5rem;flex-shrink:0;margin-right:.5rem;">
-                                                <span style="font-size:.85rem;font-weight:700;color:#0071AA;">{{ number_format($p->price, 2) }} ر.س</span>
+                                                <span style="font-size:.85rem;font-weight:700;color:#0071AA;">{{ number_format($p->price, 2) }} <x-riyal /></span>
                                                 <svg class="p-check" style="width:16px;height:16px;color:#0071AA;display:none;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
                                                 </svg>
@@ -631,16 +631,16 @@
                         <div class="summary-body">
                             <div class="summary-row">
                                 <span class="summary-label">سعر البرنامج:</span>
-                                <span class="summary-value" id="program_price">0.00 ر.س</span>
+                                <span class="summary-value" id="program_price">0.00 <x-riyal /></span>
                             </div>
                             <div class="summary-row">
                                 <span class="summary-label">الخصم:</span>
-                                <span class="summary-value" id="discount_display" style="color: #ef4444;">0.00 ر.س</span>
+                                <span class="summary-value" id="discount_display" style="color: #ef4444;">0.00 <x-riyal /></span>
                             </div>
                             <div class="summary-divider"></div>
                             <div class="summary-row">
                                 <span class="summary-label" style="font-size: 1rem; font-weight: 600;">المبلغ المطلوب:</span>
-                                <span class="summary-total" id="total_required">0.00 ر.س</span>
+                                <span class="summary-total" id="total_required">0.00 <x-riyal /></span>
                             </div>
 
                             <div class="info-box">
@@ -669,6 +669,7 @@
 
 @push('scripts')
 <script>
+const riyalIconHtml = {!! json_encode(view('components.riyal')->render()) !!};
 /* ── Student custom picker ─────────────────────────── */
 let studentPickerOpen = false;
 
@@ -749,7 +750,7 @@ function selectProgram(id, name, price) {
     _selectedProgramId    = id;
     _selectedProgramPrice = price;
     document.getElementById('program_id').value = id;
-    document.getElementById('program-trigger-text').textContent = name + ' — ' + price.toFixed(2) + ' ر.س';
+    document.getElementById('program-trigger-text').innerHTML = name + ' — ' + price.toFixed(2) + ' ' + riyalIconHtml;
     document.getElementById('program-trigger-text').style.color = '#111827';
 
     const row = document.querySelector(`.p-row[data-id="${id}"]`);
@@ -866,9 +867,9 @@ function updateSummary() {
     const price    = _selectedProgramPrice || 0;
     const discount = parseFloat(document.querySelector('input[name="discount_amount"]').value || 0);
     const total    = Math.max(0, price - discount);
-    document.getElementById('program_price').textContent    = price.toFixed(2) + ' ر.س';
-    document.getElementById('discount_display').textContent = discount.toFixed(2) + ' ر.س';
-    document.getElementById('total_required').textContent   = total.toFixed(2) + ' ر.س';
+    document.getElementById('program_price').innerHTML    = price.toFixed(2) + ' ' + riyalIconHtml;
+    document.getElementById('discount_display').innerHTML = discount.toFixed(2) + ' ' + riyalIconHtml;
+    document.getElementById('total_required').innerHTML   = total.toFixed(2) + ' ' + riyalIconHtml;
 }
 
 document.addEventListener('DOMContentLoaded', function() {

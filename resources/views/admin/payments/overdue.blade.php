@@ -1,4 +1,4 @@
-@extends('layouts.dashboard')
+﻿@extends('layouts.dashboard')
 
 @section('title', 'الأقساط المتأخرة')
 
@@ -89,7 +89,7 @@
             <div class="flex justify-between items-center">
                 <div>
                     <p class="text-sm text-gray-500 mb-1">إجمالي المبالغ المتأخرة</p>
-                    <h3 class="text-3xl font-bold text-gray-800">{{ number_format($installments->sum('amount'), 2) }} ر.س</h3>
+                    <h3 class="text-3xl font-bold text-gray-800">{{ number_format($installments->sum('amount'), 2) }} <x-riyal /></h3>
                 </div>
                 <div class="text-yellow-500">
                     <i class="bi bi-currency-dollar text-5xl"></i>
@@ -144,7 +144,7 @@
                                 <td class="px-4 py-3">
                                     <span class="inline-flex px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded">القسط #{{ $installment->installment_number }}</span>
                                 </td>
-                                <td class="px-4 py-3 text-sm">{{ number_format($installment->amount, 2) }} ر.س</td>
+                                <td class="px-4 py-3 text-sm">{{ number_format($installment->amount, 2) }} <x-riyal /></td>
                                 <td class="px-4 py-3 text-sm text-gray-600">{{ $installment->due_date->format('Y-m-d') }}</td>
                                 <td class="px-4 py-3">
                                     @if($daysOverdue < 7)

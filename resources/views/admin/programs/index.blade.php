@@ -1,4 +1,4 @@
-@extends('layouts.dashboard')
+﻿@extends('layouts.dashboard')
 
 @section('title', 'إدارة الدبلومات   ')
 
@@ -435,7 +435,7 @@
                                 <span class="text-sm text-gray-700 dark:text-gray-300 font-medium">
                                     @if($program->price)
                                         {{ number_format($program->price) }}
-                                        <span class="text-gray-400 font-normal">ر.س</span>
+                                        <span class="text-gray-400 font-normal"><x-riyal /></span>
                                     @else
                                         <span class="text-gray-400">-</span>
                                     @endif

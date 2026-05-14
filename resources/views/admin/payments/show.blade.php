@@ -1,4 +1,4 @@
-@extends('layouts.dashboard')
+﻿@extends('layouts.dashboard')
 
 @section('title', 'تفاصيل الدفعة #' . $payment->id)
 
@@ -808,7 +808,7 @@ document.addEventListener('DOMContentLoaded',function(){
             <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
         </div>
         <div>
-            <div class="s-val">{{ number_format($payment->total_amount,0) }}<small style="font-size:.75rem;"> ر.س</small></div>
+            <div class="s-val">{{ number_format($payment->total_amount,0) }}<small style="font-size:.75rem;"> <x-riyal /></small></div>
             <div class="s-lbl">إجمالي المبلغ</div>
         </div>
     </div>
@@ -817,7 +817,7 @@ document.addEventListener('DOMContentLoaded',function(){
             <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
         </div>
         <div>
-            <div class="s-val">{{ number_format($payment->paid_amount,0) }}<small style="font-size:.75rem;"> ر.س</small></div>
+            <div class="s-val">{{ number_format($payment->paid_amount,0) }}<small style="font-size:.75rem;"> <x-riyal /></small></div>
             <div class="s-lbl">المدفوع</div>
         </div>
     </div>
@@ -826,7 +826,7 @@ document.addEventListener('DOMContentLoaded',function(){
             <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
         </div>
         <div>
-            <div class="s-val">{{ number_format($payment->remaining_amount,0) }}<small style="font-size:.75rem;"> ر.س</small></div>
+            <div class="s-val">{{ number_format($payment->remaining_amount,0) }}<small style="font-size:.75rem;"> <x-riyal /></small></div>
             <div class="s-lbl">المتبقي</div>
         </div>
     </div>
@@ -879,7 +879,7 @@ document.addEventListener('DOMContentLoaded',function(){
                 <div style="margin-bottom:.75rem;">
                     <div style="display:flex;justify-content:space-between;margin-bottom:.25rem;">
                         <span style="font-size:.75rem;color:#6b7280;">المدفوع</span>
-                        <span style="font-size:.75rem;font-weight:700;color:#10b981;">{{ number_format($payment->paid_amount,0) }} ر.س</span>
+                        <span style="font-size:.75rem;font-weight:700;color:#10b981;">{{ number_format($payment->paid_amount,0) }} <x-riyal /></span>
                     </div>
                     <div style="height:7px;background:#f3f4f6;border-radius:4px;overflow:hidden;">
                         <div style="height:100%;border-radius:4px;background:#10b981;width:var(--dyn-pct);transition:width .8s ease;"></div>
@@ -888,13 +888,13 @@ document.addEventListener('DOMContentLoaded',function(){
                 @if($payment->discount_amount > 0)
                 <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:.5rem .8rem;display:flex;justify-content:space-between;font-size:.75rem;margin-bottom:.75rem;">
                     <span style="color:#991b1b;">خصم مطبّق</span>
-                    <span style="font-weight:700;color:#dc2626;">{{ number_format($payment->discount_amount,0) }} ر.س</span>
+                    <span style="font-weight:700;color:#dc2626;">{{ number_format($payment->discount_amount,0) }} <x-riyal /></span>
                 </div>
                 @endif
                 <div style="background:#f8fafc;border-radius:10px;padding:.6rem .9rem;">
                     <div style="display:flex;justify-content:space-between;font-size:.75rem;margin-bottom:.3rem;">
                         <span style="color:#6b7280;">المتبقي</span>
-                        <span style="font-weight:700;color:#f59e0b;">{{ number_format($payment->remaining_amount,0) }} ر.س</span>
+                        <span style="font-weight:700;color:#f59e0b;">{{ number_format($payment->remaining_amount,0) }} <x-riyal /></span>
                     </div>
                     <div style="height:7px;background:#f3f4f6;border-radius:4px;overflow:hidden;">
                         <div style="height:100%;border-radius:4px;background:#f59e0b;width:var(--dyn-rem);"></div>
@@ -1001,7 +1001,7 @@ document.addEventListener('DOMContentLoaded',function(){
             @foreach($payment->installments as $inst)
             <tr>
                 <td><strong>#{{ $inst->installment_number }}</strong></td>
-                <td><strong>{{ number_format($inst->amount,2) }} ر.س</strong></td>
+                <td><strong>{{ number_format($inst->amount,2) }} <x-riyal /></strong></td>
                 <td>{{ $inst->due_date->format('Y/m/d') }}</td>
                 <td>
                     @if($inst->status=='paid') <span class="table-badge badge-success">مدفوع</span>
@@ -1061,7 +1061,7 @@ document.addEventListener('DOMContentLoaded',function(){
             @endif
         </div>
         <div style="flex:1;min-width:140px;">
-            <div style="font-size:.95rem;font-weight:800;color:#111827;">{{ number_format($receipt->amount,2) }} ر.س</div>
+            <div style="font-size:.95rem;font-weight:800;color:#111827;">{{ number_format($receipt->amount,2) }} <x-riyal /></div>
             <div style="font-size:.75rem;color:#6b7280;margin-top:.15rem;">{{ $receipt->created_at->format('Y/m/d H:i') }}</div>
             @if($receipt->notes)<div style="font-size:.75rem;color:#6b7280;margin-top:.1rem;">{{ $receipt->notes }}</div>@endif
             @if($receipt->receipt_path)
@@ -1114,7 +1114,7 @@ document.addEventListener('DOMContentLoaded',function(){
             @foreach($payment->transactions as $trx)
             <tr>
                 <td style="color:#9ca3af;font-size:.78rem;">{{ $trx->id }}</td>
-                <td><strong>{{ number_format($trx->amount,2) }} ر.س</strong></td>
+                <td><strong>{{ number_format($trx->amount,2) }} <x-riyal /></strong></td>
                 <td>
                     @if($trx->type=='payment') <span class="table-badge badge-success">دفعة</span>
                     @elseif($trx->type=='refund') <span class="table-badge badge-danger">استرداد</span>
@@ -1172,7 +1172,7 @@ document.addEventListener('DOMContentLoaded',function(){
                     <div class="mb-3">
                         <label class="form-label">المبلغ <span style="color: #ef4444;">*</span></label>
                         <input type="number" name="amount" class="form-control" step="0.01" min="0.01" max="{{ $payment->remaining_amount }}" required placeholder="أدخل المبلغ المدفوع">
-                        <small class="text-muted">💰 المتبقي: {{ number_format($payment->remaining_amount, 2) }} ر.س</small>
+                        <small class="text-muted">💰 المتبقي: {{ number_format($payment->remaining_amount, 2) }} <x-riyal /></small>
                     </div>
 
                     <div class="mb-3">
@@ -1233,7 +1233,7 @@ document.addEventListener('DOMContentLoaded',function(){
                     <div class="mb-3">
                         <label class="form-label">مبلغ الإعفاء <span style="color: #ef4444;">*</span></label>
                         <input type="number" name="waive_amount" class="form-control" step="0.01" min="0.01" max="{{ $payment->remaining_amount }}" required placeholder="أدخل مبلغ الإعفاء">
-                        <small class="text-muted">💰 المتبقي: {{ number_format($payment->remaining_amount, 2) }} ر.س</small>
+                        <small class="text-muted">💰 المتبقي: {{ number_format($payment->remaining_amount, 2) }} <x-riyal /></small>
                     </div>
 
                     <div class="mb-3" style="margin-bottom: 0;">
@@ -1332,7 +1332,7 @@ document.addEventListener('DOMContentLoaded',function(){
                     <div class="mb-3">
                         <label class="form-label">عدد الأقساط <span style="color: #ef4444;">*</span></label>
                         <input type="number" name="number_of_installments" class="form-control" min="2" max="12" value="3" required placeholder="أدخل عدد الأقساط">
-                        <small class="text-muted">📊 من 2 إلى 12 قسط - المبلغ: {{ number_format($payment->total_amount, 2) }} ر.س</small>
+                        <small class="text-muted">📊 من 2 إلى 12 قسط - المبلغ: {{ number_format($payment->total_amount, 2) }} <x-riyal /></small>
                     </div>
 
                     <div class="mb-3" style="margin-bottom: 0;">
@@ -1428,21 +1428,21 @@ document.addEventListener('DOMContentLoaded',function(){
                         <div style="padding:1rem 1.25rem">
                             <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed #f3f4f6">
                                 <span style="color:#6b7280;font-size:0.875rem">إجمالي البرنامج</span>
-                                <span style="font-weight:700;color:#111827">{{ number_format($payment->total_amount, 2) }} ر.س</span>
+                                <span style="font-weight:700;color:#111827">{{ number_format($payment->total_amount, 2) }} <x-riyal /></span>
                             </div>
                             @if($payment->discount_amount > 0)
                             <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed #f3f4f6">
                                 <span style="color:#6b7280;font-size:0.875rem">الخصم</span>
-                                <span style="font-weight:700;color:#ef4444">- {{ number_format($payment->discount_amount, 2) }} ر.س</span>
+                                <span style="font-weight:700;color:#ef4444">- {{ number_format($payment->discount_amount, 2) }} <x-riyal /></span>
                             </div>
                             @endif
                             <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed #f3f4f6">
                                 <span style="color:#6b7280;font-size:0.875rem">المدفوع</span>
-                                <span style="font-weight:700;color:#10b981">{{ number_format($payment->paid_amount, 2) }} ر.س</span>
+                                <span style="font-weight:700;color:#10b981">{{ number_format($payment->paid_amount, 2) }} <x-riyal /></span>
                             </div>
                             <div style="display:flex;justify-content:space-between;padding:10px 0;margin-top:4px;border-top:2px solid #0071AA">
                                 <span style="font-weight:800;color:#111827">المتبقي</span>
-                                <span style="font-weight:900;font-size:1.1rem;color:#0071AA">{{ number_format($payment->remaining_amount, 2) }} ر.س</span>
+                                <span style="font-weight:900;font-size:1.1rem;color:#0071AA">{{ number_format($payment->remaining_amount, 2) }} <x-riyal /></span>
                             </div>
                         </div>
                     </div>
@@ -1553,7 +1553,7 @@ document.addEventListener('DOMContentLoaded',function(){
                         <label class="form-label">المبلغ الإجمالي <span style="color:#ef4444">*</span></label>
                         <input type="number" name="total_amount" class="form-control" step="0.01" min="0"
                                value="{{ $payment->total_amount }}" required>
-                        <small class="text-muted">القيمة الحالية: {{ number_format($payment->total_amount, 2) }} ر.س</small>
+                        <small class="text-muted">القيمة الحالية: {{ number_format($payment->total_amount, 2) }} <x-riyal /></small>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">مبلغ الخصم</label>
@@ -1608,11 +1608,11 @@ document.addEventListener('DOMContentLoaded',function(){
                     <div style="background:#f8fafc;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1.25rem">
                         <div style="display:flex;justify-content:space-between;margin-bottom:8px">
                             <span style="color:#6b7280;font-size:0.875rem">المبلغ المدفوع</span>
-                            <span style="font-weight:700;color:#10b981">{{ number_format($payment->paid_amount, 2) }} ر.س</span>
+                            <span style="font-weight:700;color:#10b981">{{ number_format($payment->paid_amount, 2) }} <x-riyal /></span>
                         </div>
                         <div style="display:flex;justify-content:space-between">
                             <span style="color:#6b7280;font-size:0.875rem">الحد الأقصى للاسترداد</span>
-                            <span style="font-weight:700;color:#ef4444">{{ number_format($payment->paid_amount, 2) }} ر.س</span>
+                            <span style="font-weight:700;color:#ef4444">{{ number_format($payment->paid_amount, 2) }} <x-riyal /></span>
                         </div>
                     </div>
                     <div class="mb-3">
@@ -1682,7 +1682,7 @@ document.addEventListener('DOMContentLoaded',function(){
                                 <span style="font-size:0.75rem;color:#6b7280">{{ $tx->created_at->format('Y/m/d H:i') }}</span>
                             </div>
                             <div style="font-size:1.1rem;font-weight:900;color:#111827;margin-bottom:4px">
-                                {{ number_format($tx->amount, 2) }} ر.س
+                                {{ number_format($tx->amount, 2) }} <x-riyal />
                             </div>
                             <div style="display:flex;gap:12px;font-size:0.8rem;color:#6b7280">
                                 @if($tx->payment_method)

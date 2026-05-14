@@ -1,4 +1,4 @@
-@extends('layouts.front')
+﻿@extends('layouts.front')
 
 @section('title', 'العروض والخصومات — معهد الارتقاء')
 
@@ -477,13 +477,13 @@
             $badgeText = 'خصم نسبي';
         } elseif ($offer->discount_type === 'fixed') {
             $dNum   = number_format($offer->discount_value, 0);
-            $dUnit  = 'ر.س';
+            $dUnit  = '<x-riyal />';
             $dLabel = 'خصم ثابت';
             $typeClass = 'type-fix';
             $badgeText = 'خصم ثابت';
         } else {
             $dNum   = number_format($offer->offer_price, 0);
-            $dUnit  = 'ر.س';
+            $dUnit  = '<x-riyal />';
             $dLabel = 'سعر مباشر';
             $typeClass = 'type-ovr';
             $badgeText = 'سعر مباشر';

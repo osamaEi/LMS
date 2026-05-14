@@ -58,8 +58,10 @@
 }
 [dir="rtl"] .hero-accent-line { background: linear-gradient(to left, #7dd3fc, rgba(125,211,252,.25)); }
 .hero-content h1 { color: #fff; font-size: clamp(2rem, 4.5vw, 3.6rem); font-weight: 800; line-height: 1.3; margin-bottom: 1.2rem; }
+[dir="ltr"] .hero-content h1 { font-size: clamp(1.7rem, 3.5vw, 2.8rem); line-height: 1.25; letter-spacing: -.5px; }
 .hero-content h1 span { color: #7dd3fc; }
 .hero-content p { color: rgba(255,255,255,.86); font-size: clamp(.9rem, 1.7vw, 1.1rem); margin-bottom: 2rem; line-height: 1.9; max-width: 580px; }
+[dir="ltr"] .hero-content p { font-size: clamp(.85rem, 1.5vw, 1rem); max-width: 520px; }
 .hero-btns { display: flex; gap: 1rem; flex-wrap: wrap; }
 .hero-full-btn {
     background: var(--main-color); color: #fff; padding: .65rem 1.75rem;
@@ -242,7 +244,7 @@
     <div class="hero-content">
         <div class="hero-tag">
             <span class="tag-dot"></span>
-            {{ app()->getLocale()=='ar' ? 'معهد الارتقاء العالي للتدريب — معتمد مركز المؤسسة العامةً' : 'Al-Ertiqaa Institute — Officially Accredited' }}
+            {{ app()->getLocale()=='ar' ? 'معهد الارتقاء العالي للتدريب — معتمد مركز المؤسسة العامةً  للتدريب التقني والمهني' : 'Al-Ertiqaa Institute — Officially Accredited' }}
         </div>
         <div class="hero-accent-line"></div>
         <h1>

@@ -1,4 +1,4 @@
-@extends('layouts.front')
+﻿@extends('layouts.front')
 
 @section('title', 'المسارات التدريبية - معهد الارتقاء العالي للتدريب')
 
@@ -225,7 +225,7 @@
                             <span><i class="bi bi-clock"></i> {{ $program->duration_months }} شهر</span>
                         @endif
                         @if($program->price)
-                            <span class="course-price">{{ number_format($program->price, 0) }} ر.س</span>
+                            <span class="course-price">{{ number_format($program->price, 0) }} <x-riyal /></span>
                         @endif
                     </div>
                     <a href="{{ route('register') }}" class="full-btn mt-3 w-100 d-block text-center">سجّل الآن</a>

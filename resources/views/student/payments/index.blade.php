@@ -1,4 +1,4 @@
-@extends('layouts.dashboard')
+﻿@extends('layouts.dashboard')
 
 @section('title', 'المدفوعات')
 
@@ -196,7 +196,7 @@
                 <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
             </div>
             <div>
-                <div class="s-val">{{ number_format($totalAmt,0) }}<span style="font-size:.85rem;font-weight:600;"> ر.س</span></div>
+                <div class="s-val">{{ number_format($totalAmt,0) }}<span style="font-size:.85rem;font-weight:600;"> <x-riyal /></span></div>
                 <div class="s-lbl">إجمالي الرسوم</div>
             </div>
         </div>
@@ -205,7 +205,7 @@
                 <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
             </div>
             <div>
-                <div class="s-val">{{ number_format($paidAmt,0) }}<span style="font-size:.85rem;font-weight:600;"> ر.س</span></div>
+                <div class="s-val">{{ number_format($paidAmt,0) }}<span style="font-size:.85rem;font-weight:600;"> <x-riyal /></span></div>
                 <div class="s-lbl">المبلغ المدفوع</div>
             </div>
         </div>
@@ -214,7 +214,7 @@
                 <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
             </div>
             <div>
-                <div class="s-val">{{ number_format($remaining,0) }}<span style="font-size:.85rem;font-weight:600;"> ر.س</span></div>
+                <div class="s-val">{{ number_format($remaining,0) }}<span style="font-size:.85rem;font-weight:600;"> <x-riyal /></span></div>
                 <div class="s-lbl">المبلغ المتبقي</div>
             </div>
         </div>
@@ -275,21 +275,21 @@
                 <div class="pay-card-body">
                     <div class="amt-row">
                         <span class="text-gray-500 dark:text-gray-400">إجمالي المبلغ</span>
-                        <span class="font-bold text-gray-900 dark:text-white">{{ number_format($payment->total_amount,0) }} ر.س</span>
+                        <span class="font-bold text-gray-900 dark:text-white">{{ number_format($payment->total_amount,0) }} <x-riyal /></span>
                     </div>
                     @if($payment->discount_amount > 0)
                     <div class="amt-row">
                         <span class="text-gray-500 dark:text-gray-400">الخصم</span>
-                        <span class="font-bold" style="color:#10b981;">- {{ number_format($payment->discount_amount,0) }} ر.س</span>
+                        <span class="font-bold" style="color:#10b981;">- {{ number_format($payment->discount_amount,0) }} <x-riyal /></span>
                     </div>
                     @endif
                     <div class="amt-row">
                         <span class="text-gray-500 dark:text-gray-400">المدفوع</span>
-                        <span class="font-bold" style="color:#0071AA;">{{ number_format($payment->paid_amount,0) }} ر.س</span>
+                        <span class="font-bold" style="color:#0071AA;">{{ number_format($payment->paid_amount,0) }} <x-riyal /></span>
                     </div>
                     <div class="amt-row">
                         <span class="text-gray-500 dark:text-gray-400">المتبقي</span>
-                        <span class="font-bold" style="color:#f59e0b;">{{ number_format($payment->remaining_amount,0) }} ر.س</span>
+                        <span class="font-bold" style="color:#f59e0b;">{{ number_format($payment->remaining_amount,0) }} <x-riyal /></span>
                     </div>
 
                     {{-- Progress --}}

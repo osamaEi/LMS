@@ -1,4 +1,4 @@
-@extends('layouts.dashboard')
+﻿@extends('layouts.dashboard')
 
 @section('title', 'الملف الشخصي للطالب')
 
@@ -1780,7 +1780,7 @@
                                     </div>
                                     <div class="flex items-center justify-between text-sm">
                                         <span class="text-gray-500">المدة: {{ $student->program->duration_months }} شهر</span>
-                                        <span class="text-green-600 font-medium">{{ number_format($student->program->price) }} ر.س</span>
+                                        <span class="text-green-600 font-medium">{{ number_format($student->program->price) }} <x-riyal /></span>
                                     </div>
                                 </div>
                                 <form action="{{ route('admin.students.remove-program', $student) }}" method="POST" onsubmit="return confirm('هل أنت متأكد من إزالة البرنامج من هذا الطالب؟');">
@@ -2049,15 +2049,15 @@
                 <div class="payment-summary" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
                     <div class="payment-summary-card" style="background: linear-gradient(135deg, #dbeafe, #bfdbfe); border-radius: 16px; padding: 1.25rem; text-align: center;">
                         <div style="font-size: 0.75rem; font-weight: 600; color: #1e40af; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem;">إجمالي الرسوم</div>
-                        <div style="font-size: 1.75rem; font-weight: 800; color: #1e3a8a;">{{ number_format($totalPayments, 2) }} <span style="font-size: 0.9rem;">ر.س</span></div>
+                        <div style="font-size: 1.75rem; font-weight: 800; color: #1e3a8a;">{{ number_format($totalPayments, 2) }} <span style="font-size: 0.9rem;"><x-riyal /></span></div>
                     </div>
                     <div class="payment-summary-card" style="background: linear-gradient(135deg, #d1fae5, #a7f3d0); border-radius: 16px; padding: 1.25rem; text-align: center;">
                         <div style="font-size: 0.75rem; font-weight: 600; color: #065f46; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem;">المدفوع</div>
-                        <div style="font-size: 1.75rem; font-weight: 800; color: #064e3b;">{{ number_format($totalPaid, 2) }} <span style="font-size: 0.9rem;">ر.س</span></div>
+                        <div style="font-size: 1.75rem; font-weight: 800; color: #064e3b;">{{ number_format($totalPaid, 2) }} <span style="font-size: 0.9rem;"><x-riyal /></span></div>
                     </div>
                     <div class="payment-summary-card" style="background: linear-gradient(135deg, #fee2e2, #fecaca); border-radius: 16px; padding: 1.25rem; text-align: center;">
                         <div style="font-size: 0.75rem; font-weight: 600; color: #991b1b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem;">المتبقي</div>
-                        <div style="font-size: 1.75rem; font-weight: 800; color: #7f1d1d;">{{ number_format($totalRemaining, 2) }} <span style="font-size: 0.9rem;">ر.س</span></div>
+                        <div style="font-size: 1.75rem; font-weight: 800; color: #7f1d1d;">{{ number_format($totalRemaining, 2) }} <span style="font-size: 0.9rem;"><x-riyal /></span></div>
                     </div>
                 </div>
 
@@ -2089,9 +2089,9 @@
                                                 <span style="display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.4rem 0.85rem; border-radius: 10px; font-size: 0.75rem; font-weight: 700; background: rgba(139, 92, 246, 0.15); color: #8b5cf6;">تقسيط</span>
                                             @endif
                                         </td>
-                                        <td style="padding: 1rem; border-bottom: 1px solid #e5e7eb; font-weight: 700; color: #111827;">{{ number_format($payment->total_amount, 2) }} ر.س</td>
-                                        <td style="padding: 1rem; border-bottom: 1px solid #e5e7eb; font-weight: 700; color: #10b981;">{{ number_format($payment->paid_amount, 2) }} ر.س</td>
-                                        <td style="padding: 1rem; border-bottom: 1px solid #e5e7eb; font-weight: 700; color: #ef4444;">{{ number_format($payment->remaining_amount, 2) }} ر.س</td>
+                                        <td style="padding: 1rem; border-bottom: 1px solid #e5e7eb; font-weight: 700; color: #111827;">{{ number_format($payment->total_amount, 2) }} <x-riyal /></td>
+                                        <td style="padding: 1rem; border-bottom: 1px solid #e5e7eb; font-weight: 700; color: #10b981;">{{ number_format($payment->paid_amount, 2) }} <x-riyal /></td>
+                                        <td style="padding: 1rem; border-bottom: 1px solid #e5e7eb; font-weight: 700; color: #ef4444;">{{ number_format($payment->remaining_amount, 2) }} <x-riyal /></td>
                                         <td style="padding: 1rem; border-bottom: 1px solid #e5e7eb;">
                                             @if($payment->status === 'completed')
                                                 <span style="display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.4rem 0.85rem; border-radius: 10px; font-size: 0.75rem; font-weight: 700; background: rgba(16, 185, 129, 0.15); color: #10b981;">مكتملة</span>
