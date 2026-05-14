@@ -43,7 +43,7 @@ class Session extends Model
     public function getTitleAttribute(): string
     {
         $locale = app()->getLocale();
-        return $locale === 'en' ? ($this->title_en ?: $this->title_ar) : $this->title_ar;
+        return $locale === 'en' ? ($this->title_en ?: $this->title_ar ?? '') : ($this->title_ar ?? '');
     }
 
     /**

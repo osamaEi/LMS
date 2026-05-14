@@ -59,7 +59,7 @@
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">اسم الدورة (عربي)</label>
                     <input type="text" name="name_ar" value="{{ old('name_ar') }}"
                            class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-                           placeholder="مثال: اللغة الإنجليزية المستوى التمهيديي">
+                           placeholder="مثال: اللغة الإنجليزية المستوى التمهيدي">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">اسم الدورة (إنجليزي)</label>

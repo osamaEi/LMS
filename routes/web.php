@@ -122,6 +122,7 @@ Route::get('/about', function () {
 })->name('about');
 
 Route::get('/news', [\App\Http\Controllers\Front\NewsController::class, 'index'])->name('news');
+Route::get('/news/{news}', [\App\Http\Controllers\Front\NewsController::class, 'show'])->name('news.show');
 
 Route::get('/faq', [\App\Http\Controllers\Front\FaqController::class, 'index'])->name('faq');
 

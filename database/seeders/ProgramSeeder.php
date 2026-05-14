@@ -326,10 +326,10 @@ class ProgramSeeder extends Seeder
         // ═══════════════════════════════════════════
         $english = [
             [
-                'name_ar' => 'اللغة الإنجليزية المستوى التمهيديي',
+                'name_ar' => 'اللغة الإنجليزية المستوى التمهيدي',
                 'name_en' => 'English Language — Introductory Level',
                 'code'    => 'ENG-000',
-                'description_ar' => 'دورة اللغة الإنجليزية للمستوى التمهيديي، مدتها شهر واحد بعدد 40 ساعة تدريبية.',
+                'description_ar' => 'دورة اللغة الإنجليزية للمستوى التمهيدي، مدتها شهر واحد بعدد 40 ساعة تدريبية.',
                 'description_en' => 'English Language Introductory Level course, 1 month / 40 training hours.',
                 'type'    => 'english', 'level' => 0, 'duration_months' => 1, 'price' => 0, 'status' => 'active',
             ],

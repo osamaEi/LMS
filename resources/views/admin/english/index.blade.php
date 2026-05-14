@@ -40,7 +40,7 @@ $palette = [
             <div>
                 <p class="text-blue-200 text-xs font-bold uppercase tracking-widest mb-0.5">إدارة البرامج</p>
                 <h1 class="text-white text-xl font-black leading-tight">برامج اللغة الإنجليزية</h1>
-                <p class="text-blue-100 text-sm opacity-80 mt-0.5">{{ $stats['total'] }} مستوى • من التمهيديي إلى الثاني عشر</p>
+                <p class="text-blue-100 text-sm opacity-80 mt-0.5">{{ $stats['total'] }} مستوى • من التمهيدي إلى الثاني عشر</p>
             </div>
         </div>
         <div class="flex items-center gap-3 flex-wrap">
