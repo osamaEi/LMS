@@ -238,7 +238,6 @@
     <div class="hero-slides">
         <div class="hero-slide active" style="background-image:url('{{ asset('lms2-photo/2.png') }}')"></div>
         <div class="hero-slide"        style="background-image:url('{{ asset('lms2-photo/14.png') }}')"></div>
-        <div class="hero-slide"        style="background-image:url('{{ asset('lms2-photo/11.png') }}')"></div>
     </div>
     <div class="hero-vline"></div>
     <div class="hero-content">
