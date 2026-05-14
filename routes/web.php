@@ -512,6 +512,7 @@ Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')
         Route::get('/{quiz}/results', [\App\Http\Controllers\Teacher\QuizController::class, 'results'])->name('results');
         Route::get('/{quiz}/results/{attempt}', [\App\Http\Controllers\Teacher\QuizController::class, 'gradeAttempt'])->name('grade-attempt');
         Route::post('/{quiz}/results/{attempt}/grade', [\App\Http\Controllers\Teacher\QuizController::class, 'submitGrade'])->name('submit-grade');
+        Route::get('/{quiz}/review/{attempt}', [\App\Http\Controllers\Teacher\QuizController::class, 'reviewAttempt'])->name('review');
 
         // Questions Management
         Route::get('/{quiz}/questions/create', [\App\Http\Controllers\Teacher\QuizController::class, 'createQuestion'])->name('questions.create');
