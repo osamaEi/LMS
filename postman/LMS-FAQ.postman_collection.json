@@ -73,7 +73,7 @@
 								}
 							]
 						},
-						"description": "Filter FAQs by category in Arabic.\n\n**Category values:**\n| Value | Arabic label |\n|---|---|\n| `registration` | التسجيل والدفع |\n| `courses` | الدورات والدبلومات |\n| `certificates` | الشهادات والاعتماد |\n| `platform` | منصة الطالب |\n| `support` | الدعم التقني |"
+						"description": "Filter FAQs by category in Arabic.\n\n**Category values:**\n| Value | Arabic label |\n|---|---|\n| `registration` | التسجيل والدفع |\n| `courses` | الدورات والدبلومات   |\n| `certificates` | الشهادات والاعتماد |\n| `platform` | منصة الطالب |\n| `support` | الدعم التقني |"
 					},
 					"response": []
 				}

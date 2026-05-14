@@ -51,13 +51,13 @@
 </li>
 @endcanany
 
-{{-- الدبلومات  --}}
+{{-- الدبلومات    --}}
 @can('view-programs')
 <li>
     <a href="{{ route('admin.programs.index') }}"
        class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('admin.programs.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
         <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20"><path d="M10 1.66666L1.66667 5.83333V8.33333C1.66667 12.4833 4.65 16.3583 8.75 17.4583C9.575 17.6833 10.425 17.6833 11.25 17.4583C15.35 16.3583 18.3333 12.4833 18.3333 8.33333V5.83333L10 1.66666ZM10 3.33333L16.6667 6.66666V8.33333C16.6667 11.6667 14.2667 14.7417 11.0833 15.6417C10.3833 15.8167 9.61667 15.8167 8.91667 15.6417C5.73333 14.7417 3.33333 11.6667 3.33333 8.33333V6.66666L10 3.33333ZM9.16667 10.8333L7.08333 8.74999L6.08333 9.74999L9.16667 12.8333L14.1667 7.83333L13.1667 6.83333L9.16667 10.8333Z" fill=""/></svg>
-        <span>الدبلومات </span>
+        <span>الدبلومات   </span>
     </a>
 </li>
 @endcan
@@ -205,6 +205,19 @@
             {{ $activeOffers }}
         </span>
         @endif
+    </a>
+</li>
+
+{{-- آراء المتدربين --}}
+<li>
+    <a href="{{ route('admin.testimonials.index') }}"
+       class="group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium transition-all duration-200
+              {{ request()->routeIs('admin.testimonials.*') ? 'text-white shadow-md' : 'menu-item-inactive' }}"
+       style="{{ request()->routeIs('admin.testimonials.*') ? 'background:linear-gradient(135deg,#0071AA,#005a88);' : '' }}">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0">
+            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+        </svg>
+        <span class="flex-1">آراء المتدربين</span>
     </a>
 </li>
 

@@ -1,6 +1,6 @@
 @extends('layouts.dashboard')
 
-@section('title', 'تعديل الدبلومة التعليمي')
+@section('title', 'تعديل الدبلوم التعليمي')
 
 @section('content')
 <div class="mb-6">
@@ -11,9 +11,9 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
             </svg>
         </a>
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">تعديل الدبلومة التعليمي</h1>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">تعديل الدبلوم التعليمي</h1>
     </div>
-    <p class="text-sm text-gray-500 dark:text-gray-400">تعديل بيانات الدبلومة: {{ $program->name }}</p>
+    <p class="text-sm text-gray-500 dark:text-gray-400">تعديل بيانات الدبلوم: {{ $program->name }}</p>
 </div>
 
 @if($errors->any())
@@ -32,10 +32,10 @@
 
     <div class="rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
         <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
-            <!-- اسم الدبلومة بالعربي -->
+            <!-- اسم الدبلوم بالعربي -->
             <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    اسم الدبلومة (عربي) <span class="text-error-500">*</span>
+                    اسم الدبلوم (عربي) <span class="text-error-500">*</span>
                 </label>
                 <input type="text"
                        name="name_ar"
@@ -45,10 +45,10 @@
                        placeholder="مثال: دبلوم البرمجة وتطوير الويب">
             </div>
 
-            <!-- اسم الدبلومة بالإنجليزي -->
+            <!-- اسم الدبلوم بالإنجليزي -->
             <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    اسم الدبلومة (إنجليزي) <span class="text-error-500">*</span>
+                    اسم الدبلوم (إنجليزي) <span class="text-error-500">*</span>
                 </label>
                 <input type="text"
                        name="name_en"
@@ -59,10 +59,10 @@
                        placeholder="Example: Web Development Diploma">
             </div>
 
-            <!-- كود الدبلومة -->
+            <!-- كود الدبلوم -->
             <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    كود الدبلومة <span class="text-error-500">*</span>
+                    كود الدبلوم <span class="text-error-500">*</span>
                 </label>
                 <input type="text"
                        name="code"
@@ -140,7 +140,7 @@
                 <textarea name="description_ar"
                           rows="3"
                           class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-                          placeholder="وصف تفصيلي عن الدبلومة التعليمي وأهدافه ومحتوياته...">{{ old('description_ar', $program->description_ar) }}</textarea>
+                          placeholder="وصف تفصيلي عن الدبلوم التعليمي وأهدافه ومحتوياته...">{{ old('description_ar', $program->description_ar) }}</textarea>
             </div>
 
             <!-- الوصف بالإنجليزي -->
@@ -155,16 +155,16 @@
                           placeholder="Detailed description of the educational program, its objectives and content...">{{ old('description_en', $program->description_en) }}</textarea>
             </div>
 
-            <!-- صورة الدبلومة -->
+            <!-- صورة الدبلوم -->
             <div class="md:col-span-2">
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">صورة الدبلومة</label>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">صورة الدبلوم</label>
                 <label for="programImage" class="block cursor-pointer">
                     <div id="imagePreviewWrap"
                          class="relative w-full rounded-xl border-2 border-dashed overflow-hidden transition-colors hover:border-blue-400
                                 {{ $program->image ? 'border-gray-200' : 'border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800' }}"
                          style="height:220px;">
                         @if($program->image)
-                            <img id="imagePreview" src="{{ Storage::url($program->image) }}" alt="صورة الدبلومة" class="w-full h-full object-cover">
+                            <img id="imagePreview" src="{{ Storage::url($program->image) }}" alt="صورة الدبلوم" class="w-full h-full object-cover">
                             <div id="imageOverlay" class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
                                 <span class="text-white text-sm font-medium">تغيير الصورة</span>
                             </div>
@@ -176,7 +176,7 @@
                                     </svg>
                                 </div>
                                 <div class="text-center">
-                                    <p class="text-sm font-medium text-gray-700 dark:text-gray-300">انقر لرفع صورة الدبلومة</p>
+                                    <p class="text-sm font-medium text-gray-700 dark:text-gray-300">انقر لرفع صورة الدبلوم</p>
                                     <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">JPEG, PNG, GIF, WebP — الحد الأقصى 2 ميجابايت</p>
                                 </div>
                             </div>

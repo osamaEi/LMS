@@ -123,7 +123,7 @@
     @php
     $catLabels = [
         'registration' => 'التسجيل والدفع',
-        'courses'      => 'الدورات والدبلومات',
+        'courses'      => 'الدورات والدبلومات  ',
         'certificates' => 'الشهادات والاعتماد',
         'platform'     => 'منصة الطالب',
         'support'      => 'الدعم التقني',

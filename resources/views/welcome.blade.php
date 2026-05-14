@@ -118,7 +118,7 @@
 
 /* ── Section Heads ── */
 .section-head { text-align: center; margin-bottom: 3rem; }
-.section-head .badge-tag { display: inline-block; background: #eaf5fb; color: var(--main-color); padding: .3rem 1rem; border-radius: 20px; font-size: .85rem; margin-bottom: .75rem; }
+.section-head . { display: inline-block; background: #eaf5fb; color: var(--main-color); padding: .3rem 1rem; border-radius: 20px; font-size: .85rem; margin-bottom: .75rem; }
 .section-head h2 { font-size: clamp(1.6rem,3vw,2.4rem); font-weight: 800; margin-bottom: .75rem; }
 .section-head p { color: #555; max-width: 650px; margin: 0 auto; line-height: 1.8; }
 
@@ -186,8 +186,8 @@
 .partners-section { padding: clamp(4rem,7vw,6rem) 0; background: #fff; position: relative; overflow: hidden; }
 .partners-section::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, transparent, var(--main-color), #38bdf8, var(--main-color), transparent); }
 .partners-head { text-align: center; padding: 0 1rem; margin-bottom: 3rem; }
-.partners-badge { display: inline-flex; align-items: center; gap: .5rem; background: #eaf5fb; color: var(--main-color); padding: .38rem 1.2rem; border-radius: 50px; font-size: .82rem; font-weight: 700; margin-bottom: 1rem; border: 1px solid rgba(0,113,170,.15); }
-.partners-badge::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--main-color); display: inline-block; vertical-align: middle; animation: pulse-blue 2s infinite; }
+. { display: inline-flex; align-items: center; gap: .5rem; background: #eaf5fb; color: var(--main-color); padding: .38rem 1.2rem; border-radius: 50px; font-size: .82rem; font-weight: 700; margin-bottom: 1rem; border: 1px solid rgba(0,113,170,.15); }
+.::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--main-color); display: inline-block; vertical-align: middle; animation: pulse-blue 2s infinite; }
 @keyframes pulse-blue { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.35;transform:scale(.65)} }
 .partners-head h2 { font-size: clamp(1.6rem,3vw,2.3rem); font-weight: 800; color: #0f172a; margin-bottom: .5rem; }
 .partners-head p { color: #64748b; font-size: .92rem; margin: 0; }
@@ -242,7 +242,7 @@
     <div class="hero-content">
         <div class="hero-tag">
             <span class="tag-dot"></span>
-            {{ app()->getLocale()=='ar' ? 'معهد الارتقاء العالي للتدريب — معتمد رسمياً' : 'Al-Ertiqaa Institute — Officially Accredited' }}
+            {{ app()->getLocale()=='ar' ? 'معهد الارتقاء العالي للتدريب — معتمد مركز المؤسسة العامةً' : 'Al-Ertiqaa Institute — Officially Accredited' }}
         </div>
         <div class="hero-accent-line"></div>
         <h1>
@@ -255,12 +255,7 @@
             <a href="{{ route('training-paths') }}" class="hero-notfull-btn">{{ __('Explore Our Programs') }}</a>
         </div>
     </div>
-    <div class="hero-float-stats">
-        <div class="hfs-pill"><span class="hfs-n">10+</span><span class="hfs-l">{{ app()->getLocale()=='ar' ? 'سنوات خبرة' : 'Years' }}</span></div>
-        <div class="hfs-pill"><span class="hfs-n">500+</span><span class="hfs-l">{{ app()->getLocale()=='ar' ? 'خريج' : 'Graduates' }}</span></div>
-        <div class="hfs-pill"><span class="hfs-n">20+</span><span class="hfs-l">{{ app()->getLocale()=='ar' ? 'برنامج' : 'Programs' }}</span></div>
-        <div class="hfs-pill"><span class="hfs-n">98%</span><span class="hfs-l">{{ app()->getLocale()=='ar' ? 'رضا المتدرب' : 'Satisfaction' }}</span></div>
-    </div>
+  
     <div class="hero-dots" id="heroDots">
         <button class="hero-dot active" onclick="goToSlide(0)"></button>
         <button class="hero-dot"        onclick="goToSlide(1)"></button>
@@ -276,10 +271,10 @@
 <section class="stats-bar">
     <div class="container">
         <div class="stats-inner">
-            <div class="stat-item"><span class="stat-number">10+</span><span class="stat-label">{{ __('Years of Excellence') }}</span></div>
-            <div class="stat-item"><span class="stat-number">500+</span><span class="stat-label">{{ __('Graduates') }}</span></div>
+            <div class="stat-item"><span class="stat-number">30+</span><span class="stat-label">{{ __('Years of Excellence') }}</span></div>
+            <div class="stat-item"><span class="stat-number">25000+</span><span class="stat-label">{{ __('Graduates') }}</span></div>
             <div class="stat-item"><span class="stat-number">20+</span><span class="stat-label">{{ __('Training Programs') }}</span></div>
-            <div class="stat-item"><span class="stat-number">98%</span><span class="stat-label">{{ __('Trainee Satisfaction') }}</span></div>
+            <div class="stat-item"><span class="stat-number">96%</span><span class="stat-label">{{ __('Trainee Satisfaction') }}</span></div>
         </div>
     </div>
 </section>
@@ -288,7 +283,6 @@
 <section class="why-section">
     <div class="container">
         <div class="section-head">
-            <div class="badge-tag">{{ __('Why Us') }}</div>
             <h2>{{ __('Why Choose Us') }}</h2>
             <p>{{ __('We offer an integrated training system that combines quality, flexibility, and modern technologies to ensure the best educational experience.') }}</p>
         </div>
@@ -322,7 +316,6 @@
 <section class="programs-section">
     <div class="container">
         <div class="section-head">
-            <div class="badge-tag">{{ __('Programs') }}</div>
             <h2>{{ __('Comprehensive training paths to build your future') }}</h2>
             <p>{{ __('We provide training paths spanning two and a half years through 10 training quarters, plus short and specialized courses for various professional goals.') }}</p>
         </div>
@@ -381,7 +374,6 @@
 <section class="gallery-section">
     <div class="container-fluid px-4">
         <div class="section-head">
-            <div class="badge-tag">{{ __('Gallery') }}</div>
             <h2>{{ __('Institute Life') }}</h2>
             <p>{{ __('A glimpse into our training environment, graduation ceremonies, and daily student life at Al-Ertiqaa.') }}</p>
         </div>
@@ -399,7 +391,6 @@
 <section class="how-section">
     <div class="container">
         <div class="section-head">
-            <div class="badge-tag">{{ __('Process') }}</div>
             <h2>{{ __('How does our training system work?') }}</h2>
             <p>{{ __('An integrated training system that ensures a clear, organized educational journey with measurable results.') }}</p>
         </div>
@@ -420,33 +411,30 @@
 </section>
 
 <!-- ════ Testimonials ════ -->
+@php $testimonials = \App\Models\Testimonial::active()->get(); @endphp
+@if($testimonials->isNotEmpty())
 <section class="testimonials-section">
     <div class="container">
         <div class="section-head">
-            <div class="badge-tag">{{ __('Reviews') }}</div>
             <h2>{{ __('What Our Trainees Say') }}</h2>
             <p>{{ __('Real experiences from our graduates who made a difference in their careers.') }}</p>
         </div>
         <div class="row g-4">
-            @php
-            $testimonials = app()->getLocale() === 'ar' ? [
-                ['text'=>'رحلة تدريبية مميزة وواضحة من البداية للنهاية، متابعة التيرم والدروس كانت سهلة جدًا، والتطبيق ساعدني أتابع تقدمي بشكل يومي.', 'author'=>'سلمان .م', 'role'=>'دبلومة الحاسب وتقنية المعلومات'],
-                ['text'=>'تجربتي مع المعهد كانت رائعة، المدربون محترفون والمحتوى التعليمي ممتاز. أنصح الجميع بالتسجيل في برامجهم التدريبية.', 'author'=>'أحمد .ع', 'role'=>'دبلومة إدارة الأعمال'],
-                ['text'=>'الدعم الفني متميز والاستجابة سريعة. البرنامج التدريبي ساعدني على تطوير مهاراتي المهنية بشكل ملحوظ.', 'author'=>'نورة .س', 'role'=>'دبلومة التسويق الرقمي'],
-            ] : [
-                ['text'=>'A distinctive training journey from start to finish. Following the term and lessons was very easy, and the app helped me track my daily progress.', 'author'=>'Salman M.', 'role'=>'Computer & IT Diploma'],
-                ['text'=>'My experience with the institute was wonderful. The trainers are professional and the content is excellent.', 'author'=>'Ahmed A.', 'role'=>'Business Administration Diploma'],
-                ['text'=>'Outstanding technical support and fast response. The training program helped me develop my professional skills noticeably.', 'author'=>'Noura S.', 'role'=>'Digital Marketing Diploma'],
-            ];
-            @endphp
             @foreach($testimonials as $t)
             <div class="col-md-4">
                 <div class="testimonial-card">
-                    <div class="testimonial-stars"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i></div>
-                    <p class="testimonial-text">"{{ $t['text'] }}"</p>
+                    <div class="testimonial-stars">
+                        @for($i = 1; $i <= 5; $i++)
+                            <i class="bi bi-star{{ $i <= $t->rating ? '-fill' : '' }}"></i>
+                        @endfor
+                    </div>
+                    <p class="testimonial-text">"{{ $t->text }}"</p>
                     <div class="testimonial-author">
-                        <div style="width:48px;height:48px;border-radius:50%;background:var(--main-color);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:1.2rem;flex-shrink:0">{{ mb_substr($t['author'],0,1) }}</div>
-                        <div><div class="name">{{ $t['author'] }}</div><div class="role">{{ $t['role'] }}</div></div>
+                        <div style="width:48px;height:48px;border-radius:50%;background:var(--main-color);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:1.2rem;flex-shrink:0">{{ mb_substr($t->author, 0, 1) }}</div>
+                        <div>
+                            <div class="name">{{ $t->author }}</div>
+                            <div class="role">{{ $t->role }}</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -454,6 +442,7 @@
         </div>
     </div>
 </section>
+@endif
 
 <!-- ════ App Section ════ -->
 <section class="app-section">
@@ -482,7 +471,6 @@
 @if($partners->isNotEmpty())
 <section class="partners-section">
     <div class="partners-head">
-        <div class="partners-badge">{{ app()->getLocale() === 'ar' ? 'شركاؤنا' : 'Our Partners' }}</div>
         <h2>{{ app()->getLocale() === 'ar' ? 'شركائنا المتعاونة' : 'Partners & Affiliates' }}</h2>
         <p>{{ app()->getLocale() === 'ar' ? 'نفخر بشراكتنا مع عدد من الجهات والمنظمات الرائدة' : 'Proud to work alongside leading organizations and institutions' }}</p>
         <div class="partners-count-row">

@@ -53,7 +53,7 @@ return new class extends Migration
         $links = [
             ['label_ar' => 'الرئيسية',       'label_en' => 'Home',             'url' => '/',                 'section' => 'quick',    'sort_order' => 1],
             ['label_ar' => 'من نحن',          'label_en' => 'About Us',         'url' => '/about',            'section' => 'quick',    'sort_order' => 2],
-            ['label_ar' => 'الدبلومات',       'label_en' => 'Training Paths',   'url' => '/training-paths',   'section' => 'quick',    'sort_order' => 3],
+            ['label_ar' => 'الدبلومات  ',       'label_en' => 'Training Paths',   'url' => '/training-paths',   'section' => 'quick',    'sort_order' => 3],
             ['label_ar' => 'الدورات',         'label_en' => 'Courses',          'url' => '/short-courses',    'section' => 'quick',    'sort_order' => 4],
             ['label_ar' => 'الأخبار',         'label_en' => 'News',             'url' => '/news',             'section' => 'quick',    'sort_order' => 5],
             ['label_ar' => 'تواصل معنا',      'label_en' => 'Contact Us',       'url' => '/contact',          'section' => 'quick',    'sort_order' => 6],

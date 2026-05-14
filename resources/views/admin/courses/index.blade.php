@@ -250,19 +250,24 @@
                     </div>
                 </div>
 
-                <div class="flex items-center gap-3">
+                <div class="flex items-center gap-3 flex-wrap">
                     <div class="relative">
                         <svg class="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                         </svg>
                         <input type="text" placeholder="بحث في الدورات..."
-                               class="search-input w-64 pl-4 pr-10 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm focus:outline-none focus:border-[#f59e0b] transition-all"
+                               class="search-input w-56 pl-4 pr-10 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm focus:outline-none focus:border-[#f59e0b] transition-all"
                                id="searchInput">
                     </div>
                     <select class="px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm focus:outline-none focus:border-[#f59e0b] transition-all" id="statusFilter">
                         <option value="">جميع الحالات</option>
                         <option value="active">نشط</option>
                         <option value="inactive">غير نشط</option>
+                    </select>
+                    <select class="px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm focus:outline-none focus:border-[#f59e0b] transition-all" id="typeFilter">
+                        <option value="">جميع الأنواع</option>
+                        <option value="developmental">تطويري</option>
+                        <option value="qualifying">تأهيلي</option>
                     </select>
                 </div>
             </div>
@@ -280,6 +285,7 @@
                         <th class="px-6 py-4 text-right text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">الرمز</th>
                         <th class="px-6 py-4 text-right text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">المدة</th>
                         <th class="px-6 py-4 text-right text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">السعر</th>
+                        <th class="px-6 py-4 text-right text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">النوع</th>
                         <th class="px-6 py-4 text-right text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">الأرباع</th>
                         <th class="px-6 py-4 text-right text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">الحالة</th>
                         <th class="px-6 py-4 text-center text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">الإجراءات</th>
@@ -287,7 +293,7 @@
                 </thead>
                 <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
                     @foreach($programs as $program)
-                    <tr class="table-row" data-status="{{ $program->status }}" data-name="{{ $program->name_ar }} {{ $program->name_en }}">
+                    <tr class="table-row" data-status="{{ $program->status }}" data-type="{{ $program->course_type }}" data-name="{{ $program->name_ar }} {{ $program->name_en }}">
                         <td class="px-6 py-5 border-r-4 border-transparent">
                             <input type="checkbox" class="custom-checkbox row-checkbox" value="{{ $program->id }}">
                         </td>
@@ -326,6 +332,21 @@
                                     <span class="text-gray-400">-</span>
                                 @endif
                             </span>
+                        </td>
+                        <td class="px-6 py-5">
+                            @if($program->course_type === 'developmental')
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-blue-500 inline-block"></span>
+                                    تطويري
+                                </span>
+                            @elseif($program->course_type === 'qualifying')
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-purple-500 inline-block"></span>
+                                    تأهيلي
+                                </span>
+                            @else
+                                <span class="text-gray-400 text-xs">—</span>
+                            @endif
                         </td>
                         <td class="px-6 py-5">
                             <div class="flex items-center gap-2">
@@ -410,20 +431,27 @@
 <script>
     const searchInput  = document.getElementById('searchInput');
     const statusFilter = document.getElementById('statusFilter');
+    const typeFilter   = document.getElementById('typeFilter');
     const tableRows    = document.querySelectorAll('.table-row');
 
     function filterTable() {
         const searchTerm  = searchInput.value.toLowerCase();
         const statusValue = statusFilter.value;
+        const typeValue   = typeFilter.value;
         tableRows.forEach(row => {
             const name   = row.dataset.name.toLowerCase();
             const status = row.dataset.status;
-            row.style.display = (name.includes(searchTerm) && (!statusValue || status === statusValue)) ? '' : 'none';
+            const type   = row.dataset.type || '';
+            const matchSearch = name.includes(searchTerm);
+            const matchStatus = !statusValue || status === statusValue;
+            const matchType   = !typeValue   || type  === typeValue;
+            row.style.display = (matchSearch && matchStatus && matchType) ? '' : 'none';
         });
     }
 
     searchInput?.addEventListener('input', filterTable);
     statusFilter?.addEventListener('change', filterTable);
+    typeFilter?.addEventListener('change', filterTable);
 
     const selectAll    = document.getElementById('selectAll');
     const rowCheckboxes = document.querySelectorAll('.row-checkbox');

@@ -131,7 +131,7 @@
             color: inherit;
         }
 
-        /* Navbar Styles */
+        /* ── Navbar ── */
         nav.navbar {
             margin-top: 0 !important;
             padding-top: 0 !important;
@@ -139,82 +139,158 @@
             z-index: 500;
         }
 
-        .bg-gray {
-            background-color: rgba(243, 244, 246, 1);
-        }
-
-        .top-bar {
-            border-bottom: 1px solid #d1d5db;
-        }
-
-        .middle-bar {
-            border-bottom: none;
-        }
-
-        .middle-bar .info-section {
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-
-        .middle-bar .info-section > div {
-            font-size: 0.9rem;
-        }
-
-        .middle-bar .icons-section {
-            flex-shrink: 0;
-            gap: 0.75rem;
-        }
-
-        .middle-bar .icons-section i {
-            cursor: pointer;
-            font-size: 1.1rem;
-        }
-
-        .middle-bar p,
-        .middle-bar i {
-            white-space: nowrap;
-        }
-
         .bottom-bar {
-            padding: 0.75rem 1rem;
+            height: 64px;
+            padding: 0 1.5rem;
             border-bottom: 1px solid #e5e7eb;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            gap: 0;
         }
+
+        .navbar-brand {
+            flex-shrink: 0;
+            margin-left: 1.25rem;
+            margin-right: 0;
+        }
+        [dir="ltr"] .navbar-brand { margin-left: 0; margin-right: 1.25rem; }
 
         .navbar-brand img {
-            max-width: 120px;
+            max-width: 140px;
             height: auto;
+            display: block;
+        }
+
+        /* Desktop nav list */
+        .navbar-nav {
+            gap: 0;
+            align-items: center;
         }
 
         .nav-item a {
-            color: black !important;
+            color: #374151 !important;
             text-decoration: none;
-            padding: 5px 10px;
-            border-radius: 20px;
-            transition: all 0.3s;
+            font-size: 0.875rem;
+            font-weight: 600;
+            padding: 6px 10px;
+            border-radius: 8px;
+            transition: background 0.2s, color 0.2s;
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
         }
 
-        .nav-item a:hover,
-        .nav-item a.active {
+        .nav-item a:hover {
             color: var(--main-color) !important;
             background: #eaf5fb;
         }
 
-        .navbar-nav {
-            gap: 0.5rem;
+        .nav-item a.active {
+            color: var(--main-color) !important;
+            background: #eaf5fb;
+            font-weight: 700;
         }
 
-        .bottom-bar .btn-outline {
-            white-space: nowrap;
-            padding: 0.375rem 0.75rem;
+        /* Divider between nav and actions */
+        .nav-actions-divider {
+            width: 1px;
+            height: 28px;
+            background: #e5e7eb;
+            margin: 0 0.75rem;
+            flex-shrink: 0;
+        }
+
+        /* Action buttons */
+        .nav-action-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            background: #fff;
+            color: #374151;
             font-size: 0.9rem;
-            border: 1px solid #dee2e6;
-            background: transparent;
-            border-radius: 5px;
-            transition: all 0.3s;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            flex-shrink: 0;
+        }
+        .nav-action-btn:hover {
+            background: #f3f4f6;
+            border-color: #d1d5db;
+            color: var(--main-color);
         }
 
-        .bottom-bar .btn-outline:hover {
-            background: #f8f9fa;
+        .nav-lang-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            height: 36px;
+            padding: 0 12px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            background: #fff;
+            color: #374151;
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+        .nav-lang-btn:hover {
+            background: #f3f4f6;
+            border-color: #d1d5db;
+        }
+        .nav-lang-btn a {
+            color: inherit !important;
+            text-decoration: none;
+        }
+
+        .nav-login-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            height: 36px;
+            padding: 0 16px;
+            border-radius: 8px;
+            background: var(--main-color);
+            color: #fff !important;
+            font-size: 0.82rem;
+            font-weight: 700;
+            text-decoration: none;
+            white-space: nowrap;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        .nav-login-btn:hover {
+            background: #005a88;
+            color: #fff !important;
+        }
+
+        .nav-dashboard-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            height: 36px;
+            padding: 0 14px;
+            border-radius: 8px;
+            border: 1px solid var(--main-color);
+            color: var(--main-color) !important;
+            font-size: 0.82rem;
+            font-weight: 700;
+            text-decoration: none;
+            white-space: nowrap;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        .nav-dashboard-btn:hover {
+            background: var(--main-color);
+            color: #fff !important;
         }
 
         /* Mobile Menu Styles */
@@ -779,7 +855,8 @@
             }
 
             .bottom-bar {
-                padding: 0.5rem;
+                padding: 0 0.75rem;
+                height: 60px;
             }
 
             .navbar-brand img {
@@ -1038,20 +1115,26 @@
     <nav class="navbar navbar-expand-lg d-flex flex-column shadow-sm">
         {{-- Containers 1 & 2 removed --}}
 
-        <!-- Container 3 -->
-        <div class="container-fluid bottom-bar bg-white d-flex align-items-center justify-content-between">
+        <!-- Desktop Navbar -->
+        <div class="container-fluid bottom-bar">
+
+            {{-- Logo --}}
             <a class="navbar-brand" href="/">
                 <img src="{{ asset('images/nav.png') }}" alt="Logo" />
             </a>
 
-            <button class="navbar-toggler d-lg-none" type="button" onclick="toggleMobileMenu()">
+            {{-- Mobile toggler --}}
+            <button class="navbar-toggler d-lg-none ms-auto" type="button" onclick="toggleMobileMenu()"
+                    style="border:1px solid #e5e7eb;padding:.4rem .65rem;background:#fff;border-radius:8px;cursor:pointer;">
                 <span class="navbar-toggler-icon"></span>
             </button>
 
-            <!-- Desktop Menu -->
+            {{-- Desktop nav --}}
             @php $activeOffersCount = \App\Models\Offer::active()->count(); @endphp
-            <div class="desktop-menu d-none d-lg-flex align-items-center justify-content-between flex-grow-1">
-                <ul class="navbar-nav d-flex flex-row mb-0">
+            <div class="d-none d-lg-flex align-items-center flex-grow-1" style="gap:0;overflow:visible;">
+
+                {{-- Nav links --}}
+                <ul class="navbar-nav d-flex flex-row mb-0 flex-nowrap" style="padding: 0 0.5rem;">
 
                     <li class="nav-item">
                         <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}">{{ __('Home') }}</a>
@@ -1064,10 +1147,9 @@
                     {{-- Courses dropdown --}}
                     <li class="nav-item nav-dropdown-wrap" id="coursesWrap">
                         <a href="#" id="coursesToggle"
-                           class="{{ request()->routeIs('short-courses') || request()->routeIs('english-courses') ? 'active' : '' }}"
-                           style="display:inline-flex;align-items:center;gap:.3rem;">
+                           class="{{ request()->routeIs('short-courses') || request()->routeIs('english-courses') ? 'active' : '' }}">
                             {{ __('Short Courses') }}
-                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="dd-caret"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="dd-caret"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
                         </a>
                         <ul class="nav-dropdown-menu" id="coursesMenu">
                             <li>
@@ -1120,27 +1202,37 @@
 
                 </ul>
 
-                <div class="d-flex align-items-center gap-2">
-                    <button class="btn btn-outline" type="button" onclick="openSearchModal()" title="{{ __('Search') }}">
+                {{-- push actions to the end --}}
+                <div class="d-flex align-items-center flex-nowrap ms-auto" style="gap:.5rem;flex-shrink:0;">
+
+                    <div class="nav-actions-divider"></div>
+
+                    {{-- Search --}}
+                    <button class="nav-action-btn" type="button" onclick="openSearchModal()" title="{{ __('Search') }}">
                         <i class="bi bi-search"></i>
                     </button>
-                    <div class="btn btn-outline lang-switcher">
-                        <i class="bi bi-translate"></i>
+
+                    {{-- Language switcher --}}
+                    <div class="nav-lang-btn">
+                        <i class="bi bi-globe2" style="font-size:.8rem;opacity:.7;"></i>
                         @if(app()->getLocale() == 'ar')
                             <a href="{{ route('lang.switch', 'en') }}">EN</a>
                         @else
                             <a href="{{ route('lang.switch', 'ar') }}">ع</a>
                         @endif
                     </div>
+
+                    {{-- Auth --}}
                     @auth
-                        <a href="{{ url('/dashboard') }}" class="btn btn-outline">
+                        <a href="{{ url('/dashboard') }}" class="nav-dashboard-btn">
                             <i class="bi bi-person-circle"></i> {{ __('Dashboard') }}
                         </a>
                     @else
-                        <a href="{{ route('login') }}" class="btn btn-outline" style="background:var(--main-color);color:#fff;border-color:var(--main-color);">
-                            <i class="bi bi-person"></i> {{ __('Login') }}
+                        <a href="{{ route('login') }}" class="nav-login-btn">
+                            <i class="bi bi-person-fill"></i> {{ __('Login') }}
                         </a>
                     @endauth
+
                 </div>
             </div>
         </div>

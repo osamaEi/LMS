@@ -1,31 +1,9 @@
 @extends('layouts.front')
 
-@section('title', __('Training Paths') . ' - ' . __('Al-Ertiqaa High Institute for Training'))
+@section('title', 'المسارات التدريبية - معهد الارتقاء العالي للتدريب')
 
 @section('styles')
 <style>
-    /* Statistics Section */
-    .stats-section {
-        background: var(--second-color);
-        padding: 2rem clamp(3rem, 7vw, 7rem);
-    }
-
-    .stat-item {
-        text-align: center;
-        padding: 1.5rem;
-    }
-
-    .stat-number {
-        font-size: 2.5rem;
-        font-weight: bold;
-        color: var(--main-color);
-    }
-
-    .stat-label {
-        color: rgba(56, 66, 80, 1);
-        margin-top: 0.5rem;
-    }
-
     /* Courses Section */
     .courses-section {
         padding: 2rem clamp(3rem, 7vw, 7rem);
@@ -198,7 +176,6 @@
     }
 
     @media (max-width: 768px) {
-        .stats-section,
         .courses-section,
         .faq-section {
             padding: 1.5rem 1rem;
@@ -211,66 +188,47 @@
     <!-- Hero Section -->
     <section class="hero-section">
         <div class="breadcrumb-nav">
-            <a href="{{ route('home') }}">{{ __('Home') }}</a>
+            <a href="{{ route('home') }}">الرئيسية</a>
             <span>></span>
-            <span>{{ __('Training Paths') }}</span>
+            <span>المسارات التدريبية</span>
         </div>
-        <h2>{{ __('Training Paths That Build Your Professional Future with Confidence') }}</h2>
+        <h2>مسارات تدريبية تبني مستقبلك المهني بثقة</h2>
         <p>
-            {{ __('At our institute, we provide an integrated training system based on the needs of the Saudi labor market in accordance with Vision 2030, through training paths spanning two and a half years (10 training quarters), preparing trainees with practical and scientific expertise that makes their educational journey clear, strong, and directed towards future careers.') }}
+            نوفر في معهدنا منظومة تدريبية متكاملة مبنية على احتياجات سوق العمل السعودي وفق رؤية 2030،
+            من خلال مسارات تدريبية تمتد لمدة سنتين ونصف (10 فصول تدريبية)،
+            تُعدّ المتدربين بخبرة عملية وعلمية تجعل مسيرتهم التعليمية واضحة وقوية وموجّهة نحو مهن المستقبل.
         </p>
-    </section>
-
-    <!-- Statistics Section -->
-    <section class="stats-section">
-        <div class="row text-center">
-            <div class="col-6 col-md-3 stat-item">
-                <div class="stat-number">10+</div>
-                <div class="stat-label">{{ __('Training Paths') }}</div>
-            </div>
-            <div class="col-6 col-md-3 stat-item">
-                <div class="stat-number">50+</div>
-                <div class="stat-label">{{ __('Training Courses') }}</div>
-            </div>
-            <div class="col-6 col-md-3 stat-item">
-                <div class="stat-number">1000+</div>
-                <div class="stat-label">{{ __('Trainees') }}</div>
-            </div>
-            <div class="col-6 col-md-3 stat-item">
-                <div class="stat-number">95%</div>
-                <div class="stat-label">{{ __('Satisfaction Rate') }}</div>
-            </div>
-        </div>
     </section>
 
     <!-- Training Programs Section -->
     <section class="courses-section">
         <div class="head">
-            <h2>{{ __('Our Training Programs and Specialized Paths') }}</h2>
+            <h2>برامجنا التدريبية والمسارات المتخصصة</h2>
             <p>
-                {{ __('A diverse range of accredited training programs designed to meet labor market needs. Choose your training path and start a professional journey supported by certified experts and modern methodologies.') }}
+                مجموعة متنوعة من البرامج التدريبية المعتمدة المصممة لتلبية احتياجات سوق العمل.
+                اختر مسارك التدريبي وابدأ مسيرة مهنية بدعم من خبراء معتمدين ومنهجيات حديثة.
             </p>
         </div>
 
         @if($programs->isEmpty())
-            <p class="text-center text-muted py-5">{{ __('No training paths available at the moment.') }}</p>
+            <p class="text-center text-muted py-5">لا توجد مسارات تدريبية متاحة حالياً.</p>
         @else
         <div class="courses-container">
             @foreach($programs as $program)
             <div class="course-card">
                 <img src="{{ $program->image ? asset('storage/' . $program->image) : asset('images/course.jpg') }}" alt="{{ $program->name_ar }}" />
                 <div class="card-body">
-                    <h5 class="card-title">{{ app()->getLocale() === 'en' ? ($program->name_en ?: $program->name_ar) : $program->name_ar }}</h5>
-                    <p class="card-text">{{ Str::limit(app()->getLocale() === 'en' ? ($program->description_en ?: $program->description_ar) : $program->description_ar, 100) }}</p>
+                    <h5 class="card-title">{{ $program->name_ar }}</h5>
+                    <p class="card-text">{{ Str::limit($program->description_ar, 100) }}</p>
                     <div class="course-meta">
                         @if($program->duration_months)
-                            <span><i class="bi bi-clock"></i> {{ $program->duration_months }} {{ __('Months') }}</span>
+                            <span><i class="bi bi-clock"></i> {{ $program->duration_months }} شهر</span>
                         @endif
                         @if($program->price)
-                            <span class="course-price">{{ number_format($program->price, 0) }} {{ __('SAR') }}</span>
+                            <span class="course-price">{{ number_format($program->price, 0) }} ر.س</span>
                         @endif
                     </div>
-                    <a href="{{ route('register') }}" class="full-btn mt-3 w-100 d-block text-center">{{ __('Register Now') }}</a>
+                    <a href="{{ route('register') }}" class="full-btn mt-3 w-100 d-block text-center">سجّل الآن</a>
                 </div>
             </div>
             @endforeach
@@ -284,22 +242,23 @@
             <div class="col-lg-6">
                 <div class="content">
         
-                    <h2>{{ __('Download Our App Now and Start Your Learning Journey') }}</h2>
+                    <h2>حمّل تطبيقنا الآن وابدأ رحلتك التعليمية</h2>
                     <p>
-                        {{ __('Our institute app provides you with quick and direct access to all training paths and courses. Track your progress, receive lecture notifications, and communicate with trainers easily from anywhere.') }}
+                        تطبيق معهدنا يمنحك وصولاً سريعاً ومباشراً لجميع المسارات التدريبية والدورات.
+                        تابع تقدمك، استقبل إشعارات المحاضرات، وتواصل مع المدربين بسهولة من أي مكان.
                     </p>
                     <div class="store-buttons" dir="ltr">
                         <a href="#" class="store-btn">
                             <i class="bi bi-apple" style="font-size: 24px;"></i>
                             <div>
-                                <small>Download on the</small>
+                                <small>متاح على</small>
                                 <div>App Store</div>
                             </div>
                         </a>
                         <a href="#" class="store-btn">
                             <i class="bi bi-google-play" style="font-size: 24px;"></i>
                             <div>
-                                <small>GET IT ON</small>
+                                <small>حمّله من</small>
                                 <div>Google Play</div>
                             </div>
                         </a>
@@ -316,19 +275,19 @@
     <section class="faq-section">
         <div class="head">
 
-            <h2>{{ __('Frequently Asked Questions About Paths') }}</h2>
+            <h2>الأسئلة الشائعة حول المسارات</h2>
         </div>
 
         <div class="accordion" id="faqAccordion" style="max-width: 900px; margin: 0 auto;">
             <div class="accordion-item">
                 <h2 class="accordion-header">
                     <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
-                        {{ __('Can I switch from one path to another?') }}
+                        هل يمكنني الانتقال من مسار إلى آخر؟
                     </button>
                 </h2>
                 <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
                     <div class="accordion-body">
-                        {{ __('Yes, you can switch between paths according to specific academic conditions and after reviewing the completed training hours and coordinating with the academic administration.') }}
+                        نعم، يمكنك الانتقال بين المسارات وفق شروط أكاديمية محددة وبعد مراجعة الساعات التدريبية المكتملة والتنسيق مع الإدارة الأكاديمية.
                     </div>
                 </div>
             </div>
@@ -336,12 +295,12 @@
             <div class="accordion-item">
                 <h2 class="accordion-header">
                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
-                        {{ __('What is the term system?') }}
+                        ما هو نظام الفصول الدراسية؟
                     </button>
                 </h2>
                 <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
                     <div class="accordion-body">
-                        {{ __('The term system is a system of dividing the training path into specific time periods (quarters), each lasting a certain period, which helps organize the training process and periodically evaluate the trainee\'s progress.') }}
+                        نظام الفصول هو تقسيم المسار التدريبي إلى فترات زمنية محددة (فصول)، كل منها يمتد فترة معينة، مما يساعد في تنظيم العملية التدريبية وتقييم تقدم المتدرب بشكل دوري.
                     </div>
                 </div>
             </div>
@@ -349,12 +308,12 @@
             <div class="accordion-item">
                 <h2 class="accordion-header">
                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
-                        {{ __('What payment methods are available?') }}
+                        ما طرق الدفع المتاحة؟
                     </button>
                 </h2>
                 <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
                     <div class="accordion-body">
-                        {{ __('We provide several payment methods including: credit cards, Mada, bank transfer, and payment upon registration. We also offer installment options for long paths.') }}
+                        نوفر عدة طرق للدفع تشمل: البطاقات الائتمانية، مدى، التحويل البنكي، والدفع عند التسجيل. كما نتيح خيارات التقسيط للمسارات الطويلة.
                     </div>
                 </div>
             </div>
@@ -362,12 +321,12 @@
             <div class="accordion-item">
                 <h2 class="accordion-header">
                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
-                        {{ __('What if I need technical support?') }}
+                        ماذا لو احتجت دعماً فنياً؟
                     </button>
                 </h2>
                 <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
                     <div class="accordion-body">
-                        {{ __('The technical support team is available around the clock to answer your inquiries and solve any technical problems you may encounter. You can contact us via phone, email, or ticket system.') }}
+                        فريق الدعم الفني متاح على مدار الساعة للإجابة على استفساراتك وحل أي مشكلة تقنية تواجهها. يمكنك التواصل معنا عبر الهاتف، البريد الإلكتروني، أو نظام التذاكر.
                     </div>
                 </div>
             </div>

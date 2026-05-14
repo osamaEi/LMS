@@ -23,7 +23,7 @@ class PermissionHelper
         'users'                => ['name' => 'إدارة المستخدمين',                'match' => ['user']],
         'teachers'             => ['name' => 'إدارة المعلمين',                  'match' => ['teacher']],
         'students'             => ['name' => 'إدارة الطلاب',                    'match' => ['student']],
-        'programs'             => ['name' => 'الدبلومات  التعليمية',              'match' => ['program']],
+        'programs'             => ['name' => 'الدبلومات    التعليمية',              'match' => ['program']],
         'terms'                => ['name' => 'الفصول الدراسية',                'match' => ['term']],
         'subjects'             => ['name' => 'المقررات  الدراسية',                 'match' => ['subject']],
         'sessions'             => ['name' => 'الجلسات والمحاضرات',              'match' => ['session', 'zoom']],

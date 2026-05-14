@@ -261,6 +261,29 @@
         border-color: var(--main-color);
     }
 
+    /* Course type filter buttons */
+    .course-flt {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: .42rem 1rem;
+        border-radius: 8px;
+        font-size: .8rem;
+        font-weight: 700;
+        border: 1.5px solid #e5e7eb;
+        background: #f9fafb;
+        color: #6b7280;
+        cursor: pointer;
+        transition: all .17s;
+        white-space: nowrap;
+        flex-shrink: 0;
+        font-family: inherit;
+    }
+    .course-flt:hover               { background: #eaf5fb; color: #0071AA; border-color: #0071AA; }
+    .course-flt.active              { background: #0071AA; color: #fff; border-color: #0071AA; }
+    .course-flt.developmental.active{ background: #2563eb; border-color: #2563eb; }
+    .course-flt.qualifying.active   { background: #7c3aed; border-color: #7c3aed; }
+
     @media (max-width: 768px) {
         .courses-section,
         .faq-section {
@@ -292,17 +315,41 @@
         </div>
     </div>
 
+    <!-- Course Type Filter -->
+    @if(!$programs->isEmpty())
+    <div style="background:#fff;border-bottom:1px solid #e5e7eb;position:sticky;top:0;z-index:200;box-shadow:0 2px 12px rgba(0,0,0,.06);">
+        <div class="container" style="max-width:1400px;">
+            <div style="display:flex;align-items:center;gap:.5rem;padding:.75rem 1rem;overflow-x:auto;scrollbar-width:none;">
+                <button class="course-flt active" onclick="filterCourses('all',this)">
+                    <i class="bi bi-grid-3x3-gap-fill"></i> الكل
+                </button>
+                <button class="course-flt developmental" onclick="filterCourses('developmental',this)">
+                    <i class="bi bi-graph-up-arrow"></i> تطويري
+                </button>
+                <button class="course-flt qualifying" onclick="filterCourses('qualifying',this)">
+                    <i class="bi bi-mortarboard-fill"></i> تأهيلي
+                </button>
+                <span id="courseCount" style="margin-right:auto;font-size:.78rem;font-weight:700;color:#6b7280;white-space:nowrap;display:inline-flex;align-items:center;gap:5px;">
+                    <i class="bi bi-card-list" style="color:#0071AA;"></i>
+                    {{ $programs->count() }} دورة
+                </span>
+            </div>
+        </div>
+    </div>
+    @endif
+
     <!-- Courses Section -->
     <section class="courses-section mb-5">
         <div class="head">
-            <h2>{{ __('Choose the Right Course for You') }}</h2>
+            <h2>اختر الدورة المناسبة لك</h2>
             <p>
-                {{ __('Our courses are designed to develop your skills quickly and effectively in multiple fields, officially accredited and suitable for students and professionals seeking to enhance their expertise without committing to a long path.') }}
+                دوراتنا مصممة لتطوير مهاراتك بسرعة وفعالية في مجالات متعددة،
+                معتمدة رسمياً وتناسب الطلاب والمهنيين الساعين لتعزيز خبراتهم.
             </p>
         </div>
 
         @if($programs->isEmpty())
-            <p class="text-center text-muted py-5">{{ __('No courses available at the moment.') }}</p>
+            <p class="text-center text-muted py-5">لا توجد دورات متاحة حالياً.</p>
         @else
         @php
             $courseImages = [
@@ -314,11 +361,17 @@
                 'lms2-photo/6.png',
             ];
         @endphp
-        <div class="courses-container">
+        <div class="courses-container" id="coursesGrid">
             @foreach($programs as $program)
-            <div class="course-card-wrapper">
+            <div class="course-card-wrapper" data-course-type="{{ $program->course_type }}">
                 <div class="course-card">
                     <img src="{{ $program->image ? asset('storage/' . $program->image) : asset($courseImages[$loop->index % count($courseImages)]) }}" alt="{{ $program->name_ar }}" />
+                    {{-- Type badge --}}
+                    @if($program->course_type === 'developmental')
+                        <span class="course-badge" style="background:#2563eb;">تطويري</span>
+                    @elseif($program->course_type === 'qualifying')
+                        <span class="course-badge" style="background:#7c3aed;">تأهيلي</span>
+                    @endif
                     <div class="card-body">
                         <h5 class="card-title">{{ app()->getLocale() === 'en' ? ($program->name_en ?: $program->name_ar) : $program->name_ar }}</h5>
                         <p class="card-text">{{ Str::limit(app()->getLocale() === 'en' ? ($program->description_en ?: $program->description_ar) : $program->description_ar, 100) }}</p>
@@ -434,4 +487,22 @@
             </div>
         </div>
     </section>
+@endsection
+
+@section('scripts')
+<script>
+function filterCourses(type, btn) {
+    document.querySelectorAll('.course-flt').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    let n = 0;
+    document.querySelectorAll('#coursesGrid .course-card-wrapper').forEach(card => {
+        const cardType = card.dataset.courseType || '';
+        const show = type === 'all' || cardType === type;
+        card.style.display = show ? '' : 'none';
+        if (show) n++;
+    });
+    document.getElementById('courseCount').innerHTML =
+        `<i class="bi bi-card-list" style="color:#0071AA;"></i> ${n} دورة`;
+}
+</script>
 @endsection

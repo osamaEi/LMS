@@ -4,537 +4,672 @@
 
 @section('styles')
 <style>
-/* ── Hero ── */
-.offers-hero {
-    background: linear-gradient(135deg, #7c2d12 0%, #b45309 30%, #d97706 60%, #f59e0b 85%, #fbbf24 100%);
-    padding: 4rem clamp(1.5rem, 5vw, 5rem) 6rem;
-    position: relative;
-    overflow: hidden;
-}
-.offers-hero::before {
-    content:'';
-    position:absolute; inset:0;
-    background:
-        radial-gradient(ellipse at 15% 60%, rgba(255,255,255,.12) 0%, transparent 55%),
-        radial-gradient(ellipse at 85% 15%, rgba(251,191,36,.25) 0%, transparent 50%),
-        radial-gradient(ellipse at 50% 100%, rgba(0,0,0,.15) 0%, transparent 60%);
-}
-.hero-blob {
-    position:absolute; border-radius:50%;
-    background: rgba(255,255,255,.08);
-    animation: floatBlob 8s ease-in-out infinite;
-}
-.hero-blob-2 {
-    position:absolute; border-radius:50%;
-    background: rgba(251,191,36,.18);
-    animation: floatBlob 11s ease-in-out infinite reverse;
-}
-@keyframes floatBlob {
-    0%,100% { transform: translateY(0) scale(1); }
-    50%      { transform: translateY(-18px) scale(1.06); }
-}
-.offers-hero .container { position:relative; z-index:2; }
+    /* ── Offer Cards ── */
+    .offer-card {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        transition: transform 0.3s, box-shadow 0.3s;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
 
-/* ── Hero label badge ── */
-.hero-label-badge {
-    display:inline-flex; align-items:center; gap:.55rem;
-    background: rgba(255,255,255,.2); backdrop-filter:blur(10px);
-    border: 1.5px solid rgba(255,255,255,.4);
-    border-radius: 50px; padding:.4rem 1.1rem;
-    margin-bottom: 1rem;
-}
-.hero-label-badge .badge-dot {
-    width:8px; height:8px; border-radius:50%;
-    background:#fde68a; box-shadow:0 0 0 3px rgba(253,230,138,.35);
-    flex-shrink:0; animation: pulseDot 2s infinite;
-}
-@keyframes pulseDot {
-    0%,100%{ box-shadow:0 0 0 3px rgba(253,230,138,.35); }
-    50%    { box-shadow:0 0 0 7px rgba(253,230,138,.12); }
-}
-.hero-label-badge span { color:#fef3c7; font-size:.8rem; font-weight:800; letter-spacing:.04em; }
+    .offer-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+    }
 
-/* ── Stat chips ── */
-.stat-chips { display:flex; gap:.85rem; flex-wrap:wrap; margin-top:1.75rem; }
-.stat-chip {
-    display:inline-flex; align-items:center; gap:.5rem;
-    background: rgba(255,255,255,.18); backdrop-filter:blur(10px);
-    border: 1.5px solid rgba(255,255,255,.3);
-    border-radius: 50px; padding: .5rem 1.15rem;
-    color:#fff; font-size:.82rem; font-weight:700;
-    box-shadow: 0 2px 12px rgba(0,0,0,.12);
-}
-.stat-chip i { font-size:1rem; color:#fde68a; }
-.stat-chip .chip-num { font-size:1.05rem; font-weight:900; }
+    .offer-card.is-expired {
+        opacity: 0.65;
+    }
 
-/* ── Filter bar ── */
-.filter-bar {
-    background:#fff; border-radius:20px;
-    box-shadow: 0 8px 30px rgba(0,0,0,.1), 0 1px 4px rgba(0,0,0,.05);
-    padding:1rem 1.5rem;
-    display:flex; align-items:center; gap:.75rem; flex-wrap:wrap;
-    margin: -2.5rem auto 2.5rem;
-    position:relative; z-index:10;
-    border: 1px solid rgba(0,0,0,.04);
-}
-.filter-bar-label {
-    font-size:.75rem; font-weight:800; color:#9ca3af;
-    text-transform:uppercase; letter-spacing:.08em;
-    white-space:nowrap; margin-left:.25rem;
-}
-[dir="ltr"] .filter-bar-label { margin-left:0; margin-right:.25rem; }
-.filter-btn {
-    padding:.5rem 1.15rem; border-radius:50px; font-size:.82rem; font-weight:700;
-    border: 2px solid #e5e7eb; background:#f9fafb; color:#6b7280;
-    cursor:pointer; transition:all .22s; white-space:nowrap;
-    display:inline-flex; align-items:center; gap:.35rem;
-}
-.filter-btn:hover {
-    border-color:#d97706; background:#fff7ed; color:#d97706;
-    transform:translateY(-1px);
-}
-.filter-btn.active {
-    border-color:#d97706; background:linear-gradient(135deg,#d97706,#f59e0b); color:#fff;
-    box-shadow: 0 3px 12px rgba(217,119,6,.35);
-}
-.filter-count {
-    margin-right:auto;
-    font-size:.8rem; color:#6b7280; font-weight:700;
-    background:#f3f4f6; padding:.3rem .85rem; border-radius:20px;
-}
-[dir="ltr"] .filter-count { margin-right:0; margin-left:auto; }
+    .offer-card.is-expired .full-btn {
+        background: #9ca3af !important;
+        pointer-events: none;
+    }
 
-/* ── Cards Grid ── */
-.offers-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 1.5rem;
-}
+    /* Image / Discount visual area */
+    .offer-img-wrap {
+        position: relative;
+        height: 200px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
 
-.offer-card {
-    background:#fff; border-radius:20px;
-    box-shadow: 0 2px 12px rgba(0,0,0,.06);
-    overflow:hidden;
-    transition: transform .25s, box-shadow .25s;
-    border: 1px solid #f3f4f6;
-    position:relative;
-    display:flex; flex-direction:column;
-}
-.offer-card:hover {
-    transform:translateY(-5px);
-    box-shadow: 0 12px 35px rgba(0,0,0,.12);
-}
+    .offer-img-wrap.type-pct  { background: linear-gradient(135deg, #0071AA 0%, #0ea5e9 100%); }
+    .offer-img-wrap.type-fix  { background: linear-gradient(135deg, #059669 0%, #34d399 100%); }
+    .offer-img-wrap.type-ovr  { background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%); }
 
-/* top color band */
-.offer-card-band {
-    height:6px;
-}
+    .offer-disc-display {
+        text-align: center;
+        color: #fff;
+    }
 
-/* discount badge */
-.discount-badge {
-    position:absolute; top:1rem; left:1rem;
-    width:64px; height:64px; border-radius:50%;
-    display:flex; flex-direction:column; align-items:center; justify-content:center;
-    font-weight:900; color:#fff;
-    box-shadow: 0 4px 15px rgba(0,0,0,.2);
-    line-height:1;
-    z-index:5;
-}
-[dir="ltr"] .discount-badge { left:auto; right:1rem; }
-.discount-badge .disc-val { font-size:1.2rem; }
-.discount-badge .disc-unit { font-size:.6rem; opacity:.85; margin-top:.1rem; }
+    .offer-disc-display .disc-num {
+        font-size: clamp(3rem, 8vw, 4.5rem);
+        font-weight: 900;
+        line-height: 1;
+        letter-spacing: -0.03em;
+        display: block;
+        text-shadow: 0 2px 12px rgba(0,0,0,.2);
+    }
 
-/* offer image */
-.offer-img {
-    width:100%; height:160px; object-fit:cover;
-}
-.offer-img-placeholder {
-    width:100%; height:160px;
-    display:flex; align-items:center; justify-content:center;
-    font-size:3.5rem;
-}
+    .offer-disc-display .disc-unit {
+        font-size: 1.2rem;
+        font-weight: 700;
+        opacity: 0.85;
+        display: block;
+        margin-top: 0.25rem;
+    }
 
-.offer-body { padding:1.25rem; flex:1; display:flex; flex-direction:column; gap:.75rem; }
+    .offer-disc-display .disc-lbl {
+        font-size: 0.75rem;
+        font-weight: 700;
+        opacity: 0.7;
+        display: block;
+        margin-top: 0.15rem;
+        letter-spacing: 0.05em;
+    }
 
-.offer-title { font-size:1rem; font-weight:800; color:#1f2937; line-height:1.4; }
-.offer-desc  { font-size:.82rem; color:#6b7280; line-height:1.6; flex:1; }
+    /* Badge */
+    .offer-badge {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: rgba(255,255,255,.22);
+        backdrop-filter: blur(4px);
+        border: 1px solid rgba(255,255,255,.35);
+        color: white;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 700;
+    }
+    [dir="ltr"] .offer-badge { right: auto; left: 15px; }
 
-.offer-meta {
-    display:flex; flex-wrap:wrap; gap:.5rem;
-}
-.offer-tag {
-    display:inline-flex; align-items:center; gap:.35rem;
-    font-size:.73rem; font-weight:700; padding:.25rem .7rem; border-radius:20px;
-}
-.tag-program  { background:#dbeafe; color:#1d4ed8; }
-.tag-date     { background:#fef3c7; color:#92400e; }
-.tag-uses     { background:#dcfce7; color:#15803d; }
-.tag-override { background:#ede9fe; color:#6d28d9; }
+    /* Status pill */
+    .offer-status {
+        position: absolute;
+        bottom: 12px;
+        left: 12px;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 0.68rem;
+        font-weight: 800;
+        padding: 3px 10px;
+        border-radius: 6px;
+    }
+    [dir="ltr"] .offer-status { left: auto; right: 12px; }
+    .st-active   { background: #dcfce7; color: #15803d; }
+    .st-expired  { background: #fee2e2; color: #dc2626; }
+    .st-upcoming { background: #dbeafe; color: #1d4ed8; }
 
-/* code copy box */
-.code-box {
-    display:flex; align-items:center; gap:.5rem;
-    background:#f9fafb; border:1.5px dashed #d1d5db;
-    border-radius:10px; padding:.55rem .9rem;
-    margin-top:.25rem;
-}
-.code-box code {
-    font-family:monospace; font-size:.95rem; font-weight:800;
-    letter-spacing:2px; color:#374151; flex:1;
-}
-.code-copy-btn {
-    background:#f3f4f6; border:none; border-radius:7px;
-    width:30px; height:30px; display:flex; align-items:center; justify-content:center;
-    cursor:pointer; transition:all .2s; color:#6b7280; flex-shrink:0;
-}
-.code-copy-btn:hover { background:#d97706; color:#fff; }
-.code-copy-btn.copied { background:#10b981; color:#fff; }
+    /* Card body */
+    .offer-card .card-body {
+        padding: 1.25rem 1.5rem;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
 
-/* countdown */
-.countdown-wrap {
-    display:flex; gap:.5rem; justify-content:center;
-    padding:.65rem; background:#fffbeb; border-radius:10px;
-    border:1px solid #fde68a;
-}
-.cd-unit { text-align:center; }
-.cd-num { font-size:1.25rem; font-weight:900; color:#b45309; line-height:1; }
-.cd-lbl { font-size:.58rem; color:#92400e; font-weight:700; margin-top:.1rem; }
-.cd-sep { font-size:1.2rem; font-weight:900; color:#fbbf24; align-self:flex-start; padding-top:2px; }
+    .offer-card .card-title {
+        font-weight: 800;
+        font-size: 1rem;
+        margin-bottom: 0.35rem;
+        color: #1e293b;
+        line-height: 1.4;
+    }
 
-/* badge — expired / upcoming */
-.status-ribbon {
-    position:absolute; top:1rem; right:1rem;
-    font-size:.68rem; font-weight:800; padding:.3rem .75rem; border-radius:20px;
-    z-index:5;
-}
-[dir="ltr"] .status-ribbon { right:auto; left:1rem; }
-.ribbon-expired  { background:#fee2e2; color:#dc2626; }
-.ribbon-upcoming { background:#dbeafe; color:#1d4ed8; }
+    .offer-card .card-program {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.82rem;
+        color: #64748b;
+        font-weight: 600;
+        margin-bottom: 0.85rem;
+    }
+    .offer-card .card-program i { color: #0071AA; }
 
-/* register CTA */
-.offer-cta {
-    display:block; text-align:center;
-    background:linear-gradient(135deg, #d97706, #f59e0b);
-    color:#fff !important; font-weight:800; font-size:.88rem;
-    padding:.7rem 1rem; border-radius:12px;
-    text-decoration:none; transition:all .2s;
-    margin-top:.25rem;
-}
-.offer-cta:hover { transform:translateY(-1px); box-shadow:0 5px 18px rgba(217,119,6,.4); }
+    .offer-card .course-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: auto;
+        padding-top: 0.85rem;
+        border-top: 1px solid #f1f5f9;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
 
-/* no offers */
-.no-offers {
-    grid-column:1/-1; text-align:center; padding:4rem 1rem;
-}
+    .offer-card .meta-date {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 0.78rem;
+        font-weight: 700;
+        color: #92400e;
+        background: #fef3c7;
+        padding: 3px 10px;
+        border-radius: 6px;
+    }
 
-/* expired/inactive card overlay */
-.card-expired { opacity:.6; }
-.card-expired .offer-cta { background:#9ca3af; pointer-events:none; }
+    .offer-card .meta-seats {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 0.78rem;
+        font-weight: 700;
+        color: #166534;
+        background: #dcfce7;
+        padding: 3px 10px;
+        border-radius: 6px;
+    }
 
-@media(max-width:576px) {
-    .offers-grid { grid-template-columns:1fr; }
-    .filter-bar { flex-wrap:wrap; }
-}
+    /* Countdown */
+    .offer-countdown {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.3rem;
+        background: linear-gradient(135deg, #0071AA, #0ea5e9);
+        border-radius: 10px;
+        padding: 0.7rem 0.5rem;
+        margin-top: 0.85rem;
+    }
+    .offer-countdown .cd-box { text-align: center; }
+    .offer-countdown .cd-num {
+        display: block;
+        font-size: 1.25rem;
+        font-weight: 900;
+        color: #fff;
+        line-height: 1;
+        font-variant-numeric: tabular-nums;
+    }
+    .offer-countdown .cd-lbl {
+        display: block;
+        font-size: 0.5rem;
+        font-weight: 700;
+        color: rgba(255,255,255,.55);
+        margin-top: 2px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+    .offer-countdown .cd-sep {
+        color: rgba(255,255,255,.35);
+        font-weight: 900;
+        font-size: 1.1rem;
+        align-self: flex-start;
+        padding-top: 2px;
+        flex-shrink: 0;
+    }
+
+    /* Code box */
+    .offer-code {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: #f8fafc;
+        border: 1.5px dashed #cbd5e1;
+        border-radius: 10px;
+        padding: 0.5rem 0.75rem;
+        margin-top: 0.75rem;
+    }
+    .offer-code .code-lbl {
+        font-size: 0.62rem;
+        font-weight: 800;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        white-space: nowrap;
+    }
+    .offer-code code {
+        font-family: 'Courier New', monospace;
+        font-size: 0.88rem;
+        font-weight: 900;
+        letter-spacing: 2.5px;
+        color: #1e293b;
+        flex: 1;
+    }
+    .offer-copy {
+        width: 30px;
+        height: 30px;
+        border-radius: 7px;
+        border: none;
+        background: #fff;
+        color: #94a3b8;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 0.8rem;
+        flex-shrink: 0;
+        box-shadow: 0 1px 3px rgba(0,0,0,.1);
+        transition: all 0.18s;
+    }
+    .offer-copy:hover  { background: #0071AA; color: #fff; }
+    .offer-copy.copied { background: #10b981; color: #fff; }
+
+    /* CTA row */
+    .offer-cta {
+        padding: 0 1.5rem 1.25rem;
+        margin-top: auto;
+    }
+
+    /* Filter bar */
+    .offer-filter-bar {
+        background: #fff;
+        border-bottom: 1px solid #e5e7eb;
+        position: sticky;
+        top: 0;
+        z-index: 200;
+        box-shadow: 0 2px 12px rgba(0,0,0,.06);
+    }
+    .offer-filter-inner {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1rem;
+        overflow-x: auto;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+    }
+    .offer-filter-inner::-webkit-scrollbar { display: none; }
+
+    .offer-flt {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 0.42rem 1rem;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        border: 1.5px solid #e5e7eb;
+        background: #f9fafb;
+        color: #6b7280;
+        cursor: pointer;
+        transition: all 0.17s;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+    .offer-flt:hover  { background: #eaf5fb; color: #0071AA; border-color: #0071AA; }
+    .offer-flt.active { background: #0071AA; color: #fff; border-color: #0071AA; }
+    .offer-flt i { font-size: 0.78rem; }
+
+    .offer-count {
+        margin-right: auto;
+        flex-shrink: 0;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 0.78rem;
+        font-weight: 700;
+        color: #6b7280;
+        white-space: nowrap;
+    }
+    [dir="ltr"] .offer-count { margin-right: 0; margin-left: auto; }
+    .offer-count i { color: #0071AA; }
+
+    /* Courses section wrapper */
+    .offers-section {
+        padding: 2rem clamp(1rem, 3vw, 3rem);
+        background: #f9fafb;
+        min-height: 50vh;
+    }
+
+    .offers-section .head {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .offers-section .head h2 {
+        margin: 1rem 0 0.5rem;
+        font-weight: bold;
+    }
+
+    .offers-section .head p {
+        max-width: 700px;
+        margin: 0 auto;
+        line-height: 1.8;
+        color: rgba(56, 66, 80, 1);
+        font-size: 0.95rem;
+    }
+
+    /* Offer card wrapper (for relative badge positioning) */
+    .offer-card-wrapper {
+        position: relative;
+    }
+
+    /* Empty state */
+    .offers-empty {
+        text-align: center;
+        padding: 5rem 1rem;
+        color: #94a3b8;
+        grid-column: 1 / -1;
+    }
+    .offers-empty-ico {
+        width: 80px;
+        height: 80px;
+        border-radius: 20px;
+        background: #f1f5f9;
+        border: 1.5px solid #e2e8f0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.2rem;
+        margin: 0 auto 1.25rem;
+        color: #cbd5e1;
+    }
+    .offers-empty h3 { font-size: 1.05rem; font-weight: 800; color: #1e293b; margin-bottom: 0.4rem; }
+    .offers-empty p  { font-size: 0.88rem; margin: 0; }
+
+    /* Featured Banner */
+    .featured-banner {
+        margin: 0 clamp(1rem, 3vw, 3rem) 2rem;
+        border-radius: 20px;
+        overflow: hidden;
+        position: relative;
+        height: 280px;
+    }
+    .featured-banner img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center 30%;
+    }
+    .featured-banner .overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to left, rgba(0,71,130,0.75) 0%, rgba(0,113,170,0.4) 60%);
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        padding: 2rem clamp(1rem, 4vw, 4rem);
+    }
+    [dir="rtl"] .featured-banner .overlay {
+        background: linear-gradient(to right, rgba(0,71,130,0.75) 0%, rgba(0,113,170,0.4) 60%);
+    }
+    .featured-banner .overlay h3 { color: white; font-size: clamp(1.2rem, 3vw, 1.8rem); margin-bottom: 0.5rem; font-weight: 800; }
+    .featured-banner .overlay p  { color: rgba(255,255,255,.85); font-size: 0.95rem; margin: 0; }
+
+    @media (max-width: 768px) {
+        .featured-banner { height: 180px; margin: 0 1rem 1.5rem; }
+        .offers-section  { padding: 1.5rem 1rem; }
+    }
 </style>
 @endsection
 
 @section('content')
 
-{{-- ── Hero ── --}}
-<div class="offers-hero">
-    {{-- floating blobs --}}
-    <div class="hero-blob"   style="width:360px;height:360px;top:-100px;right:-70px;animation-delay:0s;"></div>
-    <div class="hero-blob"   style="width:200px;height:200px;bottom:-50px;left:8%;animation-delay:3s;"></div>
-    <div class="hero-blob-2" style="width:140px;height:140px;top:30%;left:3%;animation-delay:1.5s;"></div>
-    <div class="hero-blob-2" style="width:90px;height:90px;bottom:15%;right:20%;animation-delay:5s;"></div>
+{{-- Hero Section --}}
+<section class="hero-section">
+    <div class="breadcrumb-nav">
+        <a href="{{ route('home') }}">الرئيسية</a>
+        <span>></span>
+        <span>العروض والخصومات</span>
+    </div>
+    <h2>العروض والخصومات</h2>
+    <p>استفد من عروضنا الحصرية على برامجنا التدريبية المعتمدة — خصومات محدودة المدة لا تفوّتها.</p>
+</section>
 
-    <div class="container">
-        {{-- breadcrumb --}}
-        <div style="display:flex;align-items:center;gap:.4rem;margin-bottom:1.5rem;">
-            <a href="{{ route('home') }}" style="color:rgba(255,255,255,.65);font-size:.8rem;text-decoration:none;transition:color .2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,.65)'">الرئيسية</a>
-            <i class="bi bi-chevron-left" style="color:rgba(255,255,255,.4);font-size:.65rem;"></i>
-            <span style="color:#fde68a;font-size:.8rem;font-weight:700;">العروض والخصومات</span>
-        </div>
-
-        <div style="display:flex;align-items:center;gap:2rem;flex-wrap:wrap;">
-            <div style="flex:1;min-width:280px;">
-
-                {{-- label badge --}}
-                <div class="hero-label-badge">
-                    <span class="badge-dot"></span>
-                    <span>🏷️ عروض حصرية ومحدودة</span>
-                </div>
-
-                {{-- main heading --}}
-                <h1 style="color:#fff;font-size:clamp(1.75rem,4.5vw,2.8rem);font-weight:900;line-height:1.18;margin:0 0 1rem;text-shadow:0 2px 16px rgba(0,0,0,.25);">
-                    العروض<br>
-                    <span style="color:#fde68a;">والخصومات</span>
-                </h1>
-
-                {{-- sub text --}}
-                <p style="color:rgba(255,255,255,.9);font-size:.95rem;line-height:1.75;max-width:500px;margin:0;text-shadow:0 1px 6px rgba(0,0,0,.2);">
-                    استفد من عروضنا الحصرية على البرامج التدريبية —
-                    <strong style="color:#fde68a;">وفّر على رسوم التسجيل</strong>
-                    واستثمر في مستقبلك المهني.
-                </p>
-
-                {{-- stat chips --}}
-                <div class="stat-chips">
-                    <div class="stat-chip">
-                        <i class="bi bi-tags-fill"></i>
-                        <span class="chip-num">{{ $stats['total'] }}</span>
-                        <span>عرض متاح</span>
-                    </div>
-                    <div class="stat-chip">
-                        <i class="bi bi-lightning-charge-fill"></i>
-                        <span class="chip-num">{{ $stats['active'] }}</span>
-                        <span>نشط الآن</span>
-                    </div>
-                    @if($stats['upcoming'] > 0)
-                    <div class="stat-chip">
-                        <i class="bi bi-hourglass-split"></i>
-                        <span class="chip-num">{{ $stats['upcoming'] }}</span>
-                        <span>قادم قريباً</span>
-                    </div>
-                    @endif
-                </div>
-            </div>
-
-            {{-- decorative icon box --}}
-            <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:1rem;">
-                <div style="width:120px;height:120px;background:rgba(255,255,255,.18);border-radius:28px;display:flex;align-items:center;justify-content:center;font-size:4rem;backdrop-filter:blur(12px);border:2px solid rgba(255,255,255,.35);box-shadow:0 8px 32px rgba(0,0,0,.2);">
-                    🏷️
-                </div>
-                <div style="background:rgba(253,230,138,.25);border:1.5px solid rgba(253,230,138,.5);border-radius:12px;padding:.45rem 1rem;text-align:center;">
-                    <div style="color:#fde68a;font-size:1.4rem;font-weight:900;line-height:1;">{{ $stats['active'] }}</div>
-                    <div style="color:rgba(255,255,255,.8);font-size:.68rem;font-weight:700;margin-top:.1rem;">عرض نشط</div>
-                </div>
-            </div>
+{{-- Featured Banner --}}
+<div class="featured-banner">
+    <img loading="lazy" src="{{ asset('lms-photos/3.png') }}" alt="العروض والخصومات" onerror="this.src='{{ asset('lms-photos/1.png') }}'" />
+    <div class="overlay">
+        <div>
+            <h3>عروض حصرية على برامجنا التدريبية</h3>
+            <p>سجّل الآن واستفد من أفضل الأسعار والخصومات المتاحة</p>
         </div>
     </div>
 </div>
 
-{{-- ── Offers Container ── --}}
-<div class="container" style="padding-top:0;padding-bottom:4rem;">
+{{-- Filter Bar --}}
+<div class="offer-filter-bar">
+    <div class="container">
+        <div class="offer-filter-inner">
+            <button class="offer-flt active" onclick="filterOffers('all',this)">
+                <i class="bi bi-grid-3x3-gap-fill"></i> الكل
+            </button>
+            <button class="offer-flt" onclick="filterOffers('percentage',this)">
+                <i class="bi bi-percent"></i> نسبة مئوية
+            </button>
+            <button class="offer-flt" onclick="filterOffers('fixed',this)">
+                <i class="bi bi-cash-coin"></i> مبلغ ثابت
+            </button>
+            @if($stats['has_override'])
+            <button class="offer-flt" onclick="filterOffers('override',this)">
+                <i class="bi bi-tag-fill"></i> سعر مباشر
+            </button>
+            @endif
+            <span class="offer-count" id="visibleCount">
+                <i class="bi bi-card-list"></i> {{ $offers->count() }} عرض
+            </span>
+        </div>
+    </div>
+</div>
 
-    {{-- Filter bar --}}
-    <div class="filter-bar">
-        <span class="filter-bar-label"><i class="bi bi-funnel-fill" style="color:#d97706;"></i> تصفية</span>
-        <button class="filter-btn active" onclick="filterOffers('all', this)">🔍 الكل</button>
-        <button class="filter-btn" onclick="filterOffers('percentage', this)">📊 نسبة مئوية</button>
-        <button class="filter-btn" onclick="filterOffers('fixed', this)">💰 مبلغ ثابت</button>
-        @if($stats['has_override'])
-        <button class="filter-btn" onclick="filterOffers('override', this)">🏷️ سعر مباشر</button>
-        @endif
-        <span class="filter-count" id="visibleCount">{{ $offers->count() }} عرض</span>
+{{-- Offers Grid --}}
+<section class="offers-section">
+    <div class="head">
+        <p class="st-p">عروض وخصومات</p>
+        <h2>اختر العرض المناسب لك</h2>
+        <p>خصومات حصرية على برامجنا التدريبية المعتمدة — عروض محدودة المدة تنتهي قريباً.</p>
     </div>
 
-    {{-- Grid --}}
-    <div class="offers-grid" id="offersGrid">
+    <div class="courses-container" id="offersGrid">
 
-        @forelse($offers as $offer)
-        @php
-            $isActive   = $offer->is_active;
-            $isExpired  = $offer->is_expired;
-            $isUpcoming = $offer->is_upcoming;
+    @forelse($offers as $offer)
+    @php
+        $isActive   = $offer->is_active;
+        $isExpired  = $offer->is_expired;
+        $isUpcoming = $offer->is_upcoming;
 
-            $colors = match($offer->discount_type) {
-                'percentage' => ['band'=>'linear-gradient(90deg,#0ea5e9,#3b82f6)', 'badge'=>'#2563eb', 'emoji'=>'📊'],
-                'fixed'      => ['band'=>'linear-gradient(90deg,#10b981,#059669)', 'badge'=>'#059669', 'emoji'=>'💰'],
-                'override'   => ['band'=>'linear-gradient(90deg,#8b5cf6,#a855f7)', 'badge'=>'#7c3aed', 'emoji'=>'🏷️'],
-                default      => ['band'=>'linear-gradient(90deg,#d97706,#f59e0b)', 'badge'=>'#d97706', 'emoji'=>'🏷️'],
-            };
+        if ($offer->discount_type === 'percentage') {
+            $dNum   = number_format($offer->discount_value, 0);
+            $dUnit  = '%';
+            $dLabel = 'نسبة خصم';
+            $typeClass = 'type-pct';
+            $badgeText = 'خصم نسبي';
+        } elseif ($offer->discount_type === 'fixed') {
+            $dNum   = number_format($offer->discount_value, 0);
+            $dUnit  = 'ر.س';
+            $dLabel = 'خصم ثابت';
+            $typeClass = 'type-fix';
+            $badgeText = 'خصم ثابت';
+        } else {
+            $dNum   = number_format($offer->offer_price, 0);
+            $dUnit  = 'ر.س';
+            $dLabel = 'سعر مباشر';
+            $typeClass = 'type-ovr';
+            $badgeText = 'سعر مباشر';
+        }
+    @endphp
 
-            // build discount label
-            if ($offer->discount_type === 'percentage') {
-                $discVal  = number_format($offer->discount_value, 0);
-                $discUnit = '%';
-            } elseif ($offer->discount_type === 'fixed') {
-                $discVal  = number_format($offer->discount_value, 0);
-                $discUnit = 'ر.س';
-            } else {
-                $discVal  = number_format($offer->offer_price, 0);
-                $discUnit = 'ر.س';
-            }
-        @endphp
+    <div class="offer-card-wrapper" data-type="{{ $offer->discount_type }}">
+        <div class="offer-card {{ $isExpired ? 'is-expired' : '' }}">
 
-        <div class="offer-card {{ $isExpired ? 'card-expired' : '' }}"
-             data-type="{{ $offer->discount_type }}">
+            {{-- Discount visual top --}}
+            <div class="offer-img-wrap {{ $typeClass }}">
+                <div class="offer-disc-display">
+                    <span class="disc-num">{{ $dNum }}</span>
+                    <span class="disc-unit">{{ $dUnit }}</span>
+                    <span class="disc-lbl">{{ $dLabel }}</span>
+                </div>
 
-            {{-- top band --}}
-            <div class="offer-card-band" style="background:{{ $colors['band'] }};"></div>
+                {{-- Type badge --}}
+                <span class="offer-badge">{{ $badgeText }}</span>
 
-            {{-- status ribbon --}}
-            @if($isExpired)
-                <span class="status-ribbon ribbon-expired">منتهي</span>
-            @elseif($isUpcoming)
-                <span class="status-ribbon ribbon-upcoming">قادم</span>
-            @endif
-
-            {{-- discount badge --}}
-            <div class="discount-badge" style="background:{{ $colors['badge'] }};">
-                <span class="disc-val">{{ $discVal }}</span>
-                <span class="disc-unit">{{ $discUnit }}</span>
+                {{-- Status pill --}}
+                @if($isExpired)
+                    <span class="offer-status st-expired"><i class="bi bi-x-circle-fill"></i> منتهي</span>
+                @elseif($isUpcoming)
+                    <span class="offer-status st-upcoming"><i class="bi bi-clock-fill"></i> قادم قريباً</span>
+                @else
+                    <span class="offer-status st-active"><i class="bi bi-circle-fill" style="font-size:.4rem;"></i> نشط الآن</span>
+                @endif
             </div>
 
-            {{-- image / placeholder --}}
-            @if($offer->image)
-                <img src="{{ asset('storage/'.$offer->image) }}" alt="{{ $offer->title_ar }}" class="offer-img">
-            @else
-                <div class="offer-img-placeholder" style="background:linear-gradient(135deg,#fef3c7,#fde68a);">
-                    {{ $colors['emoji'] }}
-                </div>
-            @endif
+            {{-- Card body --}}
+            <div class="card-body">
+                <h5 class="card-title">{{ $offer->title_ar }}</h5>
 
-            {{-- body --}}
-            <div class="offer-body">
-                <h3 class="offer-title">{{ $offer->title_ar }}</h3>
+                <p class="card-program">
+                    <i class="bi bi-mortarboard-fill"></i>
+                    {{ $offer->program ? Str::limit($offer->program->name_ar, 35) : 'جميع البرامج التدريبية' }}
+                </p>
 
-                @if($offer->description_ar)
-                <p class="offer-desc">{{ Str::limit($offer->description_ar, 100) }}</p>
-                @endif
-
-                {{-- meta tags --}}
-                <div class="offer-meta">
-                    {{-- type --}}
-                    @if($offer->discount_type === 'override')
-                        <span class="offer-tag tag-override">🏷️ سعر مباشر {{ number_format($offer->offer_price,0) }} ر.س</span>
-                    @elseif($offer->discount_type === 'percentage')
-                        <span class="offer-tag tag-program">📊 خصم {{ number_format($offer->discount_value,0) }}%</span>
-                    @else
-                        <span class="offer-tag tag-program">💰 خصم {{ number_format($offer->discount_value,0) }} ر.س</span>
-                    @endif
-
-                    {{-- program --}}
-                    @if($offer->program)
-                        <span class="offer-tag tag-program">
-                            <i class="bi bi-book"></i> {{ $offer->program->name_ar }}
-                        </span>
-                    @else
-                        <span class="offer-tag" style="background:#f3f4f6;color:#374151;">
-                            <i class="bi bi-globe"></i> جميع البرامج
-                        </span>
-                    @endif
-
-                    {{-- end date --}}
-                    <span class="offer-tag tag-date">
-                        <i class="bi bi-calendar-x"></i>
-                        ينتهي {{ $offer->end_date->format('Y/m/d') }}
-                    </span>
-
-                    {{-- uses left --}}
-                    @if($offer->max_uses)
-                        <span class="offer-tag tag-uses">
-                            <i class="bi bi-people"></i>
-                            {{ $offer->uses_left }} متبقية
-                        </span>
-                    @endif
-                </div>
-
-                {{-- countdown (only for active offers) --}}
+                {{-- Countdown --}}
                 @if($isActive)
-                <div class="countdown-wrap" data-end="{{ $offer->end_date->endOfDay()->toISOString() }}">
-                    <div class="cd-unit"><div class="cd-num cd-days">--</div><div class="cd-lbl">يوم</div></div>
-                    <div class="cd-sep">:</div>
-                    <div class="cd-unit"><div class="cd-num cd-hours">--</div><div class="cd-lbl">ساعة</div></div>
-                    <div class="cd-sep">:</div>
-                    <div class="cd-unit"><div class="cd-num cd-mins">--</div><div class="cd-lbl">دقيقة</div></div>
-                    <div class="cd-sep">:</div>
-                    <div class="cd-unit"><div class="cd-num cd-secs">--</div><div class="cd-lbl">ثانية</div></div>
+                <div class="offer-countdown" data-end="{{ $offer->end_date->endOfDay()->toISOString() }}">
+                    <div class="cd-box">
+                        <span class="cd-num cd-days">--</span>
+                        <span class="cd-lbl">يوم</span>
+                    </div>
+                    <span class="cd-sep">:</span>
+                    <div class="cd-box">
+                        <span class="cd-num cd-hours">--</span>
+                        <span class="cd-lbl">ساعة</span>
+                    </div>
+                    <span class="cd-sep">:</span>
+                    <div class="cd-box">
+                        <span class="cd-num cd-mins">--</span>
+                        <span class="cd-lbl">دقيقة</span>
+                    </div>
+                    <span class="cd-sep">:</span>
+                    <div class="cd-box">
+                        <span class="cd-num cd-secs">--</span>
+                        <span class="cd-lbl">ثانية</span>
+                    </div>
                 </div>
                 @endif
 
-                {{-- code --}}
+                {{-- Promo code --}}
                 @if($offer->code && $offer->discount_type !== 'override')
-                <div class="code-box">
+                <div class="offer-code">
+                    <span class="code-lbl">كود</span>
                     <code id="code-{{ $offer->id }}">{{ $offer->code }}</code>
-                    <button class="code-copy-btn" onclick="copyCode('{{ $offer->code }}', '{{ $offer->id }}')" title="نسخ الكود">
+                    <button class="offer-copy"
+                            onclick="copyCode('{{ $offer->code }}','{{ $offer->id }}')"
+                            title="نسخ">
                         <i class="bi bi-clipboard" id="clip-{{ $offer->id }}"></i>
                     </button>
                 </div>
                 @endif
 
-                {{-- CTA --}}
-                <a href="{{ route('register') }}" class="offer-cta">
-                    @if($isExpired)
-                        ⏱️ انتهى العرض
-                    @elseif($isUpcoming)
-                        🔔 سجّل — العرض قريباً
-                    @else
-                        🎓 سجّل الآن واستفد
+                {{-- Meta row --}}
+                <div class="course-meta">
+                    <span class="meta-date">
+                        <i class="bi bi-calendar3"></i>
+                        ينتهي {{ $offer->end_date->format('d/m/Y') }}
+                    </span>
+                    @if($offer->max_uses && $offer->uses_left !== null)
+                    <span class="meta-seats">
+                        <i class="bi bi-people-fill"></i>
+                        {{ $offer->uses_left }} متبقي
+                    </span>
                     @endif
+                </div>
+            </div>
+
+            {{-- CTA --}}
+            <div class="offer-cta">
+                @if($isExpired)
+                <a href="{{ route('register') }}" class="full-btn w-100 d-block text-center" style="background:#9ca3af;pointer-events:none;">
+                    <i class="bi bi-clock-history"></i> انتهى هذا العرض
+                </a>
+                @elseif($isUpcoming)
+                <a href="{{ route('register') }}" class="full-btn w-100 d-block text-center">
+                    <i class="bi bi-bell-fill"></i> سجّل — العرض قادم قريباً
+                </a>
+                @else
+                <a href="{{ route('register') }}" class="full-btn w-100 d-block text-center">
+                    <i class="bi bi-mortarboard-fill"></i> سجّل الآن واستفد
+                </a>
+                @endif
+            </div>
+
+        </div>
+    </div>
+    @empty
+    <div class="offers-empty">
+        <div class="offers-empty-ico"><i class="bi bi-tags"></i></div>
+        <h3>لا توجد عروض حالياً</h3>
+        <p>تابعنا للاطلاع على أحدث العروض والخصومات</p>
+    </div>
+    @endforelse
+
+    </div>
+</section>
+
+{{-- Mockup / CTA Section --}}
+<section class="mockup-section" style="background:linear-gradient(135deg,#004d7a 0%,#0071aa 100%);padding:3rem clamp(1rem,3vw,3rem);color:white;">
+    <div class="row align-items-center">
+        <div class="col-lg-6">
+            <div style="max-width:600px;">
+                <p class="st-p" style="background:rgba(255,255,255,.15);color:#fff;margin-bottom:1rem;">لا تفوّت الفرصة</p>
+                <h2 style="margin-bottom:1rem;font-weight:800;">سجّل الآن واستفد من أفضل العروض</h2>
+                <p style="line-height:1.8;opacity:.9;margin-bottom:2rem;">
+                    برامجنا التدريبية المعتمدة متاحة بأسعار مخفّضة لفترة محدودة.
+                    سارع بالتسجيل قبل انتهاء العروض وابدأ مسيرتك التعليمية اليوم.
+                </p>
+                <a href="{{ route('register') }}" class="full-btn" style="display:inline-flex;align-items:center;gap:8px;font-size:1rem;padding:12px 28px;border-radius:10px;">
+                    <i class="bi bi-arrow-left-circle-fill"></i>
+                    سجّل الآن
                 </a>
             </div>
         </div>
-        @empty
-        <div class="no-offers">
-            <div style="font-size:4rem;margin-bottom:1rem;">🏷️</div>
-            <h3 style="font-size:1.1rem;font-weight:800;color:#374151;margin-bottom:.5rem;">لا توجد عروض حالياً</h3>
-            <p style="color:#9ca3af;font-size:.9rem;">تابعنا للاطلاع على أحدث العروض والخصومات</p>
+        <div class="col-lg-6 text-center mt-4 mt-lg-0">
+            <img loading="lazy" src="{{ asset('lms2-photo/4.png') }}" alt="Training" style="max-width:420px;width:100%;border-radius:20px;" onerror="this.style.display='none'" />
         </div>
-        @endforelse
-
     </div>
-</div>
+</section>
 
 @endsection
 
 @section('scripts')
 <script>
-// ── Filter ──────────────────────────────────────────────────────────
 function filterOffers(type, btn) {
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.offer-flt').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-
-    let count = 0;
-    document.querySelectorAll('.offer-card').forEach(card => {
-        const match = type === 'all' || card.dataset.type === type;
-        card.style.display = match ? '' : 'none';
-        if (match) count++;
+    let n = 0;
+    document.querySelectorAll('#offersGrid .offer-card-wrapper').forEach(c => {
+        const show = type === 'all' || c.dataset.type === type;
+        c.style.display = show ? '' : 'none';
+        if (show) n++;
     });
-    document.getElementById('visibleCount').textContent = count + ' عرض';
+    document.getElementById('visibleCount').innerHTML =
+        `<i class="bi bi-card-list"></i> ${n} عرض`;
 }
 
-// ── Copy code ───────────────────────────────────────────────────────
 function copyCode(code, id) {
     navigator.clipboard.writeText(code).then(() => {
-        const btn  = document.querySelector(`#clip-${id}`).parentElement;
-        const icon = document.getElementById(`clip-${id}`);
+        const btn = document.getElementById('clip-' + id).parentElement;
+        const ico = document.getElementById('clip-' + id);
         btn.classList.add('copied');
-        icon.className = 'bi bi-clipboard-check';
-        setTimeout(() => {
-            btn.classList.remove('copied');
-            icon.className = 'bi bi-clipboard';
-        }, 2000);
+        ico.className = 'bi bi-clipboard-check';
+        setTimeout(() => { btn.classList.remove('copied'); ico.className = 'bi bi-clipboard'; }, 2000);
     });
 }
 
-// ── Countdown ───────────────────────────────────────────────────────
 function updateCountdowns() {
-    document.querySelectorAll('.countdown-wrap[data-end]').forEach(el => {
-        const end  = new Date(el.dataset.end).getTime();
-        const now  = Date.now();
-        const diff = end - now;
-
+    document.querySelectorAll('.offer-countdown[data-end]').forEach(el => {
+        const diff = new Date(el.dataset.end).getTime() - Date.now();
         if (diff <= 0) {
-            el.innerHTML = '<span style="color:#dc2626;font-weight:800;font-size:.85rem;width:100%;text-align:center;">انتهى العرض</span>';
+            el.innerHTML = '<span style="color:#fff;font-weight:800;font-size:.85rem;width:100%;text-align:center;">انتهى العرض</span>';
             return;
         }
-
-        const days  = Math.floor(diff / 86400000);
-        const hours = Math.floor((diff % 86400000) / 3600000);
-        const mins  = Math.floor((diff % 3600000)  / 60000);
-        const secs  = Math.floor((diff % 60000)    / 1000);
-
-        const fmt = n => String(n).padStart(2,'0');
-
-        el.querySelector('.cd-days').textContent  = fmt(days);
-        el.querySelector('.cd-hours').textContent = fmt(hours);
-        el.querySelector('.cd-mins').textContent  = fmt(mins);
-        el.querySelector('.cd-secs').textContent  = fmt(secs);
+        const p = n => String(Math.floor(n)).padStart(2, '0');
+        el.querySelector('.cd-days').textContent  = p(diff / 86400000);
+        el.querySelector('.cd-hours').textContent = p((diff % 86400000) / 3600000);
+        el.querySelector('.cd-mins').textContent  = p((diff % 3600000) / 60000);
+        el.querySelector('.cd-secs').textContent  = p((diff % 60000) / 1000);
     });
 }
-
 updateCountdowns();
 setInterval(updateCountdowns, 1000);
 </script>

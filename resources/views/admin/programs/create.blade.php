@@ -1,6 +1,6 @@
 @extends('layouts.dashboard')
 
-@section('title', 'إضافة دبلومة تعليمي جديد')
+@section('title', 'إضافة دبلوم تعليمي جديد')
 
 @section('content')
 <div class="mb-6">
@@ -11,9 +11,9 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
             </svg>
         </a>
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">إضافة دبلومة تعليمي جديد</h1>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">إضافة دبلوم تعليمي جديد</h1>
     </div>
-    <p class="text-sm text-gray-500 dark:text-gray-400">أدخل بيانات الدبلومة والأرباع الدراسية وقم بتعيين المقررات  في خطوة واحدة</p>
+    <p class="text-sm text-gray-500 dark:text-gray-400">أدخل بيانات الدبلوم والأرباع الدراسية وقم بتعيين المقررات  في خطوة واحدة</p>
 </div>
 
 @if($errors->any())
@@ -29,7 +29,7 @@
 <form action="{{ route('admin.programs.store') }}" method="POST" id="programForm" enctype="multipart/form-data">
     @csrf
 
-    {{-- ===== بيانات الدبلومة ===== --}}
+    {{-- ===== بيانات الدبلوم ===== --}}
     <div class="rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900 mb-6">
         <div class="p-5 border-b border-gray-200 dark:border-gray-800" style="background: linear-gradient(135deg,#3b82f6,#1d4ed8); border-radius: 12px 12px 0 0;">
             <div class="flex items-center gap-3">
@@ -38,25 +38,25 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
                 </div>
-                <h2 class="text-base font-bold text-white">بيانات الدبلومة</h2>
+                <h2 class="text-base font-bold text-white">بيانات الدبلوم</h2>
             </div>
         </div>
         <div class="p-6">
             <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">اسم الدبلومة (عربي)</label>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">اسم الدبلوم (عربي)</label>
                     <input type="text" name="name_ar" value="{{ old('name_ar') }}"
                            class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
                            placeholder="مثال: دبلوم البرمجة وتطوير الويب">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">اسم الدبلومة (إنجليزي)</label>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">اسم الدبلوم (إنجليزي)</label>
                     <input type="text" name="name_en" value="{{ old('name_en') }}" dir="ltr"
                            class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
                            placeholder="Web Development Diploma">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">كود الدبلومة</label>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">كود الدبلوم</label>
                     <input type="text" name="code" value="{{ old('code') }}"
                            class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
                            placeholder="مثال: PROG-001">
@@ -102,7 +102,7 @@
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">الوصف (عربي)</label>
                     <textarea name="description_ar" rows="3"
                               class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-                              placeholder="وصف تفصيلي عن الدبلومة وأهدافه...">{{ old('description_ar') }}</textarea>
+                              placeholder="وصف تفصيلي عن الدبلوم وأهدافه...">{{ old('description_ar') }}</textarea>
                 </div>
                 <div class="md:col-span-2">
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">الوصف (إنجليزي)</label>
@@ -111,9 +111,9 @@
                               placeholder="Detailed description of the diploma...">{{ old('description_en') }}</textarea>
                 </div>
 
-                {{-- صورة الدبلومة --}}
+                {{-- صورة الدبلوم --}}
                 <div class="md:col-span-2">
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">صورة الدبلومة</label>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">صورة الدبلوم</label>
                     <label for="programImage" class="block cursor-pointer">
                         <div id="imagePreviewWrap"
                              class="relative w-full rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 overflow-hidden transition-colors hover:border-blue-400"
@@ -126,7 +126,7 @@
                                     </svg>
                                 </div>
                                 <div class="text-center">
-                                    <p class="text-sm font-medium text-gray-700 dark:text-gray-300">انقر لرفع صورة الدبلومة</p>
+                                    <p class="text-sm font-medium text-gray-700 dark:text-gray-300">انقر لرفع صورة الدبلوم</p>
                                     <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">JPEG, PNG, GIF, WebP — الحد الأقصى 2 ميجابايت</p>
                                 </div>
                             </div>
@@ -192,7 +192,7 @@
         <button type="submit"
                 class="rounded-lg px-6 py-2.5 text-sm font-medium text-white transition-colors"
                 style="background: linear-gradient(135deg,#3b82f6,#1d4ed8);">
-            حفظ الدبلومة
+            حفظ الدبلوم
         </button>
     </div>
 </form>

@@ -11,7 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class ProgramController extends Controller
-{
+{ 
     public function index()
     {
         $excluded = ['course', 'english'];
@@ -93,7 +93,7 @@ class ProgramController extends Controller
         }
 
         return redirect()->route('admin.programs.show', $program)
-            ->with('success', 'تم إضافة الدبلومة بنجاح');
+            ->with('success', 'تم إضافة الدبلوم بنجاح');
     }
 
     public function show(Program $program)
@@ -152,7 +152,7 @@ class ProgramController extends Controller
         $program->update($validated);
 
         return redirect()->route('admin.programs.index')
-            ->with('success', 'تم تحديث الدبلومة بنجاح');
+            ->with('success', 'تم تحديث الدبلوم بنجاح');
     }
 
     public function destroy(Program $program)
@@ -160,7 +160,7 @@ class ProgramController extends Controller
         $program->delete();
 
         return redirect()->route('admin.programs.index')
-            ->with('success', 'تم حذف الدبلومة بنجاح');
+            ->with('success', 'تم حذف الدبلوم بنجاح');
     }
 
     public function export()

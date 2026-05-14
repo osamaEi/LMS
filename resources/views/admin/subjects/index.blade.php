@@ -136,7 +136,7 @@
                     </svg>
                     <select name="program_id"
                             style="width:100%;padding:9px 34px 9px 12px;border:1.5px solid {{ $filters['programId'] ? '#0d9488' : '#e5e7eb' }};border-radius:10px;font-size:13px;color:#374151;background:#f9fafb;outline:none;appearance:none;cursor:pointer;">
-                        <option value="">كل الدبلومات</option>
+                        <option value="">كل الدبلومات  </option>
                         @foreach($programs as $program)
                         <option value="{{ $program->id }}" {{ $filters['programId'] == $program->id ? 'selected' : '' }}>
                             {{ $program->name_ar ?: $program->name_en }}
@@ -196,7 +196,7 @@
                 @if($filters['programId'])
                 @php $selProg = $programs->firstWhere('id', $filters['programId']); @endphp
                 <span style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;background:#dbeafe;color:#1e40af;border-radius:20px;font-size:12px;font-weight:600;">
-                    الدبلومة: {{ $selProg?->name_ar ?: $selProg?->name_en }}
+                    الدبلوم: {{ $selProg?->name_ar ?: $selProg?->name_en }}
                 </span>
                 @endif
                 @if($filters['teacherId'])
@@ -224,7 +224,7 @@
                         <th style="padding:14px 20px;text-align:right;font-size:12px;font-weight:700;color:#6b7280;letter-spacing:.5px;">الكود</th>
                         <th style="padding:14px 20px;text-align:right;font-size:12px;font-weight:700;color:#6b7280;letter-spacing:.5px;">اسم المادة</th>
                         <th style="padding:14px 20px;text-align:right;font-size:12px;font-weight:700;color:#6b7280;letter-spacing:.5px;">المعلم</th>
-                        <th style="padding:14px 20px;text-align:right;font-size:12px;font-weight:700;color:#6b7280;letter-spacing:.5px;">الفصل / الدبلومة</th>
+                        <th style="padding:14px 20px;text-align:right;font-size:12px;font-weight:700;color:#6b7280;letter-spacing:.5px;">الفصل / الدبلوم</th>
                         <th style="padding:14px 20px;text-align:right;font-size:12px;font-weight:700;color:#6b7280;letter-spacing:.5px;">الدروس</th>
                         <th style="padding:14px 20px;text-align:right;font-size:12px;font-weight:700;color:#6b7280;letter-spacing:.5px;">الحالة</th>
                         <th style="padding:14px 20px;text-align:right;font-size:12px;font-weight:700;color:#6b7280;letter-spacing:.5px;">الإجراءات</th>

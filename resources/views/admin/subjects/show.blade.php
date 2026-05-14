@@ -682,7 +682,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                         </svg>
                     </div>
-                    <h2 style="font-size:15px;font-weight:700;color:#111827;margin:0;">الفصل والدبلومة</h2>
+                    <h2 style="font-size:15px;font-weight:700;color:#111827;margin:0;">الفصل والدبلوم</h2>
                 </div>
                 <div style="padding:16px 20px;display:flex;flex-direction:column;gap:10px;">
                     <div style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:#f9fafb;border-radius:10px;">
@@ -691,7 +691,7 @@
                     </div>
                     @if($subject->term->program)
                     <div style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:#f9fafb;border-radius:10px;">
-                        <span style="font-size:12px;color:#9ca3af;font-weight:500;">الدبلومة التعليمي</span>
+                        <span style="font-size:12px;color:#9ca3af;font-weight:500;">الدبلوم التعليمي</span>
                         <span style="font-size:13px;font-weight:600;color:#374151;">{{ $subject->term->program->name }}</span>
                     </div>
                     @endif

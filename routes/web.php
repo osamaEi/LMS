@@ -42,17 +42,19 @@ Route::get('/', function () {
 
 // Front pages routes
 Route::get('/training-paths', function () {
+    $excluded = ['course', 'english'];
     $programs = \App\Models\Program::where('status', 'active')
-        ->where(fn($q) => $q->whereNull('type')->orWhere('type', '!=', 'course'))
+        ->where(fn($q) => $q->whereNull('type')->orWhereNotIn('type', $excluded))
         ->get();
     return view('front.training-paths', compact('programs'));
-})->name('training-paths');
+})->name('training-paths'); 
 
 Route::get('/short-courses', function () {
     $programs = \App\Models\Program::where('status', 'active')
         ->where('type', 'course')
         ->get();
-    return view('front.short-courses', compact('programs'));
+    $activeOffers = \App\Models\Offer::active()->with('program')->get();
+    return view('front.short-courses', compact('programs', 'activeOffers'));
 })->name('short-courses');
 
 Route::get('/english-courses', function () {
@@ -192,6 +194,9 @@ Route::middleware(['auth', 'role:admin,super_admin'])->prefix('admin')->name('ad
     // Offers & Discounts
     Route::resource('offers', \App\Http\Controllers\Admin\OfferController::class);
     Route::patch('offers/{offer}/toggle-status', [\App\Http\Controllers\Admin\OfferController::class, 'toggleStatus'])->name('offers.toggle-status');
+
+    // Testimonials
+    Route::resource('testimonials', \App\Http\Controllers\Admin\TestimonialController::class)->except(['show']);
 
     // Program (Path) Management
     Route::get('/programs/export', [\App\Http\Controllers\Admin\ProgramController::class, 'export'])->name('programs.export');

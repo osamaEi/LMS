@@ -1,6 +1,6 @@
 @extends('layouts.dashboard')
 
-@section('title', 'عرض الدبلومة التعليمي')
+@section('title', 'عرض الدبلوم التعليمي')
 
 @push('head-scripts')
 <script>
@@ -127,7 +127,7 @@
             <!-- Program Info Card -->
             <div class="rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
                 <div class="p-6 border-b border-gray-200 dark:border-gray-800">
-                    <h2 class="text-lg font-bold text-gray-900 dark:text-white">معلومات الدبلومة</h2>
+                    <h2 class="text-lg font-bold text-gray-900 dark:text-white">معلومات الدبلوم</h2>
                 </div>
                 <div class="p-6">
                     <dl class="grid grid-cols-1 gap-6 sm:grid-cols-2">
@@ -138,7 +138,7 @@
                                 </svg>
                             </div>
                             <div>
-                                <dt class="text-xs font-medium text-gray-500 dark:text-gray-400">كود الدبلومة</dt>
+                                <dt class="text-xs font-medium text-gray-500 dark:text-gray-400">كود الدبلوم</dt>
                                 <dd class="text-sm font-semibold text-gray-900 dark:text-white">{{ $program->code }}</dd>
                             </div>
                         </div>
@@ -186,7 +186,7 @@
             <!-- Tracks List -->
             <div class="rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
                 <div class="p-6 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
-                    <h2 class="text-lg font-bold text-gray-900 dark:text-white">الدبلومات  التعليمية ({{ $program->tracks->count() }})</h2>
+                    <h2 class="text-lg font-bold text-gray-900 dark:text-white">الدبلومات    التعليمية ({{ $program->tracks->count() }})</h2>
                 </div>
                 <div class="divide-y divide-gray-200 dark:divide-gray-800">
                     @forelse($program->tracks as $track)
@@ -210,7 +210,7 @@
                     </div>
                     @empty
                     <div class="p-8 text-center">
-                        <p class="text-sm text-gray-500 dark:text-gray-400">لا توجد دبلومات تعليمية لهذا البرنامج</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">لا توجد دبلومات   تعليمية لهذا البرنامج</p>
                     </div>
                     @endforelse
                 </div>
@@ -321,7 +321,7 @@
                             </svg>
                         </div>
                         <p class="text-sm font-medium text-gray-900 dark:text-white">لا توجد أرباع دراسية</p>
-                        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">ابدأ بإضافة ربع دراسي جديد لهذا الدبلومة</p>
+                        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">ابدأ بإضافة ربع دراسي جديد لهذا الدبلوم</p>
                         <button @click="$store.termModal = true"
                                 class="mt-4 inline-flex items-center gap-2 rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600 transition-colors">
                             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -359,7 +359,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                             </svg>
                         </div>
-                        تعديل بيانات الدبلومة
+                        تعديل بيانات الدبلوم
                     </a>
                     <a href="{{ route('admin.subjects.index') }}?program_id={{ $program->id }}"
                        class="w-full flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800 transition-colors">

@@ -42,7 +42,7 @@ class Faq extends Model
     {
         return [
             'registration' => ['label' => 'التسجيل والدفع',        'icon' => '💳'],
-            'courses'      => ['label' => 'الدورات والدبلومات',     'icon' => '📚'],
+            'courses'      => ['label' => 'الدورات والدبلومات  ',     'icon' => '📚'],
             'certificates' => ['label' => 'الشهادات والاعتماد',     'icon' => '🎓'],
             'platform'     => ['label' => 'منصة الطالب',            'icon' => '💻'],
             'support'      => ['label' => 'الدعم التقني',           'icon' => '🛠️'],

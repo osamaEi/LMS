@@ -36,15 +36,15 @@ class PermissionSeeder extends Seeder
         'create-students'                => 'إضافة طلاب',
         'edit-students'                  => 'تعديل بيانات الطلاب',
         'delete-students'                => 'حذف الطلاب',
-        'assign-program-to-student'      => 'تعيين دبلومة دراسي للطالب',
-        'remove-program-from-student'    => 'إزالة الدبلومة الدراسي من الطالب',
+        'assign-program-to-student'      => 'تعيين دبلوم دراسي للطالب',
+        'remove-program-from-student'    => 'إزالة الدبلوم الدراسي من الطالب',
         'toggle-student-status'          => 'تفعيل / تعطيل حساب الطالب',
 
-        // ─── الدبلومات  التعليمية (البرامج) ─────────────
-        'view-programs'                  => 'عرض الدبلومات  التعليمية',
-        'create-programs'                => 'إضافة دبلومات تعليمية',
-        'edit-programs'                  => 'تعديل الدبلومات  التعليمية',
-        'delete-programs'                => 'حذف الدبلومات  التعليمية',
+        // ─── الدبلومات    التعليمية (البرامج) ─────────────
+        'view-programs'                  => 'عرض الدبلومات    التعليمية',
+        'create-programs'                => 'إضافة دبلومات   تعليمية',
+        'edit-programs'                  => 'تعديل الدبلومات    التعليمية',
+        'delete-programs'                => 'حذف الدبلومات    التعليمية',
 
         // ─── الفصول الدراسية ───────────────────────────
         'view-terms'                     => 'عرض الفصول الدراسية',
@@ -74,9 +74,9 @@ class PermissionSeeder extends Seeder
         // ─── التسجيل والقبول ───────────────────────────
         'view-enrollments'               => 'عرض التسجيلات',
         'manage-enrollments'             => 'إدارة التسجيلات',
-        'manage-program-enrollments'     => 'إدارة طلبات الالتحاق بالدبلومات ',
-        'approve-program-enrollments'    => 'قبول طلبات الالتحاق بالدبلومات ',
-        'reject-program-enrollments'     => 'رفض طلبات الالتحاق بالدبلومات ',
+        'manage-program-enrollments'     => 'إدارة طلبات الالتحاق بالدبلومات   ',
+        'approve-program-enrollments'    => 'قبول طلبات الالتحاق بالدبلومات   ',
+        'reject-program-enrollments'     => 'رفض طلبات الالتحاق بالدبلومات   ',
 
         // ─── الحضور والغياب ────────────────────────────
         'view-attendance'                => 'عرض سجلات الحضور',

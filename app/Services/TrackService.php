@@ -84,7 +84,7 @@ class TrackService
     }
 
     /**
-     * إنشاء 10 أرباع تلقائياً للدبلومة
+     * إنشاء 10 أرباع تلقائياً للدبلوم
      */
     protected function createTermsForTrack(int $trackId, int $durationMonths = 3)
     {
@@ -118,7 +118,7 @@ class TrackService
     }
 
     /**
-     * تعيين الطالب إلى دبلومة
+     * تعيين الطالب إلى دبلوم
      */
     public function assignStudentToTrack(int $studentId, int $trackId, int $termNumber = 1)
     {

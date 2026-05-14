@@ -19,7 +19,7 @@ class FaqSeeder extends Seeder
                 'sort_order'  => 1,
                 'question_ar' => 'كيف أتسجل في المعهد؟',
                 'question_en' => 'How do I register at the institute?',
-                'answer_ar'   => 'يمكنك التسجيل بسهولة عبر حساب نفاذ أو إنشاء حساب داخلي. بعد التسجيل، يمكنك اختيار الدبلومة الأكاديمي أو الدورات التي تناسبك. ستتلقى رسالة تأكيد على بريدك الإلكتروني بعد إتمام التسجيل.',
+                'answer_ar'   => 'يمكنك التسجيل بسهولة عبر حساب نفاذ أو إنشاء حساب داخلي. بعد التسجيل، يمكنك اختيار الدبلوم الأكاديمي أو الدورات التي تناسبك. ستتلقى رسالة تأكيد على بريدك الإلكتروني بعد إتمام التسجيل.',
                 'answer_en'   => 'You can register easily via your Nafath account or by creating an internal account. After registering, you can choose the academic diploma or short courses that suit you. You will receive a confirmation email once registration is complete.',
             ],
             [
@@ -27,7 +27,7 @@ class FaqSeeder extends Seeder
                 'sort_order'  => 2,
                 'question_ar' => 'ما طرق الدفع المتاحة؟',
                 'question_en' => 'What payment methods are available?',
-                'answer_ar'   => 'نوفر عدة طرق للدفع تشمل: بطاقات الائتمان، مدى، التحويل البنكي، والدفع عند التسجيل. كما نوفر خيارات التقسيط للدبلومات الطويلة.',
+                'answer_ar'   => 'نوفر عدة طرق للدفع تشمل: بطاقات الائتمان، مدى، التحويل البنكي، والدفع عند التسجيل. كما نوفر خيارات التقسيط للدبلومات   الطويلة.',
                 'answer_en'   => 'We provide several payment methods including credit cards, Mada, bank transfer, and payment upon registration. Installment options are also available for long diploma programs.',
             ],
             [
@@ -55,21 +55,21 @@ class FaqSeeder extends Seeder
                 'answer_en'   => 'You will receive a confirmation email as soon as your application is accepted, along with an in-platform notification. You can also track your application status from your dashboard.',
             ],
 
-            // ── الدورات والدبلومات ──────────────────────────────────────
+            // ── الدورات والدبلومات   ──────────────────────────────────────
             [
                 'category'    => 'courses',
                 'sort_order'  => 1,
                 'question_ar' => 'ما هو نظام الفصل الدراسي؟',
                 'question_en' => 'What is the term system?',
-                'answer_ar'   => 'نظام الفصل الدراسي هو نظام تقسيم الدبلومة التدريبي إلى فترات زمنية محددة (ترم)، مدة كل منها فترة معينة، مما يساعد في تنظيم العملية التدريبية وتقييم تقدم المتدرب بشكل دوري.',
+                'answer_ar'   => 'نظام الفصل الدراسي هو نظام تقسيم الدبلوم التدريبي إلى فترات زمنية محددة (ترم)، مدة كل منها فترة معينة، مما يساعد في تنظيم العملية التدريبية وتقييم تقدم المتدرب بشكل دوري.',
                 'answer_en'   => 'The term system divides the training diploma into specific time periods (terms), each of a certain duration, helping to organize the training process and periodically assess trainee progress.',
             ],
             [
                 'category'    => 'courses',
                 'sort_order'  => 2,
-                'question_ar' => 'هل يمكنني التحويل من دبلومة لآخر؟',
+                'question_ar' => 'هل يمكنني التحويل من دبلوم لآخر؟',
                 'question_en' => 'Can I transfer from one diploma to another?',
-                'answer_ar'   => 'نعم، يمكنك التحويل بين الدبلومات وفق شروط أكاديمية محددة وبعد مراجعة الساعات التدريبية المنجزة والتنسيق مع الإدارة الأكاديمية.',
+                'answer_ar'   => 'نعم، يمكنك التحويل بين الدبلومات   وفق شروط أكاديمية محددة وبعد مراجعة الساعات التدريبية المنجزة والتنسيق مع الإدارة الأكاديمية.',
                 'answer_en'   => 'Yes, you can transfer between diplomas according to specific academic conditions and after reviewing completed training hours and coordinating with the academic administration.',
             ],
             [
@@ -77,7 +77,7 @@ class FaqSeeder extends Seeder
                 'sort_order'  => 3,
                 'question_ar' => 'هل يوجد تدريب عن بعد؟',
                 'question_en' => 'Is remote training available?',
-                'answer_ar'   => 'نعم، نوفر خيارات التدريب عن بعد لمعظم دوراتنا ودبلوماتنا التدريبية، مع توفر جميع المقررات  التعليمية والموارد إلكترونياً.',
+                'answer_ar'   => 'نعم، نوفر خيارات التدريب عن بعد لمعظم دوراتنا ودبلومات  نا التدريبية، مع توفر جميع المقررات  التعليمية والموارد إلكترونياً.',
                 'answer_en'   => 'Yes, we provide remote training options for most of our courses and diploma programs, with all educational materials and resources available electronically.',
             ],
             [
@@ -99,9 +99,9 @@ class FaqSeeder extends Seeder
             [
                 'category'    => 'courses',
                 'sort_order'  => 6,
-                'question_ar' => 'هل يمكنني الدراسة في أكثر من دبلومة في نفس الوقت؟',
+                'question_ar' => 'هل يمكنني الدراسة في أكثر من دبلوم في نفس الوقت؟',
                 'question_en' => 'Can I study more than one diploma at the same time?',
-                'answer_ar'   => 'يسمح بالتسجيل في دبلومة واحد فقط في نفس الوقت للطلاب النظاميين، غير أنه يمكن الالتحاق بدورات قصيرة إضافية بجانب الدبلومة الرئيسي وفق ضوابط محددة.',
+                'answer_ar'   => 'يسمح بالتسجيل في دبلوم واحد فقط في نفس الوقت للطلاب النظاميين، غير أنه يمكن الالتحاق بدورات قصيرة إضافية بجانب الدبلوم الرئيسي وفق ضوابط محددة.',
                 'answer_en'   => 'Regular students may only enroll in one diploma at a time; however, additional short courses may be taken alongside the main diploma subject to specific conditions.',
             ],
 

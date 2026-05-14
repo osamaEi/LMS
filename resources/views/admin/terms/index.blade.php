@@ -77,7 +77,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                 </svg>
                 <input type="text" name="search" value="{{ $search }}"
-                       placeholder="البحث باسم الفصل أو الدبلومة..."
+                       placeholder="البحث باسم الفصل أو الدبلوم..."
                        style="width:100%;padding:10px 44px 10px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;color:#111827;background:#f9fafb;outline:none;box-sizing:border-box;"
                        onfocus="this.style.borderColor='#6366f1'" onblur="this.style.borderColor='#e5e7eb'">
             </div>
@@ -98,7 +98,7 @@
                 <thead>
                     <tr style="background:linear-gradient(90deg,#f8f7ff,#faf9ff);border-bottom:1.5px solid #e5e7eb;">
                         <th style="padding:14px 20px;text-align:right;font-size:12px;font-weight:700;color:#6b7280;letter-spacing:.5px;text-transform:uppercase;">الفصل</th>
-                        <th style="padding:14px 20px;text-align:right;font-size:12px;font-weight:700;color:#6b7280;letter-spacing:.5px;">الدبلومة التعليمي</th>
+                        <th style="padding:14px 20px;text-align:right;font-size:12px;font-weight:700;color:#6b7280;letter-spacing:.5px;">الدبلوم التعليمي</th>
                         <th style="padding:14px 20px;text-align:right;font-size:12px;font-weight:700;color:#6b7280;letter-spacing:.5px;">التواريخ</th>
                         <th style="padding:14px 20px;text-align:right;font-size:12px;font-weight:700;color:#6b7280;letter-spacing:.5px;">المقررات </th>
                         <th style="padding:14px 20px;text-align:right;font-size:12px;font-weight:700;color:#6b7280;letter-spacing:.5px;">الحالة</th>

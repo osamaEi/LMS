@@ -17,13 +17,13 @@ class ProgramSeeder extends Seeder
         $programs = [
 
             // ═══════════════════════════════════════════
-            // الدبلومات  (type = diploma)
+            // الدبلومات    (type = diploma)
             // ═══════════════════════════════════════════
             [
                 'name_ar'         => 'قسم الحاسب وتقنية المعلومات — تخصص برمجيات الحاسب',
                 'name_en'         => 'Computer Science & IT — Computer Software',
                 'code'            => 'DIP-CS-001',
-                'description_ar'  => 'دبلومة متخصصة في علوم الحاسب وتقنية المعلومات بتخصص برمجيات الحاسب، معتمدة من المؤسسة العامة للتدريب التقني والمهني.',
+                'description_ar'  => 'دبلوم متخصصة في علوم الحاسب وتقنية المعلومات بتخصص برمجيات الحاسب، معتمدة من المؤسسة العامة للتدريب التقني والمهني.',
                 'description_en'  => 'Specialized diploma in Computer Science and IT with a focus on computer software, accredited by TVTC.',
                 'type'            => 'diploma',
                 'course_type'     => null,
@@ -32,10 +32,10 @@ class ProgramSeeder extends Seeder
                 'status'          => 'active',
             ],
             [
-                'name_ar'         => 'قسم التقنية الإدارية — تخصص تسويق',
+                'name_ar'         => 'قسم التقنية الإدارية — تخصص التسويق ',
                 'name_en'         => 'Administrative Technology — Marketing',
                 'code'            => 'DIP-MKT-002',
-                'description_ar'  => 'دبلومة في التقنية الإدارية بتخصص التسويق، معتمدة من المؤسسة العامة للتدريب التقني والمهني.',
+                'description_ar'  => 'دبلوم في التقنية الإدارية بتخصص الالتسويق ، معتمدة من المؤسسة العامة للتدريب التقني والمهني.',
                 'description_en'  => 'Administrative Technology diploma with a Marketing specialization, accredited by TVTC.',
                 'type'            => 'diploma',
                 'course_type'     => null,
@@ -47,7 +47,7 @@ class ProgramSeeder extends Seeder
                 'name_ar'         => 'تخصص إدارة الموارد البشرية',
                 'name_en'         => 'Human Resources Management',
                 'code'            => 'DIP-HR-003',
-                'description_ar'  => 'دبلومة متخصصة في إدارة الموارد البشرية، معتمدة من المؤسسة العامة للتدريب التقني والمهني.',
+                'description_ar'  => 'دبلوم متخصصة في إدارة الموارد البشرية، معتمدة من المؤسسة العامة للتدريب التقني والمهني.',
                 'description_en'  => 'Specialized diploma in Human Resources Management, accredited by TVTC.',
                 'type'            => 'diploma',
                 'course_type'     => null,
@@ -104,10 +104,10 @@ class ProgramSeeder extends Seeder
             // الدورات التطويرية  (type = course, course_type = developmental)
             // ═══════════════════════════════════════════
             [
-                'name_ar'     => 'التسويق الرقمي',
+                'name_ar'     => 'الالتسويق  الرقمي',
                 'name_en'     => 'Digital Marketing',
                 'code'        => 'DEV-001',
-                'description_ar' => 'دورة تطويرية شاملة في التسويق الرقمي تشمل وسائل التواصل الاجتماعي والإعلانات المدفوعة وتحليلات التسويق.',
+                'description_ar' => 'دورة تطويرية شاملة في الالتسويق  الرقمي تشمل وسائل التواصل الاجتماعي والإعلانات المدفوعة وتحليلات الالتسويق .',
                 'description_en' => 'Comprehensive developmental course in digital marketing covering social media, paid ads, and analytics.',
                 'type'        => 'course',
                 'course_type' => 'developmental',
