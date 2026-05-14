@@ -4,16 +4,17 @@ namespace App\Http\Controllers\Front;
 
 use App\Http\Controllers\Controller;
 use App\Models\Contact;
+use App\Models\SiteSetting;
 use App\Models\User;
 use App\Notifications\CustomNotification;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 class ContactController extends Controller
 {
     public function index()
     {
-        return view('front.contact');
+        $settings = SiteSetting::allKeyed();
+        return view('front.contact', compact('settings'));
     }
 
     public function store(Request $request)

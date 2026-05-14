@@ -21,7 +21,8 @@ class FooterSettingsController extends Controller
     {
         $keys = [
             'footer_description_ar','footer_description_en',
-            'phone','email','address_ar','address_en',
+            'phone','email','fax','sms_number','maps_url',
+            'address_ar','address_en',
             'working_hours_ar','working_hours_en',
             'copyright_ar','copyright_en',
             'social_twitter','social_instagram','social_linkedin',

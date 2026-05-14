@@ -436,79 +436,100 @@
                 <div class="col-lg-4 contact-info-section">
                     <h3 class="contact-title">{{ __('Contact Us Now') }}</h3>
 
+                    @if(!empty($settings['phone']))
                     <div class="contact-item">
-                        <div class="icon-wrapper">
-                            <i class="bi bi-telephone"></i>
-                        </div>
+                        <div class="icon-wrapper"><i class="bi bi-telephone"></i></div>
                         <div class="contact-details">
                             <h5>{{ __('Phone Number') }}</h5>
                             <div class="d-flex gap-2 align-items-center">
-                                <a href="tel:9200343222">9200343222</a>
-                                <i class="bi bi-copy"></i>
+                                <a href="tel:{{ $settings['phone'] }}">{{ $settings['phone'] }}</a>
+                                <i class="bi bi-copy" onclick="navigator.clipboard.writeText('{{ $settings['phone'] }}')" title="نسخ" style="cursor:pointer;"></i>
                             </div>
                         </div>
                     </div>
+                    @endif
 
+                    @if(!empty($settings['sms_number']))
                     <div class="contact-item">
-                        <div class="icon-wrapper">
-                            <i class="bi bi-chat-dots"></i>
-                        </div>
+                        <div class="icon-wrapper"><i class="bi bi-chat-dots"></i></div>
                         <div class="contact-details">
                             <h5>{{ __('Text Message') }}</h5>
                             <div class="d-flex gap-2 align-items-center">
-                                <a href="sms:199099">199099</a>
-                                <i class="bi bi-copy"></i>
+                                <a href="sms:{{ $settings['sms_number'] }}">{{ $settings['sms_number'] }}</a>
+                                <i class="bi bi-copy" onclick="navigator.clipboard.writeText('{{ $settings['sms_number'] }}')" title="نسخ" style="cursor:pointer;"></i>
                             </div>
                         </div>
                     </div>
+                    @endif
 
+                    @if(!empty($settings['email']))
                     <div class="contact-item">
-                        <div class="icon-wrapper">
-                            <i class="bi bi-envelope"></i>
-                        </div>
+                        <div class="icon-wrapper"><i class="bi bi-envelope"></i></div>
                         <div class="contact-details">
                             <h5>{{ __('Email') }}</h5>
                             <div class="d-flex gap-2 align-items-center">
-                                <a href="mailto:help@company.sa">help@company.sa</a>
-                                <i class="bi bi-copy"></i>
+                                <a href="mailto:{{ $settings['email'] }}">{{ $settings['email'] }}</a>
+                                <i class="bi bi-copy" onclick="navigator.clipboard.writeText('{{ $settings['email'] }}')" title="نسخ" style="cursor:pointer;"></i>
                             </div>
                         </div>
                     </div>
+                    @endif
 
+                    @if(!empty($settings['fax']))
                     <div class="contact-item">
-                        <div class="icon-wrapper">
-                            <i class="bi bi-printer"></i>
-                        </div>
+                        <div class="icon-wrapper"><i class="bi bi-printer"></i></div>
                         <div class="contact-details">
                             <h5>{{ __('Fax') }}</h5>
                             <div class="d-flex gap-2 align-items-center">
-                                <a href="tel:00966-11-834-6654">00966-11-834-6654</a>
-                                <i class="bi bi-copy"></i>
+                                <a href="tel:{{ $settings['fax'] }}">{{ $settings['fax'] }}</a>
+                                <i class="bi bi-copy" onclick="navigator.clipboard.writeText('{{ $settings['fax'] }}')" title="نسخ" style="cursor:pointer;"></i>
                             </div>
                         </div>
                     </div>
+                    @endif
 
+                    @php $addr = app()->isLocale('ar') ? ($settings['address_ar'] ?? '') : ($settings['address_en'] ?? $settings['address_ar'] ?? ''); @endphp
+                    @if(!empty($addr))
                     <div class="contact-item">
-                        <div class="icon-wrapper">
-                            <i class="bi bi-geo-alt"></i>
-                        </div>
+                        <div class="icon-wrapper"><i class="bi bi-geo-alt"></i></div>
                         <div class="contact-details">
                             <h5>{{ __('Location') }}</h5>
                             <div class="d-flex gap-2 align-items-center">
-                                <a href="#">{{ __('Riyadh') }}</a>
-                                <i class="bi bi-link-45deg"></i>
+                                @if(!empty($settings['maps_url']))
+                                    <a href="{{ $settings['maps_url'] }}" target="_blank" rel="noopener">{{ $addr }}</a>
+                                    <i class="bi bi-link-45deg"></i>
+                                @else
+                                    <span>{{ $addr }}</span>
+                                @endif
                             </div>
                         </div>
                     </div>
+                    @endif
 
+                    @php
+                        $socials = [
+                            'social_twitter'   => ['icon' => 'bi-twitter-x',  'href' => $settings['social_twitter']   ?? ''],
+                            'social_linkedin'  => ['icon' => 'bi-linkedin',   'href' => $settings['social_linkedin']  ?? ''],
+                            'social_instagram' => ['icon' => 'bi-instagram',  'href' => $settings['social_instagram'] ?? ''],
+                            'social_youtube'   => ['icon' => 'bi-youtube',    'href' => $settings['social_youtube']   ?? ''],
+                            'social_facebook'  => ['icon' => 'bi-facebook',   'href' => $settings['social_facebook']  ?? ''],
+                            'social_snapchat'  => ['icon' => 'bi-snapchat',   'href' => $settings['social_snapchat']  ?? ''],
+                            'social_whatsapp'  => ['icon' => 'bi-whatsapp',   'href' => $settings['social_whatsapp']  ?? ''],
+                        ];
+                        $activeSocials = array_filter($socials, fn($s) => !empty($s['href']));
+                    @endphp
+                    @if(count($activeSocials))
                     <div class="social-section">
                         <h5>{{ __('Follow Us') }}</h5>
                         <div class="social-icons">
-                            <a href="#" class="social-link"><i class="bi bi-twitter-x"></i></a>
-                            <a href="#" class="social-link"><i class="bi bi-linkedin"></i></a>
-                            <a href="#" class="social-link"><i class="bi bi-instagram"></i></a>
+                            @foreach($activeSocials as $social)
+                            <a href="{{ $social['href'] }}" class="social-link" target="_blank" rel="noopener">
+                                <i class="bi {{ $social['icon'] }}"></i>
+                            </a>
+                            @endforeach
                         </div>
                     </div>
+                    @endif
                 </div>
             </div>
         </div>

@@ -42,12 +42,23 @@ Route::get('/', function () {
 
 // Front pages routes
 Route::get('/training-paths', function () {
-    $excluded = ['course', 'english'];
+        $excluded = ['course', 'english', 'training'];
     $programs = \App\Models\Program::where('status', 'active')
         ->where(fn($q) => $q->whereNull('type')->orWhereNotIn('type', $excluded))
         ->get();
     return view('front.training-paths', compact('programs'));
 })->name('training-paths'); 
+
+Route::get('/training-programs', function () {
+    $programs = \App\Models\Program::where('status', 'active')
+        ->where('type', 'training')
+        ->get();
+    return view('front.course-list', [
+        'programs'  => $programs,
+        'pageTitle' => 'البرامج التدريبية',
+        'pageType'  => 'training',
+    ]);
+})->name('training-programs');
 
 Route::get('/short-courses', function () {
     $programs = \App\Models\Program::where('status', 'active')
@@ -56,6 +67,30 @@ Route::get('/short-courses', function () {
     $activeOffers = \App\Models\Offer::active()->with('program')->get();
     return view('front.short-courses', compact('programs', 'activeOffers'));
 })->name('short-courses');
+
+Route::get('/courses/developmental', function () {
+    $programs = \App\Models\Program::where('status', 'active')
+        ->where('type', 'course')
+        ->where('course_type', 'developmental')
+        ->get();
+    return view('front.course-list', [
+        'programs'  => $programs,
+        'pageTitle' => 'الدورات التطويرية',
+        'pageType'  => 'developmental',
+    ]);
+})->name('courses.developmental');
+
+Route::get('/courses/qualifying', function () {
+    $programs = \App\Models\Program::where('status', 'active')
+        ->where('type', 'course')
+        ->where('course_type', 'qualifying')
+        ->get();
+    return view('front.course-list', [
+        'programs'  => $programs,
+        'pageTitle' => 'الدورات التأهيلية',
+        'pageType'  => 'qualifying',
+    ]);
+})->name('courses.qualifying');
 
 Route::get('/english-courses', function () {
     $programs = \App\Models\Program::where('status', 'active')
@@ -201,6 +236,9 @@ Route::middleware(['auth', 'role:admin,super_admin'])->prefix('admin')->name('ad
     // Program (Path) Management
     Route::get('/programs/export', [\App\Http\Controllers\Admin\ProgramController::class, 'export'])->name('programs.export');
     Route::resource('programs', \App\Http\Controllers\Admin\ProgramController::class);
+
+    // Training Programs Management
+    Route::resource('training-programs', \App\Http\Controllers\Admin\TrainingProgramController::class);
 
     // Courses Management
     Route::resource('courses', \App\Http\Controllers\Admin\CourseController::class);

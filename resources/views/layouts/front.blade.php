@@ -713,7 +713,7 @@
 
         /* ── Footer ── */
         .foot { background: #1d3a52; color: #fff; padding: clamp(3rem,5vw,6rem) clamp(1rem,4vw,5rem); }
-        .footer-logo img { max-width: 180px; margin-bottom: 1rem; }
+        .footer-logo img { max-width: 260px; margin-bottom: 1rem; }
         .footer-desc { opacity: .8; line-height: 1.8; font-size: .9rem; margin-bottom: 1.5rem; }
         .footer-social-wrap { display: flex; gap: .75rem; }
         .footer-social-wrap a { width: 38px; height: 38px; border-radius: 50%; background: rgba(255,255,255,.1); color: #fff; display: flex; align-items: center; justify-content: center; transition: all .3s; text-decoration: none; font-size: 1rem; }
@@ -1147,36 +1147,30 @@
                     {{-- Courses dropdown --}}
                     <li class="nav-item nav-dropdown-wrap" id="coursesWrap">
                         <a href="#" id="coursesToggle"
-                           class="{{ request()->routeIs('short-courses') || request()->routeIs('english-courses') ? 'active' : '' }}">
-                            {{ __('Short Courses') }}
+                           class="{{ request()->routeIs('courses.*') || request()->routeIs('english-courses') || request()->routeIs('training-programs') ? 'active' : '' }}">
+                            الدورات
                             <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="dd-caret"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
                         </a>
                         <ul class="nav-dropdown-menu" id="coursesMenu">
                             <li>
-                                <a href="{{ route('short-courses') }}" class="{{ request()->routeIs('short-courses') ? 'active' : '' }}">
-                                    <i class="bi bi-grid-3x3-gap"></i> الدورات
+                                <a href="{{ route('courses.developmental') }}" class="{{ request()->routeIs('courses.developmental') ? 'active' : '' }}">
+                                    <i class="bi bi-graph-up-arrow" style="color:#2563eb;"></i> تطويري
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('courses.qualifying') }}" class="{{ request()->routeIs('courses.qualifying') ? 'active' : '' }}">
+                                    <i class="bi bi-mortarboard-fill" style="color:#7c3aed;"></i> تأهيلي
                                 </a>
                             </li>
                             <li class="dropdown-divider-item"></li>
                             <li>
                                 <a href="{{ route('english-courses') }}" class="{{ request()->routeIs('english-courses') ? 'active' : '' }}">
-                                    <i class="bi bi-translate"></i> اللغة الإنجليزية
-                                    <span class="dd-badge">15 مستوى</span>
+                                    <i class="bi bi-translate" style="color:#0071AA;"></i> اللغة الإنجليزية
                                 </a>
                             </li>
                             <li>
-                                <a href="{{ route('english-courses', ['tab' => 'foundation']) }}">
-                                    <i class="bi bi-arrow-return-left" style="opacity:.5"></i> مستويات التمهيدي (0–2)
-                                </a>
-                            </li>
-                            <li>
-                                <a href="{{ route('english-courses', ['tab' => 'core-a']) }}">
-                                    <i class="bi bi-arrow-return-left" style="opacity:.5"></i> المستويات 1–6
-                                </a>
-                            </li>
-                            <li>
-                                <a href="{{ route('english-courses', ['tab' => 'core-b']) }}">
-                                    <i class="bi bi-arrow-return-left" style="opacity:.5"></i> المستويات 7–12
+                                <a href="{{ route('training-programs') }}" class="{{ request()->routeIs('training-programs') ? 'active' : '' }}">
+                                    <i class="bi bi-clipboard-check-fill" style="color:#059669;"></i> البرامج التدريبية
                                 </a>
                             </li>
                         </ul>
@@ -1254,11 +1248,11 @@
         <ul class="mobile-nav-list">
             <li><a href="{{ route('home') }}"           class="{{ request()->routeIs('home')          ? 'active' : '' }}"><i class="bi bi-house-door" style="margin-left:.4rem;opacity:.6"></i>{{ __('Home') }}</a></li>
             <li><a href="{{ route('training-paths') }}" class="{{ request()->routeIs('training-paths') ? 'active' : '' }}"><i class="bi bi-signpost-split" style="margin-left:.4rem;opacity:.6"></i>{{ __('Training Paths') }}</a></li>
-            <li><a href="{{ route('short-courses') }}"  class="{{ request()->routeIs('short-courses')  ? 'active' : '' }}"><i class="bi bi-grid-3x3-gap" style="margin-left:.4rem;opacity:.6"></i>{{ __('Short Courses') }}</a></li>
-            <li class="mobile-sub-item"><a href="{{ route('english-courses') }}" class="{{ request()->routeIs('english-courses') ? 'active' : '' }}"><i class="bi bi-translate"></i> اللغة الإنجليزية</a></li>
-            <li class="mobile-sub-item"><a href="{{ route('english-courses', ['tab' => 'foundation']) }}">مستويات التمهيدي (0–2)</a></li>
-            <li class="mobile-sub-item"><a href="{{ route('english-courses', ['tab' => 'core-a']) }}">المستويات 1–6</a></li>
-            <li class="mobile-sub-item"><a href="{{ route('english-courses', ['tab' => 'core-b']) }}">المستويات 7–12</a></li>
+            <li><a href="#" style="font-weight:700;"><i class="bi bi-book" style="margin-left:.4rem;opacity:.6"></i>الدورات</a></li>
+            <li class="mobile-sub-item"><a href="{{ route('courses.developmental') }}" class="{{ request()->routeIs('courses.developmental') ? 'active' : '' }}"><i class="bi bi-graph-up-arrow" style="color:#2563eb;"></i> تطويري</a></li>
+            <li class="mobile-sub-item"><a href="{{ route('courses.qualifying') }}" class="{{ request()->routeIs('courses.qualifying') ? 'active' : '' }}"><i class="bi bi-mortarboard-fill" style="color:#7c3aed;"></i> تأهيلي</a></li>
+            <li class="mobile-sub-item"><a href="{{ route('english-courses') }}" class="{{ request()->routeIs('english-courses') ? 'active' : '' }}"><i class="bi bi-translate" style="color:#0071AA;"></i> اللغة الإنجليزية</a></li>
+            <li class="mobile-sub-item"><a href="{{ route('training-programs') }}" class="{{ request()->routeIs('training-programs') ? 'active' : '' }}"><i class="bi bi-clipboard-check-fill" style="color:#059669;"></i> البرامج التدريبية</a></li>
             <li>
                 <a href="{{ route('offers') }}" class="{{ request()->routeIs('offers') ? 'active' : '' }}">
                     <i class="bi bi-tags" style="margin-left:.4rem;opacity:.6"></i>{{ __('Offers') }}

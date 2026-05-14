@@ -30,10 +30,28 @@
                    placeholder="9200343222" dir="ltr">
         </div>
         <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">رقم الفاكس</label>
+            <input type="text" name="fax" value="{{ $settings['fax'] ?? '' }}"
+                   class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                   placeholder="00966-11-000-0000" dir="ltr">
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">رقم الرسائل القصيرة (SMS)</label>
+            <input type="text" name="sms_number" value="{{ $settings['sms_number'] ?? '' }}"
+                   class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                   placeholder="199099" dir="ltr">
+        </div>
+        <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">البريد الإلكتروني</label>
             <input type="email" name="email" value="{{ $settings['email'] ?? '' }}"
                    class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white"
                    placeholder="help@alertiqa.edu.sa" dir="ltr">
+        </div>
+        <div class="md:col-span-2">
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">رابط الخريطة (Google Maps)</label>
+            <input type="url" name="maps_url" value="{{ $settings['maps_url'] ?? '' }}"
+                   class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                   placeholder="https://maps.google.com/..." dir="ltr">
         </div>
         <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">العنوان (عربي)</label>

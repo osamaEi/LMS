@@ -10,26 +10,24 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
-class ProgramController extends Controller
-{ 
+class TrainingProgramController extends Controller
+{
+    private string $type = 'training';
+
     public function index()
     {
-        $excluded = ['course', 'english', 'training'];
-
-        $programs = Program::where(function ($q) use ($excluded) {
-                $q->whereNull('type')->orWhereNotIn('type', $excluded);
-            })
+        $programs = Program::where('type', $this->type)
             ->withCount(['terms', 'tracks'])
             ->latest()
             ->paginate(15);
 
         $stats = [
-            'total'    => Program::where(fn($q) => $q->whereNull('type')->orWhereNotIn('type', $excluded))->count(),
-            'active'   => Program::where(fn($q) => $q->whereNull('type')->orWhereNotIn('type', $excluded))->where('status', 'active')->count(),
-            'inactive' => Program::where(fn($q) => $q->whereNull('type')->orWhereNotIn('type', $excluded))->where('status', 'inactive')->count(),
+            'total'    => Program::where('type', $this->type)->count(),
+            'active'   => Program::where('type', $this->type)->where('status', 'active')->count(),
+            'inactive' => Program::where('type', $this->type)->where('status', 'inactive')->count(),
         ];
 
-        return view('admin.programs.index', compact('programs', 'stats'));
+        return view('admin.training-programs.index', compact('programs', 'stats'));
     }
 
     public function create()
@@ -37,7 +35,10 @@ class ProgramController extends Controller
         $subjects    = Subject::orderBy('name_ar')->get(['id', 'name_ar', 'name_en', 'code']);
         $supervisors = User::whereIn('role', ['admin', 'super_admin', 'teacher'])
                            ->orderBy('name')->get(['id', 'name', 'role']);
-        return view('admin.programs.create', compact('subjects', 'supervisors'));
+        return view('admin.programs.create', compact('subjects', 'supervisors'))
+            ->with('programType', $this->type)
+            ->with('backRoute', 'admin.training-programs.index')
+            ->with('pageLabel', 'البرامج التدريبية');
     }
 
     public function store(Request $request)
@@ -51,7 +52,6 @@ class ProgramController extends Controller
             'duration_months'    => 'nullable|integer|min:1',
             'price'              => 'nullable|numeric|min:0',
             'status'             => 'nullable|in:active,inactive',
-            'type'               => 'nullable|in:diploma,training,developmental,qualifying,course',
             'supervisor_name'    => 'nullable|string|max:255',
             'image'              => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'terms'              => 'nullable|array',
@@ -67,8 +67,10 @@ class ProgramController extends Controller
 
         $data = $request->only([
             'name_ar', 'name_en', 'code', 'description_ar', 'description_en',
-            'duration_months', 'price', 'status', 'type', 'supervisor_name',
+            'duration_months', 'price', 'status', 'supervisor_name',
         ]);
+
+        $data['type'] = $this->type;
 
         if ($request->hasFile('image')) {
             $data['image'] = $request->file('image')->store('uploads/images', 'public');
@@ -92,13 +94,13 @@ class ProgramController extends Controller
             }
         }
 
-        return redirect()->route('admin.programs.show', $program)
-            ->with('success', 'تم إضافة الدبلوم بنجاح');
+        return redirect()->route('admin.training-programs.show', $program)
+            ->with('success', 'تم إضافة البرنامج التدريبي بنجاح');
     }
 
-    public function show(Program $program)
+    public function show(Program $training_program)
     {
-        $program->load([
+        $training_program->load([
             'terms' => function ($query) {
                 $query->withCount('subjects')
                       ->with(['subjects' => fn($q) => $q->with('teacher:id,name')->orderBy('name_ar')])
@@ -108,98 +110,67 @@ class ProgramController extends Controller
         ]);
 
         $allSubjects = Subject::orderBy('name_ar')->get(['id', 'name_ar', 'name_en', 'code']);
+        $program = $training_program;
 
-        return view('admin.programs.show', compact('program', 'allSubjects'));
+        return view('admin.programs.show', compact('program', 'allSubjects'))
+            ->with('backRoute', 'admin.training-programs.index')
+            ->with('pageLabel', 'البرامج التدريبية');
     }
 
-    public function edit(Program $program)
+    public function edit(Program $training_program)
     {
         $supervisors = User::whereIn('role', ['admin', 'super_admin', 'teacher'])
                            ->orderBy('name')->get(['id', 'name', 'role']);
-        return view('admin.programs.edit', compact('program', 'supervisors'));
+        $program = $training_program;
+
+        return view('admin.programs.edit', compact('program', 'supervisors'))
+            ->with('programType', $this->type)
+            ->with('backRoute', 'admin.training-programs.index')
+            ->with('pageLabel', 'البرامج التدريبية');
     }
 
-    public function update(Request $request, Program $program)
+    public function update(Request $request, Program $training_program)
     {
         $validated = $request->validate([
             'name_ar'         => 'nullable|string|max:255',
             'name_en'         => 'nullable|string|max:255',
-            'code'            => 'nullable|string|unique:programs,code,' . $program->id,
+            'code'            => 'nullable|string|unique:programs,code,' . $training_program->id,
             'description_ar'  => 'nullable|string',
             'description_en'  => 'nullable|string',
             'duration_months' => 'nullable|integer|min:1',
             'price'           => 'nullable|numeric|min:0',
             'status'          => 'nullable|in:active,inactive',
-            'type'            => 'nullable|in:diploma,training,developmental,qualifying,course',
             'supervisor_name' => 'nullable|string|max:255',
             'image'           => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'remove_image'    => 'nullable|boolean',
         ]);
 
+        $validated['type'] = $this->type;
+
         if ($request->hasFile('image')) {
-            if ($program->image) {
-                Storage::disk('public')->delete($program->image);
+            if ($training_program->image) {
+                Storage::disk('public')->delete($training_program->image);
             }
             $validated['image'] = $request->file('image')->store('uploads/images', 'public');
         } elseif ($request->boolean('remove_image')) {
-            if ($program->image) {
-                Storage::disk('public')->delete($program->image);
+            if ($training_program->image) {
+                Storage::disk('public')->delete($training_program->image);
             }
             $validated['image'] = null;
         }
 
         unset($validated['remove_image']);
-        $program->update($validated);
+        $training_program->update($validated);
 
-        return redirect()->route('admin.programs.index')
-            ->with('success', 'تم تحديث الدبلوم بنجاح');
+        return redirect()->route('admin.training-programs.index')
+            ->with('success', 'تم تحديث البرنامج التدريبي بنجاح');
     }
 
-    public function destroy(Program $program)
+    public function destroy(Program $training_program)
     {
-        $program->delete();
+        $training_program->delete();
 
-        return redirect()->route('admin.programs.index')
-            ->with('success', 'تم حذف الدبلوم بنجاح');
-    }
-
-    public function export()
-    {
-        $programs = Program::withCount('terms')->latest()->get();
-
-        $filename = 'programs_' . now()->format('Y-m-d') . '.csv';
-
-        $headers = [
-            'Content-Type'        => 'text/csv; charset=UTF-8',
-            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
-            'Pragma'              => 'no-cache',
-            'Cache-Control'       => 'must-revalidate, post-check=0, pre-check=0',
-            'Expires'             => '0',
-        ];
-
-        $callback = function () use ($programs) {
-            $file = fopen('php://output', 'w');
-            fputs($file, "\xEF\xBB\xBF");
-
-            fputcsv($file, ['#', 'الاسم العربي', 'الاسم الإنجليزي', 'الرمز', 'المدة (أشهر)', 'السعر', 'عدد الفصول', 'الحالة', 'تاريخ الإنشاء']);
-
-            foreach ($programs as $i => $program) {
-                fputcsv($file, [
-                    $i + 1,
-                    $program->name_ar,
-                    $program->name_en,
-                    $program->code,
-                    $program->duration_months ?? '',
-                    $program->price ?? '0',
-                    $program->terms_count,
-                    $program->status === 'active' ? 'نشط' : 'غير نشط',
-                    $program->created_at->format('Y-m-d'),
-                ]);
-            }
-
-            fclose($file);
-        };
-
-        return response()->stream($callback, 200, $headers);
+        return redirect()->route('admin.training-programs.index')
+            ->with('success', 'تم حذف البرنامج التدريبي بنجاح');
     }
 }
