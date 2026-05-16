@@ -1,6 +1,6 @@
 @extends('layouts.dashboard')
 
-@section('title', 'الحضور والغياب')
+@section('title', __('Attendance'))
 
 @section('content')
 <div class="mx-auto max-w-screen-xl p-4 md:p-6">
@@ -11,8 +11,8 @@
         <div class="pointer-events-none absolute -top-20 -right-20 h-64 w-64 rounded-full" style="background:rgba(255,255,255,.05)"></div>
         <div class="pointer-events-none absolute -bottom-12 -left-12 h-48 w-48 rounded-full" style="background:rgba(255,255,255,.05)"></div>
         <div class="relative">
-            <h1 class="text-2xl font-bold tracking-tight">الحضور والغياب</h1>
-            <p class="mt-1 text-sm" style="color:rgba(255,255,255,.7)">سجل حضور الطلاب لجميع جلساتك</p>
+            <h1 class="text-2xl font-bold tracking-tight">{{ __('Attendance') }}</h1>
+            <p class="mt-1 text-sm" style="color:rgba(255,255,255,.7)">{{ __('Record student attendance for all your sessions') }}</p>
         </div>
     </div>
 
@@ -23,7 +23,7 @@
                 <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
             </svg>
         </div>
-        <p class="text-lg font-semibold text-gray-500">لا توجد مواد مسندة إليك</p>
+        <p class="text-lg font-semibold text-gray-500">{{ __('No subjects assigned to you') }}</p>
     </div>
     @else
 
@@ -44,26 +44,26 @@
                     </div>
                     <div>
                         <h3 class="font-bold text-black dark:text-white">{{ $subject->name_ar ?? $subject->name }}</h3>
-                        <p class="text-xs text-gray-400">{{ $totalEnrolled }} طالب مسجل · {{ $pastSessions->count() }} جلسة منتهية</p>
+                        <p class="text-xs text-gray-400">{{ $totalEnrolled }} {{ __('registered student') }} · {{ $pastSessions->count() }} {{ __('completed sessions') }}</p>
                     </div>
                 </div>
                 <a href="{{ route('teacher.my-subjects.show', $subject->id) }}"
-                   class="text-xs font-medium text-primary hover:underline">عرض المادة</a>
+                   class="text-xs font-medium text-primary hover:underline">{{ __('View Subject') }}</a>
             </div>
 
             @if($pastSessions->isEmpty())
-            <div class="py-8 text-center text-sm text-gray-400">لا توجد جلسات منتهية بعد</div>
+            <div class="py-8 text-center text-sm text-gray-400">{{ __('No completed sessions yet') }}</div>
             @else
             <div class="overflow-x-auto">
                 <table class="w-full">
                     <thead>
                         <tr style="background: linear-gradient(180deg,#f8fafc,#f1f5f9);">
                             <th class="px-5 py-3 text-right text-xs font-bold text-gray-500 uppercase">#</th>
-                            <th class="px-5 py-3 text-right text-xs font-bold text-gray-500 uppercase">الجلسة</th>
-                            <th class="px-5 py-3 text-right text-xs font-bold text-gray-500 uppercase">التاريخ</th>
-                            <th class="px-5 py-3 text-right text-xs font-bold text-gray-500 uppercase">الحضور</th>
-                            <th class="px-5 py-3 text-right text-xs font-bold text-gray-500 uppercase">النسبة</th>
-                            <th class="px-5 py-3 text-right text-xs font-bold text-gray-500 uppercase">الإجراء</th>
+                            <th class="px-5 py-3 text-right text-xs font-bold text-gray-500 uppercase">{{ __('Session #') }}</th>
+                            <th class="px-5 py-3 text-right text-xs font-bold text-gray-500 uppercase">{{ __('Date') }}</th>
+                            <th class="px-5 py-3 text-right text-xs font-bold text-gray-500 uppercase">{{ __('Attended') }}</th>
+                            <th class="px-5 py-3 text-right text-xs font-bold text-gray-500 uppercase">{{ __('Attendance Rate') }}</th>
+                            <th class="px-5 py-3 text-right text-xs font-bold text-gray-500 uppercase">{{ __('View Attendance') }}</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-stroke dark:divide-strokedark">
@@ -104,12 +104,12 @@
                                     <a href="{{ route('teacher.my-subjects.sessions.attendance', [$subject->id, $session->id]) }}"
                                        class="inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-semibold text-white transition hover:shadow"
                                        style="background:linear-gradient(135deg,#0071AA,#005a88)">
-                                        عرض
+                                        {{ __('View Attendance') }}
                                     </a>
                                     <a href="{{ route('teacher.my-subjects.sessions.attendance', [$subject->id, $session->id]) }}#add-attendance"
                                        class="inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-semibold transition hover:shadow"
                                        style="background:rgba(16,185,129,.12); color:#059669;">
-                                        + إضافة
+                                        + {{ __('Add Attendance') }}
                                     </a>
                                 </div>
                             </td>

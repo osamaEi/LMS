@@ -37,7 +37,7 @@ class PermissionSeeder extends Seeder
         'edit-students'                  => 'تعديل بيانات الطلاب',
         'delete-students'                => 'حذف الطلاب',
         'assign-program-to-student'      => 'تعيين دبلوم دراسي للطالب',
-        'remove-program-from-student'    => 'إزالة الدبلوم الدراسي من الطالب',
+        'remove-program-from-student'    => 'إزالة الدبلوم التدريبيمن الطالب',
         'toggle-student-status'          => 'تفعيل / تعطيل حساب الطالب',
 
         // ─── الدبلومات    التعليمية (البرامج) ─────────────
@@ -54,7 +54,7 @@ class PermissionSeeder extends Seeder
 
         // ─── المقررات  الدراسية ───────────────────────────
         'view-subjects'                  => 'عرض المقررات  الدراسية',
-        'create-subjects'                => 'إضافة مواد دراسية',
+        'create-subjects'                => 'إضافة مقرارت دراسية',
         'edit-subjects'                  => 'تعديل المقررات  الدراسية',
         'delete-subjects'                => 'حذف المقررات  الدراسية',
 

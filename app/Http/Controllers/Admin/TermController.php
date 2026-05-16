@@ -67,11 +67,11 @@ class TermController extends Controller
 
         if ($request->has('program_id') && $request->header('referer') && str_contains($request->header('referer'), 'programs')) {
             return redirect()->route('admin.programs.show', $request->program_id)
-                ->with('success', 'تم إضافة الربع الدراسي بنجاح');
+                ->with('success', 'تم إضافة الربع التدريبيبنجاح');
         }
 
         return redirect()->route('admin.terms.show', $term)
-            ->with('success', 'تم إضافة الربع الدراسي بنجاح');
+            ->with('success', 'تم إضافة الربع التدريبيبنجاح');
     }
 
     public function show(Term $term)
@@ -120,7 +120,7 @@ class TermController extends Controller
         $term->update($validated);
 
         return redirect()->route('admin.terms.show', $term)
-            ->with('success', 'تم تحديث الربع الدراسي بنجاح');
+            ->with('success', 'تم تحديث الربع التدريبيبنجاح');
     }
 
     public function destroy(Term $term)
@@ -128,7 +128,7 @@ class TermController extends Controller
         $term->delete();
 
         return redirect()->route('admin.terms.index')
-            ->with('success', 'تم حذف الربع الدراسي بنجاح');
+            ->with('success', 'تم حذف الربع التدريبيبنجاح');
     }
 
     public function syncSubjects(Request $request, Term $term)

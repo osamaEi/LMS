@@ -1,11 +1,11 @@
 @extends('layouts.dashboard')
 
-@section('title', 'تذاكر الدعم')
+@section('title', __('Support Tickets'))
 
 @section('content')
 <div class="mb-6">
-    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">تذاكر الدعم الفني</h1>
-    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">إدارة ومتابعة طلبات الدعم الفني</p>
+    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ __('Support Tickets') }}</h1>
+    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">{{ __('Manage and follow up on support requests') }}</p>
 </div>
 
 @if(session('success'))
@@ -19,7 +19,7 @@
     <div class="flex-1 min-w-[200px] rounded-xl shadow-lg p-5" style="background: linear-gradient(135deg, #0071AA 0%, #005a88 100%);">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-sm" style="color: rgba(255,255,255,0.8);">إجمالي التذاكر</p>
+                <p class="text-sm" style="color: rgba(255,255,255,0.8);">{{ __('Total Tickets') }}</p>
                 <p class="text-2xl font-bold text-white">{{ $tickets->total() }}</p>
             </div>
             <div class="flex h-12 w-12 items-center justify-center rounded-xl" style="background: rgba(255,255,255,0.2);">
@@ -33,7 +33,7 @@
     <div class="flex-1 min-w-[200px] rounded-xl shadow-lg p-5" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-sm" style="color: rgba(255,255,255,0.8);">مفتوحة</p>
+                <p class="text-sm" style="color: rgba(255,255,255,0.8);">{{ __('Open') }}</p>
                 <p class="text-2xl font-bold text-white">{{ $tickets->where('status', 'open')->count() }}</p>
             </div>
             <div class="flex h-12 w-12 items-center justify-center rounded-xl" style="background: rgba(255,255,255,0.2);">
@@ -47,7 +47,7 @@
     <div class="flex-1 min-w-[200px] rounded-xl shadow-lg p-5" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-sm" style="color: rgba(255,255,255,0.8);">قيد المعالجة</p>
+                <p class="text-sm" style="color: rgba(255,255,255,0.8);">{{ __('In Progress') }}</p>
                 <p class="text-2xl font-bold text-white">{{ $tickets->where('status', 'in_progress')->count() }}</p>
             </div>
             <div class="flex h-12 w-12 items-center justify-center rounded-xl" style="background: rgba(255,255,255,0.2);">
@@ -61,7 +61,7 @@
     <div class="flex-1 min-w-[200px] rounded-xl shadow-lg p-5" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-sm" style="color: rgba(255,255,255,0.8);">تم الحل</p>
+                <p class="text-sm" style="color: rgba(255,255,255,0.8);">{{ __('Closed') }}</p>
                 <p class="text-2xl font-bold text-white">{{ $tickets->where('status', 'resolved')->count() }}</p>
             </div>
             <div class="flex h-12 w-12 items-center justify-center rounded-xl" style="background: rgba(255,255,255,0.2);">
@@ -81,7 +81,7 @@
         <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
         </svg>
-        إنشاء تذكرة جديدة
+        {{ __('New Ticket') }}
     </a>
 </div>
 
@@ -94,10 +94,10 @@
                     <th class="px-6 py-4 text-right text-xs font-medium text-white uppercase">#</th>
                     <th class="px-6 py-4 text-right text-xs font-medium text-white uppercase">الموضوع</th>
                     <th class="px-6 py-4 text-right text-xs font-medium text-white uppercase">الفئة</th>
-                    <th class="px-6 py-4 text-right text-xs font-medium text-white uppercase">الأولوية</th>
-                    <th class="px-6 py-4 text-right text-xs font-medium text-white uppercase">الحالة</th>
+                    <th class="px-6 py-4 text-right text-xs font-medium text-white uppercase">{{ __('Priority') }}</th>
+                    <th class="px-6 py-4 text-right text-xs font-medium text-white uppercase">{{ __('Status') }}</th>
                     <th class="px-6 py-4 text-right text-xs font-medium text-white uppercase">الردود</th>
-                    <th class="px-6 py-4 text-right text-xs font-medium text-white uppercase">التاريخ</th>
+                    <th class="px-6 py-4 text-right text-xs font-medium text-white uppercase">{{ __('Created') }}</th>
                     <th class="px-6 py-4 text-right text-xs font-medium text-white uppercase">الإجراءات</th>
                 </tr>
             </thead>
@@ -174,7 +174,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                             </svg>
-                            عرض
+                            {{ __('View') }}
                         </a>
                     </td>
                 </tr>
@@ -185,7 +185,7 @@
                             <svg class="h-12 w-12 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                             </svg>
-                            <p class="text-gray-500 dark:text-gray-400 font-medium">لا توجد تذاكر</p>
+                            <p class="text-gray-500 dark:text-gray-400 font-medium">{{ __('No tickets yet') }}</p>
                             <p class="text-gray-400 dark:text-gray-500 text-sm mt-1">أنشئ تذكرة جديدة للتواصل مع الدعم الفني</p>
                         </div>
                     </td>

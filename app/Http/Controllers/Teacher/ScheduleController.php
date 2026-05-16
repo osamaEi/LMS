@@ -5,17 +5,19 @@ namespace App\Http\Controllers\Teacher;
 use App\Http\Controllers\Controller;
 use App\Models\Session;
 use App\Models\Subject;
+use App\Services\ZoomService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ScheduleController extends Controller
 {
     public function index()
     {
-        $teacher = auth()->user();
+        $teacher = Auth::user();
         $now     = now();
 
         $sessions = Session::whereHas('subject', function ($query) use ($teacher) {
-                $query->where('teacher_id', $teacher->id);
+                $query->assignedToTeacher($teacher->id);
             })
             ->with(['subject'])
             ->orderBy('scheduled_at', 'asc')
@@ -40,7 +42,7 @@ class ScheduleController extends Controller
         ];
 
         // Teacher's active subjects for the create form
-        $subjects = Subject::where('teacher_id', $teacher->id)
+        $subjects = Subject::assignedToTeacher($teacher->id)
             ->where('status', 'active')
             ->orderBy('name_ar')
             ->get(['id', 'name_ar', 'name_en']);
@@ -54,23 +56,21 @@ class ScheduleController extends Controller
      */
     public function bulkStore(Request $request)
     {
-        $teacher = auth()->user();
+        $teacher = Auth::user();
 
         $request->validate([
             'sessions'                    => 'required|array|min:1',
             'sessions.*.subject_id'       => 'nullable|integer',
-            'sessions.*.title_ar'         => 'nullable|string|max:255',
-            'sessions.*.title_en'         => 'nullable|string|max:255',
-            'sessions.*.type'             => 'nullable|in:live_zoom,recorded_video',
             'sessions.*.scheduled_at'     => 'nullable|date',
             'sessions.*.duration_minutes' => 'nullable|integer|min:1|max:480',
         ]);
 
         // Verify all subjects belong to this teacher
         $subjectIds = collect($request->sessions)->pluck('subject_id')->unique();
-        $allowed    = Subject::where('teacher_id', $teacher->id)
+        $subjects   = Subject::assignedToTeacher($teacher->id)
             ->whereIn('id', $subjectIds)
-            ->pluck('id');
+            ->get(['id', 'name_ar']);
+        $allowed    = $subjects->pluck('id');
 
         foreach ($subjectIds as $sid) {
             if (!$allowed->contains($sid)) {
@@ -85,26 +85,54 @@ class ScheduleController extends Controller
             $nextNumbers[$sid] = Session::where('subject_id', $sid)->max('session_number') ?? 0;
         }
 
+        $zoom = app(ZoomService::class);
         $created = 0;
+        $zoomFailed = 0;
+
         foreach ($request->sessions as $row) {
             $sid = (int) ($row['subject_id'] ?? 0);
             if (!$allowed->contains($sid)) continue;
             $nextNumbers[$sid]++;
 
-            Session::create([
-                'subject_id'       => $sid,
-                'title_ar'         => $row['title_ar'] ?? null,
-                'title_en'         => $row['title_en'] ?? null,
-                'type'             => $row['type'] ?? 'live_zoom',
-                'scheduled_at'     => $row['scheduled_at'] ?? null,
-                'duration_minutes' => $row['duration_minutes'] ?? 60,
-                'session_number'   => $nextNumbers[$sid],
-                'status'           => 'scheduled',
+            $subject       = $subjects->firstWhere('id', $sid);
+            $sessionNumber = $nextNumbers[$sid];
+            $scheduledAt   = $row['scheduled_at'] ?? null;
+            $duration      = (int) ($row['duration_minutes'] ?? 60);
+
+            // Create Zoom meeting
+            $zoomData = $zoom->createMeeting([
+                'topic'      => ($subject->name_ar ?? 'جلسة') . ' - جلسة ' . $sessionNumber,
+                'type'       => 2,
+                'start_time' => $scheduledAt ? \Carbon\Carbon::parse($scheduledAt)->toIso8601String() : now()->addHour()->toIso8601String(),
+                'duration'   => $duration,
             ]);
+
+            $sessionRow = [
+                'subject_id'       => $sid,
+                'type'             => 'live_zoom',
+                'scheduled_at'     => $scheduledAt,
+                'duration_minutes' => $duration,
+                'session_number'   => $sessionNumber,
+            ];
+
+            if ($zoomData) {
+                $sessionRow['zoom_meeting_id'] = (string) ($zoomData['id'] ?? '');
+                $sessionRow['zoom_start_url']  = $zoomData['start_url'] ?? null;
+                $sessionRow['zoom_join_url']   = $zoomData['join_url'] ?? null;
+                $sessionRow['zoom_password']   = $zoomData['password'] ?? null;
+            } else {
+                $zoomFailed++;
+            }
+
+            Session::create($sessionRow);
             $created++;
         }
 
-        return redirect()->route('teacher.schedule')
-            ->with('success', "تم إنشاء {$created} جلسة بنجاح ✓");
+        $msg = "تم إنشاء {$created} جلسة بنجاح ✓";
+        if ($zoomFailed > 0) {
+            $msg .= " (تعذّر إنشاء رابط Zoom لـ {$zoomFailed} جلسة، يمكن إضافته لاحقاً)";
+        }
+
+        return redirect()->route('teacher.schedule')->with('success', $msg);
     }
 }

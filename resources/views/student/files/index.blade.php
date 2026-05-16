@@ -155,7 +155,7 @@
                 <div>
                     <h1 style="font-size:1.6rem;font-weight:900;color:#fff;margin:0">الملفات والموارد</h1>
                     <p style="font-size:0.875rem;color:rgba(255,255,255,0.6);margin:4px 0 0">
-                        جميع ملفات وفيديوهات موادك الدراسية
+                        جميع ملفات وفيديوهات مقرارتك الدراسية
                     </p>
                 </div>
             </div>

@@ -22,6 +22,7 @@ class Session extends Model
         'description_en',
         'session_number',
         'type',
+        'status',
         'scheduled_at',
         'duration_minutes',
         'zoom_meeting_id',

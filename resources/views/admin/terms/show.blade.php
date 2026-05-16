@@ -1,6 +1,6 @@
 @extends('layouts.dashboard')
 
-@section('title', 'الربع الدراسي — ' . $term->name)
+@section('title', 'الربع التدريبي— ' . $term->name)
 
 @push('styles')
 <style>
@@ -299,7 +299,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
                     </svg>
                 </div>
-                <h3 class="font-bold text-gray-900 dark:text-white">لا توجد مواد مرتبطة</h3>
+                <h3 class="font-bold text-gray-900 dark:text-white">لا توجد مقرارت مرتبطة</h3>
                 <p class="text-sm text-gray-400 mt-1 mb-4">ابدأ بتعيين المقررات  لهذا الربع</p>
                 <button onclick="openDrawer()"
                         class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold text-white shadow-lg"
@@ -460,7 +460,7 @@
             </label>
         </template>
         <div x-show="filtered.length === 0" class="text-center py-12 text-gray-400 text-sm">
-            لا توجد مواد تطابق البحث
+            لا توجد مقرارت تطابق البحث
         </div>
     </div>
 

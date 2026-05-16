@@ -31,7 +31,7 @@ class SubjectController extends Controller
     {
         $teacher = auth()->user();
 
-        $subjects = Subject::where('teacher_id', $teacher->id)
+        $subjects = Subject::assignedToTeacher($teacher->id)
             ->with(['term.program'])
             ->withCount(['enrollments', 'sessions'])
             ->orderBy(app()->getLocale() === 'en' ? 'name_en' : 'name_ar')
@@ -47,7 +47,7 @@ class SubjectController extends Controller
     {
         $teacher = auth()->user();
 
-        $subject = Subject::where('teacher_id', $teacher->id)
+        $subject = Subject::assignedToTeacher($teacher->id)
             ->with(['term.program', 'units'])
             ->withCount('enrollments')
             ->findOrFail($id);
@@ -73,7 +73,7 @@ class SubjectController extends Controller
     {
         $teacher = auth()->user();
 
-        $subject = Subject::where('teacher_id', $teacher->id)
+        $subject = Subject::assignedToTeacher($teacher->id)
             ->with('units')
             ->findOrFail($subjectId);
 
@@ -91,7 +91,7 @@ class SubjectController extends Controller
         $teacher = auth()->user();
 
         // Verify subject belongs to teacher
-        $subject = Subject::where('teacher_id', $teacher->id)->findOrFail($subjectId);
+        $subject = Subject::assignedToTeacher($teacher->id)->findOrFail($subjectId);
 
         $validated = $request->validate([
             'unit_id' => 'nullable|exists:units,id',
@@ -213,7 +213,7 @@ class SubjectController extends Controller
     {
         $teacher = auth()->user();
 
-        $subject = Subject::where('teacher_id', $teacher->id)
+        $subject = Subject::assignedToTeacher($teacher->id)
             ->with('units')
             ->findOrFail($subjectId);
 
@@ -232,7 +232,7 @@ class SubjectController extends Controller
         $teacher = auth()->user();
 
         // Verify subject belongs to teacher
-        Subject::where('teacher_id', $teacher->id)->findOrFail($subjectId);
+        Subject::assignedToTeacher($teacher->id)->findOrFail($subjectId);
 
         $session = Session::where('subject_id', $subjectId)->findOrFail($sessionId);
 
@@ -355,7 +355,7 @@ class SubjectController extends Controller
         $teacher = auth()->user();
 
         // Verify subject belongs to teacher
-        Subject::where('teacher_id', $teacher->id)->findOrFail($subjectId);
+        Subject::assignedToTeacher($teacher->id)->findOrFail($subjectId);
 
         $session = Session::where('subject_id', $subjectId)->findOrFail($sessionId);
 
@@ -392,7 +392,7 @@ class SubjectController extends Controller
     {
         $teacher = auth()->user();
 
-        Subject::where('teacher_id', $teacher->id)->findOrFail($subjectId);
+        Subject::assignedToTeacher($teacher->id)->findOrFail($subjectId);
         Session::where('subject_id', $subjectId)->findOrFail($sessionId);
 
         $file = SessionFile::where('session_id', $sessionId)->findOrFail($fileId);
@@ -410,7 +410,7 @@ class SubjectController extends Controller
     {
         $teacher = auth()->user();
 
-        Subject::where('teacher_id', $teacher->id)->findOrFail($subjectId);
+        Subject::assignedToTeacher($teacher->id)->findOrFail($subjectId);
 
         $session = Session::where('subject_id', $subjectId)
             ->with('subject')
@@ -426,7 +426,7 @@ class SubjectController extends Controller
     {
         $teacher = auth()->user();
 
-        Subject::where('teacher_id', $teacher->id)->findOrFail($subjectId);
+        Subject::assignedToTeacher($teacher->id)->findOrFail($subjectId);
 
         $session = Session::where('subject_id', $subjectId)
             ->with('subject')
@@ -442,7 +442,7 @@ class SubjectController extends Controller
     {
         $teacher = auth()->user();
 
-        $subject = Subject::where('teacher_id', $teacher->id)
+        $subject = Subject::assignedToTeacher($teacher->id)
             ->findOrFail($subjectId);
 
         $session = Session::where('subject_id', $subjectId)
@@ -482,7 +482,7 @@ class SubjectController extends Controller
     {
         $teacher = auth()->user();
 
-        $subject = Subject::where('teacher_id', $teacher->id)
+        $subject = Subject::assignedToTeacher($teacher->id)
             ->findOrFail($subjectId);
 
         $session = Session::where('subject_id', $subjectId)
@@ -513,7 +513,7 @@ class SubjectController extends Controller
     {
         $teacher = auth()->user();
 
-        $subjects = Subject::where('teacher_id', $teacher->id)
+        $subjects = Subject::assignedToTeacher($teacher->id)
             ->with(['sessions' => function($q) {
                 $q->where('scheduled_at', '<', now())
                   ->withCount(['attendances as attended_count' => function($q) {

@@ -62,7 +62,7 @@
                             @endforeach
                         </div>
                     @else
-                        <p class="text-center text-gray-600 dark:text-gray-400 py-8">لا توجد مواد دراسية مسندة إليك</p>
+                        <p class="text-center text-gray-600 dark:text-gray-400 py-8">لا توجد مقرارت دراسية مسندة إليك</p>
                     @endif
                 </div>
             </div>
@@ -131,7 +131,7 @@
                 <div class="p-6 space-y-2">
                     <a href="{{ route('teacher.my-subjects.index') }}" 
                        class="block w-full px-4 py-2 text-center bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200 rounded hover:bg-blue-200 dark:hover:bg-blue-800 transition text-sm">
-                        مواداتي الدراسية
+                        مقرارتاتي الدراسية
                     </a>
                     <a href="{{ route('teacher.schedule') }}" 
                        class="block w-full px-4 py-2 text-center bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-200 rounded hover:bg-green-200 dark:hover:bg-green-800 transition text-sm">

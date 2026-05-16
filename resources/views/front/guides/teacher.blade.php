@@ -208,11 +208,11 @@
                         </div>
                         <div>
                             <h2 style="font-size: 1.25rem; font-weight: 700; color: #111827; margin: 0;">استخدام الفصول الافتراضية</h2>
-                            <p style="color: #6b7280; font-size: 0.875rem; margin: 0.25rem 0 0 0;">إدارة الحصص المباشرة وجلسات التدريب</p>
+                            <p style="color: #6b7280; font-size: 0.875rem; margin: 0.25rem 0 0 0;">إدارة المحاضرات المباشرة وجلسات التدريب</p>
                         </div>
                     </div>
                     <div style="color: #374151; line-height: 1.9; font-size: 0.95rem;">
-                        <p style="margin-bottom: 1rem;">تمكّنك الفصول الافتراضية من تقديم حصص تدريبية مباشرة بتفاعل حقيقي مع المتدربين:</p>
+                        <p style="margin-bottom: 1rem;">تمكّنك الفصول الافتراضية من تقديم محاضرات تدريبية مباشرة بتفاعل حقيقي مع المتدربين:</p>
                         <div class="sub-step" style="margin-bottom: 0.75rem;">
                             <strong>جدولة جلسة جديدة:</strong> من صفحة إدارة الدورة، انتقل إلى تبويب "الفصول الافتراضية" واضغط على "جدولة جلسة جديدة". حدد عنوان الجلسة، والتاريخ والوقت، والمدة المتوقعة، وأضف وصفاً مختصراً لموضوع الجلسة.
                         </div>
@@ -378,7 +378,7 @@
                         <i class="fas fa-clock" style="color: #d97706;"></i>
                         <strong style="color: #92400e;">الالتزام بالمواعيد</strong>
                     </div>
-                    <p style="color: #4b5563; font-size: 0.875rem; line-height: 1.7; margin: 0;">ابدأ الحصص في مواعيدها وأعلن عن الاختبارات مبكراً. الالتزام يبني الثقة ويعزز احترام المتدربين.</p>
+                    <p style="color: #4b5563; font-size: 0.875rem; line-height: 1.7; margin: 0;">ابدأ المحاضرات في مواعيدها وأعلن عن الاختبارات مبكراً. الالتزام يبني الثقة ويعزز احترام المتدربين.</p>
                 </div>
                 <div style="background: #fefce8; border-radius: 0.75rem; padding: 1rem 1.25rem;">
                     <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">

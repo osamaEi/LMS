@@ -1,6 +1,6 @@
 @extends('layouts.dashboard')
 
-@section('title', 'الملفات والموارد')
+@section('title', __('Files & Resources'))
 
 @push('styles')
 <style>
@@ -151,6 +151,14 @@
 @section('content')
 <div class="container mx-auto px-4 py-6 max-w-7xl" x-data="filesApp()" x-init="init()">
 
+    {{-- Flash Messages --}}
+    @if(session('success'))
+    <div style="background:#dcfce7;border:1px solid #86efac;border-radius:12px;padding:12px 18px;margin-bottom:16px;display:flex;align-items:center;gap:10px;color:#166534;font-size:0.875rem;font-weight:600">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        {{ session('success') }}
+    </div>
+    @endif
+
     {{-- Hero --}}
     <div class="files-hero mb-6">
         <div class="relative z-10" style="display:flex;align-items:center;gap:20px">
@@ -160,12 +168,20 @@
                 </svg>
             </div>
             <div>
-                <h1 style="font-size:1.6rem;font-weight:900;color:#fff;margin:0">الملفات والموارد</h1>
+                <h1 style="font-size:1.6rem;font-weight:900;color:#fff;margin:0">{{ __('Files & Resources') }}</h1>
                 <p style="font-size:0.875rem;color:rgba(255,255,255,0.6);margin:4px 0 0">
                     جميع الملفات والفيديوهات المرفقة بجلساتك التدريسية
                 </p>
             </div>
-            <div style="margin-right:auto;display:flex;gap:10px">
+            <div style="margin-right:auto;display:flex;align-items:center;gap:10px">
+                <button @click="uploadModal = true"
+                        style="display:inline-flex;align-items:center;gap:8px;padding:10px 18px;background:linear-gradient(135deg,#6366f1,#4f46e5);color:#fff;border:none;border-radius:12px;font-size:0.875rem;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(99,102,241,0.4);transition:opacity 0.2s"
+                        onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+                    </svg>
+                    {{ __('Upload New File') }}
+                </button>
                 @php
                     $totalFiles = $subjects->sum(fn($s) => $s->sessions->sum(fn($sess) => $sess->files->count()) + $s->files->count());
                     $totalPdfs  = $subjects->sum(fn($s) => $s->sessions->sum(fn($sess) => $sess->files->where('type','pdf')->count()) + $s->files->where('file_type','pdf')->count());
@@ -186,7 +202,7 @@
         {{-- Subject Sidebar --}}
         <div style="background:#fff;border-radius:18px;border:1.5px solid #f1f5f9;padding:12px;position:sticky;top:80px" class="dark:bg-slate-800 dark:border-white/10">
             <div style="font-size:0.72rem;font-weight:700;color:#9ca3af;letter-spacing:0.08em;padding:4px 8px 10px;text-transform:uppercase">
-                المقررات  الدراسية
+                {{ __('Subjects') }}
             </div>
 
             {{-- All subjects tab --}}
@@ -198,7 +214,7 @@
                     </svg>
                 </div>
                 <span style="font-size:0.875rem;font-weight:600;color:{{ $activeSubjectId === 0 ? '#fff' : '#374151' }}" class="{{ $activeSubjectId === 0 ? '' : 'dark:text-white' }}">
-                    جميع المقررات 
+                    {{ __('All Subjects') }}
                 </span>
                 <span class="tab-count">{{ $totalFiles }}</span>
             </a>
@@ -225,7 +241,7 @@
             </a>
             @empty
             <div style="text-align:center;padding:24px 12px;color:#9ca3af;font-size:0.83rem">
-                لا توجد مواد مسندة إليك
+                {{ __('No subjects assigned to you') }}
             </div>
             @endforelse
         </div>
@@ -314,14 +330,27 @@
                                 @endif
                                 <div style="display:flex;align-items:center;justify-content:space-between;padding-top:10px;border-top:1px solid #f1f5f9" class="dark:border-white/10">
                                     <span style="font-size:0.72rem;color:#9ca3af">{{ $file->getFormattedSize() }}</span>
-                                    <a href="{{ asset('storage/' . $file->file_path) }}" target="_blank"
-                                       style="font-size:0.75rem;font-weight:600;color:#6366f1;display:flex;align-items:center;gap:4px;text-decoration:none"
-                                       @click.stop>
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
-                                        </svg>
-                                        تحميل
-                                    </a>
+                                    <div style="display:flex;align-items:center;gap:10px" @click.stop>
+                                        <a href="{{ asset('storage/' . $file->file_path) }}" target="_blank"
+                                           style="font-size:0.75rem;font-weight:600;color:#6366f1;display:flex;align-items:center;gap:4px;text-decoration:none">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                                            </svg>
+                                            {{ __('Download') }}
+                                        </a>
+                                        <form action="{{ route('teacher.files.destroy', $file->id) }}" method="POST"
+                                              onsubmit="return confirm('هل أنت متأكد من حذف هذا الملف؟')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit"
+                                                    style="font-size:0.75rem;font-weight:600;color:#dc2626;background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:4px;padding:0">
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                                </svg>
+                                                {{ __('Delete') }}
+                                            </button>
+                                        </form>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -433,10 +462,104 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                     </svg>
                 </div>
-                <p style="font-size:1rem;font-weight:700;color:#374151;margin:0 0 6px" class="dark:text-white">لا توجد ملفات</p>
-                <p style="font-size:0.83rem;color:#9ca3af;margin:0">لم يتم رفع أي ملفات أو فيديوهات على جلساتك بعد</p>
+                <p style="font-size:1rem;font-weight:700;color:#374151;margin:0 0 6px" class="dark:text-white">{{ __('No files uploaded yet') }}</p>
+                <p style="font-size:0.83rem;color:#9ca3af;margin:0">{{ __('No files uploaded yet') }}</p>
             </div>
             @endforelse
+        </div>
+    </div>
+
+    {{-- Upload Modal --}}
+    <div x-show="uploadModal" class="preview-modal" x-cloak style="z-index:10000">
+        <div class="preview-backdrop" @click="uploadModal = false"></div>
+        <div style="position:relative;z-index:1;background:#fff;border-radius:20px;width:100%;max-width:520px;box-shadow:0 40px 100px rgba(0,0,0,0.25);overflow:hidden" class="dark:bg-slate-800">
+            {{-- Modal Header --}}
+            <div style="display:flex;align-items:center;gap:12px;padding:20px 24px;border-bottom:1px solid #f1f5f9" class="dark:border-white/10">
+                <div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#6366f1,#4f46e5);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+                    </svg>
+                </div>
+                <div style="flex:1">
+                    <h3 style="font-size:1rem;font-weight:800;color:#111827;margin:0" class="dark:text-white">{{ __('Upload New File') }}</h3>
+                    <p style="font-size:0.78rem;color:#6b7280;margin:2px 0 0">أضف ملفاً إلى أحد مقرراتك</p>
+                </div>
+                <button @click="uploadModal = false"
+                        style="width:32px;height:32px;border-radius:8px;background:#f1f5f9;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#6b7280"
+                        class="dark:bg-white/10 dark:text-white">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+
+            {{-- Form --}}
+            <form action="{{ route('teacher.files.store') }}" method="POST" enctype="multipart/form-data" style="padding:24px">
+                @csrf
+
+                {{-- Subject --}}
+                <div style="margin-bottom:16px">
+                    <label style="display:block;font-size:0.8rem;font-weight:700;color:#374151;margin-bottom:6px" class="dark:text-slate-300">المقرر التدريبي*</label>
+                    <select name="subject_id" required
+                            style="width:100%;padding:10px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:0.875rem;color:#111827;background:#fff;outline:none;appearance:none"
+                            class="dark:bg-slate-700 dark:border-white/20 dark:text-white">
+                        <option value="">-- اختر المقرر --</option>
+                        @foreach($subjects as $subject)
+                        <option value="{{ $subject->id }}" {{ request('subject') == $subject->id ? 'selected' : '' }}>
+                            {{ $subject->name }}
+                        </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                {{-- Title --}}
+                <div style="margin-bottom:16px">
+                    <label style="display:block;font-size:0.8rem;font-weight:700;color:#374151;margin-bottom:6px" class="dark:text-slate-300">{{ __('File Title') }} *</label>
+                    <input type="text" name="title" required placeholder="مثال: مذكرة الوحدة الأولى"
+                           style="width:100%;padding:10px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:0.875rem;color:#111827;background:#fff;outline:none;box-sizing:border-box"
+                           class="dark:bg-slate-700 dark:border-white/20 dark:text-white">
+                </div>
+
+                {{-- Description --}}
+                <div style="margin-bottom:16px">
+                    <label style="display:block;font-size:0.8rem;font-weight:700;color:#374151;margin-bottom:6px" class="dark:text-slate-300">{{ __('File Description') }}</label>
+                    <textarea name="description" rows="2" placeholder="وصف مختصر للملف..."
+                              style="width:100%;padding:10px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:0.875rem;color:#111827;background:#fff;outline:none;resize:none;box-sizing:border-box"
+                              class="dark:bg-slate-700 dark:border-white/20 dark:text-white"></textarea>
+                </div>
+
+                {{-- File --}}
+                <div style="margin-bottom:24px">
+                    <label style="display:block;font-size:0.8rem;font-weight:700;color:#374151;margin-bottom:6px" class="dark:text-slate-300">{{ __('File') }} *</label>
+                    <label style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:24px;border:2px dashed #d1d5db;border-radius:12px;cursor:pointer;transition:border-color 0.2s;background:#fafafa"
+                           class="dark:bg-slate-700/50 dark:border-white/20"
+                           onmouseover="this.style.borderColor='#6366f1'" onmouseout="this.style.borderColor='#d1d5db'"
+                           x-ref="dropLabel">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+                        </svg>
+                        <span x-text="uploadFileName || 'اسحب الملف هنا أو انقر للاختيار'" style="font-size:0.83rem;color:#6b7280;text-align:center"></span>
+                        <span style="font-size:0.72rem;color:#9ca3af">PDF, DOC, XLS, PPT, ZIP, صور — بحد أقصى 50 MB</span>
+                        <input type="file" name="file" required class="sr-only"
+                               @change="uploadFileName = $event.target.files[0]?.name || ''">
+                    </label>
+                </div>
+
+                <div style="display:flex;gap:10px;justify-content:flex-end">
+                    <button type="button" @click="uploadModal = false"
+                            style="padding:10px 20px;border:1.5px solid #e5e7eb;border-radius:10px;background:#fff;color:#374151;font-size:0.875rem;font-weight:600;cursor:pointer"
+                            class="dark:bg-slate-700 dark:border-white/20 dark:text-white">
+                        {{ __('Cancel') }}
+                    </button>
+                    <button type="submit"
+                            style="padding:10px 24px;background:linear-gradient(135deg,#6366f1,#4f46e5);color:#fff;border:none;border-radius:10px;font-size:0.875rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+                        </svg>
+                        {{ __('Upload File') }}
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -520,10 +643,12 @@
 function filesApp() {
     return {
         preview: { open: false, title: '', type: '', url: '', session: '', size: '', duration: '' },
+        uploadModal: false,
+        uploadFileName: '',
 
         init() {
             document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape') this.closePreview();
+                if (e.key === 'Escape') { this.closePreview(); this.uploadModal = false; }
             });
         },
 

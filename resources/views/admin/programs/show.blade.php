@@ -482,7 +482,7 @@
 
                 <div style="padding: 1rem; border-bottom: 1px solid #e5e7eb;" class="dark:border-gray-700 flex items-center justify-between flex-shrink-0">
                     <div>
-                        <h3 style="font-size: 1rem; font-weight: 600;" class="text-gray-900 dark:text-white">تعيين مواد للربع</h3>
+                        <h3 style="font-size: 1rem; font-weight: 600;" class="text-gray-900 dark:text-white">تعيين مقرارت للربع</h3>
                         <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5" x-text="termName"></p>
                     </div>
                     <button @click="open = false; $store.subjectModal = {open: false, termId: null, termName: ''}" class="text-gray-400 hover:text-gray-600">

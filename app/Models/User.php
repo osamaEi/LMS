@@ -228,10 +228,16 @@ class User extends Authenticatable
         return \App\Models\TeacherRating::getTeacherRatingsBreakdown($this->id);
     }
 
-    // For teachers
+    // For teachers — legacy single-teacher relationship (kept for backward compat)
     public function subjects()
     {
         return $this->hasMany(\App\Models\Subject::class, 'teacher_id');
+    }
+
+    // Many-to-many subject assignments via pivot table
+    public function assignedSubjects()
+    {
+        return $this->belongsToMany(\App\Models\Subject::class, 'subject_teacher', 'teacher_id', 'subject_id')->withTimestamps();
     }
 
     // For students - alias for enrollments
@@ -247,16 +253,26 @@ class User extends Authenticatable
     }
 
     /**
+     * Alias so all views can use $user->avatar regardless of DB column name.
+     */
+    public function getAvatarAttribute(): ?string
+    {
+        return $this->profile_photo;
+    }
+
+    /**
      * Get role display name in Arabic
      */
     public function getRoleDisplayName(): string
     {
+        $isFemale = $this->gender === 'female';
+
         return match($this->role) {
-            'admin' => 'المدير',
-            'teacher' => 'أستاذ',
-            'student' => 'طالب',
-            'super_admin' => 'المدير العام',
-            default => 'مستخدم',
+            'admin'       => $isFemale ? 'المديرة'     : 'المدير',
+            'super_admin' => $isFemale ? 'المديرة العامة' : 'المدير العام',
+            'teacher'     => $isFemale ? 'مدربة'       : 'مدرب',
+            'student'     => $isFemale ? 'طالبة'       : 'طالب',
+            default       => $isFemale ? 'مستخدمة'     : 'مستخدم',
         };
     }
 

@@ -201,6 +201,8 @@ Route::middleware(['auth', 'role:admin,super_admin'])->prefix('admin')->name('ad
 
     // Teachers Management
     Route::get('/teachers/export', [\App\Http\Controllers\Admin\TeacherController::class, 'export'])->name('teachers.export');
+    Route::patch('/teachers/{teacher}/toggle-status', [\App\Http\Controllers\Admin\TeacherController::class, 'toggleStatus'])->name('teachers.toggle-status');
+    Route::post('/teachers/{teacher}/assign-subjects', [\App\Http\Controllers\Admin\TeacherController::class, 'assignSubjects'])->name('teachers.assign-subjects');
     Route::resource('teachers', \App\Http\Controllers\Admin\TeacherController::class);
 
     // Students Management
@@ -499,6 +501,8 @@ Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')
 
     // Files & Resources
     Route::get('/files', [\App\Http\Controllers\Teacher\FileController::class, 'index'])->name('files.index');
+    Route::post('/files', [\App\Http\Controllers\Teacher\FileController::class, 'store'])->name('files.store');
+    Route::delete('/files/{file}', [\App\Http\Controllers\Teacher\FileController::class, 'destroy'])->name('files.destroy');
 
     // Quizzes & Exams Management
     Route::prefix('subjects/{subject}/quizzes')->name('quizzes.')->group(function () {

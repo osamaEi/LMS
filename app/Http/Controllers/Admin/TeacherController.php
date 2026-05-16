@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Subject;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -27,13 +28,18 @@ class TeacherController extends Controller
 
         $teachers = $query->latest()->paginate(12)->withQueryString();
 
+        // Eager load assigned subjects for the modal checkboxes
+        $teachers->load('assignedSubjects');
+
         $stats = [
             'total'        => User::where('role', 'teacher')->count(),
             'this_month'   => User::where('role', 'teacher')->whereMonth('created_at', now()->month)->whereYear('created_at', now()->year)->count(),
             'with_subjects'=> User::where('role', 'teacher')->has('subjects')->count(),
         ];
 
-        return view('admin.teachers.index', compact('teachers', 'stats', 'search'));
+        $allSubjects = Subject::orderBy('name_ar')->get();
+
+        return view('admin.teachers.index', compact('teachers', 'stats', 'search', 'allSubjects'));
     }
 
     public function create()
@@ -101,6 +107,24 @@ class TeacherController extends Controller
 
         return redirect()->route('admin.teachers.index')
             ->with('success', 'تم حذف المعلم بنجاح');
+    }
+
+    public function assignSubjects(Request $request, User $teacher)
+    {
+        $teacher->assignedSubjects()->sync($request->input('subjects', []));
+
+        return back()->with('success', 'تم تحديث المقررات للأستاذ ' . $teacher->name);
+    }
+
+    public function toggleStatus(User $teacher)
+    {
+        $teacher->update([
+            'status' => $teacher->status === 'active' ? 'inactive' : 'active',
+        ]);
+
+        $label = $teacher->status === 'active' ? 'تم تفعيل الأستاذ' : 'تم تعطيل الأستاذ';
+
+        return back()->with('success', $label . ' ' . $teacher->name);
     }
 
     public function export()

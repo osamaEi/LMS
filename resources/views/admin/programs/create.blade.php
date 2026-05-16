@@ -179,7 +179,7 @@
                 </svg>
             </div>
             <p class="text-sm font-medium text-gray-900 dark:text-white">لم تُضَف أرباع بعد</p>
-            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">اضغط "إضافة ربع" لإضافة ربع دراسي وتعيين مواده</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">اضغط "إضافة ربع" لإضافة ربع دراسي وتعيين مقرارته</p>
         </div>
     </div>
 
@@ -252,7 +252,7 @@ function buildTermHTML(idx, num) {
     return `
         <div class="flex items-center gap-3 mb-4">
             <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white" style="background:linear-gradient(135deg,#7c3aed,#5b21b6);">${num}</div>
-            <h3 class="text-sm font-semibold text-gray-900 dark:text-white">الربع الدراسي ${num}</h3>
+            <h3 class="text-sm font-semibold text-gray-900 dark:text-white">الربع التدريبي${num}</h3>
             <button type="button" onclick="removeTerm(${num})"
                     class="mr-auto text-xs text-red-500 hover:text-red-700 flex items-center gap-1">
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

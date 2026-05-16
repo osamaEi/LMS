@@ -14,7 +14,7 @@ class SessionController extends Controller
         $session->load(['subject.term.program', 'files', 'homework']);
 
         // Check if the teacher owns this session's subject
-        if ($session->subject->teacher_id !== auth()->id()) {
+        if (!$session->subject->isAssignedToTeacher(auth()->id())) {
             abort(403, 'Unauthorized access to this session.');
         }
 

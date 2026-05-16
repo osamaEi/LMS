@@ -7,7 +7,7 @@
     <!-- Breadcrumb -->
     <nav class="mb-4 text-sm">
         <ol class="flex items-center gap-2 text-gray-500 dark:text-gray-400">
-            <li><a href="{{ route('teacher.my-subjects.index') }}" class="hover:text-brand-500">موادي</a></li>
+            <li><a href="{{ route('teacher.my-subjects.index') }}" class="hover:text-brand-500">مقرارتي</a></li>
             <li>/</li>
             <li class="text-gray-900 dark:text-white">{{ $subject->name }}</li>
         </ol>
@@ -58,7 +58,7 @@
             </div>
             <div>
                 <h2 class="text-base font-semibold text-gray-900 dark:text-white">ملفات المادة</h2>
-                <p class="text-xs text-gray-500">جميع الملفات المرفقة بالحصص</p>
+                <p class="text-xs text-gray-500">جميع الملفات المرفقة بالمحاضرات</p>
             </div>
             <span class="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-700 dark:bg-blue-900 dark:text-blue-300">
                 {{ $allFiles->count() }}
@@ -74,7 +74,7 @@
                 </svg>
             </div>
             <p class="font-medium text-gray-500">لا توجد ملفات مرفقة</p>
-            <p class="mt-1 text-sm text-gray-400">يمكنك إرفاق ملفات عند إنشاء أو تعديل الحصص</p>
+            <p class="mt-1 text-sm text-gray-400">يمكنك إرفاق ملفات عند إنشاء أو تعديل المحاضرات</p>
         </div>
     @else
         <div class="divide-y divide-gray-100 dark:divide-gray-800">

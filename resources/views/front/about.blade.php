@@ -293,26 +293,7 @@
     </section>
 
     <!-- Stats Section -->
-    <section class="stats-section">
-        <div class="row text-center">
-            <div class="col-6 col-md-3 stat-item">
-                <div class="stat-number">10+</div>
-                <div class="stat-label">{{ __('Years of Experience') }}</div>
-            </div>
-            <div class="col-6 col-md-3 stat-item">
-                <div class="stat-number">50+</div>
-                <div class="stat-label">{{ __('Training Programs') }}</div>
-            </div>
-            <div class="col-6 col-md-3 stat-item">
-                <div class="stat-number">5000+</div>
-                <div class="stat-label">{{ __('Trainees') }}</div>
-            </div>
-            <div class="col-6 col-md-3 stat-item">
-                <div class="stat-number">100+</div>
-                <div class="stat-label">{{ __('Certified Trainers') }}</div>
-            </div>
-        </div>
-    </section>
+  
 
     <!-- Vision & Mission Section -->
     <section class="vision-section">

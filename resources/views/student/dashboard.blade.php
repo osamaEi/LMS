@@ -669,7 +669,7 @@
                     </div>
                 @empty
                     <div class="text-center py-6">
-                        <p class="text-gray-400 text-sm">لا توجد مواد مسجلة</p>
+                        <p class="text-gray-400 text-sm">لا توجد مقرارت مسجلة</p>
                     </div>
                 @endforelse
             </div>

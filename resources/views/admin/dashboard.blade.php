@@ -311,7 +311,7 @@ $mainCards = [
         </a>
         @empty
         <div style="grid-column:1/-1;padding:3rem;text-align:center;background:#fff;border-radius:1.1rem;color:#94a3b8;">
-            لا توجد مواد دراسية بعد
+            لا توجد مقرارت دراسية بعد
         </div>
         @endforelse
     </div>

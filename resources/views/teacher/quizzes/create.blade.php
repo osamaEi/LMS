@@ -524,43 +524,55 @@
                         </svg>
                     </span>
                     الجدولة الزمنية
-                    <span class="timezone-badge">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                        توقيت السعودية (UTC+3)
-                    </span>
                 </h2>
 
+                {{-- Hidden fields sent to backend --}}
+                <input type="hidden" name="starts_at" id="starts_at">
+                <input type="hidden" name="ends_at"   id="ends_at">
+
                 <div class="form-grid">
-                    <!-- Starts At -->
+                    <!-- Date -->
                     <div class="form-group">
-                        <label for="starts_at">
-                            تاريخ ووقت البداية
-                        </label>
-                        <input type="datetime-local" name="starts_at" id="starts_at" value="{{ old('starts_at') }}"
-                               class="form-input">
-                        <p class="input-hint">الوقت بتوقيت الرياض (Arabia Standard Time)</p>
+                        <label for="quiz_date">تاريخ الاختبار</label>
+                        <input type="date" id="quiz_date" class="form-input"
+                               value="{{ old('quiz_date', now()->format('Y-m-d')) }}"
+                               min="{{ now()->format('Y-m-d') }}">
                     </div>
 
-                    <!-- Ends At -->
+                    <!-- Time -->
                     <div class="form-group">
-                        <label for="ends_at">
-                            تاريخ ووقت النهاية
-                        </label>
-                        <input type="datetime-local" name="ends_at" id="ends_at" value="{{ old('ends_at') }}"
-                               class="form-input">
-                        <p class="input-hint">الوقت بتوقيت الرياض (Arabia Standard Time)</p>
+                        <label for="quiz_time">وقت البداية</label>
+                        <input type="time" id="quiz_time" class="form-input"
+                               value="{{ old('quiz_time', now()->format('H:i')) }}">
+                    </div>
+
+                    <!-- Period (window) -->
+                    <div class="form-group">
+                        <label for="quiz_period">مدة إتاحة الاختبار</label>
+                        <select id="quiz_period" class="form-input select">
+                            <option value="">بدون تحديد (مفتوح)</option>
+                            <option value="30">30 دقيقة</option>
+                            <option value="60">ساعة واحدة</option>
+                            <option value="90">ساعة ونصف</option>
+                            <option value="120">ساعتان</option>
+                            <option value="180">3 ساعات</option>
+                            <option value="360">6 ساعات</option>
+                            <option value="720">12 ساعة</option>
+                            <option value="1440">يوم كامل</option>
+                            <option value="2880">يومان</option>
+                            <option value="4320">3 أيام</option>
+                            <option value="10080">أسبوع</option>
+                        </select>
+                        <p class="input-hint">المدة التي يظل فيها الاختبار متاحاً للطلاب</p>
                     </div>
                 </div>
 
-                <!-- Current Saudi Time Display -->
-                <div class="current-time-display">
+                <!-- Summary -->
+                <div class="current-time-display" id="schedule-summary" style="display:none">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
-                    <span>الوقت الحالي في السعودية:</span>
-                    <span id="saudi-time" class="font-bold">{{ now()->format('Y-m-d H:i:s') }}</span>
+                    <span id="schedule-summary-text"></span>
                 </div>
             </div>
 
@@ -658,4 +670,57 @@
         </div>
     </form>
 </div>
+
+@push('scripts')
+<script>
+(function () {
+    const dateEl   = document.getElementById('quiz_date');
+    const timeEl   = document.getElementById('quiz_time');
+    const periodEl = document.getElementById('quiz_period');
+    const hiddenStart = document.getElementById('starts_at');
+    const hiddenEnd   = document.getElementById('ends_at');
+    const summary     = document.getElementById('schedule-summary');
+    const summaryText = document.getElementById('schedule-summary-text');
+
+    const AR_DAYS = ['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+
+    function pad(n) { return String(n).padStart(2, '0'); }
+
+    function fmt(dt) {
+        const day  = AR_DAYS[dt.getDay()];
+        const date = `${dt.getFullYear()}/${pad(dt.getMonth()+1)}/${pad(dt.getDate())}`;
+        const h    = dt.getHours(), m = dt.getMinutes();
+        const ampm = h >= 12 ? 'م' : 'ص';
+        const h12  = h % 12 || 12;
+        return `${day} ${date} — ${pad(h12)}:${pad(m)} ${ampm}`;
+    }
+
+    function update() {
+        const date   = dateEl.value;
+        const time   = timeEl.value || '00:00';
+        const period = parseInt(periodEl.value) || 0;
+
+        if (!date) { hiddenStart.value = ''; hiddenEnd.value = ''; summary.style.display = 'none'; return; }
+
+        const start = new Date(`${date}T${time}`);
+        hiddenStart.value = `${date} ${time}:00`;
+
+        if (period > 0) {
+            const end = new Date(start.getTime() + period * 60000);
+            hiddenEnd.value = `${end.getFullYear()}-${pad(end.getMonth()+1)}-${pad(end.getDate())} ${pad(end.getHours())}:${pad(end.getMinutes())}:00`;
+            summaryText.textContent = `يبدأ: ${fmt(start)}  ·  ينتهي: ${fmt(end)}`;
+        } else {
+            hiddenEnd.value = '';
+            summaryText.textContent = `يبدأ: ${fmt(start)}  ·  مفتوح بلا موعد نهاية`;
+        }
+        summary.style.display = 'flex';
+    }
+
+    dateEl.addEventListener('change', update);
+    timeEl.addEventListener('change', update);
+    periodEl.addEventListener('change', update);
+    update();
+})();
+</script>
+@endpush
 @endsection

@@ -13,7 +13,7 @@
         </a>
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white">إضافة ربع دراسي جديد</h1>
     </div>
-    <p class="text-sm text-gray-500 dark:text-gray-400">أدخل بيانات الفصل الدراسي الجديد</p>
+    <p class="text-sm text-gray-500 dark:text-gray-400">أدخل بيانات الفصل التدريبيالجديد</p>
 </div>
 
 @if($errors->any())
@@ -85,7 +85,7 @@
                        value="{{ old('name_ar') }}"
                        required
                        class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-                       placeholder="مثال: الفصل الدراسي الأول">
+                       placeholder="مثال: الفصل التدريبيالأول">
             </div>
 
             <!-- اسم الربع بالإنجليزي -->
@@ -170,7 +170,7 @@ function loadSubjects(programId) {
     section.style.display = 'block';
 
     if (subjects.length === 0) {
-        list.innerHTML = '<p class="text-sm text-gray-400 p-4 text-center">لا توجد مواد دراسية لهذا الدبلوم بعد. <a href="{{ route('admin.subjects.create') }}" class="text-brand-600 underline">أضف مادة الآن</a></p>';
+        list.innerHTML = '<p class="text-sm text-gray-400 p-4 text-center">لا توجد مقرارت دراسية لهذا الدبلوم بعد. <a href="{{ route('admin.subjects.create') }}" class="text-brand-600 underline">أضف مادة الآن</a></p>';
         return;
     }
 

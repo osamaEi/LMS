@@ -133,9 +133,7 @@
     <div class="breadcrumb-nav">
         <a href="{{ route('home') }}">{{ __('Home') }}</a>
         <span>›</span>
-        <span>{{ $page->title }}</span>
     </div>
-    <h1>{{ $page->title }}</h1>
     <div class="page-meta">
         <span><i class="bi bi-calendar3"></i>{{ $page->published_at?->translatedFormat('d M Y') ?? $page->created_at->translatedFormat('d M Y') }}</span>
         <span><i class="bi bi-arrow-repeat"></i>{{ __('Version') }} {{ $page->version }}</span>

@@ -61,7 +61,7 @@ class FaqSeeder extends Seeder
                 'sort_order'  => 1,
                 'question_ar' => 'ما هو نظام الفصل الدراسي؟',
                 'question_en' => 'What is the term system?',
-                'answer_ar'   => 'نظام الفصل الدراسي هو نظام تقسيم الدبلوم التدريبي إلى فترات زمنية محددة (ترم)، مدة كل منها فترة معينة، مما يساعد في تنظيم العملية التدريبية وتقييم تقدم المتدرب بشكل دوري.',
+                'answer_ar'   => 'نظام الفصل التدريبيهو نظام تقسيم الدبلوم التدريبي إلى فترات زمنية محددة (ترم)، مدة كل منها فترة معينة، مما يساعد في تنظيم العملية التدريبية وتقييم تقدم المتدرب بشكل دوري.',
                 'answer_en'   => 'The term system divides the training diploma into specific time periods (terms), each of a certain duration, helping to organize the training process and periodically assess trainee progress.',
             ],
             [
@@ -93,7 +93,7 @@ class FaqSeeder extends Seeder
                 'sort_order'  => 5,
                 'question_ar' => 'كم عدد المقررات  في كل برنامج؟',
                 'question_en' => 'How many subjects are in each program?',
-                'answer_ar'   => 'يتفاوت عدد المقررات  حسب البرنامج. يتكون كل فصل دراسي عادةً من 4 إلى 8 مواد دراسية، ويمكنك الاطلاع على الخطة الدراسية التفصيلية لكل برنامج من صفحة البرامج.',
+                'answer_ar'   => 'يتفاوت عدد المقررات  حسب البرنامج. يتكون كل فصل دراسي عادةً من 4 إلى 8 مقرارت دراسية، ويمكنك الاطلاع على الخطة الدراسية التفصيلية لكل برنامج من صفحة البرامج.',
                 'answer_en'   => 'The number of subjects varies by program. Each term typically consists of 4 to 8 subjects. You can view the detailed study plan for each program on the programs page.',
             ],
             [

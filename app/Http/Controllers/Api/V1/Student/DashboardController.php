@@ -502,7 +502,7 @@ class DashboardController extends Controller
                 'title' => 'الجدول الدراسي',
                 'url' => Setting::where('key', 'schedule_url')->value('value') ?? '#',
                 'icon' => 'schedule',
-                'description' => 'عرض الجدول الدراسي الخاص بك',
+                'description' => 'عرض الجدول التدريبيالخاص بك',
             ],
             [
                 'title' => 'نظام البلاك بورد',

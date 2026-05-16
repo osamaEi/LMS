@@ -1,6 +1,6 @@
 @extends('layouts.dashboard')
 
-@section('title', 'الجدول الدراسي')
+@section('title', __('Academic Schedule'))
 
 @section('content')
 <div style="direction:rtl;font-family:'Segoe UI',sans-serif;">
@@ -14,7 +14,7 @@
 @endif
 @if($errors->any())
 <div style="background:#fff1f2;border:1px solid #fecaca;border-right:4px solid #ef4444;border-radius:12px;padding:14px 18px;margin-bottom:20px;">
-    <p style="color:#dc2626;font-size:14px;font-weight:600;margin:0 0 6px;">يرجى تصحيح الأخطاء التالية:</p>
+    <p style="color:#dc2626;font-size:14px;font-weight:600;margin:0 0 6px;">{{ __('Please fix the following errors:') }}</p>
     <ul style="margin:0;padding-right:18px;color:#dc2626;font-size:13px;">
         @foreach($errors->all() as $e)<li>{{ $e }}</li>@endforeach
     </ul>
@@ -33,18 +33,18 @@
             </div>
             <div>
                 <p style="color:rgba(255,255,255,0.55);font-size:13px;margin:0 0 2px;">{{ now()->translatedFormat('l، d F Y') }}</p>
-                <h1 style="color:white;font-size:22px;font-weight:700;margin:0;">الجدول الدراسي</h1>
-                <p style="color:rgba(255,255,255,0.55);font-size:13px;margin:3px 0 0;">نظرة شاملة على جميع جلساتك ومحاضراتك</p>
+                <h1 style="color:white;font-size:22px;font-weight:700;margin:0;">{{ __('Academic Schedule') }}</h1>
+                <p style="color:rgba(255,255,255,0.55);font-size:13px;margin:3px 0 0;">{{ __('Overview of all your sessions and lectures') }}</p>
             </div>
         </div>
 
         <div style="display:flex;gap:10px;flex-wrap:wrap;">
             @php
             $chips = [
-                ['val' => $stats['total'],     'label' => 'إجمالي', 'color' => 'rgba(255,255,255,0.75)', 'bg' => 'rgba(255,255,255,0.1)'],
-                ['val' => $stats['upcoming'],  'label' => 'قادمة',  'color' => '#fde68a',               'bg' => 'rgba(255,255,255,0.1)'],
-                ['val' => $stats['completed'], 'label' => 'مكتملة', 'color' => '#86efac',               'bg' => 'rgba(255,255,255,0.1)'],
-                ['val' => $past->count(),      'label' => 'سابقة',  'color' => 'rgba(255,255,255,0.6)', 'bg' => 'rgba(255,255,255,0.08)'],
+                ['val' => $stats['total'],     'label' => __('Total'),     'color' => 'rgba(255,255,255,0.75)', 'bg' => 'rgba(255,255,255,0.1)'],
+                ['val' => $stats['upcoming'],  'label' => __('Upcoming'),  'color' => '#fde68a',               'bg' => 'rgba(255,255,255,0.1)'],
+                ['val' => $stats['completed'], 'label' => __('Completed'), 'color' => '#86efac',               'bg' => 'rgba(255,255,255,0.1)'],
+                ['val' => $past->count(),      'label' => __('Past'),      'color' => 'rgba(255,255,255,0.6)', 'bg' => 'rgba(255,255,255,0.08)'],
             ];
             @endphp
             @foreach($chips as $chip)
@@ -56,7 +56,7 @@
             @if($stats['live'] > 0)
             <div style="background:rgba(239,68,68,0.7);border:1px solid rgba(239,68,68,0.4);border-radius:14px;padding:10px 18px;text-align:center;min-width:70px;">
                 <div style="font-size:22px;font-weight:700;color:white;line-height:1;animation:livePulse 2s infinite;">{{ $stats['live'] }}</div>
-                <div style="font-size:11px;color:rgba(255,255,255,0.85);margin-top:3px;">مباشر الآن</div>
+                <div style="font-size:11px;color:rgba(255,255,255,0.85);margin-top:3px;">{{ __('Live Now') }}</div>
             </div>
             @endif
         </div>
@@ -74,7 +74,7 @@
             <div style="width:38px;height:38px;background:linear-gradient(135deg,#0071AA,#005a88);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
                 <svg width="18" height="18" fill="white" viewBox="0 0 24 24"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg>
             </div>
-            <h2 style="font-size:17px;font-weight:700;color:#111827;margin:0;">الجلسات القادمة</h2>
+            <h2 style="font-size:17px;font-weight:700;color:#111827;margin:0;">{{ __('Upcoming Sessions') }}</h2>
             @if(!$groupedUpcoming->isEmpty())
             <span style="background:#dbeafe;color:#1d4ed8;font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px;">{{ $stats['upcoming'] }}</span>
             @endif
@@ -85,8 +85,8 @@
             <div style="width:72px;height:72px;background:#eff6ff;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
                 <svg width="32" height="32" fill="#93c5fd" viewBox="0 0 24 24"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg>
             </div>
-            <p style="font-weight:600;color:#374151;margin:0 0 6px;font-size:15px;">لا توجد جلسات قادمة</p>
-            <p style="color:#9ca3af;font-size:13px;margin:0;">أضف جلسات جديدة من النموذج المجاور</p>
+            <p style="font-weight:600;color:#374151;margin:0 0 6px;font-size:15px;">{{ __('No upcoming sessions') }}</p>
+            <p style="color:#9ca3af;font-size:13px;margin:0;">{{ __('Create new session') }}</p>
         </div>
 
         @else
@@ -161,7 +161,7 @@
                                 <span style="width:6px;height:6px;background:white;border-radius:50%;animation:livePulse 2s infinite;"></span>مباشر
                             </span>
                             @elseif($isToday)
-                            <span style="background:#dbeafe;color:#1d4ed8;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;">اليوم</span>
+                            <span style="background:#dbeafe;color:#1d4ed8;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;">{{ __('Today') }}</span>
                             @endif
                             <span style="background:{{ $typeColor['bg'] }};color:{{ $typeColor['color'] }};font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;">{{ $typeLabel }}</span>
                             @if($session->session_number)
@@ -171,7 +171,7 @@
                     </div>
                     <p style="font-size:12px;color:#9ca3af;margin:0;">
                         {{ $dt->diffForHumans() }}
-                        @if($session->duration_minutes)· {{ $session->duration_minutes }} دقيقة@endif
+                        @if($session->duration_minutes)· {{ $session->duration_minutes }} {{ __('minutes') }}@endif
                     </p>
                 </div>
 
@@ -182,30 +182,19 @@
                        style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:linear-gradient(135deg,#ef4444,#dc2626);color:white;border-radius:10px;font-size:12px;font-weight:700;text-decoration:none;white-space:nowrap;transition:opacity .15s;"
                        onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
                         <svg width="13" height="13" fill="currentColor" viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
-                        بدء الجلسة
-                    </a>
-                    @elseif($session->zoom_join_url)
-                    <a href="{{ $session->zoom_join_url }}" target="_blank"
-                       style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:linear-gradient(135deg,#22c55e,#16a34a);color:white;border-radius:10px;font-size:12px;font-weight:700;text-decoration:none;white-space:nowrap;transition:opacity .15s;"
-                       onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
-                        <svg width="13" height="13" fill="currentColor" viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
-                        انضم
-                    </a>
-                    @else
-                    <a href="{{ route('teacher.my-subjects.show', $session->subject_id) }}"
-                       style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:linear-gradient(135deg,#0071AA,#005a88);color:white;border-radius:10px;font-size:12px;font-weight:700;text-decoration:none;white-space:nowrap;transition:opacity .15s;"
-                       onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
-                        <svg width="13" height="13" fill="currentColor" viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
-                        المادة
+                        {{ __('Start Session') }}
                     </a>
                     @endif
                     @if($session->zoom_join_url)
-                    <button type="button" onclick="openZoomApp('{{ $session->zoom_join_url }}')"
-                            style="display:inline-flex;align-items:center;gap:6px;padding:7px 12px;background:#eff6ff;color:#1d4ed8;border:1.5px solid #bfdbfe;border-radius:10px;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;transition:background .15s;"
-                            onmouseover="this.style.background='#dbeafe'" onmouseout="this.style.background='#eff6ff'">
-                        <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg>
-                        تطبيق Zoom
-                    </button>
+                    <a href="{{ $session->zoom_join_url }}" target="_blank"
+                       style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:white;border-radius:10px;font-size:12px;font-weight:700;text-decoration:none;white-space:nowrap;transition:opacity .15s;"
+                       onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
+                        <svg width="13" height="13" fill="currentColor" viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
+                        {{ __('Join via Zoom') }}
+                    </a>
+                    @endif
+                    @if(!$session->zoom_start_url && !$session->zoom_join_url)
+                    <span style="font-size:11px;color:#9ca3af;text-align:center;padding:4px 8px;">{{ __('No Zoom link') }}</span>
                     @endif
                 </div>
             </div>
@@ -221,14 +210,14 @@
         <div style="background:white;border-radius:16px;border:1px solid #e5e7eb;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.06);">
 
             {{-- Panel Header --}}
-            <div style="padding:18px 20px;background:linear-gradient(135deg,#0071AA,#005a88);border-bottom:1px solid rgba(255,255,255,.1);">
+            <div style="padding:18px 20px;background:linear-gradient(135deg,#2563eb,#1d4ed8);border-bottom:1px solid rgba(255,255,255,.1);">
                 <div style="display:flex;align-items:center;gap:12px;">
                     <div style="width:38px;height:38px;background:rgba(255,255,255,.18);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                        <svg width="18" height="18" fill="white" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>
+                        <svg width="18" height="18" fill="white" viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
                     </div>
                     <div>
-                        <h3 style="font-size:14px;font-weight:700;color:white;margin:0;">إنشاء جلسات جديدة</h3>
-                        <p style="font-size:12px;color:rgba(255,255,255,.65);margin:2px 0 0;">أضف عدة جلسات دفعة واحدة</p>
+                        <h3 style="font-size:14px;font-weight:700;color:white;margin:0;">{{ __('Create Zoom Sessions') }}</h3>
+                        <p style="font-size:12px;color:rgba(255,255,255,.65);margin:2px 0 0;">أضف عدة جلسات مباشرة دفعة واحدة</p>
                     </div>
                 </div>
             </div>
@@ -241,9 +230,12 @@
 
                     {{-- First row (static) --}}
                     <div class="session-row" data-index="0"
-                         style="border-radius:12px;border:1.5px solid #e5e7eb;background:#f9fafb;padding:14px;position:relative;">
+                         style="border-radius:12px;border:1.5px solid #bfdbfe;background:#eff6ff;padding:14px;position:relative;">
                         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-                            <span class="row-label" style="font-size:12px;font-weight:700;color:#0071AA;background:#e0f2fe;padding:3px 10px;border-radius:20px;">جلسة 1</span>
+                            <span class="row-label" style="font-size:12px;font-weight:700;color:#2563eb;background:#dbeafe;padding:3px 10px;border-radius:20px;display:inline-flex;align-items:center;gap:5px;">
+                                <svg width="11" height="11" fill="currentColor" viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
+                                Zoom 1
+                            </span>
                             <button type="button" onclick="removeRow(this)"
                                     class="remove-btn" style="display:none;width:24px;height:24px;background:#fee2e2;border:none;border-radius:6px;cursor:pointer;color:#ef4444;align-items:center;justify-content:center;">
                                 <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
@@ -251,44 +243,29 @@
                         </div>
 
                         <div style="margin-bottom:10px;">
-                            <label style="display:block;font-size:11px;font-weight:600;color:#374151;margin-bottom:4px;">المادة</label>
+                            <label style="display:block;font-size:11px;font-weight:600;color:#374151;margin-bottom:4px;">{{ __('Subject') }}</label>
                             <select name="sessions[0][subject_id]" style="width:100%;border-radius:8px;border:1.5px solid #e5e7eb;background:white;padding:8px 10px;font-size:13px;color:#111827;outline:none;transition:border-color .15s;font-family:inherit;"
-                                    onfocus="this.style.borderColor='#0071AA'" onblur="this.style.borderColor='#e5e7eb'">
+                                    onfocus="this.style.borderColor='#2563eb'" onblur="this.style.borderColor='#e5e7eb'">
                                 <option value="">— اختر المادة —</option>
                                 @foreach($subjects as $subject)
                                 <option value="{{ $subject->id }}">{{ $subject->name_ar }}</option>
                                 @endforeach
                             </select>
                         </div>
-
-                        <div style="margin-bottom:10px;">
-                            <label style="display:block;font-size:11px;font-weight:600;color:#374151;margin-bottom:4px;">عنوان الجلسة (عربي)</label>
-                            <input type="text" name="sessions[0][title_ar]" placeholder="مقدمة في البرمجة"
-                                   style="width:100%;border-radius:8px;border:1.5px solid #e5e7eb;background:white;padding:8px 10px;font-size:13px;color:#111827;outline:none;transition:border-color .15s;box-sizing:border-box;"
-                                   onfocus="this.style.borderColor='#0071AA'" onblur="this.style.borderColor='#e5e7eb'">
-                        </div>
-
-                        <div style="margin-bottom:10px;">
-                            <label style="display:block;font-size:11px;font-weight:600;color:#374151;margin-bottom:4px;">النوع</label>
-                            <select name="sessions[0][type]" style="width:100%;border-radius:8px;border:1.5px solid #e5e7eb;background:white;padding:8px 10px;font-size:13px;color:#111827;outline:none;transition:border-color .15s;font-family:inherit;"
-                                    onfocus="this.style.borderColor='#0071AA'" onblur="this.style.borderColor='#e5e7eb'">
-                                <option value="live_zoom">Zoom مباشر</option>
-                                <option value="recorded_video">مسجّل</option>
-                            </select>
-                        </div>
+                        <input type="hidden" name="sessions[0][type]" value="live_zoom">
 
                         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
                             <div>
-                                <label style="display:block;font-size:11px;font-weight:600;color:#374151;margin-bottom:4px;">التاريخ والوقت</label>
+                                <label style="display:block;font-size:11px;font-weight:600;color:#374151;margin-bottom:4px;">{{ __('Date') }} & {{ __('Time') }}</label>
                                 <input type="datetime-local" name="sessions[0][scheduled_at]"
                                        style="width:100%;border-radius:8px;border:1.5px solid #e5e7eb;background:white;padding:7px 8px;font-size:12px;color:#111827;outline:none;transition:border-color .15s;box-sizing:border-box;"
-                                       onfocus="this.style.borderColor='#0071AA'" onblur="this.style.borderColor='#e5e7eb'">
+                                       onfocus="this.style.borderColor='#2563eb'" onblur="this.style.borderColor='#e5e7eb'">
                             </div>
                             <div>
-                                <label style="display:block;font-size:11px;font-weight:600;color:#374151;margin-bottom:4px;">المدة (دقيقة)</label>
+                                <label style="display:block;font-size:11px;font-weight:600;color:#374151;margin-bottom:4px;">{{ __('Duration (minutes)') }}</label>
                                 <input type="number" name="sessions[0][duration_minutes]" value="60" min="15" max="480" step="15"
                                        style="width:100%;border-radius:8px;border:1.5px solid #e5e7eb;background:white;padding:7px 8px;font-size:13px;color:#111827;outline:none;transition:border-color .15s;box-sizing:border-box;"
-                                       onfocus="this.style.borderColor='#0071AA'" onblur="this.style.borderColor='#e5e7eb'">
+                                       onfocus="this.style.borderColor='#2563eb'" onblur="this.style.borderColor='#e5e7eb'">
                             </div>
                         </div>
                     </div>
@@ -296,19 +273,19 @@
 
                 {{-- Add row --}}
                 <button type="button" onclick="addRow()"
-                        style="width:100%;display:flex;align-items:center;justify-content:center;gap:7px;padding:10px;border:1.5px dashed #cbd5e1;border-radius:10px;background:transparent;font-size:13px;font-weight:600;color:#64748b;cursor:pointer;margin-bottom:12px;transition:all .15s;"
-                        onmouseover="this.style.borderColor='#0071AA';this.style.color='#0071AA';this.style.background='#f0f9ff'"
-                        onmouseout="this.style.borderColor='#cbd5e1';this.style.color='#64748b';this.style.background='transparent'">
+                        style="width:100%;display:flex;align-items:center;justify-content:center;gap:7px;padding:10px;border:1.5px dashed #bfdbfe;border-radius:10px;background:transparent;font-size:13px;font-weight:600;color:#64748b;cursor:pointer;margin-bottom:12px;transition:all .15s;"
+                        onmouseover="this.style.borderColor='#2563eb';this.style.color='#2563eb';this.style.background='#eff6ff'"
+                        onmouseout="this.style.borderColor='#bfdbfe';this.style.color='#64748b';this.style.background='transparent'">
                     <svg width="15" height="15" fill="currentColor" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-                    إضافة جلسة أخرى
+                    {{ __('Add Row') }}
                 </button>
 
                 {{-- Submit --}}
                 <button type="submit"
-                        style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;background:linear-gradient(135deg,#0071AA,#005a88);color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 3px 10px rgba(0,113,170,0.3);transition:opacity .15s;"
+                        style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 3px 10px rgba(37,99,235,0.35);transition:opacity .15s;"
                         onmouseover="this.style.opacity='.9'" onmouseout="this.style.opacity='1'">
-                    <svg width="15" height="15" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-                    حفظ الجلسات
+                    <svg width="15" height="15" fill="currentColor" viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
+                    {{ __('Save Zoom Sessions') }}
                 </button>
 
                 <p style="text-align:center;font-size:11px;color:#9ca3af;margin:10px 0 0;">رابط Zoom يُضاف لاحقاً من صفحة المادة</p>
@@ -325,7 +302,7 @@
         <div style="width:38px;height:38px;background:linear-gradient(135deg,#6b7280,#4b5563);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
             <svg width="18" height="18" fill="white" viewBox="0 0 24 24"><path d="M13 3a9 9 0 0 0-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42A8.954 8.954 0 0 0 13 21a9 9 0 0 0 0-18zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg>
         </div>
-        <h2 style="font-size:17px;font-weight:700;color:#111827;margin:0;">الجلسات السابقة</h2>
+        <h2 style="font-size:17px;font-weight:700;color:#111827;margin:0;">{{ __('Past') }}</h2>
         <span style="background:#f3f4f6;color:#6b7280;font-size:12px;font-weight:600;padding:3px 10px;border-radius:20px;">{{ $past->count() }}</span>
     </div>
 
@@ -333,12 +310,12 @@
         <table style="width:100%;border-collapse:collapse;font-size:13px;">
             <thead>
                 <tr style="background:#f9fafb;border-bottom:1px solid #e5e7eb;">
-                    <th style="padding:12px 18px;text-align:right;font-size:12px;font-weight:600;color:#6b7280;">الجلسة</th>
-                    <th style="padding:12px 18px;text-align:right;font-size:12px;font-weight:600;color:#6b7280;">المادة</th>
-                    <th style="padding:12px 18px;text-align:right;font-size:12px;font-weight:600;color:#6b7280;">التاريخ</th>
-                    <th style="padding:12px 18px;text-align:right;font-size:12px;font-weight:600;color:#6b7280;">النوع</th>
-                    <th style="padding:12px 18px;text-align:right;font-size:12px;font-weight:600;color:#6b7280;">الحالة</th>
-                    <th style="padding:12px 18px;text-align:right;font-size:12px;font-weight:600;color:#6b7280;">الرابط</th>
+                    <th style="padding:12px 18px;text-align:right;font-size:12px;font-weight:600;color:#6b7280;">{{ __('Session') }}</th>
+                    <th style="padding:12px 18px;text-align:right;font-size:12px;font-weight:600;color:#6b7280;">{{ __('Subject') }}</th>
+                    <th style="padding:12px 18px;text-align:right;font-size:12px;font-weight:600;color:#6b7280;">{{ __('Date') }}</th>
+                    <th style="padding:12px 18px;text-align:right;font-size:12px;font-weight:600;color:#6b7280;">{{ __('Subject') }}</th>
+                    <th style="padding:12px 18px;text-align:right;font-size:12px;font-weight:600;color:#6b7280;">{{ __('Status') }}</th>
+                    <th style="padding:12px 18px;text-align:right;font-size:12px;font-weight:600;color:#6b7280;">{{ __('Join via Zoom') }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -407,47 +384,37 @@ const subjectOptions = `{!! $subjects->map(fn($s) => '<option value="'.$s->id.'"
 function buildRowHTML(idx, num) {
     return `
     <div class="session-row" data-index="${idx}"
-         style="border-radius:12px;border:1.5px solid #e5e7eb;background:#f9fafb;padding:14px;position:relative;">
+         style="border-radius:12px;border:1.5px solid #bfdbfe;background:#eff6ff;padding:14px;position:relative;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-            <span class="row-label" style="font-size:12px;font-weight:700;color:#0071AA;background:#e0f2fe;padding:3px 10px;border-radius:20px;">جلسة ${num}</span>
+            <span class="row-label" style="font-size:12px;font-weight:700;color:#2563eb;background:#dbeafe;padding:3px 10px;border-radius:20px;display:inline-flex;align-items:center;gap:5px;">
+                <svg width="11" height="11" fill="currentColor" viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
+                Zoom ${num}
+            </span>
             <button type="button" onclick="removeRow(this)"
                     class="remove-btn" style="display:flex;width:24px;height:24px;background:#fee2e2;border:none;border-radius:6px;cursor:pointer;color:#ef4444;align-items:center;justify-content:center;">
                 <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
             </button>
         </div>
+        <input type="hidden" name="sessions[${idx}][type]" value="live_zoom">
         <div style="margin-bottom:10px;">
             <label style="display:block;font-size:11px;font-weight:600;color:#374151;margin-bottom:4px;">المادة</label>
-            <select name="sessions[${idx}][subject_id]" style="width:100%;border-radius:8px;border:1.5px solid #e5e7eb;background:white;padding:8px 10px;font-size:13px;color:#111827;outline:none;font-family:inherit;"
-                    onfocus="this.style.borderColor='#0071AA'" onblur="this.style.borderColor='#e5e7eb'">
+            <select name="sessions[${idx}][subject_id]" style="width:100%;border-radius:8px;border:1.5px solid #bfdbfe;background:white;padding:8px 10px;font-size:13px;color:#111827;outline:none;font-family:inherit;"
+                    onfocus="this.style.borderColor='#2563eb'" onblur="this.style.borderColor='#bfdbfe'">
                 <option value="">— اختر المادة —</option>${subjectOptions}
-            </select>
-        </div>
-        <div style="margin-bottom:10px;">
-            <label style="display:block;font-size:11px;font-weight:600;color:#374151;margin-bottom:4px;">عنوان الجلسة (عربي)</label>
-            <input type="text" name="sessions[${idx}][title_ar]" placeholder="مقدمة في البرمجة"
-                   style="width:100%;border-radius:8px;border:1.5px solid #e5e7eb;background:white;padding:8px 10px;font-size:13px;color:#111827;outline:none;box-sizing:border-box;"
-                   onfocus="this.style.borderColor='#0071AA'" onblur="this.style.borderColor='#e5e7eb'">
-        </div>
-        <div style="margin-bottom:10px;">
-            <label style="display:block;font-size:11px;font-weight:600;color:#374151;margin-bottom:4px;">النوع</label>
-            <select name="sessions[${idx}][type]" style="width:100%;border-radius:8px;border:1.5px solid #e5e7eb;background:white;padding:8px 10px;font-size:13px;color:#111827;outline:none;font-family:inherit;"
-                    onfocus="this.style.borderColor='#0071AA'" onblur="this.style.borderColor='#e5e7eb'">
-                <option value="live_zoom">Zoom مباشر</option>
-                <option value="recorded_video">مسجّل</option>
             </select>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
             <div>
                 <label style="display:block;font-size:11px;font-weight:600;color:#374151;margin-bottom:4px;">التاريخ والوقت</label>
                 <input type="datetime-local" name="sessions[${idx}][scheduled_at]"
-                       style="width:100%;border-radius:8px;border:1.5px solid #e5e7eb;background:white;padding:7px 8px;font-size:12px;color:#111827;outline:none;box-sizing:border-box;"
-                       onfocus="this.style.borderColor='#0071AA'" onblur="this.style.borderColor='#e5e7eb'">
+                       style="width:100%;border-radius:8px;border:1.5px solid #bfdbfe;background:white;padding:7px 8px;font-size:12px;color:#111827;outline:none;box-sizing:border-box;"
+                       onfocus="this.style.borderColor='#2563eb'" onblur="this.style.borderColor='#bfdbfe'">
             </div>
             <div>
                 <label style="display:block;font-size:11px;font-weight:600;color:#374151;margin-bottom:4px;">المدة (دقيقة)</label>
                 <input type="number" name="sessions[${idx}][duration_minutes]" value="60" min="15" max="480" step="15"
-                       style="width:100%;border-radius:8px;border:1.5px solid #e5e7eb;background:white;padding:7px 8px;font-size:13px;color:#111827;outline:none;box-sizing:border-box;"
-                       onfocus="this.style.borderColor='#0071AA'" onblur="this.style.borderColor='#e5e7eb'">
+                       style="width:100%;border-radius:8px;border:1.5px solid #bfdbfe;background:white;padding:7px 8px;font-size:13px;color:#111827;outline:none;box-sizing:border-box;"
+                       onfocus="this.style.borderColor='#2563eb'" onblur="this.style.borderColor='#bfdbfe'">
             </div>
         </div>
     </div>`;
@@ -462,7 +429,7 @@ function addRow() {
 function removeRow(btn) {
     btn.closest('.session-row').remove();
     document.querySelectorAll('#sessionRows .row-label').forEach((el, i) => {
-        el.textContent = `جلسة ${i + 1}`;
+        el.innerHTML = `<svg width="11" height="11" fill="currentColor" viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg> Zoom ${i + 1}`;
     });
     updateRemoveButtons();
 }

@@ -24,7 +24,7 @@ class QuizController extends Controller
     {
         $teacher = auth()->user();
 
-        $subject = Subject::where('teacher_id', $teacher->id)->findOrFail($subjectId);
+        $subject = Subject::assignedToTeacher($teacher->id)->findOrFail($subjectId);
 
         $quizzes = Quiz::where('subject_id', $subjectId)
             ->withCount(['questions', 'attempts'])
@@ -41,7 +41,7 @@ class QuizController extends Controller
     {
         $teacher = auth()->user();
 
-        $subject = Subject::where('teacher_id', $teacher->id)->findOrFail($subjectId);
+        $subject = Subject::assignedToTeacher($teacher->id)->findOrFail($subjectId);
 
         return view('teacher.quizzes.create', compact('subject'));
     }
@@ -53,7 +53,7 @@ class QuizController extends Controller
     {
         $teacher = auth()->user();
 
-        $subject = Subject::where('teacher_id', $teacher->id)->findOrFail($subjectId);
+        $subject = Subject::assignedToTeacher($teacher->id)->findOrFail($subjectId);
 
         $validated = $request->validate([
             'title_ar' => 'required|string|max:255',
@@ -108,7 +108,7 @@ class QuizController extends Controller
     {
         $teacher = auth()->user();
 
-        $subject = Subject::where('teacher_id', $teacher->id)->findOrFail($subjectId);
+        $subject = Subject::assignedToTeacher($teacher->id)->findOrFail($subjectId);
 
         $quiz = Quiz::where('subject_id', $subjectId)
             ->with(['questions.options'])
@@ -125,7 +125,7 @@ class QuizController extends Controller
     {
         $teacher = auth()->user();
 
-        $subject = Subject::where('teacher_id', $teacher->id)->findOrFail($subjectId);
+        $subject = Subject::assignedToTeacher($teacher->id)->findOrFail($subjectId);
 
         $quiz = Quiz::where('subject_id', $subjectId)->findOrFail($quizId);
 
@@ -139,7 +139,7 @@ class QuizController extends Controller
     {
         $teacher = auth()->user();
 
-        Subject::where('teacher_id', $teacher->id)->findOrFail($subjectId);
+        Subject::assignedToTeacher($teacher->id)->findOrFail($subjectId);
 
         $quiz = Quiz::where('subject_id', $subjectId)->findOrFail($quizId);
 
@@ -181,7 +181,7 @@ class QuizController extends Controller
     {
         $teacher = auth()->user();
 
-        Subject::where('teacher_id', $teacher->id)->findOrFail($subjectId);
+        Subject::assignedToTeacher($teacher->id)->findOrFail($subjectId);
 
         $quiz = Quiz::where('subject_id', $subjectId)->findOrFail($quizId);
 
@@ -205,7 +205,7 @@ class QuizController extends Controller
     {
         $teacher = auth()->user();
 
-        $subject = Subject::where('teacher_id', $teacher->id)->findOrFail($subjectId);
+        $subject = Subject::assignedToTeacher($teacher->id)->findOrFail($subjectId);
 
         $quiz = Quiz::where('subject_id', $subjectId)->findOrFail($quizId);
 
@@ -221,7 +221,7 @@ class QuizController extends Controller
     {
         $teacher = auth()->user();
 
-        Subject::where('teacher_id', $teacher->id)->findOrFail($subjectId);
+        Subject::assignedToTeacher($teacher->id)->findOrFail($subjectId);
 
         $quiz = Quiz::where('subject_id', $subjectId)->findOrFail($quizId);
 
@@ -320,7 +320,7 @@ class QuizController extends Controller
     {
         $teacher = auth()->user();
 
-        $subject = Subject::where('teacher_id', $teacher->id)->findOrFail($subjectId);
+        $subject = Subject::assignedToTeacher($teacher->id)->findOrFail($subjectId);
 
         $quiz = Quiz::where('subject_id', $subjectId)->findOrFail($quizId);
 
@@ -338,7 +338,7 @@ class QuizController extends Controller
     {
         $teacher = auth()->user();
 
-        Subject::where('teacher_id', $teacher->id)->findOrFail($subjectId);
+        Subject::assignedToTeacher($teacher->id)->findOrFail($subjectId);
 
         Quiz::where('subject_id', $subjectId)->findOrFail($quizId);
 
@@ -439,7 +439,7 @@ class QuizController extends Controller
     {
         $teacher = auth()->user();
 
-        Subject::where('teacher_id', $teacher->id)->findOrFail($subjectId);
+        Subject::assignedToTeacher($teacher->id)->findOrFail($subjectId);
 
         Quiz::where('subject_id', $subjectId)->findOrFail($quizId);
 
@@ -461,7 +461,7 @@ class QuizController extends Controller
     {
         $teacher = auth()->user();
 
-        $subject = Subject::where('teacher_id', $teacher->id)->findOrFail($subjectId);
+        $subject = Subject::assignedToTeacher($teacher->id)->findOrFail($subjectId);
 
         $quiz = Quiz::where('subject_id', $subjectId)
             ->withCount('questions')
@@ -493,7 +493,7 @@ class QuizController extends Controller
     {
         $teacher = auth()->user();
 
-        $subject = Subject::where('teacher_id', $teacher->id)->findOrFail($subjectId);
+        $subject = Subject::assignedToTeacher($teacher->id)->findOrFail($subjectId);
 
         $quiz = Quiz::where('subject_id', $subjectId)->findOrFail($quizId);
 
@@ -511,7 +511,7 @@ class QuizController extends Controller
     {
         $teacher = auth()->user();
 
-        Subject::where('teacher_id', $teacher->id)->findOrFail($subjectId);
+        Subject::assignedToTeacher($teacher->id)->findOrFail($subjectId);
 
         Quiz::where('subject_id', $subjectId)->findOrFail($quizId);
 

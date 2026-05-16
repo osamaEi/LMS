@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules\Password;
 
 class ProfileController extends Controller
@@ -13,7 +15,7 @@ class ProfileController extends Controller
      */
     public function edit()
     {
-        $user = auth()->user();
+        $user = Auth::user();
         return view('profile.edit', compact('user'));
     }
 
@@ -22,7 +24,7 @@ class ProfileController extends Controller
      */
     public function update(Request $request)
     {
-        $user = auth()->user();
+        $user = Auth::user();
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -47,7 +49,7 @@ class ProfileController extends Controller
             'password' => ['required', Password::defaults(), 'confirmed'],
         ]);
 
-        $user = auth()->user();
+        $user = Auth::user();
         $user->update([
             'password' => Hash::make($validated['password']),
         ]);
@@ -65,16 +67,18 @@ class ProfileController extends Controller
             'avatar' => ['required', 'image', 'max:2048'], // 2MB max
         ]);
 
-        $user = auth()->user();
+        $user = Auth::user();
 
         // Delete old avatar if exists
-        if ($user->avatar && file_exists(public_path($user->avatar))) {
-            unlink(public_path($user->avatar));
+        if ($user->profile_photo) {
+            Storage::disk('public')->delete('avatars/' . $user->profile_photo);
         }
 
-        // Store new avatar
-        $path = $request->file('avatar')->store('uploads/images', 'public');
-        $user->update(['avatar' => 'storage/' . $path]);
+        // Store new avatar — save only the filename; displayed via asset('storage/avatars/{profile_photo}')
+        $file     = $request->file('avatar');
+        $filename = uniqid('avatar_') . '.' . $file->getClientOriginalExtension();
+        $file->storeAs('avatars', $filename, 'public');
+        $user->update(['profile_photo' => $filename]);
 
         return redirect()->route('profile.edit')
             ->with('success', __('Avatar updated successfully!'));

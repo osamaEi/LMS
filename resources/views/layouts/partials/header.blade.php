@@ -16,15 +16,15 @@
             <div>
                 <h1 class="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
                     <span>👋</span>
-                    مرحباً بك {{ auth()->user()->getRoleDisplayName() }} {{ auth()->user()->name }}
+                    {{ __('Welcome') }} {{ auth()->user()->getRoleDisplayName() }} {{ auth()->user()->name }}
                 </h1>
                 <p class="text-sm text-gray-500 dark:text-gray-400">
                     @if(auth()->user()->role === 'admin' || auth()->user()->role === 'super_admin')
-                        إدارة النظام والمستخدمين والدورات بكل سهولة
+                        {{ __('Manage the system, users, and courses easily') }}
                     @elseif(auth()->user()->role === 'teacher')
-                        إدارة دوراتك والطلاب بكل سهولة من لوحة التحكم
+                        {{ __('Manage subjects and students easily from the dashboard') }}
                     @else
-                        تابع دوراتك وتقدمك التعليمي بكل سهولة
+                        {{ __('Track your courses and educational progress easily') }}
                     @endif
                 </p>
             </div>
@@ -32,6 +32,17 @@
 
         <!-- Right Side -->
         <div class="flex items-center gap-3">
+            <!-- Language Switcher -->
+            @php $currentLocale = app()->getLocale(); @endphp
+            <a href="{{ route('lang.switch', $currentLocale === 'ar' ? 'en' : 'ar') }}"
+               style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:8px;border:1.5px solid #e5e7eb;background:#fff;font-size:.8rem;font-weight:700;color:#374151;text-decoration:none;transition:border-color .15s"
+               onmouseover="this.style.borderColor='#0071AA';this.style.color='#0071AA'" onmouseout="this.style.borderColor='#e5e7eb';this.style.color='#374151'">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/>
+                </svg>
+                {{ $currentLocale === 'ar' ? 'EN' : 'ع' }}
+            </a>
+
             <!-- Notification Dropdown -->
             @include('layouts.partials.notification-dropdown')
 
@@ -121,33 +132,33 @@
 
                                 // Dashboard
                                 if ($isAdmin) {
-                                    $navLinks[] = ['href' => route('admin.dashboard'), 'icon' => 'grid', 'label' => 'لوحة التحكم', 'color' => '#6366f1'];
+                                    $navLinks[] = ['href' => route('admin.dashboard'), 'icon' => 'grid', 'label' => __('Dashboard'), 'color' => '#6366f1'];
                                 } elseif ($isTeacher) {
-                                    $navLinks[] = ['href' => route('teacher.dashboard'), 'icon' => 'grid', 'label' => 'لوحة التحكم', 'color' => '#6366f1'];
+                                    $navLinks[] = ['href' => route('teacher.dashboard'), 'icon' => 'grid', 'label' => __('Dashboard'), 'color' => '#6366f1'];
                                 } else {
-                                    $navLinks[] = ['href' => route('student.dashboard'), 'icon' => 'grid', 'label' => 'لوحة التحكم', 'color' => '#6366f1'];
+                                    $navLinks[] = ['href' => route('student.dashboard'), 'icon' => 'grid', 'label' => __('Dashboard'), 'color' => '#6366f1'];
                                 }
 
                                 // Profile
                                 if ($isTeacher) {
-                                    $navLinks[] = ['href' => route('teacher.profile'), 'icon' => 'user', 'label' => 'الملف الشخصي', 'color' => '#0071AA'];
+                                    $navLinks[] = ['href' => route('teacher.profile'), 'icon' => 'user', 'label' => __('Profile'), 'color' => '#0071AA'];
                                 } elseif ($isStudent) {
-                                    $navLinks[] = ['href' => route('student.profile'), 'icon' => 'user', 'label' => 'الملف الشخصي', 'color' => '#0071AA'];
+                                    $navLinks[] = ['href' => route('student.profile'), 'icon' => 'user', 'label' => __('Profile'), 'color' => '#0071AA'];
                                 } else {
-                                    $navLinks[] = ['href' => route('profile.edit'), 'icon' => 'user', 'label' => 'الملف الشخصي', 'color' => '#0071AA'];
+                                    $navLinks[] = ['href' => route('profile.edit'), 'icon' => 'user', 'label' => __('Profile'), 'color' => '#0071AA'];
                                 }
 
                                 // Role-specific links
                                 if ($isTeacher) {
-                                    $navLinks[] = ['href' => route('teacher.my-subjects.index'), 'icon' => 'book', 'label' => 'موادي', 'color' => '#8b5cf6'];
-                                    $navLinks[] = ['href' => route('teacher.tickets.index'),      'icon' => 'help', 'label' => 'تذاكر الدعم', 'color' => '#10b981'];
+                                    $navLinks[] = ['href' => route('teacher.my-subjects.index'), 'icon' => 'book', 'label' => __('My Subjects'), 'color' => '#8b5cf6'];
+                                    $navLinks[] = ['href' => route('teacher.tickets.index'),      'icon' => 'help', 'label' => __('Support Tickets'), 'color' => '#10b981'];
                                 } elseif ($isStudent) {
-                                    $navLinks[] = ['href' => route('student.my-program'),         'icon' => 'shield', 'label' => 'برنامجي الدراسي', 'color' => '#8b5cf6'];
-                                    $navLinks[] = ['href' => route('student.payments.index'),     'icon' => 'card', 'label' => 'المدفوعات', 'color' => '#f59e0b'];
-                                    $navLinks[] = ['href' => route('student.tickets.index'),      'icon' => 'help', 'label' => 'تذاكر الدعم', 'color' => '#10b981'];
+                                    $navLinks[] = ['href' => route('student.my-program'),         'icon' => 'shield', 'label' => __('My Study Program'), 'color' => '#8b5cf6'];
+                                    $navLinks[] = ['href' => route('student.payments.index'),     'icon' => 'card', 'label' => __('Payments'), 'color' => '#f59e0b'];
+                                    $navLinks[] = ['href' => route('student.tickets.index'),      'icon' => 'help', 'label' => __('Support Tickets'), 'color' => '#10b981'];
                                 } else {
-                                    $navLinks[] = ['href' => route('admin.users.index'),          'icon' => 'users', 'label' => 'المستخدمون', 'color' => '#8b5cf6'];
-                                    $navLinks[] = ['href' => route('admin.programs.index'),       'icon' => 'book', 'label' => 'البرامج', 'color' => '#f59e0b'];
+                                    $navLinks[] = ['href' => route('admin.users.index'),          'icon' => 'users', 'label' => __('Users'), 'color' => '#8b5cf6'];
+                                    $navLinks[] = ['href' => route('admin.programs.index'),       'icon' => 'book', 'label' => __('Programs'), 'color' => '#f59e0b'];
                                 }
                             @endphp
 
@@ -209,7 +220,7 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
                                         </svg>
                                     </div>
-                                    <span style="font-size:0.875rem;font-weight:700;color:#dc2626">تسجيل الخروج</span>
+                                    <span style="font-size:0.875rem;font-weight:700;color:#dc2626">{{ __('Logout') }}</span>
                                 </button>
                             </form>
                         </div>

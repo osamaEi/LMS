@@ -164,7 +164,7 @@
                 </div>
                 <div class="hero-stat">
                     <div style="font-size:1.8rem;font-weight:900;color:#a5b4fc;line-height:1">{{ $stats['with_subjects'] }}</div>
-                    <div style="font-size:0.75rem;color:rgba(255,255,255,0.65);margin-top:4px">لديهم مواد</div>
+                    <div style="font-size:0.75rem;color:rgba(255,255,255,0.65);margin-top:4px">لديهم مقرارت</div>
                 </div>
                 <div class="hero-stat">
                     <div style="font-size:1.8rem;font-weight:900;color:#34d399;line-height:1">{{ $stats['this_month'] }}</div>
@@ -172,7 +172,7 @@
                 </div>
                 <div class="hero-stat">
                     <div style="font-size:1.8rem;font-weight:900;color:#fbbf24;line-height:1">{{ $stats['total'] - $stats['with_subjects'] }}</div>
-                    <div style="font-size:0.75rem;color:rgba(255,255,255,0.65);margin-top:4px">بدون مواد</div>
+                    <div style="font-size:0.75rem;color:rgba(255,255,255,0.65);margin-top:4px">بدون مقرارت</div>
                 </div>
             </div>
         </div>
@@ -239,15 +239,45 @@
                         <p style="font-size:0.78rem;color:#6b7280;margin:0 0 8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
                             {{ $teacher->email }}
                         </p>
-                        {{-- Subjects badge --}}
+                        {{-- Subjects count badge --}}
+                        @php $assignedCount = $teacher->assignedSubjects->count(); @endphp
                         <span style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;font-size:0.72rem;font-weight:700;background:{{ $color }}18;color:{{ $color }}">
                             <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor">
                                 <path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3z"/>
                             </svg>
-                            {{ $teacher->subjects_count }} {{ $teacher->subjects_count === 1 ? 'مادة' : 'مواد' }}
+                            {{ $assignedCount }} {{ $assignedCount === 1 ? 'مادة' : 'مقررات' }}
                         </span>
                     </div>
                 </div>
+
+                {{-- Assigned subjects list --}}
+                @if($teacher->assignedSubjects->count())
+                <div style="margin-bottom:14px">
+                    <p style="font-size:0.72rem;font-weight:700;color:#9ca3af;margin:0 0 7px;text-transform:uppercase;letter-spacing:.05em">المقررات المعيّنة</p>
+                    <div style="display:flex;flex-direction:column;gap:5px">
+                        @foreach($teacher->assignedSubjects->take(4) as $subj)
+                        <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:#f8faff;border-radius:9px;border-right:3px solid {{ $color }}" class="dark:bg-white/5">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="{{ $color }}">
+                                <path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3z"/>
+                            </svg>
+                            <span style="font-size:0.8rem;font-weight:600;color:#111827;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" class="dark:text-white">
+                                {{ $subj->name_ar }}
+                            </span>
+                            <span style="font-size:0.68rem;color:#9ca3af;flex-shrink:0">{{ $subj->code }}</span>
+                        </div>
+                        @endforeach
+                        @if($teacher->assignedSubjects->count() > 4)
+                        <div style="text-align:center;padding:5px;font-size:0.72rem;color:#6b7280">
+                            + {{ $teacher->assignedSubjects->count() - 4 }} مقررات أخرى
+                        </div>
+                        @endif
+                    </div>
+                </div>
+                @else
+                <div style="margin-bottom:14px;padding:10px 12px;background:#fafafa;border-radius:10px;border:1.5px dashed #e5e7eb;text-align:center">
+                    <span style="font-size:0.78rem;color:#9ca3af">لم يتم تعيين مقررات بعد</span>
+                </div>
+                @endif
 
                 {{-- Meta info --}}
                 <div style="display:flex;flex-direction:column;gap:6px;padding:12px;background:#f8faff;border-radius:12px;margin-bottom:14px" class="dark:bg-white/5">
@@ -275,8 +305,18 @@
                     </div>
                 </div>
 
+                {{-- Status badge --}}
+                @php $isActive = $teacher->status === 'active'; @endphp
+                <div style="margin-bottom:12px">
+                    <span style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;font-size:0.72rem;font-weight:700;
+                          background:{{ $isActive ? '#dcfce7' : '#fee2e2' }};color:{{ $isActive ? '#16a34a' : '#dc2626' }}">
+                        <span style="width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block"></span>
+                        {{ $isActive ? 'نشط' : 'معطّل' }}
+                    </span>
+                </div>
+
                 {{-- Actions --}}
-                <div class="card-actions" style="display:flex;gap:8px">
+                <div class="card-actions" style="display:flex;gap:8px;flex-wrap:wrap">
                     <a href="{{ route('admin.teachers.show', $teacher) }}"
                        class="action-btn"
                        style="flex:1;background:#ede9fe;color:#6d28d9;justify-content:center">
@@ -294,6 +334,36 @@
                         </svg>
                         تعديل
                     </a>
+
+                    {{-- Assign subjects --}}
+                    <button type="button" class="action-btn"
+                            style="flex:1;background:#e0f2fe;color:#0369a1;justify-content:center"
+                            onclick="openAssignModal({{ $teacher->id }}, '{{ addslashes($teacher->name) }}', {{ $teacher->assignedSubjects->pluck('id')->toJson() }})">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                        </svg>
+                        مقررات
+                    </button>
+
+                    {{-- Toggle active/inactive --}}
+                    <form action="{{ route('admin.teachers.toggle-status', $teacher) }}" method="POST">
+                        @csrf
+                        @method('PATCH')
+                        <button type="submit" class="action-btn"
+                                style="background:{{ $isActive ? '#fef9c3' : '#dcfce7' }};color:{{ $isActive ? '#92400e' : '#15803d' }}"
+                                title="{{ $isActive ? 'تعطيل الحساب' : 'تفعيل الحساب' }}">
+                            @if($isActive)
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
+                            </svg>
+                            @else
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            @endif
+                        </button>
+                    </form>
+
                     <form action="{{ route('admin.teachers.destroy', $teacher) }}" method="POST"
                           onsubmit="return confirm('هل أنت متأكد من حذف الأستاذ {{ addslashes($teacher->name) }}؟ لا يمكن التراجع عن هذا الإجراء.')">
                         @csrf
@@ -349,4 +419,131 @@
     @endif
 
 </div>
+
+{{-- Assign Subjects Modal --}}
+<div id="assign-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.5);align-items:center;justify-content:center;padding:16px" onclick="if(event.target===this)closeAssignModal()">
+    <div style="background:#fff;border-radius:18px;width:100%;max-width:520px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,0.25)" class="dark:bg-slate-800">
+        {{-- Modal header --}}
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid #f1f5f9">
+            <div>
+                <h3 style="font-size:1rem;font-weight:800;color:#111827;margin:0" class="dark:text-white" id="modal-title">تعيين المقررات</h3>
+                <p style="font-size:0.78rem;color:#6b7280;margin:3px 0 0" id="modal-subtitle">اختر المقررات التي يدرّسها هذا الأستاذ</p>
+            </div>
+            <button onclick="closeAssignModal()" style="width:32px;height:32px;border-radius:8px;border:none;background:#f1f5f9;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#6b7280">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+
+        {{-- Search inside modal --}}
+        <div style="padding:14px 22px 0">
+            <input type="text" id="modal-search" placeholder="ابحث في المقررات..."
+                   oninput="filterModalSubjects(this.value)"
+                   style="width:100%;padding:8px 12px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:0.875rem;color:#111827;box-sizing:border-box;outline:none">
+        </div>
+
+        {{-- Subject list --}}
+        <div style="max-height:340px;overflow-y:auto;padding:14px 22px" id="modal-subjects-list">
+            @forelse($allSubjects as $subject)
+            <label id="subj-row-{{ $subject->id }}"
+                   style="display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;cursor:pointer;margin-bottom:4px;transition:background 0.1s"
+                   onmouseover="this.style.background='#f8faff'" onmouseout="this.style.background='transparent'">
+                <input type="checkbox"
+                       class="assign-cb"
+                       value="{{ $subject->id }}"
+                       style="width:16px;height:16px;accent-color:#0071AA;cursor:pointer;flex-shrink:0">
+                <div style="flex:1;min-width:0">
+                    <p style="font-size:0.875rem;font-weight:700;color:#111827;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" class="dark:text-white">
+                        {{ $subject->name_ar }}
+                    </p>
+                    @if($subject->name_en)
+                    <p style="font-size:0.72rem;color:#9ca3af;margin:1px 0 0">{{ $subject->name_en }} · {{ $subject->code }}</p>
+                    @else
+                    <p style="font-size:0.72rem;color:#9ca3af;margin:1px 0 0">{{ $subject->code }}</p>
+                    @endif
+                </div>
+            </label>
+            @empty
+            <p style="text-align:center;color:#9ca3af;font-size:0.875rem;padding:24px 0">لا توجد مقررات</p>
+            @endforelse
+        </div>
+
+        {{-- Footer --}}
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 22px;border-top:1px solid #f1f5f9;gap:10px">
+            <span style="font-size:0.78rem;color:#6b7280" id="modal-selected-count">0 مقرر محدد</span>
+            <div style="display:flex;gap:8px">
+                <button onclick="closeAssignModal()" style="padding:8px 18px;border-radius:10px;border:1.5px solid #e5e7eb;background:#fff;color:#374151;font-size:0.875rem;font-weight:700;cursor:pointer">
+                    إلغاء
+                </button>
+                <button onclick="submitAssign()" style="padding:8px 22px;border-radius:10px;border:none;background:#0071AA;color:#fff;font-size:0.875rem;font-weight:700;cursor:pointer">
+                    حفظ
+                </button>
+            </div>
+        </div>
+
+        {{-- Hidden form --}}
+        <form id="assign-form" method="POST" style="display:none">
+            @csrf
+            <div id="assign-inputs"></div>
+        </form>
+    </div>
+</div>
+
+@push('scripts')
+<script>
+let currentTeacherId = null;
+
+function openAssignModal(teacherId, teacherName, assignedIds) {
+    currentTeacherId = teacherId;
+    document.getElementById('modal-title').textContent = 'تعيين المقررات — ' + teacherName;
+    document.getElementById('modal-search').value = '';
+    filterModalSubjects('');
+
+    // Reset and set checkboxes
+    document.querySelectorAll('.assign-cb').forEach(cb => {
+        cb.checked = assignedIds.includes(parseInt(cb.value));
+    });
+    updateCount();
+
+    document.getElementById('assign-modal').style.display = 'flex';
+}
+
+function closeAssignModal() {
+    document.getElementById('assign-modal').style.display = 'none';
+    currentTeacherId = null;
+}
+
+function filterModalSubjects(q) {
+    q = q.toLowerCase();
+    document.querySelectorAll('#modal-subjects-list label').forEach(label => {
+        const text = label.textContent.toLowerCase();
+        label.style.display = text.includes(q) ? 'flex' : 'none';
+    });
+}
+
+function updateCount() {
+    const count = document.querySelectorAll('.assign-cb:checked').length;
+    document.getElementById('modal-selected-count').textContent = count + ' مقرر محدد';
+}
+
+document.addEventListener('change', e => { if (e.target.classList.contains('assign-cb')) updateCount(); });
+
+function submitAssign() {
+    const form = document.getElementById('assign-form');
+    form.action = '/admin/teachers/' + currentTeacherId + '/assign-subjects';
+    const container = document.getElementById('assign-inputs');
+    container.innerHTML = '';
+    document.querySelectorAll('.assign-cb:checked').forEach(cb => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'subjects[]';
+        input.value = cb.value;
+        container.appendChild(input);
+    });
+    form.submit();
+}
+</script>
+@endpush
+
 @endsection

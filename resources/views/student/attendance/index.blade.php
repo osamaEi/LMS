@@ -333,7 +333,7 @@
 
                         <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-3">لم يتم تسجيلك في برنامج دراسي</h2>
                         <p class="text-gray-600 dark:text-gray-400 mb-8 max-w-md mx-auto">
-                            للوصول إلى سجل الحضور والغياب، يجب أن تكون مسجلاً في برنامج دراسي وملتحقاً بمواد دراسية
+                            للوصول إلى سجل الحضور والغياب، يجب أن تكون مسجلاً في برنامج دراسي وملتحقاً بمقرارت دراسية
                         </p>
 
                         <!-- Info Cards -->
@@ -345,7 +345,7 @@
                                     </svg>
                                 </div>
                                 <h3 class="text-sm font-bold text-gray-900 dark:text-white mb-1">اختر برنامجك</h3>
-                                <p class="text-xs text-gray-600 dark:text-gray-400">سجل في البرنامج الدراسي المناسب</p>
+                                <p class="text-xs text-gray-600 dark:text-gray-400">سجل في البرنامج التدريبيالمناسب</p>
                             </div>
 
                             <div class="bg-green-50 dark:bg-green-900 dark:bg-opacity-20 rounded-xl p-4">

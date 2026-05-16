@@ -1,6 +1,6 @@
 @extends('layouts.dashboard')
 
-@section('title', 'لوحة المعلم')
+@section('title', __('Dashboard Overview'))
 
 @section('content')
 <div class="mx-auto max-w-screen-xl p-4 md:p-6 2xl:p-10">
@@ -16,8 +16,8 @@
         <div class="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
                 <p class="mb-1 text-sm font-medium" style="color:rgba(255,255,255,.7)">{{ now()->translatedFormat('l، d F Y') }}</p>
-                <h1 class="text-2xl font-bold tracking-tight">مرحباً، {{ auth()->user()->name }}</h1>
-                <p class="mt-1 text-sm" style="color:rgba(255,255,255,.7)">لوحة تحكم المعلم — نظرة شاملة على مواد وجلساتك</p>
+                <h1 class="text-2xl font-bold tracking-tight">{{ __('Welcome') }}، {{ auth()->user()->name }}</h1>
+                <p class="mt-1 text-sm" style="color:rgba(255,255,255,.7)">{{ __('Track your subjects, sessions and students') }}</p>
             </div>
             <div class="flex gap-3">
                 <a href="{{ route('teacher.schedule') }}"
@@ -26,7 +26,7 @@
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2zM7 12h5v5H7z"/>
                     </svg>
-                    الجدول
+                    {{ __('Schedule') }}
                 </a>
                 <a href="{{ route('teacher.my-subjects.index') }}"
                    class="inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white transition"
@@ -34,7 +34,7 @@
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M21 5c-1.11-.35-2.33-.5-3.5-.5-1.95 0-4.05.4-5.5 1.5-1.45-1.1-3.55-1.5-5.5-1.5S2.45 4.9 1 6v14.65c0 .25.25.5.5.5.1 0 .15-.05.25-.05C3.1 20.45 5.05 20 6.5 20c1.95 0 4.05.4 5.5 1.5 1.35-.85 3.8-1.5 5.5-1.5 1.65 0 3.35.3 4.75 1.05.1.05.15.05.25.05.25 0 .5-.25.5-.5V6c-.6-.45-1.25-.75-2-1zm0 13.5c-1.1-.35-2.3-.5-3.5-.5-1.7 0-4.15.65-5.5 1.5V8c1.35-.85 3.8-1.5 5.5-1.5 1.2 0 2.4.15 3.5.5v11.5z"/>
                     </svg>
-                    موادي
+                    {{ __('My Subjects') }}
                 </a>
             </div>
         </div>
@@ -53,7 +53,7 @@
             </div>
             <div>
                 <p class="text-2xl font-black text-black dark:text-white">{{ $stats['subjects_count'] }}</p>
-                <p class="text-xs text-gray-500">المقررات  الدراسية</p>
+                <p class="text-xs text-gray-500">{{ __('Total Subjects') }}</p>
             </div>
         </div>
 
@@ -66,7 +66,7 @@
             </div>
             <div>
                 <p class="text-2xl font-black text-black dark:text-white">{{ $stats['total_students'] }}</p>
-                <p class="text-xs text-gray-500">إجمالي الطلاب</p>
+                <p class="text-xs text-gray-500">{{ __('Total Students') }}</p>
             </div>
         </div>
 
@@ -79,7 +79,7 @@
             </div>
             <div>
                 <p class="text-2xl font-black text-black dark:text-white">{{ $stats['total_sessions'] }}</p>
-                <p class="text-xs text-gray-500">الجلسات الكلية</p>
+                <p class="text-xs text-gray-500">{{ __('Total Sessions') }}</p>
             </div>
         </div>
 
@@ -93,7 +93,7 @@
             </div>
             <div>
                 <p class="text-2xl font-black text-red-600">{{ $stats['live_sessions'] }}</p>
-                <p class="text-xs text-red-500">مباشر الآن</p>
+                <p class="text-xs text-red-500">{{ __('Live Now') }}</p>
             </div>
         </div>
         @else
@@ -105,7 +105,7 @@
             </div>
             <div>
                 <p class="text-2xl font-black text-black dark:text-white">{{ number_format($teacherRating['overall'], 1) }}</p>
-                <p class="text-xs text-gray-500">تقييمك العام</p>
+                <p class="text-xs text-gray-500">{{ __('Overall Rating') }}</p>
             </div>
         </div>
         @endif
@@ -129,11 +129,11 @@
                             </svg>
                         </div>
                         <div>
-                            <h3 class="font-bold text-black dark:text-white">الجلسات القادمة</h3>
-                            <p class="text-xs text-gray-400">{{ $upcomingSessions->count() }} جلسة مجدولة</p>
+                            <h3 class="font-bold text-black dark:text-white">{{ __('Upcoming Sessions') }}</h3>
+                            <p class="text-xs text-gray-400">{{ $upcomingSessions->count() }} {{ __('scheduled session') }}</p>
                         </div>
                     </div>
-                    <a href="{{ route('teacher.schedule') }}" class="text-xs font-medium text-primary hover:underline">عرض الكل</a>
+                    <a href="{{ route('teacher.schedule') }}" class="text-xs font-medium text-primary hover:underline">{{ __('View All') }}</a>
                 </div>
 
                 <div class="divide-y divide-stroke dark:divide-strokedark">
@@ -162,7 +162,7 @@
                             <div class="flex flex-wrap items-center gap-1.5 mb-0.5">
                                 <span class="font-semibold text-sm text-black dark:text-white truncate">{{ $session->title }}</span>
                                 @if($isToday)
-                                    <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-bold text-white" style="background:#0071AA">اليوم</span>
+                                    <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-bold text-white" style="background:#0071AA">{{ __('Today') }}</span>
                                 @endif
                                 <span class="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-500 dark:bg-meta-4 dark:text-gray-300">{{ $typeLabel }}</span>
                             </div>
@@ -177,7 +177,7 @@
                                 <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
                                     <path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/>
                                 </svg>
-                                بدء الجلسة
+                                {{ __('Start Session') }}
                             </a>
                         @elseif($session->zoom_join_url)
                             <a href="{{ $session->zoom_join_url }}" target="_blank"
@@ -186,7 +186,7 @@
                                 <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
                                     <path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/>
                                 </svg>
-                                انضم
+                                {{ __('Join') }}
                             </a>
                         @else
                             <a href="{{ route('teacher.my-subjects.show', $session->subject_id) }}"
@@ -195,7 +195,7 @@
                                 <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
                                     <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
                                 </svg>
-                                عرض
+                                {{ __('View') }}
                             </a>
                         @endif
                     </div>
@@ -206,8 +206,8 @@
                                 <path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/>
                             </svg>
                         </div>
-                        <p class="text-sm font-medium text-gray-500">لا توجد جلسات قادمة</p>
-                        <a href="{{ route('teacher.schedule') }}" class="mt-2 text-xs text-primary hover:underline">إنشاء جلسة جديدة</a>
+                        <p class="text-sm font-medium text-gray-500">{{ __('No upcoming sessions') }}</p>
+                        <a href="{{ route('teacher.schedule') }}" class="mt-2 text-xs text-primary hover:underline">{{ __('Create new session') }}</a>
                     </div>
                     @endforelse
                 </div>
@@ -223,15 +223,15 @@
                             </svg>
                         </div>
                         <div>
-                            <h3 class="font-bold text-black dark:text-white">موادي الدراسية</h3>
-                            <p class="text-xs text-gray-400">{{ $subjects->count() }} مادة مسجّلة</p>
+                            <h3 class="font-bold text-black dark:text-white">{{ __('My Subjects') }}</h3>
+                            <p class="text-xs text-gray-400">{{ $subjects->count() }} {{ __('scheduled session') }}</p>
                         </div>
                     </div>
-                    <a href="{{ route('teacher.my-subjects.index') }}" class="text-xs font-medium text-primary hover:underline">عرض الكل</a>
+                    <a href="{{ route('teacher.my-subjects.index') }}" class="text-xs font-medium text-primary hover:underline">{{ __('View All') }}</a>
                 </div>
 
                 @if($subjects->isEmpty())
-                <div class="py-10 text-center text-sm text-gray-400">لا توجد مواد مسجّلة بعد</div>
+                <div class="py-10 text-center text-sm text-gray-400">{{ __('No subjects registered') }}</div>
                 @else
                 <div class="grid grid-cols-1 gap-px bg-stroke dark:bg-strokedark sm:grid-cols-2">
                     @foreach($subjects->take(6) as $subject)
@@ -270,8 +270,8 @@
                             </svg>
                         </div>
                         <div>
-                            <h3 class="font-bold text-black dark:text-white">حضور الطلاب</h3>
-                            <p class="text-xs text-gray-400">الجلسات الأخيرة</p>
+                            <h3 class="font-bold text-black dark:text-white">{{ __('Student Attendance') }}</h3>
+                            <p class="text-xs text-gray-400">{{ __('Recent sessions') }}</p>
                         </div>
                     </div>
                 </div>
@@ -283,7 +283,7 @@
                             <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
                         </svg>
                     </div>
-                    <p class="text-sm font-medium text-gray-500">لا توجد جلسات منتهية بعد</p>
+                    <p class="text-sm font-medium text-gray-500">{{ __('No completed sessions yet') }}</p>
                 </div>
                 @else
                 <div class="divide-y divide-stroke dark:divide-strokedark">
@@ -337,7 +337,7 @@
                                     <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor">
                                         <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
                                     </svg>
-                                    عرض
+                                    {{ __('View') }}
                                 </a>
                                 <a href="{{ route('teacher.my-subjects.sessions.attendance', [$session->subject_id, $session->id]) }}#add-attendance"
                                    class="inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-semibold transition"
@@ -345,7 +345,7 @@
                                     <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor">
                                         <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
                                     </svg>
-                                    إضافة
+                                    {{ __('Add Attendance') }}
                                 </a>
                             </div>
                         </div>
@@ -368,7 +368,7 @@
                             <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2zM7 12h5v5H7z"/>
                         </svg>
                     </div>
-                    <h3 class="font-bold text-black dark:text-white">التقويم</h3>
+                    <h3 class="font-bold text-black dark:text-white">{{ __('Calendar') }}</h3>
                 </div>
                 <div class="p-4">
                     @php
@@ -413,10 +413,10 @@
                     </div>
                     <div class="mt-3 flex items-center justify-center gap-4 border-t border-stroke pt-3 dark:border-strokedark">
                         <div class="flex items-center gap-1.5 text-xs text-gray-400">
-                            <span class="inline-block h-2.5 w-2.5 rounded" style="background:#0071AA"></span>اليوم
+                            <span class="inline-block h-2.5 w-2.5 rounded" style="background:#0071AA"></span>{{ __('Today') }}
                         </div>
                         <div class="flex items-center gap-1.5 text-xs text-gray-400">
-                            <span class="inline-block h-1.5 w-1.5 rounded-full" style="background:#0071AA"></span>جلسة
+                            <span class="inline-block h-1.5 w-1.5 rounded-full" style="background:#0071AA"></span>{{ __('Session') }}
                         </div>
                     </div>
                 </div>
@@ -432,8 +432,8 @@
                         </svg>
                     </div>
                     <div>
-                        <h3 class="font-bold text-black dark:text-white">تقييمك</h3>
-                        <p class="text-xs text-gray-400">{{ $teacherRating['total_ratings'] }} تقييم</p>
+                        <h3 class="font-bold text-black dark:text-white">{{ __('Your Rating') }}</h3>
+                        <p class="text-xs text-gray-400">{{ $teacherRating['total_ratings'] }} {{ __('Your Rating') }}</p>
                     </div>
                 </div>
                 <div class="p-5">
@@ -447,7 +447,7 @@
                                     </svg>
                                 @endfor
                             </div>
-                            <p class="mt-1 text-xs text-gray-400">من 5 نجوم</p>
+                            <p class="mt-1 text-xs text-gray-400">{{ __('out of 5 stars') }}</p>
                         </div>
                     </div>
                     @if($recentFeedback->isNotEmpty())
@@ -467,7 +467,7 @@
             {{-- Quick Links --}}
             <div class="overflow-hidden rounded-2xl border border-stroke bg-white shadow-sm dark:border-strokedark dark:bg-boxdark">
                 <div class="border-b border-stroke px-5 py-4 dark:border-strokedark">
-                    <h3 class="font-bold text-black dark:text-white">روابط سريعة</h3>
+                    <h3 class="font-bold text-black dark:text-white">{{ __('Quick Links') }}</h3>
                 </div>
                 <div class="p-4 space-y-2">
                     <a href="{{ route('teacher.schedule') }}"
@@ -477,7 +477,7 @@
                                 <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2zM7 12h5v5H7z"/>
                             </svg>
                         </div>
-                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">الجدول الدراسي</span>
+                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Academic Schedule') }}</span>
                     </a>
                     <a href="{{ route('teacher.my-subjects.index') }}"
                        class="flex items-center gap-3 rounded-xl p-3 transition hover:bg-gray-50 dark:hover:bg-meta-4">
@@ -486,7 +486,7 @@
                                 <path d="M21 5c-1.11-.35-2.33-.5-3.5-.5-1.95 0-4.05.4-5.5 1.5-1.45-1.1-3.55-1.5-5.5-1.5S2.45 4.9 1 6v14.65c0 .25.25.5.5.5.1 0 .15-.05.25-.05C3.1 20.45 5.05 20 6.5 20c1.95 0 4.05.4 5.5 1.5 1.35-.85 3.8-1.5 5.5-1.5 1.65 0 3.35.3 4.75 1.05.1.05.15.05.25.05.25 0 .5-.25.5-.5V6c-.6-.45-1.25-.75-2-1zm0 13.5c-1.1-.35-2.3-.5-3.5-.5-1.7 0-4.15.65-5.5 1.5V8c1.35-.85 3.8-1.5 5.5-1.5 1.2 0 2.4.15 3.5.5v11.5z"/>
                             </svg>
                         </div>
-                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">موادي الدراسية</span>
+                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('My Subjects') }}</span>
                     </a>
                     @if($openTicketsCount > 0)
                     <a href="{{ route('teacher.tickets.index') }}"
@@ -496,7 +496,7 @@
                                 <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8l8 5 8-5v10zm-8-7L4 6h16l-8 5z"/>
                             </svg>
                         </div>
-                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">التذاكر المفتوحة</span>
+                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Open Tickets') }}</span>
                         <span class="mr-auto inline-flex h-5 w-5 items-center justify-center rounded-full text-xs font-bold text-white" style="background:#ef4444">{{ $openTicketsCount }}</span>
                     </a>
                     @endif

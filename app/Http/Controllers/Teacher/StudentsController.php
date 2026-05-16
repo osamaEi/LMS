@@ -15,17 +15,17 @@ class StudentsController extends Controller
 
         // Get all students enrolled in teacher's subjects
         $students = User::whereHas('enrollments.subject', function($query) use ($teacher) {
-                $query->where('teacher_id', $teacher->id);
+                $query->assignedToTeacher($teacher->id);
             })
             ->with(['enrollments' => function($query) use ($teacher) {
                 $query->whereHas('subject', function($q) use ($teacher) {
-                    $q->where('teacher_id', $teacher->id);
+                    $q->assignedToTeacher($teacher->id);
                 })->with('subject');
             }])
             ->get();
 
         // Get teacher's subjects for filtering
-        $subjects = Subject::where('teacher_id', $teacher->id)
+        $subjects = Subject::assignedToTeacher($teacher->id)
             ->orderBy(app()->getLocale() === 'en' ? 'name_en' : 'name_ar')
             ->get();
 

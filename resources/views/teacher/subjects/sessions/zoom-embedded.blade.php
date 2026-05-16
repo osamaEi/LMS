@@ -16,7 +16,7 @@
     <!-- Simple Breadcrumb -->
     <nav class="mb-4 text-xs">
         <ol class="flex items-center gap-1 text-gray-500 dark:text-gray-400">
-            <li><a href="{{ route('teacher.my-subjects.index') }}" class="hover:text-brand-500">موادي</a></li>
+            <li><a href="{{ route('teacher.my-subjects.index') }}" class="hover:text-brand-500">مقرارتي</a></li>
             <li>/</li>
             <li><a href="{{ route('teacher.my-subjects.show', $session->subject_id) }}" class="hover:text-brand-500">{{ $session->subject->name ?? '' }}</a></li>
             <li>/</li>

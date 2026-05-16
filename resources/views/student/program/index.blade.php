@@ -334,7 +334,7 @@
             <div class="hero-top">
                 <div class="hero-info">
                     <h1 class="hero-name">{{ $program->name }}</h1>
-                    <p class="hero-desc">{{ $program->description ?? 'برنامجك الدراسي الحالي' }}</p>
+                    <p class="hero-desc">{{ $program->description ?? 'برنامجك التدريبيالحالي' }}</p>
                     @if($track)
                         <span class="hero-track">
                             <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
@@ -385,7 +385,7 @@
                         </div>
                         <div>
                             <div style="color:#a78bfa;font-size:.78rem;font-weight:600;text-transform:uppercase;
-                                        letter-spacing:.07em;margin-bottom:.2rem;">فصلك الدراسي الحالي</div>
+                                        letter-spacing:.07em;margin-bottom:.2rem;">فصلك التدريبيالحالي</div>
                             <h2 style="color:#f1f5f9;font-size:1.35rem;font-weight:800;margin:0;">
                                 {{ $currentTerm->name_ar ?? $currentTerm->name ?? 'الفصل ' . $currentTermNumber }}
                             </h2>
@@ -482,7 +482,7 @@
                 <div>
                     <div style="color:#94a3b8;font-size:.78rem;font-weight:600;
                                 text-transform:uppercase;letter-spacing:.06em;margin-bottom:.85rem;">
-                        مواد هذا الفصل
+                        مقرارت هذا الفصل
                     </div>
                     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:.75rem;">
                         @foreach($currentTerm->subjects as $s)
@@ -722,7 +722,7 @@
                     <div class="sec-title-icon" style="background: linear-gradient(135deg, #0071AA, #005a88);">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
                     </div>
-                    مواد الفصل الحالي
+                    مقرارت الفصل الحالي
                     @if(isset($currentTerm) && $currentTerm)
                         <span style="background:#e0f2fe;color:#0369a1;font-size:.72rem;font-weight:700;
                                      padding:.2rem .65rem;border-radius:999px;margin-right:.25rem;">
@@ -786,9 +786,9 @@
                     <div style="width:64px;height:64px;border-radius:16px;background:#f8fafc;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;">
                         <svg style="width:32px;height:32px;color:#cbd5e1;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
                     </div>
-                    <h3 style="font-size:1.1rem;font-weight:800;color:#1e293b;margin-bottom:0.25rem;">لا توجد مواد في هذا الفصل</h3>
+                    <h3 style="font-size:1.1rem;font-weight:800;color:#1e293b;margin-bottom:0.25rem;">لا توجد مقرارت في هذا الفصل</h3>
                     <p style="font-size:0.85rem;color:#94a3b8;">
-                        لم يتم إضافة مواد للفصل الحالي بعد
+                        لم يتم إضافة مقرارت للفصل الحالي بعد
                         @if(isset($currentTerm) && $currentTerm)
                             ({{ $currentTerm->name_ar ?? $currentTerm->name }})
                         @endif
@@ -804,7 +804,7 @@
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color:#fff;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
             </div>
             <h1 class="enroll-title">مرحبا بك في نظام التعلم!</h1>
-            <p class="enroll-sub">اختر البرنامج الدراسي المناسب لك وابدأ رحلتك التعليمية</p>
+            <p class="enroll-sub">اختر البرنامج التدريبيالمناسب لك وابدأ رحلتك التعليمية</p>
         </div>
 
         @if(session('success'))

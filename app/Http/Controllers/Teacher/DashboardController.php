@@ -21,14 +21,14 @@ class DashboardController extends Controller
         $teacher = auth()->user();
 
         // Get teacher's subjects with student count
-        $subjects = Subject::where('teacher_id', $teacher->id)
+        $subjects = Subject::assignedToTeacher($teacher->id)
             ->with(['term.program'])
             ->withCount('enrollments')
             ->get();
 
         // Get upcoming sessions
         $upcomingSessions = Session::whereHas('subject', function($query) use ($teacher) {
-                $query->where('teacher_id', $teacher->id);
+                $query->assignedToTeacher($teacher->id);
             })
             ->where('scheduled_at', '>', now())
             ->with('subject')
@@ -38,7 +38,7 @@ class DashboardController extends Controller
 
         // Get recent sessions
         $recentSessions = Session::whereHas('subject', function($query) use ($teacher) {
-                $query->where('teacher_id', $teacher->id);
+                $query->assignedToTeacher($teacher->id);
             })
             ->with('subject')
             ->orderBy('created_at', 'desc')
@@ -47,7 +47,7 @@ class DashboardController extends Controller
 
         // Get recent past sessions with attendance counts for dashboard attendance section
         $recentSessionsWithAttendance = Session::whereHas('subject', function($query) use ($teacher) {
-                $query->where('teacher_id', $teacher->id);
+                $query->assignedToTeacher($teacher->id);
             })
             ->where('scheduled_at', '<', now())
             ->with(['subject', 'attendances' => function($q) {
@@ -68,10 +68,10 @@ class DashboardController extends Controller
             'subjects_count' => $subjects->count(),
             'total_students' => $subjects->sum('enrollments_count'),
             'total_sessions' => Session::whereHas('subject', function($query) use ($teacher) {
-                $query->where('teacher_id', $teacher->id);
+                $query->assignedToTeacher($teacher->id);
             })->count(),
             'live_sessions' => Session::whereHas('subject', function($query) use ($teacher) {
-                $query->where('teacher_id', $teacher->id);
+                $query->assignedToTeacher($teacher->id);
             })->where('type', 'live_zoom')->whereNotNull('started_at')->whereNull('ended_at')->count(),
         ];
         
@@ -170,7 +170,7 @@ class DashboardController extends Controller
     {
         $teacher = auth()->user();
 
-        $subject = Subject::where('teacher_id', $teacher->id)
+        $subject = Subject::assignedToTeacher($teacher->id)
             ->with(['term.program', 'enrollments.student'])
             ->findOrFail($id);
 

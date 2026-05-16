@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Teacher;
 
 use App\Http\Controllers\Controller;
+use App\Models\Enrollment;
 use App\Models\Homework;
 use App\Models\Session;
 use App\Models\Subject;
+use App\Notifications\HomeworkCreatedNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -16,7 +18,7 @@ class HomeworkController extends Controller
         $teacher = auth()->user();
 
         // All sessions for this teacher's subjects, with homework
-        $sessions = Session::whereHas('subject', fn($q) => $q->where('teacher_id', $teacher->id))
+        $sessions = Session::whereHas('subject', fn($q) => $q->assignedToTeacher($teacher->id))
             ->with(['subject', 'homework'])
             ->orderByDesc('scheduled_at')
             ->get();
@@ -49,9 +51,22 @@ class HomeworkController extends Controller
             $data['file_name'] = $request->file('file')->getClientOriginalName();
         }
 
-        Homework::create($data);
+        $homework = Homework::create($data);
 
-        return back()->with('success', 'تم إضافة الواجب بنجاح');
+        // Notify active students enrolled in this session's subject
+        $session->loadMissing('subject');
+        $students = Enrollment::where('subject_id', $session->subject_id)
+            ->where('status', 'active')
+            ->with('student')
+            ->get()
+            ->pluck('student')
+            ->filter();
+
+        foreach ($students as $student) {
+            $student->notify(new HomeworkCreatedNotification($homework));
+        }
+
+        return back()->with('success', 'تم إضافة الواجب بنجاح وإشعار الطلاب');
     }
 
     public function update(Request $request, Session $session)
@@ -106,7 +121,7 @@ class HomeworkController extends Controller
     private function authorizeSession(Session $session): void
     {
         $session->loadMissing('subject');
-        if ($session->subject->teacher_id !== auth()->id()) {
+        if (!$session->subject->isAssignedToTeacher(auth()->id())) {
             abort(403);
         }
     }

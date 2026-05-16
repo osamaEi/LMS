@@ -77,6 +77,21 @@ class Subject extends Model
         return $this->belongsTo(User::class, 'teacher_id');
     }
 
+    public function teachers()
+    {
+        return $this->belongsToMany(User::class, 'subject_teacher', 'subject_id', 'teacher_id')->withTimestamps();
+    }
+
+    public function scopeAssignedToTeacher($query, int $teacherId): void
+    {
+        $query->whereHas('teachers', fn($q) => $q->where('users.id', $teacherId));
+    }
+
+    public function isAssignedToTeacher(int $teacherId): bool
+    {
+        return $this->teachers()->where('users.id', $teacherId)->exists();
+    }
+
     public function enrollments(): HasMany
     {
         return $this->hasMany(Enrollment::class);

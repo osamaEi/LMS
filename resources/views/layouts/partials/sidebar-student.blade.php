@@ -14,7 +14,7 @@
     </a>
 </li>
 
-<!-- برنامجي الدراسي -->
+<!-- برنامجي التدريبي-->
 <li>
     <a href="{{ route('student.my-program') }}"
        class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('student.my-program') ? 'menu-item-active' : 'menu-item-inactive' }}">
@@ -102,7 +102,7 @@
                 <svg class="fill-current" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M8 1.33334C4.32 1.33334 1.33333 4.32001 1.33333 8.00001C1.33333 11.68 4.32 14.6667 8 14.6667C11.68 14.6667 14.6667 11.68 14.6667 8.00001C14.6667 4.32001 11.68 1.33334 8 1.33334ZM8.66667 12H7.33333V10.6667H8.66667V12ZM8.66667 9.33334H7.33333V4.00001H8.66667V9.33334Z" fill=""/>
                 </svg>
-                <span>لا توجد مواد مسجلة</span>
+                <span>لا توجد مقرارت مسجلة</span>
             </span>
         </li>
         @endforelse

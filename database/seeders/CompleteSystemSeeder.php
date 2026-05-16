@@ -38,7 +38,7 @@ class CompleteSystemSeeder extends Seeder
         foreach ($tracks->take(1) as $track) { // فقط أول دبلوم للاختبار
             $this->command->info("Processing track: {$track->name}");
 
-            // 4. إنشاء مواد لكل ربع في الدبلوم
+            // 4. إنشاء مقرارت لكل ربع في الدبلوم
             foreach ($track->terms->take(2) as $term) { // فقط الربع 1 و 2
                 $this->command->info("  Creating subjects for term {$term->term_number}...");
                 $subjects = $this->createSubjectsForTerm($term, $teachers);
