@@ -369,6 +369,32 @@ class SessionController extends Controller
             ->with('success', 'تم حذف الدرس بنجاح');
     }
 
+    public function destroyAll()
+    {
+        $sessions = Session::with('files')->get();
+
+        foreach ($sessions as $session) {
+            if ($session->zoom_meeting_id) {
+                try {
+                    $this->zoomService->deleteMeeting($session->zoom_meeting_id);
+                } catch (\Exception $e) {
+                    Log::error('Zoom deletion exception during bulk delete: ' . $e->getMessage());
+                }
+            }
+
+            foreach ($session->files as $file) {
+                Storage::disk('public')->delete($file->file_path);
+                $file->delete();
+            }
+        }
+
+        $count = $sessions->count();
+        Session::query()->delete();
+
+        return redirect()->route('admin.sessions.index')
+            ->with('success', "تم حذف {$count} جلسة بنجاح");
+    }
+
     public function deleteFile(SessionFile $file)
     {
         Storage::disk('public')->delete($file->file_path);

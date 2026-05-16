@@ -274,6 +274,8 @@ Route::middleware(['auth', 'role:admin,super_admin'])->prefix('admin')->name('ad
         ->name('sessions.store-weekly');
     Route::post('/sessions/{session}/reschedule', [\App\Http\Controllers\Admin\SessionController::class, 'reschedule'])
         ->name('sessions.reschedule');
+    Route::delete('/sessions-destroy-all', [\App\Http\Controllers\Admin\SessionController::class, 'destroyAll'])
+        ->name('sessions.destroy-all');
 
     // Zoom Integration
     Route::post('/zoom/create-meeting', [\App\Http\Controllers\Api\V1\Admin\ZoomController::class, 'createMeeting'])
