@@ -55,29 +55,22 @@ class ProfileController extends Controller
 
     /**
      * POST /api/v1/student/profile/photo
-     * Upload / replace profile photo
+     * Set profile photo from a URL string
      */
     public function updatePhoto(Request $request)
     {
         $request->validate([
-            'photo' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'photo' => 'required|string|max:2048',
         ]);
 
         $user = $request->user();
 
-        // Delete old photo
-        if ($user->profile_photo) {
-            \Storage::disk('public')->delete($user->profile_photo);
-        }
-
-        $path = $request->file('photo')->store('uploads/images', 'public');
-
-        $user->update(['profile_photo' => $path]);
+        $user->update(['profile_photo' => $request->photo]);
 
         return response()->json([
             'success'       => true,
             'message'       => 'تم تحديث الصورة الشخصية بنجاح',
-            'profile_photo' => asset('storage/' . $path),
+            'profile_photo' => $request->photo,
         ]);
     }
 
