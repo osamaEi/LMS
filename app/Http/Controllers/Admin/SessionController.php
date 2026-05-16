@@ -29,7 +29,7 @@ class SessionController extends Controller
             ->latest('scheduled_at')
             ->paginate(15);
 
-        $subjects = Subject::with(['term.program', 'units'])
+        $subjects = Subject::with(['term.program', 'units', 'teachers'])
             ->where('status', 'active')
             ->get();
 
@@ -440,6 +440,7 @@ class SessionController extends Controller
             try {
                 $validated = [
                     'subject_id' => $sessionData['subject_id'],
+                    'teacher_id' => $sessionData['teacher_id'] ?? null,
                     'title_ar' => $sessionData['title_ar'],
                     'title_en' => $sessionData['title_en'] ?? $sessionData['title_ar'],
                     'description_ar' => $sessionData['description_ar'] ?? null,

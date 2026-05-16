@@ -109,6 +109,7 @@ class ScheduleController extends Controller
 
             $sessionRow = [
                 'subject_id'       => $sid,
+                'teacher_id'       => $teacher->id,
                 'type'             => 'live_zoom',
                 'scheduled_at'     => $scheduledAt,
                 'duration_minutes' => $duration,

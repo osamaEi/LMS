@@ -15,6 +15,7 @@ class Session extends Model
 
     protected $fillable = [
         'subject_id',
+        'teacher_id',
         'unit_id',
         'title_ar',
         'title_en',

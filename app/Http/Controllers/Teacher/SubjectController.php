@@ -119,6 +119,7 @@ class SubjectController extends Controller
         ]);
 
         $validated['subject_id'] = $subjectId;
+        $validated['teacher_id'] = $teacher->id;
 
         // Handle video file upload
         if ($request->hasFile('video_file')) {
@@ -260,6 +261,8 @@ class SubjectController extends Controller
             // File uploads
             'files.*' => 'nullable|file|max:10240',
         ]);
+
+        $validated['teacher_id'] = $teacher->id;
 
         // Handle video file upload
         if ($request->hasFile('video_file')) {

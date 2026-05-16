@@ -407,6 +407,7 @@
                     @foreach($subjects as $subject)
                     <div class="subject-option" data-id="{{ $subject->id }}"
                          data-label="{{ $subject->name }} ({{ $subject->code }})"
+                         data-teachers="{{ $subject->teachers->map(fn($t) => ['id' => $t->id, 'name' => $t->name])->toJson() }}"
                          onclick="selectSubject(this)"
                          style="padding:10px 14px;cursor:pointer;font-size:0.875rem;border-bottom:1px solid #f3f4f6;display:flex;align-items:center;gap:8px;">
                         @if($subject->color)
@@ -420,6 +421,18 @@
                     @endforeach
                     <div id="subject_no_results" style="display:none;padding:16px;text-align:center;color:#9ca3af;font-size:0.875rem;">لا توجد نتائج</div>
                 </div>
+            </div>
+
+            {{-- Teacher field — shown after subject is picked --}}
+            <div class="form-group" id="teacher_field" style="display:none;">
+                <label class="form-label">المدرس</label>
+                <select id="modal_teacher_id" class="form-select">
+                    <option value="">-- اختر المدرس --</option>
+                </select>
+                <p id="teacher_no_assign_msg" style="display:none;font-size:0.78rem;color:#f59e0b;margin:6px 0 0;display:flex;align-items:center;gap:5px">
+                    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    لم يُعيَّن مدرس لهذه المادة بعد
+                </p>
             </div>
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
@@ -651,9 +664,12 @@ document.addEventListener('DOMContentLoaded', function() {
         if (new Date(endDate) < new Date(startDate)) { alert('تاريخ الانتهاء يجب أن يكون بعد البدء'); return; }
         if (!duration || duration <= 0) { alert('وقت الانتهاء يجب أن يكون بعد البدء'); return; }
 
+        const teacherId = document.getElementById('modal_teacher_id')?.value || null;
+
         const dates = generateSessions(startDate, currentRecurrence);
         const sessions = dates.map((date, index) => ({
             subject_id: parseInt(subjectId),
+            teacher_id: teacherId ? parseInt(teacherId) : null,
             title_ar: `جلسة ${index + 1}`,
             title_en: `Session ${index + 1}`,
             scheduled_at: date + ' ' + startTime,
@@ -757,6 +773,24 @@ window.selectSubject = function(el) {
     document.getElementById('modal_subject_id').value = el.dataset.id;
     document.getElementById('subject_search_input').value = el.dataset.label;
     document.getElementById('subject_dropdown').style.display = 'none';
+
+    // Populate teacher dropdown
+    const teachers = JSON.parse(el.dataset.teachers || '[]');
+    const select   = document.getElementById('modal_teacher_id');
+    const field    = document.getElementById('teacher_field');
+    const noMsg    = document.getElementById('teacher_no_assign_msg');
+
+    select.innerHTML = '<option value="">-- اختر المدرس --</option>';
+    teachers.forEach(t => {
+        const opt = document.createElement('option');
+        opt.value = t.id;
+        opt.textContent = t.name;
+        select.appendChild(opt);
+    });
+
+    field.style.display = 'block';
+    noMsg.style.display  = teachers.length === 0 ? 'flex' : 'none';
+    select.style.display = teachers.length === 0 ? 'none' : 'block';
 };
 
 document.addEventListener('click', function(e) {
