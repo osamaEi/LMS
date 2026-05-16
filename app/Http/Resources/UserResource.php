@@ -32,10 +32,9 @@ class UserResource extends JsonResource
             'status'              => $this->status,
             'registration_number' => $registrationNumber,
 
-            // Profile photo — full URL
             'profile_photo'       => $this->profile_photo
-                ? asset('storage/' . $this->profile_photo)
-                : asset('images/placeholder-avatar.png'),
+                ? basename($this->profile_photo)
+                : null,
 
             // // Program & term
             // 'program_id'     => $this->program_id,
