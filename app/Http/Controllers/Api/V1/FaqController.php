@@ -17,6 +17,16 @@ class FaqController extends Controller
             $query->where('category', $request->category);
         }
 
+        if ($request->filled('search')) {
+            $term = $request->search;
+            $query->where(function ($q) use ($term) {
+                $q->where('question_ar', 'like', "%{$term}%")
+                  ->orWhere('question_en', 'like', "%{$term}%")
+                  ->orWhere('answer_ar',   'like', "%{$term}%")
+                  ->orWhere('answer_en',   'like', "%{$term}%");
+            });
+        }
+
         $faqs = $query->get();
 
         $grouped = $faqs->groupBy('category');
