@@ -207,6 +207,14 @@
                     </svg>
                     إضافة جلسة
                 </button>
+                <button onclick="document.getElementById('delete-all-modal').style.display='flex'"
+                        class="header-btn"
+                        style="background:rgba(239,68,68,0.15);border:1.5px solid rgba(239,68,68,0.4);color:#fca5a5">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:18px;height:18px">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                    حذف جميع الجلسات
+                </button>
             </div>
         </div>
     </div>
@@ -501,6 +509,40 @@
     @csrf
     <input type="hidden" name="sessions" id="batchSessionsInput">
 </form>
+
+{{-- Delete All Confirmation Modal --}}
+<div id="delete-all-modal"
+     style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.6);align-items:center;justify-content:center;padding:16px"
+     onclick="if(event.target===this)this.style.display='none'">
+    <div style="background:#fff;border-radius:18px;width:100%;max-width:440px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,0.3)" class="dark:bg-slate-800">
+        <div style="padding:28px 28px 24px;text-align:center">
+            <div style="width:64px;height:64px;border-radius:50%;background:#fee2e2;display:flex;align-items:center;justify-content:center;margin:0 auto 18px">
+                <svg width="30" height="30" fill="none" stroke="#dc2626" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                </svg>
+            </div>
+            <h3 style="font-size:1.1rem;font-weight:800;color:#111827;margin:0 0 10px" class="dark:text-white">حذف جميع الجلسات</h3>
+            <p style="font-size:0.875rem;color:#6b7280;margin:0 0 6px">
+                سيتم حذف <strong style="color:#dc2626">جميع الجلسات</strong> بشكل نهائي من النظام.
+            </p>
+            <p style="font-size:0.8rem;color:#9ca3af;margin:0">لا يمكن التراجع عن هذا الإجراء.</p>
+        </div>
+        <div style="display:flex;gap:10px;padding:0 28px 24px">
+            <button onclick="document.getElementById('delete-all-modal').style.display='none'"
+                    style="flex:1;padding:11px;border-radius:12px;border:1.5px solid #e5e7eb;background:#fff;color:#374151;font-size:0.875rem;font-weight:700;cursor:pointer" class="dark:bg-slate-700 dark:text-white dark:border-slate-600">
+                إلغاء
+            </button>
+            <form action="{{ route('admin.sessions.destroy-all') }}" method="POST" style="flex:1">
+                @csrf
+                @method('DELETE')
+                <button type="submit"
+                        style="width:100%;padding:11px;border-radius:12px;border:none;background:#dc2626;color:#fff;font-size:0.875rem;font-weight:700;cursor:pointer">
+                    نعم، احذف الكل
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
 @endsection
 
 @push('scripts')
