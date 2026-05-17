@@ -3,6 +3,8 @@
 namespace Database\Seeders;
 
 use Database\Seeders\ProgramCSSeeder;
+use Database\Seeders\ProgramHRSeeder;
+use Database\Seeders\ProgramMKTSeeder;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -19,7 +21,8 @@ class DatabaseSeeder extends Seeder
            // SubjectsSeeder::class,
 
             // 3. FAQ content
-            ProgramCSSeeder::class,
+            ProgramMKTSeeder::class,
+            ProgramHRSeeder::class,
         ]);
     }
 }

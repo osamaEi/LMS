@@ -94,11 +94,7 @@
        style="background:linear-gradient(135deg,#2563eb,#0ea5e9);">
 
         {{-- colored icon wrapper --}}
-        <span class="flex items-center justify-center w-6 h-6 rounded-md flex-shrink-0 text-white">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/>
-            </svg>
-        </span>
+      
 
         <span class="flex-1">اللغة الإنجليزية</span>
 
@@ -111,7 +107,7 @@
 @endcan
 
 {{-- الأرباع التدريبية  --}}
-@can('view-terms')
+<!-- @can('view-terms')
 <li>
     <a href="{{ route('admin.terms.index') }}"
        class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('admin.terms.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
@@ -119,7 +115,7 @@
         <span>الأرباع التدريبية </span>
     </a>
 </li>
-@endcan
+@endcan -->
 
 {{-- المقررات  التدريبية  --}}
 @can('view-subjects')

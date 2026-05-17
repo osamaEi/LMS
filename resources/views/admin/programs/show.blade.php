@@ -254,26 +254,73 @@
                                     </div>
                                     @endif
                                 </div>
-                                {{-- Subjects under this term --}}
+                                {{-- Subjects datatable --}}
                                 @if($term->subjects->isNotEmpty())
-                                <div class="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800">
-                                    <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">المقررات  التدريبية :</p>
-                                    <div class="flex flex-wrap gap-2">
-                                        @foreach($term->subjects as $subject)
-                                        <span class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium"
-                                              style="background:#f3f0ff; color:#7c3aed;">
-                                            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                                            </svg>
-                                            {{ $subject->name_ar ?: $subject->name_en }}
-                                            @if($subject->code)
-                                            <span style="opacity:.6;">· {{ $subject->code }}</span>
-                                            @endif
-                                            @if($subject->teacher)
-                                            <span style="opacity:.7;">— {{ $subject->teacher->name }}</span>
-                                            @endif
-                                        </span>
-                                        @endforeach
+                                <div class="mt-4 pt-3 border-t border-gray-100 dark:border-gray-800">
+                                    <div class="overflow-x-auto rounded-lg border border-gray-100 dark:border-gray-800">
+                                        <table class="w-full text-sm">
+                                            <thead>
+                                                <tr class="bg-gray-50 dark:bg-gray-800/60 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+                                                    <th class="px-4 py-2.5 text-right w-8">#</th>
+                                                    <th class="px-4 py-2.5 text-right">الكود</th>
+                                                    <th class="px-4 py-2.5 text-right">اسم المقرر</th>
+                                                    <th class="px-4 py-2.5 text-right hidden md:table-cell">الاسم الإنجليزي</th>
+                                                    <th class="px-4 py-2.5 text-center w-16">س.م</th>
+                                                    <th class="px-4 py-2.5 text-right hidden lg:table-cell">المدرب</th>
+                                                    <th class="px-4 py-2.5 text-center w-16">الحالة</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+                                                @foreach($term->subjects as $idx => $subject)
+                                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/40 transition-colors group">
+                                                    <td class="px-4 py-2.5 text-xs text-gray-400 dark:text-gray-500">{{ $idx + 1 }}</td>
+                                                    <td class="px-4 py-2.5">
+                                                        <span class="font-mono text-xs font-semibold text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-900/20 px-2 py-0.5 rounded">
+                                                            {{ $subject->code }}
+                                                        </span>
+                                                    </td>
+                                                    <td class="px-4 py-2.5 font-medium text-gray-900 dark:text-white">
+                                                        {{ $subject->name_ar ?: $subject->name_en }}
+                                                    </td>
+                                                    <td class="px-4 py-2.5 text-gray-500 dark:text-gray-400 text-xs hidden md:table-cell" dir="ltr">
+                                                        {{ $subject->name_en }}
+                                                    </td>
+                                                    <td class="px-4 py-2.5 text-center">
+                                                        @if($subject->credits)
+                                                        <span class="text-xs font-bold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 rounded-full px-2 py-0.5">
+                                                            {{ $subject->credits }}
+                                                        </span>
+                                                        @else
+                                                        <span class="text-gray-300 dark:text-gray-600">—</span>
+                                                        @endif
+                                                    </td>
+                                                    <td class="px-4 py-2.5 text-xs text-gray-500 dark:text-gray-400 hidden lg:table-cell">
+                                                        {{ $subject->teacher?->name ?? '—' }}
+                                                    </td>
+                                                    <td class="px-4 py-2.5 text-center">
+                                                        @if($subject->status === 'active')
+                                                        <span class="inline-block w-2 h-2 rounded-full bg-green-400"></span>
+                                                        @else
+                                                        <span class="inline-block w-2 h-2 rounded-full bg-gray-300 dark:bg-gray-600"></span>
+                                                        @endif
+                                                    </td>
+                                                </tr>
+                                                @endforeach
+                                            </tbody>
+                                            <tfoot>
+                                                <tr class="bg-gray-50 dark:bg-gray-800/60 border-t border-gray-200 dark:border-gray-700">
+                                                    <td colspan="4" class="px-4 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400">
+                                                        المجموع — {{ $term->subjects->count() }} مقرر
+                                                    </td>
+                                                    <td class="px-4 py-2 text-center">
+                                                        <span class="text-xs font-bold text-brand-600 dark:text-brand-400">
+                                                            {{ $term->subjects->sum('credits') }}
+                                                        </span>
+                                                    </td>
+                                                    <td colspan="2"></td>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
                                     </div>
                                 </div>
                                 @endif
