@@ -201,7 +201,7 @@ class DashboardController extends Controller
 
         // Get all sessions for this subject
         $sessions = Session::where('subject_id', $id)
-            ->with('files')
+            ->with(['files', 'homework'])
             ->orderBy('session_number', 'asc')
             ->get();
 
@@ -211,7 +211,13 @@ class DashboardController extends Controller
             ->get()
             ->keyBy('session_id');
 
-        return view('student.subject-detail', compact('subject', 'sessions', 'attendances'));
+        // Collect all homework across all sessions
+        $homeworks = $sessions->flatMap(fn($s) => $s->homework ? [$s->homework] : []);
+
+        // Subject-level files
+        $subject->load('files');
+
+        return view('student.subject-detail', compact('subject', 'sessions', 'attendances', 'homeworks'));
     }
 
     /**

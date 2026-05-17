@@ -48,7 +48,7 @@ class SubjectController extends Controller
         $teacher = auth()->user();
 
         $subject = Subject::assignedToTeacher($teacher->id)
-            ->with(['term.program', 'units'])
+            ->with(['term.program', 'units', 'files'])
             ->withCount('enrollments')
             ->findOrFail($id);
 
