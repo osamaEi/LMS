@@ -183,7 +183,7 @@ $byLevel = $programs->keyBy('level');
         <div class="track-step" id="track-{{ $lv }}" onclick="jumpToLevel({{ $lv }})"
              data-from="{{ $c['from'] }}" data-to="{{ $c['to'] }}" data-shadow="{{ $c['shadow'] }}">
             <div class="circle" id="circle-{{ $lv }}">{{ $abbrs[$lv] }}</div>
-            <span class="lbl">{{ $lv <= 2 ? $levelLabels[$lv] : 'M'.($lv-2) }}</span>
+            <span class="lbl">{{ $lv <= 2 ? $levelLabels[$lv] : 'L'.($lv-2) }}</span>
         </div>
         @if($lv < 14)
         <div class="track-connector"></div>
