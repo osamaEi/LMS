@@ -30,6 +30,7 @@ class DashboardController extends Controller
         // All subject IDs accessible to this student (program or enrollment)
         $studentSubjectIds = Subject::where(function ($q) use ($student) {
                 $q->where('program_id', $student->program_id)
+                  ->orWhereHas('term', fn($tq) => $tq->where('program_id', $student->program_id))
                   ->orWhereHas('terms', fn($tq) => $tq->where('program_id', $student->program_id))
                   ->orWhereHas('enrollments', fn($eq) => $eq->where('student_id', $student->id));
             })->pluck('id');
@@ -189,6 +190,7 @@ class DashboardController extends Controller
         // Allow access to any subject in the student's program or with explicit enrollment
         $subject = Subject::where(function ($q) use ($student) {
                 $q->where('program_id', $student->program_id)
+                  ->orWhereHas('term', fn($tq) => $tq->where('program_id', $student->program_id))
                   ->orWhereHas('terms', fn($tq) => $tq->where('program_id', $student->program_id))
                   ->orWhereHas('enrollments', fn($eq) => $eq->where('student_id', $student->id));
             })
@@ -239,9 +241,10 @@ class DashboardController extends Controller
         }) ?? $terms->firstWhere('term_number', $currentTermNumber)
           ?? $terms->first();
 
-        // Get all subject IDs in student's program via direct program_id OR term pivot
+        // Get all subject IDs in student's program via direct program_id, direct term FK, term pivot, or enrollment
         $programSubjectIds = Subject::where(function ($q) use ($student) {
                 $q->where('program_id', $student->program_id)
+                  ->orWhereHas('term', fn($tq) => $tq->where('program_id', $student->program_id))
                   ->orWhereHas('terms', fn($tq) => $tq->where('program_id', $student->program_id))
                   ->orWhereHas('enrollments', fn($eq) => $eq->where('student_id', $student->id));
             })->pluck('id');
@@ -273,11 +276,18 @@ class DashboardController extends Controller
             : $programSubjects;
 
         // Build sessions query - all sessions from program subjects
-        $query = Session::whereIn('subject_id', $programSubjectIds)
+        $query = Session::whereHas('subject', function ($q) use ($student) {
+                $q->where(function ($sq) use ($student) {
+                    $sq->where('program_id', $student->program_id)
+                       ->orWhereHas('term', fn($tq) => $tq->where('program_id', $student->program_id))
+                       ->orWhereHas('terms', fn($tq) => $tq->where('program_id', $student->program_id))
+                       ->orWhereHas('enrollments', fn($eq) => $eq->where('student_id', $student->id));
+                });
+            })
             ->with(['subject.term', 'subject.teacher', 'unit', 'files']);
 
         // Scope to current term unless "all" requested
-        if ($termFilter === 'current' && $currentTerm && $currentTermSubjectIds !== $programSubjectIds) {
+        if ($termFilter === 'current' && $currentTerm && !$currentTermSubjectIds->isEmpty()) {
             $query->whereIn('subject_id', $currentTermSubjectIds);
         }
 

@@ -42,6 +42,7 @@ class TeacherRatingController extends Controller
         $canAccess = $subject->where('id', $subject->id)
             ->where(function ($q) use ($student) {
                 $q->where('program_id', $student->program_id)
+                  ->orWhereHas('term', fn($tq) => $tq->where('program_id', $student->program_id))
                   ->orWhereHas('terms', fn($tq) => $tq->where('program_id', $student->program_id))
                   ->orWhereHas('enrollments', fn($eq) => $eq->where('student_id', $student->id));
             })->exists();

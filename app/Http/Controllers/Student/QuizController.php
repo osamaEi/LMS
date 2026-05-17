@@ -17,6 +17,7 @@ class QuizController extends Controller
         return Subject::where('id', $subjectId)
             ->where(function ($q) use ($student) {
                 $q->where('program_id', $student->program_id)
+                  ->orWhereHas('term', fn($tq) => $tq->where('program_id', $student->program_id))
                   ->orWhereHas('terms', fn($tq) => $tq->where('program_id', $student->program_id))
                   ->orWhereHas('enrollments', fn($eq) => $eq->where('student_id', $student->id));
             })->exists();
