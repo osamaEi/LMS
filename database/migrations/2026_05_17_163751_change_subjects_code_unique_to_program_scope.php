@@ -12,7 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('subjects', function (Blueprint $table) {
-            $table->dropUnique(['code']);
+            // Drop global unique if it still exists (legacy)
+            try { $table->dropUnique(['code']); } catch (\Throwable $e) {}
             $table->unique(['program_id', 'code'], 'subjects_program_code_unique');
         });
     }
@@ -21,7 +22,6 @@ return new class extends Migration
     {
         Schema::table('subjects', function (Blueprint $table) {
             $table->dropUnique('subjects_program_code_unique');
-            $table->unique('code');
         });
     }
 };

@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('term_id')->constrained('terms')->cascadeOnDelete();
             $table->foreignId('teacher_id')->nullable()->constrained('users')->nullOnDelete();
             $table->string('name');
-            $table->string('code')->unique();
+            $table->string('code');
             $table->text('description')->nullable();
             $table->integer('credits')->default(3);
             $table->integer('max_students')->default(30);
