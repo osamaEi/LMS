@@ -36,7 +36,9 @@ Route::get('/oauth/callback', function () {
 
 // Home route
 Route::get('/', function () {
-    $featuredPrograms = \App\Models\Program::where('status', 'active')->latest()->take(3)->get();
+    $featuredPrograms = \App\Models\Program::where('status', 'active')
+        ->where('type', 'diploma')
+        ->latest()->take(3)->get();
     return view('welcome', compact('featuredPrograms'));
 })->name('home');
 

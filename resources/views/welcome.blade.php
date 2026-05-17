@@ -243,7 +243,7 @@
     <div class="hero-content">
         <div class="hero-tag">
             <span class="tag-dot"></span>
-            {{ app()->getLocale()=='ar' ? 'معهد الارتقاء العالي للتدريب — معتمد مركز المؤسسة العامةً  للتدريب التقني والمهني' : 'Al-Ertiqaa Institute — Officially Accredited' }}
+            {{ app()->getLocale()=='ar' ? 'معهد الارتقاء العالي للتدريب — معتمد من المؤسسة العامةً  للتدريب التقني والمهني' : 'Al-Ertiqaa Institute — Officially Accredited' }}
         </div>
         <div class="hero-accent-line"></div>
         <h1>
@@ -472,7 +472,7 @@
 @if($partners->isNotEmpty())
 <section class="partners-section">
     <div class="partners-head">
-        <h2>{{ app()->getLocale() === 'ar' ? 'شركائنا المتعاونة' : 'Partners & Affiliates' }}</h2>
+        <h2>{{ app()->getLocale() === 'ar' ? 'شركائنا ' : 'Partners & Affiliates' }}</h2>
         <p>{{ app()->getLocale() === 'ar' ? 'نفخر بشراكتنا مع عدد من الجهات والمنظمات الرائدة' : 'Proud to work alongside leading organizations and institutions' }}</p>
         <div class="partners-count-row">
             <div class="p-count-chip"><i class="bi bi-buildings"></i><strong>{{ $partners->count() }}+</strong><span>{{ app()->getLocale() === 'ar' ? 'جهة شريكة' : 'Partner Organizations' }}</span></div>

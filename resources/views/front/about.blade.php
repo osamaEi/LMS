@@ -362,7 +362,6 @@
     <!-- Gallery Section -->
     <section class="gallery-section">
         <div class="head">
-            <p class="st-p">{{ __('Training That Meets Your Needs') }}</p>
             <h2>{{ __('From Our Institute') }}</h2>
         </div>
         <div class="gallery-grid">
@@ -392,7 +391,6 @@
         <div class="row">
             <div class="col-lg-6">
                 <div class="contact-content">
-                    <p class="st-p">{{ __('Training That Meets Your Needs') }}</p>
                     <h2>{{ __('We\'re Happy to Hear From You... We Value Every Question and Inquiry') }}</h2>
                     <p>
                         {{ __('Our support and guidance team is here to serve you and answer all your questions related to training programs, career paths, registration procedures, term system, course schedules, or any details you need to know before starting your journey with us.') }}
