@@ -57,6 +57,15 @@
     .strip-english        { background: linear-gradient(90deg,#0071AA,#0ea5e9); }
     .strip-training       { background: linear-gradient(90deg,#059669,#34d399); }
 
+    .courses-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+        max-width: 1300px;
+        margin: 0 auto;
+        padding: 0 1rem;
+    }
+
     .empty-box {
         text-align: center;
         padding: 5rem 1rem;
@@ -66,6 +75,7 @@
 
     @media (max-width: 768px) {
         .courses-section { padding: 1.5rem 1rem; }
+        .courses-container { grid-template-columns: 1fr; }
     }
 </style>
 @endsection

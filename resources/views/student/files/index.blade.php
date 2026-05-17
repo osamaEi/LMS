@@ -184,7 +184,7 @@
             </svg>
         </div>
         <p style="font-size:1.1rem;font-weight:700;color:#374151;margin:0 0 8px" class="dark:text-white">لا توجد ملفات</p>
-        <p style="font-size:0.875rem;color:#9ca3af;margin:0 0 20px">سجّل في برنامج دراسي للوصول إلى الملفات والموارد</p>
+        <p style="font-size:0.875rem;color:#9ca3af;margin:0 0 20px">سجّل في برنامج تدريبي للوصول إلى الملفات والموارد</p>
         <a href="{{ route('student.my-program') }}"
            style="display:inline-flex;align-items:center;gap:8px;padding:10px 24px;background:#0071AA;color:#fff;border-radius:12px;font-weight:700;text-decoration:none;font-size:0.875rem">
             اختر برنامجك التدريبي 

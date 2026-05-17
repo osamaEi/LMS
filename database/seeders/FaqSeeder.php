@@ -93,7 +93,7 @@ class FaqSeeder extends Seeder
                 'sort_order'  => 5,
                 'question_ar' => 'كم عدد المقررات  في كل برنامج؟',
                 'question_en' => 'How many subjects are in each program?',
-                'answer_ar'   => 'يتفاوت عدد المقررات  حسب البرنامج. يتكون كل فصل دراسي عادةً من 4 إلى 8 مقرارت دراسية، ويمكنك الاطلاع على الخطة التدريبية  التفصيلية لكل برنامج من صفحة البرامج.',
+                'answer_ar'   => 'يتفاوت عدد المقررات  حسب البرنامج. يتكون كل فصل تدريبي عادةً من 4 إلى 8 مقرارت دراسية، ويمكنك الاطلاع على الخطة التدريبية  التفصيلية لكل برنامج من صفحة البرامج.',
                 'answer_en'   => 'The number of subjects varies by program. Each term typically consists of 4 to 8 subjects. You can view the detailed study plan for each program on the programs page.',
             ],
             [

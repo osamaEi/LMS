@@ -63,7 +63,8 @@
     background: #f8fafc;
     min-height: 350px;
 }
-.eng-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(280px,1fr)); gap: 1.25rem; }
+.eng-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
+@media(max-width:991px) { .eng-grid { grid-template-columns: repeat(2, 1fr); } }
 
 .eng-card {
     background: #fff; border-radius: 16px;

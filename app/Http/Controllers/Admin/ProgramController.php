@@ -131,6 +131,8 @@ class ProgramController extends Controller
             'price'           => 'nullable|numeric|min:0',
             'status'          => 'nullable|in:active,inactive',
             'type'            => 'nullable|in:diploma,training,developmental,qualifying,course',
+            'course_type'     => 'nullable|in:developmental,qualifying',
+            'category'        => 'nullable|string|max:255',
             'supervisor_name' => 'nullable|string|max:255',
             'image'           => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'remove_image'    => 'nullable|boolean',

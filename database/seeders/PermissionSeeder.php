@@ -36,7 +36,7 @@ class PermissionSeeder extends Seeder
         'create-students'                => 'إضافة طلاب',
         'edit-students'                  => 'تعديل بيانات الطلاب',
         'delete-students'                => 'حذف الطلاب',
-        'assign-program-to-student'      => 'تعيين دبلوم دراسي للطالب',
+        'assign-program-to-student'      => 'تعيين دبلوم تدريبي للطالب',
         'remove-program-from-student'    => 'إزالة الدبلوم التدريبي من الطالب',
         'toggle-student-status'          => 'تفعيل / تعطيل حساب الطالب',
 

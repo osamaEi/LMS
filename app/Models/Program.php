@@ -21,6 +21,7 @@ class Program extends Model
         'image',
         'type',
         'course_type',
+        'category',
         'supervisor_id',
         'supervisor_name',
         'level',

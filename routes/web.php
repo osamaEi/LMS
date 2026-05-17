@@ -74,11 +74,14 @@ Route::get('/courses/developmental', function () {
     $programs = \App\Models\Program::where('status', 'active')
         ->where('type', 'course')
         ->where('course_type', 'developmental')
+        ->orderBy('category')
+        ->orderBy('name_ar')
         ->get();
-    return view('front.course-list', [
+    $grouped = $programs->groupBy(fn($p) => $p->category ?: 'أخرى');
+    return view('front.developmental-courses', [
         'programs'  => $programs,
+        'grouped'   => $grouped,
         'pageTitle' => 'الدورات التطويرية',
-        'pageType'  => 'developmental',
     ]);
 })->name('courses.developmental');
 

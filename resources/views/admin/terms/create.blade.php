@@ -1,6 +1,6 @@
 @extends('layouts.dashboard')
 
-@section('title', 'إضافة ربع دراسي جديد')
+@section('title', 'إضافة ربع تدريبي جديد')
 
 @section('content')
 <div class="mb-6">
@@ -11,7 +11,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
             </svg>
         </a>
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">إضافة ربع دراسي جديد</h1>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">إضافة ربع تدريبي جديد</h1>
     </div>
     <p class="text-sm text-gray-500 dark:text-gray-400">أدخل بيانات الفصل التدريبي الجديد</p>
 </div>

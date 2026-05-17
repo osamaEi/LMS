@@ -220,7 +220,7 @@
                                     @if($search) لا توجد نتائج لـ "{{ $search }}" @else لا توجد فصول دراسية @endif
                                 </div>
                                 <div style="color:#9ca3af;font-size:14px;">
-                                    @if($search) جرب البحث بكلمات مختلفة @else ابدأ بإضافة أول ربع دراسي @endif
+                                    @if($search) جرب البحث بكلمات مختلفة @else ابدأ بإضافة أول ربع تدريبي @endif
                                 </div>
                                 @if($search)
                                 <a href="{{ route('admin.terms.index') }}" style="margin-top:4px;padding:8px 18px;background:#4f46e5;color:white;border-radius:10px;font-size:13px;text-decoration:none;">عرض الكل</a>

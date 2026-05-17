@@ -179,7 +179,7 @@
                 </svg>
             </div>
             <p class="text-sm font-medium text-gray-900 dark:text-white">لم تُضَف أرباع بعد</p>
-            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">اضغط "إضافة ربع" لإضافة ربع دراسي وتعيين مقرارته</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">اضغط "إضافة ربع" لإضافة ربع تدريبي وتعيين مقرارته</p>
         </div>
     </div>
 

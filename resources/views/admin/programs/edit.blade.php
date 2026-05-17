@@ -124,8 +124,19 @@
                 </select>
             </div>
 
+            <!-- الكاتيجوري (للدورات التطويرية/التأهيلية) -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    الكاتيجوري
+                    <span class="font-normal text-gray-400 text-xs">(للدورات التطويرية/التأهيلية)</span>
+                </label>
+                <input type="text" name="category" value="{{ old('category', $program->category) }}"
+                       class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                       placeholder="مثال: إدارة وأعمال، تقنية المعلومات...">
+            </div>
+
             <!-- المشرف الأكاديمي -->
-            <div class="md:col-span-2">
+            <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">المشرف الأكاديمي</label>
                 <input type="text" name="supervisor_name" value="{{ old('supervisor_name', $program->supervisor_name) }}"
                        class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
