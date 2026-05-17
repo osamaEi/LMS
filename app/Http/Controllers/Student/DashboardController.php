@@ -256,7 +256,7 @@ class DashboardController extends Controller
             ? Subject::whereIn('id', $programSubjectIds)
                 ->where(function ($q) use ($currentTerm) {
                     $q->where('term_id', $currentTerm->id)
-                      ->orWhereHas('terms', fn($tq) => $tq->where('id', $currentTerm->id));
+                      ->orWhereHas('terms', fn($tq) => $tq->where('terms.id', $currentTerm->id));
                 })->pluck('id')
             : $programSubjectIds;
 
