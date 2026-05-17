@@ -38,13 +38,15 @@ class TeacherRatingController extends Controller
     {
         $student = auth()->user();
 
-        // Verify student is enrolled
-        $isEnrolled = $subject->enrollments()
-            ->where('student_id', $student->id)
-            ->where('status', 'active')
-            ->exists();
+        // Verify student can access this subject (enrolled or in same program)
+        $canAccess = $subject->where('id', $subject->id)
+            ->where(function ($q) use ($student) {
+                $q->where('program_id', $student->program_id)
+                  ->orWhereHas('terms', fn($tq) => $tq->where('program_id', $student->program_id))
+                  ->orWhereHas('enrollments', fn($eq) => $eq->where('student_id', $student->id));
+            })->exists();
 
-        if (!$isEnrolled) {
+        if (!$canAccess) {
             return redirect()->route('student.teacher-ratings.index')
                 ->with('error', 'لست مسجلاً في هذه المقرر ');
         }

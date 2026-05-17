@@ -260,6 +260,11 @@ class DashboardController extends Controller
                 })->pluck('id')
             : $programSubjectIds;
 
+        // If no subjects match the current term specifically, show all program subjects
+        if ($currentTermSubjectIds->isEmpty()) {
+            $currentTermSubjectIds = $programSubjectIds;
+        }
+
         $currentTermSubjects = $programSubjects->whereIn('id', $currentTermSubjectIds->toArray())->values();
 
         // Subjects shown in the filter dropdown depend on active tab
@@ -272,7 +277,7 @@ class DashboardController extends Controller
             ->with(['subject.term', 'subject.teacher', 'unit', 'files']);
 
         // Scope to current term unless "all" requested
-        if ($termFilter === 'current' && $currentTerm) {
+        if ($termFilter === 'current' && $currentTerm && $currentTermSubjectIds !== $programSubjectIds) {
             $query->whereIn('subject_id', $currentTermSubjectIds);
         }
 

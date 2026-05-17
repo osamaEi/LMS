@@ -12,6 +12,16 @@ use Illuminate\Support\Facades\DB;
 
 class QuizController extends Controller
 {
+    private function canAccessSubject($student, $subjectId): bool
+    {
+        return Subject::where('id', $subjectId)
+            ->where(function ($q) use ($student) {
+                $q->where('program_id', $student->program_id)
+                  ->orWhereHas('terms', fn($tq) => $tq->where('program_id', $student->program_id))
+                  ->orWhereHas('enrollments', fn($eq) => $eq->where('student_id', $student->id));
+            })->exists();
+    }
+
     /**
      * Display available quizzes for the student
      */
@@ -20,9 +30,7 @@ class QuizController extends Controller
         $student = auth()->user();
         $subject = Subject::findOrFail($subjectId);
 
-        // Verify enrollment
-        $isEnrolled = $student->enrollments()->where('subject_id', $subjectId)->exists();
-        if (!$isEnrolled) {
+        if (!$this->canAccessSubject($student, $subjectId)) {
             abort(403, 'أنت غير مسجل في هذه المقرر ');
         }
 
@@ -62,9 +70,7 @@ class QuizController extends Controller
             ->withCount('questions')
             ->findOrFail($quizId);
 
-        // Verify student is enrolled in the subject
-        $isEnrolled = $student->enrollments()->where('subject_id', $subjectId)->exists();
-        if (!$isEnrolled) {
+        if (!$this->canAccessSubject($student, $subjectId)) {
             abort(403, 'أنت غير مسجل في هذه المقرر ');
         }
 
@@ -87,9 +93,7 @@ class QuizController extends Controller
         $subject = Subject::findOrFail($subjectId);
         $quiz = Quiz::where('subject_id', $subjectId)->findOrFail($quizId);
 
-        // Verify enrollment
-        $isEnrolled = $student->enrollments()->where('subject_id', $subjectId)->exists();
-        if (!$isEnrolled) {
+        if (!$this->canAccessSubject($student, $subjectId)) {
             abort(403, 'أنت غير مسجل في هذه المقرر ');
         }
 
