@@ -26,9 +26,9 @@
                 <div class="flex items-center gap-3">
                     <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ $program->name }}</h1>
                     @if($program->status === 'active')
-                        <span class="rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-600 dark:bg-green-900/30 dark:text-green-400">نشط</span>
+                        <span style="background:#dcfce7;color:#16a34a;border-radius:9999px;padding:.25rem .75rem;font-size:.75rem;font-weight:600;">نشط</span>
                     @else
-                        <span class="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600 dark:bg-gray-800 dark:text-gray-400">غير نشط</span>
+                        <span style="background:#f3f4f6;color:#6b7280;border-radius:9999px;padding:.25rem .75rem;font-size:.75rem;font-weight:600;">غير نشط</span>
                     @endif
                 </div>
                 <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">{{ $program->code }}</p>
@@ -183,39 +183,6 @@
                 </div>
             </div>
 
-            <!-- Tracks List -->
-            <div class="rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
-                <div class="p-6 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
-                    <h2 class="text-lg font-bold text-gray-900 dark:text-white">الدبلومات    التعليمية ({{ $program->tracks->count() }})</h2>
-                </div>
-                <div class="divide-y divide-gray-200 dark:divide-gray-800">
-                    @forelse($program->tracks as $track)
-                    <div class="p-5 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background:#fdf4ff;">
-                                    <svg class="w-5 h-5" style="color:#7c3aed;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
-                                    </svg>
-                                </div>
-                                <div>
-                                    <h3 class="text-sm font-semibold text-gray-900 dark:text-white">{{ $track->name }}</h3>
-                                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{{ $track->code }} · {{ $track->total_terms ?? 0 }} ربع · {{ $track->duration_months ?? '-' }} شهر</p>
-                                </div>
-                            </div>
-                            <span class="rounded-full px-2.5 py-1 text-xs font-medium {{ $track->status === 'active' ? 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400' : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400' }}">
-                                {{ $track->status === 'active' ? 'نشط' : 'غير نشط' }}
-                            </span>
-                        </div>
-                    </div>
-                    @empty
-                    <div class="p-8 text-center">
-                        <p class="text-sm text-gray-500 dark:text-gray-400">لا توجد دبلومات   تعليمية لهذا البرنامج</p>
-                    </div>
-                    @endforelse
-                </div>
-            </div>
-
             <!-- Terms List -->
             <div class="rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
                 <div class="p-6 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
@@ -274,7 +241,7 @@
                                                 @foreach($term->subjects as $idx => $subject)
                                                 <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/40 transition-colors group">
                                                     <td class="px-4 py-2.5 text-xs text-gray-400 dark:text-gray-500">{{ $idx + 1 }}</td>
-                                                    <td class="px-4 py-2.5">
+                                                    <td class="px-4 py-2.5" dir="ltr">
                                                         <span class="font-mono text-xs font-semibold text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-900/20 px-2 py-0.5 rounded">
                                                             {{ $subject->code }}
                                                         </span>
@@ -327,11 +294,11 @@
                             </div>
                             <div class="flex items-center gap-3">
                                 @if($term->status === 'active')
-                                    <span class="rounded-full bg-green-100 px-2.5 py-1 text-xs font-medium text-green-600 dark:bg-green-900/30 dark:text-green-400">نشط</span>
+                                    <span style="background:#dcfce7;color:#16a34a;border-radius:9999px;padding:.2rem .65rem;font-size:.72rem;font-weight:600;">نشط</span>
                                 @elseif($term->status === 'upcoming')
-                                    <span class="rounded-full bg-blue-100 px-2.5 py-1 text-xs font-medium text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">قادم</span>
+                                    <span style="background:#dbeafe;color:#2563eb;border-radius:9999px;padding:.2rem .65rem;font-size:.72rem;font-weight:600;">قادم</span>
                                 @else
-                                    <span class="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600 dark:bg-gray-800 dark:text-gray-400">مكتمل</span>
+                                    <span style="background:#f3f4f6;color:#6b7280;border-radius:9999px;padding:.2rem .65rem;font-size:.72rem;font-weight:600;">مكتمل</span>
                                 @endif
                                 <div class="flex items-center gap-1">
                                     <button @click="$store.subjectModal = {open: true, termId: {{ $term->id }}, termName: '{{ $term->name }}'}"
@@ -384,42 +351,6 @@
 
         <!-- Sidebar -->
         <div class="lg:col-span-1 space-y-6">
-            <!-- Quick Actions -->
-            <div class="rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
-                <div class="p-6 border-b border-gray-200 dark:border-gray-800">
-                    <h2 class="text-lg font-bold text-gray-900 dark:text-white">إجراءات سريعة</h2>
-                </div>
-                <div class="p-4 space-y-2">
-                    <button @click="$store.termModal = true"
-                            class="w-full flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800 transition-colors">
-                        <div class="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                            <svg class="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                            </svg>
-                        </div>
-                        إضافة ربع تدريبي جديد
-                    </button>
-                    <a href="{{ route('admin.programs.edit', $program) }}"
-                       class="w-full flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800 transition-colors">
-                        <div class="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
-                            <svg class="w-4 h-4 text-gray-600 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                            </svg>
-                        </div>
-                        تعديل بيانات الدبلوم
-                    </a>
-                    <a href="{{ route('admin.subjects.index') }}?program_id={{ $program->id }}"
-                       class="w-full flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800 transition-colors">
-                        <div class="w-8 h-8 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
-                            <svg class="w-4 h-4 text-purple-600 dark:text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                            </svg>
-                        </div>
-                        عرض جميع المقررات 
-                    </a>
-                </div>
-            </div>
-
             <!-- Recent Activity -->
             <div class="rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
                 <div class="p-6 border-b border-gray-200 dark:border-gray-800">
@@ -475,7 +406,7 @@
                         <div class="grid grid-cols-2 gap-3">
                             <div>
                                 <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">اسم الربع *</label>
-                                <input type="text" name="name" required class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="الربع الأول">
+                                <input type="text" name="name_ar" required class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="الربع الأول">
                             </div>
                             <div>
                                 <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">رقم الربع *</label>
@@ -485,11 +416,11 @@
                         <div class="grid grid-cols-2 gap-3">
                             <div>
                                 <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">تاريخ البداية *</label>
-                                <input type="date" name="start_date" required class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                <input type="date" name="start_date" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                             </div>
                             <div>
-                                <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">تاريخ النهاية *</label>
-                                <input type="date" name="end_date" required class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">تاريخ النهاية</label>
+                                <input type="date" name="end_date" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                             </div>
                         </div>
                         <div>
