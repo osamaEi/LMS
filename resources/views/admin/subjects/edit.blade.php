@@ -1,6 +1,6 @@
 @extends('layouts.dashboard')
 
-@section('title', 'تعديل المادة الدراسية')
+@section('title', 'تعديل المادة التدريبية')
 
 @section('content')
 <div class="mb-6">
@@ -11,9 +11,9 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
             </svg>
         </a>
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">تعديل المادة الدراسية</h1>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">تعديل المادة التدريبية</h1>
     </div>
-    <p class="text-sm text-gray-500 dark:text-gray-400">تعديل بيانات المادة الدراسية</p>
+    <p class="text-sm text-gray-500 dark:text-gray-400">تعديل بيانات المادة التدريبية</p>
 </div>
 
 @if($errors->any())
@@ -157,7 +157,7 @@
                 <textarea name="description_ar"
                           rows="4"
                           class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-                          placeholder="وصف تفصيلي عن المادة الدراسية ومحتوياتها...">{{ old('description_ar', $subject->description_ar) }}</textarea>
+                          placeholder="وصف تفصيلي عن المادة التدريبية ومحتوياتها...">{{ old('description_ar', $subject->description_ar) }}</textarea>
             </div>
 
             <!-- الوصف بالإنجليزي -->

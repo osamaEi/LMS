@@ -69,7 +69,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <div class="text-3xl font-bold text-gray-900 dark:text-white">{{ $program->terms->count() }}</div>
-                    <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">الأرباع الدراسية</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">الأرباع التدريبية</div>
                 </div>
                 <div class="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
                     <svg class="w-6 h-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -82,7 +82,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <div class="text-3xl font-bold text-purple-500">{{ $program->terms->sum('subjects_count') }}</div>
-                    <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">المقررات  الدراسية</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">المقررات  التدريبية</div>
                 </div>
                 <div class="w-12 h-12 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
                     <svg class="w-6 h-6 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -219,7 +219,7 @@
             <!-- Terms List -->
             <div class="rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
                 <div class="p-6 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
-                    <h2 class="text-lg font-bold text-gray-900 dark:text-white">الأرباع الدراسية ({{ $program->terms->count() }})</h2>
+                    <h2 class="text-lg font-bold text-gray-900 dark:text-white">الأرباع التدريبية ({{ $program->terms->count() }})</h2>
                     <button @click="$store.termModal = true"
                             class="flex items-center gap-2 rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800 transition-colors">
                         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -257,7 +257,7 @@
                                 {{-- Subjects under this term --}}
                                 @if($term->subjects->isNotEmpty())
                                 <div class="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800">
-                                    <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">المقررات  الدراسية:</p>
+                                    <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">المقررات  التدريبية:</p>
                                     <div class="flex flex-wrap gap-2">
                                         @foreach($term->subjects as $subject)
                                         <span class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium"

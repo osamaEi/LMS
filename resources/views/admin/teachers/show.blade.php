@@ -205,7 +205,7 @@
         <!-- Subjects List -->
         @if($teacher->subjects->count() > 0)
         <div class="mb-6 rounded-lg bg-white p-6 shadow dark:bg-gray-800">
-            <h4 class="mb-6 text-xl font-bold text-black dark:text-white">المقررات  الدراسية</h4>
+            <h4 class="mb-6 text-xl font-bold text-black dark:text-white">المقررات  التدريبية</h4>
             <div class="space-y-3">
                 @foreach($teacher->subjects as $subject)
                 <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-700">

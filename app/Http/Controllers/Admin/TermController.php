@@ -140,6 +140,6 @@ class TermController extends Controller
 
         $term->subjects()->sync($request->subject_ids ?? []);
 
-        return back()->with('success', 'تم تحديث المقررات  الدراسية بنجاح');
+        return back()->with('success', 'تم تحديث المقررات  التدريبية بنجاح');
     }
 }

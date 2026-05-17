@@ -432,7 +432,7 @@
                         @if($termFilter === 'current' && $currentTerm)
                             جلسات الفصل الحالي &mdash; {{ $currentTerm->name }}
                         @else
-                            جميع جلسات ومحاضرات برنامجك الدراسي
+                            جميع جلسات ومحاضرات برنامجك التدريبي
                         @endif
                     </p>
                 </div>

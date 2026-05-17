@@ -573,7 +573,7 @@ Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')
          ->name('links.show')
          ->where('service', 'portal|library|blackboard|calendar|support|schedule');
 
-    // My Program (البرنامج الدراسي)
+    // My Program (البرنامج التدريبي)
     Route::get('/my-program', [\App\Http\Controllers\Student\DashboardController::class, 'myProgram'])->name('my-program');
     Route::post('/enroll-program', [\App\Http\Controllers\Student\DashboardController::class, 'enrollInProgram'])->name('enroll-program');
 

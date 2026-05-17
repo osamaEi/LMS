@@ -305,7 +305,7 @@
 
     "Main": "الرئيسية",
     "Teaching": "التدريس",
-    "Academic Schedule": "الجدول الدراسي",
+    "Academic Schedule": "الجدول التدريبي",
     "Quizzes": "الاختبارات",
     "No subjects assigned to you": "لا توجد مقررات مسندة إليك",
     "Homework": "الواجبات المنزلية",
@@ -322,7 +322,7 @@
 
     "Dashboard Overview": "نظرة عامة على لوحة التحكم",
     "Track your subjects, sessions and students": "متابعة مقرراتك وجلساتك وأداء طلابك",
-    "My Subjects": "مقرراتي الدراسية",
+    "My Subjects": "مقرراتي التدريبية",
     "Upcoming Sessions": "الجلسات القادمة",
     "scheduled session": "جلسة مجدولة",
     "View All": "عرض الكل",
@@ -339,7 +339,7 @@
     "out of 5 stars": "من 5 نجوم",
     "Quick Links": "روابط سريعة",
     "Open Tickets": "التذاكر المفتوحة",
-    "Total Subjects": "المقررات الدراسية",
+    "Total Subjects": "المقررات التدريبية",
     "Total Students": "إجمالي الطلاب",
     "Total Sessions": "الجلسات الكلية",
     "Live Now": "مباشر الآن",
@@ -348,7 +348,7 @@
     "Join": "انضم",
     "Add Attendance": "إضافة حضور",
 
-    "Academic Schedule": "الجدول الدراسي",
+    "Academic Schedule": "الجدول التدريبي",
     "Overview of all your sessions and lectures": "نظرة شاملة على جميع جلساتك ومحاضراتك",
     "Total": "إجمالي",
     "Upcoming": "قادمة",
@@ -442,7 +442,7 @@
     "Track your courses and educational progress easily": "تابع دوراتك وتقدمك التعليمي بكل سهولة",
     "Manage the system, users, and courses easily": "إدارة النظام والمستخدمين والدورات بكل سهولة",
     "Welcome": "مرحباً بك",
-    "My Study Program": "برنامجي الدراسي",
+    "My Study Program": "برنامجي التدريبي",
     "Payments": "المدفوعات",
     "Users": "المستخدمون",
     "Logout": "تسجيل الخروج"

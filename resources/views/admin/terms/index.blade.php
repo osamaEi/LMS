@@ -1,6 +1,6 @@
 @extends('layouts.dashboard')
 
-@section('title', 'إدارة الأرباع الدراسية')
+@section('title', 'إدارة الأرباع التدريبية')
 
 @section('content')
 <div style="direction:rtl; font-family:'Segoe UI',sans-serif;">
@@ -19,8 +19,8 @@
                         </svg>
                     </div>
                     <div>
-                        <h1 style="color:white;font-size:24px;font-weight:700;margin:0;">الأرباع الدراسية</h1>
-                        <p style="color:rgba(255,255,255,0.75);font-size:14px;margin:2px 0 0;">إدارة جميع الأرباع الدراسية في النظام</p>
+                        <h1 style="color:white;font-size:24px;font-weight:700;margin:0;">الأرباع التدريبية</h1>
+                        <p style="color:rgba(255,255,255,0.75);font-size:14px;margin:2px 0 0;">إدارة جميع الأرباع التدريبية في النظام</p>
                     </div>
                 </div>
             </div>

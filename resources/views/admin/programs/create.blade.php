@@ -13,7 +13,7 @@
         </a>
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white">إضافة دبلوم تعليمي جديد</h1>
     </div>
-    <p class="text-sm text-gray-500 dark:text-gray-400">أدخل بيانات الدبلوم والأرباع الدراسية وقم بتعيين المقررات  في خطوة واحدة</p>
+    <p class="text-sm text-gray-500 dark:text-gray-400">أدخل بيانات الدبلوم والأرباع التدريبية وقم بتعيين المقررات  في خطوة واحدة</p>
 </div>
 
 @if($errors->any())
@@ -146,7 +146,7 @@
         </div>
     </div>
 
-    {{-- ===== الأرباع الدراسية ===== --}}
+    {{-- ===== الأرباع التدريبية ===== --}}
     <div class="rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900 mb-6">
         <div class="p-5 border-b border-gray-200 dark:border-gray-800" style="background: linear-gradient(135deg,#7c3aed,#5b21b6); border-radius: 12px 12px 0 0;">
             <div class="flex items-center justify-between">
@@ -156,7 +156,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
                     </div>
-                    <h2 class="text-base font-bold text-white">الأرباع الدراسية والمقررات </h2>
+                    <h2 class="text-base font-bold text-white">الأرباع التدريبية والمقررات </h2>
                 </div>
                 <button type="button" onclick="addTerm()"
                         class="flex items-center gap-2 rounded-lg bg-white/20 hover:bg-white/30 px-4 py-2 text-sm font-medium text-white transition-colors">
@@ -298,7 +298,7 @@ function buildTermHTML(idx, num) {
         </div>
         <div>
             <div class="flex items-center justify-between mb-2">
-                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400">المقررات  الدراسية <span id="selectedCount_${idx}" class="text-purple-600 font-bold">(0 محدد)</span></label>
+                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400">المقررات  التدريبية <span id="selectedCount_${idx}" class="text-purple-600 font-bold">(0 محدد)</span></label>
                 <input type="text" oninput="filterSubjects(this, ${idx})" placeholder="بحث..."
                        class="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs dark:bg-gray-800 dark:border-gray-700 dark:text-white w-40">
             </div>

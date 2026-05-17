@@ -34,15 +34,15 @@
         <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-4">المعلومات الأساسية</h2>
 
         <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
-            <!-- المادة الدراسية -->
+            <!-- المادة التدريبية -->
             <div class="md:col-span-2">
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    المادة الدراسية <span class="text-error-500">*</span>
+                    المادة التدريبية <span class="text-error-500">*</span>
                 </label>
                 <select name="subject_id"
                         required
                         class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
-                    <option value="">اختر المادة الدراسية</option>
+                    <option value="">اختر المادة التدريبية</option>
                     @foreach($subjects as $subject)
                         <option value="{{ $subject->id }}" {{ old('subject_id', $session->subject_id) == $subject->id ? 'selected' : '' }}>
                             {{ $subject->name }} ({{ $subject->code }}) - {{ $subject->term->name ?? '' }}

@@ -341,7 +341,7 @@
                         <div class="font-medium text-gray-900 dark:text-white text-sm">{{ $subject->term->program->name ?? 'غير محدد' }}</div>
                     </div>
                     <div>
-                        <div class="text-xs text-gray-500 dark:text-gray-400 mb-1">الفصل الدراسي</div>
+                        <div class="text-xs text-gray-500 dark:text-gray-400 mb-1">الفصل التدريبي</div>
                         <div class="font-medium text-gray-900 dark:text-white text-sm">{{ $subject->term->name ?? 'غير محدد' }}</div>
                     </div>
                     @if($subject->credits)

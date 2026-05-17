@@ -215,7 +215,7 @@
             [
                 'service'     => 'schedule',
                 'key'         => 'schedule_url',
-                'title'       => 'الجدول الدراسي',
+                'title'       => 'الجدول التدريبي',
                 'desc'        => 'عرض جدولك التدريبيالأسبوعي، أوقات المحاضرات والقاعات',
                 'badge'       => 'جدول',
                 'icon_bg'     => 'linear-gradient(135deg,#f59e0b,#d97706)',

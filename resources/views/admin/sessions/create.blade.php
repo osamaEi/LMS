@@ -1049,7 +1049,7 @@
 
             <!-- Subject -->
             <div class="form-group">
-                <label class="form-label">المادة الدراسية <span class="text-red-500">*</span></label>
+                <label class="form-label">المادة التدريبية <span class="text-red-500">*</span></label>
                 <select id="modal_subject_id" class="form-select" required>
                     <option value="">اختر المادة</option>
                     @foreach($subjects as $subject)

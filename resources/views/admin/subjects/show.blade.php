@@ -1,6 +1,6 @@
 @extends('layouts.dashboard')
 
-@section('title', 'عرض المادة الدراسية')
+@section('title', 'عرض المادة التدريبية')
 
 @section('content')
 <div style="direction:rtl; font-family:'Segoe UI',sans-serif;">
@@ -686,7 +686,7 @@
                 </div>
                 <div style="padding:16px 20px;display:flex;flex-direction:column;gap:10px;">
                     <div style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:#f9fafb;border-radius:10px;">
-                        <span style="font-size:12px;color:#9ca3af;font-weight:500;">الفصل الدراسي</span>
+                        <span style="font-size:12px;color:#9ca3af;font-weight:500;">الفصل التدريبي</span>
                         <span style="font-size:13px;font-weight:600;color:#374151;">{{ $subject->term->name }}</span>
                     </div>
                     @if($subject->term->program)
@@ -698,7 +698,7 @@
                     <a href="{{ route('admin.terms.show', $subject->term) }}"
                        style="display:flex;align-items:center;justify-content:center;gap:6px;padding:9px;background:#f0f0ff;border-radius:10px;color:#4f46e5;font-size:13px;font-weight:600;text-decoration:none;transition:all .15s;"
                        onmouseover="this.style.background='#e0e0ff'" onmouseout="this.style.background='#f0f0ff'">
-                        عرض الفصل الدراسي
+                        عرض الفصل التدريبي
                         <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
                         </svg>

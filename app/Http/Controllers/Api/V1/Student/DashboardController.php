@@ -499,7 +499,7 @@ class DashboardController extends Controller
                 'description' => 'التواصل مع فريق الدعم الفني',
             ],
             [
-                'title' => 'الجدول الدراسي',
+                'title' => 'الجدول التدريبي',
                 'url' => Setting::where('key', 'schedule_url')->value('value') ?? '#',
                 'icon' => 'schedule',
                 'description' => 'عرض الجدول التدريبيالخاص بك',

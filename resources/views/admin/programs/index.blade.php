@@ -525,7 +525,7 @@
             </div>
             <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-3">لا توجد دبلومات   تعليمية</h3>
             <p class="text-gray-500 dark:text-gray-400 max-w-md mx-auto mb-6">
-                ابدأ بإضافة دبلوم تعليمي جديد لتنظيم المقررات  والبرامج الدراسية في نظامك التعليمي.
+                ابدأ بإضافة دبلوم تعليمي جديد لتنظيم المقررات  والبرامج التدريبية في نظامك التعليمي.
             </p>
             <a href="{{ route('admin.programs.create') }}"
                class="btn-shine inline-flex items-center gap-2 px-6 py-3 rounded-xl text-white font-bold shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5"

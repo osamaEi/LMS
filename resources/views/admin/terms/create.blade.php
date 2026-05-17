@@ -127,10 +127,10 @@
             </div>
         </div>
 
-            <!-- المقررات  الدراسية -->
+            <!-- المقررات  التدريبية -->
             <div class="md:col-span-2" id="subjects-section" style="display:none;">
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    المقررات  الدراسية المرتبطة بهذا الربع
+                    المقررات  التدريبية المرتبطة بهذا الربع
                 </label>
                 <div id="subjects-list" class="rounded-lg border border-gray-200 dark:border-gray-700 divide-y divide-gray-100 dark:divide-gray-800 max-h-64 overflow-y-auto">
                     <p class="text-sm text-gray-400 p-4 text-center">اختر الدبلوم أولاً لعرض المقررات  المتاحة</p>
@@ -147,7 +147,7 @@
             </a>
             <button type="submit"
                     class="rounded-lg bg-brand-500 px-6 py-2.5 text-sm font-medium text-white hover:bg-brand-600 transition-colors">
-                حفظ الربع الدراسي
+                حفظ الربع التدريبي
             </button>
         </div>
     </div>

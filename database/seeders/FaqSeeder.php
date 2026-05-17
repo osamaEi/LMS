@@ -59,7 +59,7 @@ class FaqSeeder extends Seeder
             [
                 'category'    => 'courses',
                 'sort_order'  => 1,
-                'question_ar' => 'ما هو نظام الفصل الدراسي؟',
+                'question_ar' => 'ما هو نظام الفصل التدريبي؟',
                 'question_en' => 'What is the term system?',
                 'answer_ar'   => 'نظام الفصل التدريبيهو نظام تقسيم الدبلوم التدريبي إلى فترات زمنية محددة (ترم)، مدة كل منها فترة معينة، مما يساعد في تنظيم العملية التدريبية وتقييم تقدم المتدرب بشكل دوري.',
                 'answer_en'   => 'The term system divides the training diploma into specific time periods (terms), each of a certain duration, helping to organize the training process and periodically assess trainee progress.',
@@ -93,7 +93,7 @@ class FaqSeeder extends Seeder
                 'sort_order'  => 5,
                 'question_ar' => 'كم عدد المقررات  في كل برنامج؟',
                 'question_en' => 'How many subjects are in each program?',
-                'answer_ar'   => 'يتفاوت عدد المقررات  حسب البرنامج. يتكون كل فصل دراسي عادةً من 4 إلى 8 مقرارت دراسية، ويمكنك الاطلاع على الخطة الدراسية التفصيلية لكل برنامج من صفحة البرامج.',
+                'answer_ar'   => 'يتفاوت عدد المقررات  حسب البرنامج. يتكون كل فصل دراسي عادةً من 4 إلى 8 مقرارت دراسية، ويمكنك الاطلاع على الخطة التدريبية التفصيلية لكل برنامج من صفحة البرامج.',
                 'answer_en'   => 'The number of subjects varies by program. Each term typically consists of 4 to 8 subjects. You can view the detailed study plan for each program on the programs page.',
             ],
             [
@@ -151,9 +151,9 @@ class FaqSeeder extends Seeder
             [
                 'category'    => 'platform',
                 'sort_order'  => 1,
-                'question_ar' => 'كيف أصل إلى المقررات  الدراسية؟',
+                'question_ar' => 'كيف أصل إلى المقررات  التدريبية؟',
                 'question_en' => 'How do I access study materials?',
-                'answer_ar'   => 'بعد التسجيل، يمكنك الوصول إلى جميع المقررات  الدراسية من قائمة "ملفاتي" في القائمة الجانبية. تشمل المقررات : ملفات PDF، فيديوهات المحاضرات، وروابط جلسات Zoom.',
+                'answer_ar'   => 'بعد التسجيل، يمكنك الوصول إلى جميع المقررات  التدريبية من قائمة "ملفاتي" في القائمة الجانبية. تشمل المقررات : ملفات PDF، فيديوهات المحاضرات، وروابط جلسات Zoom.',
                 'answer_en'   => 'After registration, you can access all study materials from the "My Files" section in the sidebar. Materials include PDF files, lecture videos, and Zoom session links.',
             ],
             [
