@@ -393,7 +393,7 @@
             <input type="hidden" id="modal_scheduled_date">
 
             <div class="form-group" style="position:relative;">
-                <label class="form-label">المقرر  التدريبية <span style="color: #ef4444;">*</span></label>
+                <label class="form-label">المقرر  التدريبي ة <span style="color: #ef4444;">*</span></label>
                 <input type="hidden" id="modal_subject_id">
                 <div style="position:relative;">
                     <input type="text" id="subject_search_input" class="form-input" autocomplete="off"

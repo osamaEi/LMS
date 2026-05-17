@@ -57,7 +57,7 @@ Route::get('/training-programs', function () {
         ->get();
     return view('front.course-list', [
         'programs'  => $programs,
-        'pageTitle' => 'البرامج التدريبية',
+        'pageTitle' => 'البرامج التدريبي ة',
         'pageType'  => 'training',
     ]);
 })->name('training-programs');
@@ -575,7 +575,7 @@ Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')
          ->name('links.show')
          ->where('service', 'portal|library|blackboard|calendar|support|schedule');
 
-    // My Program (البرنامج التدريبي)
+    // My Program (البرنامج التدريبي )
     Route::get('/my-program', [\App\Http\Controllers\Student\DashboardController::class, 'myProgram'])->name('my-program');
     Route::post('/enroll-program', [\App\Http\Controllers\Student\DashboardController::class, 'enrollInProgram'])->name('enroll-program');
 

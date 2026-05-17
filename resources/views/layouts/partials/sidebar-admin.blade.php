@@ -62,7 +62,7 @@
 </li>
 @endcan
 
-{{-- البرامج التدريبية --}}
+{{-- البرامج التدريبي ة --}}
 @can('view-programs')
 <li>
     <a href="{{ route('admin.training-programs.index') }}"
@@ -70,7 +70,7 @@
         <svg class="fill-current" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
         </svg>
-        <span>البرامج التدريبية</span>
+        <span>البرامج التدريبي ة</span>
     </a>
 </li>
 @endcan
@@ -110,35 +110,35 @@
 </li>
 @endcan
 
-{{-- الأرباع التدريبية --}}
+{{-- الأرباع التدريبي ة --}}
 @can('view-terms')
 <li>
     <a href="{{ route('admin.terms.index') }}"
        class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('admin.terms.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
         <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20"><path d="M16.6667 2.5H15V0.833333H13.3333V2.5H6.66667V0.833333H5V2.5H3.33333C2.41667 2.5 1.66667 3.25 1.66667 4.16667V17.5C1.66667 18.4167 2.41667 19.1667 3.33333 19.1667H16.6667C17.5833 19.1667 18.3333 18.4167 18.3333 17.5V4.16667C18.3333 3.25 17.5833 2.5 16.6667 2.5ZM16.6667 17.5H3.33333V7.5H16.6667V17.5ZM16.6667 5.83333H3.33333V4.16667H16.6667V5.83333Z" fill=""/></svg>
-        <span>الأرباع التدريبية</span>
+        <span>الأرباع التدريبي ة</span>
     </a>
 </li>
 @endcan
 
-{{-- المقررات  التدريبية --}}
+{{-- المقررات  التدريبي ة --}}
 @can('view-subjects')
 <li>
     <a href="{{ route('admin.subjects.index') }}"
        class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('admin.subjects.index') || request()->routeIs('admin.subjects.create') || request()->routeIs('admin.subjects.edit') ? 'menu-item-active' : 'menu-item-inactive' }}">
         <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20"><path d="M15.8333 3.33333H4.16667C3.24167 3.33333 2.5 4.08333 2.5 5V15C2.5 15.9167 3.24167 16.6667 4.16667 16.6667H15.8333C16.7583 16.6667 17.5 15.9167 17.5 15V5C17.5 4.08333 16.7583 3.33333 15.8333 3.33333ZM15.8333 15H4.16667V5H15.8333V15ZM6.66667 10H13.3333V11.6667H6.66667V10ZM6.66667 7.5H13.3333V9.16667H6.66667V7.5ZM6.66667 12.5H10.8333V14.1667H6.66667V12.5Z" fill=""/></svg>
-        <span>المقررات  التدريبية</span>
+        <span>المقررات  التدريبي ة</span>
     </a>
 </li>
 @endcan
 
-{{-- ملفات المقررات  التدريبية --}}
+{{-- ملفات المقررات  التدريبي ة --}}
 @can('view-subjects')
 <!-- <li>
     <a href="{{ route('admin.subjects.index') }}"
        class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('admin.subjects.show') ? 'menu-item-active' : 'menu-item-inactive' }}">
         <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20"><path d="M15.8333 5.83333H10L8.33333 4.16667H4.16667C3.25 4.16667 2.5 4.91667 2.5 5.83333V14.1667C2.5 15.0833 3.25 15.8333 4.16667 15.8333H15.8333C16.75 15.8333 17.5 15.0833 17.5 14.1667V7.5C17.5 6.58333 16.75 5.83333 15.8333 5.83333ZM13.3333 12.5H6.66667V10.8333H13.3333V12.5ZM13.3333 10H6.66667V8.33333H13.3333V10Z" fill=""/></svg>
-        <span>ملفات المقررات  التدريبية</span>
+        <span>ملفات المقررات  التدريبي ة</span>
     </a>
 </li> -->
 @endcan

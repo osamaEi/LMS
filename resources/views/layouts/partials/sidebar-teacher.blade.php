@@ -24,7 +24,7 @@
 
 
 
-<!-- الجدول التدريبي-->
+<!-- الجدول التدريبي -->
 <li>
     <a href="{{ route('teacher.schedule') }}"
        class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('teacher.schedule') ? 'menu-item-active' : 'menu-item-inactive' }}">

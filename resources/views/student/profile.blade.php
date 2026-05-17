@@ -310,7 +310,7 @@
                             <svg class="w-4 h-4" style="color:#2563eb;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
                         </div>
                         <div class="flex-1">
-                            <div class="info-lbl">التخصص التدريبي</div>
+                            <div class="info-lbl">التخصص التدريبي </div>
                             <div class="info-val">{{ $user->specialization ?? '—' }}</div>
                         </div>
                     </div>
@@ -338,7 +338,7 @@
                             <svg class="w-4 h-4" style="color:#16a34a;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
                         </div>
                         <div class="flex-1">
-                            <div class="info-lbl">البرنامج التدريبيالحالي</div>
+                            <div class="info-lbl">البرنامج التدريبي الحالي</div>
                             <div class="info-val">{{ $user->program->name }}</div>
                         </div>
                         @php
@@ -514,7 +514,7 @@
                     @php
                         $links = [
                             ['href'=>route('student.dashboard'),   'icon'=>'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6', 'label'=>'لوحة التحكم', 'color'=>'#2563eb', 'bg'=>'#eff6ff'],
-                            ['href'=>route('student.my-program'),  'icon'=>'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2', 'label'=>'برنامجي التدريبي', 'color'=>'#059669', 'bg'=>'#ecfdf5'],
+                            ['href'=>route('student.my-program'),  'icon'=>'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2', 'label'=>'برنامجي التدريبي ', 'color'=>'#059669', 'bg'=>'#ecfdf5'],
                             ['href'=>route('student.attendance'),  'icon'=>'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z', 'label'=>'سجل الحضور', 'color'=>'#7c3aed', 'bg'=>'#f3e8ff'],
                             ['href'=>route('student.payments.index'), 'icon'=>'M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z', 'label'=>'المدفوعات', 'color'=>'#d97706', 'bg'=>'#fef3c7'],
                             ['href'=>route('student.tickets.index'),'icon'=>'M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z', 'label'=>'الدعم والتذاكر', 'color'=>'#dc2626', 'bg'=>'#fef2f2'],

@@ -1,6 +1,6 @@
 ﻿@extends('layouts.dashboard')
 
-@section('title', 'البرامج التدريبية')
+@section('title', 'البرامج التدريبي ة')
 
 @push('styles')
 <style>
@@ -76,8 +76,8 @@
                         </svg>
                     </div>
                     <div>
-                        <h1 class="text-3xl font-bold text-white">البرامج التدريبية</h1>
-                        <p class="mt-1 text-white/70">إدارة وتنظيم جميع البرامج التدريبية</p>
+                        <h1 class="text-3xl font-bold text-white">البرامج التدريبي ة</h1>
+                        <p class="mt-1 text-white/70">إدارة وتنظيم جميع البرامج التدريبي ة</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-3">
@@ -163,7 +163,7 @@
                         </svg>
                     </div>
                     <div>
-                        <h2 class="text-xl font-bold text-gray-900 dark:text-white">قائمة البرامج التدريبية</h2>
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white">قائمة البرامج التدريبي ة</h2>
                         <p class="text-sm text-gray-500 dark:text-gray-400">{{ $programs->total() }} برنامج تدريبي</p>
                     </div>
                 </div>

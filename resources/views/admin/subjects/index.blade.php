@@ -1,6 +1,6 @@
 @extends('layouts.dashboard')
 
-@section('title', 'إدارة المقررات  التدريبية')
+@section('title', 'إدارة المقررات  التدريبي ة')
 
 @section('content')
 <div style="direction:rtl; font-family:'Segoe UI',sans-serif;">
@@ -19,8 +19,8 @@
                         </svg>
                     </div>
                     <div>
-                        <h1 style="color:white;font-size:24px;font-weight:700;margin:0;">المقررات  التدريبية</h1>
-                        <p style="color:rgba(255,255,255,0.75);font-size:14px;margin:2px 0 0;">إدارة جميع المقررات  التدريبية في النظام</p>
+                        <h1 style="color:white;font-size:24px;font-weight:700;margin:0;">المقررات  التدريبي ة</h1>
+                        <p style="color:rgba(255,255,255,0.75);font-size:14px;margin:2px 0 0;">إدارة جميع المقررات  التدريبي ة في النظام</p>
                     </div>
                 </div>
             </div>

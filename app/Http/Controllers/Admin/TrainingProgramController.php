@@ -38,7 +38,7 @@ class TrainingProgramController extends Controller
         return view('admin.programs.create', compact('subjects', 'supervisors'))
             ->with('programType', $this->type)
             ->with('backRoute', 'admin.training-programs.index')
-            ->with('pageLabel', 'البرامج التدريبية');
+            ->with('pageLabel', 'البرامج التدريبي ة');
     }
 
     public function store(Request $request)
@@ -95,7 +95,7 @@ class TrainingProgramController extends Controller
         }
 
         return redirect()->route('admin.training-programs.show', $program)
-            ->with('success', 'تم إضافة البرنامج التدريبي بنجاح');
+            ->with('success', 'تم إضافة البرنامج التدريبي  بنجاح');
     }
 
     public function show(Program $training_program)
@@ -114,7 +114,7 @@ class TrainingProgramController extends Controller
 
         return view('admin.programs.show', compact('program', 'allSubjects'))
             ->with('backRoute', 'admin.training-programs.index')
-            ->with('pageLabel', 'البرامج التدريبية');
+            ->with('pageLabel', 'البرامج التدريبي ة');
     }
 
     public function edit(Program $training_program)
@@ -126,7 +126,7 @@ class TrainingProgramController extends Controller
         return view('admin.programs.edit', compact('program', 'supervisors'))
             ->with('programType', $this->type)
             ->with('backRoute', 'admin.training-programs.index')
-            ->with('pageLabel', 'البرامج التدريبية');
+            ->with('pageLabel', 'البرامج التدريبي ة');
     }
 
     public function update(Request $request, Program $training_program)
@@ -163,7 +163,7 @@ class TrainingProgramController extends Controller
         $training_program->update($validated);
 
         return redirect()->route('admin.training-programs.index')
-            ->with('success', 'تم تحديث البرنامج التدريبي بنجاح');
+            ->with('success', 'تم تحديث البرنامج التدريبي  بنجاح');
     }
 
     public function destroy(Program $training_program)
@@ -171,6 +171,6 @@ class TrainingProgramController extends Controller
         $training_program->delete();
 
         return redirect()->route('admin.training-programs.index')
-            ->with('success', 'تم حذف البرنامج التدريبي بنجاح');
+            ->with('success', 'تم حذف البرنامج التدريبي  بنجاح');
     }
 }

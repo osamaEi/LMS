@@ -13,7 +13,7 @@
         </a>
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white">إضافة مادة دراسية جديدة</h1>
     </div>
-    <p class="text-sm text-gray-500 dark:text-gray-400">أدخل بيانات المقرر  التدريبية الجديدة</p>
+    <p class="text-sm text-gray-500 dark:text-gray-400">أدخل بيانات المقرر  التدريبي ة الجديدة</p>
 </div>
 
 @if($errors->any())
@@ -134,7 +134,7 @@
                 </label>
                 <textarea name="description_ar" rows="4"
                           class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-                          placeholder="وصف تفصيلي عن المقرر  التدريبية...">{{ old('description_ar') }}</textarea>
+                          placeholder="وصف تفصيلي عن المقرر  التدريبي ة...">{{ old('description_ar') }}</textarea>
             </div>
 
             <!-- الوصف بالإنجليزي -->

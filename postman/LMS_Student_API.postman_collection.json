@@ -85,7 +85,7 @@
                 { "key": "phone",                 "value": "0512345678",             "type": "text",        "description": "رقم الجوال (مثال: 0512345678)" },
                 { "key": "password",              "value": "password123",            "type": "text",        "description": "كلمة المرور (8 أحرف على الأقل)" },
                 { "key": "password_confirmation", "value": "password123",            "type": "text",        "description": "تأكيد كلمة المرور" },
-                { "key": "specialization",        "value": "علوم الحاسب",            "type": "text",        "description": "التخصص التدريبي" },
+                { "key": "specialization",        "value": "علوم الحاسب",            "type": "text",        "description": "التخصص التدريبي " },
                 { "key": "specialization_type",   "value": "بكالوريوس",              "type": "text",        "description": "نوع التخصص (بكالوريوس، ماجستير، دبلوم...)" },
                 { "key": "date_of_graduation",    "value": "2020-06-01",             "type": "text",        "description": "تاريخ التخرج (YYYY-MM-DD)" },
                 { "key": "national_id_front",     "src": "",                         "type": "file",        "description": "صورة الهوية الوطنية (الوجه الأمامي) — JPG/PNG/PDF، max 5MB" },
@@ -99,7 +99,7 @@
               "host": ["{{base_url}}"],
               "path": ["api", "v1", "auth", "register"]
             },
-            "description": "تسجيل حساب طالب جديد (multipart/form-data)\n\nيتم إنشاء الحساب بحالة 'pending' في انتظار مراجعة الإدارة وتفعيل الحساب.\n\nالحقول المطلوبة:\n- name: الاسم الكامل\n- national_id: رقم الهوية الوطنية (10 أرقام، فريد)\n- date_of_birth: تاريخ الميلاد (YYYY-MM-DD)\n- gender: الجنس (male / female)\n- email: البريد الإلكتروني (فريد)\n- phone: رقم الجوال السعودي (05XXXXXXXX)\n- password: كلمة المرور (8 أحرف على الأقل)\n- password_confirmation: تأكيد كلمة المرور\n- specialization: التخصص التدريبي\n- specialization_type: نوع التخصص\n- date_of_graduation: تاريخ التخرج (YYYY-MM-DD)\n- national_id_front: صورة الهوية الأمامية (JPG/PNG/PDF، max 5MB)\n- national_id_back: صورة الهوية الخلفية (JPG/PNG/PDF، max 5MB)\n- is_confirm_user: 1 (إقرار بصحة البيانات)\n- is_terms: 1 (موافقة على الشروط والأحكام)\n\nملاحظة: استخدم form-data وليس JSON لأن الطلب يحتوي على ملفات."
+            "description": "تسجيل حساب طالب جديد (multipart/form-data)\n\nيتم إنشاء الحساب بحالة 'pending' في انتظار مراجعة الإدارة وتفعيل الحساب.\n\nالحقول المطلوبة:\n- name: الاسم الكامل\n- national_id: رقم الهوية الوطنية (10 أرقام، فريد)\n- date_of_birth: تاريخ الميلاد (YYYY-MM-DD)\n- gender: الجنس (male / female)\n- email: البريد الإلكتروني (فريد)\n- phone: رقم الجوال السعودي (05XXXXXXXX)\n- password: كلمة المرور (8 أحرف على الأقل)\n- password_confirmation: تأكيد كلمة المرور\n- specialization: التخصص التدريبي \n- specialization_type: نوع التخصص\n- date_of_graduation: تاريخ التخرج (YYYY-MM-DD)\n- national_id_front: صورة الهوية الأمامية (JPG/PNG/PDF، max 5MB)\n- national_id_back: صورة الهوية الخلفية (JPG/PNG/PDF، max 5MB)\n- is_confirm_user: 1 (إقرار بصحة البيانات)\n- is_terms: 1 (موافقة على الشروط والأحكام)\n\nملاحظة: استخدم form-data وليس JSON لأن الطلب يحتوي على ملفات."
           },
           "response": [
             {
@@ -291,7 +291,7 @@
               "host": ["{{base_url}}"],
               "path": ["api", "v1", "profile"]
             },
-            "description": "معلومات الطالب الشخصية مع برنامجه ودبلومه التدريبي"
+            "description": "معلومات الطالب الشخصية مع برنامجه ودبلومه التدريبي "
           },
           "response": []
         },
@@ -346,7 +346,7 @@
               "host": ["{{base_url}}"],
               "path": ["api", "v1", "student", "my-program"]
             },
-            "description": "تفاصيل البرنامج التدريبيالمسجل:\n- بيانات البرنامج\n- الفصول التدريبية والمقررات \n- التسجيلات\n- الإحصائيات والتقدم\n\nالحالات الممكنة في data.status:\n- 'enrolled': مسجل في برنامج\n- 'pending': في انتظار موافقة\n- 'no_program': لا يوجد برنامج (يعرض البرامج المتاحة)"
+            "description": "تفاصيل البرنامج التدريبي المسجل:\n- بيانات البرنامج\n- الفصول التدريبي ة والمقررات \n- التسجيلات\n- الإحصائيات والتقدم\n\nالحالات الممكنة في data.status:\n- 'enrolled': مسجل في برنامج\n- 'pending': في انتظار موافقة\n- 'no_program': لا يوجد برنامج (يعرض البرامج المتاحة)"
           },
           "response": [
             {
@@ -546,7 +546,7 @@
               },
               "status": "OK",
               "code": 200,
-              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"current_page\": 1,\n    \"data\": [\n      {\n        \"id\": 1,\n        \"title_ar\": \"بداية الفصل التدريبيالثاني\",\n        \"title_en\": \"Second Semester Begins\",\n        \"body_ar\": \"يسر الإدارة الإعلان عن بداية...\",\n        \"body_en\": \"We are pleased to announce...\",\n        \"image\": \"news/image.jpg\",\n        \"status\": \"active\",\n        \"published_at\": \"2026-01-15T08:00:00.000000Z\"\n      }\n    ],\n    \"total\": 25,\n    \"per_page\": 10,\n    \"last_page\": 3\n  }\n}"
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"current_page\": 1,\n    \"data\": [\n      {\n        \"id\": 1,\n        \"title_ar\": \"بداية الفصل التدريبي الثاني\",\n        \"title_en\": \"Second Semester Begins\",\n        \"body_ar\": \"يسر الإدارة الإعلان عن بداية...\",\n        \"body_en\": \"We are pleased to announce...\",\n        \"image\": \"news/image.jpg\",\n        \"status\": \"active\",\n        \"published_at\": \"2026-01-15T08:00:00.000000Z\"\n      }\n    ],\n    \"total\": 25,\n    \"per_page\": 10,\n    \"last_page\": 3\n  }\n}"
             }
           ]
         },

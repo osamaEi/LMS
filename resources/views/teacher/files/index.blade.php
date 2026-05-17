@@ -499,7 +499,7 @@
 
                 {{-- Subject --}}
                 <div style="margin-bottom:16px">
-                    <label style="display:block;font-size:0.8rem;font-weight:700;color:#374151;margin-bottom:6px" class="dark:text-slate-300">المقرر التدريبي*</label>
+                    <label style="display:block;font-size:0.8rem;font-weight:700;color:#374151;margin-bottom:6px" class="dark:text-slate-300">المقرر التدريبي *</label>
                     <select name="subject_id" required
                             style="width:100%;padding:10px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:0.875rem;color:#111827;background:#fff;outline:none;appearance:none"
                             class="dark:bg-slate-700 dark:border-white/20 dark:text-white">

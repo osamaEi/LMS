@@ -14,14 +14,14 @@
     </a>
 </li>
 
-<!-- برنامجي التدريبي-->
+<!-- برنامجي التدريبي -->
 <li>
     <a href="{{ route('student.my-program') }}"
        class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('student.my-program') ? 'menu-item-active' : 'menu-item-inactive' }}">
         <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M10 1.66667L2.5 5V9.16667C2.5 13.7917 5.7 18.1167 10 19.1667C14.3 18.1167 17.5 13.7917 17.5 9.16667V5L10 1.66667ZM15.8333 9.16667C15.8333 12.9 13.3333 16.3333 10 17.4167C6.66667 16.3333 4.16667 12.9 4.16667 9.16667V6.75L10 3.58333L15.8333 6.75V9.16667Z" fill=""/>
         </svg>
-        <span>برنامجي التدريبي</span>
+        <span>برنامجي التدريبي </span>
     </a>
 </li>
 

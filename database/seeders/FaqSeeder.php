@@ -59,9 +59,9 @@ class FaqSeeder extends Seeder
             [
                 'category'    => 'courses',
                 'sort_order'  => 1,
-                'question_ar' => 'ما هو نظام الفصل التدريبي؟',
+                'question_ar' => 'ما هو نظام الفصل التدريبي ؟',
                 'question_en' => 'What is the term system?',
-                'answer_ar'   => 'نظام الفصل التدريبيهو نظام تقسيم الدبلوم التدريبي إلى فترات زمنية محددة (ترم)، مدة كل منها فترة معينة، مما يساعد في تنظيم العملية التدريبية وتقييم تقدم المتدرب بشكل دوري.',
+                'answer_ar'   => 'نظام الفصل التدريبي هو نظام تقسيم الدبلوم التدريبي  إلى فترات زمنية محددة (ترم)، مدة كل منها فترة معينة، مما يساعد في تنظيم العملية التدريبي ة وتقييم تقدم المتدرب بشكل دوري.',
                 'answer_en'   => 'The term system divides the training diploma into specific time periods (terms), each of a certain duration, helping to organize the training process and periodically assess trainee progress.',
             ],
             [
@@ -69,7 +69,7 @@ class FaqSeeder extends Seeder
                 'sort_order'  => 2,
                 'question_ar' => 'هل يمكنني التحويل من دبلوم لآخر؟',
                 'question_en' => 'Can I transfer from one diploma to another?',
-                'answer_ar'   => 'نعم، يمكنك التحويل بين الدبلومات   وفق شروط أكاديمية محددة وبعد مراجعة الساعات التدريبية المنجزة والتنسيق مع الإدارة الأكاديمية.',
+                'answer_ar'   => 'نعم، يمكنك التحويل بين الدبلومات   وفق شروط أكاديمية محددة وبعد مراجعة الساعات التدريبي ة المنجزة والتنسيق مع الإدارة الأكاديمية.',
                 'answer_en'   => 'Yes, you can transfer between diplomas according to specific academic conditions and after reviewing completed training hours and coordinating with the academic administration.',
             ],
             [
@@ -77,7 +77,7 @@ class FaqSeeder extends Seeder
                 'sort_order'  => 3,
                 'question_ar' => 'هل يوجد تدريب عن بعد؟',
                 'question_en' => 'Is remote training available?',
-                'answer_ar'   => 'نعم، نوفر خيارات التدريب عن بعد لمعظم دوراتنا ودبلومات  نا التدريبية، مع توفر جميع المقررات  التعليمية والموارد إلكترونياً.',
+                'answer_ar'   => 'نعم، نوفر خيارات التدريب عن بعد لمعظم دوراتنا ودبلومات  نا التدريبي ة، مع توفر جميع المقررات  التعليمية والموارد إلكترونياً.',
                 'answer_en'   => 'Yes, we provide remote training options for most of our courses and diploma programs, with all educational materials and resources available electronically.',
             ],
             [
@@ -93,7 +93,7 @@ class FaqSeeder extends Seeder
                 'sort_order'  => 5,
                 'question_ar' => 'كم عدد المقررات  في كل برنامج؟',
                 'question_en' => 'How many subjects are in each program?',
-                'answer_ar'   => 'يتفاوت عدد المقررات  حسب البرنامج. يتكون كل فصل دراسي عادةً من 4 إلى 8 مقرارت دراسية، ويمكنك الاطلاع على الخطة التدريبية التفصيلية لكل برنامج من صفحة البرامج.',
+                'answer_ar'   => 'يتفاوت عدد المقررات  حسب البرنامج. يتكون كل فصل دراسي عادةً من 4 إلى 8 مقرارت دراسية، ويمكنك الاطلاع على الخطة التدريبي ة التفصيلية لكل برنامج من صفحة البرامج.',
                 'answer_en'   => 'The number of subjects varies by program. Each term typically consists of 4 to 8 subjects. You can view the detailed study plan for each program on the programs page.',
             ],
             [
@@ -151,9 +151,9 @@ class FaqSeeder extends Seeder
             [
                 'category'    => 'platform',
                 'sort_order'  => 1,
-                'question_ar' => 'كيف أصل إلى المقررات  التدريبية؟',
+                'question_ar' => 'كيف أصل إلى المقررات  التدريبي ة؟',
                 'question_en' => 'How do I access study materials?',
-                'answer_ar'   => 'بعد التسجيل، يمكنك الوصول إلى جميع المقررات  التدريبية من قائمة "ملفاتي" في القائمة الجانبية. تشمل المقررات : ملفات PDF، فيديوهات المحاضرات، وروابط جلسات Zoom.',
+                'answer_ar'   => 'بعد التسجيل، يمكنك الوصول إلى جميع المقررات  التدريبي ة من قائمة "ملفاتي" في القائمة الجانبية. تشمل المقررات : ملفات PDF، فيديوهات المحاضرات، وروابط جلسات Zoom.',
                 'answer_en'   => 'After registration, you can access all study materials from the "My Files" section in the sidebar. Materials include PDF files, lecture videos, and Zoom session links.',
             ],
             [

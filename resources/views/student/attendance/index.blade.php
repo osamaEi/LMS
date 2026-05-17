@@ -345,7 +345,7 @@
                                     </svg>
                                 </div>
                                 <h3 class="text-sm font-bold text-gray-900 dark:text-white mb-1">اختر برنامجك</h3>
-                                <p class="text-xs text-gray-600 dark:text-gray-400">سجل في البرنامج التدريبيالمناسب</p>
+                                <p class="text-xs text-gray-600 dark:text-gray-400">سجل في البرنامج التدريبي المناسب</p>
                             </div>
 
                             <div class="bg-green-50 dark:bg-green-900 dark:bg-opacity-20 rounded-xl p-4">

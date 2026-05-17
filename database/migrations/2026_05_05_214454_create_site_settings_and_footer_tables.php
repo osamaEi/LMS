@@ -101,7 +101,7 @@ return new class extends Migration
                 'slug' => 'refund-policy',
                 'title_ar' => 'سياسة الاسترداد',
                 'title_en' => 'Refund Policy',
-                'content_ar' => '<h2>سياسة الاسترداد</h2><p>يمكن استرداد رسوم التسجيل خلال 7 أيام من تاريخ الدفع وقبل بدء البرنامج التدريبي. لا يحق الاسترداد بعد بدء البرنامج.</p>',
+                'content_ar' => '<h2>سياسة الاسترداد</h2><p>يمكن استرداد رسوم التسجيل خلال 7 أيام من تاريخ الدفع وقبل بدء البرنامج التدريبي . لا يحق الاسترداد بعد بدء البرنامج.</p>',
                 'content_en' => '<h2>Refund Policy</h2><p>Registration fees may be refunded within 7 days of payment and before the training program begins. No refunds are available after the program has started.</p>',
                 'category' => 'legal',
                 'is_published' => true,

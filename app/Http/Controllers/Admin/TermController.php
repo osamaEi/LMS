@@ -71,11 +71,11 @@ class TermController extends Controller
 
         if ($request->has('program_id') && $request->header('referer') && str_contains($request->header('referer'), 'programs')) {
             return redirect()->route('admin.programs.show', $request->program_id)
-                ->with('success', 'تم إضافة الربع التدريبيبنجاح');
+                ->with('success', 'تم إضافة الربع التدريبي بنجاح');
         }
 
         return redirect()->route('admin.terms.show', $term)
-            ->with('success', 'تم إضافة الربع التدريبيبنجاح');
+            ->with('success', 'تم إضافة الربع التدريبي بنجاح');
     }
 
     public function show(Term $term)
@@ -106,25 +106,33 @@ class TermController extends Controller
     {
         $programs = Program::where('status', 'active')->get();
 
-        return view('admin.terms.edit', compact('term', 'programs'));
+        $allSubjects = Subject::with('program')
+            ->orderBy('name_ar')
+            ->get(['id', 'name_ar', 'name_en', 'code', 'program_id']);
+
+        $assignedSubjectIds = $term->subjects()->pluck('subjects.id')->toArray();
+
+        return view('admin.terms.edit', compact('term', 'programs', 'allSubjects', 'assignedSubjectIds'));
     }
 
     public function update(Request $request, Term $term)
     {
         $validated = $request->validate([
-            'program_id' => 'nullable|exists:programs,id',
+            'program_id'  => 'nullable|exists:programs,id',
             'term_number' => 'nullable|integer|min:1',
-            'name_ar' => 'nullable|string|max:255',
-            'name_en' => 'nullable|string|max:255',
-            'start_date' => 'nullable|date',
-            'end_date' => 'nullable|date|after:start_date',
-            'status' => 'nullable|in:upcoming,active,completed',
+            'name_ar'     => 'nullable|string|max:255',
+            'name_en'     => 'nullable|string|max:255',
+            'start_date'  => 'nullable|date',
+            'end_date'    => 'nullable|date|after:start_date',
+            'status'      => 'nullable|in:upcoming,active,completed',
         ]);
 
         $term->update($validated);
 
+        $term->subjects()->sync($request->input('subject_ids', []));
+
         return redirect()->route('admin.terms.show', $term)
-            ->with('success', 'تم تحديث الربع التدريبيبنجاح');
+            ->with('success', 'تم تحديث الربع التدريبي  بنجاح');
     }
 
     public function destroy(Term $term)
@@ -132,7 +140,7 @@ class TermController extends Controller
         $term->delete();
 
         return redirect()->route('admin.terms.index')
-            ->with('success', 'تم حذف الربع التدريبيبنجاح');
+            ->with('success', 'تم حذف الربع التدريبي بنجاح');
     }
 
     public function syncSubjects(Request $request, Term $term)
@@ -144,6 +152,6 @@ class TermController extends Controller
 
         $term->subjects()->sync($request->subject_ids ?? []);
 
-        return back()->with('success', 'تم تحديث المقررات  التدريبية بنجاح');
+        return back()->with('success', 'تم تحديث المقررات  التدريبي ة بنجاح');
     }
 }

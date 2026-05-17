@@ -13,7 +13,7 @@
         </a>
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white">إضافة دورة جديدة</h1>
     </div>
-    <p class="text-sm text-gray-500 dark:text-gray-400">أدخل بيانات الدورة التدريبية</p>
+    <p class="text-sm text-gray-500 dark:text-gray-400">أدخل بيانات الدورة التدريبي ة</p>
 </div>
 
 @if($errors->any())
