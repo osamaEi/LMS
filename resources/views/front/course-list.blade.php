@@ -159,7 +159,7 @@
 <section style="background:linear-gradient(135deg,#004d7a 0%,#0071aa 100%);padding:3rem clamp(1rem,3vw,3rem);color:white;">
     <div class="row align-items-center">
         <div class="col-lg-7">
-            <h2 style="font-weight:800;margin-bottom:1rem;">هل أنت مستعد لبدء رحلتك التدريبي ة؟</h2>
+            <h2 style="font-weight:800;margin-bottom:1rem;">هل أنت مستعد لبدء رحلتك التدريبية ؟</h2>
             <p style="opacity:.9;line-height:1.8;margin-bottom:1.5rem;">
                 سجّل الآن في {{ $pageTitle }} واحصل على شهادة معتمدة تُعزّز مسيرتك المهنية.
             </p>

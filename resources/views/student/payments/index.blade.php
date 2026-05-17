@@ -153,7 +153,7 @@
                 </div>
                 <div>
                     <p class="text-xs font-semibold mb-1" style="opacity:.55;">{{ auth()->user()->name }}</p>
-                    <h1 class="text-2xl font-black tracking-tight">المدفوعات والرسوم التدريبي ة</h1>
+                    <h1 class="text-2xl font-black tracking-tight">المدفوعات والرسوم التدريبية </h1>
                     <p class="text-sm mt-0.5" style="opacity:.6;">عرض وإدارة جميع مدفوعاتك</p>
                 </div>
             </div>

@@ -155,7 +155,7 @@
                 <div>
                     <h1 style="font-size:1.6rem;font-weight:900;color:#fff;margin:0">الملفات والموارد</h1>
                     <p style="font-size:0.875rem;color:rgba(255,255,255,0.6);margin:4px 0 0">
-                        جميع ملفات وفيديوهات مقرارتك التدريبي ة
+                        جميع ملفات وفيديوهات مقرارتك التدريبية 
                     </p>
                 </div>
             </div>
@@ -196,7 +196,7 @@
         {{-- Subject Sidebar --}}
         <div style="background:#fff;border-radius:18px;border:1.5px solid #f1f5f9;padding:12px;position:sticky;top:80px" class="dark:bg-slate-800 dark:border-white/10">
             <div style="font-size:0.72rem;font-weight:700;color:#9ca3af;letter-spacing:0.08em;padding:4px 8px 10px;text-transform:uppercase">
-                المقررات  التدريبي ة
+                المقررات  التدريبية 
             </div>
 
             <a href="{{ route('student.files.index') }}"

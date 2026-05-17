@@ -1,6 +1,6 @@
 @extends('layouts.dashboard')
 
-@section('title', 'عرض المقرر  التدريبي ة')
+@section('title', 'عرض المقرر  التدريبية ')
 
 @section('content')
 <div style="direction:rtl; font-family:'Segoe UI',sans-serif;">

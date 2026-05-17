@@ -230,7 +230,7 @@
                         <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
                     </div>
                     <div>
-                        <h2 class="font-bold text-gray-900 dark:text-white">المقررات  التدريبي ة</h2>
+                        <h2 class="font-bold text-gray-900 dark:text-white">المقررات  التدريبية </h2>
                         <p class="text-xs text-gray-400">{{ $term->subjects->count() }} مادة مرتبطة بهذا الربع</p>
                     </div>
                 </div>
@@ -370,7 +370,7 @@
                         style="background:#f0fdfa; border:1px solid #ccfbf1;"
                         onmouseover="this.style.background='#ccfbf1'" onmouseout="this.style.background='#f0fdfa'">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
-                    تعيين المقررات  التدريبي ة
+                    تعيين المقررات  التدريبية 
                 </button>
                 <a href="{{ route('admin.terms.edit', $term) }}"
                    class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-amber-700 transition"
@@ -410,7 +410,7 @@
                 </svg>
             </div>
             <div>
-                <h2 class="font-bold text-gray-900 dark:text-white">تعيين المقررات  التدريبي ة</h2>
+                <h2 class="font-bold text-gray-900 dark:text-white">تعيين المقررات  التدريبية </h2>
                 <p class="text-xs text-gray-400" x-text="selected.length + ' مادة محددة'"></p>
             </div>
         </div>

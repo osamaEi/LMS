@@ -114,7 +114,7 @@
                     </h2>
                     <p class="text-gray-600 text-sm">
                         {{ app()->getLocale() === 'ar'
-                            ? 'ادخل إلى حسابك باستخدام بيانات المعهد لمتابعة دوراتك وجدولاتك التدريبي ة'
+                            ? 'ادخل إلى حسابك باستخدام بيانات المعهد لمتابعة دوراتك وجدولاتك التدريبية '
                             : 'Sign in to your account to follow your courses and study schedule' }}
                     </p>
                 </div>

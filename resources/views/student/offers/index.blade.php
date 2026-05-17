@@ -119,7 +119,7 @@
         <div style="position:relative;z-index:5;">
             <div style="font-size:3.5rem;margin-bottom:.75rem;">🎁</div>
             <h1 style="font-size:2rem;font-weight:900;color:#fff;margin:0 0 .5rem;">العروض والخصومات</h1>
-            <p style="font-size:1rem;color:rgba(255,255,255,.75);margin:0 0 1.5rem;">لا تفوّت أفضل عروض البرامج التدريبي ة — كودات خصم حصرية لفترة محدودة</p>
+            <p style="font-size:1rem;color:rgba(255,255,255,.75);margin:0 0 1.5rem;">لا تفوّت أفضل عروض البرامج التدريبية  — كودات خصم حصرية لفترة محدودة</p>
             @if($activeOffers->count() > 0)
             <div style="display:inline-flex;align-items:center;gap:.5rem;background:rgba(255,255,255,.15);border-radius:999px;padding:.5rem 1.25rem;font-size:.88rem;font-weight:700;color:#fff;backdrop-filter:blur(4px);">
                 <span style="width:8px;height:8px;border-radius:50%;background:#4ade80;animation:blink 1.5s infinite;display:inline-block;"></span>

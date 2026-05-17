@@ -14,7 +14,7 @@
     <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8 w-full">
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 hover:shadow-lg transition">
             <div class="text-4xl font-bold text-blue-600 dark:text-blue-400">{{ $stats['subjects_count'] }}</div>
-            <p class="text-gray-600 dark:text-gray-400 mt-2">المقررات  التدريبي ة</p>
+            <p class="text-gray-600 dark:text-gray-400 mt-2">المقررات  التدريبية </p>
         </div>
 
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 hover:shadow-lg transition">
@@ -41,7 +41,7 @@
             <!-- My Subjects Section -->
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
                 <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4">
-                    <h2 class="text-lg font-bold text-white">المقررات  التدريبي ة</h2>
+                    <h2 class="text-lg font-bold text-white">المقررات  التدريبية </h2>
                 </div>
                 <div class="p-6">
                     @if($subjects->count() > 0)
@@ -131,7 +131,7 @@
                 <div class="p-6 space-y-2">
                     <a href="{{ route('teacher.my-subjects.index') }}" 
                        class="block w-full px-4 py-2 text-center bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200 rounded hover:bg-blue-200 dark:hover:bg-blue-800 transition text-sm">
-                        مقرارتاتي التدريبي ة
+                        مقرارتاتي التدريبية 
                     </a>
                     <a href="{{ route('teacher.schedule') }}" 
                        class="block w-full px-4 py-2 text-center bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-200 rounded hover:bg-green-200 dark:hover:bg-green-800 transition text-sm">

@@ -154,7 +154,7 @@
                     </div>
                     <div>
                         <h1 class="text-3xl font-bold text-white">الدورات</h1>
-                        <p class="mt-1 text-white/70">إدارة وتنظيم جميع الدورات التدريبي ة</p>
+                        <p class="mt-1 text-white/70">إدارة وتنظيم جميع الدورات التدريبية </p>
                     </div>
                 </div>
 

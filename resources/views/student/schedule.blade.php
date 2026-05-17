@@ -9,7 +9,7 @@
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
                 <h1 class="text-2xl font-bold">الجدول التدريبي </h1>
-                <p class="text-cyan-100 mt-1">تابع جلساتك ومواعيدك التدريبي ة</p>
+                <p class="text-cyan-100 mt-1">تابع جلساتك ومواعيدك التدريبية </p>
             </div>
             <div class="flex items-center gap-3">
                 <div class="bg-white/20 backdrop-blur-sm rounded-xl px-4 py-2 text-sm">

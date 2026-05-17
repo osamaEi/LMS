@@ -414,7 +414,7 @@
         <span>العروض والخصومات</span>
     </div>
     <h2>العروض والخصومات</h2>
-    <p>استفد من عروضنا الحصرية على برامجنا التدريبي ة المعتمدة — خصومات محدودة المدة لا تفوّتها.</p>
+    <p>استفد من عروضنا الحصرية على برامجنا التدريبية  المعتمدة — خصومات محدودة المدة لا تفوّتها.</p>
 </section>
 
 {{-- Featured Banner --}}
@@ -422,7 +422,7 @@
     <img loading="lazy" src="{{ asset('lms-photos/3.png') }}" alt="العروض والخصومات" onerror="this.src='{{ asset('lms-photos/1.png') }}'" />
     <div class="overlay">
         <div>
-            <h3>عروض حصرية على برامجنا التدريبي ة</h3>
+            <h3>عروض حصرية على برامجنا التدريبية </h3>
             <p>سجّل الآن واستفد من أفضل الأسعار والخصومات المتاحة</p>
         </div>
     </div>
@@ -458,7 +458,7 @@
     <div class="head">
         <p class="st-p">عروض وخصومات</p>
         <h2>اختر العرض المناسب لك</h2>
-        <p>خصومات حصرية على برامجنا التدريبي ة المعتمدة — عروض محدودة المدة تنتهي قريباً.</p>
+        <p>خصومات حصرية على برامجنا التدريبية  المعتمدة — عروض محدودة المدة تنتهي قريباً.</p>
     </div>
 
     <div class="courses-container" id="offersGrid">
@@ -520,7 +520,7 @@
 
                 <p class="card-program">
                     <i class="bi bi-mortarboard-fill"></i>
-                    {{ $offer->program ? Str::limit($offer->program->name_ar, 35) : 'جميع البرامج التدريبي ة' }}
+                    {{ $offer->program ? Str::limit($offer->program->name_ar, 35) : 'جميع البرامج التدريبية ' }}
                 </p>
 
                 {{-- Countdown --}}
@@ -614,7 +614,7 @@
                 <p class="st-p" style="background:rgba(255,255,255,.15);color:#fff;margin-bottom:1rem;">لا تفوّت الفرصة</p>
                 <h2 style="margin-bottom:1rem;font-weight:800;">سجّل الآن واستفد من أفضل العروض</h2>
                 <p style="line-height:1.8;opacity:.9;margin-bottom:2rem;">
-                    برامجنا التدريبي ة المعتمدة متاحة بأسعار مخفّضة لفترة محدودة.
+                    برامجنا التدريبية  المعتمدة متاحة بأسعار مخفّضة لفترة محدودة.
                     سارع بالتسجيل قبل انتهاء العروض وابدأ مسيرتك التعليمية اليوم.
                 </p>
                 <a href="{{ route('register') }}" class="full-btn" style="display:inline-flex;align-items:center;gap:8px;font-size:1rem;padding:12px 28px;border-radius:10px;">

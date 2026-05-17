@@ -38,7 +38,7 @@ class TrainingProgramController extends Controller
         return view('admin.programs.create', compact('subjects', 'supervisors'))
             ->with('programType', $this->type)
             ->with('backRoute', 'admin.training-programs.index')
-            ->with('pageLabel', 'البرامج التدريبي ة');
+            ->with('pageLabel', 'البرامج التدريبية ');
     }
 
     public function store(Request $request)
@@ -114,7 +114,7 @@ class TrainingProgramController extends Controller
 
         return view('admin.programs.show', compact('program', 'allSubjects'))
             ->with('backRoute', 'admin.training-programs.index')
-            ->with('pageLabel', 'البرامج التدريبي ة');
+            ->with('pageLabel', 'البرامج التدريبية ');
     }
 
     public function edit(Program $training_program)
@@ -126,7 +126,7 @@ class TrainingProgramController extends Controller
         return view('admin.programs.edit', compact('program', 'supervisors'))
             ->with('programType', $this->type)
             ->with('backRoute', 'admin.training-programs.index')
-            ->with('pageLabel', 'البرامج التدريبي ة');
+            ->with('pageLabel', 'البرامج التدريبية ');
     }
 
     public function update(Request $request, Program $training_program)
