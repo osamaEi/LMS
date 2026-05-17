@@ -137,6 +137,15 @@ class SubjectController extends Controller
             ->with('success', 'تم تحديث المقرر  بنجاح');
     }
 
+    public function toggleStatus(Request $request, Subject $subject)
+    {
+        $new = $request->input('status');
+        abort_unless(in_array($new, ['active', 'inactive']), 422);
+        $subject->update(['status' => $new]);
+
+        return back()->with('success', $new === 'active' ? 'تم تنشيط المقرر' : 'تم قفل المقرر');
+    }
+
     public function destroy(Subject $subject)
     {
         $subject->delete();
