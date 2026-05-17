@@ -84,7 +84,10 @@ class Subject extends Model
 
     public function scopeAssignedToTeacher($query, int $teacherId): void
     {
-        $query->whereHas('teachers', fn($q) => $q->where('users.id', $teacherId));
+        $query->where(function ($q) use ($teacherId) {
+            $q->where('teacher_id', $teacherId)
+              ->orWhereHas('teachers', fn($tq) => $tq->where('users.id', $teacherId));
+        });
     }
 
     public function isAssignedToTeacher(int $teacherId): bool

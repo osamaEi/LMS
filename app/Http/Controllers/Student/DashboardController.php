@@ -192,9 +192,11 @@ class DashboardController extends Controller
     {
         $student = auth()->user();
 
-        // Get subject only if student is enrolled
-        $subject = Subject::whereHas('enrollments', function($query) use ($student) {
-                $query->where('student_id', $student->id);
+        // Allow access to any subject in the student's program or with explicit enrollment
+        $subject = Subject::where(function ($q) use ($student) {
+                $q->where('program_id', $student->program_id)
+                  ->orWhereHas('terms', fn($tq) => $tq->where('program_id', $student->program_id))
+                  ->orWhereHas('enrollments', fn($eq) => $eq->where('student_id', $student->id));
             })
             ->with(['term.program', 'teacher'])
             ->findOrFail($id);

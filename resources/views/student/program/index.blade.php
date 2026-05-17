@@ -358,12 +358,8 @@
             </div>
         </div>
 
-        {{-- ===== Current Term Spotlight ===== --}}
-        @if(isset($currentTerm) && $currentTerm)
-        <div style="background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
-                    border: 1px solid rgba(139,92,246,.35);
-                    border-radius: 20px; padding: 1.75rem 2rem; margin-bottom: 1.5rem;
-                    position: relative; overflow: hidden;">
+        {{-- ===== Current Term Spotlight (removed) ===== --}}
+        @if(false)
             {{-- bg decoration --}}
             <div style="position:absolute;top:-40px;left:-40px;width:180px;height:180px;
                         border-radius:50%;background:rgba(124,58,237,.08);pointer-events:none;"></div>
