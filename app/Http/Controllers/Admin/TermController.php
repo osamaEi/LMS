@@ -43,7 +43,11 @@ class TermController extends Controller
     {
         $programs = Program::where('status', 'active')->get();
 
-        return view('admin.terms.create', compact('programs'));
+        $allSubjects = Subject::with('program')
+            ->orderBy('name_ar')
+            ->get(['id', 'name_ar', 'name_en', 'code', 'program_id']);
+
+        return view('admin.terms.create', compact('programs', 'allSubjects'));
     }
 
     public function store(Request $request)
