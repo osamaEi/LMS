@@ -77,8 +77,8 @@
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">الحالة</label>
                     <select name="status"
                             class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
-                        <option value="active" {{ old('status','active') === 'active' ? 'selected' : '' }}>نشط</option>
-                        <option value="inactive" {{ old('status') === 'inactive' ? 'selected' : '' }}>غير نشط</option>
+                        <option value="active" {{ old('status') === 'active' ? 'selected' : '' }}>نشط</option>
+                        <option value="inactive" {{ old('status', 'inactive') === 'inactive' ? 'selected' : '' }}>غير نشط</option>
                     </select>
                 </div>
                 <div>

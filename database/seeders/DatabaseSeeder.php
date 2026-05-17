@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use Database\Seeders\ProgramSeeder;
+use Database\Seeders\ProgramCSSeeder;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -19,7 +19,7 @@ class DatabaseSeeder extends Seeder
            // SubjectsSeeder::class,
 
             // 3. FAQ content
-            ProgramSeeder::class,
+            ProgramCSSeeder::class,
         ]);
     }
 }
