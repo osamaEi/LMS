@@ -130,7 +130,7 @@
                         </svg>
                     </div>
                     <div>
-                        <h2 class="text-xl font-bold text-gray-900 dark:text-white">ملفات المادة</h2>
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white">ملفات المقرر </h2>
                         <p class="text-sm text-gray-500 dark:text-gray-400">{{ $allFiles->count() }} ملف في {{ count($filesBySession) }} جلسة</p>
                     </div>
                 </div>
@@ -333,7 +333,7 @@
             {{-- Subject Info --}}
             <div class="info-card">
                 <div class="p-5 border-b border-gray-100 dark:border-gray-700">
-                    <h2 class="font-bold text-gray-900 dark:text-white">معلومات المادة</h2>
+                    <h2 class="font-bold text-gray-900 dark:text-white">معلومات المقرر </h2>
                 </div>
                 <div class="p-5 space-y-4">
                     <div>

@@ -57,7 +57,7 @@
                 </svg>
             </div>
             <div>
-                <h2 class="text-base font-semibold text-gray-900 dark:text-white">ملفات المادة</h2>
+                <h2 class="text-base font-semibold text-gray-900 dark:text-white">ملفات المقرر </h2>
                 <p class="text-xs text-gray-500">جميع الملفات المرفقة بالمحاضرات</p>
             </div>
             <span class="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-700 dark:bg-blue-900 dark:text-blue-300">

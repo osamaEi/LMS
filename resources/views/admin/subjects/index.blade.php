@@ -222,7 +222,7 @@
                 <thead>
                     <tr style="background:linear-gradient(90deg,#f0fdfa,#f7fffe);border-bottom:1.5px solid #e5e7eb;">
                         <th style="padding:14px 20px;text-align:right;font-size:12px;font-weight:700;color:#6b7280;letter-spacing:.5px;">الكود</th>
-                        <th style="padding:14px 20px;text-align:right;font-size:12px;font-weight:700;color:#6b7280;letter-spacing:.5px;">اسم المادة</th>
+                        <th style="padding:14px 20px;text-align:right;font-size:12px;font-weight:700;color:#6b7280;letter-spacing:.5px;">اسم المقرر </th>
                         <th style="padding:14px 20px;text-align:right;font-size:12px;font-weight:700;color:#6b7280;letter-spacing:.5px;">المعلم</th>
                         <th style="padding:14px 20px;text-align:right;font-size:12px;font-weight:700;color:#6b7280;letter-spacing:.5px;">الفصل / الدبلوم</th>
                         <th style="padding:14px 20px;text-align:right;font-size:12px;font-weight:700;color:#6b7280;letter-spacing:.5px;">الدروس</th>
@@ -312,7 +312,7 @@
                                     </svg>
                                     تعديل
                                 </a>
-                                <form action="{{ route('admin.subjects.destroy', $subject) }}" method="POST" style="display:inline;" onsubmit="return confirm('هل أنت متأكد من حذف هذه المادة؟')">
+                                <form action="{{ route('admin.subjects.destroy', $subject) }}" method="POST" style="display:inline;" onsubmit="return confirm('هل أنت متأكد من حذف هذه المقرر ؟')">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit"

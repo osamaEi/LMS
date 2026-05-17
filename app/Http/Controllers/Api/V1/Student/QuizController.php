@@ -25,7 +25,7 @@ class QuizController extends Controller
         if (!$isEnrolled) {
             return response()->json([
                 'success' => false,
-                'message' => 'أنت غير مسجل في هذه المادة',
+                'message' => 'أنت غير مسجل في هذه المقرر ',
             ], 406);
         }
 
@@ -68,7 +68,7 @@ class QuizController extends Controller
         if (!$isEnrolled) {
             return response()->json([
                 'success' => false,
-                'message' => 'أنت غير مسجل في هذه المادة',
+                'message' => 'أنت غير مسجل في هذه المقرر ',
             ], 406);
         }
 
@@ -111,7 +111,7 @@ class QuizController extends Controller
         if (!$isEnrolled) {
             return response()->json([
                 'success' => false,
-                'message' => 'أنت غير مسجل في هذه المادة',
+                'message' => 'أنت غير مسجل في هذه المقرر ',
             ], 406);
         }
 

@@ -123,7 +123,7 @@
     <!-- Subjects Filter (Optional Future Enhancement) -->
     <div class="bg-white rounded-lg shadow mt-6">
         <div class="p-6 border-b">
-            <h2 class="text-lg font-bold text-gray-900">الطلاب حسب المادة</h2>
+            <h2 class="text-lg font-bold text-gray-900">الطلاب حسب المقرر </h2>
         </div>
         <div class="p-6">
             @if($subjects->count() > 0)

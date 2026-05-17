@@ -1,6 +1,6 @@
 @extends('layouts.dashboard')
 
-@section('title', 'تعديل المادة التدريبية')
+@section('title', 'تعديل المقرر  التدريبية')
 
 @section('content')
 <div class="mb-6">
@@ -11,9 +11,9 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
             </svg>
         </a>
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">تعديل المادة التدريبية</h1>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">تعديل المقرر  التدريبية</h1>
     </div>
-    <p class="text-sm text-gray-500 dark:text-gray-400">تعديل بيانات المادة التدريبية</p>
+    <p class="text-sm text-gray-500 dark:text-gray-400">تعديل بيانات المقرر  التدريبية</p>
 </div>
 
 @if($errors->any())
@@ -64,10 +64,10 @@
                 </select>
             </div>
 
-            <!-- اسم المادة بالعربي -->
+            <!-- اسم المقرر  بالعربي -->
             <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    اسم المادة (عربي) <span class="text-error-500">*</span>
+                    اسم المقرر  (عربي) <span class="text-error-500">*</span>
                 </label>
                 <input type="text"
                        name="name_ar"
@@ -77,10 +77,10 @@
                        placeholder="مثال: مقدمة في البرمجة">
             </div>
 
-            <!-- اسم المادة بالإنجليزي -->
+            <!-- اسم المقرر  بالإنجليزي -->
             <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    اسم المادة (إنجليزي) <span class="text-error-500">*</span>
+                    اسم المقرر  (إنجليزي) <span class="text-error-500">*</span>
                 </label>
                 <input type="text"
                        name="name_en"
@@ -91,10 +91,10 @@
                        placeholder="Example: Introduction to Programming">
             </div>
 
-            <!-- كود المادة -->
+            <!-- كود المقرر  -->
             <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    كود المادة <span class="text-error-500">*</span>
+                    كود المقرر  <span class="text-error-500">*</span>
                 </label>
                 <input type="text"
                        name="code"
@@ -157,7 +157,7 @@
                 <textarea name="description_ar"
                           rows="4"
                           class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-                          placeholder="وصف تفصيلي عن المادة التدريبية ومحتوياتها...">{{ old('description_ar', $subject->description_ar) }}</textarea>
+                          placeholder="وصف تفصيلي عن المقرر  التدريبية ومحتوياتها...">{{ old('description_ar', $subject->description_ar) }}</textarea>
             </div>
 
             <!-- الوصف بالإنجليزي -->
@@ -181,7 +181,7 @@
             </a>
             <button type="submit"
                     class="rounded-lg bg-brand-500 px-6 py-2.5 text-sm font-medium text-white hover:bg-brand-600 transition-colors">
-                تحديث المادة
+                تحديث المقرر 
             </button>
         </div>
     </div>

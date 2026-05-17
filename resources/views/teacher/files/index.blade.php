@@ -283,7 +283,7 @@
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm-1 1.5L18.5 9H13V3.5z"/>
                         </svg>
-                        ملفات المادة
+                        ملفات المقرر 
                     </div>
                     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px">
                         @foreach($directFiles as $file)
@@ -299,7 +299,7 @@
                                  title: @js($file->title),
                                  type: '{{ $isPdf ? 'pdf' : 'doc' }}',
                                  url: @js(asset('storage/' . $file->file_path)),
-                                 session: 'ملفات المادة',
+                                 session: 'ملفات المقرر ',
                                  size: @js($file->getFormattedSize()),
                                  duration: null
                              })"

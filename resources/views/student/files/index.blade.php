@@ -254,7 +254,7 @@
                     </svg>
                 </div>
                 <p style="font-size:1rem;font-weight:700;color:#374151;margin:0 0 6px" class="dark:text-white">لا توجد ملفات بعد</p>
-                <p style="font-size:0.83rem;color:#9ca3af;margin:0">سيتم إضافة الملفات والفيديوهات من قِبل أستاذ المادة</p>
+                <p style="font-size:0.83rem;color:#9ca3af;margin:0">سيتم إضافة الملفات والفيديوهات من قِبل أستاذ المقرر </p>
             </div>
             @else
             @foreach($displaySubjects as $subject)
@@ -285,7 +285,7 @@
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm-1 1.5L18.5 9H13V3.5z"/>
                         </svg>
-                        ملفات المادة
+                        ملفات المقرر 
                     </div>
                     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px">
                         @foreach($directFiles as $file)

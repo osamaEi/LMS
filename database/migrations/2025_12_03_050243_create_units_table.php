@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('subject_id')->constrained('subjects')->cascadeOnDelete();
             $table->string('title'); // عنوان الوحدة
             $table->text('description')->nullable(); // وصف الوحدة
-            $table->integer('unit_number')->comment('رقم الوحدة في المادة'); // 1, 2, 3...
+            $table->integer('unit_number')->comment('رقم الوحدة في المقرر '); // 1, 2, 3...
             $table->integer('duration_hours')->nullable()->comment('المدة المتوقعة بالساعات');
             $table->text('learning_objectives')->nullable()->comment('أهداف التعلم');
             $table->enum('status', ['draft', 'published', 'archived'])->default('draft');

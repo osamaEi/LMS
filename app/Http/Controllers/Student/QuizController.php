@@ -23,7 +23,7 @@ class QuizController extends Controller
         // Verify enrollment
         $isEnrolled = $student->enrollments()->where('subject_id', $subjectId)->exists();
         if (!$isEnrolled) {
-            abort(403, 'أنت غير مسجل في هذه المادة');
+            abort(403, 'أنت غير مسجل في هذه المقرر ');
         }
 
         // Get quizzes for this subject
@@ -65,7 +65,7 @@ class QuizController extends Controller
         // Verify student is enrolled in the subject
         $isEnrolled = $student->enrollments()->where('subject_id', $subjectId)->exists();
         if (!$isEnrolled) {
-            abort(403, 'أنت غير مسجل في هذه المادة');
+            abort(403, 'أنت غير مسجل في هذه المقرر ');
         }
 
         $attempts = $quiz->attemptsForStudent($student->id)
@@ -90,7 +90,7 @@ class QuizController extends Controller
         // Verify enrollment
         $isEnrolled = $student->enrollments()->where('subject_id', $subjectId)->exists();
         if (!$isEnrolled) {
-            abort(403, 'أنت غير مسجل في هذه المادة');
+            abort(403, 'أنت غير مسجل في هذه المقرر ');
         }
 
         // Check if quiz is available

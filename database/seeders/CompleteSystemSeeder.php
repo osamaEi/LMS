@@ -212,7 +212,7 @@ class CompleteSystemSeeder extends Seeder
         $unitsData = [
             [
                 'title' => 'الوحدة الأولى: المقدمة',
-                'description' => 'مقدمة عن المادة والأهداف التعليمية',
+                'description' => 'مقدمة عن المقرر  والأهداف التعليمية',
                 'duration_hours' => 8,
                 'learning_objectives' => 'فهم المفاهيم الأساسية والأهداف',
             ],

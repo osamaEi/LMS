@@ -936,7 +936,7 @@
                     </div>
                     <div class="tip-item">
                         <div class="tip-number">2</div>
-                        <div class="tip-text">أدخل بيانات الجلسة (المادة، العنوان، الوقت)</div>
+                        <div class="tip-text">أدخل بيانات الجلسة (المقرر ، العنوان، الوقت)</div>
                     </div>
                     <div class="tip-item">
                         <div class="tip-number">3</div>
@@ -1049,9 +1049,9 @@
 
             <!-- Subject -->
             <div class="form-group">
-                <label class="form-label">المادة التدريبية <span class="text-red-500">*</span></label>
+                <label class="form-label">المقرر  التدريبية <span class="text-red-500">*</span></label>
                 <select id="modal_subject_id" class="form-select" required>
-                    <option value="">اختر المادة</option>
+                    <option value="">اختر المقرر </option>
                     @foreach($subjects as $subject)
                         <option value="{{ $subject->id }}">{{ $subject->name }} ({{ $subject->code }})</option>
                     @endforeach
@@ -1411,7 +1411,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const subject = document.getElementById('modal_subject').value;
         if (!subject) {
-            alert('الرجاء اختيار المادة أولاً');
+            alert('الرجاء اختيار المقرر  أولاً');
             document.getElementById('sessionTemplate').value = '';
             return;
         }

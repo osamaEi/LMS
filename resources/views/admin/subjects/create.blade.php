@@ -13,7 +13,7 @@
         </a>
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white">إضافة مادة دراسية جديدة</h1>
     </div>
-    <p class="text-sm text-gray-500 dark:text-gray-400">أدخل بيانات المادة التدريبية الجديدة</p>
+    <p class="text-sm text-gray-500 dark:text-gray-400">أدخل بيانات المقرر  التدريبية الجديدة</p>
 </div>
 
 @if($errors->any())
@@ -64,30 +64,30 @@
                 </select>
             </div>
 
-            <!-- اسم المادة بالعربي -->
+            <!-- اسم المقرر  بالعربي -->
             <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    اسم المادة (عربي)
+                    اسم المقرر  (عربي)
                 </label>
                 <input type="text" name="name_ar" value="{{ old('name_ar') }}"
                        class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
                        placeholder="مثال: مقدمة في البرمجة">
             </div>
 
-            <!-- اسم المادة بالإنجليزي -->
+            <!-- اسم المقرر  بالإنجليزي -->
             <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    اسم المادة (إنجليزي)
+                    اسم المقرر  (إنجليزي)
                 </label>
                 <input type="text" name="name_en" value="{{ old('name_en') }}" dir="ltr"
                        class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
                        placeholder="Example: Introduction to Programming">
             </div>
 
-            <!-- كود المادة -->
+            <!-- كود المقرر  -->
             <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    كود المادة
+                    كود المقرر 
                 </label>
                 <input type="text" name="code" value="{{ old('code') }}"
                        class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
@@ -134,7 +134,7 @@
                 </label>
                 <textarea name="description_ar" rows="4"
                           class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-                          placeholder="وصف تفصيلي عن المادة التدريبية...">{{ old('description_ar') }}</textarea>
+                          placeholder="وصف تفصيلي عن المقرر  التدريبية...">{{ old('description_ar') }}</textarea>
             </div>
 
             <!-- الوصف بالإنجليزي -->
@@ -155,7 +155,7 @@
             </a>
             <button type="submit"
                     class="rounded-lg bg-brand-500 px-6 py-2.5 text-sm font-medium text-white hover:bg-brand-600 transition-colors">
-                حفظ المادة
+                حفظ المقرر 
             </button>
         </div>
     </div>

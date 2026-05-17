@@ -27,7 +27,7 @@
 
         <!-- Subject Filter -->
         <div class="flex-1 min-w-[200px]">
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">المادة</label>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">المقرر </label>
             <select name="subject_id" class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white">
                 <option value="">جميع المقررات </option>
                 @foreach($subjects as $subject)
@@ -77,7 +77,7 @@
                 <tr class="border-b border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-800">
                     <th class="px-6 py-4 text-right text-sm font-medium text-gray-900 dark:text-white">#</th>
                     <th class="px-6 py-4 text-right text-sm font-medium text-gray-900 dark:text-white">عنوان الجلسة</th>
-                    <th class="px-6 py-4 text-right text-sm font-medium text-gray-900 dark:text-white">المادة</th>
+                    <th class="px-6 py-4 text-right text-sm font-medium text-gray-900 dark:text-white">المقرر </th>
                     <th class="px-6 py-4 text-right text-sm font-medium text-gray-900 dark:text-white">تاريخ الجلسة</th>
                     <th class="px-6 py-4 text-right text-sm font-medium text-gray-900 dark:text-white">الحالة</th>
                     <th class="px-6 py-4 text-right text-sm font-medium text-gray-900 dark:text-white">الحجم</th>

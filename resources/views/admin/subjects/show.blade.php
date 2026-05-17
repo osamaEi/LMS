@@ -1,6 +1,6 @@
 @extends('layouts.dashboard')
 
-@section('title', 'عرض المادة التدريبية')
+@section('title', 'عرض المقرر  التدريبية')
 
 @section('content')
 <div style="direction:rtl; font-family:'Segoe UI',sans-serif;">
@@ -72,7 +72,7 @@
                     <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                     </svg>
-                    تعديل المادة
+                    تعديل المقرر 
                 </a>
                 <a href="{{ route('admin.sessions.index', ['subject_id' => $subject->id]) }}"
                    style="display:inline-flex;align-items:center;gap:6px;padding:9px 18px;background:rgba(255,255,255,0.15);backdrop-filter:blur(8px);color:white;border:1px solid rgba(255,255,255,0.3);border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;">
@@ -99,18 +99,18 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
                     </div>
-                    <h2 style="font-size:16px;font-weight:700;color:#111827;margin:0;">معلومات المادة</h2>
+                    <h2 style="font-size:16px;font-weight:700;color:#111827;margin:0;">معلومات المقرر </h2>
                 </div>
                 <div style="padding:24px;">
                     <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
                         {{-- Code --}}
                         <div style="background:#f9fafb;border-radius:12px;padding:16px;">
-                            <div style="color:#9ca3af;font-size:12px;font-weight:500;margin-bottom:6px;">كود المادة</div>
+                            <div style="color:#9ca3af;font-size:12px;font-weight:500;margin-bottom:6px;">كود المقرر </div>
                             <span style="background:#dcfce7;color:#15803d;padding:4px 12px;border-radius:8px;font-size:14px;font-weight:700;font-family:monospace;">{{ $subject->code }}</span>
                         </div>
                         {{-- Status --}}
                         <div style="background:#f9fafb;border-radius:12px;padding:16px;">
-                            <div style="color:#9ca3af;font-size:12px;font-weight:500;margin-bottom:6px;">حالة المادة</div>
+                            <div style="color:#9ca3af;font-size:12px;font-weight:500;margin-bottom:6px;">حالة المقرر </div>
                             @php
                                 $s = match($subject->status) {
                                     'active'    => ['bg'=>'#dcfce7','text'=>'#15803d','label'=>'نشط'],
@@ -127,7 +127,7 @@
                         </div>
                         {{-- Files Count --}}
                         <div style="background:#f9fafb;border-radius:12px;padding:16px;">
-                            <div style="color:#9ca3af;font-size:12px;font-weight:500;margin-bottom:6px;">ملفات المادة</div>
+                            <div style="color:#9ca3af;font-size:12px;font-weight:500;margin-bottom:6px;">ملفات المقرر </div>
                             <div style="color:#111827;font-size:14px;font-weight:600;">{{ $subject->files->count() }} ملف</div>
                         </div>
                         @if($subject->credits)
@@ -145,7 +145,7 @@
 
                     @if($subject->description)
                     <div style="margin-top:20px;padding-top:20px;border-top:1px solid #f3f4f6;">
-                        <div style="color:#9ca3af;font-size:12px;font-weight:500;margin-bottom:8px;">وصف المادة</div>
+                        <div style="color:#9ca3af;font-size:12px;font-weight:500;margin-bottom:8px;">وصف المقرر </div>
                         <p style="color:#374151;font-size:14px;line-height:1.7;margin:0;background:#f9fafb;border-radius:10px;padding:14px;">{{ $subject->description }}</p>
                     </div>
                     @endif
@@ -161,7 +161,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                             </svg>
                         </div>
-                        <h2 style="font-size:16px;font-weight:700;color:#111827;margin:0;">ملفات المادة ({{ $subject->files->count() }})</h2>
+                        <h2 style="font-size:16px;font-weight:700;color:#111827;margin:0;">ملفات المقرر  ({{ $subject->files->count() }})</h2>
                     </div>
                     <button onclick="document.getElementById('upload-form').classList.toggle('hidden')"
                             style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:#2563eb;color:white;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">
@@ -572,7 +572,7 @@
                         <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#0d9488" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                         </svg>
-                        <span style="font-size:12px;font-weight:600;color:#0f766e;text-align:center;">تعديل المادة</span>
+                        <span style="font-size:12px;font-weight:600;color:#0f766e;text-align:center;">تعديل المقرر </span>
                     </a>
                     <a href="{{ route('admin.sessions.index', ['subject_id' => $subject->id]) }}"
                        style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 12px;background:#ede9fe;border-radius:12px;text-decoration:none;border:1.5px solid #c4b5fd;transition:all .15s;"

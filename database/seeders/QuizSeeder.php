@@ -31,9 +31,9 @@ class QuizSeeder extends Seeder
         $quiz = Quiz::create([
             'subject_id' => $subject->id,
             'created_by' => $teacher->id,
-            'title_ar' => 'اختبار شامل في المادة',
+            'title_ar' => 'اختبار شامل في المقرر ',
             'title_en' => 'Comprehensive Subject Test',
-            'description_ar' => 'اختبار شامل يغطي جميع المواضيع الأساسية في المادة. يرجى قراءة الأسئلة بعناية قبل الإجابة.',
+            'description_ar' => 'اختبار شامل يغطي جميع المواضيع الأساسية في المقرر . يرجى قراءة الأسئلة بعناية قبل الإجابة.',
             'description_en' => 'A comprehensive test covering all basic topics in the subject.',
             'type' => 'quiz',
             'duration_minutes' => 30,

@@ -135,7 +135,7 @@
 
                 @php
                     $criteria = [
-                        ['name' => 'knowledge_rating', 'label' => 'الإلمام بالمادة العلمية', 'icon' => '📚'],
+                        ['name' => 'knowledge_rating', 'label' => 'الإلمام بالمقرر  العلمية', 'icon' => '📚'],
                         ['name' => 'communication_rating', 'label' => 'مهارات التواصل والشرح', 'icon' => '💬'],
                         ['name' => 'punctuality_rating', 'label' => 'الالتزام بالمواعيد', 'icon' => '⏰'],
                         ['name' => 'support_rating', 'label' => 'الدعم والمساعدة', 'icon' => '🤝'],

@@ -46,7 +46,7 @@ class TeacherRatingController extends Controller
 
         if (!$isEnrolled) {
             return redirect()->route('student.teacher-ratings.index')
-                ->with('error', 'لست مسجلاً في هذه المادة');
+                ->with('error', 'لست مسجلاً في هذه المقرر ');
         }
 
         // Check if already rated

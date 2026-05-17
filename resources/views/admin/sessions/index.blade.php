@@ -294,7 +294,7 @@
                         <tr>
                             <th>#</th>
                             <th>عنوان الجلسة</th>
-                            <th>المادة</th>
+                            <th>المقرر </th>
                             <th>التاريخ والوقت</th>
                             <th>المدة</th>
                             <th>الحالة</th>
@@ -393,11 +393,11 @@
             <input type="hidden" id="modal_scheduled_date">
 
             <div class="form-group" style="position:relative;">
-                <label class="form-label">المادة التدريبية <span style="color: #ef4444;">*</span></label>
+                <label class="form-label">المقرر  التدريبية <span style="color: #ef4444;">*</span></label>
                 <input type="hidden" id="modal_subject_id">
                 <div style="position:relative;">
                     <input type="text" id="subject_search_input" class="form-input" autocomplete="off"
-                           placeholder="ابحث عن المادة..." oninput="filterSubjects(this.value)" onfocus="showSubjectDropdown()"
+                           placeholder="ابحث عن المقرر ..." oninput="filterSubjects(this.value)" onfocus="showSubjectDropdown()"
                            style="padding-left:2.5rem;">
                     <svg style="position:absolute;right:12px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:#9ca3af;pointer-events:none;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z"/>
@@ -431,7 +431,7 @@
                 </select>
                 <p id="teacher_no_assign_msg" style="display:none;font-size:0.78rem;color:#f59e0b;margin:6px 0 0;display:flex;align-items:center;gap:5px">
                     <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                    لم يُعيَّن مدرس لهذه المادة بعد
+                    لم يُعيَّن مدرس لهذه المقرر  بعد
                 </p>
             </div>
 
@@ -659,7 +659,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const endTime = document.getElementById('modal_end_time').value;
         const duration = parseInt(document.getElementById('modal_duration').value);
 
-        if (!subjectId) { alert('الرجاء اختيار المادة'); return; }
+        if (!subjectId) { alert('الرجاء اختيار المقرر '); return; }
         if (!startDate || !endDate) { alert('الرجاء تحديد التواريخ'); return; }
         if (new Date(endDate) < new Date(startDate)) { alert('تاريخ الانتهاء يجب أن يكون بعد البدء'); return; }
         if (!duration || duration <= 0) { alert('وقت الانتهاء يجب أن يكون بعد البدء'); return; }

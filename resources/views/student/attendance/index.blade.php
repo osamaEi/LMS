@@ -516,7 +516,7 @@
                         <tr>
                             <th style="width: 50px;">#</th>
                             <th>الجلسة</th>
-                            <th>المادة</th>
+                            <th>المقرر </th>
                             <th class="center">التاريخ</th>
                             <th class="center">الحالة</th>
                             <th class="center">المدة</th>

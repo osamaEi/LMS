@@ -246,7 +246,7 @@
                             <label style="display:block;font-size:11px;font-weight:600;color:#374151;margin-bottom:4px;">{{ __('Subject') }}</label>
                             <select name="sessions[0][subject_id]" style="width:100%;border-radius:8px;border:1.5px solid #e5e7eb;background:white;padding:8px 10px;font-size:13px;color:#111827;outline:none;transition:border-color .15s;font-family:inherit;"
                                     onfocus="this.style.borderColor='#2563eb'" onblur="this.style.borderColor='#e5e7eb'">
-                                <option value="">— اختر المادة —</option>
+                                <option value="">— اختر المقرر  —</option>
                                 @foreach($subjects as $subject)
                                 <option value="{{ $subject->id }}">{{ $subject->name_ar }}</option>
                                 @endforeach
@@ -288,7 +288,7 @@
                     {{ __('Save Zoom Sessions') }}
                 </button>
 
-                <p style="text-align:center;font-size:11px;color:#9ca3af;margin:10px 0 0;">رابط Zoom يُضاف لاحقاً من صفحة المادة</p>
+                <p style="text-align:center;font-size:11px;color:#9ca3af;margin:10px 0 0;">رابط Zoom يُضاف لاحقاً من صفحة المقرر </p>
             </form>
         </div>
     </div>
@@ -397,10 +397,10 @@ function buildRowHTML(idx, num) {
         </div>
         <input type="hidden" name="sessions[${idx}][type]" value="live_zoom">
         <div style="margin-bottom:10px;">
-            <label style="display:block;font-size:11px;font-weight:600;color:#374151;margin-bottom:4px;">المادة</label>
+            <label style="display:block;font-size:11px;font-weight:600;color:#374151;margin-bottom:4px;">المقرر </label>
             <select name="sessions[${idx}][subject_id]" style="width:100%;border-radius:8px;border:1.5px solid #bfdbfe;background:white;padding:8px 10px;font-size:13px;color:#111827;outline:none;font-family:inherit;"
                     onfocus="this.style.borderColor='#2563eb'" onblur="this.style.borderColor='#bfdbfe'">
-                <option value="">— اختر المادة —</option>${subjectOptions}
+                <option value="">— اختر المقرر  —</option>${subjectOptions}
             </select>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">

@@ -121,7 +121,7 @@ class SubjectController extends Controller
         if ($unit->subject->enrollments->isEmpty()) {
             return response()->json([
                 'success' => false,
-                'message' => 'أنت غير مسجل في هذه المادة',
+                'message' => 'أنت غير مسجل في هذه المقرر ',
             ], 406);
         }
 

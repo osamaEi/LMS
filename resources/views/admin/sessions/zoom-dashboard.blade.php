@@ -333,9 +333,9 @@
         <!-- Subject Info -->
         @if($session->subject)
         <div class="info-card">
-            <h3>المادة</h3>
+            <h3>المقرر </h3>
             <div class="info-row">
-                <span class="info-label">المادة</span>
+                <span class="info-label">المقرر </span>
                 <span class="info-value">{{ $session->subject->name }}</span>
             </div>
             @if($session->subject->term)

@@ -1911,7 +1911,7 @@
                 <table class="grade-table">
                     <thead>
                         <tr>
-                            <th>المادة</th>
+                            <th>المقرر </th>
                             <th>الكود</th>
                             <th>الفصل</th>
                             <th>الدرجة النهائية</th>

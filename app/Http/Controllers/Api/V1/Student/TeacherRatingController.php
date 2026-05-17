@@ -59,7 +59,7 @@ class TeacherRatingController extends Controller
         if (!$isEnrolled) {
             return response()->json([
                 'success' => false,
-                'message' => 'لست مسجلاً في هذه المادة',
+                'message' => 'لست مسجلاً في هذه المقرر ',
             ], 406);
         }
 
@@ -106,7 +106,7 @@ class TeacherRatingController extends Controller
         if (!$isEnrolled) {
             return response()->json([
                 'success' => false,
-                'message' => 'لست مسجلاً في هذه المادة',
+                'message' => 'لست مسجلاً في هذه المقرر ',
             ], 406);
         }
 

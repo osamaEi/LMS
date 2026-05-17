@@ -92,7 +92,7 @@ class SubjectController extends Controller
         $subject = Subject::create($validated);
 
         return redirect()->route('admin.subjects.show', $subject)
-            ->with('success', 'تم إضافة المادة بنجاح');
+            ->with('success', 'تم إضافة المقرر  بنجاح');
     }
 
     public function show(Subject $subject)
@@ -134,7 +134,7 @@ class SubjectController extends Controller
         $subject->update($validated);
 
         return redirect()->route('admin.subjects.show', $subject)
-            ->with('success', 'تم تحديث المادة بنجاح');
+            ->with('success', 'تم تحديث المقرر  بنجاح');
     }
 
     public function destroy(Subject $subject)
@@ -142,7 +142,7 @@ class SubjectController extends Controller
         $subject->delete();
 
         return redirect()->route('admin.subjects.index')
-            ->with('success', 'تم حذف المادة بنجاح');
+            ->with('success', 'تم حذف المقرر  بنجاح');
     }
 
     public function uploadFile(Request $request, Subject $subject)

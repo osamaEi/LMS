@@ -821,7 +821,7 @@
                     </h3>
                     <div class="info-card">
                         <div class="info-row">
-                            <span class="label">المادة</span>
+                            <span class="label">المقرر </span>
                             <span class="value">{{ $session->subject->name ?? '-' }}</span>
                         </div>
                         @if($session->scheduled_at)
