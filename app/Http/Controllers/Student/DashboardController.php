@@ -27,18 +27,21 @@ class DashboardController extends Controller
             return redirect()->route('student.my-program');
         }
 
-        // Get student's enrolled subjects with relationships
-        $subjects = Subject::whereHas('enrollments', function($query) use ($student) {
-                $query->where('student_id', $student->id);
-            })
+        // All subject IDs accessible to this student (program or enrollment)
+        $studentSubjectIds = Subject::where(function ($q) use ($student) {
+                $q->where('program_id', $student->program_id)
+                  ->orWhereHas('terms', fn($tq) => $tq->where('program_id', $student->program_id))
+                  ->orWhereHas('enrollments', fn($eq) => $eq->where('student_id', $student->id));
+            })->pluck('id');
+
+        // Get student's subjects with relationships
+        $subjects = Subject::whereIn('id', $studentSubjectIds)
             ->with(['term.program', 'teacher'])
             ->withCount('sessions')
             ->get();
 
-        // Get upcoming sessions for enrolled subjects
-        $upcomingSessions = Session::whereHas('subject.enrollments', function($query) use ($student) {
-                $query->where('student_id', $student->id);
-            })
+        // Get upcoming sessions for student's subjects
+        $upcomingSessions = Session::whereIn('subject_id', $studentSubjectIds)
             ->where('scheduled_at', '>', now())
             ->with(['subject'])
             ->orderBy('scheduled_at', 'asc')
@@ -46,18 +49,14 @@ class DashboardController extends Controller
             ->get();
 
         // Get recent sessions
-        $recentSessions = Session::whereHas('subject.enrollments', function($query) use ($student) {
-                $query->where('student_id', $student->id);
-            })
+        $recentSessions = Session::whereIn('subject_id', $studentSubjectIds)
             ->with(['subject'])
             ->orderBy('created_at', 'desc')
             ->take(5)
             ->get();
 
         // Get live sessions
-        $liveSessions = Session::whereHas('subject.enrollments', function($query) use ($student) {
-                $query->where('student_id', $student->id);
-            })
+        $liveSessions = Session::whereIn('subject_id', $studentSubjectIds)
             ->where('type', 'live_zoom')
             ->whereNotNull('started_at')
             ->whereNull('ended_at')
@@ -66,14 +65,10 @@ class DashboardController extends Controller
 
         // Statistics
         $stats = [
-            'subjects_count' => $subjects->count(),
-            'total_sessions' => Session::whereHas('subject.enrollments', function($query) use ($student) {
-                $query->where('student_id', $student->id);
-            })->count(),
-            'completed_sessions' => Session::whereHas('subject.enrollments', function($query) use ($student) {
-                $query->where('student_id', $student->id);
-            })->whereNotNull('ended_at')->count(),
-            'live_sessions' => $liveSessions->count(),
+            'subjects_count'     => $subjects->count(),
+            'total_sessions'     => Session::whereIn('subject_id', $studentSubjectIds)->count(),
+            'completed_sessions' => Session::whereIn('subject_id', $studentSubjectIds)->whereNotNull('ended_at')->count(),
+            'live_sessions'      => $liveSessions->count(),
         ];
 
         // NELC: Progress per subject
@@ -155,9 +150,8 @@ class DashboardController extends Controller
             ->count();
 
         // NELC: Teachers I can rate
-        $ratableTeachers = Subject::whereHas('enrollments', function($q) use ($student) {
-                $q->where('student_id', $student->id)->where('status', 'active');
-            })
+        $ratableTeachers = Subject::whereIn('id', $studentSubjectIds)
+            ->whereNotNull('teacher_id')
             ->whereDoesntHave('teacherRatings', function($q) use ($student) {
                 $q->where('student_id', $student->id);
             })
@@ -245,15 +239,28 @@ class DashboardController extends Controller
         }) ?? $terms->firstWhere('term_number', $currentTermNumber)
           ?? $terms->first();
 
-        // Get all subjects in student's program (through terms)
-        $programSubjects = Subject::whereHas('term', function($q) use ($student) {
-            $q->where('program_id', $student->program_id);
-        })->with(['term', 'teacher'])->get();
+        // Get all subject IDs in student's program via direct program_id OR term pivot
+        $programSubjectIds = Subject::where(function ($q) use ($student) {
+                $q->where('program_id', $student->program_id)
+                  ->orWhereHas('terms', fn($tq) => $tq->where('program_id', $student->program_id))
+                  ->orWhereHas('enrollments', fn($eq) => $eq->where('student_id', $student->id));
+            })->pluck('id');
 
-        // Subjects scoped to current term (for the filter dropdown when on current tab)
-        $currentTermSubjects = $currentTerm
-            ? $programSubjects->where('term_id', $currentTerm->id)->values()
-            : $programSubjects;
+        $programSubjects = Subject::whereIn('id', $programSubjectIds)
+            ->with(['term', 'teacher'])
+            ->orderBy('name_ar')
+            ->get();
+
+        // Subject IDs in the current term (direct term_id OR pivot)
+        $currentTermSubjectIds = $currentTerm
+            ? Subject::whereIn('id', $programSubjectIds)
+                ->where(function ($q) use ($currentTerm) {
+                    $q->where('term_id', $currentTerm->id)
+                      ->orWhereHas('terms', fn($tq) => $tq->where('id', $currentTerm->id));
+                })->pluck('id')
+            : $programSubjectIds;
+
+        $currentTermSubjects = $programSubjects->whereIn('id', $currentTermSubjectIds->toArray())->values();
 
         // Subjects shown in the filter dropdown depend on active tab
         $filterSubjects = ($termFilter === 'current' && $currentTerm)
@@ -261,16 +268,12 @@ class DashboardController extends Controller
             : $programSubjects;
 
         // Build sessions query - all sessions from program subjects
-        $query = Session::whereHas('subject.term', function($q) use ($student) {
-                $q->where('program_id', $student->program_id);
-            })
+        $query = Session::whereIn('subject_id', $programSubjectIds)
             ->with(['subject.term', 'subject.teacher', 'unit', 'files']);
 
         // Scope to current term unless "all" requested
         if ($termFilter === 'current' && $currentTerm) {
-            $query->whereHas('subject', function($q) use ($currentTerm) {
-                $q->where('term_id', $currentTerm->id);
-            });
+            $query->whereIn('subject_id', $currentTermSubjectIds);
         }
 
         // Filter by subject
