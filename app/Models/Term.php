@@ -29,7 +29,8 @@ class Term extends Model
     public function getNameAttribute(): string
     {
         $locale = app()->getLocale();
-        return $locale === 'en' ? ($this->name_en ?: $this->name_ar) : $this->name_ar;
+        $name = $locale === 'en' ? ($this->name_en ?: $this->name_ar) : ($this->name_ar ?: $this->name_en);
+        return $name ?? '';
     }
 
     protected function casts(): array
