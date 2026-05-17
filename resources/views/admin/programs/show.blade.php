@@ -2,19 +2,11 @@
 
 @section('title', 'عرض الدبلوم التعليمي')
 
-@push('head-scripts')
-<script>
-    function openTermModal() {
-        window.dispatchEvent(new CustomEvent('open-term-modal'));
-    }
-    function openSubjectModal(termId, termName) {
-        window.dispatchEvent(new CustomEvent('open-subject-modal', { detail: { termId, termName } }));
-    }
-</script>
-@endpush
-
 @section('content')
-<div x-data="{}">
+<div x-data="{
+    openTermModal() { window.dispatchEvent(new CustomEvent('open-term-modal')); },
+    openSubjectModal(termId, termName) { window.dispatchEvent(new CustomEvent('open-subject-modal', { detail: { termId, termName } })); }
+}">
     <!-- Header -->
     <div class="mb-6">
         <div class="flex items-center gap-3 mb-4">
@@ -263,8 +255,19 @@
                                                         <span class="text-gray-300 dark:text-gray-600">—</span>
                                                         @endif
                                                     </td>
-                                                    <td class="px-4 py-2.5 text-xs text-gray-500 dark:text-gray-400 hidden lg:table-cell">
-                                                        {{ $subject->teacher?->name ?? '—' }}
+                                                    <td class="px-4 py-2.5 hidden lg:table-cell">
+                                                        <form method="POST" action="{{ route('admin.subjects.assign-teacher', $subject) }}" class="flex items-center gap-1">
+                                                            @csrf @method('PATCH')
+                                                            <select name="teacher_id" onchange="this.form.submit()"
+                                                                    class="text-xs border-0 bg-transparent text-gray-600 dark:text-gray-300 cursor-pointer rounded px-1 py-0.5 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-1 focus:ring-brand-400 max-w-[140px]">
+                                                                <option value="">— بدون مدرب —</option>
+                                                                @foreach($teachers as $teacher)
+                                                                    <option value="{{ $teacher->id }}" {{ $subject->teacher_id == $teacher->id ? 'selected' : '' }}>
+                                                                        {{ $teacher->name }}
+                                                                    </option>
+                                                                @endforeach
+                                                            </select>
+                                                        </form>
                                                     </td>
                                                     <td class="px-4 py-2.5 text-center">
                                                         @php $sbtnStyle = $subject->status === 'active' ? 'background:#dcfce7;color:#16a34a;border-color:#bbf7d0;' : 'background:#f3f4f6;color:#6b7280;border-color:#e5e7eb;' @endphp

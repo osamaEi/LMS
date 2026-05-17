@@ -73,16 +73,17 @@ class SubjectController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'program_id' => 'nullable|exists:programs,id',
-            'teacher_id' => 'nullable|exists:users,id',
-            'name_ar' => 'nullable|string|max:255',
-            'name_en' => 'nullable|string|max:255',
-            'code' => 'nullable|string|unique:subjects,code',
-            'description_ar' => 'nullable|string',
-            'description_en' => 'nullable|string',
-            'banner_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
-            'credits' => 'nullable|integer|min:1',
-            'status' => 'nullable|in:active,inactive,completed',
+            'program_id'    => 'nullable|exists:programs,id',
+            'term_id'       => 'nullable|exists:terms,id',
+            'teacher_id'    => 'nullable|exists:users,id',
+            'name_ar'       => 'nullable|string|max:255',
+            'name_en'       => 'nullable|string|max:255',
+            'code'          => 'nullable|string',
+            'description_ar'=> 'nullable|string',
+            'description_en'=> 'nullable|string',
+            'banner_photo'  => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'credits'       => 'nullable|integer|min:1',
+            'status'        => 'nullable|in:active,inactive,completed',
         ]);
 
         if ($request->hasFile('banner_photo')) {
@@ -90,6 +91,15 @@ class SubjectController extends Controller
         }
 
         $subject = Subject::create($validated);
+
+        if (!empty($validated['term_id'])) {
+            $subject->terms()->syncWithoutDetaching([$validated['term_id']]);
+        }
+
+        if ($request->filled('program_id')) {
+            return redirect()->route('admin.programs.show', $validated['program_id'])
+                ->with('success', 'تم إضافة المقرر بنجاح');
+        }
 
         return redirect()->route('admin.subjects.show', $subject)
             ->with('success', 'تم إضافة المقرر  بنجاح');
@@ -135,6 +145,13 @@ class SubjectController extends Controller
 
         return redirect()->route('admin.subjects.show', $subject)
             ->with('success', 'تم تحديث المقرر  بنجاح');
+    }
+
+    public function assignTeacher(Request $request, Subject $subject)
+    {
+        $request->validate(['teacher_id' => 'nullable|exists:users,id']);
+        $subject->update(['teacher_id' => $request->teacher_id ?: null]);
+        return back()->with('success', 'تم تعيين المدرب بنجاح');
     }
 
     public function toggleStatus(Request $request, Subject $subject)

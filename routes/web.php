@@ -260,6 +260,7 @@ Route::middleware(['auth', 'role:admin,super_admin'])->prefix('admin')->name('ad
     // Subject Management
     Route::resource('subjects', \App\Http\Controllers\Admin\SubjectController::class);
     Route::patch('subjects/{subject}/toggle-status', [\App\Http\Controllers\Admin\SubjectController::class, 'toggleStatus'])->name('subjects.toggle-status');
+    Route::patch('subjects/{subject}/assign-teacher', [\App\Http\Controllers\Admin\SubjectController::class, 'assignTeacher'])->name('subjects.assign-teacher');
     Route::post('subjects/{subject}/files', [\App\Http\Controllers\Admin\SubjectController::class, 'uploadFile'])->name('subjects.files.upload');
     Route::delete('subjects/{subject}/files/{file}', [\App\Http\Controllers\Admin\SubjectController::class, 'deleteFile'])->name('subjects.files.destroy');
 

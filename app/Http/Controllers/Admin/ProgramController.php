@@ -108,8 +108,9 @@ class ProgramController extends Controller
         ]);
 
         $allSubjects = Subject::orderBy('name_ar')->get(['id', 'name_ar', 'name_en', 'code']);
+        $teachers    = \App\Models\User::where('role', 'teacher')->orderBy('name')->get(['id', 'name']);
 
-        return view('admin.programs.show', compact('program', 'allSubjects'));
+        return view('admin.programs.show', compact('program', 'allSubjects', 'teachers'));
     }
 
     public function edit(Program $program)
