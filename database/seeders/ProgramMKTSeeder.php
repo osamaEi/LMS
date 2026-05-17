@@ -89,15 +89,16 @@ class ProgramMKTSeeder extends Seeder
         ];
 
         foreach ($subjects as [$code, $nameAr, $nameEn, $credits, $termNum]) {
-            $subject = Subject::create([
-                'program_id' => $program->id,
-                'term_id'    => $terms[$termNum]->id,
-                'code'       => $code,
-                'name_ar'    => $nameAr,
-                'name_en'    => $nameEn,
-                'credits'    => $credits,
-                'status'     => 'active',
-            ]);
+            $subject = Subject::updateOrCreate(
+                ['program_id' => $program->id, 'code' => $code],
+                [
+                    'term_id' => $terms[$termNum]->id,
+                    'name_ar' => $nameAr,
+                    'name_en' => $nameEn,
+                    'credits' => $credits,
+                    'status'  => 'active',
+                ]
+            );
             $terms[$termNum]->subjects()->syncWithoutDetaching([$subject->id]);
         }
 
