@@ -651,9 +651,22 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
             </svg>
         </div>
-        <div id="filterBody" class="filter-body hidden">
+        <div id="filterBody" class="filter-body {{ request()->hasAny(['search','user_id','program_id','status','payment_method','payment_type']) ? '' : 'hidden' }}">
             <form action="{{ route('admin.payments.index') }}" method="GET">
                 <div class="filter-grid">
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label class="form-label">بحث سريع (الاسم / البريد / الهاتف)</label>
+                        <div style="position: relative;">
+                            <input type="text" name="search" value="{{ request('search') }}"
+                                   placeholder="ابحث باسم الطالب أو بريده أو هاتفه..."
+                                   class="form-select"
+                                   style="padding-right: 2.5rem;">
+                            <svg style="position:absolute;top:50%;right:0.75rem;transform:translateY(-50%);width:18px;height:18px;color:#9ca3af;pointer-events:none;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                            </svg>
+                        </div>
+                    </div>
+
                     <div class="form-group">
                         <label class="form-label">الطالب</label>
                         <select name="user_id" class="form-select">
@@ -710,13 +723,23 @@
                         </select>
                     </div>
 
-                    <div class="form-group" style="display: flex; align-items: flex-end;">
-                        <button type="submit" class="btn-filter">
+                    <div class="form-group" style="display: flex; align-items: flex-end; gap: 0.5rem;">
+                        <button type="submit" class="btn-filter" style="flex: 1;">
                             <svg style="width: 18px; height: 18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                             </svg>
                             بحث
                         </button>
+                        @if(request()->hasAny(['search','user_id','program_id','status','payment_method','payment_type']))
+                            <a href="{{ route('admin.payments.index') }}"
+                               style="display:inline-flex;align-items:center;gap:0.35rem;padding:0.7rem 1rem;background:#f3f4f6;color:#374151;border-radius:10px;font-weight:700;font-size:0.85rem;text-decoration:none;white-space:nowrap;transition:all 0.2s;"
+                               onmouseover="this.style.background='#e5e7eb'" onmouseout="this.style.background='#f3f4f6'">
+                                <svg style="width:16px;height:16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                                مسح
+                            </a>
+                        @endif
                     </div>
                 </div>
             </form>

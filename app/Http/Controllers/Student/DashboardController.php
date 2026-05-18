@@ -253,7 +253,7 @@ class DashboardController extends Controller
             ->with(['term', 'teacher'])
             ->orderBy('name_ar')
             ->get();
-
+ 
         // Subject IDs in the current term (direct term_id OR pivot)
         $currentTermSubjectIds = $currentTerm
             ? Subject::whereIn('id', $programSubjectIds)

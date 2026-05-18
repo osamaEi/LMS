@@ -66,9 +66,21 @@
     if (auth()->check() && auth()->user()->role === 'student') {
         $student = auth()->user();
         if ($student->program_id) {
-            $studentSubjects = \App\Models\Subject::whereHas('term', function($q) use ($student) {
-                $q->where('program_id', $student->program_id);
-            })->get();
+            $terms = \App\Models\Term::where('program_id', $student->program_id)
+                ->orderBy('term_number', 'asc')->get();
+            $currentTermNumber = $student->current_term_number ?? 1;
+            $currentTerm = $terms->first(function ($t) {
+                return $t->start_date && $t->end_date
+                    && $t->start_date <= now() && $t->end_date >= now();
+            }) ?? $terms->firstWhere('term_number', $currentTermNumber)
+              ?? $terms->first();
+
+            if ($currentTerm) {
+                $studentSubjects = \App\Models\Subject::where(function($q) use ($currentTerm) {
+                    $q->where('term_id', $currentTerm->id)
+                      ->orWhereHas('terms', fn($tq) => $tq->where('terms.id', $currentTerm->id));
+                })->get();
+            }
         }
     }
 @endphp
@@ -109,6 +121,44 @@
     </ul>
 </li>
 
+<!-- مقرراتي - Dropdown -->
+<li x-data="{ open: {{ request()->routeIs('student.subjects.*') ? 'true' : 'false' }} }">
+    <button @click="open = !open"
+            class="menu-item group relative flex w-full items-center justify-between gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('student.subjects.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
+        <div class="flex items-center gap-3">
+            <svg class="fill-current" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 3L1 9l4 2.18V17h2v-4.68L9 13.4V17c0 2.21 1.34 4 3 4s3-1.79 3-4v-3.6l2-.92V17h2v-5.82L23 9 12 3zm0 2.19L19.26 9 12 12.57 4.74 9 12 5.19z" fill="currentColor"/>
+            </svg>
+            <span>مقرراتي</span>
+        </div>
+        <svg class="fill-current transition-transform duration-200" :class="{ 'rotate-180': open }" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+    </button>
+    <ul x-show="open" x-collapse class="mt-1 space-y-1 ps-8">
+        @forelse($studentSubjects as $subject)
+        <li>
+            <a href="{{ route('student.subjects.show', $subject->id) }}"
+               class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-2 text-sm font-medium {{ request()->is('student/subjects/'.$subject->id) ? 'menu-item-active' : 'menu-item-inactive' }}">
+                <svg class="fill-current flex-shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 3L1 9l4 2.18V17h2v-4.68L9 13.4V17c0 2.21 1.34 4 3 4s3-1.79 3-4v-3.6l2-.92V17h2v-5.82L23 9 12 3z"/>
+                </svg>
+                <span class="truncate">{{ $subject->name_ar ?? $subject->name }}</span>
+            </a>
+        </li>
+        @empty
+        <li>
+            <span class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-2 text-sm font-medium text-gray-400">
+                <svg class="fill-current" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M8 1.33334C4.32 1.33334 1.33333 4.32001 1.33333 8.00001C1.33333 11.68 4.32 14.6667 8 14.6667C11.68 14.6667 14.6667 11.68 14.6667 8.00001C14.6667 4.32001 11.68 1.33334 8 1.33334ZM8.66667 12H7.33333V10.6667H8.66667V12ZM8.66667 9.33334H7.33333V4.00001H8.66667V9.33334Z" fill=""/>
+                </svg>
+                <span>لا توجد مقررات</span>
+            </span>
+        </li>
+        @endforelse
+    </ul>
+</li>
+
 <!-- سجل الحضور -->
 <li>
     <a href="{{ route('student.attendance') }}"
@@ -131,16 +181,7 @@
     </a>
 </li>
 
-<!-- الملفات والموارد -->
-<li>
-    <a href="{{ route('student.files.index') }}"
-       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('student.files.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
-        <svg class="fill-current" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm-1 2l4.5 4.5H13V4zM8 17h8v-1.5H8V17zm0-3h8v-1.5H8V14zm0-3h5v-1.5H8V11z" fill="currentColor"/>
-        </svg>
-        <span>الملفات والموارد</span>
-    </a>
-</li>
+
 
 {{-- ═══ فاصل ═══ --}}
 <li style="margin:6px 16px;height:1px;background:rgba(255,255,255,0.1)"></li>

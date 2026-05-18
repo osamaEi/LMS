@@ -4,8 +4,7 @@ namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
 use App\Models\Homework;
-use App\Models\Enrollment;
-use App\Models\Session;
+use App\Models\Subject;
 
 class HomeworkController extends Controller
 {
@@ -13,10 +12,15 @@ class HomeworkController extends Controller
     {
         $student = auth()->user();
 
-        // Get all subject IDs the student is enrolled in
-        $subjectIds = Enrollment::where('student_id', $student->id)->pluck('subject_id');
+        // All subject IDs accessible to this student (program or enrollment)
+        $subjectIds = Subject::where(function ($q) use ($student) {
+                $q->where('program_id', $student->program_id)
+                  ->orWhereHas('term', fn($tq) => $tq->where('program_id', $student->program_id))
+                  ->orWhereHas('terms', fn($tq) => $tq->where('program_id', $student->program_id))
+                  ->orWhereHas('enrollments', fn($eq) => $eq->where('student_id', $student->id));
+            })->pluck('id');
 
-        // Get all sessions for those subjects that have homework
+        // All homeworks for those subjects, including future sessions
         $homeworks = Homework::whereHas('session', function ($q) use ($subjectIds) {
                 $q->whereIn('subject_id', $subjectIds);
             })
