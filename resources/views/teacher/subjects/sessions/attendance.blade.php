@@ -80,15 +80,10 @@
                 <th style="padding:10px 18px;text-align:right;font-size:.75rem;font-weight:700;color:#6b7280;white-space:nowrap">#</th>
                 <th style="padding:10px 18px;text-align:right;font-size:.75rem;font-weight:700;color:#6b7280">الطالب</th>
                 <th style="padding:10px 18px;text-align:right;font-size:.75rem;font-weight:700;color:#6b7280">وقت الانضمام</th>
-                <th style="padding:10px 18px;text-align:right;font-size:.75rem;font-weight:700;color:#6b7280">المدة</th>
-                <th style="padding:10px 18px;text-align:right;font-size:.75rem;font-weight:700;color:#6b7280">الحالة</th>
             </tr>
         </thead>
         <tbody>
             @foreach($attendances->where('attended', true) as $i => $att)
-            @php
-                $isFull = $att->video_completed || ($att->duration_minutes && $att->duration_minutes >= ($session->duration_minutes * 0.8));
-            @endphp
             <tr style="border-top:1px solid #f9fafb">
                 <td style="padding:12px 18px;color:#9ca3af;font-weight:700">{{ $i + 1 }}</td>
                 <td style="padding:12px 18px">
@@ -97,16 +92,6 @@
                 </td>
                 <td style="padding:12px 18px;color:#374151">
                     {{ $att->joined_at ? \Carbon\Carbon::parse($att->joined_at)->format('h:i A') : '—' }}
-                </td>
-                <td style="padding:12px 18px;font-weight:700;color:#374151">
-                    {{ $att->duration_minutes ? $att->duration_minutes . ' د' : '—' }}
-                </td>
-                <td style="padding:12px 18px">
-                    @if($isFull)
-                    <span style="background:#dcfce7;color:#16a34a;font-size:.75rem;font-weight:700;padding:3px 10px;border-radius:20px">كامل</span>
-                    @else
-                    <span style="background:#fef3c7;color:#d97706;font-size:.75rem;font-weight:700;padding:3px 10px;border-radius:20px">جزئي</span>
-                    @endif
                 </td>
             </tr>
             @endforeach
