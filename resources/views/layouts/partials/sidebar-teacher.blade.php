@@ -154,7 +154,6 @@
 </li>
 
 {{-- ═══ فاصل ═══ --}}
-<li style="margin:6px 16px;height:1px;background:rgba(255,255,255,0.1)"></li>
 
 <!-- التقييمات -->
 <!-- <li>
