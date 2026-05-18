@@ -117,7 +117,7 @@
                         </svg>
                         الاختبارات
                     </a>
-                    <a href="{{ route('student.homework') }}"
+                    <a href="{{ route('student.homework.index') }}"
                        class="inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-bold text-white transition-all hover:scale-105"
                        style="background: linear-gradient(135deg, #f59e0b, #d97706); box-shadow: 0 6px 20px rgba(245,158,11,0.4);">
                         <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

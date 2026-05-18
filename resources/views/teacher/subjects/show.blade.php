@@ -161,7 +161,7 @@
 @endpush
 
 @section('content')
-<div x-data="{ tab: 'sessions', uploadModal: false }">
+<div x-data="{ tab: 'sessions', uploadModal: false, createModal: false }">
 
 {{-- ─── Hero Header ─── --}}
 <div class="subject-hero">
