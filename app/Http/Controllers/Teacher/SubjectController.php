@@ -94,32 +94,33 @@ class SubjectController extends Controller
         $subject = Subject::assignedToTeacher($teacher->id)->findOrFail($subjectId);
 
         $validated = $request->validate([
-            'unit_id' => 'nullable|exists:units,id',
-            'title_ar' => 'required|string|max:255',
-            'title_en' => 'required|string|max:255',
-            'description_ar' => 'nullable|string',
-            'description_en' => 'nullable|string',
-            'session_number' => 'required|integer|min:1',
-            'type' => 'required|in:live_zoom,recorded_video',
-            'scheduled_at' => 'nullable|date',
+            'unit_id'          => 'nullable|exists:units,id',
+            'title_ar'         => 'nullable|string|max:255',
+            'title_en'         => 'nullable|string|max:255',
+            'description_ar'   => 'nullable|string',
+            'description_en'   => 'nullable|string',
+            'session_number'   => 'nullable|integer|min:1',
+            'type'             => 'nullable|in:live_zoom,recorded_video',
+            'scheduled_at'     => 'nullable|date',
             'duration_minutes' => 'nullable|integer|min:1',
-
-            // Zoom fields
-            'zoom_meeting_id' => 'nullable|string',
-            'zoom_join_url' => 'nullable|url',
-            'zoom_password' => 'nullable|string',
-
-            // Video fields
-            'video_file' => 'nullable|file|mimes:mp4,avi,mov,mkv,wmv,flv|max:512000',
-            'video_url' => 'nullable|url',
-            'video_platform' => 'nullable|in:youtube,vimeo,external,local',
-
-            // File uploads
-            'files.*' => 'nullable|file|max:10240',
+            'zoom_meeting_id'  => 'nullable|string',
+            'zoom_join_url'    => 'nullable|url',
+            'zoom_password'    => 'nullable|string',
+            'video_file'       => 'nullable|file|mimes:mp4,avi,mov,mkv,wmv,flv|max:512000',
+            'video_url'        => 'nullable|url',
+            'video_platform'   => 'nullable|in:youtube,vimeo,external,local',
+            'files.*'          => 'nullable|file|max:10240',
         ]);
 
         $validated['subject_id'] = $subjectId;
         $validated['teacher_id'] = $teacher->id;
+
+        // Auto-fill required fields when not provided
+        $nextNumber = $subject->sessions()->max('session_number') + 1 ?? 1;
+        $validated['session_number'] = $validated['session_number'] ?? $nextNumber;
+        $validated['title_ar'] = $validated['title_ar'] ?? ('حصة ' . $validated['session_number']);
+        $validated['title_en'] = $validated['title_en'] ?? ('Session ' . $validated['session_number']);
+        $validated['type']     = $validated['type'] ?? 'recorded_video';
 
         // Handle video file upload
         if ($request->hasFile('video_file')) {

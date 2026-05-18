@@ -630,27 +630,26 @@
 <div x-show="createModal" x-cloak
      style="position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);"
      @keydown.escape.window="createModal = false">
-    <div style="background:#fff;border-radius:20px;box-shadow:0 24px 80px rgba(0,0,0,.22);width:100%;max-width:680px;margin:1rem;max-height:90vh;display:flex;flex-direction:column;overflow:hidden;"
+    <div style="background:#fff;border-radius:20px;box-shadow:0 24px 80px rgba(0,0,0,.22);width:100%;max-width:420px;margin:1rem;overflow:hidden;"
          class="dark:bg-gray-900">
 
-        {{-- Modal Header --}}
-        <div style="background:linear-gradient(135deg,#0071AA 0%,#005a88 60%,#003f6b 100%);padding:1.5rem 1.75rem;position:relative;overflow:hidden;flex-shrink:0;">
-            <div style="position:absolute;top:-50%;right:-5%;width:220px;height:220px;background:radial-gradient(circle,rgba(255,255,255,.1) 0%,transparent 70%);border-radius:50%;pointer-events:none;"></div>
+        {{-- Header --}}
+        <div style="background:linear-gradient(135deg,#0071AA 0%,#005a88 60%,#003f6b 100%);padding:1.25rem 1.5rem;position:relative;overflow:hidden;">
+            <div style="position:absolute;top:-50%;right:-5%;width:180px;height:180px;background:radial-gradient(circle,rgba(255,255,255,.1) 0%,transparent 70%);border-radius:50%;pointer-events:none;"></div>
             <div class="relative flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                    <div style="width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;">
+                    <div style="width:40px;height:40px;border-radius:11px;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;">
                         <svg class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                         </svg>
                     </div>
                     <div>
-                        <h3 style="color:#fff;font-size:1.1rem;font-weight:800;line-height:1.2;">إنشاء حصة جديدة</h3>
-                        <p style="color:rgba(255,255,255,.7);font-size:.8rem;margin-top:2px;">{{ $subject->name }}</p>
+                        <h3 style="color:#fff;font-size:1rem;font-weight:800;line-height:1.2;">إنشاء حصة جديدة</h3>
+                        <p style="color:rgba(255,255,255,.7);font-size:.75rem;margin-top:2px;">{{ $subject->name }}</p>
                     </div>
                 </div>
                 <button @click="createModal = false"
-                        style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;transition:background .2s;"
-                        onmouseover="this.style.background='rgba(255,255,255,.25)'" onmouseout="this.style.background='rgba(255,255,255,.15)'">
+                        style="width:34px;height:34px;border-radius:9px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;">
                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                     </svg>
@@ -658,260 +657,36 @@
             </div>
         </div>
 
-        {{-- Modal Body (scrollable) --}}
-        <div style="overflow-y:auto;flex:1;padding:1.5rem 1.75rem;">
-            <form id="cm_form"
-                  action="{{ route('teacher.my-subjects.sessions.store', $subject->id) }}"
-                  method="POST" enctype="multipart/form-data">
-                @csrf
+        {{-- Body --}}
+        <form id="cm_form"
+              action="{{ route('teacher.my-subjects.sessions.store', $subject->id) }}"
+              method="POST">
+            @csrf
+            <div style="padding:1.5rem;">
+                <label style="display:block;font-size:.85rem;font-weight:600;color:#374151;margin-bottom:.5rem;" class="dark:text-gray-300">
+                    موعد الحصة
+                </label>
+                <input type="datetime-local" name="scheduled_at" required
+                       style="width:100%;border:1.5px solid #e5e7eb;border-radius:10px;padding:.65rem .9rem;font-size:.9rem;color:#111827;outline:none;box-sizing:border-box;transition:border .2s;"
+                       class="dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+                       onfocus="this.style.borderColor='#0071AA'" onblur="this.style.borderColor='#e5e7eb'">
+            </div>
 
-                {{-- ── Basic Info ── --}}
-                <div style="margin-bottom:1.25rem;">
-                    <p style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#0071AA;margin-bottom:.75rem;">المعلومات الأساسية</p>
-
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.85rem;">
-                        <div>
-                            <label style="display:block;font-size:.8rem;font-weight:600;color:#374151;margin-bottom:.35rem;" class="dark:text-gray-300">
-                                العنوان (عربي) <span style="color:#ef4444">*</span>
-                            </label>
-                            <input type="text" name="title_ar" required
-                                   style="width:100%;border:1.5px solid #e5e7eb;border-radius:10px;padding:.55rem .85rem;font-size:.875rem;color:#111827;outline:none;transition:border .2s;box-sizing:border-box;"
-                                   class="dark:bg-gray-800 dark:border-gray-700 dark:text-white"
-                                   placeholder="مثال: مقدمة في البرمجة"
-                                   onfocus="this.style.borderColor='#0071AA'" onblur="this.style.borderColor='#e5e7eb'">
-                        </div>
-                        <div>
-                            <label style="display:block;font-size:.8rem;font-weight:600;color:#374151;margin-bottom:.35rem;" class="dark:text-gray-300">
-                                العنوان (إنجليزي) <span style="color:#ef4444">*</span>
-                            </label>
-                            <input type="text" name="title_en" required
-                                   style="width:100%;border:1.5px solid #e5e7eb;border-radius:10px;padding:.55rem .85rem;font-size:.875rem;color:#111827;outline:none;transition:border .2s;box-sizing:border-box;"
-                                   class="dark:bg-gray-800 dark:border-gray-700 dark:text-white"
-                                   placeholder="e.g. Introduction to Programming"
-                                   onfocus="this.style.borderColor='#0071AA'" onblur="this.style.borderColor='#e5e7eb'">
-                        </div>
-                        <div>
-                            <label style="display:block;font-size:.8rem;font-weight:600;color:#374151;margin-bottom:.35rem;" class="dark:text-gray-300">
-                                رقم الحصة <span style="color:#ef4444">*</span>
-                            </label>
-                            <input type="number" name="session_number" required min="1"
-                                   value="{{ $sessions->count() + 1 }}"
-                                   style="width:100%;border:1.5px solid #e5e7eb;border-radius:10px;padding:.55rem .85rem;font-size:.875rem;color:#111827;outline:none;transition:border .2s;box-sizing:border-box;"
-                                   class="dark:bg-gray-800 dark:border-gray-700 dark:text-white"
-                                   onfocus="this.style.borderColor='#0071AA'" onblur="this.style.borderColor='#e5e7eb'">
-                        </div>
-                        <div>
-                            <label style="display:block;font-size:.8rem;font-weight:600;color:#374151;margin-bottom:.35rem;" class="dark:text-gray-300">
-                                المدة (دقيقة)
-                            </label>
-                            <input type="number" name="duration_minutes" min="1" value="60"
-                                   style="width:100%;border:1.5px solid #e5e7eb;border-radius:10px;padding:.55rem .85rem;font-size:.875rem;color:#111827;outline:none;transition:border .2s;box-sizing:border-box;"
-                                   class="dark:bg-gray-800 dark:border-gray-700 dark:text-white"
-                                   onfocus="this.style.borderColor='#0071AA'" onblur="this.style.borderColor='#e5e7eb'">
-                        </div>
-                        <div style="grid-column:1/-1;">
-                            <label style="display:block;font-size:.8rem;font-weight:600;color:#374151;margin-bottom:.35rem;" class="dark:text-gray-300">
-                                تاريخ ووقت الحصة
-                            </label>
-                            <input type="datetime-local" name="scheduled_at"
-                                   style="width:100%;border:1.5px solid #e5e7eb;border-radius:10px;padding:.55rem .85rem;font-size:.875rem;color:#111827;outline:none;transition:border .2s;box-sizing:border-box;"
-                                   class="dark:bg-gray-800 dark:border-gray-700 dark:text-white"
-                                   onfocus="this.style.borderColor='#0071AA'" onblur="this.style.borderColor='#e5e7eb'">
-                        </div>
-                        <div>
-                            <label style="display:block;font-size:.8rem;font-weight:600;color:#374151;margin-bottom:.35rem;" class="dark:text-gray-300">
-                                الوصف (عربي)
-                            </label>
-                            <textarea name="description_ar" rows="2"
-                                      style="width:100%;border:1.5px solid #e5e7eb;border-radius:10px;padding:.55rem .85rem;font-size:.875rem;color:#111827;outline:none;transition:border .2s;box-sizing:border-box;resize:vertical;"
-                                      class="dark:bg-gray-800 dark:border-gray-700 dark:text-white"
-                                      placeholder="وصف تفصيلي..."
-                                      onfocus="this.style.borderColor='#0071AA'" onblur="this.style.borderColor='#e5e7eb'"></textarea>
-                        </div>
-                        <div>
-                            <label style="display:block;font-size:.8rem;font-weight:600;color:#374151;margin-bottom:.35rem;" class="dark:text-gray-300">
-                                الوصف (إنجليزي)
-                            </label>
-                            <textarea name="description_en" rows="2"
-                                      style="width:100%;border:1.5px solid #e5e7eb;border-radius:10px;padding:.55rem .85rem;font-size:.875rem;color:#111827;outline:none;transition:border .2s;box-sizing:border-box;resize:vertical;"
-                                      class="dark:bg-gray-800 dark:border-gray-700 dark:text-white"
-                                      placeholder="Detailed description..."
-                                      onfocus="this.style.borderColor='#0071AA'" onblur="this.style.borderColor='#e5e7eb'"></textarea>
-                        </div>
-                    </div>
-                </div>
-
-                {{-- ── Session Type ── --}}
-                <div style="margin-bottom:1.25rem;">
-                    <p style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#0071AA;margin-bottom:.75rem;">نوع الحصة <span style="color:#ef4444">*</span></p>
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.85rem;">
-                        <label for="cm_type_video"
-                               style="display:flex;align-items:center;gap:.75rem;padding:.85rem 1rem;border:2px solid #e5e7eb;border-radius:12px;cursor:pointer;transition:all .2s;"
-                               id="cm_label_video">
-                            <input type="radio" id="cm_type_video" name="type" value="recorded_video" checked
-                                   class="sr-only" onchange="cmToggleType()">
-                            <div style="width:40px;height:40px;border-radius:10px;background:#dcfce7;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                                <svg class="h-5 w-5" style="color:#16a34a" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"/>
-                                </svg>
-                            </div>
-                            <div>
-                                <p style="font-size:.875rem;font-weight:700;color:#111827;" class="dark:text-white">فيديو مسجل</p>
-                                <p style="font-size:.72rem;color:#6b7280;margin-top:1px;">YouTube / Vimeo / رفع ملف</p>
-                            </div>
-                        </label>
-                        <label for="cm_type_zoom"
-                               style="display:flex;align-items:center;gap:.75rem;padding:.85rem 1rem;border:2px solid #e5e7eb;border-radius:12px;cursor:pointer;transition:all .2s;"
-                               id="cm_label_zoom">
-                            <input type="radio" id="cm_type_zoom" name="type" value="live_zoom"
-                                   class="sr-only" onchange="cmToggleType()">
-                            <div style="width:40px;height:40px;border-radius:10px;background:#eff6ff;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                                <svg class="h-5 w-5" style="color:#2563eb" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
-                                </svg>
-                            </div>
-                            <div>
-                                <p style="font-size:.875rem;font-weight:700;color:#111827;" class="dark:text-white">بث مباشر Zoom</p>
-                                <p style="font-size:.72rem;color:#6b7280;margin-top:1px;">إنشاء اجتماع تلقائياً</p>
-                            </div>
-                        </label>
-                    </div>
-                </div>
-
-                {{-- ── Video Section (conditional) ── --}}
-                <div id="cm_video_section" style="margin-bottom:1.25rem;">
-                    <p style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#16a34a;margin-bottom:.75rem;">محتوى الفيديو</p>
-                    <div style="display:flex;flex-direction:column;gap:.75rem;">
-                        <div>
-                            <label style="display:block;font-size:.8rem;font-weight:600;color:#374151;margin-bottom:.35rem;" class="dark:text-gray-300">مصدر الفيديو</label>
-                            <select id="cm_platform" name="video_platform" onchange="cmTogglePlatform()"
-                                    style="width:100%;border:1.5px solid #e5e7eb;border-radius:10px;padding:.55rem .85rem;font-size:.875rem;color:#111827;outline:none;box-sizing:border-box;background:#fff;"
-                                    class="dark:bg-gray-800 dark:border-gray-700 dark:text-white">
-                                <option value="">اختر المصدر</option>
-                                <option value="youtube">YouTube</option>
-                                <option value="vimeo">Vimeo</option>
-                                <option value="external">رابط خارجي</option>
-                                <option value="local">رفع ملف محلي</option>
-                            </select>
-                        </div>
-                        <div id="cm_url_field" style="display:none;">
-                            <label style="display:block;font-size:.8rem;font-weight:600;color:#374151;margin-bottom:.35rem;" class="dark:text-gray-300">رابط الفيديو</label>
-                            <input type="url" name="video_url"
-                                   style="width:100%;border:1.5px solid #e5e7eb;border-radius:10px;padding:.55rem .85rem;font-size:.875rem;color:#111827;outline:none;box-sizing:border-box;"
-                                   class="dark:bg-gray-800 dark:border-gray-700 dark:text-white"
-                                   placeholder="https://youtube.com/watch?v=...">
-                        </div>
-                        <div id="cm_upload_field" style="display:none;">
-                            <label style="display:block;font-size:.8rem;font-weight:600;color:#374151;margin-bottom:.35rem;" class="dark:text-gray-300">رفع ملف الفيديو</label>
-                            <label for="cm_video_file"
-                                   style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:90px;border:2px dashed #d1d5db;border-radius:10px;cursor:pointer;background:#f9fafb;transition:background .2s;"
-                                   onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='#f9fafb'">
-                                <svg class="h-7 w-7 text-gray-400 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
-                                </svg>
-                                <span style="font-size:.78rem;color:#6b7280;">انقر للرفع — MP4, AVI, MOV (حد أقصى 500MB)</span>
-                                <input id="cm_video_file" name="video_file" type="file" accept="video/*" class="hidden"
-                                       onchange="document.getElementById('cm_video_name').textContent = this.files[0]?.name ?? ''">
-                            </label>
-                            <p id="cm_video_name" style="font-size:.8rem;color:#0071AA;margin-top:.35rem;"></p>
-                        </div>
-                    </div>
-                </div>
-
-                {{-- ── Zoom Section (conditional) ── --}}
-                <div id="cm_zoom_section" style="display:none;margin-bottom:1.25rem;border:2px solid #bfdbfe;border-radius:14px;background:linear-gradient(135deg,#eff6ff,#fff);padding:1rem 1.1rem;">
-                    <div style="display:flex;align-items:center;gap:.75rem;">
-                        <div style="width:42px;height:42px;border-radius:11px;background:linear-gradient(135deg,#3b82f6,#1d4ed8);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                            <svg class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
-                            </svg>
-                        </div>
-                        <div>
-                            <p style="font-size:.95rem;font-weight:800;color:#1e40af;">إنشاء اجتماع Zoom تلقائياً</p>
-                            <p style="font-size:.78rem;color:#3b82f6;margin-top:2px;">سيتم إنشاء الاجتماع وإرسال الرابط للطلاب فور الحفظ</p>
-                        </div>
-                    </div>
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-top:.85rem;">
-                        <div style="border-radius:8px;background:#dbeafe;border:1px solid #bfdbfe;padding:.55rem .75rem;display:flex;align-items:center;gap:.5rem;">
-                            <svg class="h-4 w-4" style="color:#2563eb;flex-shrink:0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                            </svg>
-                            <span style="font-size:.78rem;font-weight:600;color:#1e40af;">إنشاء فوري</span>
-                        </div>
-                        <div style="border-radius:8px;background:#fee2e2;border:1px solid #fecaca;padding:.55rem .75rem;display:flex;align-items:center;gap:.5rem;">
-                            <svg class="h-4 w-4" style="color:#dc2626;flex-shrink:0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
-                            </svg>
-                            <span style="font-size:.78rem;font-weight:600;color:#991b1b;">تسجيل تلقائي</span>
-                        </div>
-                        <div style="border-radius:8px;background:#dcfce7;border:1px solid #bbf7d0;padding:.55rem .75rem;display:flex;align-items:center;gap:.5rem;">
-                            <svg class="h-4 w-4" style="color:#16a34a;flex-shrink:0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
-                            </svg>
-                            <span style="font-size:.78rem;font-weight:600;color:#166534;">Chat & Q&A</span>
-                        </div>
-                        <div style="border-radius:8px;background:#f5f3ff;border:1px solid #ddd6fe;padding:.55rem .75rem;display:flex;align-items:center;gap:.5rem;">
-                            <svg class="h-4 w-4" style="color:#7c3aed;flex-shrink:0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
-                            </svg>
-                            <span style="font-size:.78rem;font-weight:600;color:#5b21b6;">غرفة انتظار</span>
-                        </div>
-                    </div>
-                </div>
-
-                {{-- ── Attachments ── --}}
-                <div style="margin-bottom:1rem;">
-                    <p style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#0071AA;margin-bottom:.75rem;">الملفات المرفقة</p>
-                    <input type="file" name="files[]" multiple
-                           style="width:100%;border:1.5px solid #e5e7eb;border-radius:10px;padding:.55rem .85rem;font-size:.875rem;color:#111827;box-sizing:border-box;"
-                           class="dark:bg-gray-800 dark:border-gray-700 dark:text-white"
-                           accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.zip,.png,.jpg,.jpeg">
-                    <p style="font-size:.72rem;color:#9ca3af;margin-top:.3rem;">PDF, Word, Excel, PowerPoint — حد أقصى 10MB لكل ملف</p>
-                </div>
-
-            </form>
-        </div>
-
-        {{-- Modal Footer --}}
-        <div style="padding:1rem 1.75rem;border-top:1px solid #f1f5f9;display:flex;gap:.75rem;justify-content:flex-end;flex-shrink:0;" class="dark:border-gray-800">
-            <button type="button" @click="createModal = false"
-                    style="border:1.5px solid #e5e7eb;border-radius:10px;padding:.6rem 1.25rem;font-size:.875rem;font-weight:600;color:#374151;cursor:pointer;background:#fff;transition:background .2s;"
-                    class="dark:border-gray-700 dark:text-gray-300 dark:bg-gray-800"
-                    onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='#fff'">
-                إلغاء
-            </button>
-            <button type="submit" form="cm_form"
-                    style="border-radius:10px;padding:.6rem 1.5rem;font-size:.875rem;font-weight:700;color:#fff;cursor:pointer;background:linear-gradient(135deg,#0071AA,#005a88);border:none;box-shadow:0 4px 12px rgba(0,113,170,.3);transition:opacity .2s;"
-                    onmouseover="this.style.opacity='.9'" onmouseout="this.style.opacity='1'">
-                حفظ الحصة
-            </button>
-        </div>
+            {{-- Footer --}}
+            <div style="padding:.9rem 1.5rem 1.25rem;display:flex;gap:.65rem;justify-content:flex-end;">
+                <button type="button" @click="createModal = false"
+                        style="border:1.5px solid #e5e7eb;border-radius:10px;padding:.55rem 1.1rem;font-size:.875rem;font-weight:600;color:#374151;cursor:pointer;background:#fff;"
+                        class="dark:border-gray-700 dark:text-gray-300 dark:bg-gray-800">
+                    إلغاء
+                </button>
+                <button type="submit"
+                        style="border-radius:10px;padding:.55rem 1.4rem;font-size:.875rem;font-weight:700;color:#fff;cursor:pointer;background:linear-gradient(135deg,#0071AA,#005a88);border:none;box-shadow:0 4px 12px rgba(0,113,170,.3);">
+                    إنشاء
+                </button>
+            </div>
+        </form>
     </div>
 </div>
-
-@push('scripts')
-<script>
-function cmToggleType() {
-    var isVideo = document.getElementById('cm_type_video').checked;
-    document.getElementById('cm_video_section').style.display = isVideo ? '' : 'none';
-    document.getElementById('cm_zoom_section').style.display  = isVideo ? 'none' : '';
-
-    var lv = document.getElementById('cm_label_video');
-    var lz = document.getElementById('cm_label_zoom');
-    lv.style.borderColor = isVideo ? '#0071AA' : '#e5e7eb';
-    lv.style.background  = isVideo ? '#eff8ff' : '';
-    lz.style.borderColor = isVideo ? '#e5e7eb' : '#2563eb';
-    lz.style.background  = isVideo ? '' : '#eff6ff';
-}
-function cmTogglePlatform() {
-    var p = document.getElementById('cm_platform').value;
-    document.getElementById('cm_url_field').style.display    = (p && p !== 'local') ? '' : 'none';
-    document.getElementById('cm_upload_field').style.display = (p === 'local') ? '' : 'none';
-}
-// Init on load
-document.addEventListener('DOMContentLoaded', function() { cmToggleType(); });
-</script>
-@endpush
 
 </div>{{-- end x-data --}}
 @endsection
