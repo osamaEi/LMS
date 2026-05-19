@@ -16,6 +16,7 @@ class Program extends Model
         'description_ar',
         'description_en',
         'duration_months',
+        'duration_hours',
         'price',
         'status',
         'image',

@@ -95,7 +95,7 @@
 
     {{-- Subject Header --}}
     <div class="subject-header mb-6">
-        <div class="relative z-10">
+        <div class="relative z-10 text-white">
             <a href="{{ route('student.dashboard') }}" class="inline-flex items-center gap-1 text-white/70 hover:text-white text-sm mb-4 transition">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
                 العودة للوحة التحكم
@@ -167,7 +167,7 @@
             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
             </svg>
-            الحصص
+            ال محاضرات  
             <span class="rounded-full px-1.5 py-0.5 text-xs font-bold tab-badge-off"
                   :class="tab==='sessions' ? 'tab-badge-on' : 'tab-badge-off'">{{ $sessions->count() }}</span>
         </button>
@@ -204,8 +204,8 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
                     </svg>
                 </div>
-                <p style="font-size:1rem;font-weight:700;color:#374151;margin:0">لا توجد حصص بعد</p>
-                <p style="font-size:0.85rem;color:#9ca3af;margin:6px 0 0">سيتم إضافة الحصص من قِبَل المعلم</p>
+                <p style="font-size:1rem;font-weight:700;color:#374151;margin:0">لا توجد محاضرات بعد</p>
+                <p style="font-size:0.85rem;color:#9ca3af;margin:6px 0 0">سيتم إضافة المحاضرات من قِبَل المعلم</p>
             </div>
         @else
             <div class="space-y-4">
@@ -435,7 +435,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/>
                         </svg>
                     </div>
-                    <span style="font-size:0.95rem;font-weight:700;color:#374151" class="dark:text-white">ملفات الحصص</span>
+                    <span style="font-size:0.95rem;font-weight:700;color:#374151" class="dark:text-white">ملفات ال محاضرات  </span>
                 </div>
                 <div id="filesList" class="space-y-5">
                     @foreach($filesBySession as $group)

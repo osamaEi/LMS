@@ -11,7 +11,7 @@
     border-bottom: 1px solid #e5e7eb;
     position: sticky; top: 0; z-index: 10;
 }
-.cat-tabs { display: flex; gap: .25rem; flex-wrap: wrap; }
+.cat-tabs { display: flex; gap: .25rem; flex-wrap: wrap; padding-right: 5.5rem; }
 .cat-tab {
     padding: .6rem 1.25rem; border-radius: 8px 8px 0 0;
     font-size: .875rem; font-weight: 600; cursor: pointer;
@@ -42,7 +42,9 @@
     gap: 1.25rem;
     max-width: 1300px;
     margin: 0 auto;
+    direction: ltr;
 }
+.dev-card { direction: rtl; }
 @media(max-width:991px) { .dev-grid { grid-template-columns: repeat(2,1fr); } }
 @media(max-width:576px)  { .dev-grid { grid-template-columns: 1fr; } }
 
@@ -130,8 +132,8 @@ $defaultColor = ['top'=>'linear-gradient(90deg,#64748b,#94a3b8)', 'badge'=>'#f1f
         {{-- All tab --}}
         <button class="cat-tab {{ $activeTab === $allKey ? 'active' : '' }}"
                 data-tab="{{ $allKey }}" onclick="switchTab('{{ $allKey }}')">
-            <span class="tab-count">{{ $programs->count() }}</span>
             الكل
+            <span class="tab-count">{{ $programs->count() }}</span>
         </button>
         {{-- Category tabs --}}
         @foreach($categories as $cat)
@@ -139,8 +141,8 @@ $defaultColor = ['top'=>'linear-gradient(90deg,#64748b,#94a3b8)', 'badge'=>'#f1f
                 data-tab="{{ $cat }}" onclick="switchTab('{{ $cat }}')">
             @php $col = $catColors[$cat] ?? $defaultColor; @endphp
             <i class="bi {{ $col['icon'] }}" style="font-size:.8rem;"></i>
-            <span class="tab-count">{{ $grouped[$cat]->count() }}</span>
             {{ $cat }}
+            <span class="tab-count">{{ $grouped[$cat]->count() }}</span>
         </button>
         @endforeach
     </div>
@@ -154,7 +156,7 @@ $defaultColor = ['top'=>'linear-gradient(90deg,#64748b,#94a3b8)', 'badge'=>'#f1f
         <div class="dev-grid">
             @foreach($programs as $program)
             @php $col = $catColors[$program->category ?? ''] ?? $defaultColor; @endphp
-            <div class="dev-card">
+            <a href="{{ route('courses.developmental.show', $program) }}" class="dev-card" style="text-decoration:none;color:inherit;">
                 <div class="dev-card-top" style="background:{{ $col['top'] }};"></div>
                 <div class="dev-card-body">
                     @if($program->category)
@@ -164,8 +166,8 @@ $defaultColor = ['top'=>'linear-gradient(90deg,#64748b,#94a3b8)', 'badge'=>'#f1f
                     @endif
                     <h3>{{ $program->name_ar }}</h3>
                     <div class="dev-meta">
-                        @if($program->duration_months)
-                        <span class="meta-chip"><i class="bi bi-clock"></i> {{ $program->duration_months }} شهر</span>
+                        @if($program->duration_hours)
+                        <span class="meta-chip"><i class="bi bi-clock"></i> {{ $program->duration_hours }} ساعة</span>
                         @endif
                         @if($program->price > 0)
                         <span class="meta-chip"><i class="bi bi-tag"></i> {{ number_format($program->price,0) }} <x-riyal /></span>
@@ -179,11 +181,11 @@ $defaultColor = ['top'=>'linear-gradient(90deg,#64748b,#94a3b8)', 'badge'=>'#f1f
                         <span class="dot"></span>
                         <span style="color:#16a34a;">متاح للتسجيل</span>
                     </div>
-                    <a href="{{ route('register') }}" class="full-btn" style="font-size:.8rem;padding:.45rem 1rem;border-radius:8px;">
-                        <i class="bi bi-pencil-square"></i> سجّل الآن
-                    </a>
+                    <span class="full-btn" style="font-size:.8rem;padding:.45rem 1rem;border-radius:8px;">
+                        <i class="bi bi-eye"></i> التفاصيل
+                    </span>
                 </div>
-            </div>
+            </a>
             @endforeach
         </div>
     </div>
@@ -200,7 +202,7 @@ $defaultColor = ['top'=>'linear-gradient(90deg,#64748b,#94a3b8)', 'badge'=>'#f1f
         <div class="dev-grid">
             @foreach($catPrograms as $program)
             @php $col = $catColors[$cat] ?? $defaultColor; @endphp
-            <div class="dev-card">
+            <a href="{{ route('courses.developmental.show', $program) }}" class="dev-card" style="text-decoration:none;color:inherit;">
                 <div class="dev-card-top" style="background:{{ $col['top'] }};"></div>
                 <div class="dev-card-body">
                     <span class="cat-badge" style="background:{{ $col['badge'] }};color:{{ $col['text'] }};">
@@ -208,8 +210,8 @@ $defaultColor = ['top'=>'linear-gradient(90deg,#64748b,#94a3b8)', 'badge'=>'#f1f
                     </span>
                     <h3>{{ $program->name_ar }}</h3>
                     <div class="dev-meta">
-                        @if($program->duration_months)
-                        <span class="meta-chip"><i class="bi bi-clock"></i> {{ $program->duration_months }} شهر</span>
+                        @if($program->duration_hours)
+                        <span class="meta-chip"><i class="bi bi-clock"></i> {{ $program->duration_hours }} ساعة</span>
                         @endif
                         @if($program->price > 0)
                         <span class="meta-chip"><i class="bi bi-tag"></i> {{ number_format($program->price,0) }} <x-riyal /></span>
@@ -223,11 +225,11 @@ $defaultColor = ['top'=>'linear-gradient(90deg,#64748b,#94a3b8)', 'badge'=>'#f1f
                         <span class="dot"></span>
                         <span style="color:#16a34a;">متاح للتسجيل</span>
                     </div>
-                    <a href="{{ route('register') }}" class="full-btn" style="font-size:.8rem;padding:.45rem 1rem;border-radius:8px;">
-                        <i class="bi bi-pencil-square"></i> سجّل الآن
-                    </a>
+                    <span class="full-btn" style="font-size:.8rem;padding:.45rem 1rem;border-radius:8px;">
+                        <i class="bi bi-eye"></i> التفاصيل
+                    </span>
                 </div>
-            </div>
+            </a>
             @endforeach
         </div>
         @endif

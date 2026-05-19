@@ -228,7 +228,9 @@
                             <span class="course-price">{{ number_format($program->price, 0) }} <x-riyal /></span>
                         @endif
                     </div>
-                    <a href="{{ route('register') }}" class="full-btn mt-3 w-100 d-block text-center">سجّل الآن</a>
+                    <a href="{{ route('training-paths.show', $program) }}" class="full-btn mt-3 w-100 d-block text-center">
+                        <i class="bi bi-eye"></i> التفاصيل
+                    </a>
                 </div>
             </div>
             @endforeach

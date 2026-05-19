@@ -211,7 +211,7 @@
                     </div>
                     <div class="hero-stat">
                         <div class="hero-stat-val">{{ $allFiles->count() }}</div>
-                        <div class="hero-stat-lbl">ملف حصص</div>
+                        <div class="hero-stat-lbl">ملف  محاضرات  </div>
                     </div>
                 </div>
             </div>
@@ -256,7 +256,7 @@
         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
         </svg>
-        الحصص
+        ال محاضرات  
         <span class="tab-count" :class="tab==='sessions' ? 'tab-count-on' : 'tab-count-off'">{{ $sessions->count() }}</span>
     </button>
     <button @click="tab='subject-files'" :class="tab==='subject-files' ? 'active' : ''" class="tab-btn">
@@ -270,7 +270,7 @@
         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/>
         </svg>
-        ملفات الحصص
+        ملفات ال محاضرات  
         <span class="tab-count" :class="tab==='session-files' ? 'tab-count-on' : 'tab-count-off'">{{ $allFiles->count() }}</span>
     </button>
 </div>
@@ -286,7 +286,7 @@
                     </svg>
                 </div>
                 <div>
-                    <h2 class="text-sm font-bold text-gray-900 dark:text-white">الحصص والمحاضرات</h2>
+                    <h2 class="text-sm font-bold text-gray-900 dark:text-white">المحاضرات والمحاضرات</h2>
                     <p class="text-xs text-gray-500">{{ $sessions->count() }} حصة مضافة</p>
                 </div>
             </div>
@@ -307,7 +307,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
                     </svg>
                 </div>
-                <p class="font-semibold text-gray-600 dark:text-gray-400">لا توجد حصص بعد</p>
+                <p class="font-semibold text-gray-600 dark:text-gray-400">لا توجد محاضرات بعد</p>
                 <button @click="createModal = true"
                         class="action-btn mt-3"
                         style="background:linear-gradient(135deg,#0071AA,#005a88);color:#fff">
@@ -503,8 +503,8 @@
                     </svg>
                 </div>
                 <div>
-                    <h2 class="text-sm font-bold text-gray-900 dark:text-white">ملفات الحصص</h2>
-                    <p class="text-xs text-gray-500">{{ $allFiles->count() }} ملف موزع على الحصص</p>
+                    <h2 class="text-sm font-bold text-gray-900 dark:text-white">ملفات ال محاضرات  </h2>
+                    <p class="text-xs text-gray-500">{{ $allFiles->count() }} ملف موزع على ال محاضرات  </p>
                 </div>
             </div>
         </div>
@@ -516,8 +516,8 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/>
                     </svg>
                 </div>
-                <p class="font-semibold text-gray-600 dark:text-gray-400">لا توجد ملفات مرفقة بالحصص</p>
-                <p class="text-sm text-gray-400 mt-1">أرفق ملفات عند إنشاء أو تعديل الحصص</p>
+                <p class="font-semibold text-gray-600 dark:text-gray-400">لا توجد ملفات مرفقة بال محاضرات  </p>
+                <p class="text-sm text-gray-400 mt-1">أرفق ملفات عند إنشاء أو تعديل ال محاضرات  </p>
             </div>
         @else
             @foreach($allFiles as $item)

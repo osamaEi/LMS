@@ -301,7 +301,7 @@
                      alt="{{ auth()->user()->name }}"
                      class="hdr-avatar" />
                 <div>
-                    <p class="text-xs font-semibold mb-1" style="opacity:.55;">مرحباً بك في معهد الارتقاء 👋</p>
+                    <p class="text-xs font-semibold mb-1" style="opacity:.55;">مرحباً {{ auth()->user()->gender === 'female' ? 'متدربة' : 'متدرب' }} في معهد الارتقاء 👋</p>
                     <h1 class="text-3xl font-black tracking-tight leading-none mb-2">{{ auth()->user()->name }}</h1>
                     <div class="flex items-center gap-2 flex-wrap">
                         @if(auth()->user()->student_code)
@@ -325,20 +325,7 @@
             </div>
 
             {{-- Right: nav buttons --}}
-            <div class="hdr-nav">
-                <a href="{{ route('student.my-sessions') }}" class="hdr-btn">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-                    جلساتي
-                </a>
-                <a href="{{ route('student.attendance') }}" class="hdr-btn">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
-                    سجل الحضور
-                </a>
-                <a href="{{ route('student.my-program') }}" class="hdr-btn">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
-                    برنامجي
-                </a>
-            </div>
+           
         </div>
 
         {{-- Bottom chips strip --}}
@@ -393,44 +380,7 @@
     @endif
 
     <!-- Stats -->
-    <div class="stats-row">
-        <div class="stat-box">
-            <div class="s-icon" style="background: linear-gradient(135deg, #0071AA, #005588);">
-                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
-            </div>
-            <div>
-                <div class="s-val">{{ $stats['subjects_count'] }}</div>
-                <div class="s-lbl">المقررات  المسجلة</div>
-            </div>
-        </div>
-        <div class="stat-box">
-            <div class="s-icon" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
-                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-            </div>
-            <div>
-                <div class="s-val">{{ $stats['total_sessions'] }}</div>
-                <div class="s-lbl">إجمالي الجلسات</div>
-            </div>
-        </div>
-        <div class="stat-box">
-            <div class="s-icon" style="background: linear-gradient(135deg, #10b981, #059669);">
-                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-            </div>
-            <div>
-                <div class="s-val">{{ $stats['completed_sessions'] }}</div>
-                <div class="s-lbl">جلسات مكتملة</div>
-            </div>
-        </div>
-        <div class="stat-box">
-            <div class="s-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
-                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
-            </div>
-            <div>
-                <div class="s-val">{{ $overallAttendance }}<span style="font-size: 1rem;">%</span></div>
-                <div class="s-lbl">نسبة الحضور</div>
-            </div>
-        </div>
-    </div>
+   
 
     <!-- Student Profile Info -->
     <div class="d-card">

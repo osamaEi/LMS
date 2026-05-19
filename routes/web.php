@@ -44,12 +44,23 @@ Route::get('/', function () {
 
 // Front pages routes
 Route::get('/training-paths', function () {
-        $excluded = ['course', 'english', 'training'];
+    $excluded = ['course', 'english', 'training'];
     $programs = \App\Models\Program::where('status', 'active')
         ->where(fn($q) => $q->whereNull('type')->orWhereNotIn('type', $excluded))
         ->get();
     return view('front.training-paths', compact('programs'));
-})->name('training-paths'); 
+})->name('training-paths');
+
+Route::get('/training-paths/{program}', function (\App\Models\Program $program) {
+    abort_if($program->status !== 'active', 404);
+    $program->load(['terms' => fn($q) => $q->with('subjects')->orderBy('term_number')]);
+    return view('front.program-show', [
+        'program'   => $program,
+        'backLabel' => 'المسارات التدريبية',
+        'backUrl'   => route('training-paths'),
+        'backRoute' => true,
+    ]);
+})->name('training-paths.show');
 
 Route::get('/training-programs', function () {
     $programs = \App\Models\Program::where('status', 'active')
@@ -85,6 +96,17 @@ Route::get('/courses/developmental', function () {
     ]);
 })->name('courses.developmental');
 
+Route::get('/courses/developmental/{program}', function (\App\Models\Program $program) {
+    abort_if($program->status !== 'active', 404);
+    $program->load(['terms' => fn($q) => $q->with('subjects')->orderBy('term_number')]);
+    return view('front.program-show', [
+        'program'   => $program,
+        'backLabel' => 'الدورات التطويرية',
+        'backUrl'   => route('courses.developmental'),
+        'backRoute' => true,
+    ]);
+})->name('courses.developmental.show');
+
 Route::get('/courses/qualifying', function () {
     $programs = \App\Models\Program::where('status', 'active')
         ->where('type', 'course')
@@ -104,6 +126,17 @@ Route::get('/english-courses', function () {
         ->get();
     return view('front.english-courses', compact('programs'));
 })->name('english-courses');
+
+Route::get('/english-courses/{program}', function (\App\Models\Program $program) {
+    abort_if($program->status !== 'active', 404);
+    $program->load(['terms' => fn($q) => $q->with('subjects')->orderBy('term_number')]);
+    return view('front.program-show', [
+        'program'   => $program,
+        'backLabel' => 'برامج اللغة الإنجليزية',
+        'backUrl'   => route('english-courses'),
+        'backRoute' => true,
+    ]);
+})->name('english-courses.show');
 
 Route::get('/offers', function () {
     $offers = \App\Models\Offer::with('program')

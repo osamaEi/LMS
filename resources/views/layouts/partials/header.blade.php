@@ -110,7 +110,7 @@
                                         $roleBadge = match(auth()->user()->role) {
                                             'super_admin', 'admin' => ['label' => 'مسؤول النظام', 'bg' => 'rgba(239,68,68,0.25)', 'color' => '#fca5a5'],
                                             'teacher'             => ['label' => 'أستاذ',          'bg' => 'rgba(250,204,21,0.25)', 'color' => '#fde68a'],
-                                            default               => ['label' => 'طالب',           'bg' => 'rgba(52,211,153,0.25)', 'color' => '#6ee7b7'],
+                                            default               => ['label' => auth()->user()->gender === 'female' ? 'متدربة' : 'متدرب', 'bg' => 'rgba(52,211,153,0.25)', 'color' => '#6ee7b7'],
                                         };
                                     @endphp
                                     <span style="display:inline-flex;align-items:center;padding:2px 10px;border-radius:999px;font-size:0.7rem;font-weight:700;background:{{ $roleBadge['bg'] }};color:{{ $roleBadge['color'] }}">

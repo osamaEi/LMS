@@ -622,6 +622,23 @@ class DashboardController extends Controller
             ? $terms->search(fn($t) => $t->id === $currentTerm->id) + 1
             : 1;
 
+        // Subjects of the current term only (via pivot + direct FK)
+        $currentTermSubjects = collect();
+        if ($currentTerm) {
+            $currentTermSubjects = $currentTerm->subjects->load(['teacher', 'sessions']);
+            // Also pick up any subjects with a direct term_id FK not in the pivot
+            $extraIds = $subjects
+                ->where('term_id', $currentTerm->id)
+                ->pluck('id')
+                ->diff($currentTermSubjects->pluck('id'));
+            if ($extraIds->isNotEmpty()) {
+                $extra = $subjects->whereIn('id', $extraIds->toArray())->values();
+                $currentTermSubjects = $currentTermSubjects->merge($extra);
+            }
+        } else {
+            $currentTermSubjects = $subjects;
+        }
+
         $stats = [
             'total_subjects' => $subjects->count(),
             'total_sessions' => $totalSessions,
@@ -637,6 +654,7 @@ class DashboardController extends Controller
             'track',
             'terms',
             'subjects',
+            'currentTermSubjects',
             'stats',
             'enrollments',
             'subjectsProgress',

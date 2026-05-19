@@ -13,6 +13,7 @@
 .level-track-inner {
     display: flex; align-items: center; gap: 0;
     min-width: max-content;
+    margin: 0 auto;
 }
 .track-step {
     display: flex; flex-direction: column; align-items: center; gap: .4rem;
@@ -40,7 +41,7 @@
     background: #f8fafc;
     border-bottom: 1px solid #e5e7eb;
 }
-.eng-tabs { display: flex; gap: .25rem; flex-wrap: wrap; }
+.eng-tabs { display: flex; gap: .25rem; flex-wrap: wrap; padding-right: 1.5rem; }
 .eng-tab {
     padding: .6rem 1.25rem; border-radius: 8px 8px 0 0;
     font-size: .875rem; font-weight: 600; cursor: pointer;
@@ -54,7 +55,7 @@
     display: inline-flex; align-items: center; justify-content: center;
     width: 20px; height: 20px; border-radius: 50%;
     font-size: .7rem; font-weight: 700; margin-right: .4rem;
-    background: #e0f2fe; color: #0071aa;
+    background: #e0f2fe; color: #0071aa; vertical-align: middle;
 }
 .eng-tab.active .tab-count { background: #0071aa; color: #fff; }
 
@@ -63,7 +64,13 @@
     background: #f8fafc;
     min-height: 350px;
 }
-.eng-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
+.eng-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+    direction: ltr;
+}
+.eng-card { direction: rtl; }
 @media(max-width:991px) { .eng-grid { grid-template-columns: repeat(2, 1fr); } }
 
 .eng-card {
@@ -199,8 +206,8 @@ $byLevel = $programs->keyBy('level');
         @php $cnt = collect($group['levels'])->filter(fn($lv) => $byLevel->has($lv))->count(); @endphp
         <button class="eng-tab {{ $activeTab === $key ? 'active' : '' }}"
                 data-tab="{{ $key }}" onclick="switchTab('{{ $key }}')">
-            <span class="tab-count">{{ $cnt }}</span>
             {{ $group['label'] }}
+            <span class="tab-count">{{ $cnt }}</span>
         </button>
         @endforeach
     </div>
@@ -220,7 +227,7 @@ $byLevel = $programs->keyBy('level');
         <div class="eng-grid">
             @foreach($levelList as $lv)
             @php $prog = $byLevel[$lv]; $c = $levelColors[$lv]; @endphp
-            <div class="eng-card" data-level="{{ $lv }}">
+            <a href="{{ route('english-courses.show', $prog) }}" class="eng-card" data-level="{{ $lv }}" style="text-decoration:none;color:inherit;">
                 <div class="eng-card-top" style="background:linear-gradient(90deg,{{ $c['from'] }},{{ $c['to'] }});"></div>
                 <div class="eng-card-body">
                     <div class="level-badge"
@@ -251,11 +258,11 @@ $byLevel = $programs->keyBy('level');
                         <span class="dot"></span>
                         <span style="color:#16a34a;">متاح للتسجيل</span>
                     </div>
-                    <a href="{{ route('register') }}" class="full-btn" style="font-size:.8rem;padding:.45rem 1rem;border-radius:8px;">
-                        <i class="bi bi-pencil-square"></i> سجّل الآن
-                    </a>
+                    <span class="full-btn" style="font-size:.8rem;padding:.45rem 1rem;border-radius:8px;">
+                        <i class="bi bi-eye"></i> التفاصيل
+                    </span>
                 </div>
-            </div>
+            </a>
             @endforeach
         </div>
         @endif

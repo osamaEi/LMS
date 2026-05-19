@@ -68,6 +68,12 @@
                            placeholder="مثال: 12">
                 </div>
                 <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">المدة بالساعات</label>
+                    <input type="number" name="duration_hours" value="{{ old('duration_hours') }}" min="1"
+                           class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                           placeholder="مثال: 20">
+                </div>
+                <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">السعر (ريال)</label>
                     <input type="number" name="price" value="{{ old('price') }}" min="0" step="0.01"
                            class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"

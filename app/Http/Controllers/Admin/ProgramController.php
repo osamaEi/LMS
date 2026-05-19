@@ -49,6 +49,7 @@ class ProgramController extends Controller
             'description_ar'     => 'nullable|string',
             'description_en'     => 'nullable|string',
             'duration_months'    => 'nullable|integer|min:1',
+            'duration_hours'     => 'nullable|integer|min:1',
             'price'              => 'nullable|numeric|min:0',
             'status'             => 'nullable|in:active,inactive',
             'type'               => 'nullable|in:diploma,training,developmental,qualifying,course',
@@ -67,7 +68,7 @@ class ProgramController extends Controller
 
         $data = $request->only([
             'name_ar', 'name_en', 'code', 'description_ar', 'description_en',
-            'duration_months', 'price', 'status', 'type', 'supervisor_name',
+            'duration_months', 'duration_hours', 'price', 'status', 'type', 'supervisor_name',
         ]);
 
         if ($request->hasFile('image')) {
@@ -129,6 +130,7 @@ class ProgramController extends Controller
             'description_ar'  => 'nullable|string',
             'description_en'  => 'nullable|string',
             'duration_months' => 'nullable|integer|min:1',
+            'duration_hours'  => 'nullable|integer|min:1',
             'price'           => 'nullable|numeric|min:0',
             'status'          => 'nullable|in:active,inactive',
             'type'            => 'nullable|in:diploma,training,developmental,qualifying,course',

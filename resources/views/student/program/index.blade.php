@@ -707,11 +707,6 @@
         </div>
 
         {{-- ===== Subjects of Current Term ===== --}}
-        @php
-            $currentTermSubjects = isset($currentTerm) && $currentTerm
-                ? $subjects->where('term_id', $currentTerm->id)->values()
-                : $subjects;
-        @endphp
         <div class="sec-card">
             <div class="sec-header">
                 <div class="sec-title">
