@@ -181,7 +181,7 @@
             <!-- تاريخ ووقت ال محاضرة -->
             <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    تاريخ ووقت الحصة
+                    تاريخ ووقت ال محاضرة 
                 </label>
                 <input type="datetime-local"
                        name="scheduled_at"
@@ -197,7 +197,7 @@
                 <textarea name="description_ar"
                           rows="3"
                           class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-                          placeholder="وصف تفصيلي عن محتوى الحصة...">{{ old('description_ar') }}</textarea>
+                          placeholder="وصف تفصيلي عن محتوى ال محاضرة ...">{{ old('description_ar') }}</textarea>
             </div>
 
             <!-- الوصف بالإنجليزي -->
@@ -359,7 +359,7 @@
         </a>
         <button type="submit"
                 class="rounded-lg bg-brand-500 px-6 py-2.5 text-sm font-medium text-white hover:bg-brand-600 transition-colors">
-            حفظ الحصة
+            حفظ ال محاضرة 
         </button>
     </div>
 </form>

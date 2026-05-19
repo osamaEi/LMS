@@ -203,7 +203,7 @@
                     </div>
                     <div class="hero-stat">
                         <div class="hero-stat-val">{{ $sessions->count() }}</div>
-                        <div class="hero-stat-lbl">حصة</div>
+                        <div class="hero-stat-lbl"> محاضرة </div>
                     </div>
                     <div class="hero-stat">
                         <div class="hero-stat-val">{{ $subject->files->count() }}</div>
@@ -228,7 +228,7 @@
                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                     </svg>
-                    إنشاء حصة
+                    إنشاء  محاضرة 
                 </button>
             </div>
         </div>
@@ -285,7 +285,7 @@
                 <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                 </svg>
-                إضافة حصة
+                إضافة  محاضرة 
             </button>
         </div>
 
@@ -303,7 +303,7 @@
                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                     </svg>
-                    إنشاء أول حصة
+                    إنشاء أول  محاضرة 
                 </button>
             </div>
         @else
@@ -381,7 +381,7 @@
                         </a>
                         <form action="{{ route('teacher.my-subjects.sessions.destroy', [$subject->id, $session->id]) }}"
                               method="POST" class="inline"
-                              onsubmit="return confirm('هل أنت متأكد من حذف هذه الحصة؟')">
+                              onsubmit="return confirm('هل أنت متأكد من حذف هذه ال محاضرة ؟')">
                             @csrf @method('DELETE')
                             <button type="submit" class="action-btn" style="background:#fee2e2;color:#dc2626">
                                 <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -571,7 +571,7 @@
             @csrf
             <div style="padding:1.5rem;">
                 <label style="display:block;font-size:.85rem;font-weight:600;color:#374151;margin-bottom:.5rem;" class="dark:text-gray-300">
-                    موعد الحصة
+                    موعد ال محاضرة 
                 </label>
                 <input type="datetime-local" name="scheduled_at" required
                        style="width:100%;border:1.5px solid #e5e7eb;border-radius:10px;padding:.65rem .9rem;font-size:.9rem;color:#111827;outline:none;box-sizing:border-box;transition:border .2s;"

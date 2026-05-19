@@ -1,6 +1,6 @@
 @extends('layouts.dashboard')
 
-@section('title', 'حضور الحصة')
+@section('title', 'حضور ال محاضرة ')
 
 @section('content')
 @php

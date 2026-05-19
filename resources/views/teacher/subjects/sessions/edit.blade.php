@@ -1,6 +1,6 @@
 @extends('layouts.dashboard')
 
-@section('title', 'تعديل الحصة')
+@section('title', 'تعديل ال محاضرة ')
 
 @push('styles')
 <style>
@@ -37,7 +37,7 @@
             <li>/</li>
             <li><a href="{{ route('teacher.my-subjects.show', $subject->id) }}" class="hover:text-brand-500">{{ $subject->name }}</a></li>
             <li>/</li>
-            <li class="text-gray-900 dark:text-white">تعديل الحصة</li>
+            <li class="text-gray-900 dark:text-white">تعديل ال محاضرة </li>
         </ol>
     </nav>
 
@@ -49,7 +49,7 @@
             </svg>
         </a>
         <div>
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">تعديل الحصة</h1>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">تعديل ال محاضرة </h1>
             <p class="text-sm text-gray-500 dark:text-gray-400">{{ $session->title }}</p>
         </div>
     </div>
@@ -177,7 +177,7 @@
             <!-- تاريخ ووقت ال محاضرة -->
             <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    تاريخ ووقت الحصة
+                    تاريخ ووقت ال محاضرة 
                 </label>
                 <input type="datetime-local"
                        name="scheduled_at"
