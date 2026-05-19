@@ -75,7 +75,7 @@ class TicketController extends Controller
         }
 
         $ticket->load(['replies' => function($q) {
-            $q->where('is_internal_note_note', false)->with('user');
+            $q->where('is_internal_note', false)->with('user');
         }]);
 
         return view('student.tickets.show', compact('ticket'));
@@ -95,7 +95,7 @@ class TicketController extends Controller
             'ticket_id' => $ticket->id,
             'user_id' => auth()->id(),
             'message' => $validated['message'],
-            'is_internal_note_note' => false,
+            'is_internal_note' => false,
         ]);
 
         // Reopen ticket if it was resolved/closed

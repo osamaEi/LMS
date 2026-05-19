@@ -133,7 +133,7 @@ class TicketController extends Controller
             ->findOrFail($id);
 
         $ticket->load(['replies' => function ($q) {
-            $q->where('is_internal_note_note', false)
+            $q->where('is_internal_note', false)
               ->with('user:id,name,role,profile_photo')
               ->orderBy('created_at', 'asc');
         }]);
@@ -174,7 +174,7 @@ class TicketController extends Controller
             'user_id'               => auth()->id(),
             'message'               => $validated['message'],
             'attachment'            => $attachmentPath,
-            'is_internal_note_note' => false,
+            'is_internal_note' => false,
         ]);
 
         // Reopen ticket if resolved/closed
