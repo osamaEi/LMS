@@ -14,6 +14,8 @@
     display: flex; align-items: center; gap: 0;
     min-width: max-content;
     margin: 0 auto;
+    padding-right: 341px;
+  padding-bottom: 56px;
 }
 .track-step {
     display: flex; flex-direction: column; align-items: center; gap: .4rem;
@@ -82,16 +84,33 @@
 }
 .eng-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,113,170,.12); }
 
-.eng-card-top { height: 7px; }
-.eng-card-body { padding: 1.25rem 1.25rem .75rem; flex: 1; }
-
-.level-badge {
-    display: inline-flex; flex-direction: column; align-items: center; justify-content: center;
-    width: 52px; height: 52px; border-radius: 14px;
-    color: #fff; font-weight: 800; margin-bottom: .85rem;
+.eng-card-top { height: 5px; }
+.eng-card-img-wrap {
+    position: relative; overflow: hidden;
+    height: 200px;
 }
-.level-badge .lvl-num  { font-size: 1.2rem; line-height: 1; }
-.level-badge .lvl-word { font-size: .52rem; opacity: .85; line-height: 1; }
+.eng-card-img-wrap img {
+    width: 100%; height: 100%;
+    object-fit: cover; object-position: center;
+    display: block;
+    transition: transform .35s ease;
+}
+.eng-card:hover .eng-card-img-wrap img { transform: scale(1.06); }
+.eng-card-img-wrap .img-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to bottom, transparent 40%, rgba(0,0,0,.52) 100%);
+}
+.eng-card-img-wrap .level-badge {
+    position: absolute;
+    bottom: .75rem; right: .75rem;
+    display: inline-flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    width: 52px; height: 52px; border-radius: 14px;
+    color: #fff; font-weight: 800;
+    box-shadow: 0 4px 14px rgba(0,0,0,.35);
+    margin: 0;
+}
+.eng-card-body { padding: 1rem 1.25rem .75rem; flex: 1; }
 
 .eng-card-body h3 { font-size: .975rem; font-weight: 700; color: #1a2540; margin-bottom: .25rem; }
 .eng-card-body .en-name { font-size: .78rem; color: #9ca3af; margin-bottom: 1rem; direction: ltr; text-align: left; }
@@ -167,6 +186,7 @@ $levelColors = [
 $activeTab = request('tab', 'all');
 if (!array_key_exists($activeTab, $groups)) $activeTab = 'all';
 $byLevel = $programs->keyBy('level');
+$defEngImg = asset('lms3/' . rawurlencode('لغة انجليزية.png'));
 @endphp
 
 {{-- Hero --}}
@@ -229,9 +249,12 @@ $byLevel = $programs->keyBy('level');
             @php $prog = $byLevel[$lv]; $c = $levelColors[$lv]; @endphp
             <a href="{{ route('english-courses.show', $prog) }}" class="eng-card" data-level="{{ $lv }}" style="text-decoration:none;color:inherit;">
                 <div class="eng-card-top" style="background:linear-gradient(90deg,{{ $c['from'] }},{{ $c['to'] }});"></div>
-                <div class="eng-card-body">
+                <div class="eng-card-img-wrap">
+                    <img src="{{ $prog->image ? asset('storage/' . $prog->image) : $defEngImg }}"
+                         alt="{{ $prog->name_ar }}">
+                    <div class="img-overlay"></div>
                     <div class="level-badge"
-                         style="background:linear-gradient(135deg,{{ $c['from'] }},{{ $c['to'] }});box-shadow:0 4px 12px {{ $c['shadow'] }};">
+                         style="background:linear-gradient(135deg,{{ $c['from'] }},{{ $c['to'] }});">
                         @if($lv <= 2)
                             <span class="lvl-word" style="font-size:.6rem;">{{ ['PH','FN','BG'][$lv] }}</span>
                         @else
@@ -239,13 +262,14 @@ $byLevel = $programs->keyBy('level');
                             <span class="lvl-word">Level</span>
                         @endif
                     </div>
+                </div>
+                <div class="eng-card-body">
                     <h3>{{ $prog->name_ar }}</h3>
                     @if($prog->name_en)
                     <p class="en-name">{{ $prog->name_en }}</p>
                     @endif
                     <div class="eng-card-meta">
-                        <span class="meta-chip"><i class="bi bi-clock"></i> {{ $prog->duration_months ?? 1 }} شهر</span>
-                        <span class="meta-chip"><i class="bi bi-journal-bookmark"></i> 40 ساعة</span>
+                        <span class="meta-chip"><i class="bi bi-clock"></i> {{ $prog->duration_hours ?? 40 }} ساعة</span>
                         @if($prog->price > 0)
                         <span class="meta-chip"><i class="bi bi-tag"></i> {{ number_format($prog->price,0) }} <x-riyal /></span>
                         @else

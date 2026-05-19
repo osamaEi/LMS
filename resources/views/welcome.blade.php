@@ -232,12 +232,17 @@
 @endsection
 
 @section('content')
+@php
+    $lms3s = fn(string $n) => asset('lms3/' . rawurlencode('حين يلتقي التدريب مع الإبداع 3') . '/' . $n);
+    $lms3f = fn(string $n) => asset('lms3/' . rawurlencode($n));
+@endphp
 
 <!-- ════ Hero ════ -->
 <section class="hero-section">
     <div class="hero-slides">
-        <div class="hero-slide active" style="background-image:url('{{ asset('lms2-photo/2.png') }}')"></div>
-        <div class="hero-slide"        style="background-image:url('{{ asset('lms2-photo/14.png') }}')"></div>
+        <div class="hero-slide active" style="background-image:url('{{ $lms3s('1.png') }}')"></div>
+        <div class="hero-slide"        style="background-image:url('{{ $lms3s('3.png') }}')"></div>
+        <div class="hero-slide"        style="background-image:url('{{ $lms3s('7.png') }}')"></div>
     </div>
     <div class="hero-vline"></div>
     <div class="hero-content">
@@ -321,10 +326,10 @@
             <p>{{ __('We provide training paths spanning two and a half years through 10 training quarters, plus short and specialized courses for various professional goals.') }}</p>
         </div>
         <div class="courses-grid">
-            @php $programImages = ['lms2-photo/2.png','lms2-photo/8.png','lms2-photo/5.png']; @endphp
+            @php $programImages = [$lms3f('دبلوم  برمجيات.png'), $lms3f('دبلوم  الموارد.png'), $lms3f('لغة انجليزية.png')]; @endphp
             @forelse($featuredPrograms ?? [] as $i => $program)
             <div class="course-card">
-                <img src="{{ $program->image ? asset('storage/' . $program->image) : asset($programImages[$i % count($programImages)]) }}" alt="{{ $program->name }}" />
+                <img src="{{ $program->image ? asset('storage/' . $program->image) : $programImages[$i % count($programImages)] }}" alt="{{ $program->name }}" />
                 <div class="course-card-body d-flex flex-column">
                     <h4>{{ $program->name }}</h4>
                     <p>{{ Str::limit($program->description ?? __('A comprehensive training program designed to develop professional skills.'), 100) }}</p>
@@ -345,12 +350,12 @@
             </div>
             @empty
             @foreach([
-                ['lms2-photo/2.png', __('Computer Science Diploma'),  __('Foundations of computing, programming, networks, and databases.'),           12, 5000, 'CS-101'],
-                ['lms2-photo/8.png', __('Business Administration'),    __('Modern management fundamentals: leadership, planning, and decision-making.'), 12, null,  'BA-201'],
-                ['lms2-photo/5.png', __('Digital Marketing Diploma'),  __('SEO, social media, paid ads, and analytics strategies.'),                     10, 4500, 'DM-301'],
+                [$lms3f('دبلوم  برمجيات.png'), __('Computer Science Diploma'),  __('Foundations of computing, programming, networks, and databases.'),           12, 5000, 'CS-101'],
+                [$lms3f('دبلوم  الموارد.png'), __('Business Administration'),    __('Modern management fundamentals: leadership, planning, and decision-making.'), 12, null,  'BA-201'],
+                [$lms3f('لغة انجليزية.png'),   __('Digital Marketing Diploma'),  __('SEO, social media, paid ads, and analytics strategies.'),                     10, 4500, 'DM-301'],
             ] as [$img,$name,$desc,$months,$price,$code])
             <div class="course-card">
-                <img src="{{ asset($img) }}" alt="{{ $name }}" />
+                <img src="{{ $img }}" alt="{{ $name }}" />
                 <div class="course-card-body d-flex flex-column">
                     <h4>{{ $name }}</h4>
                     <p>{{ $desc }}</p>
@@ -379,11 +384,11 @@
             <p>{{ __('A glimpse into our training environment, graduation ceremonies, and daily student life at Al-Ertiqaa.') }}</p>
         </div>
         <div class="gallery-grid">
-            <div class="gallery-item gallery-item-1"><img loading="lazy" src="{{ asset('lms2-photo/2.png') }}" alt="Institute Building" /><div class="overlay"></div></div>
-            <div class="gallery-item gallery-item-2"><img loading="lazy" src="{{ asset('lms2-photo/14.png') }}" alt="Computer Lab" /><div class="overlay"></div></div>
-            <div class="gallery-item gallery-item-3"><img loading="lazy" src="{{ asset('lms2-photo/1.png') }}" alt="Student" /><div class="overlay"></div></div>
-            <div class="gallery-item gallery-item-4"><img loading="lazy" src="{{ asset('lms2-photo/5.png') }}" alt="Graduation" /><div class="overlay"></div></div>
-            <div class="gallery-item gallery-item-5"><img loading="lazy" src="{{ asset('lms2-photo/9.png') }}" alt="Award" /><div class="overlay"></div></div>
+            <div class="gallery-item gallery-item-1"><img loading="lazy" src="{{ $lms3s('2.png') }}" alt="معهد الارتقاء" /><div class="overlay"></div></div>
+            <div class="gallery-item gallery-item-2"><img loading="lazy" src="{{ $lms3s('4.png') }}" alt="قاعة التدريب" /><div class="overlay"></div></div>
+            <div class="gallery-item gallery-item-3"><img loading="lazy" src="{{ $lms3s('5.png') }}" alt="المتدربون" /><div class="overlay"></div></div>
+            <div class="gallery-item gallery-item-4"><img loading="lazy" src="{{ $lms3s('9.png') }}" alt="التخرج" /><div class="overlay"></div></div>
+            <div class="gallery-item gallery-item-5"><img loading="lazy" src="{{ $lms3s('11.png') }}" alt="التميز" /><div class="overlay"></div></div>
         </div>
     </div>
 </section>
@@ -397,7 +402,7 @@
         </div>
         <div class="row align-items-center g-5">
             <div class="col-lg-6 {{ app()->getLocale()=='ar' ? 'order-2' : 'order-1' }}">
-                <div class="how-image" style="height:420px"><img loading="lazy" src="{{ asset('lms2-photo/1.png') }}" alt="How It Works" /></div>
+                <div class="how-image" style="height:420px"><img loading="lazy" src="{{ $lms3s('13.png') }}" alt="How It Works" /></div>
             </div>
             <div class="col-lg-6 {{ app()->getLocale()=='ar' ? 'order-1' : 'order-2' }}">
                 <div class="how-steps">
@@ -461,7 +466,7 @@
                 </div>
             </div>
             <div class="col-lg-6 text-center">
-                <img loading="lazy" src="{{ asset('lms2-photo/14.png') }}" alt="App" style="max-width:100%;border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,.3);max-height:360px;object-fit:cover" />
+                <img loading="lazy" src="{{ $lms3s('2.png') }}" alt="App" style="max-width:100%;border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,.3);max-height:360px;object-fit:cover" />
             </div>
         </div>
     </div>

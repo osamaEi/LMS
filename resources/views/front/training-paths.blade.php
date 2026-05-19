@@ -185,6 +185,10 @@
 @endsection
 
 @section('content')
+@php
+    $lms3f = fn(string $n) => asset('lms3/' . rawurlencode($n));
+    $tpDefImgs = [$lms3f('دبلوم  برمجيات.png'), $lms3f('دبلوم  الموارد.png'), $lms3f('دورة الادخال.png')];
+@endphp
     <!-- Hero Section -->
     <section class="hero-section">
         <div class="breadcrumb-nav">
@@ -216,7 +220,7 @@
         <div class="courses-container">
             @foreach($programs as $program)
             <div class="course-card">
-                <img src="{{ $program->image ? asset('storage/' . $program->image) : asset('images/course.jpg') }}" alt="{{ $program->name_ar }}" />
+                <img src="{{ $program->image ? asset('storage/' . $program->image) : $tpDefImgs[$loop->index % 3] }}" alt="{{ $program->name_ar }}" />
                 <div class="card-body">
                     <h5 class="card-title">{{ $program->name_ar }}</h5>
                     <p class="card-text">{{ Str::limit($program->description_ar, 100) }}</p>

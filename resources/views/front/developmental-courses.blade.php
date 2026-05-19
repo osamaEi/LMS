@@ -93,6 +93,16 @@
 @endsection
 
 @section('content')
+@php
+    $lms3f = fn(string $n) => asset('lms3/' . rawurlencode($n));
+    $lms3s = fn(string $n) => asset('lms3/' . rawurlencode('حين يلتقي التدريب مع الإبداع 3') . '/' . $n);
+    $catImg = [
+        'تقنية المعلومات' => $lms3f('دبلوم  برمجيات.png'),
+        'إدارة وأعمال'    => $lms3f('دبلوم  الموارد.png'),
+        'تسويق ومبيعات'  => $lms3f('دبلوم  الموارد.png'),
+    ];
+    $defDevImg = $lms3f('دورة الادخال.png');
+@endphp
 
 {{-- Hero --}}
 <section class="hero-section">
@@ -157,6 +167,9 @@ $defaultColor = ['top'=>'linear-gradient(90deg,#64748b,#94a3b8)', 'badge'=>'#f1f
             @foreach($programs as $program)
             @php $col = $catColors[$program->category ?? ''] ?? $defaultColor; @endphp
             <a href="{{ route('courses.developmental.show', $program) }}" class="dev-card" style="text-decoration:none;color:inherit;">
+                <img src="{{ $program->image ? asset('storage/' . $program->image) : ($catImg[$program->category ?? ''] ?? $defDevImg) }}"
+                     alt="{{ $program->name_ar }}"
+                     style="width:100%;height:160px;object-fit:cover;display:block;">
                 <div class="dev-card-top" style="background:{{ $col['top'] }};"></div>
                 <div class="dev-card-body">
                     @if($program->category)
@@ -203,6 +216,9 @@ $defaultColor = ['top'=>'linear-gradient(90deg,#64748b,#94a3b8)', 'badge'=>'#f1f
             @foreach($catPrograms as $program)
             @php $col = $catColors[$cat] ?? $defaultColor; @endphp
             <a href="{{ route('courses.developmental.show', $program) }}" class="dev-card" style="text-decoration:none;color:inherit;">
+                <img src="{{ $program->image ? asset('storage/' . $program->image) : ($catImg[$cat] ?? $defDevImg) }}"
+                     alt="{{ $program->name_ar }}"
+                     style="width:100%;height:160px;object-fit:cover;display:block;">
                 <div class="dev-card-top" style="background:{{ $col['top'] }};"></div>
                 <div class="dev-card-body">
                     <span class="cat-badge" style="background:{{ $col['badge'] }};color:{{ $col['text'] }};">
@@ -252,8 +268,8 @@ $defaultColor = ['top'=>'linear-gradient(90deg,#64748b,#94a3b8)', 'badge'=>'#f1f
             </a>
         </div>
         <div class="col-lg-5 text-center mt-4 mt-lg-0">
-            <img loading="lazy" src="{{ asset('lms2-photo/4.png') }}" alt="Training"
-                 style="max-width:360px;width:100%;border-radius:20px;" onerror="this.style.display='none'">
+            <img loading="lazy" src="{{ $lms3s('10.png') }}" alt="Training"
+                 style="max-width:360px;width:100%;border-radius:20px;object-fit:cover;" onerror="this.style.display='none'">
         </div>
     </div>
 </section>

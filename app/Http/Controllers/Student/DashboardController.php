@@ -403,10 +403,39 @@ class DashboardController extends Controller
             : 0;
         $totalMinutes = (clone $baseQuery)->sum('duration_minutes') ?? 0;
 
+        // Per-subject attendance stats for the subjects panel
+        $displaySubjects = $filterSubjects;
+        $rawStats = DB::table('attendances')
+            ->join('sessions', 'attendances.session_id', '=', 'sessions.id')
+            ->where('attendances.student_id', $student->id)
+            ->whereIn('sessions.subject_id', $displaySubjects->pluck('id')->toArray() ?: [0])
+            ->select(
+                'sessions.subject_id',
+                DB::raw('COUNT(*) as total'),
+                DB::raw('SUM(attendances.attended) as attended_count')
+            )
+            ->groupBy('sessions.subject_id')
+            ->get()
+            ->keyBy('subject_id');
+
+        $subjectStats = $displaySubjects->map(function ($subject) use ($rawStats) {
+            $row      = $rawStats->get($subject->id);
+            $total    = $row ? (int) $row->total : 0;
+            $attended = $row ? (int) $row->attended_count : 0;
+            $rate     = $total > 0 ? round(($attended / $total) * 100, 1) : 0;
+            return [
+                'subject'  => $subject,
+                'total'    => $total,
+                'attended' => $attended,
+                'rate'     => $rate,
+            ];
+        })->values();
+
         return view('student.attendance.index', compact(
             'attendances',
             'enrolledSubjects',
             'filterSubjects',
+            'subjectStats',
             'currentTerm',
             'termFilter',
             'subjectId',

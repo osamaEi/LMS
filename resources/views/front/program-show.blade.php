@@ -358,6 +358,17 @@ $typeIcons = [
     'course'        => 'bi-journal-bookmark',
 ];
 $pageIcon = $typeIcons[$program->type ?? ''] ?? 'bi-mortarboard';
+
+$typeDefImg = [
+    'english'       => asset('lms3/' . rawurlencode('لغة انجليزية.png')),
+    'developmental' => asset('lms3/' . rawurlencode('دورة الادخال.png')),
+    'course'        => asset('lms3/' . rawurlencode('دورة الادخال.png')),
+    'qualifying'    => asset('lms3/' . rawurlencode('دبلوم  الموارد.png')),
+    'training'      => asset('lms3/' . rawurlencode('دبلوم  برمجيات.png')),
+    'diploma'       => asset('lms3/' . rawurlencode('دبلوم  الموارد.png')),
+];
+$defProgramImg = $typeDefImg[$program->type ?? ''] ?? asset('lms3/' . rawurlencode('دورة الادخال.png'));
+$lms3s = fn(string $n) => asset('lms3/' . rawurlencode('حين يلتقي التدريب مع الإبداع 3') . '/' . $n);
 @endphp
 
 {{-- ── Banner ── --}}
@@ -406,7 +417,7 @@ $pageIcon = $typeIcons[$program->type ?? ''] ?? 'bi-mortarboard';
                 @if($program->duration_hours)
                 <span class="ps-banner-pill"><i class="bi bi-clock"></i> {{ $program->duration_hours }} ساعة</span>
                 @endif
-                @if($program->duration_months)
+                @if($program->duration_months && $program->type !== 'english')
                 <span class="ps-banner-pill"><i class="bi bi-calendar3"></i> {{ $program->duration_months }} شهر</span>
                 @endif
                 @if($program->terms->isNotEmpty())
@@ -442,7 +453,7 @@ $pageIcon = $typeIcons[$program->type ?? ''] ?? 'bi-mortarboard';
                         <div class="ps-stat-lbl">ساعة تدريبية</div>
                     </div>
                     @endif
-                    @if($program->duration_months)
+                    @if($program->duration_months && $program->type !== 'english')
                     <div class="ps-stat">
                         <div class="ps-stat-icon" style="background:#ede9fe;color:#7c3aed;"><i class="bi bi-calendar3-fill"></i></div>
                         <div class="ps-stat-val">{{ $program->duration_months }}</div>
@@ -555,13 +566,8 @@ $pageIcon = $typeIcons[$program->type ?? ''] ?? 'bi-mortarboard';
 
         <div class="ps-pricing-card">
 
-            @if($program->image)
-            <img src="{{ Storage::url($program->image) }}" alt="{{ $program->name_ar }}" class="ps-pricing-img">
-            @else
-            <div class="ps-pricing-placeholder">
-                <i class="bi {{ $pageIcon }}"></i>
-            </div>
-            @endif
+            <img src="{{ $program->image ? Storage::url($program->image) : $defProgramImg }}"
+                 alt="{{ $program->name_ar }}" class="ps-pricing-img">
 
             <div class="ps-pricing-body">
 
@@ -585,7 +591,7 @@ $pageIcon = $typeIcons[$program->type ?? ''] ?? 'bi-mortarboard';
                         <span><strong>{{ $program->duration_hours }}</strong> ساعة تدريبية</span>
                     </li>
                     @endif
-                    @if($program->duration_months)
+                    @if($program->duration_months && $program->type !== 'english')
                     <li class="ps-meta-item">
                         <div class="ps-meta-item-icon"><i class="bi bi-calendar3-fill"></i></div>
                         <span>المدة: <strong>{{ $program->duration_months }} شهر</strong></span>
@@ -651,8 +657,8 @@ $pageIcon = $typeIcons[$program->type ?? ''] ?? 'bi-mortarboard';
                 <i class="bi bi-arrow-left-circle-fill"></i> سجّل الآن
             </a>
         </div>
-        <img loading="lazy" src="{{ asset('lms2-photo/4.png') }}" alt=""
-             style="max-width:260px;width:100%;border-radius:18px;flex-shrink:0;"
+        <img loading="lazy" src="{{ $lms3s('12.png') }}" alt=""
+             style="max-width:260px;width:100%;border-radius:18px;flex-shrink:0;object-fit:cover;"
              onerror="this.style.display='none'">
     </div>
 </div>

@@ -282,6 +282,78 @@
     .time-box .time-val { font-size: 1.5rem; font-weight: 800; line-height: 1; }
     .time-box .time-lbl { font-size: 0.7rem; color: #9ca3af; margin-top: 0.3rem; }
 
+    /* Subjects Grid */
+    .subjects-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 1rem;
+    }
+    .subj-att-card {
+        background: #fff;
+        border-radius: 18px;
+        padding: 1.25rem 1.25rem 1rem;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06);
+        cursor: pointer;
+        text-decoration: none;
+        display: block;
+        transition: transform 0.18s, box-shadow 0.18s, border-color 0.18s;
+        border: 2px solid transparent;
+        position: relative;
+        overflow: hidden;
+    }
+    .dark .subj-att-card { background: #1f2937; }
+    .subj-att-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,113,170,0.12); border-color: #0071AA; }
+    .subj-att-card.active {
+        border-color: #0071AA;
+        background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+        box-shadow: 0 4px 16px rgba(0,113,170,0.18);
+    }
+    .dark .subj-att-card.active { background: rgba(0,113,170,0.15); }
+    .subj-att-card.active::after {
+        content: '';
+        position: absolute;
+        top: 0; right: 0;
+        width: 0; height: 0;
+        border-top: 28px solid #0071AA;
+        border-left: 28px solid transparent;
+    }
+    .subj-att-name {
+        font-size: 0.875rem;
+        font-weight: 700;
+        color: #111827;
+        line-height: 1.4;
+        margin-bottom: 0.75rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    .dark .subj-att-name { color: #f9fafb; }
+    .subj-att-card.active .subj-att-name { color: #0071AA; }
+    .subj-att-bar-wrap {
+        height: 7px;
+        background: #f1f5f9;
+        border-radius: 4px;
+        overflow: hidden;
+        margin-bottom: 0.5rem;
+    }
+    .dark .subj-att-bar-wrap { background: #374151; }
+    .subj-att-bar { height: 100%; border-radius: 4px; transition: width 0.8s ease; }
+    .subj-att-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.72rem;
+        font-weight: 600;
+        color: #6b7280;
+    }
+    .subj-att-pct {
+        font-size: 1.35rem;
+        font-weight: 800;
+        line-height: 1;
+        margin-bottom: 0.5rem;
+    }
+
     /* Mobile cards */
     .mobile-att-card {
         display: none;
@@ -292,6 +364,7 @@
     @media (max-width: 768px) {
         .desktop-table { display: none !important; }
         .mobile-att-card { display: block; }
+        .subjects-grid { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
     }
     @media (min-width: 769px) {
         .mobile-att-card { display: none !important; }
@@ -440,6 +513,64 @@
     </div>
     @endif
 
+    {{-- ===== Subjects Panel ===== --}}
+    @if($subjectStats->isNotEmpty())
+    <div class="att-card" style="padding: 1.25rem 1.5rem;">
+        <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:#eff6ff;">
+                    <svg class="w-4 h-4" style="color:#2563eb;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                    </svg>
+                </div>
+                <span class="text-sm font-bold text-gray-900 dark:text-white">المقررات الدراسية</span>
+                <span class="text-xs text-gray-400 font-medium">({{ $subjectStats->count() }} مقرر)</span>
+            </div>
+            @if($subjectId)
+                <a href="{{ route('student.attendance', array_filter(['term_filter' => $termFilter === 'all' ? 'all' : null])) }}"
+                   class="text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors"
+                   style="background:#f1f5f9; color:#374151;">
+                    عرض الكل
+                </a>
+            @endif
+        </div>
+        <div class="subjects-grid">
+            @foreach($subjectStats as $stat)
+                @php
+                    $isActive = $subjectId == $stat['subject']->id;
+                    $rate     = $stat['rate'];
+                    $barColor = $rate >= 75 ? '#10b981' : ($rate >= 50 ? '#f59e0b' : ($rate > 0 ? '#ef4444' : '#d1d5db'));
+                    $url      = route('student.attendance', array_filter([
+                        'subject_id'  => $stat['subject']->id,
+                        'term_filter' => $termFilter === 'all' ? 'all' : null,
+                    ]));
+                @endphp
+                <a href="{{ $url }}" class="subj-att-card {{ $isActive ? 'active' : '' }}">
+                    <div class="subj-att-name">{{ $stat['subject']->name }}</div>
+                    <div class="subj-att-pct" style="color: {{ $barColor }};">
+                        {{ $rate }}<span style="font-size:0.85rem;">%</span>
+                    </div>
+                    <div class="subj-att-bar-wrap">
+                        <div class="subj-att-bar" style="width: {{ $rate }}%; background: {{ $barColor }};"></div>
+                    </div>
+                    <div class="subj-att-meta">
+                        <span>{{ $stat['attended'] }} / {{ $stat['total'] }} جلسة</span>
+                        @if($rate >= 75)
+                            <span style="color:#10b981;">ممتاز</span>
+                        @elseif($rate >= 50)
+                            <span style="color:#f59e0b;">مقبول</span>
+                        @elseif($rate > 0)
+                            <span style="color:#ef4444;">ضعيف</span>
+                        @else
+                            <span style="color:#d1d5db;">لا يوجد</span>
+                        @endif
+                    </div>
+                </a>
+            @endforeach
+        </div>
+    </div>
+    @endif
+
     <!-- Stats Strip -->
     <div class="stats-strip">
         <div class="stat-item">
@@ -493,21 +624,23 @@
     <div class="att-layout">
         <!-- Records -->
         <div class="att-card">
-            <!-- Filter -->
-            <form method="GET" action="{{ route('student.attendance') }}">
-                @if($termFilter === 'all')
-                    <input type="hidden" name="term_filter" value="all">
-                @endif
-                <div class="att-filter">
-                    <svg class="w-5 h-5 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
-                    <select name="subject_id" onchange="this.form.submit()">
-                        <option value="">جميع المقررات </option>
-                        @foreach($filterSubjects as $subject)
-                            <option value="{{ $subject->id }}" {{ $subjectId == $subject->id ? 'selected' : '' }}>{{ $subject->name }}</option>
-                        @endforeach
-                    </select>
+            <!-- Active Subject Indicator -->
+            @if($subjectId)
+                @php $selectedSubject = $filterSubjects->firstWhere('id', $subjectId) ?? $enrolledSubjects->firstWhere('id', $subjectId); @endphp
+                <div class="att-filter" style="justify-content: space-between;">
+                    <div class="flex items-center gap-2">
+                        <svg class="w-4 h-4 flex-shrink-0" style="color:#0071AA;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                        </svg>
+                        <span class="text-sm font-bold" style="color:#0071AA;">{{ $selectedSubject?->name ?? 'مقرر محدد' }}</span>
+                    </div>
+                    <a href="{{ route('student.attendance', array_filter(['term_filter' => $termFilter === 'all' ? 'all' : null])) }}"
+                       class="flex items-center gap-1 text-xs font-semibold text-gray-500 hover:text-gray-700 transition-colors">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+                        إلغاء التصفية
+                    </a>
                 </div>
-            </form>
+            @endif
 
             <!-- Desktop Table -->
             <div class="desktop-table">
@@ -721,7 +854,7 @@
                     <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: #eff6ff;">
                         <svg class="w-4 h-4" style="color: #2563eb;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
                     </div>
-                    <span class="text-sm font-bold text-gray-900 dark:text-white">معلومات الطالب</span>
+                    <span class="text-sm font-bold text-gray-900 dark:text-white">معلومات المتدرب</span>
                 </div>
                 <div class="p-5">
                     <div class="flex items-center gap-3 mb-4">

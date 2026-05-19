@@ -294,6 +294,7 @@
 @endsection
 
 @section('content')
+@php $lms3s = fn(string $n) => asset('lms3/' . rawurlencode('حين يلتقي التدريب مع الإبداع 3') . '/' . $n); @endphp
     <!-- Hero Section -->
     <section class="hero-section">
         <div class="breadcrumb-nav">
@@ -353,19 +354,15 @@
         @else
         @php
             $courseImages = [
-                'lms-photos/2.png',
-                'lms-photos/8.png',
-                'lms-photos/5.png',
-                'lms2-photo/14.png',
-                'lms-photos/10.png',
-                'lms2-photo/6.png',
+                $lms3s('3.png'), $lms3s('5.png'), $lms3s('7.png'),
+                $lms3s('9.png'), $lms3s('11.png'), $lms3s('13.png'),
             ];
         @endphp
         <div class="courses-container" id="coursesGrid">
             @foreach($programs as $program)
             <div class="course-card-wrapper" data-course-type="{{ $program->course_type }}">
                 <div class="course-card">
-                    <img src="{{ $program->image ? asset('storage/' . $program->image) : asset($courseImages[$loop->index % count($courseImages)]) }}" alt="{{ $program->name_ar }}" />
+                    <img src="{{ $program->image ? asset('storage/' . $program->image) : $courseImages[$loop->index % count($courseImages)] }}" alt="{{ $program->name_ar }}" />
                     {{-- Type badge --}}
                     @if($program->course_type === 'developmental')
                         <span class="course-badge" style="background:#2563eb;">تطويري</span>
@@ -421,7 +418,7 @@
                 </div>
             </div>
             <div class="col-lg-6 text-center">
-                <img loading="lazy" src="{{ asset('lms2-photo/4.png') }}" alt="App Mockup" style="max-width: 450px; border-radius: 20px;" onerror="this.style.display='none'" />
+                <img loading="lazy" src="{{ $lms3s('8.png') }}" alt="App Mockup" style="max-width: 450px; border-radius: 20px; object-fit: cover;" onerror="this.style.display='none'" />
             </div>
         </div>
     </section>

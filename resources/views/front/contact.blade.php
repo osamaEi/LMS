@@ -314,6 +314,7 @@
 @endsection
 
 @section('content')
+@php $lms3s = fn(string $n) => asset('lms3/' . rawurlencode('حين يلتقي التدريب مع الإبداع 3') . '/' . $n); @endphp
     <!-- Hero Section -->
     <section class="hero-section">
         <div class="breadcrumb-nav">
@@ -554,7 +555,7 @@
             </div>
             <div class="col-lg-6">
                 <div class="cta-image">
-                    <img loading="lazy" src="{{ asset('lms2-photo/4.webp') }}" alt="Contact Us" onerror="this.src='{{ asset('lms2-photo/11.webp') }}'" />
+                    <img loading="lazy" src="{{ $lms3s('6.png') }}" alt="Contact Us" />
                 </div>
             </div>
         </div>

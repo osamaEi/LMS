@@ -279,6 +279,9 @@
 @endsection
 
 @section('content')
+@php
+    $lms3s = fn(string $n) => asset('lms3/' . rawurlencode('حين يلتقي التدريب مع الإبداع 3') . '/' . $n);
+@endphp
     <!-- Hero Section -->
     <section class="hero-section">
         <div class="breadcrumb-nav">
@@ -298,7 +301,7 @@
     <!-- Vision & Mission Section -->
     <section class="vision-section">
         <div class="center">
-            <img class="main-img" src="{{ asset('lms2-photo/2.png') }}" alt="Vision" onerror="this.src='{{ asset('lms2-photo/14.png') }}'" />
+            <img class="main-img" src="{{ $lms3s('1.png') }}" alt="Vision" />
 
             <div class="vision-card one">
                 <div class="icon">
@@ -366,22 +369,22 @@
         </div>
         <div class="gallery-grid">
             <div class="g-item tall">
-                <img loading="lazy" src="{{ asset('lms2-photo/1.png') }}" alt="Institute" />
+                <img loading="lazy" src="{{ $lms3s('2.png') }}" alt="معهد الارتقاء" />
             </div>
             <div class="g-item">
-                <img loading="lazy" src="{{ asset('lms2-photo/5.png') }}" alt="Graduation" />
+                <img loading="lazy" src="{{ $lms3s('4.png') }}" alt="قاعة التدريب" />
             </div>
             <div class="g-item">
-                <img loading="lazy" src="{{ asset('lms2-photo/8.png') }}" alt="Study" />
+                <img loading="lazy" src="{{ $lms3s('5.png') }}" alt="المتدربون" />
             </div>
             <div class="g-item">
-                <img loading="lazy" src="{{ asset('lms2-photo/11.png') }}" alt="Learning" />
+                <img loading="lazy" src="{{ $lms3s('9.png') }}" alt="الحفل" />
             </div>
             <div class="g-item wide">
-                <img loading="lazy" src="{{ asset('lms2-photo/14.png') }}" alt="Computer Lab" />
+                <img loading="lazy" src="{{ $lms3s('13.png') }}" alt="مختبر الحاسب" />
             </div>
             <div class="g-item">
-                <img loading="lazy" src="{{ asset('lms2-photo/7.png') }}" alt="Training" />
+                <img loading="lazy" src="{{ $lms3s('11.png') }}" alt="التدريب" />
             </div>
         </div>
     </section>
@@ -400,7 +403,7 @@
             </div>
             <div class="col-lg-6">
                 <div class="contact-image">
-                    <img loading="lazy" src="{{ asset('lms2-photo/3.png') }}" alt="Contact Us" onerror="this.src='{{ asset('lms2-photo/11.png') }}'" />
+                    <img loading="lazy" src="{{ $lms3s('6.png') }}" alt="Contact Us" />
                 </div>
             </div>
         </div>

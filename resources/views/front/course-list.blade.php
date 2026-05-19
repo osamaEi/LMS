@@ -81,6 +81,7 @@
 @endsection
 
 @section('content')
+@php $lms3s = fn(string $n) => asset('lms3/' . rawurlencode('حين يلتقي التدريب مع الإبداع 3') . '/' . $n); @endphp
 
 {{-- Type strip --}}
 <div class="type-strip strip-{{ $pageType }}"></div>
@@ -132,8 +133,8 @@
     @else
     @php
         $courseImages = [
-            'lms-photos/2.png','lms-photos/8.png','lms-photos/5.png',
-            'lms2-photo/14.png','lms-photos/10.png','lms2-photo/6.png',
+            $lms3s('3.png'), $lms3s('5.png'), $lms3s('7.png'),
+            $lms3s('9.png'), $lms3s('11.png'), $lms3s('13.png'),
         ];
         $badgeColor = $pageType === 'developmental' ? '#2563eb' : ($pageType === 'qualifying' ? '#7c3aed' : '#059669');
         $badgeLabel = $pageType === 'developmental' ? 'تطويري' : ($pageType === 'qualifying' ? 'تأهيلي' : 'تدريبي');
@@ -142,7 +143,7 @@
         @foreach($programs as $program)
         <div class="course-card-wrapper">
             <div class="course-card">
-                <img src="{{ $program->image ? asset('storage/'.$program->image) : asset($courseImages[$loop->index % count($courseImages)]) }}"
+                <img src="{{ $program->image ? asset('storage/'.$program->image) : $courseImages[$loop->index % count($courseImages)] }}"
                      alt="{{ $program->name_ar }}" />
                 <span class="course-badge" style="background:{{ $badgeColor }};">{{ $badgeLabel }}</span>
                 <div class="card-body">
@@ -179,8 +180,8 @@
             </a>
         </div>
         <div class="col-lg-5 text-center mt-4 mt-lg-0">
-            <img loading="lazy" src="{{ asset('lms2-photo/4.png') }}" alt="Training"
-                 style="max-width:360px;width:100%;border-radius:20px;" onerror="this.style.display='none'">
+            <img loading="lazy" src="{{ $lms3s('10.png') }}" alt="Training"
+                 style="max-width:360px;width:100%;border-radius:20px;object-fit:cover;" onerror="this.style.display='none'">
         </div>
     </div>
 </section>
