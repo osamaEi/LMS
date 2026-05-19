@@ -271,7 +271,7 @@ class User extends Authenticatable
             'admin'       => $isFemale ? 'المديرة'     : 'المدير',
             'super_admin' => $isFemale ? 'المديرة العامة' : 'المدير العام',
             'teacher'     => $isFemale ? 'مدربة'       : 'مدرب',
-            'student'     => $isFemale ? 'طالبة'       : 'طالب',
+            'student'     => $isFemale ? 'متدربة'      : 'متدرب',
             default       => $isFemale ? 'مستخدمة'     : 'مستخدم',
         };
     }

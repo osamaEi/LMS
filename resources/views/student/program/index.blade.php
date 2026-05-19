@@ -689,7 +689,7 @@
                                             @endif
                                         </span>
                                     </div>
-                                    @if($term->subjects->count() > 0)
+                                    @if($isCurrentTerm && $term->subjects->count() > 0)
                                         <div class="tl-subjects">
                                             @foreach($term->subjects as $s)
                                                 <span class="tl-subj-chip">{{ $s->name }}</span>
