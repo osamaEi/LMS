@@ -22,7 +22,7 @@ class PermissionHelper
         'dashboard'            => ['name' => 'لوحة التحكم',                    'match' => ['dashboard']],
         'users'                => ['name' => 'إدارة المستخدمين',                'match' => ['user']],
         'teachers'             => ['name' => 'إدارة المعلمين',                  'match' => ['teacher']],
-        'students'             => ['name' => 'إدارة الطلاب',                    'match' => ['student']],
+        'students'             => ['name' => 'إدارة  المتدربون ',                    'match' => ['student']],
         'programs'             => ['name' => 'الدبلومات    التعليمية',              'match' => ['program']],
         'terms'                => ['name' => 'الفصول التدريبية ',                'match' => ['term']],
         'subjects'             => ['name' => 'المقررات  التدريبية ',                 'match' => ['subject']],

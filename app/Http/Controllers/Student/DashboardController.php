@@ -219,7 +219,7 @@ class DashboardController extends Controller
     }
 
     /**
-     * عرض جميع جلسات الطالب من برنامجه
+     * عرض جميع جلسات ال متدرب من برنامجه
      */
     public function mySessions(Request $request)
     {
@@ -406,15 +406,15 @@ class DashboardController extends Controller
         // Per-subject attendance stats for the subjects panel
         $displaySubjects = $filterSubjects;
         $rawStats = DB::table('attendances')
-            ->join('sessions', 'attendances.session_id', '=', 'sessions.id')
+            ->join('class_sessions', 'attendances.session_id', '=', 'class_sessions.id')
             ->where('attendances.student_id', $student->id)
-            ->whereIn('sessions.subject_id', $displaySubjects->pluck('id')->toArray() ?: [0])
+            ->whereIn('class_sessions.subject_id', $displaySubjects->pluck('id')->toArray() ?: [0])
             ->select(
-                'sessions.subject_id',
+                'class_sessions.subject_id',
                 DB::raw('COUNT(*) as total'),
                 DB::raw('SUM(attendances.attended) as attended_count')
             )
-            ->groupBy('sessions.subject_id')
+            ->groupBy('class_sessions.subject_id')
             ->get()
             ->keyBy('subject_id');
 
@@ -740,8 +740,8 @@ class DashboardController extends Controller
             'portal' => [
                 'key'         => 'student_portal_url',
                 'title'       => 'البوابة الإلكترونية',
-                'subtitle'    => 'بوابة الطالب الرسمية',
-                'description' => 'منصة متكاملة تتيح للطالب الوصول إلى جميع خدماته الأكاديمية والإدارية في مكان واحد.',
+                'subtitle'    => 'بوابة ال متدرب الرسمية',
+                'description' => 'منصة متكاملة تتيح لل متدرب الوصول إلى جميع خدماته الأكاديمية والإدارية في مكان واحد.',
                 'icon_bg'     => 'linear-gradient(135deg,#3b82f6,#1d4ed8)',
                 'badge_bg'    => '#dbeafe',
                 'badge_color' => '#1d4ed8',
@@ -775,7 +775,7 @@ class DashboardController extends Controller
                 'key'         => 'blackboard_url',
                 'title'       => 'نظام البلاك بورد',
                 'subtitle'    => 'منصة إدارة التعلم',
-                'description' => 'نظام متكامل لإدارة العملية التعليمية يربط الطلاب بالمحاضرين والمحتوى التدريبي .',
+                'description' => 'نظام متكامل لإدارة العملية التعليمية يربط  المتدربون  بالمحاضرين والمحتوى التدريبي .',
                 'icon_bg'     => 'linear-gradient(135deg,#374151,#111827)',
                 'badge_bg'    => '#f3f4f6',
                 'badge_color' => '#374151',

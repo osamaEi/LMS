@@ -140,7 +140,7 @@
         <div>
             <div class="bg-white rounded-lg shadow">
                 <div class="p-6 border-b">
-                    <h2 class="text-lg font-bold">الطلاب ({{ $students->count() }})</h2>
+                    <h2 class="text-lg font-bold"> المتدربون  ({{ $students->count() }})</h2>
                 </div>
                 <div class="p-6">
                     @if($students->count() > 0)

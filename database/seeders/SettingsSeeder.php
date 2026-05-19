@@ -259,7 +259,7 @@ class SettingsSeeder extends Seeder
                 'group' => 'notifications',
                 'type' => 'boolean',
                 'label' => 'إشعار التسجيل الجديد',
-                'description' => 'إرسال إشعار عند تسجيل طالب في دورة',
+                'description' => 'إرسال إشعار عند تسجيل  متدرب في دورة',
                 'is_public' => false,
             ],
             [

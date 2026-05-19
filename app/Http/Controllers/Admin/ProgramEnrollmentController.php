@@ -84,7 +84,7 @@ class ProgramEnrollmentController extends Controller
     {
         if ($user->program_status !== 'pending') {
             return redirect()->back()
-                ->with('error', 'هذا الطالب ليس لديه طلب تسجيل معلق');
+                ->with('error', 'هذا ال متدرب ليس لديه طلب تسجيل معلق');
         }
 
         $program = $user->program()->with('terms.subjects')->first();
@@ -131,7 +131,7 @@ class ProgramEnrollmentController extends Controller
     {
         if ($user->program_status !== 'pending') {
             return redirect()->back()
-                ->with('error', 'هذا الطالب ليس لديه طلب تسجيل معلق');
+                ->with('error', 'هذا ال متدرب ليس لديه طلب تسجيل معلق');
         }
 
         // Reset program and status

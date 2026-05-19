@@ -1,6 +1,6 @@
 @extends('layouts.front')
 
-@section('title', 'دليل الطالب الإرشادي')
+@section('title', 'دليل ال متدرب الإرشادي')
 
 @section('styles')
 <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
@@ -88,7 +88,7 @@
                         <i class="fas fa-user-graduate" style="font-size: 2rem;"></i>
                     </div>
                     <div>
-                        <h1 style="font-size: 1.875rem; font-weight: 700; margin: 0;">دليل الطالب الإرشادي</h1>
+                        <h1 style="font-size: 1.875rem; font-weight: 700; margin: 0;">دليل ال متدرب الإرشادي</h1>
                         <p style="margin: 0.25rem 0 0 0; opacity: 0.9; font-size: 1rem;">دليلك الشامل لاستخدام منصة التعلم الإلكتروني بكفاءة</p>
                     </div>
                 </div>
@@ -258,7 +258,7 @@
                             <strong>الاطلاع على جدول المحاضرات:</strong> من صفحة الدورة، انتقل إلى تبويب "الفصول الافتراضية" أو "المحاضرات المباشرة" لمعرفة مواعيد الجلسات القادمة.
                         </div>
                         <div class="sub-step" style="margin-bottom: 0.75rem;">
-                            <strong>الانضمام إلى الجلسة:</strong> قبل موعد الحصة بخمس دقائق، اضغط على زر "انضمام" أو "Join" للدخول إلى الفصل الافتراضي. تأكد من عمل الكاميرا والميكروفون قبل الدخول.
+                            <strong>الانضمام إلى الجلسة:</strong> قبل موعد ال محاضرة بخمس دقائق، اضغط على زر "انضمام" أو "Join" للدخول إلى الفصل الافتراضي. تأكد من عمل الكاميرا والميكروفون قبل الدخول.
                         </div>
                         <div class="sub-step" style="margin-bottom: 0.75rem;">
                             <strong>التفاعل أثناء الحصة:</strong> يمكنك رفع يدك للسؤال، واستخدام المحادثة النصية (Chat) لطرح الأسئلة، ومشاركة شاشتك عند الحاجة. كما يمكنك المشاركة في الاستطلاعات والأنشطة التفاعلية.

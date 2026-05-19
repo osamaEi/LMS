@@ -81,7 +81,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"name\": \"أحمد محمد العمري\",\n  \"phone\": \"0509876543\",\n  \"email\": \"ahmed.new@example.com\",\n  \"bio\": \"طالب متحمس لتعلم البرمجة\",\n  \"gender\": \"male\",\n  \"date_of_birth\": \"2000-06-15\"\n}",
+          "raw": "{\n  \"name\": \"أحمد محمد العمري\",\n  \"phone\": \"0509876543\",\n  \"email\": \"ahmed.new@example.com\",\n  \"bio\": \" متدرب متحمس لتعلم البرمجة\",\n  \"gender\": \"male\",\n  \"date_of_birth\": \"2000-06-15\"\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -104,7 +104,7 @@
           "header": [
             { "key": "Content-Type", "value": "application/json" }
           ],
-          "body": "{\n  \"success\": true,\n  \"message\": \"تم تحديث الملف الشخصي بنجاح\",\n  \"data\": {\n    \"id\": 5,\n    \"name\": \"أحمد محمد العمري\",\n    \"email\": \"ahmed.new@example.com\",\n    \"phone\": \"0509876543\",\n    \"national_id\": \"1234567890\",\n    \"gender\": \"male\",\n    \"date_of_birth\": \"2000-06-15\",\n    \"bio\": \"طالب متحمس لتعلم البرمجة\",\n    \"role\": \"student\",\n    \"status\": \"active\",\n    \"registration_number\": \"ST-2024-5\",\n    \"profile_photo\": null,\n    \"program_id\": 1,\n    \"program_status\": \"active\",\n    \"program\": {\n      \"id\": 1,\n      \"name\": \"برنامج تطوير البرمجيات\",\n      \"code\": \"SDP-01\"\n    },\n    \"track\": {\n      \"id\": 2,\n      \"name\": \"المجموعة أ\",\n      \"code\": \"GRP-A\"\n    },\n    \"current_term_number\": 1,\n    \"current_term\": {\n      \"id\": 3,\n      \"name\": \"الفصل الأول\",\n      \"end_date\": \"2024-06-30\",\n      \"status\": \"active\"\n    },\n    \"is_confirm_user\": true,\n    \"email_verified_at\": \"2024-01-10T08:00:00+00:00\",\n    \"nafath_verified_at\": null,\n    \"date_of_register\": \"2024-01-05\",\n    \"created_at\": \"2024-01-05T10:00:00+00:00\"\n  }\n}"
+          "body": "{\n  \"success\": true,\n  \"message\": \"تم تحديث الملف الشخصي بنجاح\",\n  \"data\": {\n    \"id\": 5,\n    \"name\": \"أحمد محمد العمري\",\n    \"email\": \"ahmed.new@example.com\",\n    \"phone\": \"0509876543\",\n    \"national_id\": \"1234567890\",\n    \"gender\": \"male\",\n    \"date_of_birth\": \"2000-06-15\",\n    \"bio\": \" متدرب متحمس لتعلم البرمجة\",\n    \"role\": \"student\",\n    \"status\": \"active\",\n    \"registration_number\": \"ST-2024-5\",\n    \"profile_photo\": null,\n    \"program_id\": 1,\n    \"program_status\": \"active\",\n    \"program\": {\n      \"id\": 1,\n      \"name\": \"برنامج تطوير البرمجيات\",\n      \"code\": \"SDP-01\"\n    },\n    \"track\": {\n      \"id\": 2,\n      \"name\": \"المجموعة أ\",\n      \"code\": \"GRP-A\"\n    },\n    \"current_term_number\": 1,\n    \"current_term\": {\n      \"id\": 3,\n      \"name\": \"الفصل الأول\",\n      \"end_date\": \"2024-06-30\",\n      \"status\": \"active\"\n    },\n    \"is_confirm_user\": true,\n    \"email_verified_at\": \"2024-01-10T08:00:00+00:00\",\n    \"nafath_verified_at\": null,\n    \"date_of_register\": \"2024-01-05\",\n    \"created_at\": \"2024-01-05T10:00:00+00:00\"\n  }\n}"
         },
         {
           "name": "422 Validation Error",

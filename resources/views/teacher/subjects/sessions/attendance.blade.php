@@ -27,7 +27,7 @@
         <div style="font-size:.8rem;color:#6b7280;margin-bottom:4px">
             <a href="{{ route('teacher.my-subjects.show', $subject->id) }}" style="color:#6b7280;text-decoration:none">{{ $subject->name_ar ?? $subject->name }}</a>
             <span style="margin:0 6px">›</span>
-            <span>الحصة {{ $session->session_number }}</span>
+            <span>ال محاضرة {{ $session->session_number }}</span>
         </div>
         <h1 style="font-size:1.25rem;font-weight:800;color:#111827;margin:0">سجل الحضور</h1>
         @if($session->scheduled_at)
@@ -70,7 +70,7 @@
 <div style="background:#fff;border:1.5px solid #f1f5f9;border-radius:14px;overflow:hidden;margin-bottom:20px">
     <div style="padding:14px 18px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;gap:10px">
         <div style="width:8px;height:8px;border-radius:50%;background:#16a34a"></div>
-        <h2 style="font-size:.9rem;font-weight:700;color:#111827;margin:0">الطلاب الحاضرون ({{ $attended }})</h2>
+        <h2 style="font-size:.9rem;font-weight:700;color:#111827;margin:0"> المتدربون  الحاضرون ({{ $attended }})</h2>
     </div>
 
     @if($attendances->where('attended', true)->count())

@@ -126,7 +126,7 @@ class NelcComplianceController extends Controller
                 'status' => 'implemented',
                 'link' => route('admin.users.index'),
                 'link_label' => 'إدارة المستخدمين',
-                'notes' => 'أدوار واضحة: مدير، معلم، طالب مع صلاحيات Spatie',
+                'notes' => 'أدوار واضحة: مدير، معلم،  متدرب مع صلاحيات Spatie',
             ],
             [
                 'code' => '1.1.9',
@@ -300,7 +300,7 @@ class NelcComplianceController extends Controller
                 'status' => 'implemented',
                 'link' => route('nelc.guides.student'),
                 'link_label' => 'الأدلة الإرشادية',
-                'notes' => 'دليل الطالب + دليل المعلم',
+                'notes' => 'دليل ال متدرب + دليل المعلم',
             ],
             [
                 'code' => '1.3.3',
@@ -434,8 +434,8 @@ class NelcComplianceController extends Controller
                 'type' => 'اختياري',
                 'status' => 'implemented',
                 'link' => route('admin.reports.student-progress'),
-                'link_label' => 'تقدم الطلاب',
-                'notes' => 'تتبع تقدم الطالب + نسبة الإنجاز',
+                'link_label' => 'تقدم  المتدربون ',
+                'notes' => 'تتبع تقدم ال متدرب + نسبة الإنجاز',
             ],
             [
                 'code' => '2.2.5',

@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->foreignId('track_id')->nullable()->after('program_id')->constrained('tracks')->nullOnDelete();
-            $table->integer('current_term_number')->nullable()->after('track_id')->comment('رقم الربع الحالي للطالب (1-10)');
+            $table->integer('current_term_number')->nullable()->after('track_id')->comment('رقم الربع الحالي لل متدرب (1-10)');
             $table->index('track_id');
         });
     }

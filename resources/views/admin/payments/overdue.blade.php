@@ -100,7 +100,7 @@
         <div class="bg-white rounded-lg shadow-sm border-2 border-blue-200 p-6">
             <div class="flex justify-between items-center">
                 <div>
-                    <p class="text-sm text-gray-500 mb-1">عدد الطلاب المتأخرين</p>
+                    <p class="text-sm text-gray-500 mb-1">عدد  المتدربون  المتأخرين</p>
                     <h3 class="text-3xl font-bold text-gray-800">{{ $installments->pluck('payment.user_id')->unique()->count() }}</h3>
                 </div>
                 <div class="text-blue-500">

@@ -170,7 +170,7 @@
                     @endforeach
 
                     @if(!$answer->selected_option_id)
-                    <p class="text-sm text-gray-400 italic mt-1">لم يختر الطالب إجابة</p>
+                    <p class="text-sm text-gray-400 italic mt-1">لم يختر ال متدرب إجابة</p>
                     @endif
                 </div>
                 @endif
@@ -182,7 +182,7 @@
                     @if($answer->answer_text)
                     <p class="text-gray-800 dark:text-gray-200 text-sm leading-relaxed whitespace-pre-wrap">{{ $answer->answer_text }}</p>
                     @else
-                    <p class="text-gray-400 italic text-sm">لم يكتب الطالب إجابة</p>
+                    <p class="text-gray-400 italic text-sm">لم يكتب ال متدرب إجابة</p>
                     @endif
                 </div>
 

@@ -19,7 +19,7 @@
 
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 hover:shadow-lg transition">
             <div class="text-4xl font-bold text-green-600 dark:text-green-400">{{ $stats['total_students'] }}</div>
-            <p class="text-gray-600 dark:text-gray-400 mt-2">إجمالي الطلاب</p>
+            <p class="text-gray-600 dark:text-gray-400 mt-2">إجمالي  المتدربون </p>
         </div>
 
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 hover:shadow-lg transition">
@@ -139,7 +139,7 @@
                     </a>
                     <a href="{{ route('teacher.students.index') }}" 
                        class="block w-full px-4 py-2 text-center bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-200 rounded hover:bg-purple-200 dark:hover:bg-purple-800 transition text-sm">
-                        إدارة الطلاب
+                        إدارة  المتدربون 
                     </a>
                 </div>
             </div>

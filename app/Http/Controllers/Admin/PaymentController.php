@@ -123,7 +123,7 @@ class PaymentController extends Controller
 
         if ($existingPayment) {
             return redirect()->back()
-                ->with('error', 'الطالب لديه دفعة قائمة بالفعل لهذا البرنامج')
+                ->with('error', 'ال متدرب لديه دفعة قائمة بالفعل لهذا البرنامج')
                 ->withInput();
         }
 
@@ -277,7 +277,7 @@ class PaymentController extends Controller
             adminId: auth()->id()
         );
 
-        return redirect()->back()->with('success', 'تم إعفاء الطالب بنجاح');
+        return redirect()->back()->with('success', 'تم إعفاء ال متدرب بنجاح');
     }
 
     /**

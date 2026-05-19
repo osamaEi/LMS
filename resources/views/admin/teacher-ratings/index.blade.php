@@ -8,7 +8,7 @@
     <div class="flex flex-wrap items-center justify-between gap-4">
         <div>
             <h2 class="text-2xl font-bold text-gray-900 dark:text-white">تقييمات المعلمين</h2>
-            <p class="text-gray-600 dark:text-gray-400">إدارة وعرض تقييمات المعلمين من قبل الطلاب (معيار NELC 2.4.9)</p>
+            <p class="text-gray-600 dark:text-gray-400">إدارة وعرض تقييمات المعلمين من قبل  المتدربون  (معيار NELC 2.4.9)</p>
         </div>
         <a href="{{ route('admin.teacher-ratings.report') }}" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-brand-500 rounded-lg hover:bg-brand-600">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

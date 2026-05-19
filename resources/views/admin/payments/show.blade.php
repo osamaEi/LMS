@@ -926,10 +926,10 @@ document.addEventListener('DOMContentLoaded',function(){
                 <div class="pay-card-icon" style="background:linear-gradient(135deg,#8b5cf6,#6d28d9);">
                     <svg style="width:18px;height:18px;color:#fff;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
                 </div>
-                بيانات الطالب والدفعة
+                بيانات ال متدرب والدفعة
             </div>
             <a href="{{ route('admin.students.show', $payment->user) }}" class="action-btn action-btn-primary" style="font-size:.73rem;text-decoration:none;">
-                ملف الطالب ←
+                ملف ال متدرب ←
             </a>
         </div>
         <div>
@@ -1406,7 +1406,7 @@ document.addEventListener('DOMContentLoaded',function(){
                     </div>
                     <!-- Student & Program -->
                     <div style="border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;margin-bottom:1.5rem">
-                        <div style="background:#f1f5f9;padding:10px 16px;font-size:0.8rem;font-weight:700;color:#374151;border-bottom:1px solid #e5e7eb">بيانات الطالب والبرنامج</div>
+                        <div style="background:#f1f5f9;padding:10px 16px;font-size:0.8rem;font-weight:700;color:#374151;border-bottom:1px solid #e5e7eb">بيانات ال متدرب والبرنامج</div>
                         <div style="padding:1rem 1.25rem">
                             <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed #f3f4f6">
                                 <span style="color:#6b7280;font-size:0.875rem">الاسم</span>
@@ -1506,7 +1506,7 @@ document.addEventListener('DOMContentLoaded',function(){
                 </div>
                 <div class="mb-3">
                     <label class="form-label">رسالة إضافية (اختياري)</label>
-                    <textarea class="form-control" rows="3" placeholder="أضف ملاحظة للطالب مع الإيصال..."></textarea>
+                    <textarea class="form-control" rows="3" placeholder="أضف ملاحظة لل متدرب مع الإيصال..."></textarea>
                 </div>
                 <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:0.75rem 1rem;font-size:0.85rem;color:#15803d">
                     ✅ سيتم إرسال إيصال PDF كامل مع تفاصيل الدفعة إلى البريد المحدد
@@ -1793,7 +1793,7 @@ document.addEventListener('DOMContentLoaded',function(){
                         <svg style="width:20px;height:20px;color:#d97706;flex-shrink:0;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
                         </svg>
-                        <div>سيتم إشعار الطالب برفض الإيصال وسبب الرفض حتى يتمكن من إعادة الرفع.</div>
+                        <div>سيتم إشعار ال متدرب برفض الإيصال وسبب الرفض حتى يتمكن من إعادة الرفع.</div>
                     </div>
                     <div class="mb-3" style="margin-bottom:0;">
                         <label class="form-label">سبب الرفض <span style="color:#ef4444;">*</span></label>

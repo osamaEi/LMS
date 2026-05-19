@@ -486,7 +486,7 @@
                 <label for="explanation_ar" class="form-label">
                     شرح الإجابة (اختياري)
                 </label>
-                <textarea name="explanation_ar" id="explanation_ar" rows="3" class="form-textarea" placeholder="شرح يظهر للطالب بعد إجابة السؤال...">{{ old('explanation_ar') }}</textarea>
+                <textarea name="explanation_ar" id="explanation_ar" rows="3" class="form-textarea" placeholder="شرح يظهر لل متدرب بعد إجابة السؤال...">{{ old('explanation_ar') }}</textarea>
             </div>
 
             <!-- Submit Buttons -->

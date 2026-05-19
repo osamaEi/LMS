@@ -123,7 +123,7 @@
                         <img src="https://ui-avatars.com/api/?name={{ urlencode($rating->student->name ?? 'Unknown') }}&background=6366f1&color=fff"
                              class="w-10 h-10 rounded-full" alt="">
                         <div>
-                            <div class="font-medium text-gray-900 dark:text-white">{{ $rating->student->name ?? 'طالب محذوف' }}</div>
+                            <div class="font-medium text-gray-900 dark:text-white">{{ $rating->student->name ?? ' متدرب محذوف' }}</div>
                             <div class="text-sm text-gray-500">{{ $rating->subject->name ?? '-' }} - {{ $rating->created_at->format('Y-m-d') }}</div>
                         </div>
                     </div>

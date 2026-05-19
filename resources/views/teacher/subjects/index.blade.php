@@ -38,7 +38,7 @@
                 </svg>
             </div>
             <div>
-                <p class="text-sm" style="color: rgba(255,255,255,0.8);">إجمالي الطلاب</p>
+                <p class="text-sm" style="color: rgba(255,255,255,0.8);">إجمالي  المتدربون </p>
                 <p class="text-2xl font-bold text-white">{{ $subjects->sum('enrollments_count') }}</p>
             </div>
         </div>

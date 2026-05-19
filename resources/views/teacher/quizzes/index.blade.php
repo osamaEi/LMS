@@ -384,7 +384,7 @@
             </div>
             <div class="stat-item">
                 <div class="stat-value" style="color: #f59e0b;">{{ $quizzes->sum('attempts_count') }}</div>
-                <div class="stat-label">محاولات الطلاب</div>
+                <div class="stat-label">محاولات  المتدربون </div>
             </div>
         </div>
     </div>

@@ -450,7 +450,7 @@
                 <label for="explanation_ar" class="form-label">
                     شرح الإجابة (اختياري)
                 </label>
-                <textarea name="explanation_ar" id="explanation_ar" rows="3" class="form-textarea" placeholder="سيظهر للطالب بعد تسليم الاختبار...">{{ old('explanation_ar', $question->explanation_ar) }}</textarea>
+                <textarea name="explanation_ar" id="explanation_ar" rows="3" class="form-textarea" placeholder="سيظهر لل متدرب بعد تسليم الاختبار...">{{ old('explanation_ar', $question->explanation_ar) }}</textarea>
             </div>
 
             <!-- Submit Buttons -->

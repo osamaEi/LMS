@@ -65,7 +65,7 @@ class StudentController extends Controller
         User::create($validated);
 
         return redirect()->route('admin.students.index')
-            ->with('success', 'تم إضافة الطالب بنجاح');
+            ->with('success', 'تم إضافة ال متدرب بنجاح');
     }
 
     public function show(User $student)
@@ -114,7 +114,7 @@ class StudentController extends Controller
         $student->update($validated);
 
         return redirect()->route('admin.students.index')
-            ->with('success', 'تم تحديث بيانات الطالب بنجاح');
+            ->with('success', 'تم تحديث بيانات ال متدرب بنجاح');
     }
 
     public function destroy(User $student)
@@ -122,7 +122,7 @@ class StudentController extends Controller
         $student->delete();
 
         return redirect()->route('admin.students.index')
-            ->with('success', 'تم حذف الطالب بنجاح');
+            ->with('success', 'تم حذف ال متدرب بنجاح');
     }
 
     public function assignProgram(Request $request, User $student)
@@ -163,7 +163,7 @@ class StudentController extends Controller
         }
 
         return redirect()->route('admin.students.show', $student)
-            ->with('success', "تم تعيين البرنامج للطالب بنجاح وتسجيله في {$enrolledCount} مادة");
+            ->with('success', "تم تعيين البرنامج لل متدرب بنجاح وتسجيله في {$enrolledCount} مادة");
     }
 
     public function removeProgram(User $student)
@@ -173,7 +173,7 @@ class StudentController extends Controller
         ]);
 
         return redirect()->route('admin.students.show', $student)
-            ->with('success', 'تم إزالة البرنامج من الطالب بنجاح');
+            ->with('success', 'تم إزالة البرنامج من ال متدرب بنجاح');
     }
 
     public function toggleStatus(User $student)
@@ -182,7 +182,7 @@ class StudentController extends Controller
         $student->update(['status' => $newStatus]);
 
         $message = $newStatus === 'active'
-            ? 'تم تفعيل حساب الطالب بنجاح'
+            ? 'تم تفعيل حساب ال متدرب بنجاح'
             : 'تم إلغاء تفعيل حساب الطالب';
 
         return redirect()->route('admin.students.index')

@@ -173,7 +173,7 @@
             </div>
             <div>
                 <h1 class="text-2xl font-extrabold">إدارة الدرجات</h1>
-                <p class="opacity-75 text-sm mt-0.5">إضافة وتعديل درجات الطلاب</p>
+                <p class="opacity-75 text-sm mt-0.5">إضافة وتعديل درجات  المتدربون </p>
             </div>
         </div>
     </div>
@@ -214,7 +214,7 @@
             </div>
             <div class="subject-info">
                 <div class="subject-name">أساسيات البرمجة</div>
-                <div class="subject-meta">25 طالب مسجل</div>
+                <div class="subject-meta">25  متدرب مسجل</div>
             </div>
             <a href="#" class="subject-btn">
                 إدارة الدرجات
@@ -243,7 +243,7 @@
                             <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                         </svg>
                     </div>
-                    <p>اختر المقرر  لإضافة أو تعديل درجات الطلاب</p>
+                    <p>اختر المقرر  لإضافة أو تعديل درجات  المتدربون </p>
                 </div>
                 <div class="flex items-start gap-3">
                     <div class="w-6 h-6 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -259,7 +259,7 @@
                             <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                         </svg>
                     </div>
-                    <p>سيتم إشعار الطلاب عند إضافة درجات جديدة</p>
+                    <p>سيتم إشعار  المتدربون  عند إضافة درجات جديدة</p>
                 </div>
             </div>
         </div>

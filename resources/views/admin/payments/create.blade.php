@@ -354,7 +354,7 @@
         <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; position: relative; z-index: 1;">
             <div>
                 <h1 class="header-title">إنشاء دفعة جديدة</h1>
-                <p class="header-subtitle">إنشاء دفعة جديدة لطالب في برنامج معين</p>
+                <p class="header-subtitle">إنشاء دفعة جديدة ل متدرب في برنامج معين</p>
             </div>
             <a href="{{ route('admin.payments.index') }}" class="header-back">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -401,7 +401,7 @@
                         <div class="form-card-body">
                             <!-- Student (custom searchable picker) -->
                             <div class="form-group" style="position:relative;">
-                                <label class="form-label">الطالب <span class="required">*</span></label>
+                                <label class="form-label">ال متدرب <span class="required">*</span></label>
 
                                 {{-- Hidden real input for form submission --}}
                                 <input type="hidden" name="user_id" id="user_id" value="{{ old('user_id') }}" required>

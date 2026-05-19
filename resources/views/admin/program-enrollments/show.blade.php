@@ -573,7 +573,7 @@
         </div>
         <div style="background:#fef2f2;border-radius:12px;padding:.85rem 1rem;margin-bottom:1.25rem;border:1px solid #fecaca;">
             <p style="font-size:.85rem;color:#b91c1c;margin:0;font-weight:500;">
-                هل أنت متأكد من رفض طلب تسجيل الطالب <strong>{{ $user->name }}</strong> في برنامج <strong>{{ $user->program->name_ar ?? '' }}</strong>؟
+                هل أنت متأكد من رفض طلب تسجيل ال متدرب <strong>{{ $user->name }}</strong> في برنامج <strong>{{ $user->program->name_ar ?? '' }}</strong>؟
             </p>
         </div>
         <div style="display:flex;gap:.75rem;justify-content:flex-end;">

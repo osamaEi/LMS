@@ -54,7 +54,7 @@
     <!-- Results Table -->
     <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm overflow-hidden">
         <div class="p-6 border-b border-gray-200 dark:border-gray-700">
-            <h2 class="text-lg font-bold text-gray-900 dark:text-white">محاولات الطلاب</h2>
+            <h2 class="text-lg font-bold text-gray-900 dark:text-white">محاولات  المتدربون </h2>
         </div>
 
         @if($attempts->count() > 0)
@@ -136,7 +136,7 @@
                     </svg>
                 </div>
                 <h3 class="text-xl font-bold text-gray-900 dark:text-white">لا توجد محاولات</h3>
-                <p class="mt-2 text-gray-500 dark:text-gray-400">لم يقم أي طالب بتقديم هذا الاختبار بعد</p>
+                <p class="mt-2 text-gray-500 dark:text-gray-400">لم يقم أي  متدرب بتقديم هذا الاختبار بعد</p>
             </div>
         @endif
     </div>

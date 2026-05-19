@@ -389,7 +389,7 @@
             @if($session->zoom_join_url)
             <div class="overflow-hidden rounded-2xl border border-stroke bg-white shadow-sm dark:border-strokedark dark:bg-boxdark">
                 <div class="border-b border-stroke px-5 py-4 dark:border-strokedark">
-                    <h3 class="font-bold text-black dark:text-white">رابط الطلاب</h3>
+                    <h3 class="font-bold text-black dark:text-white">رابط  المتدربون </h3>
                     <p class="text-xs text-gray-400 mt-0.5">شارك هذا الرابط مع طلابك</p>
                 </div>
                 <div class="p-4">

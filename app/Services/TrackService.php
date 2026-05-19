@@ -118,7 +118,7 @@ class TrackService
     }
 
     /**
-     * تعيين الطالب إلى دبلوم
+     * تعيين ال متدرب إلى دبلوم
      */
     public function assignStudentToTrack(int $studentId, int $trackId, int $termNumber = 1)
     {
@@ -137,7 +137,7 @@ class TrackService
     }
 
     /**
-     * ترقية الطالب للربع التالي
+     * ترقية ال متدرب للربع التالي
      */
     public function promoteStudentToNextTerm(int $studentId)
     {

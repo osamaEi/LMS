@@ -38,8 +38,8 @@
                         </svg>
                     </div>
                     <div>
-                        <p class="text-sm font-medium text-gray-900 dark:text-white">تقرير الطلاب</p>
-                        <p class="text-xs text-gray-500 dark:text-gray-400">إحصائيات شاملة عن الطلاب</p>
+                        <p class="text-sm font-medium text-gray-900 dark:text-white">تقرير  المتدربون </p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">إحصائيات شاملة عن  المتدربون </p>
                     </div>
                 </div>
                 <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -79,7 +79,7 @@
                 <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1">87%</p>
             </div>
             <div class="rounded-lg bg-gray-50 p-4 dark:bg-gray-800">
-                <p class="text-sm text-gray-500 dark:text-gray-400">رضا الطلاب</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400">رضا  المتدربون </p>
                 <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1">4.8/5</p>
             </div>
         </div>

@@ -1,6 +1,6 @@
 @extends('layouts.dashboard')
 
-@section('title', 'إدارة الطلاب')
+@section('title', 'إدارة  المتدربون ')
 
 @push('styles')
 <style>
@@ -246,8 +246,8 @@
                         </svg>
                     </div>
                     <div>
-                        <h1 style="font-size:1.7rem;font-weight:900;color:#fff;margin:0;line-height:1.2">إدارة الطلاب</h1>
-                        <p style="font-size:0.875rem;color:rgba(255,255,255,0.75);margin:5px 0 0">عرض وإدارة جميع الطلاب المسجلين في المنصة</p>
+                        <h1 style="font-size:1.7rem;font-weight:900;color:#fff;margin:0;line-height:1.2">إدارة  المتدربون </h1>
+                        <p style="font-size:0.875rem;color:rgba(255,255,255,0.75);margin:5px 0 0">عرض وإدارة جميع  المتدربون  المسجلين في المنصة</p>
                     </div>
                 </div>
                 <a href="{{ route('admin.students.export') }}"
@@ -264,7 +264,7 @@
             <div style="display:flex;gap:10px;flex-wrap:wrap">
                 <a href="{{ route('admin.students.index') }}" class="hero-stat {{ !$statusFilter ? 'active-filter' : '' }}">
                     <div style="font-size:1.8rem;font-weight:900;color:#fff;line-height:1">{{ $stats['total'] }}</div>
-                    <div style="font-size:0.75rem;color:rgba(255,255,255,0.75);margin-top:4px">إجمالي الطلاب</div>
+                    <div style="font-size:0.75rem;color:rgba(255,255,255,0.75);margin-top:4px">إجمالي  المتدربون </div>
                 </a>
                 <a href="{{ route('admin.students.index', ['status' => 'active']) }}" class="hero-stat {{ $statusFilter === 'active' ? 'active-filter' : '' }}">
                     <div style="font-size:1.8rem;font-weight:900;color:#6ee7b7;line-height:1">{{ $stats['active'] }}</div>
@@ -510,7 +510,7 @@
                                     @method('DELETE')
                                     <button type="submit"
                                             class="act-btn act-del"
-                                            onclick="return confirm('حذف الطالب {{ addslashes($student->name) }} نهائياً؟')">
+                                            onclick="return confirm('حذف ال متدرب {{ addslashes($student->name) }} نهائياً؟')">
                                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                                         </svg>

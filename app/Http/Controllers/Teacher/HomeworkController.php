@@ -66,7 +66,7 @@ class HomeworkController extends Controller
             $student->notify(new HomeworkCreatedNotification($homework));
         }
 
-        return back()->with('success', 'تم إضافة الواجب بنجاح وإشعار الطلاب');
+        return back()->with('success', 'تم إضافة الواجب بنجاح وإشعار  المتدربون ');
     }
 
     public function update(Request $request, Session $session)

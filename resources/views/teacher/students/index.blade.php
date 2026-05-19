@@ -59,7 +59,7 @@
     <!-- Students List -->
     <div class="bg-white rounded-lg shadow">
         <div class="p-6 border-b">
-            <h2 class="text-lg font-bold text-gray-900">قائمة الطلاب</h2>
+            <h2 class="text-lg font-bold text-gray-900">قائمة  المتدربون </h2>
         </div>
         <div class="p-6">
             @if($students->count() > 0)
@@ -123,7 +123,7 @@
     <!-- Subjects Filter (Optional Future Enhancement) -->
     <div class="bg-white rounded-lg shadow mt-6">
         <div class="p-6 border-b">
-            <h2 class="text-lg font-bold text-gray-900">الطلاب حسب المقرر </h2>
+            <h2 class="text-lg font-bold text-gray-900"> المتدربون  حسب المقرر </h2>
         </div>
         <div class="p-6">
             @if($subjects->count() > 0)
@@ -132,7 +132,7 @@
                     <div class="border rounded-lg p-4 hover:border-blue-500 transition">
                         <h3 class="font-bold text-gray-900 mb-2">{{ $subject->name }}</h3>
                         <div class="flex items-center justify-between">
-                            <span class="text-sm text-gray-600">عدد الطلاب:</span>
+                            <span class="text-sm text-gray-600">عدد  المتدربون :</span>
                             <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-bold">
                                 {{ $subject->enrollments()->count() }}
                             </span>

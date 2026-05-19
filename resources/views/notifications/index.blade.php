@@ -230,7 +230,7 @@
                     <div id="section-group">
                         <label style="display:block;font-size:.8rem;font-weight:700;color:#374151;margin-bottom:.6rem;">المستهدفون <span style="color:#ef4444;">*</span></label>
                         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;">
-                            @foreach([['student','الطلاب','#059669'],['teacher','المعلمون','#2563eb'],['all','الجميع','#7c3aed']] as [$val, $lab, $col])
+                            @foreach([['student',' المتدربون ','#059669'],['teacher','المعلمون','#2563eb'],['all','الجميع','#7c3aed']] as [$val, $lab, $col])
                             <label style="cursor:pointer;">
                                 <input type="radio" name="target" value="{{ $val }}" id="t-{{ $val }}"
                                        {{ old('target','student') === $val ? 'checked' : '' }}
@@ -250,7 +250,7 @@
                         <div style="display:flex;gap:.5rem;margin-bottom:.75rem;">
                             <button type="button" id="pick-tab-students" onclick="setPickTab('students')"
                                     style="flex:1;padding:.5rem;border-radius:8px;border:2px solid transparent;font-size:.78rem;font-weight:700;cursor:pointer;background:linear-gradient(135deg,#059669,#047857);color:white;">
-                                الطلاب ({{ count($students) }})
+                                 المتدربون  ({{ count($students) }})
                             </button>
                             <button type="button" id="pick-tab-teachers" onclick="setPickTab('teachers')"
                                     style="flex:1;padding:.5rem;border-radius:8px;border:2px solid #e5e7eb;font-size:.78rem;font-weight:700;cursor:pointer;background:white;color:#6b7280;">

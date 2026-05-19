@@ -99,7 +99,7 @@
               "host": ["{{base_url}}"],
               "path": ["api", "v1", "auth", "register"]
             },
-            "description": "تسجيل حساب طالب جديد (multipart/form-data)\n\nيتم إنشاء الحساب بحالة 'pending' في انتظار مراجعة الإدارة وتفعيل الحساب.\n\nالحقول المطلوبة:\n- name: الاسم الكامل\n- national_id: رقم الهوية الوطنية (10 أرقام، فريد)\n- date_of_birth: تاريخ الميلاد (YYYY-MM-DD)\n- gender: الجنس (male / female)\n- email: البريد الإلكتروني (فريد)\n- phone: رقم الجوال السعودي (05XXXXXXXX)\n- password: كلمة المرور (8 أحرف على الأقل)\n- password_confirmation: تأكيد كلمة المرور\n- specialization: التخصص التدريبي \n- specialization_type: نوع التخصص\n- date_of_graduation: تاريخ التخرج (YYYY-MM-DD)\n- national_id_front: صورة الهوية الأمامية (JPG/PNG/PDF، max 5MB)\n- national_id_back: صورة الهوية الخلفية (JPG/PNG/PDF، max 5MB)\n- is_confirm_user: 1 (إقرار بصحة البيانات)\n- is_terms: 1 (موافقة على الشروط والأحكام)\n\nملاحظة: استخدم form-data وليس JSON لأن الطلب يحتوي على ملفات."
+            "description": "تسجيل حساب  متدرب جديد (multipart/form-data)\n\nيتم إنشاء الحساب بحالة 'pending' في انتظار مراجعة الإدارة وتفعيل الحساب.\n\nالحقول المطلوبة:\n- name: الاسم الكامل\n- national_id: رقم الهوية الوطنية (10 أرقام، فريد)\n- date_of_birth: تاريخ الميلاد (YYYY-MM-DD)\n- gender: الجنس (male / female)\n- email: البريد الإلكتروني (فريد)\n- phone: رقم الجوال السعودي (05XXXXXXXX)\n- password: كلمة المرور (8 أحرف على الأقل)\n- password_confirmation: تأكيد كلمة المرور\n- specialization: التخصص التدريبي \n- specialization_type: نوع التخصص\n- date_of_graduation: تاريخ التخرج (YYYY-MM-DD)\n- national_id_front: صورة الهوية الأمامية (JPG/PNG/PDF، max 5MB)\n- national_id_back: صورة الهوية الخلفية (JPG/PNG/PDF، max 5MB)\n- is_confirm_user: 1 (إقرار بصحة البيانات)\n- is_terms: 1 (موافقة على الشروط والأحكام)\n\nملاحظة: استخدم form-data وليس JSON لأن الطلب يحتوي على ملفات."
           },
           "response": [
             {
@@ -277,7 +277,7 @@
     },
     {
       "name": "Dashboard",
-      "description": "لوحة تحكم الطالب — البرنامج والمعلومات الشخصية والأخبار والمدفوعات والإشعارات",
+      "description": "لوحة تحكم ال متدرب — البرنامج والمعلومات الشخصية والأخبار والمدفوعات والإشعارات",
       "item": [
         {
           "name": "My Info (Profile)",
@@ -291,7 +291,7 @@
               "host": ["{{base_url}}"],
               "path": ["api", "v1", "profile"]
             },
-            "description": "معلومات الطالب الشخصية مع برنامجه ودبلومه التدريبي "
+            "description": "معلومات ال متدرب الشخصية مع برنامجه ودبلومه التدريبي "
           },
           "response": []
         },
@@ -430,7 +430,7 @@
               "host": ["{{base_url}}"],
               "path": ["api", "v1", "student", "my-subjects"]
             },
-            "description": "قائمة المقررات  المسجل بها الطالب مع نسبة التقدم لكل مادة"
+            "description": "قائمة المقررات  المسجل بها ال متدرب مع نسبة التقدم لكل مادة"
           },
           "response": []
         },
@@ -446,7 +446,7 @@
               "host": ["{{base_url}}"],
               "path": ["api", "v1", "student", "statistics"]
             },
-            "description": "إحصائيات الطالب الكاملة:\n- عدد المقررات  والجلسات\n- معدل الحضور\n- إجمالي وقت الدراسة (دقائق)\n- الحضور الشهري للأشهر الستة الماضية"
+            "description": "إحصائيات ال متدرب الكاملة:\n- عدد المقررات  والجلسات\n- معدل الحضور\n- إجمالي وقت الدراسة (دقائق)\n- الحضور الشهري للأشهر الستة الماضية"
           },
           "response": [
             {
@@ -573,7 +573,7 @@
                     }
                   ]
                 },
-                "description": "جلب إشعارات الطالب الأخيرة مع عدد غير المقروء"
+                "description": "جلب إشعارات ال متدرب الأخيرة مع عدد غير المقروء"
               },
               "response": [
                 {
@@ -691,7 +691,7 @@
                   "host": ["{{base_url}}"],
                   "path": ["api", "v1", "student", "payments"]
                 },
-                "description": "قائمة مدفوعات الطالب مع الملخص المالي:\n- إجمالي المبلغ المستحق\n- المبلغ المدفوع\n- المبلغ المتبقي\n- قائمة المدفوعات مع الأقساط والمعاملات"
+                "description": "قائمة مدفوعات ال متدرب مع الملخص المالي:\n- إجمالي المبلغ المستحق\n- المبلغ المدفوع\n- المبلغ المتبقي\n- قائمة المدفوعات مع الأقساط والمعاملات"
               },
               "response": [
                 {

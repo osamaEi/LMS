@@ -741,7 +741,7 @@
                                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
                                 </svg>
-                                بدء الحصة الآن
+                                بدء ال محاضرة الآن
                             </button>
                         </form>
 
@@ -846,7 +846,7 @@
                         رابط للطلاب
                     </h3>
                     <div class="info-card">
-                        <p style="color: rgba(255,255,255,0.6); font-size: 12px; margin-bottom: 12px;">شارك هذا الرابط مع الطلاب للانضمام</p>
+                        <p style="color: rgba(255,255,255,0.6); font-size: 12px; margin-bottom: 12px;">شارك هذا الرابط مع  المتدربون  للانضمام</p>
                         <div class="copy-input-group">
                             <input type="text" class="copy-input" value="{{ $session->zoom_join_url }}" readonly id="join-url">
                             <button class="copy-btn" onclick="copyLink()">
@@ -904,7 +904,7 @@
                                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                                 </svg>
-                                سيتم تسجيل الحصة تلقائياً على Cloud
+                                سيتم تسجيل ال محاضرة تلقائياً على Cloud
                             </li>
                             <li>
                                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1092,7 +1092,7 @@
                 loading.classList.remove('active');
                 preJoinScreen.classList.remove('hidden');
                 joinBtn.disabled = false;
-                joinBtn.innerHTML = '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg> بدء الحصة الآن';
+                joinBtn.innerHTML = '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg> بدء ال محاضرة الآن';
             }
         }
     </script>

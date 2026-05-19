@@ -43,7 +43,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"طالب جديد\",\n    \"email\": \"student@example.com\",\n    \"phone\": \"0512345678\",\n    \"national_id\": \"1234567890\",\n    \"password\": \"password123\",\n    \"password_confirmation\": \"password123\",\n    \"gender\": \"male\",\n    \"date_of_birth\": \"2000-01-15\"\n}"
+							"raw": "{\n    \"name\": \" متدرب جديد\",\n    \"email\": \"student@example.com\",\n    \"phone\": \"0512345678\",\n    \"national_id\": \"1234567890\",\n    \"password\": \"password123\",\n    \"password_confirmation\": \"password123\",\n    \"gender\": \"male\",\n    \"date_of_birth\": \"2000-01-15\"\n}"
 						},
 						"url": {
 							"raw": "{{base_url}}/auth/register",

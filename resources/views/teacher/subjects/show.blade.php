@@ -209,10 +209,6 @@
                         <div class="hero-stat-val">{{ $subject->files->count() }}</div>
                         <div class="hero-stat-lbl">ملف مقرر</div>
                     </div>
-                    <div class="hero-stat">
-                        <div class="hero-stat-val">{{ $allFiles->count() }}</div>
-                        <div class="hero-stat-lbl">ملف  محاضرات  </div>
-                    </div>
                 </div>
             </div>
 
@@ -266,13 +262,6 @@
         ملفات المقرر
         <span class="tab-count" :class="tab==='subject-files' ? 'tab-count-on' : 'tab-count-off'">{{ $subject->files->count() }}</span>
     </button>
-    <button @click="tab='session-files'" :class="tab==='session-files' ? 'active' : ''" class="tab-btn">
-        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/>
-        </svg>
-        ملفات ال محاضرات  
-        <span class="tab-count" :class="tab==='session-files' ? 'tab-count-on' : 'tab-count-off'">{{ $allFiles->count() }}</span>
-    </button>
 </div>
 
 {{-- ═══ Sessions Tab ═══ --}}
@@ -287,7 +276,7 @@
                 </div>
                 <div>
                     <h2 class="text-sm font-bold text-gray-900 dark:text-white">المحاضرات والمحاضرات</h2>
-                    <p class="text-xs text-gray-500">{{ $sessions->count() }} حصة مضافة</p>
+                    <p class="text-xs text-gray-500">{{ $sessions->count() }}  محاضرة مضافة</p>
                 </div>
             </div>
             <button @click="createModal = true"
@@ -492,88 +481,6 @@
     </div>
 </div>
 
-{{-- ═══ Session Files Tab ═══ --}}
-<div x-show="tab==='session-files'">
-    <div class="section-card">
-        <div class="section-header">
-            <div class="flex items-center gap-3">
-                <div style="width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0071AA,#005a88)">
-                    <svg class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/>
-                    </svg>
-                </div>
-                <div>
-                    <h2 class="text-sm font-bold text-gray-900 dark:text-white">ملفات ال محاضرات  </h2>
-                    <p class="text-xs text-gray-500">{{ $allFiles->count() }} ملف موزع على ال محاضرات  </p>
-                </div>
-            </div>
-        </div>
-
-        @if($allFiles->isEmpty())
-            <div class="empty-box">
-                <div class="empty-icon">
-                    <svg class="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/>
-                    </svg>
-                </div>
-                <p class="font-semibold text-gray-600 dark:text-gray-400">لا توجد ملفات مرفقة بال محاضرات  </p>
-                <p class="text-sm text-gray-400 mt-1">أرفق ملفات عند إنشاء أو تعديل ال محاضرات  </p>
-            </div>
-        @else
-            @foreach($allFiles as $item)
-                @php
-                    $file    = $item['file'];
-                    $session = $item['session'];
-                    $ext     = strtolower(pathinfo($file->file_path ?? '', PATHINFO_EXTENSION));
-                    if ($ext==='pdf')                                    { $ic='#ef4444';$il='PDF'; }
-                    elseif(in_array($ext,['doc','docx']))                { $ic='#2563eb';$il='DOC'; }
-                    elseif(in_array($ext,['xls','xlsx','csv']))          { $ic='#16a34a';$il='XLS'; }
-                    elseif(in_array($ext,['ppt','pptx']))                { $ic='#ea580c';$il='PPT'; }
-                    elseif(in_array($ext,['jpg','jpeg','png','gif','webp','svg'])) { $ic='#9333ea';$il=strtoupper($ext); }
-                    else                                                 { $ic='#6b7280';$il=strtoupper($ext)?:'FILE'; }
-                @endphp
-                <div class="row-item">
-                    <div class="file-badge" style="background:{{ $ic }}">{{ $il }}</div>
-                    <div class="flex-1 min-w-0">
-                        <p class="truncate font-semibold text-gray-900 dark:text-white text-sm">
-                            {{ $file->title ?: basename($file->file_path ?? 'ملف') }}
-                        </p>
-                        <div class="flex flex-wrap items-center gap-x-3 text-xs text-gray-500 mt-0.5">
-                            <span class="flex items-center gap-1" style="color:#0071AA">
-                                <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
-                                </svg>
-                                حصة {{ $session->session_number }}: {{ $session->title }}
-                            </span>
-                            @if($file->file_size)
-                                <span>{{ number_format($file->file_size/1024,1) }} KB</span>
-                            @endif
-                        </div>
-                    </div>
-                    <div class="flex flex-shrink-0 items-center gap-1.5">
-                        @if($file->file_path)
-                            <a href="{{ asset('storage/'.$file->file_path) }}" target="_blank"
-                               class="action-btn" style="background:#eff6ff;color:#1d4ed8">عرض</a>
-                            <a href="{{ asset('storage/'.$file->file_path) }}" download
-                               class="action-btn" style="background:#dcfce7;color:#15803d">تحميل</a>
-                        @endif
-                        <form action="{{ route('teacher.my-subjects.sessions.files.destroy', [$subject->id, $session->id, $file->id]) }}"
-                              method="POST" class="inline"
-                              onsubmit="return confirm('هل أنت متأكد؟')">
-                            @csrf @method('DELETE')
-                            <button type="submit" class="action-btn" style="background:#fee2e2;color:#dc2626">
-                                <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                </svg>
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            @endforeach
-        @endif
-    </div>
-</div>
-
 {{-- ─── Upload Modal ─── --}}
 <div x-show="uploadModal" x-cloak
      style="position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.55);"
@@ -644,7 +551,7 @@
                         </svg>
                     </div>
                     <div>
-                        <h3 style="color:#fff;font-size:1rem;font-weight:800;line-height:1.2;">إنشاء حصة جديدة</h3>
+                        <h3 style="color:#fff;font-size:1rem;font-weight:800;line-height:1.2;">إنشاء  محاضرة جديدة</h3>
                         <p style="color:rgba(255,255,255,.7);font-size:.75rem;margin-top:2px;">{{ $subject->name }}</p>
                     </div>
                 </div>

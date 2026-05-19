@@ -57,13 +57,7 @@ class SubjectController extends Controller
             ->orderBy('session_number', 'asc')
             ->get();
 
-        // Collect all session files across all sessions for the files tab
-        $allFiles = $sessions->flatMap(fn($s) => $s->files->map(fn($f) => [
-            'file'    => $f,
-            'session' => $s,
-        ]));
-
-        return view('teacher.subjects.show', compact('subject', 'sessions', 'allFiles'));
+        return view('teacher.subjects.show', compact('subject', 'sessions'));
     }
 
     /**
@@ -118,7 +112,7 @@ class SubjectController extends Controller
         // Auto-fill required fields when not provided
         $nextNumber = $subject->sessions()->max('session_number') + 1 ?? 1;
         $validated['session_number'] = $validated['session_number'] ?? $nextNumber;
-        $validated['title_ar'] = $validated['title_ar'] ?? ('حصة ' . $validated['session_number']);
+        $validated['title_ar'] = $validated['title_ar'] ?? (' محاضرة ' . $validated['session_number']);
         $validated['title_en'] = $validated['title_en'] ?? ('Session ' . $validated['session_number']);
         $validated['type']     = $validated['type'] ?? 'recorded_video';
 
@@ -205,7 +199,7 @@ class SubjectController extends Controller
         $this->notificationService->notifySessionCreated($session);
 
         return redirect()->route('teacher.my-subjects.show', $subjectId)
-            ->with('success', 'تم إضافة الحصة بنجاح');
+            ->with('success', 'تم إضافة ال محاضرة بنجاح');
     }
 
     /**
@@ -348,7 +342,7 @@ class SubjectController extends Controller
         $this->notificationService->notifySessionUpdated($session);
 
         return redirect()->route('teacher.my-subjects.show', $subjectId)
-            ->with('success', 'تم تحديث الحصة بنجاح');
+            ->with('success', 'تم تحديث ال محاضرة بنجاح');
     }
 
     /**
@@ -386,7 +380,7 @@ class SubjectController extends Controller
         $session->delete();
 
         return redirect()->route('teacher.my-subjects.show', $subjectId)
-            ->with('success', 'تم حذف الحصة بنجاح');
+            ->with('success', 'تم حذف ال محاضرة بنجاح');
     }
 
     /**

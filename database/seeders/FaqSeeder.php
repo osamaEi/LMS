@@ -147,7 +147,7 @@ class FaqSeeder extends Seeder
                 'answer_en'   => 'Some of our programs carry international accreditation from specialized bodies. The accreditation scope is clearly mentioned in each program description.',
             ],
 
-            // ── منصة الطالب ─────────────────────────────────────────────
+            // ── منصة ال متدرب ─────────────────────────────────────────────
             [
                 'category'    => 'platform',
                 'sort_order'  => 1,
@@ -169,7 +169,7 @@ class FaqSeeder extends Seeder
                 'sort_order'  => 3,
                 'question_ar' => 'كيف أطلع على درجاتي ونتائجي؟',
                 'question_en' => 'How do I view my grades and results?',
-                'answer_ar'   => 'تظهر درجات التقييمات والاختبارات في قسم "نتائجي" بلوحة تحكم الطالب فور صدورها من قِبل المعلم.',
+                'answer_ar'   => 'تظهر درجات التقييمات والاختبارات في قسم "نتائجي" بلوحة تحكم ال متدرب فور صدورها من قِبل المعلم.',
                 'answer_en'   => 'Assessment and exam grades appear in the "My Results" section of the student dashboard as soon as they are released by the teacher.',
             ],
             [

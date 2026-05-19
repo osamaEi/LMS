@@ -1,6 +1,6 @@
 @extends('layouts.dashboard')
 
-@section('title', 'إضافة حصة جديدة')
+@section('title', 'إضافة  محاضرة جديدة')
 
 @push('styles')
 <style>
@@ -37,7 +37,7 @@
             <li>/</li>
             <li><a href="{{ route('teacher.my-subjects.show', $subject->id) }}" class="hover:text-brand-500">{{ $subject->name }}</a></li>
             <li>/</li>
-            <li class="text-gray-900 dark:text-white">إضافة حصة جديدة</li>
+            <li class="text-gray-900 dark:text-white">إضافة  محاضرة جديدة</li>
         </ol>
     </nav>
 
@@ -49,7 +49,7 @@
             </svg>
         </a>
         <div>
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">إضافة حصة جديدة</h1>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">إضافة  محاضرة جديدة</h1>
             <p class="text-sm text-gray-500 dark:text-gray-400">{{ $subject->name }}</p>
         </div>
     </div>
@@ -90,23 +90,23 @@
             </div>
             @endif
 
-            <!-- عنوان الحصة بالعربي -->
+            <!-- عنوان ال محاضرة بالعربي -->
             <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    عنوان الحصة (عربي) <span class="text-error-500">*</span>
+                    عنوان ال محاضرة (عربي) <span class="text-error-500">*</span>
                 </label>
                 <input type="text"
                        name="title_ar"
                        value="{{ old('title_ar') }}"
                        required
                        class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-                       placeholder="مثال: مقدمة في البرمجة - الحصة الأولى">
+                       placeholder="مثال: مقدمة في البرمجة - ال محاضرة الأولى">
             </div>
 
-            <!-- عنوان الحصة بالإنجليزي -->
+            <!-- عنوان ال محاضرة بالإنجليزي -->
             <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    عنوان الحصة (إنجليزي) <span class="text-error-500">*</span>
+                    عنوان ال محاضرة (إنجليزي) <span class="text-error-500">*</span>
                 </label>
                 <input type="text"
                        name="title_en"
@@ -116,10 +116,10 @@
                        placeholder="Example: Introduction to Programming - Session 1">
             </div>
 
-            <!-- رقم الحصة -->
+            <!-- رقم ال محاضرة -->
             <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    رقم الحصة <span class="text-error-500">*</span>
+                    رقم ال محاضرة <span class="text-error-500">*</span>
                 </label>
                 <input type="number"
                        name="session_number"
@@ -142,10 +142,10 @@
                        placeholder="60">
             </div>
 
-            <!-- نوع الحصة -->
+            <!-- نوع ال محاضرة -->
             <div class="md:col-span-2">
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-                    نوع الحصة <span class="text-error-500">*</span>
+                    نوع ال محاضرة <span class="text-error-500">*</span>
                 </label>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <!-- Recorded Video -->
@@ -178,7 +178,7 @@
                 </div>
             </div>
 
-            <!-- تاريخ ووقت الحصة -->
+            <!-- تاريخ ووقت ال محاضرة -->
             <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     تاريخ ووقت الحصة
@@ -192,7 +192,7 @@
             <!-- الوصف بالعربي -->
             <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    وصف الحصة (عربي)
+                    وصف ال محاضرة (عربي)
                 </label>
                 <textarea name="description_ar"
                           rows="3"
@@ -203,7 +203,7 @@
             <!-- الوصف بالإنجليزي -->
             <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    وصف الحصة (إنجليزي)
+                    وصف ال محاضرة (إنجليزي)
                 </label>
                 <textarea name="description_en"
                           rows="3"
@@ -331,7 +331,7 @@
         </div>
 
         <p class="mt-4 text-xs text-gray-500 dark:text-gray-400">
-            ملاحظة: تأكد من تحديد موعد الحصة أعلاه ليتم جدولة الاجتماع بشكل صحيح
+            ملاحظة: تأكد من تحديد موعد ال محاضرة أعلاه ليتم جدولة الاجتماع بشكل صحيح
         </p>
     </div>
 

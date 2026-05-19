@@ -31,11 +31,11 @@ class PermissionSeeder extends Seeder
         'edit-teachers'                  => 'تعديل بيانات المعلمين',
         'delete-teachers'                => 'حذف المعلمين',
 
-        // ─── الطلاب ────────────────────────────────────
-        'view-students'                  => 'عرض الطلاب',
+        // ───  المتدربون  ────────────────────────────────────
+        'view-students'                  => 'عرض  المتدربون ',
         'create-students'                => 'إضافة طلاب',
-        'edit-students'                  => 'تعديل بيانات الطلاب',
-        'delete-students'                => 'حذف الطلاب',
+        'edit-students'                  => 'تعديل بيانات  المتدربون ',
+        'delete-students'                => 'حذف  المتدربون ',
         'assign-program-to-student'      => 'تعيين دبلوم تدريبي للطالب',
         'remove-program-from-student'    => 'إزالة الدبلوم التدريبي من الطالب',
         'toggle-student-status'          => 'تفعيل / تعطيل حساب الطالب',
@@ -104,7 +104,7 @@ class PermissionSeeder extends Seeder
         'export-reports'                 => 'تصدير التقارير',
         'view-analytics'                 => 'عرض الإحصائيات والتحليلات',
         'view-nelc-compliance'           => 'عرض تقارير الامتثال لهيئة تقويم التعليم',
-        'view-student-progress'          => 'عرض تقارير تقدم الطلاب',
+        'view-student-progress'          => 'عرض تقارير تقدم  المتدربون ',
         'view-attendance-reports'        => 'عرض تقارير الحضور',
         'view-grade-reports'             => 'عرض تقارير الدرجات',
         'view-teacher-performance'       => 'عرض تقارير أداء المعلمين',

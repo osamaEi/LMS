@@ -221,7 +221,7 @@
 <div class="empty-offers">
     <div style="font-size:4rem;margin-bottom:1rem;">🎁</div>
     <h3 style="font-size:1.1rem;font-weight:800;color:#374151;margin:0 0 .5rem;">لا توجد عروض بعد</h3>
-    <p style="font-size:.88rem;color:#9ca3af;margin:0 0 1.5rem;">أنشئ أول عرض أو خصم لجذب الطلاب</p>
+    <p style="font-size:.88rem;color:#9ca3af;margin:0 0 1.5rem;">أنشئ أول عرض أو خصم لجذب  المتدربون </p>
     <a href="{{ route('admin.offers.create') }}" style="display:inline-flex;align-items:center;gap:.5rem;padding:.75rem 1.5rem;border-radius:12px;background:#0071AA;color:#fff;font-weight:700;text-decoration:none;">
         <svg style="width:16px;height:16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
         إنشاء عرض جديد

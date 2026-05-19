@@ -99,12 +99,12 @@
 {{-- ═══ فاصل ═══ --}}
 <li style="margin:6px 16px;height:1px;background:rgba(255,255,255,0.1)"></li>
 
-{{-- ═══ إدارة الطلاب ═══ --}}
+{{-- ═══ إدارة  المتدربون  ═══ --}}
 <li style="padding:8px 16px 4px">
     <span style="font-size:0.68rem;font-weight:700;letter-spacing:0.1em;color:rgba(255,255,255,0.35);display:block;text-transform:uppercase">{{ __('Student Management') }}</span>
 </li>
 
-<!-- الطلاب -->
+<!--  المتدربون  -->
 <li>
     <a href="{{ route('teacher.students.index') }}"
        class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('teacher.students.*') ? 'menu-item-active' : 'menu-item-inactive' }}">

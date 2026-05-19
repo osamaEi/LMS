@@ -564,7 +564,7 @@
                 <div class="flex items-center justify-between flex-wrap gap-4">
                     <div>
                         <h1 class="text-2xl font-extrabold mb-1">إدارة الدفعات</h1>
-                        <p class="opacity-75 text-sm">عرض وإدارة جميع دفعات الطلاب والأقساط</p>
+                        <p class="opacity-75 text-sm">عرض وإدارة جميع دفعات  المتدربون  والأقساط</p>
                     </div>
                     <div class="header-actions">
                         <a href="{{ route('admin.payments.overdue') }}" class="header-btn header-btn-warning">
@@ -658,7 +658,7 @@
                         <label class="form-label">بحث سريع (الاسم / البريد / الهاتف)</label>
                         <div style="position: relative;">
                             <input type="text" name="search" value="{{ request('search') }}"
-                                   placeholder="ابحث باسم الطالب أو بريده أو هاتفه..."
+                                   placeholder="ابحث باسم ال متدرب أو بريده أو هاتفه..."
                                    class="form-select"
                                    style="padding-right: 2.5rem;">
                             <svg style="position:absolute;top:50%;right:0.75rem;transform:translateY(-50%);width:18px;height:18px;color:#9ca3af;pointer-events:none;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
