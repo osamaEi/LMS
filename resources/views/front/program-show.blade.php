@@ -75,6 +75,8 @@
     grid-template-columns: 1fr 340px;
     gap: 1.75rem;
     align-items: flex-start;
+    padding-top: 65px;
+  padding-bottom: 40px;
 }
 @media(max-width:960px)  { .ps-grid { grid-template-columns: 1fr; } }
 
