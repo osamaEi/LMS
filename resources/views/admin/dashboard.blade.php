@@ -119,7 +119,7 @@ $mainCards = [
     </div>
     <div style="text-align:center;border-right:1px solid rgba(255,255,255,.15);">
         <div style="font-size:1.6rem;font-weight:900;color:#fff;">{{ $nelcStats['avg_teacher_rating'] }}</div>
-        <div style="font-size:.78rem;color:rgba(255,255,255,.75);margin-top:2px;">تقييم ال مدربين / 5</div>
+        <div style="font-size:.78rem;color:rgba(255,255,255,.75);margin-top:2px;">تقييم المدربين  / 5</div>
     </div>
     <div style="text-align:center;border-right:1px solid rgba(255,255,255,.15);">
         <div style="font-size:1.6rem;font-weight:900;color:#fff;">{{ $nelcStats['avg_response_time'] }}د</div>
@@ -173,7 +173,7 @@ $mainCards = [
                 <div style="width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#0071AA,#005a88);display:flex;align-items:center;justify-content:center;">
                     <svg style="width:15px;height:15px;color:#fff" fill="currentColor" viewBox="0 0 20 20"><path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"/></svg>
                 </div>
-                <h4 style="font-size:.9rem;font-weight:700;color:#1e293b;margin:0;">أحدث ال مدربين</h4>
+                <h4 style="font-size:.9rem;font-weight:700;color:#1e293b;margin:0;">أحدث المدربين </h4>
             </div>
             <a href="{{ route('admin.teachers.index') }}" style="font-size:.75rem;color:#0071AA;text-decoration:none;font-weight:600;">عرض الكل</a>
         </div>

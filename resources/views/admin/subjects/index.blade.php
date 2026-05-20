@@ -157,7 +157,7 @@
                     </svg>
                     <select name="teacher_id"
                             style="width:100%;padding:9px 34px 9px 12px;border:1.5px solid {{ $filters['teacherId'] ? '#0d9488' : '#e5e7eb' }};border-radius:10px;font-size:13px;color:#374151;background:#f9fafb;outline:none;appearance:none;cursor:pointer;">
-                        <option value="">كل ال مدربين</option>
+                        <option value="">كل المدربين </option>
                         @foreach($teachers as $teacher)
                         <option value="{{ $teacher->id }}" {{ $filters['teacherId'] == $teacher->id ? 'selected' : '' }}>
                             {{ $teacher->name }}

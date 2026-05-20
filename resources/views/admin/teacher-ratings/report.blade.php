@@ -1,6 +1,6 @@
 @extends('layouts.dashboard')
 
-@section('title', 'تقرير تقييمات ال مدربين')
+@section('title', 'تقرير تقييمات المدربين ')
 
 @section('content')
 <div class="space-y-6">
@@ -13,8 +13,8 @@
             </svg>
         </a>
         <div>
-            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">تقرير تقييمات ال مدربين</h2>
-            <p class="text-gray-600 dark:text-gray-400">إحصائيات شاملة عن تقييمات ال مدربين (معيار NELC 2.4.9)</p>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">تقرير تقييمات المدربين </h2>
+            <p class="text-gray-600 dark:text-gray-400">إحصائيات شاملة عن تقييمات المدربين  (معيار NELC 2.4.9)</p>
         </div>
     </div>
 
@@ -82,7 +82,7 @@
     <!-- Top Rated Teachers -->
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
         <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">أفضل ال مدربين تقييماً</h3>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">أفضل المدربين  تقييماً</h3>
             <p class="text-sm text-gray-500 dark:text-gray-400">المدربونالذين حصلوا على 3 تقييمات أو أكثر</p>
         </div>
         <div class="overflow-x-auto">

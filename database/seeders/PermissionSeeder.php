@@ -26,10 +26,10 @@ class PermissionSeeder extends Seeder
         'toggle-user-status'             => 'تفعيل / تعطيل حسابات المستخدمين',
 
         // ─── المدربون──────────────────────────────────
-        'view-teachers'                  => 'عرض ال مدربين',
+        'view-teachers'                  => 'عرض المدربين ',
         'create-teachers'                => 'إضافة  مدربين',
-        'edit-teachers'                  => 'تعديل بيانات ال مدربين',
-        'delete-teachers'                => 'حذف ال مدربين',
+        'edit-teachers'                  => 'تعديل بيانات المدربين ',
+        'delete-teachers'                => 'حذف المدربين ',
 
         // ───  المتدربون  ────────────────────────────────────
         'view-students'                  => 'عرض  المتدربون ',
@@ -107,7 +107,7 @@ class PermissionSeeder extends Seeder
         'view-student-progress'          => 'عرض تقارير تقدم  المتدربون ',
         'view-attendance-reports'        => 'عرض تقارير الحضور',
         'view-grade-reports'             => 'عرض تقارير الدرجات',
-        'view-teacher-performance'       => 'عرض تقارير أداء ال مدربين',
+        'view-teacher-performance'       => 'عرض تقارير أداء المدربين ',
 
         // ─── الاستبيانات ───────────────────────────────
         'view-surveys'                   => 'عرض الاستبيانات',
@@ -120,10 +120,10 @@ class PermissionSeeder extends Seeder
         'manage-tickets'                 => 'إدارة تذاكر الدعم',
         'assign-tickets'                 => 'تعيين التذاكر للموظفين',
 
-        // ─── تقييم ال مدربين ────────────────────────────
-        'view-ratings'                   => 'عرض تقييمات ال مدربين',
-        'approve-ratings'                => 'قبول تقييمات ال مدربين',
-        'reject-ratings'                 => 'رفض تقييمات ال مدربين',
+        // ─── تقييم المدربين  ────────────────────────────
+        'view-ratings'                   => 'عرض تقييمات المدربين ',
+        'approve-ratings'                => 'قبول تقييمات المدربين ',
+        'reject-ratings'                 => 'رفض تقييمات المدربين ',
 
         // ─── المستخدمون المعلقون ───────────────────────
         'view-pending-users'             => 'عرض طلبات التسجيل المعلقة',
