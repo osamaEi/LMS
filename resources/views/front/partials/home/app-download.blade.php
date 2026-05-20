@@ -21,8 +21,8 @@
                 </div>
             </div>
             <div class="col-lg-6 text-center">
-                <img loading="lazy" src="{{ $lms3s('2.png') }}" alt="App"
-                     style="max-width:100%;border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,.3);max-height:360px;object-fit:cover" />
+                <img loading="lazy" src="{{ asset('images/phone1.png') }}" alt="تطبيق معهد الارتقاء"
+                     style="max-width:300px;width:100%;filter:drop-shadow(0 24px 48px rgba(0,0,0,.35));" />
             </div>
         </div>
     </div>
