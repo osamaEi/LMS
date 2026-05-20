@@ -273,7 +273,7 @@
                             </div>
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
-                                    <label class="block text-xs font-semibold mb-1" style="color:#1e3a5f;">نوع التخصص <span style="color:#ef4444;">*</span></label>
+                                    <label class="block text-xs font-semibold mb-1" style="color:#1e3a5f;">المؤهل التعليمي  <span style="color:#ef4444;">*</span></label>
                                     <select id="specialization_type" name="specialization_type" required
                                             class="w-full px-3 py-2.5 border-2 rounded-xl focus:outline-none text-sm"
                                             style="border-color:#bfdbfe; background:#fff;"
@@ -699,7 +699,7 @@
         v('gender',              'gender-error',    'الجنس مطلوب');
         v('email',               'email-error',     'البريد الإلكتروني مطلوب');
         v('specialization',      'spec-error',      'التخصص مطلوب');
-        v('specialization_type', 'spec-type-error', 'نوع التخصص مطلوب');
+        v('specialization_type', 'spec-type-error', 'المؤهل التعليمي  مطلوب');
         v('date_of_graduation',  'grad-error',      'تاريخ التخرج مطلوب');
 
         const pw  = document.getElementById('password').value;

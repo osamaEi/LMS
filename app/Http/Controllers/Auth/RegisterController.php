@@ -167,7 +167,7 @@ class RegisterController extends Controller
             'gender.required'             => 'الجنس مطلوب',
             'gender.in'                   => 'قيمة الجنس غير صحيحة',
             'specialization.required'     => 'التخصص مطلوب',
-            'specialization_type.required'=> 'نوع التخصص مطلوب',
+            'specialization_type.required'=> 'المؤهل التعليمي  مطلوب',
             'date_of_graduation.required' => 'تاريخ التخرج مطلوب',
             'national_id_front.required'  => 'صورة الهوية الأمامية مطلوبة',
             'national_id_front.mimes'     => 'يجب أن تكون الصورة بصيغة JPG أو PNG أو PDF',

@@ -84,7 +84,7 @@
                     </div>
                 </div>
                 <p style="font-size: 0.95rem; opacity: 0.85; line-height: 1.8; margin: 0;">
-                    يهدف هذا الدليل إلى تمكين المدربين وال مدرب ين من استخدام جميع أدوات المنصة التعليمية بكفاءة عالية، بدءاً من إنشاء المحتوى التعليمي
+                    يهدف هذا الدليل إلى تمكين المدربين وال مدربين من استخدام جميع أدوات المنصة التعليمية بكفاءة عالية، بدءاً من إنشاء المحتوى التعليمي
                     وحتى تقييم المتدربين ومتابعة تقدمهم. نرجو مراجعة الخطوات التالية لضمان تقديم تجربة تعليمية متميزة.
                 </p>
             </div>
@@ -109,7 +109,7 @@
             <div style="display: flex; align-items: flex-start; gap: 0.75rem;">
                 <i class="fas fa-info-circle" style="color: #d97706; font-size: 1.25rem; margin-top: 3px;"></i>
                 <div>
-                    <p style="font-weight: 600; color: #92400e; margin: 0 0 0.25rem 0;">ملاحظة هامة لل مدرب ين</p>
+                    <p style="font-weight: 600; color: #92400e; margin: 0 0 0.25rem 0;">ملاحظة هامة لل مدربين</p>
                     <p style="color: #374151; margin: 0; line-height: 1.8; font-size: 0.95rem;">
                         هذا الدليل متاح للجميع ولا يتطلب تسجيل الدخول للاطلاع عليه، وذلك وفقاً لمتطلبات المركز الوطني للتعليم الإلكتروني (NELC).
                         يُرجى الالتزام بمعايير الجودة المعتمدة عند إعداد المحتوى التعليمي وتصميم الأنشطة والاختبارات لضمان تحقيق أفضل مخرجات تعليمية.
@@ -402,7 +402,7 @@
             <i class="fas fa-headset" style="font-size: 2.5rem; color: #d97706; margin-bottom: 1rem;"></i>
             <h3 style="font-size: 1.25rem; font-weight: 700; color: #111827; margin: 0 0 0.75rem 0;">هل تحتاج إلى مساعدة تقنية؟</h3>
             <p style="color: #4b5563; line-height: 1.8; margin: 0 0 1.25rem 0; max-width: 600px; margin-left: auto; margin-right: auto;">
-                فريق الدعم الفني لل مدرب ين متاح لمساعدتك في حل أي مشكلة تقنية أو الإجابة عن استفساراتك حول أدوات المنصة.
+                فريق الدعم الفني لل مدربين متاح لمساعدتك في حل أي مشكلة تقنية أو الإجابة عن استفساراتك حول أدوات المنصة.
             </p>
             <div style="display: flex; justify-content: center; gap: 1.5rem; flex-wrap: wrap;">
                 <div style="display: flex; align-items: center; gap: 0.5rem; color: #92400e;">

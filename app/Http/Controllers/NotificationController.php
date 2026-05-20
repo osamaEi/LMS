@@ -134,7 +134,7 @@ class NotificationController extends BaseController
             $users = $query->get();
             $targetLabel = match($validated['target']) {
                 'student' => ' المتدربون ',
-                'teacher' => 'ال مدرب ين',
+                'teacher' => 'ال مدربين',
                 default   => 'جميع المستخدمين',
             };
         }

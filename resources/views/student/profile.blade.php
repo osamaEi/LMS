@@ -319,7 +319,7 @@
                             <svg class="w-4 h-4" style="color:#a16207;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                         </div>
                         <div class="flex-1">
-                            <div class="info-lbl">نوع التخصص / المؤهل</div>
+                            <div class="info-lbl">المؤهل التعليمي  / المؤهل</div>
                             <div class="info-val">{{ $user->specialization_type ?? '—' }}</div>
                         </div>
                     </div>
@@ -566,7 +566,7 @@
                         <input type="text" id="edit-spec" class="edit-field" value="{{ $user->specialization }}">
                     </div>
                     <div>
-                        <label class="edit-lbl">نوع التخصص</label>
+                        <label class="edit-lbl">المؤهل التعليمي </label>
                         <select id="edit-spec-type" class="edit-field">
                             <option value="">اختر</option>
                             @foreach(['diploma'=>'دبلوم','bachelor'=>'بكالوريوس','master'=>'ماجستير','phd'=>'دكتوراه','training'=>'تدريب مهني'] as $val => $lbl)

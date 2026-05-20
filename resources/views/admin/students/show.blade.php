@@ -1580,7 +1580,7 @@
                                     </svg>
                                 </div>
                                 <div class="content">
-                                    <div class="label">نوع التخصص</div>
+                                    <div class="label">المؤهل التعليمي </div>
                                     <div class="value">{{ $student->specialization_type ?? 'غير محدد' }}</div>
                                 </div>
                             </div>

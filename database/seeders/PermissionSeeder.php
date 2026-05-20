@@ -26,10 +26,10 @@ class PermissionSeeder extends Seeder
         'toggle-user-status'             => 'تفعيل / تعطيل حسابات المستخدمين',
 
         // ─── المدربون──────────────────────────────────
-        'view-teachers'                  => 'عرض ال مدرب ين',
-        'create-teachers'                => 'إضافة  مدرب ين',
-        'edit-teachers'                  => 'تعديل بيانات ال مدرب ين',
-        'delete-teachers'                => 'حذف ال مدرب ين',
+        'view-teachers'                  => 'عرض ال مدربين',
+        'create-teachers'                => 'إضافة  مدربين',
+        'edit-teachers'                  => 'تعديل بيانات ال مدربين',
+        'delete-teachers'                => 'حذف ال مدربين',
 
         // ───  المتدربون  ────────────────────────────────────
         'view-students'                  => 'عرض  المتدربون ',
@@ -107,7 +107,7 @@ class PermissionSeeder extends Seeder
         'view-student-progress'          => 'عرض تقارير تقدم  المتدربون ',
         'view-attendance-reports'        => 'عرض تقارير الحضور',
         'view-grade-reports'             => 'عرض تقارير الدرجات',
-        'view-teacher-performance'       => 'عرض تقارير أداء ال مدرب ين',
+        'view-teacher-performance'       => 'عرض تقارير أداء ال مدربين',
 
         // ─── الاستبيانات ───────────────────────────────
         'view-surveys'                   => 'عرض الاستبيانات',
@@ -120,10 +120,10 @@ class PermissionSeeder extends Seeder
         'manage-tickets'                 => 'إدارة تذاكر الدعم',
         'assign-tickets'                 => 'تعيين التذاكر للموظفين',
 
-        // ─── تقييم ال مدرب ين ────────────────────────────
-        'view-ratings'                   => 'عرض تقييمات ال مدرب ين',
-        'approve-ratings'                => 'قبول تقييمات ال مدرب ين',
-        'reject-ratings'                 => 'رفض تقييمات ال مدرب ين',
+        // ─── تقييم ال مدربين ────────────────────────────
+        'view-ratings'                   => 'عرض تقييمات ال مدربين',
+        'approve-ratings'                => 'قبول تقييمات ال مدربين',
+        'reject-ratings'                 => 'رفض تقييمات ال مدربين',
 
         // ─── المستخدمون المعلقون ───────────────────────
         'view-pending-users'             => 'عرض طلبات التسجيل المعلقة',

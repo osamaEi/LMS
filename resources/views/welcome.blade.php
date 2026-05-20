@@ -75,22 +75,6 @@
 }
 .hero-notfull-btn:hover { background: rgba(255,255,255,.13); border-color: #fff; color:#fff; }
 
-.hero-float-stats {
-    position: absolute; bottom: 4.5rem;
-    left: clamp(1.5rem, 6vw, 8rem); z-index: 3;
-    display: flex; gap: .65rem;
-    animation: heroFadeUp 1s ease .5s both;
-}
-[dir="rtl"] .hero-float-stats { left: auto; right: clamp(1.5rem, 6vw, 8rem); }
-.hfs-pill {
-    background: rgba(255,255,255,.11); backdrop-filter: blur(14px);
-    border: 1px solid rgba(255,255,255,.18); border-radius: 12px;
-    padding: .7rem 1.1rem; color: #fff; text-align: center; min-width: 74px;
-}
-.hfs-pill .hfs-n { font-size: 1.45rem; font-weight: 800; display:block; line-height:1; }
-.hfs-pill .hfs-l { font-size: .67rem; opacity: .82; margin-top: .2rem; display:block; }
-@media(max-width:991px){ .hero-float-stats{display:none;} }
-
 .hero-dots {
     position: absolute; bottom: 2rem; z-index: 3;
     left: 50%; transform: translateX(-50%);
@@ -120,7 +104,6 @@
 
 /* ── Section Heads ── */
 .section-head { text-align: center; margin-bottom: 3rem; }
-.section-head . { display: inline-block; background: #eaf5fb; color: var(--main-color); padding: .3rem 1rem; border-radius: 20px; font-size: .85rem; margin-bottom: .75rem; }
 .section-head h2 { font-size: clamp(1.6rem,3vw,2.4rem); font-weight: 800; margin-bottom: .75rem; }
 .section-head p { color: #555; max-width: 650px; margin: 0 auto; line-height: 1.8; }
 
@@ -188,9 +171,6 @@
 .partners-section { padding: clamp(4rem,7vw,6rem) 0; background: #fff; position: relative; overflow: hidden; }
 .partners-section::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, transparent, var(--main-color), #38bdf8, var(--main-color), transparent); }
 .partners-head { text-align: center; padding: 0 1rem; margin-bottom: 3rem; }
-. { display: inline-flex; align-items: center; gap: .5rem; background: #eaf5fb; color: var(--main-color); padding: .38rem 1.2rem; border-radius: 50px; font-size: .82rem; font-weight: 700; margin-bottom: 1rem; border: 1px solid rgba(0,113,170,.15); }
-.::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--main-color); display: inline-block; vertical-align: middle; animation: pulse-blue 2s infinite; }
-@keyframes pulse-blue { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.35;transform:scale(.65)} }
 .partners-head h2 { font-size: clamp(1.6rem,3vw,2.3rem); font-weight: 800; color: #0f172a; margin-bottom: .5rem; }
 .partners-head p { color: #64748b; font-size: .92rem; margin: 0; }
 .partners-count-row { display: flex; align-items: center; justify-content: center; gap: 1.25rem; margin-top: 1.5rem; flex-wrap: wrap; }
@@ -237,264 +217,15 @@
     $lms3f = fn(string $n) => asset('lms3/' . rawurlencode($n));
 @endphp
 
-<!-- ════ Hero ════ -->
-<section class="hero-section">
-    <div class="hero-slides">
-        <div class="hero-slide active" style="background-image:url('{{ $lms3s('1.png') }}')"></div>
-        <div class="hero-slide"        style="background-image:url('{{ $lms3s('3.png') }}')"></div>
-        <div class="hero-slide"        style="background-image:url('{{ $lms3s('7.png') }}')"></div>
-    </div>
-    <div class="hero-vline"></div>
-    <div class="hero-content">
-        <div class="hero-tag">
-            <span class="tag-dot"></span>
-            {{ app()->getLocale()=='ar' ? 'معهد الارتقاء العالي للتدريب — معتمد من المؤسسة العامةً  للتدريب التقني والمهني' : 'Al-Ertiqaa Institute — Officially Accredited' }}
-        </div>
-        <div class="hero-accent-line"></div>
-        <h1>
-            {{ __('Distinguished training opens doors to') }}
-            <span>{{ __('tomorrow') }}</span>
-        </h1>
-        <p>{{ __('With over 10 years of experience, we make a real difference in the lives of individuals and organizations. We guide you with the training compass towards your specialization and profession with confidence, to be your first gateway to a future that keeps pace with Vision 2030 targets.') }}</p>
-        <div class="hero-btns">
-            <a href="{{ route('login') }}" class="hero-full-btn">{{ __('Start Your Trial Journey') }}</a>
-            <a href="{{ route('training-paths') }}" class="hero-notfull-btn">{{ __('Explore Our Programs') }}</a>
-        </div>
-    </div>
-  
-    <div class="hero-dots" id="heroDots">
-        <button class="hero-dot active" onclick="goToSlide(0)"></button>
-        <button class="hero-dot"        onclick="goToSlide(1)"></button>
-        <button class="hero-dot"        onclick="goToSlide(2)"></button>
-    </div>
-    <div class="hero-scroll-hint">
-        <span>{{ app()->getLocale()=='ar' ? 'اكتشف' : 'Scroll' }}</span>
-        <i class="bi bi-chevron-double-down"></i>
-    </div>
-</section>
-
-<!-- ════ Stats Bar ════ -->
-<section class="stats-bar">
-    <div class="container">
-        <div class="stats-inner">
-            <div class="stat-item"><span class="stat-number">30+</span><span class="stat-label">{{ __('Years of Excellence') }}</span></div>
-            <div class="stat-item"><span class="stat-number">25000+</span><span class="stat-label">{{ __('Graduates') }}</span></div>
-            <div class="stat-item"><span class="stat-number">20+</span><span class="stat-label">{{ __('Training Programs') }}</span></div>
-            <div class="stat-item"><span class="stat-number">96%</span><span class="stat-label">{{ __('Trainee Satisfaction') }}</span></div>
-        </div>
-    </div>
-</section>
-
-<!-- ════ Why Choose Us ════ -->
-<section class="why-section">
-    <div class="container">
-        <div class="section-head">
-            <h2>{{ __('Why Choose Us') }}</h2>
-            <p>{{ __('We offer an integrated training system that combines quality, flexibility, and modern technologies to ensure the best educational experience.') }}</p>
-        </div>
-        <div class="row g-4">
-            @php
-            $cards = [
-                ['icon'=>'bi-headset',      'title'=>__('Continuous Support'),       'text'=>__('24/7 technical support service helps you overcome any technical problem.')],
-                ['icon'=>'bi-person-badge', 'title'=>__('Specialized Trainers'),     'text'=>__('Training is conducted by elite certified trainers with academic and professional experience.')],
-                ['icon'=>'bi-laptop',       'title'=>__('Digital Education'),        'text'=>__('A smooth, secure educational experience compatible with trainees needs.')],
-                ['icon'=>'bi-patch-check',  'title'=>__('Accredited Training'),      'text'=>__('Accredited by official authorities within the Kingdom, ensuring a reliable path for developing your professional skills.')],
-                ['icon'=>'bi-award',        'title'=>__('Official Certificates'),    'text'=>__('After completing programs, trainees receive officially accredited certificates that enhance their career opportunities.')],
-                ['icon'=>'bi-credit-card',  'title'=>__('Multiple Payment Methods'), 'text'=>__('We provide a flexible payment system that suits all trainees needs.')],
-                ['icon'=>'bi-play-btn',     'title'=>__('Interactive Content'),      'text'=>__('Video lessons, files, assessments, and tests that enhance understanding and support learning by practice.')],
-                ['icon'=>'bi-map',          'title'=>__('Clear Paths'),              'text'=>__('Educational plans built on clear paths extending up to 10 training quarters.')],
-            ];
-            @endphp
-            @foreach($cards as $card)
-            <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-                <div class="why-card">
-                    <div class="why-icon"><i class="bi {{ $card['icon'] }}"></i></div>
-                    <h5>{{ $card['title'] }}</h5>
-                    <p>{{ $card['text'] }}</p>
-                </div>
-            </div>
-            @endforeach
-        </div>
-    </div>
-</section>
-
-<!-- ════ Training Programs ════ -->
-<section class="programs-section">
-    <div class="container">
-        <div class="section-head">
-            <h2>{{ __('Comprehensive training paths to build your future') }}</h2>
-            <p>{{ __('We provide training paths spanning two and a half years through 10 training quarters, plus short and specialized courses for various professional goals.') }}</p>
-        </div>
-        <div class="courses-grid">
-            @php $programImages = [$lms3f('دبلوم  برمجيات.png'), $lms3f('دبلوم  الموارد.png'), $lms3f('لغة انجليزية.png')]; @endphp
-            @forelse($featuredPrograms ?? [] as $i => $program)
-            <div class="course-card">
-                <img src="{{ $program->image ? asset('storage/' . $program->image) : $programImages[$i % count($programImages)] }}" alt="{{ $program->name }}" />
-                <div class="course-card-body d-flex flex-column">
-                    <h4>{{ $program->name }}</h4>
-                    <p>{{ Str::limit($program->description ?? __('A comprehensive training program designed to develop professional skills.'), 100) }}</p>
-                    <div class="marks">
-                        @if($program->duration_months)<span class="st"><i class="bi bi-clock"></i> {{ $program->duration_months }} {{ __('months') }}</span>@endif
-                        @if($program->price && $program->price > 0)
-                        <span class="nd"><i class="bi bi-tag"></i> {{ number_format($program->price,0) }} {{ __('SAR') }}</span>
-                        @else
-                        <span class="nd"><i class="bi bi-check-circle"></i> {{ __('Free') }}</span>
-                        @endif
-                        <span class="th"><i class="bi bi-mortarboard"></i> {{ $program->code ?? __('Program') }}</span>
-                    </div>
-                    <div class="course-btns">
-                        <a href="{{ route('training-paths') }}" class="btn-outline-course">{{ __('View Details') }}</a>
-                        <a href="{{ auth()->check() ? route('student.my-program') : route('login') }}" class="btn-primary-course">{{ __('Register Now') }}</a>
-                    </div>
-                </div>
-            </div>
-            @empty
-            @foreach([
-                [$lms3f('دبلوم  برمجيات.png'), __('Computer Science Diploma'),  __('Foundations of computing, programming, networks, and databases.'),           12, 5000, 'CS-101'],
-                [$lms3f('دبلوم  الموارد.png'), __('Business Administration'),    __('Modern management fundamentals: leadership, planning, and decision-making.'), 12, null,  'BA-201'],
-                [$lms3f('لغة انجليزية.png'),   __('Digital Marketing Diploma'),  __('SEO, social media, paid ads, and analytics strategies.'),                     10, 4500, 'DM-301'],
-            ] as [$img,$name,$desc,$months,$price,$code])
-            <div class="course-card">
-                <img src="{{ $img }}" alt="{{ $name }}" />
-                <div class="course-card-body d-flex flex-column">
-                    <h4>{{ $name }}</h4>
-                    <p>{{ $desc }}</p>
-                    <div class="marks">
-                        <span class="st"><i class="bi bi-clock"></i> {{ $months }} {{ __('months') }}</span>
-                        @if($price)<span class="nd"><i class="bi bi-tag"></i> {{ number_format($price,0) }} {{ __('SAR') }}</span>@else<span class="nd"><i class="bi bi-check-circle"></i> {{ __('Free') }}</span>@endif
-                        <span class="th"><i class="bi bi-mortarboard"></i> {{ $code }}</span>
-                    </div>
-                    <div class="course-btns">
-                        <a href="{{ route('training-paths') }}" class="btn-outline-course">{{ __('View Details') }}</a>
-                        <a href="{{ route('login') }}" class="btn-primary-course">{{ __('Register Now') }}</a>
-                    </div>
-                </div>
-            </div>
-            @endforeach
-            @endforelse
-        </div>
-    </div>
-</section>
-
-<!-- ════ Gallery ════ -->
-<section class="gallery-section">
-    <div class="container-fluid px-4">
-        <div class="section-head">
-            <h2>{{ __('Institute Life') }}</h2>
-            <p>{{ __('A glimpse into our training environment, graduation ceremonies, and daily student life at Al-Ertiqaa.') }}</p>
-        </div>
-        <div class="gallery-grid">
-            <div class="gallery-item gallery-item-1"><img loading="lazy" src="{{ $lms3s('2.png') }}" alt="معهد الارتقاء" /><div class="overlay"></div></div>
-            <div class="gallery-item gallery-item-2"><img loading="lazy" src="{{ $lms3s('4.png') }}" alt="قاعة التدريب" /><div class="overlay"></div></div>
-            <div class="gallery-item gallery-item-3"><img loading="lazy" src="{{ $lms3s('5.png') }}" alt="المتدربون" /><div class="overlay"></div></div>
-            <div class="gallery-item gallery-item-4"><img loading="lazy" src="{{ $lms3s('9.png') }}" alt="التخرج" /><div class="overlay"></div></div>
-            <div class="gallery-item gallery-item-5"><img loading="lazy" src="{{ $lms3s('11.png') }}" alt="التميز" /><div class="overlay"></div></div>
-        </div>
-    </div>
-</section>
-
-<!-- ════ How It Works ════ -->
-<section class="how-section">
-    <div class="container">
-        <div class="section-head">
-            <h2>{{ __('How does our training system work?') }}</h2>
-            <p>{{ __('An integrated training system that ensures a clear, organized educational journey with measurable results.') }}</p>
-        </div>
-        <div class="row align-items-center g-5">
-            <div class="col-lg-6 {{ app()->getLocale()=='ar' ? 'order-2' : 'order-1' }}">
-                <div class="how-image" style="height:420px"><img loading="lazy" src="{{ $lms3s('13.png') }}" alt="How It Works" /></div>
-            </div>
-            <div class="col-lg-6 {{ app()->getLocale()=='ar' ? 'order-1' : 'order-2' }}">
-                <div class="how-steps">
-                    <div class="how-step"><div class="how-step-number">1</div><div class="how-step-text"><h5>{{ __('Registration and Getting Started') }}</h5><p>{{ __('Start your educational journey easily by creating an account or logging in through Nafath, then discover programs and paths designed to suit your goals.') }}</p></div></div>
-                    <div class="how-step"><div class="how-step-number">2</div><div class="how-step-text"><h5>{{ __('Choosing the Right Program for You') }}</h5><p>{{ __('Whether you\'re looking for an academic path spanning two and a half years, or a short course, you will find what suits your goals.') }}</p></div></div>
-                    <div class="how-step"><div class="how-step-number">3</div><div class="how-step-text"><h5>{{ __('Learning and Follow-up') }}</h5><p>{{ __('Study through visual and organized content, with an attendance system, clear training progress, and direct communication with trainers.') }}</p></div></div>
-                    <div class="how-step"><div class="how-step-number">4</div><div class="how-step-text"><h5>{{ __('Assessment and Certification') }}</h5><p>{{ __('After completing your training requirements, you will be evaluated and your accredited digital certificate will be issued.') }}</p></div></div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- ════ Testimonials ════ -->
-@php $testimonials = \App\Models\Testimonial::active()->get(); @endphp
-@if($testimonials->isNotEmpty())
-<section class="testimonials-section">
-    <div class="container">
-        <div class="section-head">
-            <h2>{{ __('What Our Trainees Say') }}</h2>
-            <p>{{ __('Real experiences from our graduates who made a difference in their careers.') }}</p>
-        </div>
-        <div class="row g-4">
-            @foreach($testimonials as $t)
-            <div class="col-md-4">
-                <div class="testimonial-card">
-                    <div class="testimonial-stars">
-                        @for($i = 1; $i <= 5; $i++)
-                            <i class="bi bi-star{{ $i <= $t->rating ? '-fill' : '' }}"></i>
-                        @endfor
-                    </div>
-                    <p class="testimonial-text">"{{ $t->text }}"</p>
-                    <div class="testimonial-author">
-                        <div style="width:48px;height:48px;border-radius:50%;background:var(--main-color);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:1.2rem;flex-shrink:0">{{ mb_substr($t->author, 0, 1) }}</div>
-                        <div>
-                            <div class="name">{{ $t->author }}</div>
-                            <div class="role">{{ $t->role }}</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            @endforeach
-        </div>
-    </div>
-</section>
-@endif
-
-<!-- ════ App Section ════ -->
-<section class="app-section">
-    <div class="container">
-        <div class="row align-items-center g-5">
-            <div class="col-lg-6">
-                <h2>{{ __('Download the App & Learn Anywhere') }}</h2>
-                <p>{{ __('Follow your courses, attend live sessions, and track your progress — all from your phone.') }}</p>
-                <div class="store-buttons">
-                    <a href="#" class="store-btn"><i class="bi bi-apple" style="font-size:1.8rem"></i><div class="text"><small>{{ __('Download on the') }}</small><span>App Store</span></div></a>
-                    <a href="#" class="store-btn">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="28" viewBox="0 0 21 24" fill="none"><path d="M9.80482 11.4617L0.0895996 22.0059C0.389807 23.1574 1.41179 24 2.62539 24C3.11083 24 3.56616 23.8656 3.95671 23.6305L14.9229 17.1593L9.80482 11.4617Z" fill="#EA4335"/><path d="M19.6332 9.66424L14.9029 6.85928L9.58398 11.6994L14.922 17.1562L19.6177 14.3858C20.4407 13.9305 21.0001 13.0431 21.0001 12.0204C21.0001 11.0033 20.4489 10.1205 19.6332 9.66424Z" fill="#FBBC04"/><path d="M0.0894234 1.9952C0.0310244 2.21542 0 2.44683 0 2.68571V21.3182C0 21.5571 0.0310245 21.7885 0.0903359 22.0078L10.1386 11.7332L0.0894234 1.9952Z" fill="#4285F4"/><path d="M9.87666 12L14.9044 6.85945L3.98201 0.383598C3.58508 0.140054 3.12154 0 2.62606 0C1.41246 0 0.38865 0.84456 0.0902675 1.99043L9.87666 12Z" fill="#34A853"/></svg>
-                        <div class="text"><small>{{ __('Get it on') }}</small><span>Google Play</span></div>
-                    </a>
-                </div>
-            </div>
-            <div class="col-lg-6 text-center">
-                <img loading="lazy" src="{{ $lms3s('2.png') }}" alt="App" style="max-width:100%;border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,.3);max-height:360px;object-fit:cover" />
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- ════ Partners ════ -->
-@php $partners = \App\Models\Partner::where('is_active', true)->orderBy('sort_order')->orderBy('id')->get(); @endphp
-@if($partners->isNotEmpty())
-<section class="partners-section">
-    <div class="partners-head">
-        <h2>{{ app()->getLocale() === 'ar' ? 'شركائنا ' : 'Partners & Affiliates' }}</h2>
-        <p>{{ app()->getLocale() === 'ar' ? 'نفخر بشراكتنا مع عدد من الجهات والمنظمات الرائدة' : 'Proud to work alongside leading organizations and institutions' }}</p>
-        <div class="partners-count-row">
-            <div class="p-count-chip"><i class="bi bi-buildings"></i><strong>{{ $partners->count() }}+</strong><span>{{ app()->getLocale() === 'ar' ? 'جهة شريكة' : 'Partner Organizations' }}</span></div>
-            <div class="p-count-chip"><i class="bi bi-patch-check-fill" style="color:#60a5fa"></i><span>{{ app()->getLocale() === 'ar' ? 'شراكات موثوقة ومعتمدة' : 'Verified & Accredited' }}</span></div>
-        </div>
-    </div>
-    <div class="partners-grid-wrap">
-        @foreach($partners as $p)
-        <div class="p-logo-card">
-            @if($p->url)<a href="{{ $p->url }}" target="_blank" rel="noopener" style="display:contents"><img src="{{ Storage::url($p->logo) }}" alt="{{ $p->name }}"></a>
-            @else<img src="{{ Storage::url($p->logo) }}" alt="{{ $p->name }}">@endif
-            <span class="p-name">{{ $p->name }}</span>
-        </div>
-        @endforeach
-    </div>
-</section>
-@endif
+@include('front.partials.home.hero')
+@include('front.partials.home.stats')
+@include('front.partials.home.why')
+@include('front.partials.home.programs')
+@include('front.partials.home.gallery')
+@include('front.partials.home.how')
+@include('front.partials.home.testimonials')
+@include('front.partials.home.app-download')
+@include('front.partials.home.partners')
 
 @endsection
 
