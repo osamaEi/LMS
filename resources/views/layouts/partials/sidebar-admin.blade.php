@@ -72,15 +72,6 @@
             </a>
         </li>
         @endcan
-        @can('view-subjects')
-        <li>
-            <a href="{{ route('admin.subjects.index') }}"
-               class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors {{ request()->routeIs('admin.subjects.*') ? 'bg-white/20 text-white' : 'text-white hover:bg-white/10' }}">
-                <span class="w-2 h-2 rounded-full {{ request()->routeIs('admin.subjects.*') ? 'bg-white' : 'bg-white/50' }}"></span>
-                المقررات التدريبية
-            </a>
-        </li>
-        @endcan
         @can('view-sessions')
         <li>
             <a href="{{ route('admin.sessions.index') }}"
