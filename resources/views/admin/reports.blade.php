@@ -21,8 +21,8 @@
                         </svg>
                     </div>
                     <div>
-                        <p class="text-sm font-medium text-gray-900 dark:text-white">تقرير المعلمين</p>
-                        <p class="text-xs text-gray-500 dark:text-gray-400">إحصائيات شاملة عن المعلمين</p>
+                        <p class="text-sm font-medium text-gray-900 dark:text-white">تقرير ال مدرب ين</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">إحصائيات شاملة عن ال مدرب ين</p>
                     </div>
                 </div>
                 <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">

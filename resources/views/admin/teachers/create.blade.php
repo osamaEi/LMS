@@ -1,6 +1,6 @@
 @extends('layouts.dashboard')
 
-@section('title', 'إضافة معلم جديد')
+@section('title', 'إضافة  مدرب  جديد')
 
 @section('content')
 <div class="mb-6">
@@ -11,9 +11,9 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
             </svg>
         </a>
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">إضافة معلم جديد</h1>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">إضافة  مدرب  جديد</h1>
     </div>
-    <p class="text-sm text-gray-500 dark:text-gray-400">إضافة معلم جديد إلى النظام</p>
+    <p class="text-sm text-gray-500 dark:text-gray-400">إضافة  مدرب  جديد إلى النظام</p>
 </div>
 
 @if($errors->any())
@@ -41,7 +41,7 @@
                        value="{{ old('name') }}"
                        required
                        class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-                       placeholder="الاسم الكامل للمعلم">
+                       placeholder="الاسم الكامل لل مدرب ">
             </div>
 
             <!-- البريد الإلكتروني -->
@@ -115,7 +115,7 @@
             </a>
             <button type="submit"
                     class="rounded-lg bg-brand-500 px-6 py-2.5 text-sm font-medium text-white hover:bg-brand-600 transition-colors">
-                إضافة المعلم
+                إضافة ال مدرب 
             </button>
         </div>
     </div>

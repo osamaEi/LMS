@@ -181,7 +181,7 @@ class QuizSeeder extends Seeder
             'type' => 'essay',
             'question_ar' => 'اشرح أهمية التعليم في بناء المجتمعات الحديثة.',
             'question_en' => 'Explain the importance of education in building modern societies.',
-            'explanation_ar' => 'يتم تقييم هذا السؤال يدوياً من قبل المعلم.',
+            'explanation_ar' => 'يتم تقييم هذا السؤال يدوياً من قبل ال مدرب .',
             'marks' => 10,
             'order' => 9,
         ]);

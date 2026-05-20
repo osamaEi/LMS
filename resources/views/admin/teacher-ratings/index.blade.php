@@ -1,14 +1,14 @@
 @extends('layouts.dashboard')
 
-@section('title', 'تقييمات المعلمين')
+@section('title', 'تقييمات ال مدرب ين')
 
 @section('content')
 <div class="space-y-6">
     <!-- Header -->
     <div class="flex flex-wrap items-center justify-between gap-4">
         <div>
-            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">تقييمات المعلمين</h2>
-            <p class="text-gray-600 dark:text-gray-400">إدارة وعرض تقييمات المعلمين من قبل  المتدربون  (معيار NELC 2.4.9)</p>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">تقييمات ال مدرب ين</h2>
+            <p class="text-gray-600 dark:text-gray-400">إدارة وعرض تقييمات ال مدرب ين من قبل  المتدربون  (معيار NELC 2.4.9)</p>
         </div>
         <a href="{{ route('admin.teacher-ratings.report') }}" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-brand-500 rounded-lg hover:bg-brand-600">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -38,7 +38,7 @@
                 <thead class="bg-gray-50 dark:bg-gray-700">
                     <tr>
                         <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">الطالب</th>
-                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">المعلم</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">ال مدرب </th>
                         <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">المقرر </th>
                         <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">التقييم</th>
                         <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">التاريخ</th>
@@ -113,14 +113,14 @@
     <!-- Teachers List with Ratings -->
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
         <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">تقييمات المعلمين</h3>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">تقييمات ال مدرب ين</h3>
         </div>
         <div class="overflow-x-auto">
             <table class="w-full">
                 <thead class="bg-gray-50 dark:bg-gray-700">
                     <tr>
                         <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">#</th>
-                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">المعلم</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">ال مدرب </th>
                         <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">متوسط التقييم</th>
                         <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">عدد التقييمات</th>
                         <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">الإجراءات</th>
@@ -175,7 +175,7 @@
                             <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
                             </svg>
-                            <p class="mt-2">لا يوجد معلمين مسجلين</p>
+                            <p class="mt-2">لا يوجد  مدرب ين مسجلين</p>
                         </td>
                     </tr>
                     @endforelse

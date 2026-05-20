@@ -75,7 +75,7 @@ Browser: Render Selected Dashboard
 #### Change Dashboard View
 1. Login as Admin
 2. Go to `/admin/settings`
-3. Find "نمط عرض لوحة المعلم"
+3. Find "نمط عرض لوحة ال مدرب "
 4. Select view and save
 
 #### Using API

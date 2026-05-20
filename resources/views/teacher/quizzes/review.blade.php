@@ -188,7 +188,7 @@
 
                 @if($answer->teacher_feedback)
                 <div class="rounded-xl border border-blue-200 bg-blue-50 dark:bg-blue-900/20 p-4 mb-4">
-                    <p class="text-xs text-blue-600 font-medium mb-1">ملاحظة المعلم:</p>
+                    <p class="text-xs text-blue-600 font-medium mb-1">ملاحظة ال مدرب :</p>
                     <p class="text-sm text-blue-800 dark:text-blue-200">{{ $answer->teacher_feedback }}</p>
                 </div>
                 @endif

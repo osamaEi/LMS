@@ -48,14 +48,14 @@
                 </select>
             </div>
 
-            <!-- المعلم -->
+            <!-- ال مدرب  -->
             <div class="md:col-span-2">
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    المعلم
+                    ال مدرب 
                 </label>
                 <select name="teacher_id"
                         class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
-                    <option value="">اختر المعلم (اختياري)</option>
+                    <option value="">اختر ال مدرب  (اختياري)</option>
                     @foreach($teachers as $teacher)
                         <option value="{{ $teacher->id }}" {{ old('teacher_id', $subject->teacher_id) == $teacher->id ? 'selected' : '' }}>
                             {{ $teacher->name }}

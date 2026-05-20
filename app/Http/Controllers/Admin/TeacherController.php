@@ -63,7 +63,7 @@ class TeacherController extends Controller
         User::create($validated);
 
         return redirect()->route('admin.teachers.index')
-            ->with('success', 'تم إضافة المعلم بنجاح');
+            ->with('success', 'تم إضافة ال مدرب  بنجاح');
     }
 
     public function show(User $teacher)
@@ -98,7 +98,7 @@ class TeacherController extends Controller
         $teacher->update($validated);
 
         return redirect()->route('admin.teachers.index')
-            ->with('success', 'تم تحديث بيانات المعلم بنجاح');
+            ->with('success', 'تم تحديث بيانات ال مدرب  بنجاح');
     }
 
     public function destroy(User $teacher)
@@ -106,7 +106,7 @@ class TeacherController extends Controller
         $teacher->delete();
 
         return redirect()->route('admin.teachers.index')
-            ->with('success', 'تم حذف المعلم بنجاح');
+            ->with('success', 'تم حذف ال مدرب  بنجاح');
     }
 
     public function assignSubjects(Request $request, User $teacher)

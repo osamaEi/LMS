@@ -175,7 +175,7 @@ class ActivityLog extends Model
                 self::ATTENDANCE_LEAVE => 'مغادرة جلسة',
                 self::ENROLLMENT_ENROLL => 'التسجيل في مادة',
                 self::SURVEY_SUBMIT => 'إرسال استبيان',
-                self::RATING_SUBMIT => 'تقييم معلم',
+                self::RATING_SUBMIT => 'تقييم  مدرب ',
                 self::TICKET_CREATE => 'إنشاء تذكرة دعم',
             ],
             'en' => [

@@ -1,6 +1,6 @@
 @extends('layouts.front')
 
-@section('title', 'دليل المعلم الإرشادي')
+@section('title', 'دليل ال مدرب  الإرشادي')
 
 @section('styles')
 <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
@@ -79,12 +79,12 @@
                         <i class="fas fa-chalkboard-teacher" style="font-size: 2rem;"></i>
                     </div>
                     <div>
-                        <h1 style="font-size: 1.875rem; font-weight: 700; margin: 0;">دليل المعلم الإرشادي</h1>
+                        <h1 style="font-size: 1.875rem; font-weight: 700; margin: 0;">دليل ال مدرب  الإرشادي</h1>
                         <p style="margin: 0.25rem 0 0 0; opacity: 0.9; font-size: 1rem;">دليلك الشامل لإدارة العملية التعليمية على المنصة</p>
                     </div>
                 </div>
                 <p style="font-size: 0.95rem; opacity: 0.85; line-height: 1.8; margin: 0;">
-                    يهدف هذا الدليل إلى تمكين المدربين والمعلمين من استخدام جميع أدوات المنصة التعليمية بكفاءة عالية، بدءاً من إنشاء المحتوى التعليمي
+                    يهدف هذا الدليل إلى تمكين المدربين وال مدرب ين من استخدام جميع أدوات المنصة التعليمية بكفاءة عالية، بدءاً من إنشاء المحتوى التعليمي
                     وحتى تقييم المتدربين ومتابعة تقدمهم. نرجو مراجعة الخطوات التالية لضمان تقديم تجربة تعليمية متميزة.
                 </p>
             </div>
@@ -109,7 +109,7 @@
             <div style="display: flex; align-items: flex-start; gap: 0.75rem;">
                 <i class="fas fa-info-circle" style="color: #d97706; font-size: 1.25rem; margin-top: 3px;"></i>
                 <div>
-                    <p style="font-weight: 600; color: #92400e; margin: 0 0 0.25rem 0;">ملاحظة هامة للمعلمين</p>
+                    <p style="font-weight: 600; color: #92400e; margin: 0 0 0.25rem 0;">ملاحظة هامة لل مدرب ين</p>
                     <p style="color: #374151; margin: 0; line-height: 1.8; font-size: 0.95rem;">
                         هذا الدليل متاح للجميع ولا يتطلب تسجيل الدخول للاطلاع عليه، وذلك وفقاً لمتطلبات المركز الوطني للتعليم الإلكتروني (NELC).
                         يُرجى الالتزام بمعايير الجودة المعتمدة عند إعداد المحتوى التعليمي وتصميم الأنشطة والاختبارات لضمان تحقيق أفضل مخرجات تعليمية.
@@ -131,11 +131,11 @@
                         </div>
                         <div>
                             <h2 style="font-size: 1.25rem; font-weight: 700; color: #111827; margin: 0;">تسجيل الدخول إلى المنصة</h2>
-                            <p style="color: #6b7280; font-size: 0.875rem; margin: 0.25rem 0 0 0;">الوصول إلى لوحة تحكم المعلم</p>
+                            <p style="color: #6b7280; font-size: 0.875rem; margin: 0.25rem 0 0 0;">الوصول إلى لوحة تحكم ال مدرب </p>
                         </div>
                     </div>
                     <div style="color: #374151; line-height: 1.9; font-size: 0.95rem;">
-                        <p style="margin-bottom: 1rem;">للدخول إلى المنصة بصفتك معلماً أو مدرباً، اتبع الخطوات التالية:</p>
+                        <p style="margin-bottom: 1rem;">للدخول إلى المنصة بصفتك  مدرب اً أو مدرباً، اتبع الخطوات التالية:</p>
                         <div class="sub-step" style="margin-bottom: 0.75rem;">
                             <strong>زيارة الموقع الإلكتروني:</strong> افتح المتصفح وانتقل إلى الصفحة الرئيسية للمنصة. يُنصح باستخدام متصفح Google Chrome أو Microsoft Edge المحدّث لضمان التوافق الكامل مع جميع الأدوات.
                         </div>
@@ -143,10 +143,10 @@
                             <strong>الضغط على "تسجيل الدخول":</strong> انقر على زر تسجيل الدخول الموجود في الشريط العلوي للصفحة الرئيسية للانتقال إلى نموذج الدخول.
                         </div>
                         <div class="sub-step" style="margin-bottom: 0.75rem;">
-                            <strong>إدخال بيانات الاعتماد:</strong> أدخل البريد الإلكتروني المؤسسي وكلمة المرور المخصصة لحسابك كمعلم. هذه البيانات يتم تزويدك بها من قبل إدارة المعهد عند تعيينك.
+                            <strong>إدخال بيانات الاعتماد:</strong> أدخل البريد الإلكتروني المؤسسي وكلمة المرور المخصصة لحسابك ك مدرب . هذه البيانات يتم تزويدك بها من قبل إدارة المعهد عند تعيينك.
                         </div>
                         <div class="sub-step" style="margin-bottom: 0.75rem;">
-                            <strong>الوصول إلى لوحة التحكم:</strong> بعد تسجيل الدخول بنجاح، سيتم توجيهك تلقائياً إلى لوحة تحكم المعلم حيث يمكنك إدارة الدورات، ومراجعة أعمال  المتدربون ، والوصول إلى جميع الأدوات التعليمية.
+                            <strong>الوصول إلى لوحة التحكم:</strong> بعد تسجيل الدخول بنجاح، سيتم توجيهك تلقائياً إلى لوحة تحكم ال مدرب  حيث يمكنك إدارة الدورات، ومراجعة أعمال  المتدربون ، والوصول إلى جميع الأدوات التعليمية.
                         </div>
                         <div style="background: #fffbeb; border-radius: 0.5rem; padding: 0.75rem 1rem; margin-top: 0.75rem; display: flex; align-items: flex-start; gap: 0.5rem;">
                             <i class="fas fa-shield-alt" style="color: #d97706; margin-top: 3px;"></i>
@@ -176,7 +176,7 @@
                     <div style="color: #374151; line-height: 1.9; font-size: 0.95rem;">
                         <p style="margin-bottom: 1rem;">تتيح لك المنصة إنشاء دورات تدريبية متكاملة بمحتوى غني ومتنوع. اتبع الخطوات التالية:</p>
                         <div class="sub-step" style="margin-bottom: 0.75rem;">
-                            <strong>إنشاء دورة جديدة:</strong> من لوحة تحكم المعلم، انتقل إلى قسم "إدارة الدورات" واضغط على "إنشاء دورة جديدة". قم بتعبئة المعلومات الأساسية مثل: اسم الدورة، والوصف التفصيلي، والأهداف التعليمية، ومتطلبات الالتحاق، وعدد الساعات التدريبية .
+                            <strong>إنشاء دورة جديدة:</strong> من لوحة تحكم ال مدرب ، انتقل إلى قسم "إدارة الدورات" واضغط على "إنشاء دورة جديدة". قم بتعبئة المعلومات الأساسية مثل: اسم الدورة، والوصف التفصيلي، والأهداف التعليمية، ومتطلبات الالتحاق، وعدد الساعات التدريبية .
                         </div>
                         <div class="sub-step" style="margin-bottom: 0.75rem;">
                             <strong>تصميم هيكل الدورة:</strong> قسّم الدورة إلى وحدات تعليمية مترابطة ومنطقية. كل وحدة يمكن أن تحتوي على عدة دروس، ولكل درس محتوى محدد. يُنصح باتباع مبدأ التدرج من البسيط إلى المعقد.
@@ -185,7 +185,7 @@
                             <strong>رفع المحتوى التعليمي:</strong> أضف المحتوى المتنوع لكل درس، بما في ذلك: مقاطع الفيديو التعليمية (يُفضل ألا تتجاوز مدة الفيديو الواحد 15 دقيقة)، والعروض التقديمية، والملفات النصية (PDF)، والصور التوضيحية، والروابط المرجعية.
                         </div>
                         <div class="sub-step" style="margin-bottom: 0.75rem;">
-                            <strong>تحديد إعدادات الدورة:</strong> حدد تاريخ بدء الدورة وانتهائها، ونوع التسجيل (مفتوح أو بموافقة المعلم)، والحد الأقصى لعدد المتدربين، ومتطلبات إكمال الدورة (مثل نسبة الحضور والدرجة الدنيا للنجاح).
+                            <strong>تحديد إعدادات الدورة:</strong> حدد تاريخ بدء الدورة وانتهائها، ونوع التسجيل (مفتوح أو بموافقة ال مدرب )، والحد الأقصى لعدد المتدربين، ومتطلبات إكمال الدورة (مثل نسبة الحضور والدرجة الدنيا للنجاح).
                         </div>
                         <div class="sub-step" style="margin-bottom: 0.75rem;">
                             <strong>نشر الدورة:</strong> بعد مراجعة المحتوى والإعدادات، اضغط "نشر الدورة" لإتاحتها للمتدربين. يمكنك تعديل المحتوى في أي وقت حتى بعد النشر.
@@ -280,7 +280,7 @@
                                 إنشاء الواجبات
                             </h4>
                             <div class="sub-step" style="margin-bottom: 0.75rem;">
-                                <strong>إنشاء واجب جديد:</strong> من قسم "الواجبات"، اضغط "إنشاء واجب جديد". اكتب عنوان الواجب ووصفاً تفصيلياً يوضح المطلوب بدقة، وحدد معايير التقييم والدرجة الكاملة.
+                                <strong>إنشاء واجب جديد:</strong> من قسم "الواجبات"، اضغط "إنشاء واجب جديد". اكتب مقرر الواجب ووصفاً تفصيلياً يوضح المطلوب بدقة، وحدد معايير التقييم والدرجة الكاملة.
                             </div>
                             <div class="sub-step" style="margin-bottom: 0.75rem;">
                                 <strong>تحديد متطلبات التسليم:</strong> حدد صيغ الملفات المقبولة (PDF، Word، وغيرها)، والحد الأقصى لحجم الملف، وتاريخ التسليم النهائي، وهل يُسمح بالتسليم المتأخر أم لا.
@@ -340,7 +340,7 @@
         <div style="background: #fff; border-radius: 1rem; padding: 2rem; margin-bottom: 1.5rem; border: 2px solid #fef3c7;">
             <h3 style="font-size: 1.25rem; font-weight: 700; color: #92400e; margin: 0 0 1.25rem 0; display: flex; align-items: center; gap: 0.5rem;">
                 <i class="fas fa-star" style="color: #f59e0b;"></i>
-                ملخص خطوات المعلم
+                ملخص خطوات ال مدرب 
             </h3>
             <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1rem;">
                 <div style="display: flex; align-items: center; gap: 0.75rem; background: #fffbeb; border-radius: 0.5rem; padding: 0.75rem 1rem;">
@@ -370,7 +370,7 @@
         <div style="background: #fff; border-radius: 1rem; padding: 2rem; margin-bottom: 1.5rem; border: 1px solid #e5e7eb;">
             <h3 style="font-size: 1.25rem; font-weight: 700; color: #111827; margin: 0 0 1.25rem 0; display: flex; align-items: center; gap: 0.5rem;">
                 <i class="fas fa-award" style="color: #f59e0b;"></i>
-                أفضل الممارسات للمعلم المتميز
+                أفضل الممارسات لل مدرب  المتميز
             </h3>
             <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem;">
                 <div style="background: #fefce8; border-radius: 0.75rem; padding: 1rem 1.25rem;">
@@ -402,7 +402,7 @@
             <i class="fas fa-headset" style="font-size: 2.5rem; color: #d97706; margin-bottom: 1rem;"></i>
             <h3 style="font-size: 1.25rem; font-weight: 700; color: #111827; margin: 0 0 0.75rem 0;">هل تحتاج إلى مساعدة تقنية؟</h3>
             <p style="color: #4b5563; line-height: 1.8; margin: 0 0 1.25rem 0; max-width: 600px; margin-left: auto; margin-right: auto;">
-                فريق الدعم الفني للمعلمين متاح لمساعدتك في حل أي مشكلة تقنية أو الإجابة عن استفساراتك حول أدوات المنصة.
+                فريق الدعم الفني لل مدرب ين متاح لمساعدتك في حل أي مشكلة تقنية أو الإجابة عن استفساراتك حول أدوات المنصة.
             </p>
             <div style="display: flex; justify-content: center; gap: 1.5rem; flex-wrap: wrap;">
                 <div style="display: flex; align-items: center; gap: 0.5rem; color: #92400e;">

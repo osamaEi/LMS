@@ -21,8 +21,8 @@ class DashboardViewSettingSeeder extends Seeder
                 'group' => 'dashboard',
                 'type' => 'select',
                 'options' => ['teacher.dashboard' => 'العرض الكامل', 'teacher.dashboard-simple' => 'العرض المبسط'],
-                'label' => 'نمط عرض لوحة المعلم',
-                'description' => 'اختر نمط العرض المفضل لكل معلم: العرض الكامل بكل التفاصيل أو العرض المبسط',
+                'label' => 'نمط عرض لوحة ال مدرب ',
+                'description' => 'اختر نمط العرض المفضل لكل  مدرب : العرض الكامل بكل التفاصيل أو العرض المبسط',
                 'is_public' => false,
             ]
         );

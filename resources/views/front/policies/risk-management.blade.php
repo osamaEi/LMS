@@ -57,7 +57,7 @@
                     <div class="bg-red-50 rounded-lg p-5 border-r-4 border-red-500">
                         <h3 class="text-lg font-bold text-gray-800 mb-2">3. المخاطر البشرية</h3>
                         <ul class="list-disc list-inside space-y-1 text-gray-700 mr-4">
-                            <li>نقص الكوادر المؤهلة (معلمين، دعم فني)</li>
+                            <li>نقص الكوادر المؤهلة ( مدرب ين، دعم فني)</li>
                             <li>استقالة أو غياب أعضاء هيئة التدريس الرئيسيين</li>
                             <li>أخطاء بشرية في إدارة النظام أو المحتوى</li>
                             <li>ضعف تدريب الكوادر على الأدوات الرقمية</li>
@@ -195,7 +195,7 @@
                     <li>خوادم احتياطية في مركز بيانات منفصل</li>
                     <li>فريق دعم فني متاح 24/7</li>
                     <li>منصة Zoom احتياطية (حساب مؤسسي + حساب بديل)</li>
-                    <li>معلمون احتياطيون لكل مقرر رئيسي</li>
+                    <li> مدرب ون احتياطيون لكل مقرر رئيسي</li>
                     <li>قنوات تواصل بديلة (WhatsApp, Email, SMS)</li>
                 </ul>
             </section>
@@ -214,7 +214,7 @@
                     </div>
                     <div class="bg-gray-50 rounded-lg p-4">
                         <h4 class="font-bold text-gray-800">المدير الأكاديمي</h4>
-                        <p class="text-sm text-gray-700">ضمان استمرارية التدريس وتوفير معلمين بديلين</p>
+                        <p class="text-sm text-gray-700">ضمان استمرارية التدريس وتوفير  مدرب ين بديلين</p>
                     </div>
                     <div class="bg-gray-50 rounded-lg p-4">
                         <h4 class="font-bold text-gray-800">المدير المالي</h4>

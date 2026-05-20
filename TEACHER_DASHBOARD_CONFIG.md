@@ -36,7 +36,7 @@ The teacher dashboard at `http://127.0.0.1:8000/teacher/dashboard` is now config
 ### Method 1: Using Admin Settings (Recommended)
 
 1. Navigate to: `http://127.0.0.1:8000/admin/settings`
-2. Look for **"نمط عرض لوحة المعلم"** (Teacher Dashboard View) setting
+2. Look for **"نمط عرض لوحة ال مدرب "** (Teacher Dashboard View) setting
 3. Select your preferred view:
    - العرض الكامل (Full View)
    - العرض المبسط (Simple View)
@@ -102,8 +102,8 @@ VALUES (
     'dashboard',
     'select',
     '{"teacher.dashboard":"العرض الكامل","teacher.dashboard-simple":"العرض المبسط"}',
-    'نمط عرض لوحة المعلم',
-    'اختر نمط العرض المفضل لكل معلم: العرض الكامل بكل التفاصيل أو العرض المبسط',
+    'نمط عرض لوحة ال مدرب ',
+    'اختر نمط العرض المفضل لكل  مدرب : العرض الكامل بكل التفاصيل أو العرض المبسط',
     0
 );
 ```

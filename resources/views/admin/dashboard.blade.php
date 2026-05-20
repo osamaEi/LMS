@@ -48,7 +48,7 @@
     {{-- Quick nav chips --}}
     <div style="position:relative;z-index:1;display:flex;flex-wrap:wrap;gap:.6rem;margin-top:1.5rem;">
         @foreach([
-            ['label'=>'المعلمون','route'=>'admin.teachers.index','icon'=>'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z'],
+            ['label'=>'ال مدرب ون','route'=>'admin.teachers.index','icon'=>'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z'],
             ['label'=>' المتدربون ','route'=>'admin.students.index','icon'=>'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z'],
             ['label'=>'المقررات ','route'=>'admin.subjects.index','icon'=>'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253'],
             ['label'=>'الفصول','route'=>'admin.terms.index','icon'=>'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'],
@@ -72,7 +72,7 @@
 <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1.1rem;margin-bottom:1.5rem;">
 @php
 $mainCards = [
-    ['label'=>'المعلمون','value'=>$stats['teachers_count'],'sub'=>null,'grad'=>'#0071AA,#0099dd','icon'=>'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z','route'=>'admin.teachers.index'],
+    ['label'=>'ال مدرب ون','value'=>$stats['teachers_count'],'sub'=>null,'grad'=>'#0071AA,#0099dd','icon'=>'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z','route'=>'admin.teachers.index'],
     ['label'=>' المتدربون ','value'=>$stats['students_count'],'sub'=>null,'grad'=>'#10b981,#34d399','icon'=>'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z','route'=>'admin.students.index'],
     ['label'=>'المقررات  التدريبية ','value'=>$stats['subjects_count'],'sub'=>$stats['active_subjects'].' نشطة','grad'=>'#f59e0b,#fbbf24','icon'=>'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253','route'=>'admin.subjects.index'],
     ['label'=>'الفصول التدريبية ','value'=>$stats['terms_count'],'sub'=>$stats['active_terms'].' نشطة','grad'=>'#8b5cf6,#a78bfa','icon'=>'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z','route'=>'admin.terms.index'],
@@ -119,7 +119,7 @@ $mainCards = [
     </div>
     <div style="text-align:center;border-right:1px solid rgba(255,255,255,.15);">
         <div style="font-size:1.6rem;font-weight:900;color:#fff;">{{ $nelcStats['avg_teacher_rating'] }}</div>
-        <div style="font-size:.78rem;color:rgba(255,255,255,.75);margin-top:2px;">تقييم المعلمين / 5</div>
+        <div style="font-size:.78rem;color:rgba(255,255,255,.75);margin-top:2px;">تقييم ال مدرب ين / 5</div>
     </div>
     <div style="text-align:center;border-right:1px solid rgba(255,255,255,.15);">
         <div style="font-size:1.6rem;font-weight:900;color:#fff;">{{ $nelcStats['avg_response_time'] }}د</div>
@@ -173,7 +173,7 @@ $mainCards = [
                 <div style="width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#0071AA,#005a88);display:flex;align-items:center;justify-content:center;">
                     <svg style="width:15px;height:15px;color:#fff" fill="currentColor" viewBox="0 0 20 20"><path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"/></svg>
                 </div>
-                <h4 style="font-size:.9rem;font-weight:700;color:#1e293b;margin:0;">أحدث المعلمين</h4>
+                <h4 style="font-size:.9rem;font-weight:700;color:#1e293b;margin:0;">أحدث ال مدرب ين</h4>
             </div>
             <a href="{{ route('admin.teachers.index') }}" style="font-size:.75rem;color:#0071AA;text-decoration:none;font-weight:600;">عرض الكل</a>
         </div>
@@ -190,7 +190,7 @@ $mainCards = [
                 <div style="font-size:.7rem;color:#cbd5e1;flex-shrink:0;">{{ $teacher->created_at->diffForHumans() }}</div>
             </div>
             @empty
-            <div style="padding:2rem;text-align:center;color:#94a3b8;font-size:.85rem;">لا يوجد معلمون بعد</div>
+            <div style="padding:2rem;text-align:center;color:#94a3b8;font-size:.85rem;">لا يوجد  مدرب ون بعد</div>
             @endforelse
         </div>
     </div>
@@ -380,7 +380,7 @@ $mainCards = [
             ];
             $defaultIcon = ['icon'=>'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z', 'bg'=>'#f1f5f9','color'=>'#64748b'];
 
-            $roleLabels = ['super_admin'=>'المدير العام','admin'=>'مدير','teacher'=>'معلم','student'=>'طالب'];
+            $roleLabels = ['super_admin'=>'المدير العام','admin'=>'مدير','teacher'=>' مدرب ','student'=>'طالب'];
             @endphp
 
             <div style="padding:.5rem;">
@@ -561,7 +561,7 @@ document.addEventListener('DOMContentLoaded', function() {
             labels: allMonths,
             datasets: [
                 { label:' المتدربون ', data: allMonths.map(m => studentsData[m]||0), borderColor:'#10b981', backgroundColor: grad1, borderWidth:2.5, tension:.4, fill:true, pointBackgroundColor:'#10b981', pointBorderColor:'#fff', pointBorderWidth:2, pointRadius:4, pointHoverRadius:6 },
-                { label:'المعلمون', data: allMonths.map(m => teachersData[m]||0), borderColor:'#0071AA', backgroundColor: grad2, borderWidth:2.5, tension:.4, fill:true, pointBackgroundColor:'#0071AA', pointBorderColor:'#fff', pointBorderWidth:2, pointRadius:4, pointHoverRadius:6 }
+                { label:'ال مدرب ون', data: allMonths.map(m => teachersData[m]||0), borderColor:'#0071AA', backgroundColor: grad2, borderWidth:2.5, tension:.4, fill:true, pointBackgroundColor:'#0071AA', pointBorderColor:'#fff', pointBorderWidth:2, pointRadius:4, pointHoverRadius:6 }
             ]
         },
         options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'top', align:'end', labels:{ usePointStyle:true, padding:16, font:{size:11,weight:'600'} } }, tooltip:{ backgroundColor:'rgba(15,23,42,.95)', titleFont:{size:13,weight:'600'}, bodyFont:{size:12}, padding:10, cornerRadius:8 } }, scales:{ x:{ grid:{display:false}, ticks:{font:{size:10}} }, y:{ beginAtZero:true, grid:{color:'rgba(0,0,0,.04)'}, ticks:{font:{size:10},stepSize:1} } }, interaction:{ intersect:false, mode:'index' } }

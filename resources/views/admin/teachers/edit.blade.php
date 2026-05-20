@@ -1,6 +1,6 @@
 @extends('layouts.dashboard')
 
-@section('title', 'تعديل بيانات المعلم')
+@section('title', 'تعديل بيانات ال مدرب ')
 
 @section('content')
 <div class="mb-6">
@@ -11,7 +11,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
             </svg>
         </a>
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">تعديل بيانات المعلم</h1>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">تعديل بيانات ال مدرب </h1>
     </div>
     <p class="text-sm text-gray-500 dark:text-gray-400">تعديل بيانات: {{ $teacher->name }}</p>
 </div>
@@ -42,7 +42,7 @@
                        value="{{ old('name', $teacher->name) }}"
                        required
                        class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-                       placeholder="الاسم الكامل للمعلم">
+                       placeholder="الاسم الكامل لل مدرب ">
             </div>
 
             <!-- البريد الإلكتروني -->

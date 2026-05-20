@@ -11,7 +11,7 @@ $actionArabic = [
     'submit_quiz'=>'إرسال اختبار','view_quiz_result'=>'عرض نتيجة','submit_assignment'=>'إرسال واجب',
     'grade_evaluation'=>'تصحيح تقييم','join_session'=>'الانضمام لجلسة','leave_session'=>'مغادرة جلسة',
     'mark_attendance'=>'تسجيل الحضور','enroll'=>'التسجيل في مادة','withdraw'=>'الانسحاب',
-    'complete_course'=>'إتمام الدورة','submit_survey'=>'إرسال استبيان','submit_rating'=>'تقييم معلم',
+    'complete_course'=>'إتمام الدورة','submit_survey'=>'إرسال استبيان','submit_rating'=>'تقييم  مدرب ',
     'create_ticket'=>'إنشاء تذكرة','reply_ticket'=>'الرد على تذكرة','create_user'=>'إنشاء مستخدم',
     'update_user'=>'تعديل مستخدم','delete_user'=>'حذف مستخدم','create_program'=>'إنشاء دبلوم',
     'update_program'=>'تعديل دبلوم','delete_program'=>'حذف دبلوم','create_session'=>'إنشاء جلسة',

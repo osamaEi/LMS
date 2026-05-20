@@ -25,11 +25,11 @@ class PermissionSeeder extends Seeder
         'delete-users'                   => 'حذف المستخدمين',
         'toggle-user-status'             => 'تفعيل / تعطيل حسابات المستخدمين',
 
-        // ─── المعلمون ──────────────────────────────────
-        'view-teachers'                  => 'عرض المعلمين',
-        'create-teachers'                => 'إضافة معلمين',
-        'edit-teachers'                  => 'تعديل بيانات المعلمين',
-        'delete-teachers'                => 'حذف المعلمين',
+        // ─── المدربون──────────────────────────────────
+        'view-teachers'                  => 'عرض ال مدرب ين',
+        'create-teachers'                => 'إضافة  مدرب ين',
+        'edit-teachers'                  => 'تعديل بيانات ال مدرب ين',
+        'delete-teachers'                => 'حذف ال مدرب ين',
 
         // ───  المتدربون  ────────────────────────────────────
         'view-students'                  => 'عرض  المتدربون ',
@@ -107,7 +107,7 @@ class PermissionSeeder extends Seeder
         'view-student-progress'          => 'عرض تقارير تقدم  المتدربون ',
         'view-attendance-reports'        => 'عرض تقارير الحضور',
         'view-grade-reports'             => 'عرض تقارير الدرجات',
-        'view-teacher-performance'       => 'عرض تقارير أداء المعلمين',
+        'view-teacher-performance'       => 'عرض تقارير أداء ال مدرب ين',
 
         // ─── الاستبيانات ───────────────────────────────
         'view-surveys'                   => 'عرض الاستبيانات',
@@ -120,10 +120,10 @@ class PermissionSeeder extends Seeder
         'manage-tickets'                 => 'إدارة تذاكر الدعم',
         'assign-tickets'                 => 'تعيين التذاكر للموظفين',
 
-        // ─── تقييم المعلمين ────────────────────────────
-        'view-ratings'                   => 'عرض تقييمات المعلمين',
-        'approve-ratings'                => 'قبول تقييمات المعلمين',
-        'reject-ratings'                 => 'رفض تقييمات المعلمين',
+        // ─── تقييم ال مدرب ين ────────────────────────────
+        'view-ratings'                   => 'عرض تقييمات ال مدرب ين',
+        'approve-ratings'                => 'قبول تقييمات ال مدرب ين',
+        'reject-ratings'                 => 'رفض تقييمات ال مدرب ين',
 
         // ─── المستخدمون المعلقون ───────────────────────
         'view-pending-users'             => 'عرض طلبات التسجيل المعلقة',

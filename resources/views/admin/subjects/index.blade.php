@@ -81,7 +81,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                     </svg>
                     <input type="text" name="search" value="{{ $filters['search'] }}"
-                           placeholder="البحث بالاسم أو الكود أو المعلم..."
+                           placeholder="البحث بالاسم أو الكود أو ال مدرب ..."
                            style="width:100%;padding:10px 40px 10px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;color:#111827;background:#f9fafb;outline:none;box-sizing:border-box;"
                            onfocus="this.style.borderColor='#0d9488'" onblur="this.style.borderColor='#e5e7eb'">
                 </div>
@@ -157,7 +157,7 @@
                     </svg>
                     <select name="teacher_id"
                             style="width:100%;padding:9px 34px 9px 12px;border:1.5px solid {{ $filters['teacherId'] ? '#0d9488' : '#e5e7eb' }};border-radius:10px;font-size:13px;color:#374151;background:#f9fafb;outline:none;appearance:none;cursor:pointer;">
-                        <option value="">كل المعلمين</option>
+                        <option value="">كل ال مدرب ين</option>
                         @foreach($teachers as $teacher)
                         <option value="{{ $teacher->id }}" {{ $filters['teacherId'] == $teacher->id ? 'selected' : '' }}>
                             {{ $teacher->name }}
@@ -174,7 +174,7 @@
                 <label style="display:inline-flex;align-items:center;gap:7px;cursor:pointer;white-space:nowrap;padding:9px 14px;border-radius:10px;border:1.5px solid {{ $filters['noTeacher'] ? '#dc2626' : '#e5e7eb' }};background:{{ $filters['noTeacher'] ? '#fef2f2' : '#f9fafb' }};">
                     <input type="checkbox" name="no_teacher" value="1" {{ $filters['noTeacher'] ? 'checked' : '' }}
                            style="width:14px;height:14px;accent-color:#dc2626;cursor:pointer;">
-                    <span style="font-size:13px;font-weight:500;color:{{ $filters['noTeacher'] ? '#dc2626' : '#6b7280' }};">بدون معلم</span>
+                    <span style="font-size:13px;font-weight:500;color:{{ $filters['noTeacher'] ? '#dc2626' : '#6b7280' }};">بدون  مدرب </span>
                 </label>
 
             </div>
@@ -202,12 +202,12 @@
                 @if($filters['teacherId'])
                 @php $selTeacher = $teachers->firstWhere('id', $filters['teacherId']); @endphp
                 <span style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;background:#fef3c7;color:#92400e;border-radius:20px;font-size:12px;font-weight:600;">
-                    المعلم: {{ $selTeacher?->name }}
+                    ال مدرب : {{ $selTeacher?->name }}
                 </span>
                 @endif
                 @if($filters['noTeacher'])
                 <span style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;background:#fee2e2;color:#991b1b;border-radius:20px;font-size:12px;font-weight:600;">
-                    بدون معلم
+                    بدون  مدرب 
                 </span>
                 @endif
             </div>
@@ -223,7 +223,7 @@
                     <tr style="background:linear-gradient(90deg,#f0fdfa,#f7fffe);border-bottom:1.5px solid #e5e7eb;">
                         <th style="padding:14px 20px;text-align:right;font-size:12px;font-weight:700;color:#6b7280;letter-spacing:.5px;">الكود</th>
                         <th style="padding:14px 20px;text-align:right;font-size:12px;font-weight:700;color:#6b7280;letter-spacing:.5px;">اسم المقرر </th>
-                        <th style="padding:14px 20px;text-align:right;font-size:12px;font-weight:700;color:#6b7280;letter-spacing:.5px;">المعلم</th>
+                        <th style="padding:14px 20px;text-align:right;font-size:12px;font-weight:700;color:#6b7280;letter-spacing:.5px;">ال مدرب </th>
                         <th style="padding:14px 20px;text-align:right;font-size:12px;font-weight:700;color:#6b7280;letter-spacing:.5px;">الفصل / الدبلوم</th>
                         <th style="padding:14px 20px;text-align:right;font-size:12px;font-weight:700;color:#6b7280;letter-spacing:.5px;">الدروس</th>
                         <th style="padding:14px 20px;text-align:right;font-size:12px;font-weight:700;color:#6b7280;letter-spacing:.5px;">الحالة</th>

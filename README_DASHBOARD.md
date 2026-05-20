@@ -34,7 +34,7 @@ php artisan db:seed --class=DashboardViewSettingSeeder
 ### Step 2: Change Dashboard View
 1. Login as Admin
 2. Go to `/admin/settings`
-3. Find **"نمط عرض لوحة المعلم"** (Teacher Dashboard View)
+3. Find **"نمط عرض لوحة ال مدرب "** (Teacher Dashboard View)
 4. Select preferred view and save
 
 ### Step 3: Verify

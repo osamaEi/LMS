@@ -205,7 +205,7 @@
                     </svg>
                 </div>
                 <p style="font-size:1rem;font-weight:700;color:#374151;margin:0">لا توجد محاضرات بعد</p>
-                <p style="font-size:0.85rem;color:#9ca3af;margin:6px 0 0">سيتم إضافة المحاضرات من قِبَل المعلم</p>
+                <p style="font-size:0.85rem;color:#9ca3af;margin:6px 0 0">سيتم إضافة المحاضرات من قِبَل ال مدرب </p>
             </div>
         @else
             <div class="space-y-4">
@@ -425,7 +425,7 @@
                     </svg>
                 </div>
                 <p style="font-size:1rem;font-weight:700;color:#374151;margin:0">لا توجد ملفات بعد</p>
-                <p style="font-size:0.85rem;color:#9ca3af;margin:6px 0 0">سيتم رفع الملفات هنا من قِبَل المعلم</p>
+                <p style="font-size:0.85rem;color:#9ca3af;margin:6px 0 0">سيتم رفع الملفات هنا من قِبَل ال مدرب </p>
             </div>
         @else
             @if(count($filesBySession) > 0)
@@ -501,7 +501,7 @@
                     </svg>
                 </div>
                 <p style="font-size:1rem;font-weight:700;color:#374151;margin:0">لا توجد واجبات بعد</p>
-                <p style="font-size:0.85rem;color:#9ca3af;margin:6px 0 0">ستظهر هنا الواجبات التي يضيفها المعلم</p>
+                <p style="font-size:0.85rem;color:#9ca3af;margin:6px 0 0">ستظهر هنا الواجبات التي يضيفها ال مدرب </p>
             </div>
         @else
             <div class="space-y-4">

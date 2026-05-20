@@ -1,6 +1,6 @@
 @extends('layouts.dashboard')
 
-@section('title', 'الملف الشخصي للمعلم')
+@section('title', 'الملف الشخصي لل مدرب ')
 
 @section('content')
 <!-- Profile Header Card -->

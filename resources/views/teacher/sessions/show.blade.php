@@ -528,12 +528,12 @@
                     @csrf
                     <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
                         <div>
-                            <label class="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400">عنوان الواجب (عربي)</label>
+                            <label class="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400">مقرر الواجب (عربي)</label>
                             <input type="text" name="title_ar" placeholder="مثال: حل تمارين الفصل الثالث"
                                    class="w-full rounded-lg border border-stroke bg-white py-2 px-3 text-sm outline-none focus:border-primary dark:border-strokedark dark:bg-boxdark dark:text-white">
                         </div>
                         <div>
-                            <label class="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400">عنوان الواجب (إنجليزي)</label>
+                            <label class="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400">مقرر الواجب (إنجليزي)</label>
                             <input type="text" name="title_en" placeholder="e.g. Solve Chapter 3 exercises"
                                    class="w-full rounded-lg border border-stroke bg-white py-2 px-3 text-sm outline-none focus:border-primary dark:border-strokedark dark:bg-boxdark dark:text-white">
                         </div>

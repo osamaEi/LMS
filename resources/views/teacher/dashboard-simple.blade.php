@@ -1,13 +1,13 @@
 @extends('layouts.dashboard')
 
-@section('title', 'لوحة المعلم - عرض مبسط')
+@section('title', 'لوحة ال مدرب  - عرض مبسط')
 
 @section('content')
 <div class="container mx-auto px-4 py-6 max-w-6xl">
 
     <div class="mb-6">
         <h1 class="text-3xl font-bold text-gray-900 dark:text-white">مرحباً {{ auth()->user()->name }}</h1>
-        <p class="text-gray-600 dark:text-gray-400 mt-1">لوحة تحكم المعلم - عرض مبسط</p>
+        <p class="text-gray-600 dark:text-gray-400 mt-1">لوحة تحكم ال مدرب  - عرض مبسط</p>
     </div>
 
     <!-- Quick Stats -->

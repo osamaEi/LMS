@@ -643,7 +643,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                         </svg>
                     </div>
-                    <h2 style="font-size:15px;font-weight:700;color:#111827;margin:0;">المعلم المسؤول</h2>
+                    <h2 style="font-size:15px;font-weight:700;color:#111827;margin:0;">ال مدرب  المسؤول</h2>
                 </div>
                 <div style="padding:20px;">
                     @php
@@ -664,7 +664,7 @@
                     <a href="{{ route('admin.teachers.show', $subject->teacher) }}"
                        style="display:flex;align-items:center;justify-content:center;gap:6px;margin-top:12px;padding:9px;background:#ede9fe;border-radius:10px;color:#7c3aed;font-size:13px;font-weight:600;text-decoration:none;transition:all .15s;"
                        onmouseover="this.style.background='#ddd6fe'" onmouseout="this.style.background='#ede9fe'">
-                        عرض ملف المعلم
+                        عرض ملف ال مدرب 
                         <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
                         </svg>

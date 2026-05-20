@@ -169,7 +169,7 @@ class FaqSeeder extends Seeder
                 'sort_order'  => 3,
                 'question_ar' => 'كيف أطلع على درجاتي ونتائجي؟',
                 'question_en' => 'How do I view my grades and results?',
-                'answer_ar'   => 'تظهر درجات التقييمات والاختبارات في قسم "نتائجي" بلوحة تحكم ال متدرب فور صدورها من قِبل المعلم.',
+                'answer_ar'   => 'تظهر درجات التقييمات والاختبارات في قسم "نتائجي" بلوحة تحكم ال متدرب فور صدورها من قِبل ال مدرب .',
                 'answer_en'   => 'Assessment and exam grades appear in the "My Results" section of the student dashboard as soon as they are released by the teacher.',
             ],
             [
