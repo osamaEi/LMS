@@ -51,16 +51,48 @@
 </li>
 @endcanany
 
-{{-- الدبلومات    --}}
-@can('view-programs')
-<li>
-    <a href="{{ route('admin.programs.index') }}"
-       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('admin.programs.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
+{{-- الدبلومات (Dropdown) --}}
+@canany(['view-programs','view-subjects','view-sessions'])
+<li x-data="{ open: {{ (request()->routeIs('admin.programs.*') || request()->routeIs('admin.subjects.*') || request()->routeIs('admin.sessions.*')) ? 'true' : 'false' }} }">
+    <button @click="open = !open"
+            class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium w-full {{ (request()->routeIs('admin.programs.*') || request()->routeIs('admin.subjects.*') || request()->routeIs('admin.sessions.*')) ? 'menu-item-active' : 'menu-item-inactive' }}">
         <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20"><path d="M10 1.66666L1.66667 5.83333V8.33333C1.66667 12.4833 4.65 16.3583 8.75 17.4583C9.575 17.6833 10.425 17.6833 11.25 17.4583C15.35 16.3583 18.3333 12.4833 18.3333 8.33333V5.83333L10 1.66666ZM10 3.33333L16.6667 6.66666V8.33333C16.6667 11.6667 14.2667 14.7417 11.0833 15.6417C10.3833 15.8167 9.61667 15.8167 8.91667 15.6417C5.73333 14.7417 3.33333 11.6667 3.33333 8.33333V6.66666L10 3.33333ZM9.16667 10.8333L7.08333 8.74999L6.08333 9.74999L9.16667 12.8333L14.1667 7.83333L13.1667 6.83333L9.16667 10.8333Z" fill=""/></svg>
-        <span>الدبلومات   </span>
-    </a>
+        <span class="flex-1">الدبلومات</span>
+        <svg class="fill-current ms-auto transition-transform duration-200" :class="{ 'rotate-180': open }" width="16" height="16" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
+        </svg>
+    </button>
+    <ul x-show="open" x-collapse class="mt-1 mr-4 space-y-0.5 border-r-2 border-white/20 pr-3">
+        @can('view-programs')
+        <li>
+            <a href="{{ route('admin.programs.index') }}"
+               class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors {{ request()->routeIs('admin.programs.*') ? 'bg-white/20 text-white' : 'text-white/70 hover:bg-white/10 hover:text-white' }}">
+                <span class="w-2 h-2 rounded-full {{ request()->routeIs('admin.programs.*') ? 'bg-white' : 'bg-white/50' }}"></span>
+                الدبلومات
+            </a>
+        </li>
+        @endcan
+        @can('view-subjects')
+        <li>
+            <a href="{{ route('admin.subjects.index') }}"
+               class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors {{ request()->routeIs('admin.subjects.*') ? 'bg-white/20 text-white' : 'text-white/70 hover:bg-white/10 hover:text-white' }}">
+                <span class="w-2 h-2 rounded-full {{ request()->routeIs('admin.subjects.*') ? 'bg-white' : 'bg-white/50' }}"></span>
+                المقررات التدريبية
+            </a>
+        </li>
+        @endcan
+        @can('view-sessions')
+        <li>
+            <a href="{{ route('admin.sessions.index') }}"
+               class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors {{ request()->routeIs('admin.sessions.*') ? 'bg-white/20 text-white' : 'text-white/70 hover:bg-white/10 hover:text-white' }}">
+                <span class="w-2 h-2 rounded-full {{ request()->routeIs('admin.sessions.*') ? 'bg-white' : 'bg-white/50' }}"></span>
+                الدروس والمحاضرات
+            </a>
+        </li>
+        @endcan
+    </ul>
 </li>
-@endcan
+@endcanany
 
 {{-- البرامج التدريبية  --}}
 @can('view-programs')
@@ -117,16 +149,6 @@
 </li>
 @endcan -->
 
-{{-- المقررات  التدريبية  --}}
-@can('view-subjects')
-<li>
-    <a href="{{ route('admin.subjects.index') }}"
-       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('admin.subjects.index') || request()->routeIs('admin.subjects.create') || request()->routeIs('admin.subjects.edit') ? 'menu-item-active' : 'menu-item-inactive' }}">
-        <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20"><path d="M15.8333 3.33333H4.16667C3.24167 3.33333 2.5 4.08333 2.5 5V15C2.5 15.9167 3.24167 16.6667 4.16667 16.6667H15.8333C16.7583 16.6667 17.5 15.9167 17.5 15V5C17.5 4.08333 16.7583 3.33333 15.8333 3.33333ZM15.8333 15H4.16667V5H15.8333V15ZM6.66667 10H13.3333V11.6667H6.66667V10ZM6.66667 7.5H13.3333V9.16667H6.66667V7.5ZM6.66667 12.5H10.8333V14.1667H6.66667V12.5Z" fill=""/></svg>
-        <span>المقررات  التدريبية </span>
-    </a>
-</li>
-@endcan
 
 {{-- ملفات المقررات  التدريبية  --}}
 @can('view-subjects')
@@ -139,16 +161,6 @@
 </li> -->
 @endcan
 
-{{-- الدروس والمحاضرات --}}
-@can('view-sessions')
-<li>
-    <a href="{{ route('admin.sessions.index') }}"
-       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('admin.sessions.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
-        <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20"><path d="M10 0.833333C4.94167 0.833333 0.833333 4.94167 0.833333 10C0.833333 15.0583 4.94167 19.1667 10 19.1667C15.0583 19.1667 19.1667 15.0583 19.1667 10C19.1667 4.94167 15.0583 0.833333 10 0.833333ZM14.5833 10.8333H9.16667V5.41667H10.8333V9.16667H14.5833V10.8333Z" fill=""/></svg>
-        <span>الدروس والمحاضرات</span>
-    </a>
-</li>
-@endcan
 
 {{-- التسجيلات --}}
 @can('view-recordings')
