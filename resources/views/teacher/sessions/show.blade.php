@@ -1,595 +1,323 @@
 @extends('layouts.dashboard')
-
-@section('title', $session->title_ar ?? $session->title)
-
-@push('styles')
-<style>
-    .live-pulse { animation: livePulse 2s cubic-bezier(.4,0,.6,1) infinite; }
-    @keyframes livePulse { 0%,100%{opacity:1} 50%{opacity:.4} }
-    .info-row:last-child { border-bottom: none !important; }
-</style>
-@endpush
+@section('title', 'واجب الجلسة')
 
 @section('content')
 @php
-    $dt        = $session->scheduled_at ? \Carbon\Carbon::parse($session->scheduled_at) : null;
-    $isLive    = $session->status === 'live';
-    $isDone    = $session->status === 'completed';
-    $isCancelled = $session->status === 'cancelled';
-    $typeLabel = match($session->type ?? '') {
-        'live_zoom'      => 'Zoom مباشر',
-        'recorded_video' => 'فيديو مسجّل',
-        'in_person'      => 'حضوري',
-        default          => $session->type ?? '—',
-    };
-    $statusBg    = $isLive ? '#ef4444' : ($isDone ? '#10b981' : ($isCancelled ? '#6b7280' : '#0071AA'));
-    $statusLabel = $isLive ? 'مباشر الآن' : ($isDone ? 'مكتملة' : ($isCancelled ? 'ملغاة' : 'مجدولة'));
+    $hw          = $session->homework;
+    $submissions = $hw ? $hw->submissions->sortByDesc('submitted_at') : collect();
+    $entityName  = $session->subject->name_ar ?? $session->program->name_ar ?? '—';
+    $backRoute   = $session->subject_id
+        ? route('teacher.my-subjects.show', $session->subject_id)
+        : ($session->program_id ? route('teacher.my-courses.show', $session->program_id) : '#');
+    $dt = $session->scheduled_at ? \Carbon\Carbon::parse($session->scheduled_at) : null;
 @endphp
 
-<div class="mx-auto max-w-screen-xl p-4 md:p-6 2xl:p-10">
+<div style="direction:rtl;max-width:860px;margin:0 auto;">
 
-    {{-- Breadcrumb --}}
-    <div class="mb-5 flex items-center gap-2 text-sm text-gray-500">
-        <a href="{{ route('teacher.my-subjects.show', $session->subject_id) }}"
-           class="inline-flex items-center gap-1.5 font-medium transition hover:opacity-80" style="color:#0071AA">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M21 5c-1.11-.35-2.33-.5-3.5-.5-1.95 0-4.05.4-5.5 1.5-1.45-1.1-3.55-1.5-5.5-1.5S2.45 4.9 1 6v14.65c0 .25.25.5.5.5.1 0 .15-.05.25-.05C3.1 20.45 5.05 20 6.5 20c1.95 0 4.05.4 5.5 1.5 1.35-.85 3.8-1.5 5.5-1.5 1.65 0 3.35.3 4.75 1.05.1.05.15.05.25.05.25 0 .5-.25.5-.5V6c-.6-.45-1.25-.75-2-1zm0 13.5c-1.1-.35-2.3-.5-3.5-.5-1.7 0-4.15.65-5.5 1.5V8c1.35-.85 3.8-1.5 5.5-1.5 1.2 0 2.4.15 3.5.5v11.5z"/>
-            </svg>
-            {{ $session->subject->name_ar ?? $session->subject->name ?? 'المقرر ' }}
-        </a>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="text-gray-300" style="transform:rotate(180deg)">
-            <path d="M15.41 16.09l-4.58-4.59 4.58-4.59L14 5.5l-6 6 6 6z"/>
-        </svg>
-        <span class="truncate text-gray-400">{{ $session->title_ar ?? $session->title }}</span>
+{{-- Alerts --}}
+@if(session('success'))
+<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-right:4px solid #22c55e;border-radius:10px;padding:12px 16px;margin-bottom:16px;color:#15803d;font-size:.875rem;font-weight:600;display:flex;align-items:center;gap:8px;">
+    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+    {{ session('success') }}
+</div>
+@endif
+@if($errors->any())
+<div style="background:#fff1f2;border:1px solid #fecaca;border-right:4px solid #ef4444;border-radius:10px;padding:12px 16px;margin-bottom:16px;">
+    <ul style="margin:0;padding-right:16px;color:#dc2626;font-size:.85rem;">
+        @foreach($errors->all() as $e)<li>{{ $e }}</li>@endforeach
+    </ul>
+</div>
+@endif
+
+{{-- Header --}}
+<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:20px;flex-wrap:wrap;">
+    <div>
+        <div style="font-size:.8rem;color:#6b7280;margin-bottom:4px;">
+            <a href="{{ $backRoute }}" style="color:#6b7280;text-decoration:none;">{{ $entityName }}</a>
+            <span style="margin:0 6px;">›</span>
+            <span>جلسة #{{ $session->session_number }}</span>
+        </div>
+        <h1 style="font-size:1.3rem;font-weight:800;color:#111827;margin:0;">واجب الجلسة</h1>
+        @if($dt)
+        <p style="font-size:.8rem;color:#6b7280;margin:4px 0 0;">
+            {{ $dt->format('Y/m/d · H:i') }}
+            @if($session->duration_minutes) · {{ $session->duration_minutes }} دقيقة @endif
+        </p>
+        @endif
+    </div>
+    <a href="{{ $backRoute }}"
+       style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:.8rem;font-weight:600;color:#374151;text-decoration:none;background:white;">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+        رجوع
+    </a>
+</div>
+
+{{-- ══ HOMEWORK CARD ══ --}}
+<div style="background:white;border:1.5px solid #f1f5f9;border-radius:16px;overflow:hidden;margin-bottom:20px;">
+    <div style="padding:14px 20px;background:linear-gradient(135deg,#f59e0b,#d97706);display:flex;align-items:center;justify-content:space-between;">
+        <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:36px;height:36px;background:rgba(255,255,255,.2);border-radius:9px;display:flex;align-items:center;justify-content:center;">
+                <svg width="18" height="18" fill="white" viewBox="0 0 24 24"><path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1s-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm2 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+            </div>
+            <h2 style="color:white;font-size:1rem;font-weight:800;margin:0;">الواجب المنزلي</h2>
+        </div>
+        @if($hw)
+        <div style="display:flex;gap:8px;">
+            <button onclick="toggleEditForm()"
+                    style="display:inline-flex;align-items:center;gap:5px;padding:6px 12px;background:rgba(255,255,255,.2);border:none;border-radius:7px;color:white;font-size:.78rem;font-weight:700;cursor:pointer;">
+                <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+                تعديل
+            </button>
+            <form action="{{ route('teacher.sessions.homework.destroy', $session) }}" method="POST" onsubmit="return confirm('حذف الواجب؟')">
+                @csrf @method('DELETE')
+                <button type="submit"
+                        style="display:inline-flex;align-items:center;gap:5px;padding:6px 12px;background:rgba(239,68,68,.3);border:none;border-radius:7px;color:white;font-size:.78rem;font-weight:700;cursor:pointer;">
+                    <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+                    حذف
+                </button>
+            </form>
+        </div>
+        @endif
     </div>
 
-    {{-- ══════════════════════════════════════
-         Hero Header
-    ══════════════════════════════════════ --}}
-    <div class="relative mb-8 overflow-hidden rounded-2xl px-8 py-7 text-white shadow-xl"
-         style="background:linear-gradient(135deg,#1e3a5f 0%,#0071AA 60%,#0ea5e9 100%)">
-        <div class="pointer-events-none absolute -top-20 -right-20 h-64 w-64 rounded-full" style="background:rgba(255,255,255,.05)"></div>
-        <div class="pointer-events-none absolute -bottom-12 -left-12 h-48 w-48 rounded-full" style="background:rgba(255,255,255,.05)"></div>
-
-        <div class="relative flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-            <div class="flex-1 min-w-0">
-                <div class="mb-2 flex flex-wrap items-center gap-2">
-                    {{-- Status badge --}}
-                    <span class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold"
-                          style="background:rgba(255,255,255,.2)">
-                        @if($isLive)
-                            <span class="h-2 w-2 rounded-full bg-white live-pulse"></span>
-                        @else
-                            <span class="h-2 w-2 rounded-full" style="background:{{ $statusBg === '#0071AA' ? '#7dd3fc' : 'white' }}"></span>
-                        @endif
-                        {{ $statusLabel }}
-                    </span>
-                    {{-- Type --}}
-                    <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold"
-                          style="background:rgba(255,255,255,.15)">
-                        {{ $typeLabel }}
-                    </span>
-                    @if($session->session_number)
-                    <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold"
-                          style="background:rgba(255,255,255,.15)">
-                        جلسة #{{ $session->session_number }}
-                    </span>
-                    @endif
-                </div>
-                <h1 class="text-2xl font-black tracking-tight sm:text-3xl">{{ $session->title_ar ?? $session->title }}</h1>
-                @if($session->title_en && $session->title_en !== ($session->title_ar ?? ''))
-                    <p class="mt-1 text-sm" style="color:rgba(255,255,255,.65)">{{ $session->title_en }}</p>
+    <div style="padding:20px 22px;">
+        @if($hw)
+        {{-- Existing homework display --}}
+        <div id="hw-display">
+            <h3 style="font-size:1rem;font-weight:800;color:#111827;margin:0 0 8px;">{{ $hw->title_ar ?: $hw->title_en ?: 'واجب بدون عنوان' }}</h3>
+            @if($hw->description_ar || $hw->description_en)
+            <p style="font-size:.875rem;color:#374151;line-height:1.65;margin:0 0 12px;white-space:pre-line;">{{ $hw->description_ar ?: $hw->description_en }}</p>
+            @endif
+            <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;">
+                @if($hw->due_date)
+                <span style="display:inline-flex;align-items:center;gap:5px;font-size:.8rem;color:#6b7280;background:#f9fafb;border:1px solid #e5e7eb;padding:5px 10px;border-radius:7px;">
+                    <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg>
+                    موعد التسليم: <strong>{{ $hw->due_date->format('Y/m/d') }}</strong>
+                </span>
                 @endif
-                <p class="mt-2 flex items-center gap-1.5 text-sm" style="color:rgba(255,255,255,.7)">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 3L1 9l4 2.18V17h2v-4.68L9 13.4V17c0 2.21 1.34 4 3 4s3-1.79 3-4v-3.6l2-.92V17h2v-5.82L23 9 12 3z"/>
-                    </svg>
-                    {{ $session->subject->name_ar ?? $session->subject->name ?? '—' }}
-                    @if($session->subject->term->program->name ?? null)
-                        <span style="color:rgba(255,255,255,.4)">·</span>
-                        {{ $session->subject->term->program->name }}
-                    @endif
-                </p>
+                @if($hw->file_path)
+                <a href="{{ asset('storage/'.$hw->file_path) }}" target="_blank"
+                   style="display:inline-flex;align-items:center;gap:5px;font-size:.8rem;color:#0071AA;background:#eff6ff;border:1px solid #bfdbfe;padding:5px 10px;border-radius:7px;text-decoration:none;font-weight:600;">
+                    <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
+                    {{ $hw->file_name }}
+                </a>
+                @endif
+                <span style="display:inline-flex;align-items:center;gap:5px;font-size:.8rem;color:#6b7280;background:#f9fafb;border:1px solid #e5e7eb;padding:5px 10px;border-radius:7px;">
+                    <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+                    {{ $submissions->count() }} تسليم
+                </span>
             </div>
-
-            {{-- Date / time block --}}
-            @if($dt)
-            <div class="flex-shrink-0 rounded-2xl px-6 py-4 text-center" style="background:rgba(255,255,255,.15)">
-                <div class="text-3xl font-black leading-none">{{ $dt->format('d') }}</div>
-                <div class="mt-0.5 text-sm font-semibold" style="color:rgba(255,255,255,.8)">{{ $dt->translatedFormat('F') }}</div>
-                <div class="mt-2 text-lg font-bold">{{ $dt->format('H:i') }}</div>
-                <div class="mt-0.5 text-xs" style="color:rgba(255,255,255,.6)">{{ $dt->diffForHumans() }}</div>
-            </div>
-            @endif
         </div>
+
+        {{-- Edit form --}}
+        <div id="hw-edit" style="display:none;margin-top:16px;">
+            <form action="{{ route('teacher.sessions.homework.update', $session) }}" method="POST" enctype="multipart/form-data">
+                @csrf @method('PUT')
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+                    <div>
+                        <label style="display:block;font-size:.78rem;font-weight:700;color:#374151;margin-bottom:4px;">العنوان (عربي)</label>
+                        <input type="text" name="title_ar" value="{{ old('title_ar', $hw->title_ar) }}"
+                               style="width:100%;border:1.5px solid #e5e7eb;border-radius:8px;padding:8px 11px;font-size:.85rem;outline:none;box-sizing:border-box;"
+                               onfocus="this.style.borderColor='#f59e0b'" onblur="this.style.borderColor='#e5e7eb'">
+                    </div>
+                    <div>
+                        <label style="display:block;font-size:.78rem;font-weight:700;color:#374151;margin-bottom:4px;">موعد التسليم</label>
+                        <input type="date" name="due_date" value="{{ old('due_date', $hw->due_date?->format('Y-m-d')) }}"
+                               style="width:100%;border:1.5px solid #e5e7eb;border-radius:8px;padding:8px 11px;font-size:.85rem;outline:none;box-sizing:border-box;"
+                               onfocus="this.style.borderColor='#f59e0b'" onblur="this.style.borderColor='#e5e7eb'">
+                    </div>
+                </div>
+                <div style="margin-bottom:12px;">
+                    <label style="display:block;font-size:.78rem;font-weight:700;color:#374151;margin-bottom:4px;">وصف الواجب</label>
+                    <textarea name="description_ar" rows="3"
+                              style="width:100%;border:1.5px solid #e5e7eb;border-radius:8px;padding:8px 11px;font-size:.85rem;outline:none;resize:vertical;box-sizing:border-box;"
+                              onfocus="this.style.borderColor='#f59e0b'" onblur="this.style.borderColor='#e5e7eb'">{{ old('description_ar', $hw->description_ar) }}</textarea>
+                </div>
+                <div style="margin-bottom:16px;">
+                    <label style="display:block;font-size:.78rem;font-weight:700;color:#374151;margin-bottom:4px;">ملف جديد (اختياري)</label>
+                    <input type="file" name="file"
+                           style="width:100%;border:1.5px solid #e5e7eb;border-radius:8px;padding:7px 11px;font-size:.85rem;background:white;box-sizing:border-box;">
+                    @if($hw->file_path)
+                    <p style="font-size:.75rem;color:#6b7280;margin:3px 0 0;">الملف الحالي: {{ $hw->file_name }} — ارفع ملفاً جديداً للاستبدال</p>
+                    @endif
+                </div>
+                <div style="display:flex;gap:8px;">
+                    <button type="submit"
+                            style="padding:8px 18px;background:linear-gradient(135deg,#f59e0b,#d97706);color:white;border:none;border-radius:8px;font-size:.85rem;font-weight:700;cursor:pointer;">
+                        حفظ التعديلات
+                    </button>
+                    <button type="button" onclick="toggleEditForm()"
+                            style="padding:8px 16px;background:#f1f5f9;color:#374151;border:none;border-radius:8px;font-size:.85rem;font-weight:600;cursor:pointer;">
+                        إلغاء
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        @else
+        {{-- Add homework form --}}
+        <form action="{{ route('teacher.sessions.homework.store', $session) }}" method="POST" enctype="multipart/form-data">
+            @csrf
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+                <div>
+                    <label style="display:block;font-size:.78rem;font-weight:700;color:#374151;margin-bottom:4px;">عنوان الواجب <span style="color:#ef4444;">*</span></label>
+                    <input type="text" name="title_ar" value="{{ old('title_ar') }}" required
+                           placeholder="مثال: حل تمارين الفصل الثالث"
+                           style="width:100%;border:1.5px solid #e5e7eb;border-radius:8px;padding:9px 12px;font-size:.875rem;outline:none;box-sizing:border-box;"
+                           onfocus="this.style.borderColor='#f59e0b'" onblur="this.style.borderColor='#e5e7eb'">
+                </div>
+                <div>
+                    <label style="display:block;font-size:.78rem;font-weight:700;color:#374151;margin-bottom:4px;">موعد التسليم</label>
+                    <input type="date" name="due_date" value="{{ old('due_date') }}"
+                           style="width:100%;border:1.5px solid #e5e7eb;border-radius:8px;padding:9px 12px;font-size:.875rem;outline:none;box-sizing:border-box;"
+                           onfocus="this.style.borderColor='#f59e0b'" onblur="this.style.borderColor='#e5e7eb'">
+                </div>
+            </div>
+            <div style="margin-bottom:12px;">
+                <label style="display:block;font-size:.78rem;font-weight:700;color:#374151;margin-bottom:4px;">وصف الواجب</label>
+                <textarea name="description_ar" rows="4" value="{{ old('description_ar') }}"
+                          placeholder="اكتب تفاصيل الواجب والمطلوب من الطلاب..."
+                          style="width:100%;border:1.5px solid #e5e7eb;border-radius:8px;padding:9px 12px;font-size:.875rem;outline:none;resize:vertical;box-sizing:border-box;"
+                          onfocus="this.style.borderColor='#f59e0b'" onblur="this.style.borderColor='#e5e7eb'">{{ old('description_ar') }}</textarea>
+            </div>
+            <div style="margin-bottom:16px;">
+                <label style="display:block;font-size:.78rem;font-weight:700;color:#374151;margin-bottom:4px;">إرفاق ملف (اختياري)</label>
+                <input type="file" name="file"
+                       style="width:100%;border:1.5px solid #e5e7eb;border-radius:8px;padding:8px 12px;font-size:.875rem;background:white;box-sizing:border-box;">
+                <p style="font-size:.75rem;color:#9ca3af;margin:3px 0 0;">PDF، Word، صور — حد أقصى 20MB</p>
+            </div>
+            <button type="submit"
+                    style="display:inline-flex;align-items:center;gap:8px;padding:10px 22px;background:linear-gradient(135deg,#f59e0b,#d97706);color:white;border:none;border-radius:9px;font-size:.875rem;font-weight:700;cursor:pointer;box-shadow:0 3px 12px rgba(245,158,11,.35);">
+                <svg width="15" height="15" fill="currentColor" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                إضافة الواجب
+            </button>
+        </form>
+        @endif
+    </div>
+</div>
+
+{{-- ══ SUBMISSIONS ══ --}}
+@if($hw)
+<div style="background:white;border:1.5px solid #f1f5f9;border-radius:16px;overflow:hidden;">
+    <div style="padding:14px 20px;background:linear-gradient(135deg,rgba(0,113,170,.06),rgba(0,113,170,.02));border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:8px;height:8px;border-radius:50%;background:#0071AA;"></div>
+            <h2 style="font-size:.95rem;font-weight:800;color:#111827;margin:0;">حلول الطلاب</h2>
+        </div>
+        <span style="font-size:.8rem;color:#6b7280;background:#f1f5f9;padding:4px 12px;border-radius:20px;font-weight:600;">
+            {{ $submissions->count() }} تسليم
+        </span>
     </div>
 
-    {{-- ══════════════════════════════════════
-         Zoom Join Card (if applicable)
-    ══════════════════════════════════════ --}}
-    @if($session->type === 'live_zoom' && $session->zoom_meeting_id)
-    <div class="mb-8 overflow-hidden rounded-2xl shadow-xl"
-         style="background:linear-gradient(135deg,#065f46 0%,#059669 55%,#34d399 100%)">
-        <div class="relative px-8 py-7 text-white">
-            <div class="pointer-events-none absolute -top-16 -left-16 h-48 w-48 rounded-full" style="background:rgba(255,255,255,.06)"></div>
-
-            <div class="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-                <div class="flex-1">
-                    <div class="mb-3 flex items-center gap-3">
-                        <div class="flex h-11 w-11 items-center justify-center rounded-xl" style="background:rgba(255,255,255,.2)">
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="white">
-                                <path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/>
-                            </svg>
-                        </div>
-                        <div>
-                            <h2 class="text-lg font-bold">جلسة Zoom مباشرة</h2>
-                            <p class="text-sm" style="color:rgba(255,255,255,.75)">انضم كمضيف وابدأ التدريس</p>
-                        </div>
-                    </div>
-
-                    <div class="flex flex-wrap gap-3">
-                        <div class="rounded-xl px-4 py-3" style="background:rgba(255,255,255,.15)">
-                            <p class="text-[11px] font-medium mb-0.5" style="color:rgba(255,255,255,.7)">معرّف الاجتماع</p>
-                            <p class="font-mono font-black text-base">{{ $session->zoom_meeting_id }}</p>
-                        </div>
-                        @if($session->zoom_password)
-                        <div class="rounded-xl px-4 py-3" style="background:rgba(255,255,255,.15)">
-                            <p class="text-[11px] font-medium mb-0.5" style="color:rgba(255,255,255,.7)">كلمة المرور</p>
-                            <p class="font-mono font-black text-base">{{ $session->zoom_password }}</p>
-                        </div>
-                        @endif
-                        @if($session->duration_minutes)
-                        <div class="rounded-xl px-4 py-3" style="background:rgba(255,255,255,.15)">
-                            <p class="text-[11px] font-medium mb-0.5" style="color:rgba(255,255,255,.7)">المدة</p>
-                            <p class="font-black text-base">{{ $session->duration_minutes }} دقيقة</p>
-                        </div>
-                        @endif
-                    </div>
-                </div>
-
-                <div class="flex flex-shrink-0 flex-col gap-3">
-                    <a href="{{ route('teacher.my-subjects.sessions.zoom', ['subjectId' => $session->subject_id, 'sessionId' => $session->id]) }}"
-                       class="inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3.5 text-sm font-black shadow-lg transition hover:opacity-90"
-                       style="background:white;color:#059669">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/>
-                        </svg>
-                        بدء / انضمام لل محاضرة 
-                    </a>
-                    @if($session->zoom_start_url)
-                    <a href="{{ $session->zoom_start_url }}" target="_blank"
-                       class="inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3 text-sm font-bold transition hover:opacity-80"
-                       style="background:rgba(255,255,255,.2);color:white">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/>
-                        </svg>
-                        فتح في التطبيق
-                    </a>
-                    @endif
-                </div>
-            </div>
+    @if($submissions->isEmpty())
+    <div style="padding:48px;text-align:center;">
+        <div style="width:52px;height:52px;background:#f9fafb;border-radius:13px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">
+            <svg width="22" height="22" fill="none" stroke="#9ca3af" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
         </div>
+        <p style="font-size:.875rem;font-weight:700;color:#374151;margin:0 0 4px;">لا توجد تسليمات بعد</p>
+        <p style="font-size:.8rem;color:#9ca3af;margin:0;">سيظهر هنا حلول الطلاب بعد تسليمهم للواجب</p>
     </div>
-    @endif
-
-    {{-- ══════════════════════════════════════
-         Main Grid
-    ══════════════════════════════════════ --}}
-    <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
-
-        {{-- LEFT — Details + Files --}}
-        <div class="space-y-6 lg:col-span-2">
-
-            {{-- Session Details --}}
-            <div class="overflow-hidden rounded-2xl border border-stroke bg-white shadow-sm dark:border-strokedark dark:bg-boxdark">
-                <div class="flex items-center gap-3 border-b border-stroke px-6 py-4 dark:border-strokedark">
-                    <div class="flex h-9 w-9 items-center justify-center rounded-xl" style="background:linear-gradient(135deg,#0071AA,#005a88)">
-                        <svg width="17" height="17" viewBox="0 0 24 24" fill="white">
-                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
-                        </svg>
-                    </div>
-                    <h3 class="font-bold text-black dark:text-white">تفاصيل الجلسة</h3>
+    @else
+    <div style="display:flex;flex-direction:column;">
+        @foreach($submissions as $sub)
+        @php
+            $hasGrade = $sub->grade !== null;
+        @endphp
+        <div style="padding:16px 20px;border-bottom:1px solid #f9fafb;" id="sub-{{ $sub->id }}">
+            <div style="display:flex;align-items:flex-start;gap:12px;">
+                {{-- Avatar --}}
+                <div style="width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,#0071AA,#005a88);display:flex;align-items:center;justify-content:center;color:white;font-size:15px;font-weight:800;flex-shrink:0;">
+                    {{ mb_substr($sub->student->name ?? '?', 0, 1) }}
                 </div>
-                <div class="divide-y divide-stroke dark:divide-strokedark px-6">
-                    @if($dt)
-                    <div class="info-row flex items-center justify-between py-4">
-                        <div class="flex items-center gap-2 text-sm text-gray-500">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="color:#0071AA">
-                                <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2zM7 12h5v5H7z"/>
-                            </svg>
-                            التاريخ
-                        </div>
-                        <span class="font-bold text-sm text-black dark:text-white">
-                            {{ $dt->locale('ar')->isoFormat('dddd، D MMMM YYYY') }}
-                        </span>
-                    </div>
-                    <div class="info-row flex items-center justify-between py-4">
-                        <div class="flex items-center gap-2 text-sm text-gray-500">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="color:#0071AA">
-                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm.5 5v5.25l4.5 2.67-.75 1.23L11 13V7h1.5z"/>
-                            </svg>
-                            الوقت
-                        </div>
-                        <span class="font-bold text-sm text-black dark:text-white">{{ $dt->format('H:i') }}</span>
-                    </div>
-                    @endif
-                    @if($session->duration_minutes)
-                    <div class="info-row flex items-center justify-between py-4">
-                        <div class="flex items-center gap-2 text-sm text-gray-500">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="color:#8b5cf6">
-                                <path d="M13 2.05V4.07c3.94.49 7 3.85 7 7.93s-3.06 7.44-7 7.93v2.02c5.06-.5 9-4.76 9-9.95S18.06 2.55 13 2.05zM11 2.05c-2.01.2-3.84 1-5.32 2.27L7.1 5.74C8.22 4.84 9.57 4.2 11 4.07V2.05zM5.74 7.11L4.27 5.63C3 7.12 2.2 8.97 2.05 11h2.02c.14-1.43.77-2.73 1.67-3.89zM4.07 13H2.05c.16 2.03.95 3.87 2.23 5.37l1.47-1.47c-.9-1.16-1.53-2.46-1.68-3.9zm1.69 6.76C7.17 20.98 9 21.77 11 21.94v-2.02c-1.42-.14-2.72-.78-3.9-1.68l-1.34 1.52z"/>
-                            </svg>
-                            المدة
-                        </div>
-                        <span class="font-bold text-sm text-black dark:text-white">{{ $session->duration_minutes }} دقيقة</span>
-                    </div>
-                    @endif
-                    <div class="info-row flex items-center justify-between py-4">
-                        <div class="flex items-center gap-2 text-sm text-gray-500">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="color:#f59e0b">
-                                <path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/>
-                            </svg>
-                            النوع
-                        </div>
-                        <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-bold text-white"
-                              style="background:{{ $session->type === 'live_zoom' ? '#0071AA' : '#8b5cf6' }}">
-                            {{ $typeLabel }}
-                        </span>
-                    </div>
-                    <div class="info-row flex items-center justify-between py-4">
-                        <div class="flex items-center gap-2 text-sm text-gray-500">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="color:#10b981">
-                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                            </svg>
-                            الحالة
-                        </div>
-                        <span class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold text-white"
-                              style="background:{{ $statusBg }}">
-                            @if($isLive)<span class="h-1.5 w-1.5 rounded-full bg-white live-pulse"></span>@endif
-                            {{ $statusLabel }}
-                        </span>
-                    </div>
-                    @if($session->description_ar || $session->description)
-                    <div class="info-row py-4">
-                        <p class="mb-2 flex items-center gap-1.5 text-sm text-gray-500">
-                            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="color:#0071AA">
-                                <path d="M14 17H4v2h10v-2zm6-8H4v2h16V9zM4 15h16v-2H4v2zM4 5v2h16V5H4z"/>
-                            </svg>
-                            الوصف
-                        </p>
-                        <p class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
-                            {{ $session->description_ar ?? $session->description }}
-                        </p>
-                    </div>
-                    @endif
-                </div>
-            </div>
-
-            {{-- Files --}}
-            @if($session->files && $session->files->count() > 0)
-            <div class="overflow-hidden rounded-2xl border border-stroke bg-white shadow-sm dark:border-strokedark dark:bg-boxdark">
-                <div class="flex items-center justify-between border-b border-stroke px-6 py-4 dark:border-strokedark">
-                    <div class="flex items-center gap-3">
-                        <div class="flex h-9 w-9 items-center justify-center rounded-xl" style="background:linear-gradient(135deg,#ef4444,#dc2626)">
-                            <svg width="17" height="17" viewBox="0 0 24 24" fill="white">
-                                <path d="M20 2H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-8.5 7.5c0 .83-.67 1.5-1.5 1.5H9v2H7.5V7H10c.83 0 1.5.67 1.5 1.5v1zm5 2c0 .83-.67 1.5-1.5 1.5h-2.5V7H15c.83 0 1.5.67 1.5 1.5v3zm4-3H19v1h1.5V11H19v2h-1.5V7h3v1.5zM9 9.5h1v-1H9v1zM4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm10 5.5h1v-3h-1v3z"/>
-                            </svg>
-                        </div>
+                <div style="flex:1;min-width:0;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;margin-bottom:6px;">
                         <div>
-                            <h3 class="font-bold text-black dark:text-white">الملفات المرفقة</h3>
-                            <p class="text-xs text-gray-400">{{ $session->files->count() }} ملف</p>
+                            <p style="font-weight:800;color:#111827;margin:0;font-size:.9rem;">{{ $sub->student->name ?? 'غير معروف' }}</p>
+                            <p style="font-size:.75rem;color:#9ca3af;margin:1px 0 0;">
+                                {{ $sub->submitted_at ? $sub->submitted_at->format('Y/m/d H:i') : \Carbon\Carbon::parse($sub->created_at)->format('Y/m/d H:i') }}
+                            </p>
                         </div>
+                        @if($hasGrade)
+                        <span style="background:#dcfce7;color:#15803d;font-size:.78rem;font-weight:700;padding:3px 10px;border-radius:20px;">
+                            درجة: {{ $sub->grade }}
+                        </span>
+                        @endif
                     </div>
-                </div>
-                <div class="divide-y divide-stroke dark:divide-strokedark">
-                    @foreach($session->files as $file)
-                    @php
-                        $ext = strtolower(pathinfo($file->file_path ?? '', PATHINFO_EXTENSION));
-                        $fileColor = match(true) {
-                            in_array($ext, ['pdf'])            => '#ef4444',
-                            in_array($ext, ['jpg','jpeg','png','gif','webp']) => '#8b5cf6',
-                            in_array($ext, ['doc','docx'])     => '#3b82f6',
-                            in_array($ext, ['xls','xlsx'])     => '#10b981',
-                            in_array($ext, ['ppt','pptx'])     => '#f97316',
-                            default                            => '#6b7280',
-                        };
-                        $fileIcon = in_array($ext, ['pdf']) ? 'pdf' : (in_array($ext, ['jpg','jpeg','png','gif','webp']) ? 'img' : 'doc');
-                        $sizeKb = $file->file_size ? round($file->file_size / 1024, 1) : null;
-                        $sizeLabel = $sizeKb ? ($sizeKb >= 1024 ? round($sizeKb/1024, 1).' MB' : $sizeKb.' KB') : '';
-                    @endphp
-                    <div class="flex items-center gap-4 px-6 py-4 transition hover:bg-gray-50 dark:hover:bg-meta-4">
-                        <div class="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl text-white font-bold text-xs uppercase"
-                             style="background:{{ $fileColor }}">
-                            {{ $ext ?: 'F' }}
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <p class="font-semibold text-sm text-black dark:text-white truncate">{{ $file->title ?? basename($file->file_path ?? '') }}</p>
-                            @if($sizeLabel)
-                                <p class="text-xs text-gray-400 mt-0.5">{{ $sizeLabel }}</p>
-                            @endif
-                        </div>
-                        <div class="flex items-center gap-2 flex-shrink-0">
-                            <a href="{{ asset('storage/' . $file->file_path) }}" target="_blank"
-                               class="inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold text-white shadow transition hover:opacity-90"
-                               style="background:linear-gradient(135deg,#0071AA,#005a88)">
-                                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
-                                </svg>
-                                عرض
-                            </a>
-                            <a href="{{ asset('storage/' . $file->file_path) }}" download
-                               class="inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold text-white shadow transition hover:opacity-90"
-                               style="background:linear-gradient(135deg,#10b981,#059669)">
-                                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
-                                </svg>
-                                تحميل
-                            </a>
-                        </div>
+
+                    {{-- Content --}}
+                    @if($sub->content)
+                    <div style="background:#f9fafb;border-radius:9px;padding:10px 13px;margin-bottom:8px;">
+                        <p style="font-size:.85rem;color:#374151;margin:0;line-height:1.6;white-space:pre-line;">{{ $sub->content }}</p>
                     </div>
-                    @endforeach
-                </div>
-            </div>
-            @endif
-        </div>
-
-        {{-- RIGHT — Sidebar --}}
-        <div class="space-y-5">
-
-            {{-- Quick Actions --}}
-            <div class="overflow-hidden rounded-2xl border border-stroke bg-white shadow-sm dark:border-strokedark dark:bg-boxdark">
-                <div class="border-b border-stroke px-5 py-4 dark:border-strokedark">
-                    <h3 class="font-bold text-black dark:text-white">إجراءات سريعة</h3>
-                </div>
-                <div class="space-y-2 p-4">
-                    @if($session->zoom_start_url)
-                    <a href="{{ $session->zoom_start_url }}" target="_blank"
-                       class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-bold text-white shadow transition hover:opacity-90"
-                       style="background:linear-gradient(135deg,#22c55e,#16a34a)">
-                        <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/>
-                        </svg>
-                        ابدأ في تطبيق Zoom
-                    </a>
                     @endif
 
-                    <a href="{{ route('teacher.my-subjects.sessions.attendance', ['subjectId' => $session->subject_id, 'sessionId' => $session->id]) }}"
-                       class="flex items-center gap-3 rounded-xl border border-stroke px-4 py-3 text-sm font-medium text-gray-700 transition hover:bg-gray-50 dark:border-strokedark dark:text-gray-300 dark:hover:bg-meta-4">
-                        <div class="flex h-8 w-8 items-center justify-center rounded-lg flex-shrink-0" style="background:rgba(139,92,246,.1)">
-                            <svg width="15" height="15" viewBox="0 0 24 24" fill="#8b5cf6">
-                                <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
-                            </svg>
-                        </div>
-                        الحضور والغياب
-                    </a>
+                    {{-- File --}}
+                    @if($sub->file_path)
+                    <div style="margin-bottom:8px;">
+                        <a href="{{ asset('storage/'.$sub->file_path) }}" target="_blank"
+                           style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:7px;color:#0071AA;font-size:.8rem;font-weight:600;text-decoration:none;">
+                            <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
+                            {{ $sub->file_name }}
+                        </a>
+                    </div>
+                    @endif
 
-                    <a href="{{ route('teacher.my-subjects.sessions.edit', ['subjectId' => $session->subject_id, 'sessionId' => $session->id]) }}"
-                       class="flex items-center gap-3 rounded-xl border border-stroke px-4 py-3 text-sm font-medium text-gray-700 transition hover:bg-gray-50 dark:border-strokedark dark:text-gray-300 dark:hover:bg-meta-4">
-                        <div class="flex h-8 w-8 items-center justify-center rounded-lg flex-shrink-0" style="background:rgba(245,158,11,.1)">
-                            <svg width="15" height="15" viewBox="0 0 24 24" fill="#f59e0b">
-                                <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
-                            </svg>
-                        </div>
-                        تعديل الجلسة
-                    </a>
-
-                    <a href="{{ route('teacher.my-subjects.show', $session->subject_id) }}"
-                       class="flex items-center gap-3 rounded-xl border border-stroke px-4 py-3 text-sm font-medium text-gray-700 transition hover:bg-gray-50 dark:border-strokedark dark:text-gray-300 dark:hover:bg-meta-4">
-                        <div class="flex h-8 w-8 items-center justify-center rounded-lg flex-shrink-0" style="background:rgba(0,113,170,.1)">
-                            <svg width="15" height="15" viewBox="0 0 24 24" fill="#0071AA">
-                                <path d="M21 5c-1.11-.35-2.33-.5-3.5-.5-1.95 0-4.05.4-5.5 1.5-1.45-1.1-3.55-1.5-5.5-1.5S2.45 4.9 1 6v14.65c0 .25.25.5.5.5.1 0 .15-.05.25-.05C3.1 20.45 5.05 20 6.5 20c1.95 0 4.05.4 5.5 1.5 1.35-.85 3.8-1.5 5.5-1.5 1.65 0 3.35.3 4.75 1.05.1.05.15.05.25.05.25 0 .5-.25.5-.5V6c-.6-.45-1.25-.75-2-1zm0 13.5c-1.1-.35-2.3-.5-3.5-.5-1.7 0-4.15.65-5.5 1.5V8c1.35-.85 3.8-1.5 5.5-1.5 1.2 0 2.4.15 3.5.5v11.5z"/>
-                            </svg>
-                        </div>
-                        صفحة المقرر 
-                    </a>
-                </div>
-            </div>
-
-            {{-- Share Join Link --}}
-            @if($session->zoom_join_url)
-            <div class="overflow-hidden rounded-2xl border border-stroke bg-white shadow-sm dark:border-strokedark dark:bg-boxdark">
-                <div class="border-b border-stroke px-5 py-4 dark:border-strokedark">
-                    <h3 class="font-bold text-black dark:text-white">رابط  المتدربون </h3>
-                    <p class="text-xs text-gray-400 mt-0.5">شارك هذا الرابط مع طلابك</p>
-                </div>
-                <div class="p-4">
-                    <div class="flex gap-2">
-                        <input type="text" value="{{ $session->zoom_join_url }}" readonly id="join-url"
-                               class="flex-1 rounded-xl border border-stroke bg-gray-50 px-3 py-2.5 text-xs font-mono text-gray-600 outline-none dark:border-strokedark dark:bg-meta-4 dark:text-gray-300">
-                        <button onclick="copyJoinLink()" id="copy-btn"
-                                class="flex-shrink-0 flex h-10 w-10 items-center justify-center rounded-xl text-white shadow transition hover:opacity-90"
-                                style="background:linear-gradient(135deg,#0071AA,#005a88)">
-                            <svg id="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
-                            </svg>
+                    {{-- Grade + Feedback form --}}
+                    <div>
+                        <button onclick="toggleFeedback({{ $sub->id }})"
+                                style="font-size:.78rem;font-weight:700;color:#0071AA;background:none;border:none;cursor:pointer;padding:0;text-decoration:underline;">
+                            {{ $hasGrade ? 'تعديل التقييم والملاحظات' : '+ إضافة درجة وملاحظة' }}
                         </button>
-                    </div>
-                    <p id="copy-msg" class="mt-2 hidden text-center text-xs font-medium" style="color:#10b981">تم النسخ!</p>
-                </div>
-            </div>
-            @endif
-
-        </div>
-    </div>
-
-    {{-- ══════════════════════════════════════
-         Homework Section
-    ══════════════════════════════════════ --}}
-    <div class="mt-6 overflow-hidden rounded-2xl border border-stroke bg-white shadow-sm dark:border-strokedark dark:bg-boxdark">
-        <div class="flex items-center gap-3 border-b border-stroke px-6 py-4 dark:border-strokedark"
-             style="background:linear-gradient(135deg,#f59e0b,#d97706)">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
-                <path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1s-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm2 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
-            </svg>
-            <h3 class="font-bold text-white">الواجب المنزلي</h3>
-        </div>
-
-        <div class="p-6">
-            @if(session('success') && str_contains(session('success'), 'واجب'))
-            <div class="mb-4 rounded-xl px-4 py-3 text-sm font-medium" style="background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0">
-                {{ session('success') }}
-            </div>
-            @endif
-
-            @if($session->homework)
-                {{-- Show existing homework --}}
-                <div class="mb-6 rounded-xl p-4" style="background:#fffbeb;border:1px solid #fde68a">
-                    <div class="flex items-start justify-between gap-3">
-                        <div class="flex-1">
-                            <h4 class="font-bold text-gray-800">{{ $session->homework->title_ar ?: $session->homework->title_en ?: 'واجب بدون عنوان' }}</h4>
-                            @if($session->homework->description_ar || $session->homework->description_en)
-                                <p class="mt-2 text-sm text-gray-600 whitespace-pre-line">{{ $session->homework->description_ar ?: $session->homework->description_en }}</p>
-                            @endif
-                            <div class="mt-3 flex flex-wrap gap-3 text-xs text-gray-500">
-                                @if($session->homework->due_date)
-                                    <span class="flex items-center gap-1">
-                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg>
-                                        موعد التسليم: {{ $session->homework->due_date->format('Y/m/d') }}
-                                    </span>
-                                @endif
-                                @if($session->homework->file_path)
-                                    <a href="{{ asset('storage/' . $session->homework->file_path) }}" target="_blank"
-                                       class="flex items-center gap-1 font-medium" style="color:#0071AA">
-                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
-                                        تحميل الملف ({{ $session->homework->file_name }})
-                                    </a>
-                                @endif
-                            </div>
-                        </div>
-                        <div class="flex gap-2">
-                            <button onclick="document.getElementById('edit-hw').classList.toggle('hidden')"
-                                    class="inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-bold text-white transition"
-                                    style="background:#0071AA">
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
-                                تعديل
-                            </button>
-                            <form action="{{ route('teacher.sessions.homework.destroy', $session) }}" method="POST"
-                                  onsubmit="return confirm('حذف الواجب؟')">
-                                @csrf @method('DELETE')
-                                <button type="submit"
-                                        class="inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-bold text-white transition"
-                                        style="background:#ef4444">
-                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
-                                    حذف
-                                </button>
+                        <div id="feedback-{{ $sub->id }}" style="display:none;margin-top:10px;">
+                            <form action="{{ route('teacher.sessions.homework.grade', [$session, $sub->id]) }}" method="POST">
+                                @csrf @method('PUT')
+                                <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;">
+                                    <div>
+                                        <label style="display:block;font-size:.72rem;font-weight:700;color:#374151;margin-bottom:3px;">الدرجة</label>
+                                        <input type="number" name="grade" value="{{ $sub->grade }}" min="0" max="100" placeholder="0–100"
+                                               style="width:80px;border:1.5px solid #e5e7eb;border-radius:7px;padding:6px 9px;font-size:.85rem;outline:none;"
+                                               onfocus="this.style.borderColor='#0071AA'" onblur="this.style.borderColor='#e5e7eb'">
+                                    </div>
+                                    <div style="flex:1;min-width:160px;">
+                                        <label style="display:block;font-size:.72rem;font-weight:700;color:#374151;margin-bottom:3px;">ملاحظة للطالب</label>
+                                        <input type="text" name="feedback" value="{{ $sub->feedback }}" placeholder="أحسنت، يمكن تحسين..."
+                                               style="width:100%;border:1.5px solid #e5e7eb;border-radius:7px;padding:6px 9px;font-size:.85rem;outline:none;box-sizing:border-box;"
+                                               onfocus="this.style.borderColor='#0071AA'" onblur="this.style.borderColor='#e5e7eb'">
+                                    </div>
+                                    <button type="submit"
+                                            style="padding:7px 14px;background:linear-gradient(135deg,#0071AA,#005a88);color:white;border:none;border-radius:7px;font-size:.8rem;font-weight:700;cursor:pointer;white-space:nowrap;">
+                                        حفظ
+                                    </button>
+                                </div>
                             </form>
                         </div>
+                        @if($sub->feedback)
+                        <p style="font-size:.78rem;color:#6b7280;margin:5px 0 0;font-style:italic;">ملاحظتك: {{ $sub->feedback }}</p>
+                        @endif
                     </div>
                 </div>
-
-                {{-- Edit form (hidden by default) --}}
-                <div id="edit-hw" class="hidden">
-                    <form action="{{ route('teacher.sessions.homework.update', $session) }}" method="POST" enctype="multipart/form-data"
-                          class="rounded-xl border border-stroke p-4 dark:border-strokedark">
-                        @csrf @method('PUT')
-                        <p class="mb-3 text-sm font-bold text-gray-700 dark:text-gray-300">تعديل الواجب</p>
-                        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                            <div>
-                                <label class="mb-1 block text-xs font-medium text-gray-600">العنوان (عربي)</label>
-                                <input type="text" name="title_ar" value="{{ $session->homework->title_ar }}"
-                                       class="w-full rounded-lg border border-stroke bg-white py-2 px-3 text-sm outline-none focus:border-primary dark:border-strokedark dark:bg-boxdark dark:text-white">
-                            </div>
-                            <div>
-                                <label class="mb-1 block text-xs font-medium text-gray-600">العنوان (إنجليزي)</label>
-                                <input type="text" name="title_en" value="{{ $session->homework->title_en }}"
-                                       class="w-full rounded-lg border border-stroke bg-white py-2 px-3 text-sm outline-none focus:border-primary dark:border-strokedark dark:bg-boxdark dark:text-white">
-                            </div>
-                        </div>
-                        <div class="mt-3">
-                            <label class="mb-1 block text-xs font-medium text-gray-600">الوصف (عربي)</label>
-                            <textarea name="description_ar" rows="3"
-                                      class="w-full rounded-lg border border-stroke bg-white py-2 px-3 text-sm outline-none focus:border-primary dark:border-strokedark dark:bg-boxdark dark:text-white">{{ $session->homework->description_ar }}</textarea>
-                        </div>
-                        <div class="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
-                            <div>
-                                <label class="mb-1 block text-xs font-medium text-gray-600">موعد التسليم</label>
-                                <input type="date" name="due_date" value="{{ $session->homework->due_date?->format('Y-m-d') }}"
-                                       class="w-full rounded-lg border border-stroke bg-white py-2 px-3 text-sm outline-none focus:border-primary dark:border-strokedark dark:bg-boxdark dark:text-white">
-                            </div>
-                            <div>
-                                <label class="mb-1 block text-xs font-medium text-gray-600">ملف جديد (اختياري)</label>
-                                <input type="file" name="file"
-                                       class="w-full rounded-lg border border-stroke bg-white py-2 px-3 text-sm outline-none focus:border-primary dark:border-strokedark dark:bg-boxdark dark:text-white">
-                            </div>
-                        </div>
-                        <div class="mt-3 flex gap-2">
-                            <button type="submit"
-                                    class="rounded-lg px-4 py-2 text-xs font-bold text-white"
-                                    style="background:#0071AA">حفظ التعديلات</button>
-                            <button type="button" onclick="document.getElementById('edit-hw').classList.add('hidden')"
-                                    class="rounded-lg px-4 py-2 text-xs font-medium" style="background:#f1f5f9;color:#374151">إلغاء</button>
-                        </div>
-                    </form>
-                </div>
-
-            @else
-                {{-- Add homework form --}}
-                <form action="{{ route('teacher.sessions.homework.store', $session) }}" method="POST" enctype="multipart/form-data">
-                    @csrf
-                    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                        <div>
-                            <label class="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400">مقرر الواجب (عربي)</label>
-                            <input type="text" name="title_ar" placeholder="مثال: حل تمارين الفصل الثالث"
-                                   class="w-full rounded-lg border border-stroke bg-white py-2 px-3 text-sm outline-none focus:border-primary dark:border-strokedark dark:bg-boxdark dark:text-white">
-                        </div>
-                        <div>
-                            <label class="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400">مقرر الواجب (إنجليزي)</label>
-                            <input type="text" name="title_en" placeholder="e.g. Solve Chapter 3 exercises"
-                                   class="w-full rounded-lg border border-stroke bg-white py-2 px-3 text-sm outline-none focus:border-primary dark:border-strokedark dark:bg-boxdark dark:text-white">
-                        </div>
-                    </div>
-                    <div class="mt-3">
-                        <label class="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400">وصف الواجب (عربي)</label>
-                        <textarea name="description_ar" rows="4" placeholder="اكتب تفاصيل الواجب هنا..."
-                                  class="w-full rounded-lg border border-stroke bg-white py-2 px-3 text-sm outline-none focus:border-primary dark:border-strokedark dark:bg-boxdark dark:text-white"></textarea>
-                    </div>
-                    <div class="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
-                        <div>
-                            <label class="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400">موعد التسليم</label>
-                            <input type="date" name="due_date"
-                                   class="w-full rounded-lg border border-stroke bg-white py-2 px-3 text-sm outline-none focus:border-primary dark:border-strokedark dark:bg-boxdark dark:text-white">
-                        </div>
-                        <div>
-                            <label class="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400">إرفاق ملف (اختياري)</label>
-                            <input type="file" name="file"
-                                   class="w-full rounded-lg border border-stroke bg-white py-2 px-3 text-sm outline-none focus:border-primary dark:border-strokedark dark:bg-boxdark dark:text-white">
-                        </div>
-                    </div>
-                    <div class="mt-4">
-                        <button type="submit"
-                                class="inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-bold text-white shadow transition hover:opacity-90"
-                                style="background:linear-gradient(135deg,#f59e0b,#d97706)">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-                            </svg>
-                            إضافة الواجب
-                        </button>
-                    </div>
-                </form>
-            @endif
+            </div>
         </div>
+        @endforeach
     </div>
+    @endif
+</div>
+@endif
 
 </div>
 
 <script>
-function copyJoinLink() {
-    const input = document.getElementById('join-url');
-    const msg   = document.getElementById('copy-msg');
-    const btn   = document.getElementById('copy-btn');
-    navigator.clipboard.writeText(input.value).then(() => {
-        btn.style.background = 'linear-gradient(135deg,#10b981,#059669)';
-        document.getElementById('copy-icon').innerHTML = '<path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>';
-        msg.classList.remove('hidden');
-        setTimeout(() => {
-            btn.style.background = 'linear-gradient(135deg,#0071AA,#005a88)';
-            document.getElementById('copy-icon').innerHTML = '<path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>';
-            msg.classList.add('hidden');
-        }, 2500);
-    }).catch(() => {
-        input.select();
-        document.execCommand('copy');
-    });
+function toggleEditForm() {
+    const display = document.getElementById('hw-display');
+    const edit    = document.getElementById('hw-edit');
+    if (!display || !edit) return;
+    const isHidden = edit.style.display === 'none';
+    edit.style.display    = isHidden ? 'block' : 'none';
+    display.style.display = isHidden ? 'none' : 'block';
+}
+function toggleFeedback(id) {
+    const el = document.getElementById('feedback-' + id);
+    if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
 }
 </script>
 @endsection

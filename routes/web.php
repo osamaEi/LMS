@@ -493,9 +493,22 @@ Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')
     Route::get('/dashboard', [TeacherDashboardController::class, 'index'])->name('dashboard');
     Route::get('/subjects/{id}', [TeacherDashboardController::class, 'showSubject'])->name('subjects.show');
 
-    // My Subjects (Teacher's own subjects management)
+    // My Subjects — diploma subjects only
     Route::get('/my-subjects', [\App\Http\Controllers\Teacher\SubjectController::class, 'index'])->name('my-subjects.index');
     Route::get('/my-subjects/{id}', [\App\Http\Controllers\Teacher\SubjectController::class, 'show'])->name('my-subjects.show');
+
+    // My Courses — direct program assignments (training / english / course)
+    Route::get('/my-courses', [\App\Http\Controllers\Teacher\CourseController::class, 'index'])->name('my-courses.index');
+    Route::get('/my-courses/{id}', [\App\Http\Controllers\Teacher\CourseController::class, 'show'])->name('my-courses.show');
+    Route::post('/my-courses/{programId}/sessions', [\App\Http\Controllers\Teacher\CourseController::class, 'storeSession'])->name('my-courses.sessions.store');
+    Route::get('/my-courses/{programId}/sessions/{sessionId}/edit', [\App\Http\Controllers\Teacher\CourseController::class, 'editSession'])->name('my-courses.sessions.edit');
+    Route::put('/my-courses/{programId}/sessions/{sessionId}', [\App\Http\Controllers\Teacher\CourseController::class, 'updateSession'])->name('my-courses.sessions.update');
+    Route::delete('/my-courses/{programId}/sessions/{sessionId}', [\App\Http\Controllers\Teacher\CourseController::class, 'destroySession'])->name('my-courses.sessions.destroy');
+    Route::delete('/my-courses/{programId}/sessions/{sessionId}/files/{fileId}', [\App\Http\Controllers\Teacher\CourseController::class, 'deleteSessionFile'])->name('my-courses.sessions.files.destroy');
+    Route::get('/my-courses/{programId}/sessions/{sessionId}/attendance', [\App\Http\Controllers\Teacher\CourseController::class, 'sessionAttendance'])->name('my-courses.sessions.attendance');
+    Route::post('/my-courses/{programId}/sessions/{sessionId}/attendance', [\App\Http\Controllers\Teacher\CourseController::class, 'saveAttendance'])->name('my-courses.sessions.attendance.save');
+    Route::post('/my-courses/{programId}/files', [\App\Http\Controllers\Teacher\CourseController::class, 'storeFile'])->name('my-courses.files.store');
+    Route::delete('/my-courses/{programId}/files/{fileId}', [\App\Http\Controllers\Teacher\CourseController::class, 'destroyFile'])->name('my-courses.files.destroy');
 
     // Sessions Management (under my-subjects)
     Route::get('/my-subjects/{subjectId}/sessions/create', [\App\Http\Controllers\Teacher\SubjectController::class, 'createSession'])->name('my-subjects.sessions.create');
@@ -531,6 +544,7 @@ Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')
     Route::post('/sessions/{session}/homework', [\App\Http\Controllers\Teacher\HomeworkController::class, 'store'])->name('sessions.homework.store');
     Route::put('/sessions/{session}/homework', [\App\Http\Controllers\Teacher\HomeworkController::class, 'update'])->name('sessions.homework.update');
     Route::delete('/sessions/{session}/homework', [\App\Http\Controllers\Teacher\HomeworkController::class, 'destroy'])->name('sessions.homework.destroy');
+    Route::put('/sessions/{session}/homework/submissions/{submission}/grade', [\App\Http\Controllers\Teacher\HomeworkController::class, 'gradeSubmission'])->name('sessions.homework.grade');
 
     // Grades
     Route::get('/grades', function () {
@@ -611,6 +625,8 @@ Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')
 
     // Homework
     Route::get('/homework', [\App\Http\Controllers\Student\HomeworkController::class, 'index'])->name('homework.index');
+    Route::post('/homework/{homework}/submit', [\App\Http\Controllers\Student\HomeworkController::class, 'submit'])->name('homework.submit');
+    Route::delete('/homework/submissions/{submission}', [\App\Http\Controllers\Student\HomeworkController::class, 'deleteSubmission'])->name('homework.submission.delete');
 
     // Files & Resources
     Route::get('/files', [\App\Http\Controllers\Student\FileController::class, 'index'])->name('files.index');
@@ -624,6 +640,9 @@ Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')
     // My Program (البرنامج التدريبي )
     Route::get('/my-program', [\App\Http\Controllers\Student\DashboardController::class, 'myProgram'])->name('my-program');
     Route::post('/enroll-program', [\App\Http\Controllers\Student\DashboardController::class, 'enrollInProgram'])->name('enroll-program');
+
+    // Session detail (for course/training/english programs)
+    Route::get('/sessions/{session}', [\App\Http\Controllers\Student\DashboardController::class, 'showSession'])->name('sessions.show');
 
     // Profile
     Route::get('/profile', [\App\Http\Controllers\Student\ProfileController::class, 'show'])->name('profile');

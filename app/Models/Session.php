@@ -15,6 +15,7 @@ class Session extends Model
 
     protected $fillable = [
         'subject_id',
+        'program_id',
         'teacher_id',
         'unit_id',
         'title_ar',
@@ -73,6 +74,11 @@ class Session extends Model
     public function subject(): BelongsTo
     {
         return $this->belongsTo(Subject::class);
+    }
+
+    public function program(): BelongsTo
+    {
+        return $this->belongsTo(\App\Models\Program::class);
     }
 
     public function teacher(): BelongsTo

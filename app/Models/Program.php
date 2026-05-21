@@ -88,6 +88,21 @@ class Program extends Model
         return $this->hasMany(Payment::class);
     }
 
+    public function sessions()
+    {
+        return $this->hasMany(Session::class);
+    }
+
+    public function files()
+    {
+        return $this->hasMany(SubjectFile::class);
+    }
+
+    public function enrolledStudents()
+    {
+        return $this->hasMany(User::class)->where('role', 'student');
+    }
+
     public function isActive(): bool
     {
         return $this->status === 'active';

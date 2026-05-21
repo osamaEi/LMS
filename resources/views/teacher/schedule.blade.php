@@ -6,6 +6,7 @@ $calSessions = $sessions->map(fn($s) => [
     'id'               => $s->id,
     'title'            => $s->title ?: ($s->title_ar ?: ''),
     'subject_name'     => $s->subject->name_ar ?? '',
+    'program_name'     => $s->program->name_ar ?? '',
     'scheduled_at'     => $s->scheduled_at ? \Carbon\Carbon::parse($s->scheduled_at)->toIso8601String() : null,
     'duration_minutes' => $s->duration_minutes ?? 60,
     'type'             => $s->type ?? '',
@@ -171,10 +172,33 @@ $calSessions = $sessions->map(fn($s) => [
         <div style="flex:1;overflow-y:auto;padding:22px 26px;">
             <form id="monthlyForm" action="{{ route('teacher.schedule.monthly.store') }}" method="POST">
                 @csrf
-                {{-- Subject --}}
-                <div style="margin-bottom:16px;">
+
+                {{-- Type toggle --}}
+                <div style="margin-bottom:18px;">
+                    <label style="display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:8px;">نوع الجدول</label>
+                    <div style="display:flex;gap:0;border:1.5px solid #e5e7eb;border-radius:10px;overflow:hidden;">
+                        @if($subjects->isNotEmpty())
+                        <label id="type-lbl-subject"
+                               style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:9px;font-size:12px;font-weight:700;cursor:pointer;background:linear-gradient(135deg,#15803d,#166534);color:white;transition:all .15s;">
+                            <input type="radio" name="schedule_type" value="subject" style="display:none;" checked>
+                            📚 مقرر (دبلوم)
+                        </label>
+                        @endif
+                        @if($programs->isNotEmpty())
+                        <label id="type-lbl-program"
+                               style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:9px;font-size:12px;font-weight:700;cursor:pointer;background:{{ $subjects->isEmpty() ? 'linear-gradient(135deg,#15803d,#166534)' : 'transparent' }};color:{{ $subjects->isEmpty() ? 'white' : '#6b7280' }};transition:all .15s;">
+                            <input type="radio" name="schedule_type" value="program" style="display:none;" {{ $subjects->isEmpty() ? 'checked' : '' }}>
+                            🎓 دورة / برنامج
+                        </label>
+                        @endif
+                    </div>
+                </div>
+
+                {{-- Subject dropdown --}}
+                @if($subjects->isNotEmpty())
+                <div id="subject_field" style="margin-bottom:16px;">
                     <label style="display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:5px;">المقرر <span style="color:#ef4444;">*</span></label>
-                    <select name="subject_id" required
+                    <select name="subject_id"
                             style="width:100%;border-radius:10px;border:1.5px solid #e5e7eb;background:white;padding:10px 13px;font-size:13px;color:#111827;outline:none;font-family:inherit;"
                             onfocus="this.style.borderColor='#15803d'" onblur="this.style.borderColor='#e5e7eb'">
                         <option value="">— اختر المقرر —</option>
@@ -183,6 +207,22 @@ $calSessions = $sessions->map(fn($s) => [
                         @endforeach
                     </select>
                 </div>
+                @endif
+
+                {{-- Program dropdown --}}
+                @if($programs->isNotEmpty())
+                <div id="program_field" style="margin-bottom:16px;{{ $subjects->isNotEmpty() ? 'display:none;' : '' }}">
+                    <label style="display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:5px;">الدورة / البرنامج <span style="color:#ef4444;">*</span></label>
+                    <select name="program_id"
+                            style="width:100%;border-radius:10px;border:1.5px solid #e5e7eb;background:white;padding:10px 13px;font-size:13px;color:#111827;outline:none;font-family:inherit;"
+                            onfocus="this.style.borderColor='#15803d'" onblur="this.style.borderColor='#e5e7eb'">
+                        <option value="">— اختر الدورة —</option>
+                        @foreach($programs as $program)
+                        <option value="{{ $program->id }}">{{ $program->name_ar }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                @endif
 
                 {{-- Year + Month --}}
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
@@ -367,7 +407,7 @@ function renderMonth() {
 
         const chips = visible.map(s => {
             const ts=typeStyle(s.type), time=fmt12(s.scheduled_at);
-            const label=(s.title||s.subject_name||ts.label).substring(0,18);
+            const label=(s.title||s.subject_name||s.program_name||ts.label).substring(0,18);
             return `<div class="cal-event" onclick="event.stopPropagation();showDayPanel(${cell.dt.getFullYear()},${cell.dt.getMonth()},${cell.dt.getDate()})"
                          style="background:${ts.bg};color:${ts.color};border-right:2px solid ${ts.color};font-size:10px;font-weight:600;padding:2px 5px;border-radius:3px;margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;">${time} ${label}</div>`;
         }).join('');
@@ -424,7 +464,7 @@ function renderTimeGrid(containerId, days) {
             const height   = Math.max(dur, 30);
             const ts       = typeStyle(s.type);
             const time     = fmt12(s.scheduled_at);
-            const label    = (s.title || s.subject_name || ts.label).substring(0,24);
+            const label    = (s.title || s.subject_name || s.program_name || ts.label).substring(0,24);
 
             if(startMin < 0 || top > (TG_END-TG_START)*60) return '';
             return `<div class="tg-event" onclick="showDayPanel(${day.getFullYear()},${day.getMonth()},${day.getDate()})"
@@ -530,7 +570,7 @@ function showDayPanel(y,m,d) {
                     <h4 style="margin:0;font-size:13px;font-weight:700;color:#111827;">${s.title||ts.label}${s.session_number?' <span style="font-size:11px;color:#9ca3af;">#'+s.session_number+'</span>':''}</h4>
                     <span style="background:${stBg};color:${stColor};font-size:11px;font-weight:600;padding:2px 9px;border-radius:20px;">${stLabel}</span>
                 </div>
-                <p style="margin:0 0 7px;font-size:12px;color:#6b7280;">📚 ${s.subject_name||'—'}${s.duration_minutes?' · '+s.duration_minutes+' دقيقة':''}</p>
+                <p style="margin:0 0 7px;font-size:12px;color:#6b7280;">📚 ${s.subject_name||s.program_name||'—'}${s.duration_minutes?' · '+s.duration_minutes+' دقيقة':''}</p>
                 <div style="display:flex;gap:6px;flex-wrap:wrap;">
                     <span style="background:${ts.bg};color:${ts.color};font-size:11px;font-weight:600;padding:2px 9px;border-radius:20px;">${ts.label}</span>
                     ${s.zoom_start_url?`<a href="${s.zoom_start_url}" target="_blank" style="padding:4px 11px;background:linear-gradient(135deg,#ef4444,#dc2626);color:white;border-radius:7px;font-size:11px;font-weight:700;text-decoration:none;">▶ ابدأ الجلسة</a>`:''}
@@ -556,6 +596,31 @@ function closeMonthlyModal() {
 document.addEventListener('keydown', e => { if(e.key==='Escape') closeMonthlyModal(); });
 document.getElementById('monthlyModal').addEventListener('click', function(e) {
     if(e.target===this) closeMonthlyModal();
+});
+
+// Toggle schedule type (subject vs program)
+function toggleScheduleType(type) {
+    const subjectField = document.getElementById('subject_field');
+    const programField = document.getElementById('program_field');
+    const subjectLbl   = document.getElementById('type-lbl-subject');
+    const programLbl   = document.getElementById('type-lbl-program');
+
+    if (subjectField) subjectField.style.display = type === 'subject' ? 'block' : 'none';
+    if (programField) programField.style.display = type === 'program' ? 'block' : 'none';
+
+    const activeStyle   = 'flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:9px;font-size:12px;font-weight:700;cursor:pointer;background:linear-gradient(135deg,#15803d,#166534);color:white;transition:all .15s;';
+    const inactiveStyle = 'flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:9px;font-size:12px;font-weight:700;cursor:pointer;background:transparent;color:#6b7280;transition:all .15s;';
+
+    if (subjectLbl) subjectLbl.style.cssText = type === 'subject' ? activeStyle : inactiveStyle;
+    if (programLbl) programLbl.style.cssText = type === 'program' ? activeStyle : inactiveStyle;
+}
+
+// Wire type toggle labels
+document.querySelectorAll('#monthlyForm input[name="schedule_type"]').forEach(radio => {
+    radio.closest('label').addEventListener('click', function() {
+        this.querySelector('input').checked = true;
+        toggleScheduleType(this.querySelector('input').value);
+    });
 });
 
 // Toggle day-of-week label style

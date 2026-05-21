@@ -32,6 +32,10 @@ class SubjectController extends Controller
         $teacher = auth()->user();
 
         $subjects = Subject::assignedToTeacher($teacher->id)
+            ->where(function ($q) {
+                $q->whereHas('program', fn($pq) => $pq->where('type', 'diploma'))
+                  ->orWhereHas('term.program', fn($pq) => $pq->where('type', 'diploma'));
+            })
             ->with(['term.program'])
             ->withCount(['enrollments', 'sessions'])
             ->orderBy(app()->getLocale() === 'en' ? 'name_en' : 'name_ar')
@@ -505,23 +509,33 @@ class SubjectController extends Controller
     }
 
     /**
-     * Attendance overview for all teacher's sessions
+     * Attendance overview for all teacher's sessions (subjects + programs)
      */
     public function attendanceOverview()
     {
         $teacher = auth()->user();
 
+        $sessionQuery = function ($q) {
+            $q->where('scheduled_at', '<', now())
+              ->withCount(['attendances as attended_count' => fn($q) => $q->where('attended', true)])
+              ->orderBy('scheduled_at', 'desc');
+        };
+
         $subjects = Subject::assignedToTeacher($teacher->id)
-            ->with(['sessions' => function($q) {
-                $q->where('scheduled_at', '<', now())
-                  ->withCount(['attendances as attended_count' => function($q) {
-                      $q->where('attended', true);
-                  }])
-                  ->orderBy('scheduled_at', 'desc');
-            }])
+            ->where(fn($q) => $q
+                ->whereHas('program', fn($pq) => $pq->where('type', 'diploma'))
+                ->orWhereHas('term.program', fn($pq) => $pq->where('type', 'diploma'))
+            )
+            ->with(['sessions' => $sessionQuery])
             ->withCount('enrollments')
             ->get();
 
-        return view('teacher.attendance.index', compact('subjects'));
+        $programs = $teacher->teachingPrograms()
+            ->whereIn('type', ['training', 'english', 'course'])
+            ->with(['sessions' => $sessionQuery])
+            ->withCount('enrolledStudents as enrolled_count')
+            ->get();
+
+        return view('teacher.attendance.index', compact('subjects', 'programs'));
     }
 }

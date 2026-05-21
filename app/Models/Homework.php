@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\HomeworkSubmission;
 
 class Homework extends Model
 {
@@ -26,6 +27,11 @@ class Homework extends Model
     public function session()
     {
         return $this->belongsTo(Session::class);
+    }
+
+    public function submissions()
+    {
+        return $this->hasMany(HomeworkSubmission::class);
     }
 
     public function getTitleAttribute()

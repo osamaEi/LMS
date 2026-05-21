@@ -16,17 +16,25 @@ class ScheduleController extends Controller
         $teacher = Auth::user();
         $now     = now();
 
-        $sessions = Session::whereHas('subject', function ($query) use ($teacher) {
-                $query->assignedToTeacher($teacher->id);
-            })
-            ->with(['subject'])
-            ->orderBy('scheduled_at', 'asc')
+        // Subject-based sessions (diploma)
+        $subjectSessions = Session::whereHas('subject', fn($q) => $q->assignedToTeacher($teacher->id))
+            ->with(['subject.term.program'])
             ->get();
+
+        // Program-based sessions (course / training / english)
+        $programIds = $teacher->teachingPrograms()
+            ->whereIn('type', ['training', 'english', 'course'])
+            ->pluck('id');
+
+        $programSessions = Session::whereIn('program_id', $programIds)
+            ->with(['program'])
+            ->get();
+
+        $sessions = $subjectSessions->merge($programSessions)->sortBy('scheduled_at')->values();
 
         $upcoming = $sessions->filter(fn($s) => $s->scheduled_at && \Carbon\Carbon::parse($s->scheduled_at)->gte($now))->values();
         $past     = $sessions->filter(fn($s) => !$s->scheduled_at || \Carbon\Carbon::parse($s->scheduled_at)->lt($now))->sortByDesc('scheduled_at')->values();
 
-        // Group upcoming by day label
         $groupedUpcoming = $upcoming->groupBy(function ($s) {
             $dt = \Carbon\Carbon::parse($s->scheduled_at);
             if ($dt->isToday())    return 'اليوم';
@@ -41,13 +49,20 @@ class ScheduleController extends Controller
             'completed' => $sessions->where('status', 'completed')->count(),
         ];
 
-        // Teacher's active subjects for the create form
         $subjects = Subject::assignedToTeacher($teacher->id)
-            ->where('status', 'active')
+            ->where(fn($q) => $q
+                ->whereHas('program', fn($pq) => $pq->where('type', 'diploma'))
+                ->orWhereHas('term.program', fn($pq) => $pq->where('type', 'diploma'))
+            )
             ->orderBy('name_ar')
             ->get(['id', 'name_ar', 'name_en']);
 
-        return view('teacher.schedule', compact('groupedUpcoming', 'past', 'stats', 'subjects', 'sessions'));
+        $programs = $teacher->teachingPrograms()
+            ->whereIn('type', ['training', 'english', 'course'])
+            ->orderBy('name_ar')
+            ->get(['id', 'name_ar', 'type']);
+
+        return view('teacher.schedule', compact('groupedUpcoming', 'past', 'stats', 'subjects', 'programs', 'sessions'));
     }
 
     /**
@@ -145,7 +160,9 @@ class ScheduleController extends Controller
         $teacher = Auth::user();
 
         $request->validate([
-            'subject_id'       => 'required|integer',
+            'schedule_type'    => 'nullable|in:subject,program',
+            'subject_id'       => 'nullable|integer',
+            'program_id'       => 'nullable|integer',
             'year'             => 'required|integer|min:2024|max:2035',
             'month'            => 'required|integer|min:1|max:12',
             'days'             => 'required|array|min:1',
@@ -154,12 +171,39 @@ class ScheduleController extends Controller
             'duration_minutes' => 'required|integer|min:15|max:480',
         ]);
 
-        $subject = Subject::assignedToTeacher($teacher->id)
-            ->findOrFail($request->subject_id);
+        $scheduleType = $request->input('schedule_type', $request->filled('program_id') ? 'program' : 'subject');
+
+        // Resolve subject or program
+        $subject = null;
+        $program = null;
+        $entityName = '';
+        $sessionFkColumn = '';
+        $sessionFkValue  = null;
+
+        if ($scheduleType === 'program') {
+            if (!$request->filled('program_id')) {
+                return back()->withErrors(['program_id' => 'يرجى اختيار الدورة.']);
+            }
+            $program = $teacher->teachingPrograms()
+                ->whereIn('type', ['training', 'english', 'course'])
+                ->findOrFail($request->program_id);
+            $entityName      = $program->name_ar;
+            $sessionFkColumn = 'program_id';
+            $sessionFkValue  = $program->id;
+        } else {
+            if (!$request->filled('subject_id')) {
+                return back()->withErrors(['subject_id' => 'يرجى اختيار المقرر.']);
+            }
+            $subject = Subject::assignedToTeacher($teacher->id)
+                ->findOrFail($request->subject_id);
+            $entityName      = $subject->name_ar;
+            $sessionFkColumn = 'subject_id';
+            $sessionFkValue  = $subject->id;
+        }
 
         $year     = (int) $request->year;
         $month    = (int) $request->month;
-        $days     = array_map('intval', $request->days); // 0=Sun … 6=Sat
+        $days     = array_map('intval', $request->days);
         [$hh, $mm] = explode(':', $request->time);
         $duration = (int) $request->duration_minutes;
 
@@ -179,7 +223,7 @@ class ScheduleController extends Controller
             return back()->withErrors(['days' => 'لا توجد أيام مطابقة في الشهر المحدد.']);
         }
 
-        $nextNumber = Session::where('subject_id', $subject->id)->max('session_number') ?? 0;
+        $nextNumber = Session::where($sessionFkColumn, $sessionFkValue)->max('session_number') ?? 0;
         $zoom       = app(ZoomService::class);
         $created    = 0;
         $zoomFailed = 0;
@@ -188,14 +232,14 @@ class ScheduleController extends Controller
             $nextNumber++;
 
             $zoomData = $zoom->createMeeting([
-                'topic'      => $subject->name_ar . ' - جلسة ' . $nextNumber,
+                'topic'      => $entityName . ' - جلسة ' . $nextNumber,
                 'type'       => 2,
                 'start_time' => $scheduledAt->toIso8601String(),
                 'duration'   => $duration,
             ]);
 
             $row = [
-                'subject_id'       => $subject->id,
+                $sessionFkColumn   => $sessionFkValue,
                 'teacher_id'       => $teacher->id,
                 'type'             => 'live_zoom',
                 'scheduled_at'     => $scheduledAt,

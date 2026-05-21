@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Teacher;
 use App\Http\Controllers\Controller;
 use App\Models\Enrollment;
 use App\Models\Homework;
+use App\Models\HomeworkSubmission;
 use App\Models\Session;
 use App\Models\Subject;
 use App\Notifications\HomeworkCreatedNotification;
@@ -118,11 +119,34 @@ class HomeworkController extends Controller
         return back()->with('success', 'تم حذف الواجب');
     }
 
+    public function gradeSubmission(Request $request, Session $session, HomeworkSubmission $submission)
+    {
+        $this->authorizeSession($session);
+
+        $request->validate([
+            'grade'    => 'nullable|integer|min:0|max:100',
+            'feedback' => 'nullable|string|max:500',
+        ]);
+
+        $submission->update([
+            'grade'    => $request->grade,
+            'feedback' => $request->feedback,
+        ]);
+
+        return back()->with('success', 'تم حفظ التقييم بنجاح');
+    }
+
     private function authorizeSession(Session $session): void
     {
         $session->loadMissing('subject');
-        if (!$session->subject->isAssignedToTeacher(auth()->id())) {
+        if ($session->subject_id && !$session->subject->isAssignedToTeacher(auth()->id())) {
             abort(403);
+        }
+        if ($session->program_id) {
+            $allowed = auth()->user()->teachingPrograms()
+                ->whereIn('type', ['training', 'english', 'course'])
+                ->where('id', $session->program_id)->exists();
+            if (!$allowed) abort(403);
         }
     }
 }

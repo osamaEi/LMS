@@ -77,10 +77,26 @@ class TeacherController extends Controller
 
     public function show(User $teacher)
     {
-        // Eager load relationships for better performance
-        $teacher->load(['subjects']);
+        $teacher->load([
+            'assignedSubjects.program',
+            'assignedSubjects.term.program',
+            'subjects.program',
+            'subjects.term.program',
+            'teachingPrograms',
+        ]);
 
-        return view('admin.teachers.show', compact('teacher'));
+        $allSubjects = $teacher->assignedSubjects->merge($teacher->subjects)->unique('id');
+
+        $diplomaSubjects = $allSubjects->filter(function ($subject) {
+            $prog = $subject->program ?? $subject->term?->program;
+            return $prog && $prog->type === 'diploma';
+        })->values();
+
+        $courses = $teacher->teachingPrograms->filter(
+            fn($p) => in_array($p->type, ['training', 'english', 'course'])
+        )->values();
+
+        return view('admin.teachers.show', compact('teacher', 'diplomaSubjects', 'courses'));
     }
 
     public function edit(User $teacher)

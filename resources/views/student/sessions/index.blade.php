@@ -458,6 +458,113 @@
         </div>
     </div>
 
+    @if(!$isDiploma)
+    {{-- ══ Non-diploma: type filter only ══ --}}
+    <form method="GET" action="{{ route('student.my-sessions') }}" class="filter-card">
+        <svg style="width: 20px; height: 20px; color: #6b7280; flex-shrink: 0;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
+        </svg>
+        <select name="type" class="filter-select">
+            <option value="">جميع الأنواع</option>
+            <option value="live_zoom" {{ $type == 'live_zoom' ? 'selected' : '' }}>Zoom مباشر</option>
+            <option value="recorded_video" {{ $type == 'recorded_video' ? 'selected' : '' }}>فيديو مسجل</option>
+        </select>
+        <button type="submit" class="filter-btn filter-btn-primary">
+            <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            بحث
+        </button>
+        @if($type)
+        <a href="{{ route('student.my-sessions') }}" class="filter-btn filter-btn-secondary">إلغاء الفلتر</a>
+        @endif
+    </form>
+
+    {{-- Flat session list --}}
+    @if($sessions->count() > 0)
+    <div style="display:flex;flex-direction:column;gap:10px;">
+        @foreach($sessions as $session)
+        @php
+            $isLive      = $session->started_at && !$session->ended_at;
+            $isCompleted = !is_null($session->ended_at);
+            $att         = $attendances[$session->id] ?? null;
+        @endphp
+        <div class="session-card" style="border-radius:16px;">
+            <div class="session-card-top">
+                <div class="session-num" style="background: linear-gradient(135deg,{{ $isLive ? '#ef4444,#dc2626' : ($isCompleted ? '#10b981,#059669' : '#0071AA,#005a88') }});">
+                    {{ $session->session_number ?? '—' }}
+                </div>
+                <div style="flex:1;min-width:0;">
+                    <div class="session-title">{{ $session->title_ar ?: $session->title_en ?: 'جلسة بدون عنوان' }}</div>
+                    <div class="session-info">
+                        @if($isLive)
+                            <span class="badge badge-live"><svg style="width:10px;height:10px;" fill="currentColor" viewBox="0 0 8 8"><circle cx="4" cy="4" r="4"/></svg> مباشر</span>
+                        @elseif($isCompleted)
+                            <span class="badge badge-completed">مكتمل</span>
+                        @else
+                            <span class="badge badge-scheduled">مجدول</span>
+                        @endif
+                        @if($session->type === 'live_zoom') <span class="badge badge-zoom">Zoom</span>
+                        @else <span class="badge badge-video">فيديو</span> @endif
+                        @if($att)
+                            @if($att->attended)
+                                <span class="badge badge-attended"><svg style="width:10px;height:10px;" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> حضرت</span>
+                            @else
+                                <span class="badge badge-absent"><svg style="width:10px;height:10px;" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg> غائب</span>
+                            @endif
+                        @endif
+                        @if($session->files->count() > 0)
+                            <span class="badge" style="background:#f3e8ff;color:#7c3aed;">{{ $session->files->count() }} ملف</span>
+                        @endif
+                        @if($session->homework)
+                            <span class="badge" style="background:#fef3c7;color:#d97706;">واجب</span>
+                        @endif
+                    </div>
+                </div>
+                <a href="{{ route('student.sessions.show', $session) }}" class="btn btn-view-subject" style="white-space:nowrap;flex-shrink:0;">
+                    <svg style="width:13px;height:13px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                    عرض
+                </a>
+            </div>
+
+            @if($session->scheduled_at || $session->duration_minutes)
+            <div class="session-card-meta">
+                @if($session->scheduled_at)
+                <div class="meta-item">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    {{ \Carbon\Carbon::parse($session->scheduled_at)->format('Y/m/d · H:i') }}
+                </div>
+                @endif
+                @if($session->duration_minutes)
+                <div class="meta-item">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    {{ $session->duration_minutes }} دقيقة
+                </div>
+                @endif
+            </div>
+            @endif
+
+            @if($session->type === 'live_zoom' && $session->zoom_meeting_id && !$session->ended_at)
+            <div class="session-card-actions">
+                <a href="{{ route('student.sessions.join-zoom', $session->id) }}"
+                   class="btn {{ $isLive ? 'btn-join' : 'btn-join' }}" style="{{ $isLive ? '' : 'background:linear-gradient(135deg,#2563eb,#1d4ed8);' }}">
+                    <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                    {{ $isLive ? 'انضم الآن' : 'انضم عبر Zoom' }}
+                </a>
+            </div>
+            @endif
+        </div>
+        @endforeach
+    </div>
+    @else
+        <div class="empty-state">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+            <h3>لا توجد جلسات حالياً</h3>
+            <p>سيتم عرض جلسات ومحاضرات برنامجك التدريبي هنا عند توفرها</p>
+        </div>
+    @endif
+
+    @else
+    {{-- ══ Diploma: term tabs + subject filter + grouped by subject ══ --}}
+
     <!-- Term Tabs -->
     @if($currentTerm)
     <div style="display: flex; gap: 0.375rem; background: #f3f4f6; padding: 0.375rem; border-radius: 16px; margin-bottom: 1.25rem;">
@@ -631,13 +738,11 @@
                         <div class="session-card-actions">
                             @if($session->type === 'live_zoom' && $session->zoom_meeting_id)
                                 @if($session->started_at && !$session->ended_at)
-                                    {{-- Live now - join via SDK --}}
                                     <a href="{{ route('student.sessions.join-zoom', $session->id) }}" class="btn btn-join">
                                         <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
                                         انضم الآن
                                     </a>
                                 @elseif(!$session->ended_at)
-                                    {{-- Not ended - join via SDK --}}
                                     <a href="{{ route('student.sessions.join-zoom', $session->id) }}" class="btn btn-join" style="background: linear-gradient(135deg, #2563eb, #1d4ed8);">
                                         <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
                                         انضم عبر Zoom
@@ -671,5 +776,8 @@
             <p>سيتم عرض جلسات ومحاضرات برنامجك التدريبي هنا عند توفرها</p>
         </div>
     @endif
+
+    @endif {{-- end isDiploma --}}
+
 </div>
 @endsection

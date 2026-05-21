@@ -10,6 +10,7 @@ class SubjectFile extends Model
 {
     protected $fillable = [
         'subject_id',
+        'program_id',
         'title',
         'file_path',
         'file_original_name',
@@ -22,6 +23,11 @@ class SubjectFile extends Model
     public function subject(): BelongsTo
     {
         return $this->belongsTo(Subject::class);
+    }
+
+    public function program(): BelongsTo
+    {
+        return $this->belongsTo(\App\Models\Program::class);
     }
 
     public function getUrl(): string

@@ -490,8 +490,8 @@
         </div>
     </div>
 
-    <!-- Term Tabs -->
-    @if(isset($currentTerm) && $currentTerm)
+    {{-- ── Diploma only: term tabs ── --}}
+    @if(($isDiploma ?? true) && isset($currentTerm) && $currentTerm)
     <div style="display: flex; gap: 0.375rem; background: #f3f4f6; padding: 0.375rem; border-radius: 16px;">
         <a href="{{ route('student.attendance', ['term_filter' => 'current']) }}"
            style="flex: 1; text-align: center; padding: 0.625rem 1.25rem; border-radius: 12px; font-size: 0.875rem; font-weight: 700; text-decoration: none; transition: all 0.2s;
@@ -513,8 +513,8 @@
     </div>
     @endif
 
-    {{-- ===== Subjects Panel ===== --}}
-    @if($subjectStats->isNotEmpty())
+    {{-- ── Diploma only: subjects panel ── --}}
+    @if(($isDiploma ?? true) && $subjectStats->isNotEmpty())
     <div class="att-card" style="padding: 1.25rem 1.5rem;">
         <div class="flex items-center justify-between mb-4">
             <div class="flex items-center gap-2">
@@ -649,7 +649,7 @@
                         <tr>
                             <th style="width: 50px;">#</th>
                             <th>الجلسة</th>
-                            <th>المقرر </th>
+                            @if($isDiploma ?? true) <th>المقرر</th> @endif
                             <th class="center">التاريخ</th>
                             <th class="center">الحالة</th>
                             <th class="center">المدة</th>
@@ -665,14 +665,16 @@
                                     </span>
                                 </td>
                                 <td>
-                                    <div class="font-bold text-gray-900 dark:text-white" style="font-size: 0.875rem;">{{ $attendance->session->title }}</div>
+                                    <div class="font-bold text-gray-900 dark:text-white" style="font-size: 0.875rem;">{{ $attendance->session->title_ar ?: $attendance->session->title_en ?: ('جلسة #'.($attendance->session->session_number ?? '—')) }}</div>
                                     @if($attendance->session->unit)
                                         <div class="text-xs text-gray-400 mt-0.5">{{ $attendance->session->unit->title }}</div>
                                     @endif
                                 </td>
+                                @if($isDiploma ?? true)
                                 <td>
-                                    <span class="text-sm font-semibold" style="color: #0071AA;">{{ $attendance->session->subject->name }}</span>
+                                    <span class="text-sm font-semibold" style="color: #0071AA;">{{ $attendance->session->subject->name ?? '—' }}</span>
                                 </td>
+                                @endif
                                 <td class="center">
                                     <div class="text-sm font-semibold text-gray-800 dark:text-gray-200">
                                         {{ $attendance->session->scheduled_at?->format('d/m/Y') ?? $attendance->created_at->format('d/m/Y') }}
@@ -728,7 +730,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="text-center" style="padding: 4rem 1rem;">
+                                <td colspan="{{ ($isDiploma ?? true) ? 7 : 6 }}" class="text-center" style="padding: 4rem 1rem;">
                                     <div class="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-2xl flex items-center justify-center mx-auto mb-3">
                                         <svg class="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
                                     </div>
@@ -749,8 +751,10 @@
                             {{ $attendances->firstItem() + $index }}
                         </span>
                         <div class="flex-1 min-w-0">
-                            <div class="font-bold text-gray-900 dark:text-white text-sm truncate">{{ $attendance->session->title }}</div>
+                            <div class="font-bold text-gray-900 dark:text-white text-sm truncate">{{ $attendance->session->title_ar ?: $attendance->session->title_en ?: ('جلسة #'.($attendance->session->session_number ?? '—')) }}</div>
+                            @if(($isDiploma ?? true) && $attendance->session->subject)
                             <div class="text-xs mt-0.5" style="color: #0071AA; font-weight: 600;">{{ $attendance->session->subject->name }}</div>
+                            @endif
                             <div class="flex flex-wrap items-center gap-2 mt-2">
                                 @if($attendance->attended)
                                     <span class="badge-present">حاضر</span>

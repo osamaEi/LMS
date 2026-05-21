@@ -329,6 +329,123 @@
 @section('content')
 <div class="prog-page">
     @if($program)
+
+        @if($program->type !== 'diploma')
+        {{-- ══════════════════════════════════════════════════════════════
+             NON-DIPLOMA (training / english / course) — sessions list
+        ══════════════════════════════════════════════════════════════ --}}
+
+        {{-- Hero --}}
+        <div style="background:linear-gradient(135deg,#0f172a 0%,#1e3a5f 55%,#0071AA 100%);border-radius:20px;padding:28px 32px;margin-bottom:24px;position:relative;overflow:hidden;">
+            <div style="position:absolute;top:-50px;left:-50px;width:200px;height:200px;background:rgba(255,255,255,.04);border-radius:50%;pointer-events:none;"></div>
+            <div style="position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;">
+                <div>
+                    <h1 style="color:white;font-size:1.4rem;font-weight:900;margin:0 0 4px;">{{ $program->name }}</h1>
+                    <p style="color:rgba(255,255,255,.65);font-size:.85rem;margin:0;">{{ $program->description ?? 'برنامجك التدريبي' }}</p>
+                    @if($program->duration_hours)
+                    <span style="display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.12);border-radius:20px;padding:4px 12px;font-size:.78rem;color:rgba(255,255,255,.8);margin-top:8px;">
+                        <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        {{ $program->duration_hours }} ساعة تدريبية
+                    </span>
+                    @endif
+                </div>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                    @foreach([
+                        [$stats['total_sessions'],     'إجمالي الجلسات', 'rgba(255,255,255,.75)'],
+                        [$stats['completed_sessions'],  'مكتملة',          '#86efac'],
+                        [$stats['attendance_rate'].'%', 'نسبة الحضور',     '#fde68a'],
+                    ] as [$v,$l,$c])
+                    <div style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:8px 16px;text-align:center;min-width:70px;">
+                        <div style="font-size:1.3rem;font-weight:800;color:{{ $c }};line-height:1.1;">{{ $v }}</div>
+                        <div style="font-size:.7rem;color:rgba(255,255,255,.55);margin-top:2px;">{{ $l }}</div>
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+
+        {{-- Sessions list --}}
+        <div style="background:white;border-radius:18px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.05);margin-bottom:20px;">
+            <div style="padding:18px 22px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;gap:10px;">
+                <div style="width:36px;height:36px;background:linear-gradient(135deg,#0071AA,#005a88);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <svg width="18" height="18" fill="white" viewBox="0 0 24 24"><path d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                </div>
+                <h2 style="font-size:1rem;font-weight:800;color:#111827;margin:0;">المحاضرات والجلسات</h2>
+                <span style="background:#0071AA;color:white;font-size:.72rem;font-weight:700;padding:2px 9px;border-radius:20px;">{{ $programSessions->count() }}</span>
+            </div>
+
+            @if($programSessions->isEmpty())
+            <div style="text-align:center;padding:48px 20px;">
+                <div style="width:56px;height:56px;background:#f8fafc;border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">
+                    <svg width="28" height="28" fill="none" stroke="#cbd5e1" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                </div>
+                <p style="font-size:.9rem;color:#6b7280;margin:0;">لا توجد جلسات مضافة بعد</p>
+            </div>
+            @else
+            <div style="display:flex;flex-direction:column;gap:0;">
+                @foreach($programSessions as $sess)
+                @php
+                    $isCompleted = !is_null($sess->ended_at);
+                    $isLive      = !is_null($sess->started_at) && is_null($sess->ended_at);
+                    $fileCount   = $sess->files->count();
+                    $hasHomework = !is_null($sess->homework);
+                @endphp
+                <div style="border-bottom:1px solid #f8fafc;padding:14px 22px;display:flex;align-items:center;justify-content:space-between;gap:12px;transition:background .15s;"
+                     onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background=''">
+                    <div style="display:flex;align-items:center;gap:12px;min-width:0;flex:1;">
+                        {{-- Status indicator --}}
+                        <div style="width:36px;height:36px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+                             background:{{ $isLive ? 'linear-gradient(135deg,#22c55e,#16a34a)' : ($isCompleted ? '#f0fdf4' : '#f8fafc') }};">
+                            @if($isLive)
+                            <svg width="16" height="16" fill="white" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M2 12C2 6.48 6.48 2 12 2s10 4.48 10 10-4.48 10-10 10S2 17.52 2 12z" opacity=".3"/></svg>
+                            @elseif($isCompleted)
+                            <svg width="16" height="16" fill="none" stroke="#16a34a" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                            @else
+                            <span style="font-size:.78rem;font-weight:800;color:#9ca3af;">{{ $sess->session_number ?? '—' }}</span>
+                            @endif
+                        </div>
+                        <div style="min-width:0;">
+                            <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                                <h4 style="font-size:.9rem;font-weight:700;color:#111827;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+                                    {{ $sess->title_ar ?: $sess->title_en ?: ('جلسة #'.($sess->session_number ?? '—')) }}
+                                </h4>
+                                @if($isLive)
+                                <span style="background:#dcfce7;color:#15803d;font-size:.65rem;font-weight:700;padding:1px 7px;border-radius:20px;animation:pulse 2s infinite;">مباشر</span>
+                                @endif
+                            </div>
+                            <div style="display:flex;align-items:center;gap:10px;margin-top:3px;flex-wrap:wrap;">
+                                @if($sess->scheduled_at)
+                                <span style="font-size:.72rem;color:#9ca3af;">
+                                    {{ \Carbon\Carbon::parse($sess->scheduled_at)->format('Y/m/d · H:i') }}
+                                </span>
+                                @endif
+                                @if($fileCount > 0)
+                                <span style="font-size:.72rem;color:#0071AA;background:#eff6ff;padding:1px 7px;border-radius:20px;">
+                                    {{ $fileCount }} ملف
+                                </span>
+                                @endif
+                                @if($hasHomework)
+                                <span style="font-size:.72rem;color:#d97706;background:#fef3c7;padding:1px 7px;border-radius:20px;">واجب</span>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                    <a href="{{ route('student.sessions.show', $sess) }}"
+                       style="flex-shrink:0;display:inline-flex;align-items:center;gap:5px;padding:7px 14px;background:linear-gradient(135deg,#0071AA,#005a88);color:white;border-radius:9px;font-size:.78rem;font-weight:700;text-decoration:none;white-space:nowrap;box-shadow:0 2px 8px rgba(0,113,170,.25);">
+                        <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                        عرض
+                    </a>
+                </div>
+                @endforeach
+            </div>
+            @endif
+        </div>
+
+        @else
+        {{-- ══════════════════════════════════════════════════════════════
+             DIPLOMA — existing terms / subjects view
+        ══════════════════════════════════════════════════════════════ --}}
+
         {{-- ===== Hero Header ===== --}}
         <div class="prog-hero">
             <div class="hero-top">
@@ -787,6 +904,8 @@
                 </div>
             @endif
         </div>
+
+        @endif {{-- end diploma --}}
 
     @else
         {{-- ===== No Program - Enrollment Flow ===== --}}
