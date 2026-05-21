@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
 use App\Models\Session;
-use Illuminate\Http\Request;
 
 class ScheduleController extends Controller
 {
@@ -12,40 +11,34 @@ class ScheduleController extends Controller
     {
         $student = auth()->user();
 
-        // Get all sessions for student's enrolled subjects
-        $sessions = Session::whereHas('subject.enrollments', function($query) use ($student) {
+        $sessions = Session::whereHas('subject.enrollments', function ($query) use ($student) {
                 $query->where('student_id', $student->id);
             })
             ->with('subject')
-            ->get()
-            ->map(function($session) {
-                return [
-                    'id' => $session->id,
-                    'title' => $session->title,
-                    'start' => $session->scheduled_at,
-                    'end' => $session->scheduled_at ? \Carbon\Carbon::parse($session->scheduled_at)->addHours(2) : null,
-                    'backgroundColor' => $this->getStatusColor($session->status),
-                    'borderColor' => $this->getStatusColor($session->status),
-                    'url' => route('admin.sessions.show', $session->id),
-                    'extendedProps' => [
-                        'subject' => $session->subject->name,
-                        'type' => $session->type,
-                        'status' => $session->status,
-                        'session_number' => $session->session_number,
-                    ]
-                ];
-            });
+            ->orderBy('scheduled_at')
+            ->get();
 
-        return view('student.schedule', compact('sessions'));
-    }
+        $now = now();
 
-    private function getStatusColor($status)
-    {
-        return match($status) {
-            'live' => '#EF4444',      // Red
-            'completed' => '#10B981',  // Green
-            'scheduled' => '#3B82F6',  // Blue
-            default => '#6B7280',      // Gray
-        };
+        $calSessions = $sessions->map(fn($s) => [
+            'id'               => $s->id,
+            'title'            => $s->title_ar ?: (($s->subject->name_ar ?? 'جلسة') . ' #' . $s->session_number),
+            'subject_name'     => $s->subject->name_ar ?? '',
+            'scheduled_at'     => $s->scheduled_at ? \Carbon\Carbon::parse($s->scheduled_at)->toIso8601String() : null,
+            'duration_minutes' => $s->duration_minutes,
+            'type'             => $s->type ?? '',
+            'status'           => (string) ($s->status ?? ''),
+            'session_number'   => $s->session_number,
+            'zoom_join_url'    => $s->zoom_join_url,
+        ])->filter(fn($s) => $s['scheduled_at'])->values();
+
+        $stats = [
+            'total'     => $sessions->count(),
+            'upcoming'  => $sessions->filter(fn($s) => $s->scheduled_at && \Carbon\Carbon::parse($s->scheduled_at)->gte($now))->count(),
+            'completed' => $sessions->where('status', 'completed')->count(),
+            'live'      => $sessions->where('status', 'live')->count(),
+        ];
+
+        return view('student.schedule', compact('calSessions', 'stats'));
     }
 }

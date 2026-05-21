@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Program;
 use App\Models\Subject;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -28,8 +29,8 @@ class TeacherController extends Controller
 
         $teachers = $query->latest()->paginate(12)->withQueryString();
 
-        // Eager load assigned subjects for the modal checkboxes
-        $teachers->load('assignedSubjects');
+        // Load both pivot subjects (for modal) and legacy teacher_id subjects (for display)
+        $teachers->load('assignedSubjects', 'subjects', 'teachingPrograms');
 
         $stats = [
             'total'        => User::where('role', 'teacher')->count(),
@@ -37,9 +38,17 @@ class TeacherController extends Controller
             'with_subjects'=> User::where('role', 'teacher')->has('subjects')->count(),
         ];
 
-        $allSubjects = Subject::orderBy('name_ar')->get();
+        $programsByType = Program::with(['terms.subjects' => function ($q) {
+            $q->select('subjects.id', 'subjects.name_ar', 'subjects.name_en', 'subjects.code')
+              ->orderBy('subjects.name_ar');
+        }])->orderBy('name_ar')->get()->groupBy('type');
 
-        return view('admin.teachers.index', compact('teachers', 'stats', 'search', 'allSubjects'));
+        // All programs for the program-assign modal (excluding diplomas)
+        $allPrograms = Program::select('id', 'name_ar', 'type', 'status')
+            ->whereIn('type', ['training', 'english', 'course'])
+            ->orderBy('type')->orderBy('name_ar')->get()->groupBy('type');
+
+        return view('admin.teachers.index', compact('teachers', 'stats', 'search', 'programsByType', 'allPrograms'));
     }
 
     public function create()
@@ -82,11 +91,11 @@ class TeacherController extends Controller
     public function update(Request $request, User $teacher)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $teacher->id,
-            'national_id' => 'required|string|unique:users,national_id,' . $teacher->id,
-            'phone' => 'nullable|string|max:20',
-            'password' => 'nullable|string|min:8|confirmed',
+            'name'        => 'required|string|max:255',
+            'email'       => 'required|email|unique:users,email,' . $teacher->id,
+            'national_id' => 'nullable|string|unique:users,national_id,' . $teacher->id,
+            'phone'       => 'nullable|string|max:20',
+            'password'    => 'nullable|string|min:8|confirmed',
         ]);
 
         if (!empty($validated['password'])) {
@@ -111,9 +120,33 @@ class TeacherController extends Controller
 
     public function assignSubjects(Request $request, User $teacher)
     {
-        $teacher->assignedSubjects()->sync($request->input('subjects', []));
+        $subjectIds = array_map('intval', $request->input('subjects', []));
+
+        // Sync pivot table
+        $teacher->assignedSubjects()->sync($subjectIds);
+
+        // Keep teacher_id column in sync:
+        // Clear teacher_id on subjects removed from this teacher
+        Subject::where('teacher_id', $teacher->id)
+            ->whereNotIn('id', $subjectIds)
+            ->update(['teacher_id' => null]);
+
+        // Set teacher_id on newly assigned subjects that have no teacher yet
+        if (!empty($subjectIds)) {
+            Subject::whereIn('id', $subjectIds)
+                ->whereNull('teacher_id')
+                ->update(['teacher_id' => $teacher->id]);
+        }
 
         return back()->with('success', 'تم تحديث المقررات للأستاذ ' . $teacher->name);
+    }
+
+    public function assignPrograms(Request $request, User $teacher)
+    {
+        $request->validate(['program_ids' => 'nullable|array', 'program_ids.*' => 'exists:programs,id']);
+        $teacher->teachingPrograms()->sync($request->input('program_ids', []));
+
+        return back()->with('success', 'تم تعيين الدورات للأستاذ ' . $teacher->name);
     }
 
     public function toggleStatus(User $teacher)

@@ -4,7 +4,9 @@
       "Bash(git config:*)",
       "Bash(git commit:*)",
       "Bash(php artisan make:model:*)",
-      "Bash(php artisan:*)"
+      "Bash(php artisan:*)",
+      "PowerShell(Get-ChildItem -Path \"e:\\\\mostaql\\\\Lms\\\\resources\\\\views\\\\admin\\\\english\" -File | ForEach-Object { $_.Name })",
+      "PowerShell(Get-ChildItem -Path \"e:\\\\mostaql\\\\Lms\\\\resources\\\\views\\\\admin\\\\courses\" -File | ForEach-Object { $_.Name })"
     ],
     "deny": [],
     "ask": []

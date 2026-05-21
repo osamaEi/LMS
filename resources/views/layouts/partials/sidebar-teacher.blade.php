@@ -17,23 +17,46 @@
 {{-- ═══ فاصل ═══ --}}
 <li style="margin:6px 16px;height:1px;background:rgba(255,255,255,0.1)"></li>
 
+@php
+$_teacherSubjects  = auth()->user()->assignedSubjects()->with(['program:id,type,name_ar', 'term.program:id,type,name_ar'])->get();
+$_teachingPrograms = auth()->user()->teachingPrograms()->get(['id', 'type', 'name_ar']);
+
+// Resolve program type using PHP arrays to avoid Eloquent Collection pitfalls
+$_subjectTypeArr  = $_teacherSubjects->map(fn($s) => $s->program?->type ?? $s->term?->program?->type)
+                                     ->filter()->values()->toArray();
+$_programTypeArr  = $_teachingPrograms->pluck('type')->toArray();
+$_byType          = collect(array_values(array_unique(array_merge($_subjectTypeArr, $_programTypeArr))));
+
+$_hasAny = $_byType->isNotEmpty();
+$_typeConfig = [
+    'training' => ['label' => 'البرامج التدريبية',      'icon' => 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01'],
+    'english'  => ['label' => 'دورات اللغة الإنجليزية', 'icon' => 'M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129'],
+    'course'   => ['label' => 'الدورات التأهيلية',       'icon' => 'M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z'],
+    'diploma'  => ['label' => 'الدبلومات',               'icon' => 'M12 14l9-5-9-5-9 5 9 5zm0 7v-6m0 0l-9-5m9 5l9-5'],
+    'other'    => ['label' => 'مقرراتي',                  'icon' => 'M12 3L1 9l11 6 9-4.91V17h2V9L12 3zM5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82z'],
+];
+@endphp
+
 {{-- ═══ التدريس ═══ --}}
+@if($_hasAny)
 <li style="padding:8px 16px 4px">
     <span style="font-size:0.68rem;font-weight:700;letter-spacing:0.1em;color:rgba(255,255,255,0.35);display:block;text-transform:uppercase">{{ __('Teaching') }}</span>
 </li>
 
-
-
-<!-- مقرراتي -->
+@foreach($_typeConfig as $_type => $_cfg)
+@if($_byType->contains($_type))
 <li>
     <a href="{{ route('teacher.my-subjects.index') }}"
        class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('teacher.my-subjects.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
-        <svg class="fill-current" style="fill: currentColor;" width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3zM5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82z"/>
+        <svg class="fill-current" style="fill:none;stroke:currentColor;stroke-width:2;" width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" d="{{ $_cfg['icon'] }}"/>
         </svg>
-        <span>مقرراتي</span>
+        <span>{{ $_cfg['label'] }}</span>
     </a>
 </li>
+@endif
+@endforeach
+@endif
 
 <!-- الجدول التدريبي -->
 <li>
@@ -47,6 +70,7 @@
 </li>
 
 <!-- الاختبارات - Dropdown -->
+@if($_hasAny)
 <li x-data="{ open: {{ request()->routeIs('teacher.quizzes.*') ? 'true' : 'false' }} }">
     <button @click="open = !open"
             class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium w-full {{ request()->routeIs('teacher.quizzes.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
@@ -60,10 +84,7 @@
     </button>
     <!-- Dropdown Menu -->
     <ul x-show="open" x-collapse class="mt-2 mr-4 space-y-1 border-r-2 border-white/20 pr-3">
-        @php
-            $teacherSubjects = auth()->user()->assignedSubjects()->orderBy('name_ar')->get();
-        @endphp
-        @forelse($teacherSubjects as $subject)
+        @foreach($_teacherSubjects->sortBy('name') as $subject)
         <li>
             <a href="{{ route('teacher.quizzes.index', $subject->id) }}"
                class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors {{ request()->is('teacher/subjects/'.$subject->id.'/quizzes*') ? 'bg-white/20 text-white' : 'text-white/70 hover:bg-white/10 hover:text-white' }}">
@@ -71,15 +92,13 @@
                 <span class="truncate">{{ $subject->name }}</span>
             </a>
         </li>
-        @empty
-        <li class="px-3 py-2 text-sm text-white/50">
-            {{ __('No subjects assigned to you') }}
-        </li>
-        @endforelse
+        @endforeach
     </ul>
 </li>
+@endif
 
 {{-- ═══ فاصل ═══ --}}
+@if($_hasAny)
 <li style="margin:6px 16px;height:1px;background:rgba(255,255,255,0.1)"></li>
 
 <!-- الواجبات المنزلية -->
@@ -92,9 +111,7 @@
         <span>{{ __('Homework') }}</span>
     </a>
 </li>
-
-<!-- الملفات والموارد -->
-
+@endif
 
 {{-- ═══ فاصل ═══ --}}
 <li style="margin:6px 16px;height:1px;background:rgba(255,255,255,0.1)"></li>

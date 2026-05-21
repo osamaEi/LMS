@@ -80,6 +80,13 @@
                 الدروس والمحاضرات
             </a>
         </li>
+        <li>
+            <a href="{{ route('admin.schedule') }}"
+               class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors {{ request()->routeIs('admin.schedule*') ? 'bg-white/20 text-white' : 'text-white hover:bg-white/10' }}">
+                <span class="w-2 h-2 rounded-full {{ request()->routeIs('admin.schedule*') ? 'bg-white' : 'bg-white/50' }}"></span>
+                إدارة الجدول
+            </a>
+        </li>
         @endcan
     </ul>
 </li>

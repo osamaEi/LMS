@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Program;
+use App\Models\Subject;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -61,6 +63,25 @@ class CourseController extends Controller
 
         return redirect()->route('admin.courses.index')
             ->with('success', 'تم إضافة الدورة بنجاح');
+    }
+
+    public function show(Program $course)
+    {
+        $course->load([
+            'terms' => function ($query) {
+                $query->withCount('subjects')
+                      ->with(['subjects' => fn($q) => $q->with(['teacher:id,name', 'teachers:id,name'])->orderBy('name_ar')])
+                      ->orderBy('term_number');
+            },
+        ]);
+
+        $allSubjects = Subject::orderBy('name_ar')->get(['id', 'name_ar', 'name_en', 'code']);
+        $teachers    = User::where('role', 'teacher')->orderBy('name')->get(['id', 'name']);
+        $program     = $course;
+
+        return view('admin.programs.show', compact('program', 'allSubjects', 'teachers'))
+            ->with('backRoute', 'admin.courses.index')
+            ->with('pageLabel', 'الدورات والبرامج التأهيلية');
     }
 
     public function edit(Program $course)

@@ -63,6 +63,11 @@ class Program extends Model
         return $this->hasMany(User::class);
     }
 
+    public function teachers()
+    {
+        return $this->belongsToMany(User::class, 'program_teacher', 'program_id', 'teacher_id')->withTimestamps();
+    }
+
     public function terms()
     {
         return $this->hasMany(Term::class);

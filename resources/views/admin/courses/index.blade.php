@@ -369,6 +369,11 @@
                         </td>
                         <td class="px-6 py-5">
                             <div class="flex items-center justify-center gap-1">
+                                <a href="{{ route('admin.courses.show', $program) }}"
+                                   class="action-btn w-9 h-9 rounded-lg flex items-center justify-center text-sky-600 hover:bg-sky-50 dark:hover:bg-sky-900/20"
+                                   title="عرض وإسناد المدربين">
+                                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                </a>
                                 <a href="{{ route('admin.courses.edit', $program) }}"
                                    class="action-btn w-9 h-9 rounded-lg flex items-center justify-center text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/20"
                                    title="تعديل">

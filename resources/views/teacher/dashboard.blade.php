@@ -16,8 +16,10 @@
         <div class="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
                 <p class="mb-1 text-sm font-medium" style="color:rgba(255,255,255,.7)">{{ now()->translatedFormat('l، d F Y') }}</p>
-                <h1 class="text-2xl font-bold tracking-tight">{{ __('Welcome') }}، {{ auth()->user()->name }}</h1>
-                <p class="mt-1 text-sm" style="color:rgba(255,255,255,.7)">{{ __('Track your subjects, sessions and students') }}</p>
+                <h1 class="text-2xl font-bold tracking-tight">
+                    مرحباً {{ auth()->user()->gender === 'female' ? 'بالمدربة' : 'بالمدرب' }} {{ auth()->user()->name }}
+                </h1>
+                <p class="mt-1 text-sm" style="color:rgba(255,255,255,.7)">إدارة دوراتك والمتدربين بكل سهولة من لوحة التحكم</p>
             </div>
             <div class="flex gap-3">
                 <a href="{{ route('teacher.schedule') }}"

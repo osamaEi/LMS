@@ -237,10 +237,16 @@ Route::middleware('auth')->prefix('profile')->name('profile.')->group(function (
 Route::middleware(['auth', 'role:admin,super_admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 
+    // Schedule Management
+    Route::get('/schedule', [\App\Http\Controllers\Admin\ScheduleController::class, 'index'])->name('schedule');
+    Route::get('/schedule/sessions/{session}/students', [\App\Http\Controllers\Admin\ScheduleController::class, 'sessionStudents'])->name('schedule.session-students');
+    Route::post('/schedule/sessions/{session}/assign', [\App\Http\Controllers\Admin\ScheduleController::class, 'assignStudents'])->name('schedule.assign-students');
+
     // Teachers Management
     Route::get('/teachers/export', [\App\Http\Controllers\Admin\TeacherController::class, 'export'])->name('teachers.export');
     Route::patch('/teachers/{teacher}/toggle-status', [\App\Http\Controllers\Admin\TeacherController::class, 'toggleStatus'])->name('teachers.toggle-status');
     Route::post('/teachers/{teacher}/assign-subjects', [\App\Http\Controllers\Admin\TeacherController::class, 'assignSubjects'])->name('teachers.assign-subjects');
+    Route::post('/teachers/{teacher}/assign-programs', [\App\Http\Controllers\Admin\TeacherController::class, 'assignPrograms'])->name('teachers.assign-programs');
     Route::resource('teachers', \App\Http\Controllers\Admin\TeacherController::class);
 
     // Students Management
@@ -294,6 +300,7 @@ Route::middleware(['auth', 'role:admin,super_admin'])->prefix('admin')->name('ad
     Route::resource('subjects', \App\Http\Controllers\Admin\SubjectController::class);
     Route::patch('subjects/{subject}/toggle-status', [\App\Http\Controllers\Admin\SubjectController::class, 'toggleStatus'])->name('subjects.toggle-status');
     Route::patch('subjects/{subject}/assign-teacher', [\App\Http\Controllers\Admin\SubjectController::class, 'assignTeacher'])->name('subjects.assign-teacher');
+    Route::post('subjects/{subject}/assign-teachers', [\App\Http\Controllers\Admin\SubjectController::class, 'assignTeachers'])->name('subjects.assign-teachers');
     Route::post('subjects/{subject}/files', [\App\Http\Controllers\Admin\SubjectController::class, 'uploadFile'])->name('subjects.files.upload');
     Route::delete('subjects/{subject}/files/{file}', [\App\Http\Controllers\Admin\SubjectController::class, 'deleteFile'])->name('subjects.files.destroy');
 
@@ -511,6 +518,7 @@ Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')
     // Schedule
     Route::get('/schedule', [\App\Http\Controllers\Teacher\ScheduleController::class, 'index'])->name('schedule');
     Route::post('/schedule/sessions', [\App\Http\Controllers\Teacher\ScheduleController::class, 'bulkStore'])->name('schedule.sessions.store');
+    Route::post('/schedule/monthly', [\App\Http\Controllers\Teacher\ScheduleController::class, 'monthlyBulkStore'])->name('schedule.monthly.store');
 
     // Students
     Route::get('/students', [\App\Http\Controllers\Teacher\StudentsController::class, 'index'])->name('students.index');

@@ -246,6 +246,12 @@ class User extends Authenticatable
         return $this->hasMany(\App\Models\User::class, 'program_id');
     }
 
+    // Programs the teacher is directly assigned to teach
+    public function teachingPrograms()
+    {
+        return $this->belongsToMany(\App\Models\Program::class, 'program_teacher', 'teacher_id', 'program_id')->withTimestamps();
+    }
+
     // Payments
     public function payments()
     {

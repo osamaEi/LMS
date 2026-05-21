@@ -103,16 +103,17 @@ class TrainingProgramController extends Controller
         $training_program->load([
             'terms' => function ($query) {
                 $query->withCount('subjects')
-                      ->with(['subjects' => fn($q) => $q->with('teacher:id,name')->orderBy('name_ar')])
+                      ->with(['subjects' => fn($q) => $q->with(['teacher:id,name', 'teachers:id,name'])->orderBy('name_ar')])
                       ->orderBy('term_number');
             },
             'tracks',
         ]);
 
         $allSubjects = Subject::orderBy('name_ar')->get(['id', 'name_ar', 'name_en', 'code']);
-        $program = $training_program;
+        $teachers    = User::where('role', 'teacher')->orderBy('name')->get(['id', 'name']);
+        $program     = $training_program;
 
-        return view('admin.programs.show', compact('program', 'allSubjects'))
+        return view('admin.programs.show', compact('program', 'allSubjects', 'teachers'))
             ->with('backRoute', 'admin.training-programs.index')
             ->with('pageLabel', 'البرامج التدريبية ');
     }

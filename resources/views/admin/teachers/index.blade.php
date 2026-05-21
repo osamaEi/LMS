@@ -240,7 +240,7 @@
                             {{ $teacher->email }}
                         </p>
                         {{-- Subjects count badge --}}
-                        @php $assignedCount = $teacher->assignedSubjects->count(); @endphp
+                        @php $assignedCount = $teacher->assignedSubjects->merge($teacher->subjects)->unique('id')->count(); @endphp
                         <span style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;font-size:0.72rem;font-weight:700;background:{{ $color }}18;color:{{ $color }}">
                             <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor">
                                 <path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3z"/>
@@ -250,12 +250,13 @@
                     </div>
                 </div>
 
-                {{-- Assigned subjects list --}}
-                @if($teacher->assignedSubjects->count())
+                {{-- Assigned subjects list (pivot + legacy teacher_id, same as /my-subjects) --}}
+                @php $allAssigned = $teacher->assignedSubjects->merge($teacher->subjects)->unique('id'); @endphp
+                @if($allAssigned->count())
                 <div style="margin-bottom:14px">
                     <p style="font-size:0.72rem;font-weight:700;color:#9ca3af;margin:0 0 7px;text-transform:uppercase;letter-spacing:.05em">المقررات المعيّنة</p>
                     <div style="display:flex;flex-direction:column;gap:5px">
-                        @foreach($teacher->assignedSubjects->take(4) as $subj)
+                        @foreach($allAssigned->take(4) as $subj)
                         <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:#f8faff;border-radius:9px;border-right:3px solid {{ $color }}" class="dark:bg-white/5">
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="{{ $color }}">
                                 <path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3z"/>
@@ -266,9 +267,9 @@
                             <span style="font-size:0.68rem;color:#9ca3af;flex-shrink:0">{{ $subj->code }}</span>
                         </div>
                         @endforeach
-                        @if($teacher->assignedSubjects->count() > 4)
+                        @if($allAssigned->count() > 4)
                         <div style="text-align:center;padding:5px;font-size:0.72rem;color:#6b7280">
-                            + {{ $teacher->assignedSubjects->count() - 4 }} مقررات أخرى
+                            + {{ $allAssigned->count() - 4 }} مقررات أخرى
                         </div>
                         @endif
                     </div>
@@ -276,6 +277,31 @@
                 @else
                 <div style="margin-bottom:14px;padding:10px 12px;background:#fafafa;border-radius:10px;border:1.5px dashed #e5e7eb;text-align:center">
                     <span style="font-size:0.78rem;color:#9ca3af">لم يتم تعيين مقررات بعد</span>
+                </div>
+                @endif
+
+                {{-- Assigned programs --}}
+                @if($teacher->teachingPrograms->count())
+                @php
+                $progTypeColors = ['training'=>'#6366f1','english'=>'#0891b2','course'=>'#059669','diploma'=>'#d97706'];
+                $progTypeLabels = ['training'=>'تدريبي','english'=>'إنجليزي','course'=>'تأهيلي','diploma'=>'دبلوم'];
+                @endphp
+                <div style="margin-bottom:14px">
+                    <p style="font-size:0.72rem;font-weight:700;color:#9ca3af;margin:0 0 7px;text-transform:uppercase;letter-spacing:.05em">الدورات المعيّنة</p>
+                    <div style="display:flex;flex-direction:column;gap:5px">
+                        @foreach($teacher->teachingPrograms as $prog)
+                        @php $pc = $progTypeColors[$prog->type] ?? '#6b7280'; $pl = $progTypeLabels[$prog->type] ?? $prog->type; @endphp
+                        <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:#f0fdf4;border-radius:9px;border-right:3px solid {{ $pc }}">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="{{ $pc }}" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5"/>
+                            </svg>
+                            <span style="font-size:0.8rem;font-weight:600;color:#111827;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" class="dark:text-white">
+                                {{ $prog->name_ar }}
+                            </span>
+                            <span style="font-size:0.65rem;padding:2px 6px;border-radius:999px;background:{{ $pc }}18;color:{{ $pc }};font-weight:700;flex-shrink:0">{{ $pl }}</span>
+                        </div>
+                        @endforeach
+                    </div>
                 </div>
                 @endif
 
@@ -334,6 +360,16 @@
                         </svg>
                         تعديل
                     </a>
+
+                    {{-- Assign programs (direct) --}}
+                    <button type="button" class="action-btn"
+                            style="flex:1;background:#f0fdf4;color:#15803d;justify-content:center"
+                            onclick="openProgramModal({{ $teacher->id }}, '{{ addslashes($teacher->name) }}', {{ $teacher->teachingPrograms->pluck('id')->toJson() }})">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                        </svg>
+                        دورات
+                    </button>
 
                     {{-- Assign subjects --}}
                     <button type="button" class="action-btn"
@@ -443,29 +479,57 @@
                    style="width:100%;padding:8px 12px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:0.875rem;color:#111827;box-sizing:border-box;outline:none">
         </div>
 
-        {{-- Subject list --}}
-        <div style="max-height:340px;overflow-y:auto;padding:14px 22px" id="modal-subjects-list">
-            @forelse($allSubjects as $subject)
-            <label id="subj-row-{{ $subject->id }}"
-                   style="display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;cursor:pointer;margin-bottom:4px;transition:background 0.1s"
-                   onmouseover="this.style.background='#f8faff'" onmouseout="this.style.background='transparent'">
-                <input type="checkbox"
-                       class="assign-cb"
-                       value="{{ $subject->id }}"
-                       style="width:16px;height:16px;accent-color:#0071AA;cursor:pointer;flex-shrink:0">
-                <div style="flex:1;min-width:0">
-                    <p style="font-size:0.875rem;font-weight:700;color:#111827;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" class="dark:text-white">
-                        {{ $subject->name_ar }}
-                    </p>
-                    @if($subject->name_en)
-                    <p style="font-size:0.72rem;color:#9ca3af;margin:1px 0 0">{{ $subject->name_en }} · {{ $subject->code }}</p>
-                    @else
-                    <p style="font-size:0.72rem;color:#9ca3af;margin:1px 0 0">{{ $subject->code }}</p>
-                    @endif
+        {{-- Programs grouped by type --}}
+        <div style="max-height:380px;overflow-y:auto;padding:14px 22px" id="modal-subjects-list">
+            @php
+            $typeConfig = [
+                'training' => ['label' => 'البرامج التدريبية',       'color' => '#6366f1', 'bg' => '#ede9fe'],
+                'english'  => ['label' => 'دورات اللغة الإنجليزية',  'color' => '#0891b2', 'bg' => '#e0f2fe'],
+                'course'   => ['label' => 'الدورات التأهيلية',        'color' => '#059669', 'bg' => '#dcfce7'],
+            ];
+            @endphp
+            @forelse($programsByType as $type => $programs)
+            @php $cfg = $typeConfig[$type] ?? ['label' => $type, 'color' => '#6b7280', 'bg' => '#f3f4f6']; @endphp
+            <div class="type-section" data-type="{{ $type }}" style="margin-bottom:14px">
+                <div style="display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:8px;background:{{ $cfg['bg'] }};margin-bottom:6px">
+                    <span style="font-size:0.72rem;font-weight:800;color:{{ $cfg['color'] }};text-transform:uppercase;letter-spacing:.06em">{{ $cfg['label'] }}</span>
                 </div>
-            </label>
+                @foreach($programs as $prog)
+                @php $subjects = $prog->terms->flatMap->subjects->unique('id'); @endphp
+                @if($subjects->count())
+                <div class="prog-block" data-prog="{{ $prog->id }}" style="margin-bottom:4px">
+                    <div class="prog-hdr-row" style="display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:9px;cursor:pointer;border:1.5px solid #f1f5f9;transition:background 0.1s"
+                         onmouseover="this.style.background='#f8faff'" onmouseout="this.style.background=''"
+                         onclick="toggleProgBlock(this)">
+                        <input type="checkbox" class="prog-all-cb" data-prog="{{ $prog->id }}"
+                               onclick="event.stopPropagation()" onchange="toggleProgramSubjects(this)"
+                               style="width:15px;height:15px;accent-color:{{ $cfg['color'] }};cursor:pointer;flex-shrink:0">
+                        <span style="flex:1;font-size:0.84rem;font-weight:700;color:#111827;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" class="dark:text-white">{{ $prog->name_ar }}</span>
+                        <span style="font-size:0.7rem;color:#9ca3af;flex-shrink:0;background:#f3f4f6;padding:2px 7px;border-radius:999px">{{ $subjects->count() }}</span>
+                        <svg class="prog-arrow" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2.5" style="flex-shrink:0;transition:transform 0.2s;transform:rotate(180deg)">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </div>
+                    <div class="prog-subjects-div" style="display:block;padding:4px 4px 4px 24px">
+                        @foreach($subjects as $subj)
+                        <label class="subj-label" id="subj-row-{{ $subj->id }}"
+                               style="display:flex;align-items:center;gap:10px;padding:6px 10px;border-radius:8px;cursor:pointer;margin-bottom:2px;transition:background 0.1s"
+                               onmouseover="this.style.background='#f8faff'" onmouseout="this.style.background='transparent'">
+                            <input type="checkbox" class="assign-cb" value="{{ $subj->id }}" data-prog="{{ $prog->id }}"
+                                   style="width:14px;height:14px;accent-color:#0071AA;cursor:pointer;flex-shrink:0">
+                            <div style="flex:1;min-width:0">
+                                <p style="font-size:0.82rem;font-weight:600;color:#111827;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" class="dark:text-white">{{ $subj->name_ar }}</p>
+                                <p style="font-size:0.7rem;color:#9ca3af;margin:1px 0 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ $subj->code }}{{ $subj->name_en ? ' · ' . $subj->name_en : '' }}</p>
+                            </div>
+                        </label>
+                        @endforeach
+                    </div>
+                </div>
+                @endif
+                @endforeach
+            </div>
             @empty
-            <p style="text-align:center;color:#9ca3af;font-size:0.875rem;padding:24px 0">لا توجد مقررات</p>
+            <p style="text-align:center;color:#9ca3af;font-size:0.875rem;padding:24px 0">لا توجد برامج أو مقررات</p>
             @endforelse
         </div>
 
@@ -490,6 +554,72 @@
     </div>
 </div>
 
+{{-- Assign Programs Modal --}}
+<div id="prog-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.5);align-items:center;justify-content:center;padding:16px" onclick="if(event.target===this)closeProgramModal()">
+    <div style="background:#fff;border-radius:18px;width:100%;max-width:480px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,0.25)" class="dark:bg-slate-800">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid #f1f5f9">
+            <div>
+                <h3 style="font-size:1rem;font-weight:800;color:#111827;margin:0" class="dark:text-white" id="prog-modal-title">تعيين الدورات</h3>
+                <p style="font-size:0.78rem;color:#6b7280;margin:3px 0 0">اختر الدورات التي يدرّبها هذا الأستاذ</p>
+            </div>
+            <button onclick="closeProgramModal()" style="width:32px;height:32px;border-radius:8px;border:none;background:#f1f5f9;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#6b7280">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+
+        <div style="max-height:400px;overflow-y:auto;padding:16px 22px" id="prog-modal-list">
+            @php
+            $progTypeConfig = [
+                'training' => ['label' => 'البرامج التدريبية',       'color' => '#6366f1', 'bg' => '#ede9fe'],
+                'english'  => ['label' => 'دورات اللغة الإنجليزية',  'color' => '#0891b2', 'bg' => '#e0f2fe'],
+                'course'   => ['label' => 'الدورات التأهيلية',        'color' => '#059669', 'bg' => '#dcfce7'],
+                'diploma'  => ['label' => 'الدبلومات',                'color' => '#d97706', 'bg' => '#fef3c7'],
+            ];
+            @endphp
+            @forelse($allPrograms as $type => $programs)
+            @php $pcfg = $progTypeConfig[$type] ?? ['label' => $type, 'color' => '#6b7280', 'bg' => '#f3f4f6']; @endphp
+            <div style="margin-bottom:14px">
+                <div style="padding:5px 10px;border-radius:8px;background:{{ $pcfg['bg'] }};margin-bottom:6px">
+                    <span style="font-size:0.72rem;font-weight:800;color:{{ $pcfg['color'] }};letter-spacing:.06em">{{ $pcfg['label'] }}</span>
+                </div>
+                @foreach($programs as $prog)
+                <label style="display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;cursor:pointer;margin-bottom:4px;border:1.5px solid #f1f5f9;transition:border-color 0.15s"
+                       onmouseover="this.style.borderColor='{{ $pcfg['color'] }}33'" onmouseout="this.style.borderColor='#f1f5f9'">
+                    <input type="checkbox" class="prog-top-cb" value="{{ $prog->id }}"
+                           style="width:16px;height:16px;accent-color:{{ $pcfg['color'] }};cursor:pointer;flex-shrink:0">
+                    <span style="flex:1;font-size:0.875rem;font-weight:700;color:#111827" class="dark:text-white">{{ $prog->name_ar }}</span>
+                    @if($prog->status === 'active')
+                    <span style="font-size:0.68rem;padding:2px 8px;border-radius:999px;background:#dcfce7;color:#16a34a;font-weight:700;flex-shrink:0">نشط</span>
+                    @endif
+                </label>
+                @endforeach
+            </div>
+            @empty
+            <p style="text-align:center;color:#9ca3af;padding:24px 0">لا توجد دورات</p>
+            @endforelse
+        </div>
+
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 22px;border-top:1px solid #f1f5f9;gap:10px">
+            <span style="font-size:0.78rem;color:#6b7280" id="prog-selected-count">0 دورة محددة</span>
+            <div style="display:flex;gap:8px">
+                <button onclick="closeProgramModal()" style="padding:8px 18px;border-radius:10px;border:1.5px solid #e5e7eb;background:#fff;color:#374151;font-size:0.875rem;font-weight:700;cursor:pointer">
+                    إلغاء
+                </button>
+                <button onclick="submitProgramAssign()" style="padding:8px 22px;border-radius:10px;border:none;background:#059669;color:#fff;font-size:0.875rem;font-weight:700;cursor:pointer">
+                    حفظ
+                </button>
+            </div>
+        </div>
+
+        <form id="prog-assign-form" method="POST" style="display:none">
+            @csrf
+            <div id="prog-assign-inputs"></div>
+        </form>
+    </div>
+</div>
+
 @push('scripts')
 <script>
 let currentTeacherId = null;
@@ -498,14 +628,27 @@ function openAssignModal(teacherId, teacherName, assignedIds) {
     currentTeacherId = teacherId;
     document.getElementById('modal-title').textContent = 'تعيين المقررات — ' + teacherName;
     document.getElementById('modal-search').value = '';
-    filterModalSubjects('');
 
-    // Reset and set checkboxes
+    // Reset visibility from any previous search
+    document.querySelectorAll('.subj-label').forEach(l => l.style.display = 'flex');
+    document.querySelectorAll('.prog-block, .type-section').forEach(el => el.style.display = '');
+
+    // Set subject checkboxes
     document.querySelectorAll('.assign-cb').forEach(cb => {
         cb.checked = assignedIds.includes(parseInt(cb.value));
     });
-    updateCount();
 
+    // Expand all programs and sync their header checkboxes
+    document.querySelectorAll('.prog-block').forEach(block => {
+        const progId = block.dataset.prog;
+        const subjDiv = block.querySelector('.prog-subjects-div');
+        const arrow = block.querySelector('.prog-arrow');
+        if (subjDiv) subjDiv.style.display = 'block';
+        if (arrow) arrow.style.transform = 'rotate(180deg)';
+        syncProgHeader(progId);
+    });
+
+    updateCount();
     document.getElementById('assign-modal').style.display = 'flex';
 }
 
@@ -514,20 +657,76 @@ function closeAssignModal() {
     currentTeacherId = null;
 }
 
+function toggleProgBlock(hdrEl) {
+    const block = hdrEl.closest('.prog-block');
+    const subjDiv = block.querySelector('.prog-subjects-div');
+    const arrow = hdrEl.querySelector('.prog-arrow');
+    const open = !subjDiv.style.display || subjDiv.style.display === 'none';
+    subjDiv.style.display = open ? 'block' : 'none';
+    if (arrow) arrow.style.transform = open ? 'rotate(180deg)' : 'rotate(0deg)';
+}
+
+function toggleProgramSubjects(progCb) {
+    const progId = progCb.dataset.prog;
+    document.querySelectorAll('.assign-cb[data-prog="' + progId + '"]').forEach(cb => {
+        cb.checked = progCb.checked;
+    });
+    progCb.indeterminate = false;
+    updateCount();
+}
+
+function syncProgHeader(progId) {
+    const cbs = Array.from(document.querySelectorAll('.assign-cb[data-prog="' + progId + '"]'));
+    const progAllCb = document.querySelector('.prog-all-cb[data-prog="' + progId + '"]');
+    if (!progAllCb || !cbs.length) return;
+    const n = cbs.filter(c => c.checked).length;
+    progAllCb.checked = n === cbs.length;
+    progAllCb.indeterminate = n > 0 && n < cbs.length;
+}
+
 function filterModalSubjects(q) {
-    q = q.toLowerCase();
-    document.querySelectorAll('#modal-subjects-list label').forEach(label => {
-        const text = label.textContent.toLowerCase();
-        label.style.display = text.includes(q) ? 'flex' : 'none';
+    q = q.toLowerCase().trim();
+
+    if (!q) {
+        document.querySelectorAll('.subj-label').forEach(l => l.style.display = 'flex');
+        document.querySelectorAll('.prog-block, .type-section').forEach(el => el.style.display = '');
+        document.querySelectorAll('.prog-subjects-div').forEach(d => d.style.display = 'block');
+        document.querySelectorAll('.prog-arrow').forEach(a => a.style.transform = 'rotate(180deg)');
+        return;
+    }
+
+    document.querySelectorAll('.subj-label').forEach(label => {
+        label.style.display = label.textContent.toLowerCase().includes(q) ? 'flex' : 'none';
+    });
+
+    document.querySelectorAll('.prog-block').forEach(block => {
+        const any = Array.from(block.querySelectorAll('.subj-label')).some(l => l.style.display !== 'none');
+        block.style.display = any ? '' : 'none';
+        if (any) {
+            const subjDiv = block.querySelector('.prog-subjects-div');
+            const arrow = block.querySelector('.prog-arrow');
+            if (subjDiv) subjDiv.style.display = 'block';
+            if (arrow) arrow.style.transform = 'rotate(180deg)';
+        }
+    });
+
+    document.querySelectorAll('.type-section').forEach(section => {
+        const any = Array.from(section.querySelectorAll('.prog-block')).some(b => b.style.display !== 'none');
+        section.style.display = any ? '' : 'none';
     });
 }
 
 function updateCount() {
-    const count = document.querySelectorAll('.assign-cb:checked').length;
-    document.getElementById('modal-selected-count').textContent = count + ' مقرر محدد';
+    const n = document.querySelectorAll('.assign-cb:checked').length;
+    document.getElementById('modal-selected-count').textContent = n + ' مقرر محدد';
 }
 
-document.addEventListener('change', e => { if (e.target.classList.contains('assign-cb')) updateCount(); });
+document.addEventListener('change', e => {
+    if (e.target.classList.contains('assign-cb')) {
+        syncProgHeader(e.target.dataset.prog);
+        updateCount();
+    }
+});
 
 function submitAssign() {
     const form = document.getElementById('assign-form');
@@ -535,11 +734,54 @@ function submitAssign() {
     const container = document.getElementById('assign-inputs');
     container.innerHTML = '';
     document.querySelectorAll('.assign-cb:checked').forEach(cb => {
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = 'subjects[]';
-        input.value = cb.value;
-        container.appendChild(input);
+        const inp = document.createElement('input');
+        inp.type = 'hidden';
+        inp.name = 'subjects[]';
+        inp.value = cb.value;
+        container.appendChild(inp);
+    });
+    form.submit();
+}
+
+// ─── Program-level assign modal ──────────────────────────────────────────────
+let currentProgTeacherId = null;
+
+function openProgramModal(teacherId, teacherName, assignedProgIds) {
+    currentProgTeacherId = teacherId;
+    document.getElementById('prog-modal-title').textContent = 'تعيين الدورات — ' + teacherName;
+
+    document.querySelectorAll('.prog-top-cb').forEach(cb => {
+        cb.checked = assignedProgIds.includes(parseInt(cb.value));
+    });
+    updateProgCount();
+    document.getElementById('prog-modal').style.display = 'flex';
+}
+
+function closeProgramModal() {
+    document.getElementById('prog-modal').style.display = 'none';
+    currentProgTeacherId = null;
+}
+
+function updateProgCount() {
+    const n = document.querySelectorAll('.prog-top-cb:checked').length;
+    document.getElementById('prog-selected-count').textContent = n + ' دورة محددة';
+}
+
+document.addEventListener('change', e => {
+    if (e.target.classList.contains('prog-top-cb')) updateProgCount();
+});
+
+function submitProgramAssign() {
+    const form = document.getElementById('prog-assign-form');
+    form.action = '/admin/teachers/' + currentProgTeacherId + '/assign-programs';
+    const container = document.getElementById('prog-assign-inputs');
+    container.innerHTML = '';
+    document.querySelectorAll('.prog-top-cb:checked').forEach(cb => {
+        const inp = document.createElement('input');
+        inp.type = 'hidden';
+        inp.name = 'program_ids[]';
+        inp.value = cb.value;
+        container.appendChild(inp);
     });
     form.submit();
 }

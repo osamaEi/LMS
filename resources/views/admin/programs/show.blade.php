@@ -10,15 +10,15 @@
     currentTermName: '',
     currentSubjectId: null,
     currentSubjectName: '',
-    currentTeacherId: '',
+    currentTeacherIds: [],
     openTermModal()   { this.termModal = true; },
     openSubjectModal(id, name) { this.currentTermId = id; this.currentTermName = name; this.subjectModal = true; },
-    openTeacherModal(sid, sname, tid) { this.currentSubjectId = sid; this.currentSubjectName = sname; this.currentTeacherId = String(tid ?? ''); this.teacherModal = true; }
+    openTeacherModal(sid, sname, tids) { this.currentSubjectId = sid; this.currentSubjectName = sname; this.currentTeacherIds = (tids || []).map(String); this.teacherModal = true; }
 }">
 
     {{-- ── Header ── --}}
     <div class="flex items-center gap-3 mb-6">
-        <a href="{{ route('admin.programs.index') }}"
+        <a href="{{ isset($backRoute) ? route($backRoute) : route('admin.programs.index') }}"
            class="flex items-center justify-center h-9 w-9 rounded-lg border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
             <svg class="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
@@ -35,7 +35,10 @@
             </div>
             <p class="text-xs text-gray-400 mt-0.5" dir="ltr">{{ $program->code }}</p>
         </div>
-        <a href="{{ route('admin.programs.edit', $program) }}"
+        @php
+            $editRoute = isset($backRoute) ? str_replace('.index', '.edit', $backRoute) : 'admin.programs.edit';
+        @endphp
+        <a href="{{ route($editRoute, $program) }}"
            class="flex items-center gap-1.5 rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-2 text-xs font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
             <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
             تعديل
@@ -139,10 +142,17 @@
                                 <span class="text-xs font-bold text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 rounded-full px-2 py-0.5">{{ $subject->credits ?? '—' }}</span>
                             </td>
                             <td class="px-4 py-2.5">
-                                <button @click="openTeacherModal({{ $subject->id }}, '{{ addslashes($subject->name_ar ?: $subject->name_en) }}', {{ $subject->teacher_id ?? 'null' }})"
+                                <button @click="openTeacherModal({{ $subject->id }}, '{{ addslashes($subject->name_ar ?: $subject->name_en) }}', {{ json_encode($subject->teachers->pluck('id')->all()) }})"
                                         class="flex items-center gap-1.5 text-xs text-gray-600 dark:text-gray-400 hover:text-brand-600 dark:hover:text-brand-400 transition-colors group">
                                     <svg class="w-3.5 h-3.5 text-gray-300 group-hover:text-brand-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-                                    {{ $subject->teacher?->name ?? 'تعيين مدرب' }}
+                                    @if($subject->teachers->isNotEmpty())
+                                        <span>{{ $subject->teachers->map(fn($t) => $t->name)->implode('، ') }}</span>
+                                        @if($subject->teachers->count() > 1)
+                                        <span style="background:#dbeafe;color:#2563eb;border-radius:9999px;padding:0 5px;font-size:10px;font-weight:700;">{{ $subject->teachers->count() }}</span>
+                                        @endif
+                                    @else
+                                        <span class="text-gray-400">تعيين مدرب</span>
+                                    @endif
                                 </button>
                             </td>
                             <td class="px-4 py-2.5 text-center">
@@ -311,7 +321,7 @@
                             <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">المدرب</label>
                             <select name="teacher_id" class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500">
                                 <option value="">— بدون مدرب —</option>
-                                @foreach($teachers as $teacher)
+                                @foreach($teachers ?? [] as $teacher)
                                     <option value="{{ $teacher->id }}">{{ $teacher->name }}</option>
                                 @endforeach
                             </select>
@@ -334,35 +344,42 @@
     </div>
 
     {{-- ══════════════════════════════════════════
-         MODAL: Assign Teacher
+         MODAL: Assign Teachers (multi)
     ══════════════════════════════════════════ --}}
     <div x-show="teacherModal" x-cloak style="position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem;">
         <div @click="teacherModal = false" style="position:absolute;inset:0;background:rgba(0,0,0,0.5);"></div>
-        <div @click.stop style="position:relative;background:white;border-radius:14px;width:100%;max-width:360px;box-shadow:0 25px 60px rgba(0,0,0,0.25);" class="dark:bg-gray-800">
+        <div @click.stop style="position:relative;background:white;border-radius:14px;width:100%;max-width:400px;box-shadow:0 25px 60px rgba(0,0,0,0.25);" class="dark:bg-gray-800">
             <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-gray-700">
                 <div>
-                    <h3 class="text-base font-semibold text-gray-900 dark:text-white">تعيين مدرب</h3>
+                    <h3 class="text-base font-semibold text-gray-900 dark:text-white">تعيين المدربين</h3>
                     <p class="text-xs text-gray-400 mt-0.5" x-text="currentSubjectName"></p>
                 </div>
                 <button @click="teacherModal = false" class="text-gray-400 hover:text-gray-600 transition-colors">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
             </div>
-            <form method="POST" :action="'/admin/subjects/' + currentSubjectId + '/assign-teacher'">
-                @csrf @method('PATCH')
-                <div class="px-5 py-4">
-                    <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">اختر المدرب</label>
-                    <select name="teacher_id" x-model="currentTeacherId"
-                            class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="">— بدون مدرب —</option>
-                        @foreach($teachers as $teacher)
-                            <option value="{{ $teacher->id }}">{{ $teacher->name }}</option>
-                        @endforeach
-                    </select>
+            <form method="POST" :action="'/admin/subjects/' + currentSubjectId + '/assign-teachers'">
+                @csrf
+                <div class="px-5 py-4 max-h-72 overflow-y-auto space-y-1">
+                    <p class="text-xs text-gray-400 mb-3">اختر مدرباً واحداً أو أكثر لهذا المقرر</p>
+                    @forelse($teachers as $teacher)
+                    <label class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors">
+                        <input type="checkbox"
+                               name="teacher_ids[]"
+                               value="{{ $teacher->id }}"
+                               x-init="$el.checked = currentTeacherIds.includes('{{ $teacher->id }}')"
+                               class="w-4 h-4 rounded accent-blue-600 flex-shrink-0">
+                        <div class="flex-1 min-w-0">
+                            <span class="text-sm font-medium text-gray-800 dark:text-gray-200">{{ $teacher->name }}</span>
+                        </div>
+                    </label>
+                    @empty
+                    <p class="text-sm text-center text-gray-400 py-4">لا يوجد مدربون في النظام</p>
+                    @endforelse
                 </div>
                 <div class="flex justify-end gap-2 px-5 py-3 border-t border-gray-100 dark:border-gray-700">
                     <button type="button" @click="teacherModal = false" class="px-4 py-2 text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 transition-colors">إلغاء</button>
-                    <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors">حفظ</button>
+                    <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors">حفظ التعيين</button>
                 </div>
             </form>
         </div>

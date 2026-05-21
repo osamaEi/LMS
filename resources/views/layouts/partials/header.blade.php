@@ -14,19 +14,25 @@
 
             <!-- Welcome Text -->
             <div>
+                @php
+                    $role = auth()->user()->role;
+                    $gender = auth()->user()->gender;
+                    if (in_array($role, ['admin','super_admin'])) {
+                        $greeting = 'مرحباً ' . ($gender === 'female' ? 'بالمديرة' : 'بالمدير');
+                        $sub      = 'إدارة النظام والمستخدمين والدورات بكل سهولة';
+                    } elseif ($role === 'teacher') {
+                        $greeting = 'مرحباً ' . ($gender === 'female' ? 'بالمدربة' : 'بالمدرب');
+                        $sub      = 'إدارة دوراتك والمتدربين بكل سهولة من لوحة التحكم';
+                    } else {
+                        $greeting = 'مرحباً ' . ($gender === 'female' ? 'بالمتدربة' : 'بالمتدرب');
+                        $sub      = 'تابع دوراتك ومسيرتك التعليمية بكل سهولة';
+                    }
+                @endphp
                 <h1 class="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
                     <span>👋</span>
-                    {{ __('Welcome') }} {{ auth()->user()->getRoleDisplayName() }} {{ auth()->user()->name }}
+                    {{ $greeting }} — {{ auth()->user()->name }}
                 </h1>
-                <p class="text-sm text-gray-500 dark:text-gray-400">
-                    @if(auth()->user()->role === 'admin' || auth()->user()->role === 'super_admin')
-                        {{ __('Manage the system, users, and courses easily') }}
-                    @elseif(auth()->user()->role === 'teacher')
-                        {{ __('Manage subjects and students easily from the dashboard') }}
-                    @else
-                        {{ __('Track your courses and educational progress easily') }}
-                    @endif
-                </p>
+                <p class="text-sm text-gray-500 dark:text-gray-400">{{ $sub }}</p>
             </div>
         </div>
 

@@ -154,6 +154,15 @@ class SubjectController extends Controller
         return back()->with('success', 'تم تعيين المدرب بنجاح');
     }
 
+    public function assignTeachers(Request $request, Subject $subject)
+    {
+        $request->validate(['teacher_ids' => 'nullable|array', 'teacher_ids.*' => 'exists:users,id']);
+        $ids = array_map('intval', $request->input('teacher_ids', []));
+        $subject->teachers()->sync($ids);
+        $subject->update(['teacher_id' => count($ids) ? $ids[0] : null]);
+        return back()->with('success', 'تم تعيين المدربين بنجاح');
+    }
+
     public function toggleStatus(Request $request, Subject $subject)
     {
         $new = $request->input('status');
