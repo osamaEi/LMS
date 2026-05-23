@@ -18,7 +18,7 @@ class ScheduleController extends Controller
 
         // Subject-based sessions (diploma)
         $subjectSessions = Session::whereHas('subject', fn($q) => $q->assignedToTeacher($teacher->id))
-            ->with(['subject.term.program'])
+            ->with(['subject.program', 'subject.term.program'])
             ->get();
 
         // Program-based sessions (course / training / english)
@@ -54,8 +54,9 @@ class ScheduleController extends Controller
                 ->whereHas('program', fn($pq) => $pq->where('type', 'diploma'))
                 ->orWhereHas('term.program', fn($pq) => $pq->where('type', 'diploma'))
             )
+            ->with(['program:id,name_ar', 'term.program:id,name_ar'])
             ->orderBy('name_ar')
-            ->get(['id', 'name_ar', 'name_en']);
+            ->get(['id', 'name_ar', 'name_en', 'program_id', 'term_id']);
 
         $programs = $teacher->teachingPrograms()
             ->whereIn('type', ['training', 'english', 'course'])

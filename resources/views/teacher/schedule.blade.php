@@ -7,6 +7,7 @@ $calSessions = $sessions->map(fn($s) => [
     'title'            => $s->title ?: ($s->title_ar ?: ''),
     'subject_name'     => $s->subject->name_ar ?? '',
     'program_name'     => $s->program->name_ar ?? '',
+    'diploma_name'     => $s->subject?->program?->name_ar ?? $s->subject?->term?->program?->name_ar ?? '',
     'scheduled_at'     => $s->scheduled_at ? \Carbon\Carbon::parse($s->scheduled_at)->toIso8601String() : null,
     'duration_minutes' => $s->duration_minutes ?? 60,
     'type'             => $s->type ?? '',
@@ -203,7 +204,8 @@ $calSessions = $sessions->map(fn($s) => [
                             onfocus="this.style.borderColor='#15803d'" onblur="this.style.borderColor='#e5e7eb'">
                         <option value="">— اختر المقرر —</option>
                         @foreach($subjects as $subject)
-                        <option value="{{ $subject->id }}">{{ $subject->name_ar }}</option>
+                        @php $diplomaName = $subject->program?->name_ar ?? $subject->term?->program?->name_ar ?? ''; @endphp
+                        <option value="{{ $subject->id }}">{{ $subject->name_ar }}{{ $diplomaName ? ' — ' . $diplomaName : '' }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -570,7 +572,7 @@ function showDayPanel(y,m,d) {
                     <h4 style="margin:0;font-size:13px;font-weight:700;color:#111827;">${s.title||ts.label}${s.session_number?' <span style="font-size:11px;color:#9ca3af;">#'+s.session_number+'</span>':''}</h4>
                     <span style="background:${stBg};color:${stColor};font-size:11px;font-weight:600;padding:2px 9px;border-radius:20px;">${stLabel}</span>
                 </div>
-                <p style="margin:0 0 7px;font-size:12px;color:#6b7280;">📚 ${s.subject_name||s.program_name||'—'}${s.duration_minutes?' · '+s.duration_minutes+' دقيقة':''}</p>
+                <p style="margin:0 0 7px;font-size:12px;color:#6b7280;">📚 ${s.subject_name||s.program_name||'—'}${s.diploma_name&&s.subject_name?' <span style="color:#9ca3af;">— '+s.diploma_name+'</span>':''}${s.duration_minutes?' · '+s.duration_minutes+' دقيقة':''}</p>
                 <div style="display:flex;gap:6px;flex-wrap:wrap;">
                     <span style="background:${ts.bg};color:${ts.color};font-size:11px;font-weight:600;padding:2px 9px;border-radius:20px;">${ts.label}</span>
                     ${s.zoom_start_url?`<a href="${s.zoom_start_url}" target="_blank" style="padding:4px 11px;background:linear-gradient(135deg,#ef4444,#dc2626);color:white;border-radius:7px;font-size:11px;font-weight:700;text-decoration:none;">▶ ابدأ الجلسة</a>`:''}

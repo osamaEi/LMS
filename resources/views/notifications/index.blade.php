@@ -230,7 +230,7 @@
                     <div id="section-group">
                         <label style="display:block;font-size:.8rem;font-weight:700;color:#374151;margin-bottom:.6rem;">المستهدفون <span style="color:#ef4444;">*</span></label>
                         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;">
-                            @foreach([['student',' المتدربون ','#059669'],['teacher','ال مدرب ون','#2563eb'],['all','الجميع','#7c3aed']] as [$val, $lab, $col])
+                            @foreach([['student',' المتدربون ','#059669'],['teacher','المدربون','#2563eb'],['all','الجميع','#7c3aed']] as [$val, $lab, $col])
                             <label style="cursor:pointer;">
                                 <input type="radio" name="target" value="{{ $val }}" id="t-{{ $val }}"
                                        {{ old('target','student') === $val ? 'checked' : '' }}
@@ -313,7 +313,7 @@
                                     <svg class="check-icon" style="width:18px;height:18px;color:#2563eb;display:none;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                                 </div>
                                 @empty
-                                <div style="padding:1.5rem;text-align:center;color:#9ca3af;font-size:.82rem;">لا يوجد  مدرب ون نشطون</div>
+                                <div style="padding:1.5rem;text-align:center;color:#9ca3af;font-size:.82rem;">لا يوجد  مدربون نشطون</div>
                                 @endforelse
                             </div>
                         </div>

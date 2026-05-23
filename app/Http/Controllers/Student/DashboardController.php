@@ -188,18 +188,16 @@ class DashboardController extends Controller
     {
         $student = auth()->user();
 
-        // Allow access to any subject in the student's program or with explicit enrollment
-        $subject = Subject::where(function ($q) use ($student) {
-                $q->where('program_id', $student->program_id)
-                  ->orWhereHas('term', fn($tq) => $tq->where('program_id', $student->program_id))
-                  ->orWhereHas('terms', fn($tq) => $tq->where('program_id', $student->program_id))
-                  ->orWhereHas('enrollments', fn($eq) => $eq->where('student_id', $student->id));
-            })
+        // Only allow access if the student has been assigned to at least one session in this subject
+        $assignedSessionIds = Attendance::where('student_id', $student->id)->pluck('session_id');
+
+        $subject = Subject::whereHas('sessions', fn($q) => $q->whereIn('id', $assignedSessionIds))
             ->with(['term.program', 'teacher'])
             ->findOrFail($id);
 
-        // Get all sessions for this subject
+        // Only sessions the admin has assigned this student to
         $sessions = Session::where('subject_id', $id)
+            ->whereIn('id', $assignedSessionIds)
             ->with(['files', 'homework'])
             ->orderBy('session_number', 'asc')
             ->get();
@@ -229,9 +227,12 @@ class DashboardController extends Controller
         $program    = $student->program;
         $isDiploma  = $program && $program->type === 'diploma';
 
+        // Only show sessions the admin has explicitly assigned the student to
+        $assignedSessionIds = Attendance::where('student_id', $student->id)->pluck('session_id');
+
         // ── Non-diploma (training / english / course) ──────────────────────
         if (!$isDiploma) {
-            $query = Session::where('program_id', $student->program_id)
+            $query = Session::whereIn('id', $assignedSessionIds)
                 ->with(['files', 'homework']);
 
             if ($type) {
@@ -260,7 +261,6 @@ class DashboardController extends Controller
                 'completedSessions'=> $completedSessions,
                 'zoomSessions'     => $zoomSessions,
                 'liveSessions'     => $liveSessions,
-                // safe defaults for diploma-only vars
                 'sessionsBySubject'=> collect(),
                 'programSubjects'  => collect(),
                 'filterSubjects'   => collect(),
@@ -274,54 +274,28 @@ class DashboardController extends Controller
         $subjectId  = $request->query('subject_id');
         $termFilter = $request->query('term_filter', 'current');
 
+        // Subjects belonging to assigned sessions
+        $assignedSubjectIds = Session::whereIn('id', $assignedSessionIds)
+            ->whereNotNull('subject_id')
+            ->pluck('subject_id')
+            ->unique();
+
+        $programSubjects = Subject::whereIn('id', $assignedSubjectIds)
+            ->with(['term', 'teacher'])->orderBy('name_ar')->get();
+
         $terms = Term::where('program_id', $student->program_id)
-            ->orderBy('term_number', 'asc')
-            ->get();
+            ->orderBy('term_number', 'asc')->get();
 
         $currentTermNumber = $student->current_term_number ?? 1;
         $currentTerm = $terms->first(fn($t) =>
             $t->start_date && $t->end_date && $t->start_date <= now() && $t->end_date >= now()
         ) ?? $terms->firstWhere('term_number', $currentTermNumber) ?? $terms->first();
 
-        $programSubjectIds = Subject::where(function ($q) use ($student) {
-            $q->where('program_id', $student->program_id)
-              ->orWhereHas('term', fn($tq) => $tq->where('program_id', $student->program_id))
-              ->orWhereHas('terms', fn($tq) => $tq->where('program_id', $student->program_id))
-              ->orWhereHas('enrollments', fn($eq) => $eq->where('student_id', $student->id));
-        })->pluck('id');
+        $filterSubjects = $programSubjects;
 
-        $programSubjects = Subject::whereIn('id', $programSubjectIds)
-            ->with(['term', 'teacher'])->orderBy('name_ar')->get();
+        $query = Session::whereIn('id', $assignedSessionIds)
+            ->with(['subject.term', 'subject.teacher', 'unit', 'files']);
 
-        $currentTermSubjectIds = $currentTerm
-            ? Subject::whereIn('id', $programSubjectIds)->where(function ($q) use ($currentTerm) {
-                $q->where('term_id', $currentTerm->id)
-                  ->orWhereHas('terms', fn($tq) => $tq->where('terms.id', $currentTerm->id));
-            })->pluck('id')
-            : $programSubjectIds;
-
-        if ($currentTermSubjectIds->isEmpty()) {
-            $currentTermSubjectIds = $programSubjectIds;
-        }
-
-        $currentTermSubjects = $programSubjects->whereIn('id', $currentTermSubjectIds->toArray())->values();
-
-        $filterSubjects = ($termFilter === 'current' && $currentTerm)
-            ? $currentTermSubjects
-            : $programSubjects;
-
-        $query = Session::whereHas('subject', function ($q) use ($student) {
-            $q->where(function ($sq) use ($student) {
-                $sq->where('program_id', $student->program_id)
-                   ->orWhereHas('term', fn($tq) => $tq->where('program_id', $student->program_id))
-                   ->orWhereHas('terms', fn($tq) => $tq->where('program_id', $student->program_id))
-                   ->orWhereHas('enrollments', fn($eq) => $eq->where('student_id', $student->id));
-            });
-        })->with(['subject.term', 'subject.teacher', 'unit', 'files']);
-
-        if ($termFilter === 'current' && $currentTerm && !$currentTermSubjectIds->isEmpty()) {
-            $query->whereIn('subject_id', $currentTermSubjectIds);
-        }
         if ($subjectId) {
             $query->where('subject_id', $subjectId);
         }

@@ -450,27 +450,22 @@ class SubjectController extends Controller
         $session = Session::where('subject_id', $subjectId)
             ->findOrFail($sessionId);
 
-        // Get all attendance records for this session with student info
+        // All students assigned to this session by admin (via Attendance table)
         $attendances = Attendance::where('session_id', $sessionId)
             ->with('student')
             ->orderBy('joined_at', 'desc')
             ->get();
 
-        // Get enrolled students who haven't attended
-        $attendedStudentIds = $attendances->pluck('student_id')->toArray();
-        $absentStudents = $subject->enrollments()
-            ->with('student')
-            ->whereNotIn('student_id', $attendedStudentIds)
-            ->get()
-            ->pluck('student');
+        $totalAssigned = $attendances->count();
+        $attendedCount = $attendances->where('attended', true)->count();
+        $absentStudents = $attendances->where('attended', false)->pluck('student')->filter()->values();
 
-        // Calculate statistics
         $stats = [
-            'total_enrolled' => $subject->enrollments()->count(),
-            'attended' => $attendances->where('attended', true)->count(),
-            'absent' => $absentStudents->count(),
-            'attendance_rate' => $subject->enrollments()->count() > 0
-                ? round(($attendances->where('attended', true)->count() / $subject->enrollments()->count()) * 100, 1)
+            'total_enrolled'  => $totalAssigned,
+            'attended'        => $attendedCount,
+            'absent'          => $absentStudents->count(),
+            'attendance_rate' => $totalAssigned > 0
+                ? round(($attendedCount / $totalAssigned) * 100, 1)
                 : 0,
         ];
 

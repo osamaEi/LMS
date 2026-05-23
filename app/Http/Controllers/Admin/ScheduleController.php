@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Attendance;
 use App\Models\Enrollment;
 use App\Models\Session;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class ScheduleController extends Controller
@@ -42,14 +43,38 @@ class ScheduleController extends Controller
 
     public function sessionStudents(Session $session)
     {
-        $enrolled = Enrollment::where('subject_id', $session->subject_id)
+        $session->load('subject.term');
+
+        // Students enrolled directly in the subject (course/training programs)
+        $fromEnrollments = Enrollment::where('subject_id', $session->subject_id)
             ->where('status', 'active')
             ->with('student:id,name,email')
-            ->get();
+            ->get()
+            ->pluck('student')
+            ->filter();
+
+        // Students enrolled in the diploma program that owns this subject's term
+        $programId = $session->subject?->term?->program_id;
+        $fromProgram = $programId
+            ? User::where('role', 'student')
+                ->where('program_id', $programId)
+                ->where('program_status', 'approved')
+                ->get(['id', 'name', 'email'])
+            : collect();
 
         $assigned = Attendance::where('session_id', $session->id)
             ->pluck('student_id')
             ->toArray();
+
+        $students = $fromEnrollments->merge($fromProgram)
+            ->unique('id')
+            ->values()
+            ->map(fn($s) => [
+                'id'       => $s->id,
+                'name'     => $s->name,
+                'email'    => $s->email,
+                'assigned' => in_array($s->id, $assigned),
+            ]);
 
         return response()->json([
             'session' => [
@@ -57,12 +82,7 @@ class ScheduleController extends Controller
                 'title'        => $session->title_ar ?: (($session->subject->name_ar ?? 'جلسة') . ' #' . $session->session_number),
                 'scheduled_at' => $session->scheduled_at,
             ],
-            'students' => $enrolled->map(fn($e) => [
-                'id'       => $e->student->id,
-                'name'     => $e->student->name,
-                'email'    => $e->student->email,
-                'assigned' => in_array($e->student->id, $assigned),
-            ])->values(),
+            'students' => $students,
         ]);
     }
 

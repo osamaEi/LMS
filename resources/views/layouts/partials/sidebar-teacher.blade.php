@@ -18,7 +18,7 @@
 <li style="margin:6px 16px;height:1px;background:rgba(255,255,255,0.1)"></li>
 
 @php
-$_teacherSubjects  = auth()->user()->assignedSubjects()->with(['program:id,type,name_ar', 'term.program:id,type,name_ar'])->get();
+$_teacherSubjects  = \App\Models\Subject::assignedToTeacher(auth()->user()->id)->with(['program:id,type,name_ar', 'term.program:id,type,name_ar'])->get();
 $_teachingPrograms = auth()->user()->teachingPrograms()->get(['id', 'type', 'name_ar']);
 
 // Resolve program types using PHP arrays to avoid Eloquent Collection pitfalls
