@@ -82,6 +82,29 @@
                        placeholder="05xxxxxxxx">
             </div>
 
+            <!-- الجنس والجنسية -->
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">الجنس</label>
+                    <select name="gender"
+                            class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
+                        <option value="">اختر</option>
+                        <option value="male"   {{ old('gender') === 'male'   ? 'selected' : '' }}>ذكر</option>
+                        <option value="female" {{ old('gender') === 'female' ? 'selected' : '' }}>أنثى</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">الجنسية</label>
+                    <select name="nationality"
+                            class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
+                        <option value="">اختر الجنسية</option>
+                        @foreach(['سعودي','إماراتي','كويتي','بحريني','قطري','عُماني','يمني','مصري','أردني','سوري','لبناني','عراقي','فلسطيني','سوداني','مغربي','جزائري','تونسي','ليبي','باكستاني','هندي','بنغلاديشي','فلبيني','إندونيسي','أخرى'] as $nat)
+                        <option value="{{ $nat }}" {{ old('nationality') === $nat ? 'selected' : '' }}>{{ $nat }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+
             <!-- كلمة المرور -->
             <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">

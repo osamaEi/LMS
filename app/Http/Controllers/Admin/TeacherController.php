@@ -59,11 +59,13 @@ class TeacherController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
+            'name'        => 'required|string|max:255',
+            'email'       => 'required|email|unique:users,email',
             'national_id' => 'required|string|unique:users,national_id',
-            'phone' => 'nullable|string|max:20',
-            'password' => 'required|string|min:8|confirmed',
+            'phone'       => 'nullable|string|max:20',
+            'gender'      => 'nullable|in:male,female',
+            'nationality' => 'nullable|string|max:100',
+            'password'    => 'required|string|min:8|confirmed',
         ]);
 
         $validated['role'] = 'teacher';

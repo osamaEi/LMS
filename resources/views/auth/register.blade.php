@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0" />
-    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>تسجيل حساب جديد - ALERTIQA</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -12,425 +11,502 @@
         @font-face { font-family: 'Cairo'; src: url('/font/static/Cairo-Medium.ttf') format('truetype'); font-weight: 500; }
         @font-face { font-family: 'Cairo'; src: url('/font/static/Cairo-SemiBold.ttf') format('truetype'); font-weight: 600; }
         @font-face { font-family: 'Cairo'; src: url('/font/static/Cairo-Bold.ttf') format('truetype'); font-weight: 700; }
-        * { font-family: 'Cairo', sans-serif; }
-        h1, h2, h3, .font-bold { font-family: 'Cairo', sans-serif; font-weight: 700; }
+        * { font-family: 'Cairo', sans-serif; box-sizing: border-box; }
 
-        @keyframes pulse-ring {
-            0% { transform: scale(0.8); opacity: 1; }
-            100% { transform: scale(1.4); opacity: 0; }
+        :root {
+            --navy:   #1a3a5c;
+            --navy2:  #1e4976;
+            --blue:   #2563eb;
+            --blue2:  #1d4ed8;
+            --light:  #eff6ff;
         }
-        @keyframes spin-slow {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-        .pulse-ring { animation: pulse-ring 1.5s ease-out infinite; }
-        .spin-slow { animation: spin-slow 3s linear infinite; }
 
+        body { background: #f1f5f9; margin: 0; }
+
+        /* ── Animations ── */
+        @keyframes pulse-ring { 0%{transform:scale(.8);opacity:1} 100%{transform:scale(1.4);opacity:0} }
+        @keyframes spin-slow   { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+        @keyframes fadeSlideIn { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+        .pulse-ring  { animation: pulse-ring 1.5s ease-out infinite; }
+        .spin-slow   { animation: spin-slow 3s linear infinite; }
+        .fade-in     { animation: fadeSlideIn .35s ease both; }
+
+        /* ── Steps ── */
         .step { display: none; }
         .step.active { display: block; }
+
+        /* ── Input base ── */
+        .field-input {
+            width: 100%; padding: 10px 14px;
+            border: 1.5px solid #cbd5e1; border-radius: 10px;
+            background: #fff; font-size: 13px; color: #1e293b;
+            outline: none; transition: border-color .2s, box-shadow .2s;
+            font-family: 'Cairo', sans-serif;
+        }
+        .field-input:focus {
+            border-color: var(--blue);
+            box-shadow: 0 0 0 3px rgba(37,99,235,.12);
+        }
+        .field-label {
+            display: block; font-size: 12px; font-weight: 600;
+            color: #334155; margin-bottom: 5px;
+        }
+        .field-error { font-size: 11px; color: #dc2626; margin-top: 4px; display: none; }
+
+        /* ── Section card ── */
+        .section-card {
+            border-radius: 14px; padding: 16px;
+            margin-bottom: 14px;
+            background: #f0f4ff; border: 1px solid #c7d2fe;
+        }
+        .section-card.green  { background: #f0fdf4; border: 1px solid #bbf7d0; }
+        .section-card.blue   { background: #f0f4ff; border: 1px solid #c7d2fe; }
+        .section-card.purple { background: #f0f4ff; border: 1px solid #c7d2fe; }
+        .section-card.navy   { background: #f0f4ff; border: 1px solid #c7d2fe; }
+
+        .section-title {
+            font-size: 11px; font-weight: 700; letter-spacing: .06em;
+            text-transform: uppercase; margin-bottom: 12px;
+        }
+
+        /* ── Step dots ── */
+        .step-dot {
+            width: 36px; height: 36px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 13px; transition: all .3s;
+        }
+        .step-line { height: 3px; width: 48px; border-radius: 3px; transition: background .4s; }
+
+        /* ── Upload zone ── */
+        .upload-zone {
+            border: 2px dashed #93c5fd; border-radius: 12px;
+            background: #fff; min-height: 88px;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            cursor: pointer; padding: 10px; transition: border-color .2s;
+        }
+        .upload-zone:hover { border-color: #2563eb; }
+
+        /* ── Primary button ── */
+        .btn-primary {
+            width: 100%; padding: 13px;
+            background: linear-gradient(135deg, var(--navy), var(--navy2));
+            color: white; font-weight: 700; font-size: 14px;
+            border: none; border-radius: 12px; cursor: pointer;
+            transition: opacity .2s, transform .15s;
+            box-shadow: 0 4px 14px rgba(26,58,92,.35);
+        }
+        .btn-primary:hover { opacity: .92; transform: translateY(-1px); }
+        .btn-primary:active { transform: translateY(0); }
+        .btn-primary:disabled { opacity: .6; cursor: not-allowed; transform: none; }
     </style>
 </head>
-<body class="min-h-screen" style="background: #f8fafc;">
+<body>
 
-<div class="min-h-screen flex">
-    <!-- Left Side: Image -->
-    <div class="hidden lg:flex lg:w-1/2 relative overflow-hidden"
-         style="background-image: url('{{ asset('images/logo/right.png') }}');
-                background-size: cover; background-position: center; background-repeat: no-repeat;">
-        <div class="absolute inset-0 bg-black bg-opacity-30"></div>
+<div style="min-height:100vh; display:flex;">
+
+    {{-- ══ Left Panel ══ --}}
+    <div class="hidden lg:flex lg:w-5/12 flex-col relative overflow-hidden"
+         style="background: linear-gradient(160deg, #1a3a5c 0%, #1e4976 50%, #1a3a5c 100%);">
+
+        {{-- Background image overlay --}}
+        <div class="absolute inset-0" style="background-image:url('{{ asset('images/logo/right.png') }}'); background-size:cover; background-position:center; opacity:.12;"></div>
+
+        {{-- Decorative circles --}}
+        <div class="absolute" style="width:300px;height:300px;border-radius:50%;border:1px solid rgba(255,255,255,.08);top:-60px;left:-60px;"></div>
+        <div class="absolute" style="width:200px;height:200px;border-radius:50%;border:1px solid rgba(255,255,255,.06);bottom:80px;right:-40px;"></div>
+
+        <div class="relative flex flex-col justify-between h-full p-10">
+            {{-- Logo --}}
+            <div>
+                <img src="{{ asset('images/logo/logo.png') }}" alt="ALERTIQA" style="height:56px; width:auto; filter:brightness(0) invert(1);">
+            </div>
+
+            {{-- Center content --}}
+            <div></div>
+
+            {{-- Footer --}}
+            <p style="color:rgba(255,255,255,.35); font-size:11px;">
+                © {{ date('Y') }} ALERTIQA. جميع الحقوق محفوظة.
+            </p>
+        </div>
     </div>
 
-    <!-- Right Side: Registration Form -->
-    <div class="w-full lg:w-1/2 flex items-center justify-center p-8 bg-white">
-        <div class="w-full max-w-md">
+    {{-- ══ Right Panel (Form) ══ --}}
+    <div class="w-full lg:w-7/12 flex items-center justify-center p-6 overflow-y-auto" style="background:#f8fafc;">
+        <div style="width:100%; max-width:520px; padding: 8px 0;">
 
-            <!-- Logo -->
-            <div class="text-center mb-8">
-                <img src="{{ asset('images/logo/logo.png') }}" alt="ALERTIQA" class="mx-auto mb-6" style="width: 80px; height: auto;">
+            {{-- Mobile logo --}}
+            <div class="lg:hidden text-center mb-6">
+                <img src="{{ asset('images/logo/logo.png') }}" alt="ALERTIQA" style="height:48px;width:auto;margin:0 auto;">
             </div>
 
-            <!-- Progress Steps -->
-            <div class="flex items-center justify-center gap-2 mb-8">
-                <div id="step-dot-1" class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-lg" style="background: #3b82f6;">1</div>
-                <div class="w-12 h-1 rounded-full" style="background: #e2e8f0;" id="step-line-1"></div>
-                <div id="step-dot-2" class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shadow-lg" style="background: #e2e8f0; color: #94a3b8;">2</div>
-                <div class="w-12 h-1 rounded-full" style="background: #e2e8f0;" id="step-line-2"></div>
-                <div id="step-dot-3" class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shadow-lg" style="background: #e2e8f0; color: #94a3b8;">3</div>
-            </div>
-
-            <!-- ==================== STEP 1: Mobile + National ID ==================== -->
-            <div id="step1" class="step active">
-                <div class="text-center mb-6">
-                    <h2 class="text-2xl font-bold mb-2" style="color: #1e3a5f;">تسجيل حساب جديد</h2>
-                    <p class="text-sm" style="color: #64748b;">أدخل رقم الجوال ورقم الهوية للتحقق عبر نفاذ</p>
+            {{-- ── Step Indicator ── --}}
+            <div style="display:flex;align-items:center;justify-content:center;gap:0;margin-bottom:28px;">
+                <div style="display:flex;align-items:center;gap:0;">
+                    <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+                        <div id="step-dot-1" class="step-dot" style="background:linear-gradient(135deg,#1a3a5c,#2563eb);color:white;box-shadow:0 4px 12px rgba(37,99,235,.3);">1</div>
+                        <span style="font-size:10px;font-weight:600;color:#1a3a5c;">التحقق</span>
+                    </div>
+                    <div id="step-line-1" class="step-line" style="background:#e2e8f0;margin:0 4px;margin-bottom:18px;"></div>
                 </div>
+                <div style="display:flex;align-items:center;gap:0;">
+                    <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+                        <div id="step-dot-2" class="step-dot" style="background:#e2e8f0;color:#94a3b8;">2</div>
+                        <span style="font-size:10px;font-weight:600;color:#94a3b8;">نفاذ</span>
+                    </div>
+                    <div id="step-line-2" class="step-line" style="background:#e2e8f0;margin:0 4px;margin-bottom:18px;"></div>
+                </div>
+                <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+                    <div id="step-dot-3" class="step-dot" style="background:#e2e8f0;color:#94a3b8;">3</div>
+                    <span style="font-size:10px;font-weight:600;color:#94a3b8;">البيانات</span>
+                </div>
+            </div>
 
-                <form id="step1-form" class="space-y-5">
-                    <!-- Phone -->
-                    <div>
-                        <label class="block text-sm font-medium mb-2" style="color: #1e3a5f;">
-                            <svg class="w-4 h-4 inline ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            {{-- ══════════ STEP 1 ══════════ --}}
+            <div id="step1" class="step active fade-in">
+                <div style="background:white; border-radius:20px; padding:28px; box-shadow:0 4px 24px rgba(0,0,0,.06); border:1px solid #e2e8f0;">
+                    <div style="text-align:center; margin-bottom:24px;">
+                        <div style="width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,#1a3a5c,#2563eb);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">
+                            <svg style="width:24px;height:24px;color:white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
                             </svg>
-                            رقم الجوال
-                        </label>
-                        <input type="text" id="phone" name="phone" placeholder="05XXXXXXXX" maxlength="10" required
-                               class="w-full px-4 py-3 border-2 rounded-xl focus:outline-none transition"
-                               style="border-color: #93c5fd; background: #f0f9ff;"
-                               onfocus="this.style.borderColor='#3b82f6'; this.style.boxShadow='0 0 0 3px rgba(59,130,246,0.1)'"
-                               onblur="this.style.borderColor='#93c5fd'; this.style.boxShadow='none'">
-                        <p id="phone-error" class="mt-1 text-sm hidden" style="color: #f97316;"></p>
+                        </div>
+                        <h2 style="font-size:20px;font-weight:700;color:#1a3a5c;margin:0 0 6px;">إنشاء حساب جديد</h2>
+                        <p style="font-size:13px;color:#64748b;margin:0;">أدخل رقم الجوال والهوية للتحقق عبر نفاذ</p>
                     </div>
 
-                    <!-- National ID -->
-                    <div>
-                        <label class="block text-sm font-medium mb-2" style="color: #1e3a5f;">
-                            <svg class="w-4 h-4 inline ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"/>
+                    <form id="step1-form" style="display:flex;flex-direction:column;gap:16px;">
+                        <div>
+                            <label class="field-label">
+                                رقم الجوال <span style="color:#ef4444;">*</span>
+                            </label>
+                            <input type="text" id="phone" name="phone" placeholder="05XXXXXXXX" maxlength="10" required
+                                   class="field-input" dir="ltr">
+                            <p id="phone-error" class="field-error"></p>
+                        </div>
+
+                        <div>
+                            <label class="field-label">
+                                رقم الهوية الوطنية <span style="color:#ef4444;">*</span>
+                            </label>
+                            <input type="text" id="national_id" name="national_id" placeholder="1XXXXXXXXX" maxlength="10" required
+                                   class="field-input" dir="ltr">
+                            <p id="national_id-error" class="field-error"></p>
+                        </div>
+
+                        <div id="step1-error" style="display:none;background:#fff7ed;border:1px solid #fde68a;border-right:3px solid #f59e0b;border-radius:10px;padding:12px 14px;font-size:13px;color:#92400e;"></div>
+
+                        <button type="submit" id="step1-btn" class="btn-primary">
+                            <span id="step1-btn-text">التحقق عبر نفاذ</span>
+                            <svg id="step1-spinner" class="hidden spin-slow" style="width:18px;height:18px;display:inline;vertical-align:middle;margin-right:6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
                             </svg>
-                            رقم الهوية الوطنية
-                        </label>
-                        <input type="text" id="national_id" name="national_id" placeholder="1XXXXXXXXX" maxlength="10" required
-                               class="w-full px-4 py-3 border-2 rounded-xl focus:outline-none transition"
-                               style="border-color: #93c5fd; background: #f0f9ff;"
-                               onfocus="this.style.borderColor='#3b82f6'; this.style.boxShadow='0 0 0 3px rgba(59,130,246,0.1)'"
-                               onblur="this.style.borderColor='#93c5fd'; this.style.boxShadow='none'">
-                        <p id="national_id-error" class="mt-1 text-sm hidden" style="color: #f97316;"></p>
-                    </div>
+                        </button>
+                    </form>
 
-                    <!-- Error Message -->
-                    <div id="step1-error" class="hidden p-4 rounded-xl text-sm font-medium" style="background: #fff7ed; color: #9a3412; border: 1px solid #fdba74;"></div>
-
-                    <!-- Submit -->
-                    <button type="submit" id="step1-btn"
-                            class="w-full py-3.5 px-4 text-white font-bold rounded-xl shadow-lg transition-all hover:shadow-xl transform hover:scale-105"
-                            style="background: #3b82f6;">
-                        <span id="step1-btn-text">التحقق عبر نفاذ</span>
-                        <svg id="step1-spinner" class="hidden w-5 h-5 inline spin-slow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                        </svg>
-                    </button>
-                </form>
-
-                <!-- Login link -->
-                <div class="text-center mt-6">
-                    <p class="text-sm" style="color: #64748b;">لديك حساب بالفعل؟
-                        <a href="{{ route('login') }}" class="font-bold" style="color: #3b82f6;">تسجيل الدخول</a>
+                    <p style="text-align:center;margin-top:18px;font-size:13px;color:#64748b;">
+                        لديك حساب؟
+                        <a href="{{ route('login') }}" style="color:#1a3a5c;font-weight:700;text-decoration:none;">تسجيل الدخول</a>
                     </p>
                 </div>
             </div>
 
-            <!-- ==================== STEP 2: Nafath Verification ==================== -->
+            {{-- ══════════ STEP 2 ══════════ --}}
             <div id="step2" class="step">
-                <div class="text-center mb-8">
-                    <h2 class="text-2xl font-bold mb-2" style="color: #1e3a5f;">التحقق عبر نفاذ</h2>
-                    <p class="text-sm" style="color: #64748b;">افتح تطبيق نفاذ واختر الرقم المطابق</p>
-                </div>
+                <div style="background:white; border-radius:20px; padding:28px; box-shadow:0 4px 24px rgba(0,0,0,.06); border:1px solid #e2e8f0; text-align:center;">
+                    <h2 style="font-size:20px;font-weight:700;color:#1a3a5c;margin:0 0 6px;">التحقق عبر نفاذ</h2>
+                    <p style="font-size:13px;color:#64748b;margin:0 0 28px;">افتح تطبيق نفاذ واختر الرقم المطابق</p>
 
-                <!-- Random Number Display -->
-                <div class="flex justify-center mb-8">
-                    <div class="relative">
-                        <div class="absolute inset-0 rounded-full pulse-ring" style="background: rgba(59,130,246,0.2);"></div>
-                        <div class="relative w-32 h-32 rounded-full flex items-center justify-center shadow-2xl" style="background: #3b82f6;">
-                            <span id="nafath-random" class="text-5xl font-bold text-white">--</span>
+                    <div style="display:flex;justify-content:center;margin-bottom:24px;">
+                        <div style="position:relative;">
+                            <div class="pulse-ring" style="position:absolute;inset:0;border-radius:50%;background:rgba(37,99,235,.18);"></div>
+                            <div style="position:relative;width:120px;height:120px;border-radius:50%;background:linear-gradient(135deg,#1a3a5c,#2563eb);display:flex;align-items:center;justify-content:center;box-shadow:0 8px 32px rgba(37,99,235,.35);">
+                                <span id="nafath-random" style="font-size:48px;font-weight:800;color:white;line-height:1;">--</span>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="text-center mb-6">
-                    <p class="text-sm font-medium" style="color: #1e3a5f;">اختر هذا الرقم في تطبيق نفاذ</p>
-                </div>
+                    <p style="font-size:13px;font-weight:600;color:#1a3a5c;margin-bottom:16px;">اختر هذا الرقم في تطبيق نفاذ</p>
 
-                <!-- Status -->
-                <div id="nafath-status" class="p-4 rounded-xl text-center mb-6" style="background: #dbeafe;">
-                    <div class="flex items-center justify-center gap-3">
-                        <svg class="w-5 h-5 spin-slow" style="color: #3b82f6;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                        </svg>
-                        <span class="font-medium text-sm" style="color: #1e40af;">في انتظار التحقق...</span>
+                    <div id="nafath-status" style="background:#eff6ff;border-radius:12px;padding:14px;margin-bottom:14px;">
+                        <div style="display:flex;align-items:center;justify-content:center;gap:10px;">
+                            <svg class="spin-slow" style="width:18px;height:18px;color:#2563eb;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                            </svg>
+                            <span style="font-size:13px;font-weight:600;color:#1e40af;">في انتظار التحقق...</span>
+                        </div>
                     </div>
-                </div>
 
-                <!-- Timer -->
-                <div class="text-center mb-6">
-                    <p class="text-xs" style="color: #94a3b8;">المهلة المتبقية: <span id="nafath-timer" class="font-bold" style="color: #f97316;">5:00</span></p>
-                </div>
+                    <p style="font-size:12px;color:#94a3b8;">المهلة المتبقية: <span id="nafath-timer" style="font-weight:700;color:#f97316;">5:00</span></p>
 
-                <!-- Error (hidden by default) -->
-                <div id="step2-error" class="hidden p-4 rounded-xl text-center" style="background: #fff7ed; border: 1px solid #fdba74;">
-                    <p class="font-medium text-sm" style="color: #9a3412;"></p>
-                    <button onclick="goToStep(1)" class="mt-3 px-6 py-2 text-white font-bold rounded-xl text-sm" style="background: #f97316;">
-                        حاول مرة أخرى
-                    </button>
+                    <div id="step2-error" style="display:none;background:#fff7ed;border:1px solid #fde68a;border-radius:12px;padding:14px;margin-top:14px;">
+                        <p style="font-size:13px;color:#92400e;font-weight:600;margin:0 0 10px;"></p>
+                        <button onclick="goToStep(1)" style="padding:8px 20px;background:linear-gradient(135deg,#1a3a5c,#2563eb);color:white;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">
+                            حاول مرة أخرى
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <!-- ==================== STEP 3: Complete Registration ==================== -->
-            <div id="step3" class="step" style="max-height:80vh; overflow-y:auto; padding-right:4px;">
-                <div class="text-center mb-4">
-                    <div class="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-2 shadow-lg" style="background: #22c55e;">
-                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+            {{-- ══════════ STEP 3 ══════════ --}}
+            <div id="step3" class="step">
+                {{-- Header bar --}}
+                <div style="background:linear-gradient(135deg,#1a3a5c,#2563eb);border-radius:20px 20px 0 0;padding:20px 24px;display:flex;align-items:center;gap:14px;">
+                    <div style="width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                        <svg style="width:20px;height:20px;color:white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
                         </svg>
                     </div>
-                    <h2 class="text-xl font-bold mb-1" style="color: #1e3a5f;">تم التحقق بنجاح!</h2>
-                    <p class="text-xs" style="color: #64748b;">أكمل بياناتك الشخصية والأكاديمية</p>
+                    <div>
+                        <h2 style="color:white;font-size:16px;font-weight:700;margin:0 0 2px;">تم التحقق بنجاح!</h2>
+                        <p style="color:rgba(255,255,255,.7);font-size:12px;margin:0;">أكمل بياناتك لإنشاء حسابك</p>
+                    </div>
+                    <div style="margin-right:auto;">
+                        {{-- Verified badge --}}
+                        <div style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:20px;padding:4px 12px;display:flex;align-items:center;gap:6px;">
+                            <svg style="width:13px;height:13px;color:#86efac;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            <span style="font-size:11px;color:white;font-weight:600;">نفاذ</span>
+                        </div>
+                    </div>
                 </div>
 
-                <form id="step3-form" class="space-y-4">
+                {{-- Verified info strip --}}
+                <div style="background:#f0fdf4;border-right:4px solid #22c55e;padding:10px 16px;display:flex;align-items:center;gap:12px;">
+                    <svg style="width:16px;height:16px;color:#16a34a;flex-shrink:0;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                    </svg>
+                    <span id="display-phone" style="font-size:12px;font-weight:700;color:#166534;" dir="ltr">—</span>
+                    <span style="color:#bbf7d0;">|</span>
+                    <svg style="width:16px;height:16px;color:#16a34a;flex-shrink:0;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0"/>
+                    </svg>
+                    <span id="display-national-id" style="font-size:12px;font-weight:700;color:#166534;" dir="ltr">—</span>
+                </div>
 
-                    {{-- Verified Data (phone + national_id from Step 1) --}}
-                    <div style="background:#f0fdf4; border-radius:14px; padding:.75rem 1rem; border:1px solid #bbf7d0;">
-                        <div class="flex items-center gap-2 mb-2.5">
-                            <svg class="w-4 h-4" style="color:#16a34a;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                            <span class="text-xs font-bold" style="color:#15803d;">البيانات المتحقق منها عبر نفاذ</span>
-                        </div>
-                        <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <p class="text-[0.68rem] font-medium mb-1" style="color:#64748b;">رقم الجوال</p>
-                                <p id="display-phone" class="text-sm font-bold" style="color:#1e3a5f;" dir="ltr">—</p>
-                            </div>
-                            <div>
-                                <p class="text-[0.68rem] font-medium mb-1" style="color:#64748b;">رقم الهوية الوطنية</p>
-                                <p id="display-national-id" class="text-sm font-bold" style="color:#1e3a5f;" dir="ltr">—</p>
-                            </div>
-                        </div>
-                    </div>
+                <div style="background:white;border-radius:0 0 20px 20px;box-shadow:0 8px 32px rgba(0,0,0,.08);border:1px solid #e2e8f0;border-top:none;">
+                    <form id="step3-form" style="max-height:60vh;overflow-y:auto;padding:20px;">
 
-                    {{-- Personal Info Section --}}
-                    <div style="background:#f0fdf4; border-radius:14px; padding:.875rem 1rem; border:1px solid #bbf7d0;">
-                        <p class="text-xs font-bold mb-3" style="color:#15803d; text-transform:uppercase; letter-spacing:.05em;">البيانات الشخصية</p>
-                        <div class="space-y-3">
-                            <div>
-                                <label class="block text-xs font-semibold mb-1" style="color:#1e3a5f;">الاسم الكامل <span style="color:#ef4444;">*</span></label>
-                                <input type="text" id="name" name="name" required placeholder="الاسم الرباعي"
-                                       class="w-full px-3 py-2.5 border-2 rounded-xl focus:outline-none text-sm"
-                                       style="border-color:#86efac; background:#fff;"
-                                       onfocus="this.style.borderColor='#22c55e'" onblur="this.style.borderColor='#86efac'">
-                                <p id="name-error" class="mt-1 text-xs hidden" style="color:#ef4444;"></p>
-                            </div>
-                            <div class="grid grid-cols-2 gap-3">
-                                <div>
-                                    <label class="block text-xs font-semibold mb-1" style="color:#1e3a5f;">تاريخ الميلاد <span style="color:#ef4444;">*</span></label>
-                                    <input type="date" id="date_of_birth" name="date_of_birth" required
-                                           class="w-full px-3 py-2.5 border-2 rounded-xl focus:outline-none text-sm"
-                                           style="border-color:#86efac; background:#fff;"
-                                           onfocus="this.style.borderColor='#22c55e'" onblur="this.style.borderColor='#86efac'">
-                                    <p id="dob-error" class="mt-1 text-xs hidden" style="color:#ef4444;"></p>
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-semibold mb-1" style="color:#1e3a5f;">الجنس <span style="color:#ef4444;">*</span></label>
-                                    <select id="gender" name="gender" required
-                                            class="w-full px-3 py-2.5 border-2 rounded-xl focus:outline-none text-sm"
-                                            style="border-color:#86efac; background:#fff;"
-                                            onfocus="this.style.borderColor='#22c55e'" onblur="this.style.borderColor='#86efac'">
-                                        <option value="">اختر</option>
-                                        <option value="male">ذكر</option>
-                                        <option value="female">أنثى</option>
-                                    </select>
-                                    <p id="gender-error" class="mt-1 text-xs hidden" style="color:#ef4444;"></p>
-                                </div>
-                            </div>
-                            <div>
-                                <label class="block text-xs font-semibold mb-1" style="color:#1e3a5f;">البريد الإلكتروني <span style="color:#ef4444;">*</span></label>
-                                <input type="email" id="email" name="email" required placeholder="example@email.com"
-                                       class="w-full px-3 py-2.5 border-2 rounded-xl focus:outline-none text-sm"
-                                       style="border-color:#86efac; background:#fff;"
-                                       onfocus="this.style.borderColor='#22c55e'" onblur="this.style.borderColor='#86efac'">
-                                <p id="email-error" class="mt-1 text-xs hidden" style="color:#ef4444;"></p>
-                            </div>
-                            <div class="grid grid-cols-2 gap-3">
-                                <div>
-                                    <label class="block text-xs font-semibold mb-1" style="color:#1e3a5f;">كلمة المرور <span style="color:#ef4444;">*</span></label>
-                                    <input type="password" id="password" name="password" required minlength="8" placeholder="8 أحرف على الأقل"
-                                           class="w-full px-3 py-2.5 border-2 rounded-xl focus:outline-none text-sm"
-                                           style="border-color:#86efac; background:#fff;"
-                                           onfocus="this.style.borderColor='#22c55e'" onblur="this.style.borderColor='#86efac'">
-                                    <p id="password-error" class="mt-1 text-xs hidden" style="color:#ef4444;"></p>
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-semibold mb-1" style="color:#1e3a5f;">تأكيد كلمة المرور <span style="color:#ef4444;">*</span></label>
-                                    <input type="password" id="password_confirmation" name="password_confirmation" required minlength="8"
-                                           class="w-full px-3 py-2.5 border-2 rounded-xl focus:outline-none text-sm"
-                                           style="border-color:#86efac; background:#fff;"
-                                           onfocus="this.style.borderColor='#22c55e'" onblur="this.style.borderColor='#86efac'">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- Academic Info Section --}}
-                    <div style="background:#eff6ff; border-radius:14px; padding:.875rem 1rem; border:1px solid #bfdbfe;">
-                        <p class="text-xs font-bold mb-3" style="color:#1d4ed8; text-transform:uppercase; letter-spacing:.05em;">البيانات الأكاديمية</p>
-                        <div class="space-y-3">
-                            <div>
-                                <label class="block text-xs font-semibold mb-1" style="color:#1e3a5f;">التخصص <span style="color:#ef4444;">*</span></label>
-                                <input type="text" id="specialization" name="specialization" required placeholder="مثال: علوم الحاسب، إدارة الأعمال"
-                                       class="w-full px-3 py-2.5 border-2 rounded-xl focus:outline-none text-sm"
-                                       style="border-color:#bfdbfe; background:#fff;"
-                                       onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#bfdbfe'">
-                                <p id="spec-error" class="mt-1 text-xs hidden" style="color:#ef4444;"></p>
-                            </div>
-                            <div class="grid grid-cols-2 gap-3">
-                                <div>
-                                    <label class="block text-xs font-semibold mb-1" style="color:#1e3a5f;">المؤهل التعليمي  <span style="color:#ef4444;">*</span></label>
-                                    <select id="specialization_type" name="specialization_type" required
-                                            class="w-full px-3 py-2.5 border-2 rounded-xl focus:outline-none text-sm"
-                                            style="border-color:#bfdbfe; background:#fff;"
-                                            onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#bfdbfe'">
-                                        <option value="">اختر</option>
-                                        <option value="primary">ابتدائي</option>
-                                        <option value="middle">متوسط</option>
-                                        <option value="secondary">ثانوي</option>
-                                        <option value="diploma">دبلوم</option>
-                                        <option value="bachelor">بكالوريوس</option>
-                                        <option value="master">ماجستير</option>
-                                        <option value="phd">دكتوراه</option>
-                                        <option value="training">تدريب مهني</option>
-                                    </select>
-                                    <p id="spec-type-error" class="mt-1 text-xs hidden" style="color:#ef4444;"></p>
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-semibold mb-1" style="color:#1e3a5f;">تاريخ التخرج <span style="color:#ef4444;">*</span></label>
-                                    <input type="date" id="date_of_graduation" name="date_of_graduation" required
-                                           class="w-full px-3 py-2.5 border-2 rounded-xl focus:outline-none text-sm"
-                                           style="border-color:#bfdbfe; background:#fff;"
-                                           onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#bfdbfe'">
-                                    <p id="grad-error" class="mt-1 text-xs hidden" style="color:#ef4444;"></p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- National ID Images Section --}}
-                    <div style="background:#fdf4ff; border-radius:14px; padding:.875rem 1rem; border:1px solid #e9d5ff;">
-                        <p class="text-xs font-bold mb-3" style="color:#7c3aed; text-transform:uppercase; letter-spacing:.05em;">صور الهوية الوطنية</p>
-                        <div class="grid grid-cols-2 gap-3">
-                            <!-- Front -->
-                            <div>
-                                <label class="block text-xs font-semibold mb-1" style="color:#1e3a5f;">الوجه الأمامي <span style="color:#ef4444;">*</span></label>
-                                <label id="front-label" for="national_id_front"
-                                       class="flex flex-col items-center justify-center w-full cursor-pointer rounded-xl border-2 border-dashed"
-                                       style="border-color:#c4b5fd; background:#fff; min-height:90px; padding:.625rem; transition:border-color .2s;"
-                                       ondragover="event.preventDefault();this.style.borderColor='#7c3aed'"
-                                       ondragleave="this.style.borderColor='#c4b5fd'"
-                                       ondrop="handleDrop(event,'national_id_front','front-preview','front-label')">
-                                    <div id="front-preview" style="text-align:center; width:100%;">
-                                        <svg class="w-7 h-7 mx-auto mb-1" style="color:#a78bfa;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                                        </svg>
-                                        <p class="text-xs" style="color:#7c3aed;">اضغط أو اسحب</p>
-                                        <p class="text-xs" style="color:#a78bfa; margin-top:2px;">JPG, PNG, PDF</p>
-                                    </div>
-                                    <input type="file" id="national_id_front" name="national_id_front"
-                                           accept=".jpg,.jpeg,.png,.pdf" required class="hidden"
-                                           onchange="previewFile(this,'front-preview','front-label')">
-                                </label>
-                                <p id="front-error" class="mt-1 text-xs hidden" style="color:#ef4444;"></p>
-                            </div>
-                            <!-- Back -->
-                            <div>
-                                <label class="block text-xs font-semibold mb-1" style="color:#1e3a5f;">الوجه الخلفي <span style="color:#ef4444;">*</span></label>
-                                <label id="back-label" for="national_id_back"
-                                       class="flex flex-col items-center justify-center w-full cursor-pointer rounded-xl border-2 border-dashed"
-                                       style="border-color:#c4b5fd; background:#fff; min-height:90px; padding:.625rem; transition:border-color .2s;"
-                                       ondragover="event.preventDefault();this.style.borderColor='#7c3aed'"
-                                       ondragleave="this.style.borderColor='#c4b5fd'"
-                                       ondrop="handleDrop(event,'national_id_back','back-preview','back-label')">
-                                    <div id="back-preview" style="text-align:center; width:100%;">
-                                        <svg class="w-7 h-7 mx-auto mb-1" style="color:#a78bfa;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                                        </svg>
-                                        <p class="text-xs" style="color:#7c3aed;">اضغط أو اسحب</p>
-                                        <p class="text-xs" style="color:#a78bfa; margin-top:2px;">JPG, PNG, PDF</p>
-                                    </div>
-                                    <input type="file" id="national_id_back" name="national_id_back"
-                                           accept=".jpg,.jpeg,.png,.pdf" required class="hidden"
-                                           onchange="previewFile(this,'back-preview','back-label')">
-                                </label>
-                                <p id="back-error" class="mt-1 text-xs hidden" style="color:#ef4444;"></p>
-                            </div>
-                        </div>
-
-                        {{-- Certificate Upload --}}
-                        <div class="mt-3">
-                            <label class="block text-xs font-semibold mb-1" style="color:#1e3a5f;">الشهادة (PDF) <span style="color:#ef4444;">*</span></label>
-                            <label id="cert-label" for="certificate"
-                                   class="flex flex-col items-center justify-center w-full cursor-pointer rounded-xl border-2 border-dashed"
-                                   style="border-color:#c4b5fd; background:#fff; min-height:90px; padding:.625rem; transition:border-color .2s;"
-                                   ondragover="event.preventDefault();this.style.borderColor='#7c3aed'"
-                                   ondragleave="this.style.borderColor='#c4b5fd'"
-                                   ondrop="handleDrop(event,'certificate','cert-preview','cert-label')">
-                                <div id="cert-preview" style="text-align:center; width:100%;">
-                                    <svg class="w-7 h-7 mx-auto mb-1" style="color:#a78bfa;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                        {{-- ── Section: Personal Info ── --}}
+                        <div style="margin-bottom:20px;">
+                            <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid #e2e8f0;">
+                                <div style="width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,#1a3a5c,#2563eb);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                    <svg style="width:15px;height:15px;color:white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                                     </svg>
-                                    <p class="text-xs" style="color:#7c3aed;">اضغط أو اسحب لرفع الشهادة</p>
-                                    <p class="text-xs" style="color:#a78bfa; margin-top:2px;">PDF فقط</p>
                                 </div>
-                                <input type="file" id="certificate" name="certificate"
-                                       accept=".pdf" required class="hidden"
-                                       onchange="previewFile(this,'cert-preview','cert-label')">
-                            </label>
-                            <p id="cert-error" class="mt-1 text-xs hidden" style="color:#ef4444;"></p>
+                                <span style="font-size:13px;font-weight:700;color:#1a3a5c;">البيانات الشخصية</span>
+                            </div>
+                            <div style="display:flex;flex-direction:column;gap:12px;">
+                                <div>
+                                    <label class="field-label">الاسم الكامل <span style="color:#ef4444;">*</span></label>
+                                    <input type="text" id="name" name="name" placeholder="الاسم الرباعي" required class="field-input">
+                                    <p id="name-error" class="field-error"></p>
+                                </div>
+                                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                                    <div>
+                                        <label class="field-label">تاريخ الميلاد <span style="color:#ef4444;">*</span></label>
+                                        <input type="date" id="date_of_birth" name="date_of_birth" required class="field-input">
+                                        <p id="dob-error" class="field-error"></p>
+                                    </div>
+                                    <div>
+                                        <label class="field-label">الجنس <span style="color:#ef4444;">*</span></label>
+                                        <select id="gender" name="gender" required class="field-input">
+                                            <option value="">اختر</option>
+                                            <option value="male">ذكر</option>
+                                            <option value="female">أنثى</option>
+                                        </select>
+                                        <p id="gender-error" class="field-error"></p>
+                                    </div>
+                                </div>
+                                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                                    <div>
+                                        <label class="field-label">الجنسية <span style="color:#ef4444;">*</span></label>
+                                        <select id="nationality" name="nationality" required class="field-input">
+                                            <option value="">اختر الجنسية</option>
+                                            <option>سعودي</option><option>إماراتي</option><option>كويتي</option>
+                                            <option>بحريني</option><option>قطري</option><option>عُماني</option>
+                                            <option>يمني</option><option>مصري</option><option>أردني</option>
+                                            <option>سوري</option><option>لبناني</option><option>عراقي</option>
+                                            <option>فلسطيني</option><option>سوداني</option><option>مغربي</option>
+                                            <option>جزائري</option><option>تونسي</option><option>ليبي</option>
+                                            <option>باكستاني</option><option>هندي</option><option>بنغلاديشي</option>
+                                            <option>فلبيني</option><option>إندونيسي</option><option>أخرى</option>
+                                        </select>
+                                        <p id="nationality-error" class="field-error"></p>
+                                    </div>
+                                    <div>
+                                        <label class="field-label">البريد الإلكتروني <span style="color:#ef4444;">*</span></label>
+                                        <input type="email" id="email" name="email" placeholder="example@email.com" required class="field-input" dir="ltr">
+                                        <p id="email-error" class="field-error"></p>
+                                    </div>
+                                </div>
+                                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                                    <div>
+                                        <label class="field-label">كلمة المرور <span style="color:#ef4444;">*</span></label>
+                                        <input type="password" id="password" name="password" placeholder="8 أحرف على الأقل" minlength="8" required class="field-input">
+                                        <p id="password-error" class="field-error"></p>
+                                    </div>
+                                    <div>
+                                        <label class="field-label">تأكيد كلمة المرور <span style="color:#ef4444;">*</span></label>
+                                        <input type="password" id="password_confirmation" name="password_confirmation" minlength="8" required class="field-input">
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                    </div>
 
-                    {{-- Checkboxes --}}
-                    <div class="space-y-2">
-                        <label id="confirm-box" class="flex items-start gap-3 cursor-pointer p-3 rounded-xl border-2"
-                               style="border-color:#e2e8f0; background:#f8fafc; transition:border-color .2s;">
-                            <input type="checkbox" id="is_confirm_user" name="is_confirm_user" value="1"
-                                   style="width:18px;height:18px;flex-shrink:0;margin-top:2px;accent-color:#3b82f6;cursor:pointer;"
-                                   onchange="toggleCheckbox(this,'confirm-box')">
-                            <span class="text-xs font-medium leading-relaxed" style="color:#374151;">
-                                أقر بأن جميع البيانات المدخلة صحيحة ومطابقة للهوية الرسمية.
-                            </span>
-                        </label>
-                        <p id="confirm-error" class="text-xs hidden" style="color:#ef4444; padding-right:.5rem;"></p>
+                        {{-- ── Section: Academic Info ── --}}
+                        <div style="margin-bottom:20px;">
+                            <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid #e2e8f0;">
+                                <div style="width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,#1a3a5c,#2563eb);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                    <svg style="width:15px;height:15px;color:white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/>
+                                    </svg>
+                                </div>
+                                <span style="font-size:13px;font-weight:700;color:#1a3a5c;">البيانات الأكاديمية</span>
+                            </div>
+                            <div style="display:flex;flex-direction:column;gap:12px;">
+                                <div>
+                                    <label class="field-label">التخصص <span style="color:#ef4444;">*</span></label>
+                                    <input type="text" id="specialization" name="specialization" placeholder="مثال: علوم الحاسب، إدارة الأعمال" required class="field-input">
+                                    <p id="spec-error" class="field-error"></p>
+                                </div>
+                                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                                    <div>
+                                        <label class="field-label">المؤهل التعليمي <span style="color:#ef4444;">*</span></label>
+                                        <select id="specialization_type" name="specialization_type" required class="field-input">
+                                            <option value="">اختر</option>
+                                            <option value="primary">ابتدائي</option>
+                                            <option value="middle">متوسط</option>
+                                            <option value="secondary">ثانوي</option>
+                                            <option value="diploma">دبلوم</option>
+                                            <option value="bachelor">بكالوريوس</option>
+                                            <option value="master">ماجستير</option>
+                                            <option value="phd">دكتوراه</option>
+                                            <option value="training">تدريب مهني</option>
+                                        </select>
+                                        <p id="spec-type-error" class="field-error"></p>
+                                    </div>
+                                    <div>
+                                        <label class="field-label">تاريخ التخرج <span style="color:#ef4444;">*</span></label>
+                                        <input type="date" id="date_of_graduation" name="date_of_graduation" required class="field-input">
+                                        <p id="grad-error" class="field-error"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
-                        <label id="terms-box" class="flex items-start gap-3 cursor-pointer p-3 rounded-xl border-2"
-                               style="border-color:#e2e8f0; background:#f8fafc; transition:border-color .2s;">
-                            <input type="checkbox" id="is_terms" name="is_terms" value="1"
-                                   style="width:18px;height:18px;flex-shrink:0;margin-top:2px;accent-color:#3b82f6;cursor:pointer;"
-                                   onchange="toggleCheckbox(this,'terms-box')">
-                            <span class="text-xs font-medium leading-relaxed" style="color:#374151;">
-                                أوافق على الشروط والأحكام وسياسات الخصوصية الخاصة بالمعهد.
-                            </span>
-                        </label>
-                        <p id="terms-error" class="text-xs hidden" style="color:#ef4444; padding-right:.5rem;"></p>
-                    </div>
+                        {{-- ── Section: Documents ── --}}
+                        <div style="margin-bottom:20px;">
+                            <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid #e2e8f0;">
+                                <div style="width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,#1a3a5c,#2563eb);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                    <svg style="width:15px;height:15px;color:white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                    </svg>
+                                </div>
+                                <span style="font-size:13px;font-weight:700;color:#1a3a5c;">المستندات المطلوبة</span>
+                            </div>
+                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+                                <div>
+                                    <label class="field-label">الهوية — الوجه الأمامي <span style="color:#ef4444;">*</span></label>
+                                    <label id="front-label" for="national_id_front" class="upload-zone"
+                                           ondragover="event.preventDefault();this.style.borderColor='#2563eb'"
+                                           ondragleave="this.style.borderColor='#93c5fd'"
+                                           ondrop="handleDrop(event,'national_id_front','front-preview','front-label')">
+                                        <div id="front-preview" style="text-align:center;">
+                                            <svg style="width:26px;height:26px;color:#60a5fa;margin:0 auto 4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                            </svg>
+                                            <p style="font-size:11px;color:#2563eb;font-weight:600;margin:0;">اضغط أو اسحب</p>
+                                            <p style="font-size:10px;color:#93c5fd;margin:2px 0 0;">JPG, PNG, PDF</p>
+                                        </div>
+                                        <input type="file" id="national_id_front" name="national_id_front" accept=".jpg,.jpeg,.png,.pdf" required class="hidden" onchange="previewFile(this,'front-preview','front-label')">
+                                    </label>
+                                    <p id="front-error" class="field-error"></p>
+                                </div>
+                                <div>
+                                    <label class="field-label">الهوية — الوجه الخلفي <span style="color:#ef4444;">*</span></label>
+                                    <label id="back-label" for="national_id_back" class="upload-zone"
+                                           ondragover="event.preventDefault();this.style.borderColor='#2563eb'"
+                                           ondragleave="this.style.borderColor='#93c5fd'"
+                                           ondrop="handleDrop(event,'national_id_back','back-preview','back-label')">
+                                        <div id="back-preview" style="text-align:center;">
+                                            <svg style="width:26px;height:26px;color:#60a5fa;margin:0 auto 4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                            </svg>
+                                            <p style="font-size:11px;color:#2563eb;font-weight:600;margin:0;">اضغط أو اسحب</p>
+                                            <p style="font-size:10px;color:#93c5fd;margin:2px 0 0;">JPG, PNG, PDF</p>
+                                        </div>
+                                        <input type="file" id="national_id_back" name="national_id_back" accept=".jpg,.jpeg,.png,.pdf" required class="hidden" onchange="previewFile(this,'back-preview','back-label')">
+                                    </label>
+                                    <p id="back-error" class="field-error"></p>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="field-label">الشهادة <span style="color:#ef4444;">*</span></label>
+                                <label id="cert-label" for="certificate" class="upload-zone" style="min-height:72px;"
+                                       ondragover="event.preventDefault();this.style.borderColor='#2563eb'"
+                                       ondragleave="this.style.borderColor='#93c5fd'"
+                                       ondrop="handleDrop(event,'certificate','cert-preview','cert-label')">
+                                    <div id="cert-preview" style="text-align:center;">
+                                        <svg style="width:24px;height:24px;color:#60a5fa;margin:0 auto 4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                                        </svg>
+                                        <p style="font-size:11px;color:#2563eb;font-weight:600;margin:0;">ارفع الشهادة (PDF)</p>
+                                    </div>
+                                    <input type="file" id="certificate" name="certificate" accept=".pdf" required class="hidden" onchange="previewFile(this,'cert-preview','cert-label')">
+                                </label>
+                                <p id="cert-error" class="field-error"></p>
+                            </div>
+                        </div>
 
-                    <!-- Error -->
-                    <div id="step3-error" class="hidden p-3 rounded-xl text-sm font-medium" style="background:#fff7ed; color:#9a3412; border:1px solid #fdba74;"></div>
+                        {{-- ── Agreements ── --}}
+                        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;">
+                            <label id="confirm-box" style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:12px;border-radius:10px;border:1.5px solid #e2e8f0;background:#f8fafc;transition:border-color .2s;">
+                                <input type="checkbox" id="is_confirm_user" name="is_confirm_user" value="1"
+                                       style="width:16px;height:16px;flex-shrink:0;margin-top:2px;accent-color:#1a3a5c;cursor:pointer;"
+                                       onchange="toggleCheckbox(this,'confirm-box')">
+                                <span style="font-size:12px;color:#374151;line-height:1.6;">أقر بأن جميع البيانات المدخلة صحيحة ومطابقة للهوية الرسمية.</span>
+                            </label>
+                            <p id="confirm-error" class="field-error" style="padding-right:4px;"></p>
 
-                    <!-- Submit -->
-                    <button type="submit" id="step3-btn"
-                            class="w-full py-3.5 px-4 text-white font-bold rounded-xl shadow-lg transition-all hover:shadow-xl"
-                            style="background: #22c55e;">
-                        <span id="step3-btn-text">إنشاء الحساب</span>
-                        <svg id="step3-spinner" class="hidden w-5 h-5 inline spin-slow mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                        </svg>
-                    </button>
-                </form>
+                            <label id="terms-box" style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:12px;border-radius:10px;border:1.5px solid #e2e8f0;background:#f8fafc;transition:border-color .2s;">
+                                <input type="checkbox" id="is_terms" name="is_terms" value="1"
+                                       style="width:16px;height:16px;flex-shrink:0;margin-top:2px;accent-color:#1a3a5c;cursor:pointer;"
+                                       onchange="toggleCheckbox(this,'terms-box')">
+                                <span style="font-size:12px;color:#374151;line-height:1.6;">أوافق على الشروط والأحكام وسياسات الخصوصية.</span>
+                            </label>
+                            <p id="terms-error" class="field-error" style="padding-right:4px;"></p>
+                        </div>
+
+                        <div id="step3-error" style="display:none;background:#fff7ed;border:1px solid #fde68a;border-right:3px solid #f59e0b;border-radius:10px;padding:12px 14px;font-size:13px;color:#92400e;margin-bottom:12px;"></div>
+
+                        <button type="submit" id="step3-btn" class="btn-primary">
+                            <span id="step3-btn-text">إنشاء الحساب</span>
+                            <svg id="step3-spinner" class="hidden spin-slow" style="width:18px;height:18px;display:inline;vertical-align:middle;margin-right:6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                            </svg>
+                        </button>
+                    </form>
+                </div>
             </div>
 
-            <!-- ==================== SUCCESS ==================== -->
-            <div id="step-success" class="step">
-                <div class="text-center">
-                    <div class="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl" style="background: #22c55e;">
-                        <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            {{-- ══════════ SUCCESS ══════════ --}}
+            <div id="step-success" class="step fade-in">
+                <div style="background:white;border-radius:20px;padding:40px 28px;box-shadow:0 4px 24px rgba(0,0,0,.06);border:1px solid #e2e8f0;text-align:center;">
+                    <div style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#16a34a,#22c55e);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;box-shadow:0 8px 24px rgba(34,197,94,.3);">
+                        <svg style="width:34px;height:34px;color:white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                         </svg>
                     </div>
-                    <h2 class="text-2xl font-bold mb-3" style="color: #1e3a5f;">تم إنشاء حسابك بنجاح!</h2>
-                    <p class="text-sm mb-8" style="color: #64748b;">يمكنك الآن تسجيل الدخول باستخدام بريدك الإلكتروني وكلمة المرور</p>
+                    <h2 style="font-size:22px;font-weight:700;color:#1a3a5c;margin:0 0 8px;">تم إنشاء حسابك بنجاح!</h2>
+                    <p style="font-size:13px;color:#64748b;margin:0 0 24px;">سيتم مراجعة بياناتك من قِبل الإدارة. يمكنك تسجيل الدخول الآن.</p>
                     <a href="{{ route('login') }}"
-                       class="inline-flex items-center gap-2 px-8 py-3.5 text-white font-bold rounded-xl shadow-lg transition-all hover:shadow-xl transform hover:scale-105"
-                       style="background: #3b82f6;">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
+                       style="display:inline-flex;align-items:center;gap:8px;padding:12px 28px;background:linear-gradient(135deg,#1a3a5c,#2563eb);color:white;font-weight:700;font-size:14px;border-radius:12px;text-decoration:none;box-shadow:0 4px 14px rgba(37,99,235,.3);">
+                        <svg style="width:18px;height:18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14"/>
                         </svg>
                         تسجيل الدخول
                     </a>
@@ -442,345 +518,250 @@
 </div>
 
 <script>
-    const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
-    let pollInterval = null;
-    let timerInterval = null;
-    let currentTransactionId = null;
+const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+let pollInterval = null, timerInterval = null, currentTransactionId = null;
 
-    // ========== Step Navigation ==========
-    function goToStep(step) {
-        document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
-        document.getElementById(step === 'success' ? 'step-success' : 'step' + step).classList.add('active');
+// ── Step navigation ──
+function goToStep(step) {
+    document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
+    const target = step === 'success' ? 'step-success' : 'step' + step;
+    const el = document.getElementById(target);
+    el.classList.add('active');
+    el.classList.remove('fade-in');
+    void el.offsetWidth;
+    el.classList.add('fade-in');
 
-        // Populate verified data display when entering Step 3
-        if (step === 3) {
-            const phone = document.getElementById('phone').value.trim();
-            const natId = document.getElementById('national_id').value.trim();
-            const dPhone = document.getElementById('display-phone');
-            const dNatId = document.getElementById('display-national-id');
-            if (dPhone) dPhone.textContent = phone || '—';
-            if (dNatId) dNatId.textContent = natId || '—';
-        }
-
-        // Update step dots
-        for (let i = 1; i <= 3; i++) {
-            const dot = document.getElementById('step-dot-' + i);
-            if (i < step) {
-                dot.style.background = '#22c55e';
-                dot.style.color = 'white';
-            } else if (i == step) {
-                dot.style.background = '#3b82f6';
-                dot.style.color = 'white';
-            } else {
-                dot.style.background = '#e2e8f0';
-                dot.style.color = '#94a3b8';
-            }
-        }
-        if (step >= 2) document.getElementById('step-line-1').style.background = '#22c55e';
-        else document.getElementById('step-line-1').style.background = '#e2e8f0';
-        if (step >= 3 || step === 'success') document.getElementById('step-line-2').style.background = '#22c55e';
-        else document.getElementById('step-line-2').style.background = '#e2e8f0';
+    if (step === 3) {
+        const p = document.getElementById('phone').value.trim();
+        const n = document.getElementById('national_id').value.trim();
+        document.getElementById('display-phone').textContent      = p || '—';
+        document.getElementById('display-national-id').textContent = n || '—';
     }
 
-    // ========== STEP 1: Submit ==========
-    document.getElementById('step1-form').addEventListener('submit', async function(e) {
-        e.preventDefault();
-
-        // Clear errors
-        document.getElementById('phone-error').classList.add('hidden');
-        document.getElementById('national_id-error').classList.add('hidden');
-        document.getElementById('step1-error').classList.add('hidden');
-
-        const phone = document.getElementById('phone').value.trim();
-        const nationalId = document.getElementById('national_id').value.trim();
-
-        // Validate
-        if (!/^(05|5)\d{8}$/.test(phone)) {
-            document.getElementById('phone-error').textContent = 'رقم الجوال غير صالح (مثال: 05XXXXXXXX)';
-            document.getElementById('phone-error').classList.remove('hidden');
-            return;
-        }
-        if (!/^\d{10}$/.test(nationalId)) {
-            document.getElementById('national_id-error').textContent = 'رقم الهوية يجب أن يكون 10 أرقام';
-            document.getElementById('national_id-error').classList.remove('hidden');
-            return;
-        }
-
-        // Show loading
-        document.getElementById('step1-btn').disabled = true;
-        document.getElementById('step1-btn-text').textContent = 'جاري الاتصال بنفاذ...';
-        document.getElementById('step1-spinner').classList.remove('hidden');
-
-        try {
-            const res = await fetch('/register/nafath', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken,
-                    'Accept': 'application/json',
-                },
-                body: JSON.stringify({ phone, national_id: nationalId }),
-            });
-
-            const data = await res.json();
-
-            if (!res.ok || !data.success) {
-                const msg = data.message || (data.errors ? Object.values(data.errors).flat().join(', ') : 'حدث خطأ');
-                document.getElementById('step1-error').textContent = msg;
-                document.getElementById('step1-error').classList.remove('hidden');
-                resetStep1Btn();
-                return;
-            }
-
-            // Success - go to step 2
-            currentTransactionId = data.transaction_id;
-            document.getElementById('nafath-random').textContent = data.random || '--';
-            goToStep(2);
-
-            // BYPASS MODE: Show step 2 briefly, then auto-proceed to step 3
-            if (data.bypass) {
-                // Update status message
-                document.getElementById('nafath-status').innerHTML = `
-                    <div class="flex items-center justify-center gap-3">
-                        <svg class="w-5 h-5 spin-slow" style="color: #3b82f6;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                        </svg>
-                        <span class="font-medium text-sm" style="color: #1e40af;">محاكاة التحقق (وضع التطوير)...</span>
-                    </div>
-                `;
-
-                // Auto-proceed to step 3 after 2 seconds
-                setTimeout(() => {
-                    goToStep(3);
-                }, 2000);
-                return;
-            }
-
-            // Normal flow - start polling
-            startPolling();
-            startTimer();
-
-        } catch (err) {
-            document.getElementById('step1-error').textContent = 'حدث خطأ في الاتصال. حاول مرة أخرى.';
-            document.getElementById('step1-error').classList.remove('hidden');
-            resetStep1Btn();
-        }
-    });
-
-    function resetStep1Btn() {
-        document.getElementById('step1-btn').disabled = false;
-        document.getElementById('step1-btn-text').textContent = 'التحقق عبر نفاذ';
-        document.getElementById('step1-spinner').classList.add('hidden');
-    }
-
-    // ========== STEP 2: Polling ==========
-    function startPolling() {
-        if (pollInterval) clearInterval(pollInterval);
-
-        pollInterval = setInterval(async () => {
-            try {
-                const res = await fetch('/register/nafath/poll/' + currentTransactionId, {
-                    headers: { 'Accept': 'application/json' },
-                });
-                const data = await res.json();
-
-                if (data.status === 'approved') {
-                    clearInterval(pollInterval);
-                    clearInterval(timerInterval);
-                    goToStep(3);
-                } else if (data.status === 'rejected') {
-                    clearInterval(pollInterval);
-                    clearInterval(timerInterval);
-                    showStep2Error('تم رفض طلب التحقق. حاول مرة أخرى.');
-                } else if (data.status === 'expired') {
-                    clearInterval(pollInterval);
-                    clearInterval(timerInterval);
-                    showStep2Error('انتهت صلاحية الطلب. حاول مرة أخرى.');
-                }
-            } catch (err) {
-                // Silent fail, will retry
-            }
-        }, 3000);
-    }
-
-    function startTimer() {
-        let seconds = 300; // 5 minutes
-        if (timerInterval) clearInterval(timerInterval);
-
-        timerInterval = setInterval(() => {
-            seconds--;
-            const m = Math.floor(seconds / 60);
-            const s = seconds % 60;
-            document.getElementById('nafath-timer').textContent = m + ':' + (s < 10 ? '0' : '') + s;
-
-            if (seconds <= 0) {
-                clearInterval(timerInterval);
-                clearInterval(pollInterval);
-                showStep2Error('انتهت المهلة. حاول مرة أخرى.');
-            }
-        }, 1000);
-    }
-
-    function showStep2Error(msg) {
-        document.getElementById('nafath-status').classList.add('hidden');
-        const errDiv = document.getElementById('step2-error');
-        errDiv.querySelector('p').textContent = msg;
-        errDiv.classList.remove('hidden');
-    }
-
-    // ========== STEP 3: Helper – file preview ==========
-    function previewFile(input, previewId, labelId) {
-        const preview = document.getElementById(previewId);
-        const label   = document.getElementById(labelId);
-        if (!input.files || !input.files[0]) return;
-        const file = input.files[0];
-        const name = file.name.length > 22 ? file.name.substring(0, 22) + '…' : file.name;
-        const isImage = file.type.startsWith('image/');
-        if (isImage) {
-            const reader = new FileReader();
-            reader.onload = e => {
-                preview.innerHTML = `
-                    <img src="${e.target.result}" alt="preview"
-                         style="width:100%;height:64px;object-fit:cover;border-radius:8px;margin-bottom:4px;">
-                    <p style="font-size:.65rem;color:#7c3aed;font-weight:600;">${name}</p>`;
-            };
-            reader.readAsDataURL(file);
+    for (let i = 1; i <= 3; i++) {
+        const dot = document.getElementById('step-dot-' + i);
+        if (i < step) {
+            dot.style.background = 'linear-gradient(135deg,#16a34a,#22c55e)';
+            dot.style.color = 'white';
+            dot.style.boxShadow = '0 4px 12px rgba(34,197,94,.3)';
+        } else if (i == step) {
+            dot.style.background = 'linear-gradient(135deg,#1a3a5c,#2563eb)';
+            dot.style.color = 'white';
+            dot.style.boxShadow = '0 4px 12px rgba(37,99,235,.3)';
         } else {
-            preview.innerHTML = `
-                <svg class="w-7 h-7 mx-auto mb-1" style="color:#ef4444;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-                </svg>
-                <p style="font-size:.65rem;color:#7c3aed;font-weight:600;">${name}</p>`;
+            dot.style.background = '#e2e8f0';
+            dot.style.color = '#94a3b8';
+            dot.style.boxShadow = 'none';
         }
-        label.style.borderColor = '#7c3aed';
-        label.style.borderStyle = 'solid';
+    }
+    const g = '#22c55e', g2 = '#e2e8f0';
+    document.getElementById('step-line-1').style.background = step >= 2 ? g : g2;
+    document.getElementById('step-line-2').style.background = (step >= 3 || step === 'success') ? g : g2;
+}
+
+// ── Step 1 ──
+document.getElementById('step1-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    ['phone-error','national_id-error'].forEach(id => { document.getElementById(id).style.display='none'; });
+    document.getElementById('step1-error').style.display = 'none';
+
+    const phone = document.getElementById('phone').value.trim();
+    const nationalId = document.getElementById('national_id').value.trim();
+
+    if (!/^(05|5)\d{8}$/.test(phone)) {
+        showFieldError('phone-error', 'رقم الجوال غير صالح (مثال: 05XXXXXXXX)'); return;
+    }
+    if (!/^\d{10}$/.test(nationalId)) {
+        showFieldError('national_id-error', 'رقم الهوية يجب أن يكون 10 أرقام'); return;
     }
 
-    function handleDrop(event, inputId, previewId, labelId) {
-        event.preventDefault();
-        const input = document.getElementById(inputId);
-        const dt    = event.dataTransfer;
-        if (dt.files.length) {
-            const transfer = new DataTransfer();
-            transfer.items.add(dt.files[0]);
-            input.files = transfer.files;
-            previewFile(input, previewId, labelId);
+    setBtn('step1-btn', 'step1-btn-text', 'step1-spinner', 'جاري الاتصال بنفاذ...', true);
+
+    try {
+        const res = await fetch('/register/nafath', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
+            body: JSON.stringify({ phone, national_id: nationalId }),
+        });
+        const data = await res.json();
+
+        if (!res.ok || !data.success) {
+            const msg = data.message || (data.errors ? Object.values(data.errors).flat().join(', ') : 'حدث خطأ');
+            const el = document.getElementById('step1-error');
+            el.textContent = msg; el.style.display = 'block';
+            setBtn('step1-btn', 'step1-btn-text', 'step1-spinner', 'التحقق عبر نفاذ', false);
+            return;
         }
-        document.getElementById(labelId).style.borderColor = '#7c3aed';
+
+        currentTransactionId = data.transaction_id;
+        document.getElementById('nafath-random').textContent = data.random || '--';
+        goToStep(2);
+
+        if (data.bypass) {
+            document.getElementById('nafath-status').innerHTML = `
+                <div style="display:flex;align-items:center;justify-content:center;gap:10px;">
+                    <svg class="spin-slow" style="width:18px;height:18px;color:#2563eb;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                    </svg>
+                    <span style="font-size:13px;font-weight:600;color:#1e40af;">محاكاة التحقق (وضع التطوير)...</span>
+                </div>`;
+            setTimeout(() => goToStep(3), 2000);
+            return;
+        }
+        startPolling(); startTimer();
+    } catch {
+        const el = document.getElementById('step1-error');
+        el.textContent = 'حدث خطأ في الاتصال. حاول مرة أخرى.';
+        el.style.display = 'block';
+        setBtn('step1-btn', 'step1-btn-text', 'step1-spinner', 'التحقق عبر نفاذ', false);
     }
+});
 
-    function toggleCheckbox(checkbox, boxId) {
-        const box = document.getElementById(boxId);
-        box.style.borderColor = checkbox.checked ? '#3b82f6' : '#e2e8f0';
-        box.style.background  = checkbox.checked ? '#eff6ff' : '#f8fafc';
-    }
-
-    // ========== STEP 3: Complete Registration ==========
-    document.getElementById('step3-form').addEventListener('submit', async function(e) {
-        e.preventDefault();
-
-        // Clear all errors
-        ['name-error','dob-error','gender-error','email-error','password-error',
-         'spec-error','spec-type-error','grad-error','front-error','back-error',
-         'cert-error','confirm-error','terms-error','step3-error'
-        ].forEach(id => { const el = document.getElementById(id); if(el){ el.textContent=''; el.classList.add('hidden'); }});
-
-        // Client-side validation
-        let valid = true;
-        const v = (id, errId, msg) => {
-            const el = document.getElementById(id);
-            if (!el) return;
-            const val = el.type === 'checkbox' ? el.checked : el.value.trim();
-            if (!val) { showFieldError(errId, msg); valid = false; }
-        };
-
-        v('name',                'name-error',      'الاسم الكامل مطلوب');
-        v('date_of_birth',       'dob-error',       'تاريخ الميلاد مطلوب');
-        v('gender',              'gender-error',    'الجنس مطلوب');
-        v('email',               'email-error',     'البريد الإلكتروني مطلوب');
-        v('specialization',      'spec-error',      'التخصص مطلوب');
-        v('specialization_type', 'spec-type-error', 'المؤهل التعليمي  مطلوب');
-        v('date_of_graduation',  'grad-error',      'تاريخ التخرج مطلوب');
-
-        const pw  = document.getElementById('password').value;
-        const pwc = document.getElementById('password_confirmation').value;
-        if (pw.length < 8) { showFieldError('password-error', 'كلمة المرور 8 أحرف على الأقل'); valid = false; }
-        else if (pw !== pwc) { showFieldError('password-error', 'تأكيد كلمة المرور غير متطابق'); valid = false; }
-
-        if (!document.getElementById('national_id_front').files.length) {
-            showFieldError('front-error', 'صورة الوجه الأمامي للهوية مطلوبة'); valid = false;
-        }
-        if (!document.getElementById('national_id_back').files.length) {
-            showFieldError('back-error', 'صورة الوجه الخلفي للهوية مطلوبة'); valid = false;
-        }
-        if (!document.getElementById('certificate').files.length) {
-            showFieldError('cert-error', 'الشهادة مطلوبة'); valid = false;
-        }
-        if (!document.getElementById('is_confirm_user').checked) {
-            showFieldError('confirm-error', 'يجب الإقرار بصحة البيانات المدخلة'); valid = false;
-        }
-        if (!document.getElementById('is_terms').checked) {
-            showFieldError('terms-error', 'يجب الموافقة على الشروط والأحكام'); valid = false;
-        }
-
-        if (!valid) return;
-
-        // Build FormData (supports file uploads)
-        const fd = new FormData(document.getElementById('step3-form'));
-
-        // Show loading
-        document.getElementById('step3-btn').disabled = true;
-        document.getElementById('step3-btn-text').textContent = 'جاري إنشاء الحساب...';
-        document.getElementById('step3-spinner').classList.remove('hidden');
-
+// ── Step 2 polling ──
+function startPolling() {
+    if (pollInterval) clearInterval(pollInterval);
+    pollInterval = setInterval(async () => {
         try {
-            const res = await fetch('/register/complete', {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': csrfToken,
-                    'Accept': 'application/json',
-                    // No Content-Type — browser sets it with multipart boundary automatically
-                },
-                body: fd,
-            });
-
+            const res  = await fetch('/register/nafath/poll/' + currentTransactionId, { headers: { 'Accept': 'application/json' } });
             const data = await res.json();
+            if (data.status === 'approved') { clearInterval(pollInterval); clearInterval(timerInterval); goToStep(3); }
+            else if (data.status === 'rejected') { clearInterval(pollInterval); clearInterval(timerInterval); showStep2Error('تم رفض طلب التحقق. حاول مرة أخرى.'); }
+            else if (data.status === 'expired')  { clearInterval(pollInterval); clearInterval(timerInterval); showStep2Error('انتهت صلاحية الطلب. حاول مرة أخرى.'); }
+        } catch { /* silent */ }
+    }, 3000);
+}
 
-            if (!res.ok || !data.success) {
-                let msg = data.message || 'حدث خطأ';
-                if (data.errors) {
-                    const allErrors = Object.values(data.errors).flat();
-                    msg = allErrors.join('<br>');
-                }
-                const errEl = document.getElementById('step3-error');
-                errEl.innerHTML = msg;
-                errEl.classList.remove('hidden');
-                resetStep3Btn();
-                return;
-            }
+function startTimer() {
+    let seconds = 300;
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+        seconds--;
+        const m = Math.floor(seconds / 60), s = seconds % 60;
+        document.getElementById('nafath-timer').textContent = m + ':' + (s < 10 ? '0' : '') + s;
+        if (seconds <= 0) { clearInterval(timerInterval); clearInterval(pollInterval); showStep2Error('انتهت المهلة. حاول مرة أخرى.'); }
+    }, 1000);
+}
 
-            goToStep('success');
+function showStep2Error(msg) {
+    document.getElementById('nafath-status').style.display = 'none';
+    const el = document.getElementById('step2-error');
+    el.querySelector('p').textContent = msg; el.style.display = 'block';
+}
 
-        } catch (err) {
-            document.getElementById('step3-error').textContent = 'حدث خطأ في الاتصال. حاول مرة أخرى.';
-            document.getElementById('step3-error').classList.remove('hidden');
-            resetStep3Btn();
+// ── File helpers ──
+function previewFile(input, previewId, labelId) {
+    const preview = document.getElementById(previewId);
+    const label   = document.getElementById(labelId);
+    if (!input.files || !input.files[0]) return;
+    const file = input.files[0];
+    const name = file.name.length > 22 ? file.name.substring(0, 22) + '…' : file.name;
+    if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = e => {
+            preview.innerHTML = `<img src="${e.target.result}" style="width:100%;height:60px;object-fit:cover;border-radius:8px;margin-bottom:4px;"><p style="font-size:10px;color:#2563eb;font-weight:600;margin:0;">${name}</p>`;
+        };
+        reader.readAsDataURL(file);
+    } else {
+        preview.innerHTML = `<svg style="width:22px;height:22px;color:#2563eb;margin:0 auto 4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg><p style="font-size:10px;color:#2563eb;font-weight:600;margin:0;">${name}</p>`;
+    }
+    label.style.borderColor = '#2563eb'; label.style.borderStyle = 'solid';
+}
+
+function handleDrop(event, inputId, previewId, labelId) {
+    event.preventDefault();
+    const input = document.getElementById(inputId);
+    if (event.dataTransfer.files.length) {
+        const transfer = new DataTransfer();
+        transfer.items.add(event.dataTransfer.files[0]);
+        input.files = transfer.files;
+        previewFile(input, previewId, labelId);
+    }
+    document.getElementById(labelId).style.borderColor = '#2563eb';
+}
+
+function toggleCheckbox(cb, boxId) {
+    const box = document.getElementById(boxId);
+    box.style.borderColor = cb.checked ? '#1a3a5c' : '#e2e8f0';
+    box.style.background  = cb.checked ? '#f0f4ff' : '#f8fafc';
+}
+
+// ── Step 3 submit ──
+document.getElementById('step3-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const errorIds = ['name-error','dob-error','gender-error','nationality-error','email-error','password-error',
+        'spec-error','spec-type-error','grad-error','front-error','back-error','cert-error','confirm-error','terms-error'];
+    errorIds.forEach(id => { const el = document.getElementById(id); if(el){ el.textContent=''; el.style.display='none'; }});
+    document.getElementById('step3-error').style.display = 'none';
+
+    let valid = true;
+    const v = (id, errId, msg) => {
+        const el = document.getElementById(id); if (!el) return;
+        const val = el.type === 'checkbox' ? el.checked : el.value.trim();
+        if (!val) { showFieldError(errId, msg); valid = false; }
+    };
+
+    v('name',                'name-error',        'الاسم الكامل مطلوب');
+    v('date_of_birth',       'dob-error',         'تاريخ الميلاد مطلوب');
+    v('gender',              'gender-error',      'الجنس مطلوب');
+    v('nationality',         'nationality-error', 'الجنسية مطلوبة');
+    v('email',               'email-error',       'البريد الإلكتروني مطلوب');
+    v('specialization',      'spec-error',        'التخصص مطلوب');
+    v('specialization_type', 'spec-type-error',   'المؤهل التعليمي مطلوب');
+    v('date_of_graduation',  'grad-error',        'تاريخ التخرج مطلوب');
+
+    const pw = document.getElementById('password').value;
+    const pwc = document.getElementById('password_confirmation').value;
+    if (pw.length < 8) { showFieldError('password-error', 'كلمة المرور 8 أحرف على الأقل'); valid = false; }
+    else if (pw !== pwc) { showFieldError('password-error', 'تأكيد كلمة المرور غير متطابق'); valid = false; }
+
+    if (!document.getElementById('national_id_front').files.length) { showFieldError('front-error', 'صورة الهوية الأمامية مطلوبة'); valid = false; }
+    if (!document.getElementById('national_id_back').files.length)  { showFieldError('back-error',  'صورة الهوية الخلفية مطلوبة'); valid = false; }
+    if (!document.getElementById('certificate').files.length)        { showFieldError('cert-error',  'الشهادة مطلوبة'); valid = false; }
+    if (!document.getElementById('is_confirm_user').checked) { showFieldError('confirm-error', 'يجب الإقرار بصحة البيانات'); valid = false; }
+    if (!document.getElementById('is_terms').checked)         { showFieldError('terms-error',   'يجب الموافقة على الشروط'); valid = false; }
+
+    if (!valid) return;
+
+    setBtn('step3-btn', 'step3-btn-text', 'step3-spinner', 'جاري إنشاء الحساب...', true);
+
+    try {
+        const res  = await fetch('/register/complete', {
+            method: 'POST',
+            headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
+            body: new FormData(document.getElementById('step3-form')),
+        });
+        const data = await res.json();
+
+        if (!res.ok || !data.success) {
+            let msg = data.message || 'حدث خطأ';
+            if (data.errors) msg = Object.values(data.errors).flat().join('<br>');
+            const el = document.getElementById('step3-error');
+            el.innerHTML = msg; el.style.display = 'block';
+            setBtn('step3-btn', 'step3-btn-text', 'step3-spinner', 'إنشاء الحساب', false);
+            return;
         }
-    });
-
-    function resetStep3Btn() {
-        document.getElementById('step3-btn').disabled = false;
-        document.getElementById('step3-btn-text').textContent = 'إنشاء الحساب';
-        document.getElementById('step3-spinner').classList.add('hidden');
+        goToStep('success');
+    } catch {
+        const el = document.getElementById('step3-error');
+        el.textContent = 'حدث خطأ في الاتصال. حاول مرة أخرى.';
+        el.style.display = 'block';
+        setBtn('step3-btn', 'step3-btn-text', 'step3-spinner', 'إنشاء الحساب', false);
     }
+});
 
-    function showFieldError(id, msg) {
-        const el = document.getElementById(id);
-        if (!el) return;
-        el.textContent = msg;
-        el.classList.remove('hidden');
-    }
+function setBtn(btnId, textId, spinnerId, label, loading) {
+    document.getElementById(btnId).disabled = loading;
+    document.getElementById(textId).textContent = label;
+    const sp = document.getElementById(spinnerId);
+    sp.style.display = loading ? 'inline' : 'none';
+}
+
+function showFieldError(id, msg) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = msg; el.style.display = 'block';
+}
 </script>
-
 </body>
 </html>

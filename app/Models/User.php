@@ -28,6 +28,7 @@ class User extends Authenticatable
         'national_id',
         'date_of_birth',
         'gender',
+        'nationality',
         'type',
         'program_id',
         'program_status',
