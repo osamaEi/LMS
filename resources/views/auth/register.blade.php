@@ -369,25 +369,25 @@
                             </div>
                             <div style="display:flex;flex-direction:column;gap:12px;">
                                 <div>
-                                    <label class="field-label">التخصص <span style="color:#ef4444;">*</span></label>
-                                    <input type="text" id="specialization" name="specialization" placeholder="مثال: علوم الحاسب، إدارة الأعمال" required class="field-input">
-                                    <p id="spec-error" class="field-error"></p>
+                                    <label class="field-label">المؤهل التعليمي <span style="color:#ef4444;">*</span></label>
+                                    <select id="specialization_type" name="specialization_type" required class="field-input">
+                                        <option value="">اختر</option>
+                                        <option value="primary">ابتدائي</option>
+                                        <option value="middle">متوسط</option>
+                                        <option value="secondary">ثانوي</option>
+                                        <option value="diploma">دبلوم</option>
+                                        <option value="bachelor">بكالوريوس</option>
+                                        <option value="master">ماجستير</option>
+                                        <option value="phd">دكتوراه</option>
+                                        <option value="training">تدريب مهني</option>
+                                    </select>
+                                    <p id="spec-type-error" class="field-error"></p>
                                 </div>
                                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
                                     <div>
-                                        <label class="field-label">المؤهل التعليمي <span style="color:#ef4444;">*</span></label>
-                                        <select id="specialization_type" name="specialization_type" required class="field-input">
-                                            <option value="">اختر</option>
-                                            <option value="primary">ابتدائي</option>
-                                            <option value="middle">متوسط</option>
-                                            <option value="secondary">ثانوي</option>
-                                            <option value="diploma">دبلوم</option>
-                                            <option value="bachelor">بكالوريوس</option>
-                                            <option value="master">ماجستير</option>
-                                            <option value="phd">دكتوراه</option>
-                                            <option value="training">تدريب مهني</option>
-                                        </select>
-                                        <p id="spec-type-error" class="field-error"></p>
+                                        <label class="field-label">نوع المؤهل<span style="color:#ef4444;">*</span></label>
+                                        <input type="text" id="specialization" name="specialization" placeholder="مثال: علوم الحاسب، إدارة الأعمال" required class="field-input">
+                                        <p id="spec-error" class="field-error"></p>
                                     </div>
                                     <div>
                                         <label class="field-label">تاريخ التخرج <span style="color:#ef4444;">*</span></label>
@@ -706,7 +706,7 @@ document.getElementById('step3-form').addEventListener('submit', async function(
     v('gender',              'gender-error',      'الجنس مطلوب');
     v('nationality',         'nationality-error', 'الجنسية مطلوبة');
     v('email',               'email-error',       'البريد الإلكتروني مطلوب');
-    v('specialization',      'spec-error',        'التخصص مطلوب');
+    v('specialization',      'spec-error',        'نوع المؤهل مطلوب');
     v('specialization_type', 'spec-type-error',   'المؤهل التعليمي مطلوب');
     v('date_of_graduation',  'grad-error',        'تاريخ التخرج مطلوب');
 

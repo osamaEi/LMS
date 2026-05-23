@@ -36,12 +36,12 @@
                        class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-gray-700 dark:text-white">
             </div>
             <div>
-                <label class="block text-sm font-bold text-gray-700 dark:text-gray-200 mb-1">التخصص / البرنامج (عربي)</label>
+                <label class="block text-sm font-bold text-gray-700 dark:text-gray-200 mb-1">نوع المؤهل / البرنامج (عربي)</label>
                 <input type="text" name="role_ar" value="{{ old('role_ar', $testimonial->role_ar) }}"
                        class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-gray-700 dark:text-white">
             </div>
             <div>
-                <label class="block text-sm font-bold text-gray-700 dark:text-gray-200 mb-1">التخصص / البرنامج (إنجليزي)</label>
+                <label class="block text-sm font-bold text-gray-700 dark:text-gray-200 mb-1">نوع المؤهل / البرنامج (إنجليزي)</label>
                 <input type="text" name="role_en" value="{{ old('role_en', $testimonial->role_en) }}"
                        class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-gray-700 dark:text-white">
             </div>

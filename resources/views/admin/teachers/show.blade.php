@@ -123,7 +123,7 @@
                 </div>
                 @if($teacher->specialization)
                 <div class="sm:col-span-2">
-                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">التخصص</label>
+                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">نوع المؤهل</label>
                     <div class="flex flex-wrap gap-2">
                         <span class="rounded-full bg-brand-100 px-3 py-1 text-sm text-brand-700 dark:bg-brand-900 dark:text-brand-200">{{ $teacher->specialization }}</span>
                     </div>

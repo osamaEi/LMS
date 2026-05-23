@@ -167,7 +167,7 @@ class RegisterController extends Controller
             'date_of_birth.before'        => 'تاريخ الميلاد غير صحيح',
             'gender.required'             => 'الجنس مطلوب',
             'gender.in'                   => 'قيمة الجنس غير صحيحة',
-            'specialization.required'     => 'التخصص مطلوب',
+            'specialization.required'     => 'نوع المؤهل مطلوب',
             'specialization_type.required'=> 'المؤهل التعليمي  مطلوب',
             'date_of_graduation.required' => 'تاريخ التخرج مطلوب',
             'national_id_front.required'  => 'صورة الهوية الأمامية مطلوبة',

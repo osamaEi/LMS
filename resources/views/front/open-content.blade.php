@@ -295,7 +295,7 @@
                 </div>
             </div>
             <p class="text-blue-100 mb-6">
-                يمكنك زيارة منصة OERx الوطنية التابعة للمركز الوطني للتعليم الإلكتروني للوصول إلى مكتبة ضخمة من الموارد التعليمية المفتوحة في مختلف التخصصات والمجالات.
+                يمكنك زيارة منصة OERx الوطنية التابعة للمركز الوطني للتعليم الإلكتروني للوصول إلى مكتبة ضخمة من الموارد التعليمية المفتوحة في مختلف نوع المؤهلات والمجالات.
             </p>
             <a href="https://oerx.nelc.gov.sa" target="_blank" class="inline-flex items-center gap-2 px-6 py-3 bg-white text-blue-700 rounded-lg font-bold hover:bg-blue-50 transition-all shadow-lg">
                 <span>زيارة منصة OERx</span>

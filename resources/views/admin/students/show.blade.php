@@ -477,42 +477,48 @@
     }
 
     .action-btn.primary {
-        background: linear-gradient(135deg, rgba(0, 113, 170, 0.1), rgba(0, 113, 170, 0.05));
-        color: #0071AA;
+        background: linear-gradient(135deg, #0071AA, #005a88);
+        color: #fff;
+        box-shadow: 0 4px 12px rgba(0, 113, 170, 0.3);
     }
 
     .action-btn.primary .icon-box {
-        background: linear-gradient(135deg, #0071AA, #005a88);
+        background: rgba(255,255,255,0.2);
     }
 
     .action-btn.primary:hover {
-        background: linear-gradient(135deg, rgba(0, 113, 170, 0.15), rgba(0, 113, 170, 0.1));
+        background: linear-gradient(135deg, #005a88, #004a72);
+        box-shadow: 0 6px 16px rgba(0, 113, 170, 0.4);
     }
 
     .action-btn.blue {
-        background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(59, 130, 246, 0.05));
-        color: #2563eb;
+        background: linear-gradient(135deg, #3b82f6, #2563eb);
+        color: #fff;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
     }
 
     .action-btn.blue .icon-box {
-        background: linear-gradient(135deg, #3b82f6, #2563eb);
+        background: rgba(255,255,255,0.2);
     }
 
     .action-btn.blue:hover {
-        background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(59, 130, 246, 0.1));
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        box-shadow: 0 6px 16px rgba(37, 99, 235, 0.4);
     }
 
     .action-btn.purple {
-        background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(139, 92, 246, 0.05));
-        color: #7c3aed;
+        background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+        color: #fff;
+        box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
     }
 
     .action-btn.purple .icon-box {
-        background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+        background: rgba(255,255,255,0.2);
     }
 
     .action-btn.purple:hover {
-        background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(139, 92, 246, 0.1));
+        background: linear-gradient(135deg, #7c3aed, #6d28d9);
+        box-shadow: 0 6px 16px rgba(124, 58, 237, 0.4);
     }
 
     /* Account Info Row */
@@ -1569,7 +1575,7 @@
                                     </svg>
                                 </div>
                                 <div class="content">
-                                    <div class="label">التخصص</div>
+                                    <div class="label">نوع المؤهل</div>
                                     <div class="value">{{ $student->specialization ?? 'غير محدد' }}</div>
                                 </div>
                             </div>
@@ -1582,17 +1588,6 @@
                                 <div class="content">
                                     <div class="label">المؤهل التعليمي </div>
                                     <div class="value">{{ $student->specialization_type ?? 'غير محدد' }}</div>
-                                </div>
-                            </div>
-                            <div class="info-item">
-                                <div class="icon-box" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
-                                    <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                                    </svg>
-                                </div>
-                                <div class="content">
-                                    <div class="label">المستوى</div>
-                                    <div class="value">{{ $student->level ?? 'غير محدد' }}</div>
                                 </div>
                             </div>
                             <div class="info-item">
@@ -1786,8 +1781,8 @@
                                 <form action="{{ route('admin.students.remove-program', $student) }}" method="POST" onsubmit="return confirm('هل أنت متأكد من إزالة البرنامج من هذا الطالب؟');">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-red-500 text-white hover:bg-red-600 transition-colors font-medium text-sm">
-                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <button type="submit" style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 16px;border-radius:10px;background:linear-gradient(135deg,#ef4444,#dc2626);color:white;font-weight:600;font-size:13px;border:none;cursor:pointer;box-shadow:0 4px 12px rgba(239,68,68,.3);">
+                                        <svg style="width:16px;height:16px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                                         </svg>
                                         إزالة البرنامج
@@ -1835,25 +1830,26 @@
                         <h3>إجراءات سريعة</h3>
                     </div>
                     <div class="info-card-body space-y-3">
-                        <a href="{{ route('admin.students.edit', $student) }}" class="action-btn primary">
-                            <div class="icon-box">
-                                <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <a href="{{ route('admin.students.edit', $student) }}"
+                           style="display:flex;align-items:center;gap:12px;width:100%;padding:14px;border-radius:14px;font-size:14px;font-weight:600;text-decoration:none;color:#fff;background:linear-gradient(135deg,#0071AA,#005a88);box-shadow:0 4px 12px rgba(0,113,170,.3);border:none;transition:all .3s;">
+                            <div style="width:38px;height:38px;border-radius:10px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                <svg style="width:18px;height:18px;color:white;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                                 </svg>
                             </div>
                             تعديل البيانات
                         </a>
-                        <button class="action-btn blue">
-                            <div class="icon-box">
-                                <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <button style="display:flex;align-items:center;gap:12px;width:100%;padding:14px;border-radius:14px;font-size:14px;font-weight:600;color:#fff;background:linear-gradient(135deg,#3b82f6,#2563eb);box-shadow:0 4px 12px rgba(37,99,235,.3);border:none;cursor:pointer;transition:all .3s;">
+                            <div style="width:38px;height:38px;border-radius:10px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                <svg style="width:18px;height:18px;color:white;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                                 </svg>
                             </div>
                             إرسال رسالة
                         </button>
-                        <button class="action-btn purple">
-                            <div class="icon-box">
-                                <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <button style="display:flex;align-items:center;gap:12px;width:100%;padding:14px;border-radius:14px;font-size:14px;font-weight:600;color:#fff;background:linear-gradient(135deg,#8b5cf6,#7c3aed);box-shadow:0 4px 12px rgba(124,58,237,.3);border:none;cursor:pointer;transition:all .3s;">
+                            <div style="width:38px;height:38px;border-radius:10px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                <svg style="width:18px;height:18px;color:white;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                                 </svg>
                             </div>

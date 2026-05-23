@@ -102,7 +102,7 @@ class ProgramController extends Controller
         $program->load([
             'terms' => function ($query) {
                 $query->withCount('subjects')
-                      ->with(['subjects' => fn($q) => $q->with('teacher:id,name')->orderBy('name_ar')])
+                      ->with(['subjects' => fn($q) => $q->with(['teacher:id,name', 'teachers:id,name'])->orderBy('name_ar')])
                       ->orderBy('term_number');
             },
             'tracks',

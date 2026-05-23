@@ -55,7 +55,7 @@ class RegisterController extends Controller
             'phone.unique'                => 'رقم الجوال مسجل مسبقاً',
             'password.required'           => 'كلمة المرور مطلوبة',
             'password.confirmed'          => 'تأكيد كلمة المرور غير متطابق',
-            'specialization.required'     => 'التخصص مطلوب',
+            'specialization.required'     => 'نوع المؤهل مطلوب',
             'specialization_type.required'=> 'المؤهل التعليمي  مطلوب',
             'date_of_graduation.required' => 'تاريخ التخرج مطلوب',
             'national_id_front.required'  => 'صورة الهوية الأمامية مطلوبة',

@@ -85,7 +85,7 @@
                 { "key": "phone",                 "value": "0512345678",             "type": "text",        "description": "رقم الجوال (مثال: 0512345678)" },
                 { "key": "password",              "value": "password123",            "type": "text",        "description": "كلمة المرور (8 أحرف على الأقل)" },
                 { "key": "password_confirmation", "value": "password123",            "type": "text",        "description": "تأكيد كلمة المرور" },
-                { "key": "specialization",        "value": "علوم الحاسب",            "type": "text",        "description": "التخصص التدريبي " },
+                { "key": "specialization",        "value": "علوم الحاسب",            "type": "text",        "description": "نوع المؤهل التدريبي " },
                 { "key": "specialization_type",   "value": "بكالوريوس",              "type": "text",        "description": "المؤهل التعليمي  (بكالوريوس، ماجستير، دبلوم...)" },
                 { "key": "date_of_graduation",    "value": "2020-06-01",             "type": "text",        "description": "تاريخ التخرج (YYYY-MM-DD)" },
                 { "key": "national_id_front",     "src": "",                         "type": "file",        "description": "صورة الهوية الوطنية (الوجه الأمامي) — JPG/PNG/PDF، max 5MB" },
@@ -99,7 +99,7 @@
               "host": ["{{base_url}}"],
               "path": ["api", "v1", "auth", "register"]
             },
-            "description": "تسجيل حساب  متدرب جديد (multipart/form-data)\n\nيتم إنشاء الحساب بحالة 'pending' في انتظار مراجعة الإدارة وتفعيل الحساب.\n\nالحقول المطلوبة:\n- name: الاسم الكامل\n- national_id: رقم الهوية الوطنية (10 أرقام، فريد)\n- date_of_birth: تاريخ الميلاد (YYYY-MM-DD)\n- gender: الجنس (male / female)\n- email: البريد الإلكتروني (فريد)\n- phone: رقم الجوال السعودي (05XXXXXXXX)\n- password: كلمة المرور (8 أحرف على الأقل)\n- password_confirmation: تأكيد كلمة المرور\n- specialization: التخصص التدريبي \n- specialization_type: المؤهل التعليمي \n- date_of_graduation: تاريخ التخرج (YYYY-MM-DD)\n- national_id_front: صورة الهوية الأمامية (JPG/PNG/PDF، max 5MB)\n- national_id_back: صورة الهوية الخلفية (JPG/PNG/PDF، max 5MB)\n- is_confirm_user: 1 (إقرار بصحة البيانات)\n- is_terms: 1 (موافقة على الشروط والأحكام)\n\nملاحظة: استخدم form-data وليس JSON لأن الطلب يحتوي على ملفات."
+            "description": "تسجيل حساب  متدرب جديد (multipart/form-data)\n\nيتم إنشاء الحساب بحالة 'pending' في انتظار مراجعة الإدارة وتفعيل الحساب.\n\nالحقول المطلوبة:\n- name: الاسم الكامل\n- national_id: رقم الهوية الوطنية (10 أرقام، فريد)\n- date_of_birth: تاريخ الميلاد (YYYY-MM-DD)\n- gender: الجنس (male / female)\n- email: البريد الإلكتروني (فريد)\n- phone: رقم الجوال السعودي (05XXXXXXXX)\n- password: كلمة المرور (8 أحرف على الأقل)\n- password_confirmation: تأكيد كلمة المرور\n- specialization: نوع المؤهل التدريبي \n- specialization_type: المؤهل التعليمي \n- date_of_graduation: تاريخ التخرج (YYYY-MM-DD)\n- national_id_front: صورة الهوية الأمامية (JPG/PNG/PDF، max 5MB)\n- national_id_back: صورة الهوية الخلفية (JPG/PNG/PDF، max 5MB)\n- is_confirm_user: 1 (إقرار بصحة البيانات)\n- is_terms: 1 (موافقة على الشروط والأحكام)\n\nملاحظة: استخدم form-data وليس JSON لأن الطلب يحتوي على ملفات."
           },
           "response": [
             {

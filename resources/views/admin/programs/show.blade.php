@@ -1,389 +1,565 @@
 @extends('layouts.dashboard')
-@section('title', 'عرض الدبلوم')
+@section('title', 'عرض البرنامج')
 
 @section('content')
 <div x-data="{
     termModal: false,
     subjectModal: false,
     teacherModal: false,
+    editSubjectModal: false,
+    deleteSubjectModal: false,
     currentTermId: null,
     currentTermName: '',
     currentSubjectId: null,
     currentSubjectName: '',
     currentTeacherIds: [],
+    editSubject: {},
     openTermModal()   { this.termModal = true; },
     openSubjectModal(id, name) { this.currentTermId = id; this.currentTermName = name; this.subjectModal = true; },
-    openTeacherModal(sid, sname, tids) { this.currentSubjectId = sid; this.currentSubjectName = sname; this.currentTeacherIds = (tids || []).map(String); this.teacherModal = true; }
+    openTeacherModal(sid, sname, tids) {
+        this.currentSubjectId = sid;
+        this.currentSubjectName = sname;
+        this.currentTeacherIds = (tids || []).map(String);
+        this.teacherModal = true;
+    },
+    openEditSubject(subject) {
+        this.editSubject = subject;
+        this.editSubjectModal = true;
+    },
+    openDeleteSubject(id, name) {
+        this.currentSubjectId = id;
+        this.currentSubjectName = name;
+        this.deleteSubjectModal = true;
+    }
 }">
 
-    {{-- ── Header ── --}}
-    <div class="flex items-center gap-3 mb-6">
-        <a href="{{ isset($backRoute) ? route($backRoute) : route('admin.programs.index') }}"
-           class="flex items-center justify-center h-9 w-9 rounded-lg border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-            <svg class="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-            </svg>
-        </a>
-        <div class="flex-1">
-            <div class="flex items-center gap-2">
-                <h1 class="text-xl font-bold text-gray-900 dark:text-white">{{ $program->name }}</h1>
-                @if($program->status === 'active')
-                    <span style="background:#dcfce7;color:#16a34a;border-radius:9999px;padding:.15rem .65rem;font-size:.72rem;font-weight:600;">نشط</span>
-                @else
-                    <span style="background:#f3f4f6;color:#6b7280;border-radius:9999px;padding:.15rem .65rem;font-size:.72rem;font-weight:600;">غير نشط</span>
-                @endif
-            </div>
-            <p class="text-xs text-gray-400 mt-0.5" dir="ltr">{{ $program->code }}</p>
-        </div>
-        @php
-            $editRoute = isset($backRoute) ? str_replace('.index', '.edit', $backRoute) : 'admin.programs.edit';
-        @endphp
-        <a href="{{ route($editRoute, $program) }}"
-           class="flex items-center gap-1.5 rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-2 text-xs font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-            <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-            تعديل
-        </a>
-        <button @click="openTermModal()"
-                class="flex items-center gap-1.5 rounded-lg bg-brand-500 px-3 py-2 text-xs font-medium text-white hover:bg-brand-600 transition-colors">
-            <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-            إضافة ربع
-        </button>
-    </div>
-
-    {{-- ── Flash ── --}}
-    @if(session('success'))
-    <div class="mb-4 flex items-center gap-2 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 px-4 py-3 text-sm text-green-800 dark:text-green-200">
-        <svg class="h-4 w-4 text-green-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-        {{ session('success') }}
-    </div>
-    @endif
-
-    {{-- ── Stats ── --}}
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
-            <div class="text-2xl font-bold text-gray-900 dark:text-white">{{ $program->terms->count() }}</div>
-            <div class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">الأرباع</div>
-        </div>
-        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
-            <div class="text-2xl font-bold text-purple-600">{{ $program->terms->sum('subjects_count') }}</div>
-            <div class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">المقررات</div>
-        </div>
-        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
-            <div class="text-2xl font-bold text-green-600">{{ $program->terms->where('status','active')->count() }}</div>
-            <div class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">أرباع نشطة</div>
-        </div>
-        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
-            <div class="text-2xl font-bold text-blue-600">{{ $program->terms->flatMap->subjects->sum('credits') }}</div>
-            <div class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">إجمالي الساعات</div>
-        </div>
-    </div>
-
-    {{-- ── Terms ── --}}
-    <div class="space-y-4">
-        @forelse($program->terms as $term)
-        <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden">
-
-            {{-- Term header --}}
-            <div class="flex items-center justify-between px-5 py-3.5 border-b border-gray-100 dark:border-gray-800 bg-gray-50/60 dark:bg-gray-800/40">
-                <div class="flex items-center gap-3">
-                    <span class="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold text-brand-600 dark:text-brand-400"
-                          style="background:rgba(99,102,241,.1);">{{ $term->term_number }}</span>
-                    <div>
-                        <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ $term->name }}</span>
-                        <span class="text-xs text-gray-400 mr-2">· {{ $term->subjects->count() }} مقرر · {{ $term->subjects->sum('credits') }} ساعة</span>
-                    </div>
-                    @if($term->status === 'active')
-                        <span style="background:#dcfce7;color:#16a34a;border-radius:9999px;padding:.1rem .55rem;font-size:.68rem;font-weight:600;">نشط</span>
-                    @elseif($term->status === 'upcoming')
-                        <span style="background:#dbeafe;color:#2563eb;border-radius:9999px;padding:.1rem .55rem;font-size:.68rem;font-weight:600;">قادم</span>
-                    @else
-                        <span style="background:#f3f4f6;color:#6b7280;border-radius:9999px;padding:.1rem .55rem;font-size:.68rem;font-weight:600;">مكتمل</span>
-                    @endif
-                </div>
-                <div class="flex items-center gap-1">
-                    <button @click="openSubjectModal({{ $term->id }}, '{{ addslashes($term->name) }}')"
-                            title="إضافة مادة"
-                            class="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium text-purple-700 bg-purple-50 hover:bg-purple-100 dark:text-purple-300 dark:bg-purple-900/20 dark:hover:bg-purple-900/40 transition-colors">
-                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                        مادة
-                    </button>
-                    <a href="{{ route('admin.terms.edit', $term) }}"
-                       class="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" title="تعديل الربع">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                    </a>
-                </div>
-            </div>
-
-            {{-- Subjects table --}}
-            @if($term->subjects->isNotEmpty())
-            <div class="overflow-x-auto">
-                <table class="w-full text-sm">
-                    <thead>
-                        <tr class="text-xs font-semibold text-gray-400 dark:text-gray-500 border-b border-gray-100 dark:border-gray-800">
-                            <th class="px-4 py-2.5 text-right w-8">#</th>
-                            <th class="px-4 py-2.5 text-right">الكود</th>
-                            <th class="px-4 py-2.5 text-right">المقرر</th>
-                            <th class="px-4 py-2.5 text-right hidden md:table-cell">English</th>
-                            <th class="px-4 py-2.5 text-center w-14">س.م</th>
-                            <th class="px-4 py-2.5 text-right">المدرب</th>
-                            <th class="px-4 py-2.5 text-center w-20">الحالة</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-50 dark:divide-gray-800/60">
-                        @foreach($term->subjects as $idx => $subject)
-                        <tr class="hover:bg-gray-50/70 dark:hover:bg-gray-800/30 transition-colors">
-                            <td class="px-4 py-2.5 text-xs text-gray-400">{{ $idx + 1 }}</td>
-                            <td class="px-4 py-2.5" dir="ltr">
-                                <span class="font-mono text-xs font-semibold text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-900/20 px-2 py-0.5 rounded">{{ $subject->code }}</span>
-                            </td>
-                            <td class="px-4 py-2.5 font-medium text-gray-900 dark:text-white text-sm">{{ $subject->name_ar ?: $subject->name_en }}</td>
-                            <td class="px-4 py-2.5 text-xs text-gray-400 hidden md:table-cell" dir="ltr">{{ $subject->name_en }}</td>
-                            <td class="px-4 py-2.5 text-center">
-                                <span class="text-xs font-bold text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 rounded-full px-2 py-0.5">{{ $subject->credits ?? '—' }}</span>
-                            </td>
-                            <td class="px-4 py-2.5">
-                                <button @click="openTeacherModal({{ $subject->id }}, '{{ addslashes($subject->name_ar ?: $subject->name_en) }}', {{ json_encode($subject->teachers->pluck('id')->all()) }})"
-                                        class="flex items-center gap-1.5 text-xs text-gray-600 dark:text-gray-400 hover:text-brand-600 dark:hover:text-brand-400 transition-colors group">
-                                    <svg class="w-3.5 h-3.5 text-gray-300 group-hover:text-brand-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-                                    @if($subject->teachers->isNotEmpty())
-                                        <span>{{ $subject->teachers->map(fn($t) => $t->name)->implode('، ') }}</span>
-                                        @if($subject->teachers->count() > 1)
-                                        <span style="background:#dbeafe;color:#2563eb;border-radius:9999px;padding:0 5px;font-size:10px;font-weight:700;">{{ $subject->teachers->count() }}</span>
-                                        @endif
-                                    @else
-                                        <span class="text-gray-400">تعيين مدرب</span>
-                                    @endif
-                                </button>
-                            </td>
-                            <td class="px-4 py-2.5 text-center">
-                                @php $isActive = $subject->status === 'active'; @endphp
-                                <div x-data="{ open: false }" class="relative inline-block">
-                                    <button @click="open = !open" @click.outside="open = false"
-                                            class="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold border transition-colors"
-                                            style="{{ $isActive ? 'background:#dcfce7;color:#16a34a;border-color:#bbf7d0;' : 'background:#f3f4f6;color:#6b7280;border-color:#e5e7eb;' }}">
-                                        {{ $isActive ? 'نشط' : 'مقفل' }}
-                                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-                                    </button>
-                                    <div x-show="open" x-cloak
-                                         class="absolute left-0 mt-1 w-28 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50 overflow-hidden">
-                                        @if(!$isActive)
-                                        <form method="POST" action="{{ route('admin.subjects.toggle-status', $subject) }}">
-                                            @csrf @method('PATCH')
-                                            <input type="hidden" name="status" value="active">
-                                            <button type="submit" class="w-full text-right px-3 py-2 text-xs font-medium text-green-700 hover:bg-green-50 dark:hover:bg-green-900/20 flex items-center gap-2">
-                                                <span class="w-2 h-2 rounded-full bg-green-400 inline-block"></span> تنشيط
-                                            </button>
-                                        </form>
-                                        @endif
-                                        @if($isActive)
-                                        <form method="POST" action="{{ route('admin.subjects.toggle-status', $subject) }}">
-                                            @csrf @method('PATCH')
-                                            <input type="hidden" name="status" value="inactive">
-                                            <button type="submit" class="w-full text-right px-3 py-2 text-xs font-medium text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2">
-                                                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-                                                قفل
-                                            </button>
-                                        </form>
-                                        @endif
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                    <tfoot>
-                        <tr class="border-t border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/30 text-xs font-semibold text-gray-500 dark:text-gray-400">
-                            <td colspan="4" class="px-4 py-2">المجموع — {{ $term->subjects->count() }} مقرر</td>
-                            <td class="px-4 py-2 text-center text-brand-600 dark:text-brand-400 font-bold">{{ $term->subjects->sum('credits') }}</td>
-                            <td colspan="2"></td>
-                        </tr>
-                    </tfoot>
-                </table>
-            </div>
+{{-- ══ Header ══ --}}
+<div class="flex items-center gap-4 mb-6">
+    <a href="{{ isset($backRoute) ? route($backRoute) : route('admin.programs.index') }}"
+       style="display:flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:10px;border:1.5px solid #e2e8f0;background:white;color:#64748b;flex-shrink:0;"
+       class="hover:bg-gray-50 transition-colors">
+        <svg style="width:16px;height:16px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+        </svg>
+    </a>
+    <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-2 flex-wrap">
+            <h1 class="text-xl font-bold text-gray-900 dark:text-white truncate">{{ $program->name }}</h1>
+            @if($program->status === 'active')
+                <span style="background:#dcfce7;color:#16a34a;border-radius:9999px;padding:.18rem .7rem;font-size:.7rem;font-weight:700;">● نشط</span>
             @else
-            <div class="px-5 py-6 text-center text-xs text-gray-400">
-                لا توجد مقررات — <button @click="openSubjectModal({{ $term->id }}, '{{ addslashes($term->name) }}')" class="text-brand-500 hover:underline">إضافة مادة</button>
-            </div>
+                <span style="background:#f1f5f9;color:#64748b;border-radius:9999px;padding:.18rem .7rem;font-size:.7rem;font-weight:700;">○ غير نشط</span>
             @endif
         </div>
-        @empty
-        <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-12 text-center">
-            <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">لا توجد أرباع دراسية بعد</p>
-            <button @click="openTermModal()" class="inline-flex items-center gap-1.5 rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600 transition-colors">
-                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                إضافة ربع دراسي
+        <p class="text-xs text-gray-400 mt-0.5 font-mono" dir="ltr">{{ $program->code }}</p>
+    </div>
+    @php $editRoute = isset($backRoute) ? str_replace('.index','.edit',$backRoute) : 'admin.programs.edit'; @endphp
+    <a href="{{ route($editRoute, $program) }}"
+       style="display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:10px;border:1.5px solid #e2e8f0;background:white;font-size:12px;font-weight:600;color:#374151;text-decoration:none;"
+       class="hover:bg-gray-50 transition-colors">
+        <svg style="width:14px;height:14px;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+        تعديل البرنامج
+    </a>
+    <button @click="openTermModal()"
+            style="display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:10px;background:linear-gradient(135deg,#1a3a5c,#2563eb);color:white;font-size:12px;font-weight:700;border:none;cursor:pointer;box-shadow:0 4px 12px rgba(37,99,235,.3);">
+        <svg style="width:14px;height:14px;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        إضافة ربع
+    </button>
+</div>
+
+{{-- ── Flash ── --}}
+@if(session('success'))
+<div style="display:flex;align-items:center;gap:10px;background:#f0fdf4;border:1px solid #bbf7d0;border-right:4px solid #22c55e;border-radius:12px;padding:12px 16px;margin-bottom:20px;">
+    <svg style="width:16px;height:16px;color:#16a34a;flex-shrink:0;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+    <span style="font-size:13px;font-weight:600;color:#15803d;">{{ session('success') }}</span>
+</div>
+@endif
+
+
+{{-- ── Terms ── --}}
+<div class="space-y-5">
+    @forelse($program->terms as $term)
+    <div style="background:white;border-radius:18px;border:1px solid #e2e8f0;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.04);">
+
+        {{-- Term Header --}}
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:linear-gradient(135deg,#f8fafc,#f1f5f9);border-bottom:1px solid #e2e8f0;">
+            <div style="display:flex;align-items:center;gap:12px;">
+                <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#1a3a5c,#2563eb);display:flex;align-items:center;justify-content:center;color:white;font-size:14px;font-weight:800;flex-shrink:0;">
+                    {{ $term->term_number }}
+                </div>
+                <div>
+                    <span style="font-size:14px;font-weight:700;color:#1e293b;">{{ $term->name }}</span>
+                    <span style="font-size:11px;color:#94a3b8;margin-right:8px;">· {{ $term->subjects->count() }} مقرر · {{ $term->subjects->sum('credits') }} ساعة</span>
+                </div>
+                @if($term->status === 'active')
+                    <span style="background:#dcfce7;color:#16a34a;border-radius:9999px;padding:.15rem .6rem;font-size:.68rem;font-weight:700;">نشط</span>
+                @elseif($term->status === 'upcoming')
+                    <span style="background:#dbeafe;color:#2563eb;border-radius:9999px;padding:.15rem .6rem;font-size:.68rem;font-weight:700;">قادم</span>
+                @else
+                    <span style="background:#f1f5f9;color:#64748b;border-radius:9999px;padding:.15rem .6rem;font-size:.68rem;font-weight:700;">مكتمل</span>
+                @endif
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;">
+                <button @click="openSubjectModal({{ $term->id }}, '{{ addslashes($term->name) }}')"
+                        style="display:flex;align-items:center;gap:5px;padding:7px 12px;border-radius:9px;background:linear-gradient(135deg,#7c3aed,#8b5cf6);color:white;font-size:11px;font-weight:700;border:none;cursor:pointer;">
+                    <svg style="width:12px;height:12px;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                    مقرر
+                </button>
+                <a href="{{ route('admin.terms.edit', $term) }}"
+                   style="display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:9px;border:1.5px solid #e2e8f0;background:white;color:#64748b;text-decoration:none;"
+                   class="hover:bg-gray-50 transition-colors" title="تعديل الربع">
+                    <svg style="width:14px;height:14px;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                </a>
+            </div>
+        </div>
+
+        {{-- Subjects Table --}}
+        @if($term->subjects->isNotEmpty())
+        <div style="overflow-x:auto;">
+            <table style="width:100%;border-collapse:collapse;font-size:13px;">
+                <thead>
+                    <tr style="border-bottom:2px solid #f1f5f9;">
+                        <th style="padding:10px 16px;text-align:right;font-size:11px;font-weight:700;color:#94a3b8;width:36px;">#</th>
+                        <th style="padding:10px 16px;text-align:right;font-size:11px;font-weight:700;color:#94a3b8;">الكود</th>
+                        <th style="padding:10px 16px;text-align:right;font-size:11px;font-weight:700;color:#94a3b8;">المقرر</th>
+                        <th style="padding:10px 16px;text-align:right;font-size:11px;font-weight:700;color:#94a3b8;" class="hidden md:table-cell">English</th>
+                        <th style="padding:10px 16px;text-align:center;font-size:11px;font-weight:700;color:#94a3b8;width:60px;">س.م</th>
+                        <th style="padding:10px 16px;text-align:right;font-size:11px;font-weight:700;color:#94a3b8;">المدرب/ون</th>
+                        <th style="padding:10px 16px;text-align:center;font-size:11px;font-weight:700;color:#94a3b8;width:80px;">الحالة</th>
+                        <th style="padding:10px 16px;text-align:center;font-size:11px;font-weight:700;color:#94a3b8;width:90px;">إجراءات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($term->subjects as $idx => $subject)
+                    @php
+                        $allTeachers = $subject->teachers->isNotEmpty()
+                            ? $subject->teachers
+                            : ($subject->teacher ? collect([$subject->teacher]) : collect());
+                    @endphp
+                    <tr style="border-bottom:1px solid #f8fafc;transition:background .15s;" onmouseover="this.style.background='#fafbff'" onmouseout="this.style.background=''">
+                        <td style="padding:12px 16px;color:#cbd5e1;font-size:11px;">{{ $idx + 1 }}</td>
+                        <td style="padding:12px 16px;" dir="ltr">
+                            <span style="font-family:monospace;font-size:11px;font-weight:700;color:#2563eb;background:#eff6ff;padding:2px 8px;border-radius:6px;">{{ $subject->code }}</span>
+                        </td>
+                        <td style="padding:12px 16px;">
+                            <span style="font-weight:600;color:#1e293b;">{{ $subject->name_ar ?: $subject->name_en }}</span>
+                        </td>
+                        <td style="padding:12px 16px;color:#94a3b8;font-size:12px;" dir="ltr" class="hidden md:table-cell">{{ $subject->name_en }}</td>
+                        <td style="padding:12px 16px;text-align:center;">
+                            <span style="font-size:12px;font-weight:700;color:#475569;background:#f1f5f9;padding:2px 8px;border-radius:9999px;">{{ $subject->credits ?? '—' }}</span>
+                        </td>
+
+                        {{-- Teachers cell --}}
+                        <td style="padding:12px 16px;">
+                            <button @click="openTeacherModal({{ $subject->id }}, '{{ addslashes($subject->name_ar ?: $subject->name_en) }}', {{ json_encode($allTeachers->pluck('id')->all()) }})"
+                                    style="display:flex;align-items:center;gap:6px;background:none;border:none;cursor:pointer;padding:0;text-align:right;">
+                                @if($allTeachers->isNotEmpty())
+                                    <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;">
+                                        @foreach($allTeachers->take(2) as $t)
+                                        <span style="display:inline-flex;align-items:center;gap:4px;background:#f0f4ff;border:1px solid #c7d2fe;border-radius:9999px;padding:3px 8px;font-size:11px;font-weight:600;color:#3730a3;">
+                                            <svg style="width:10px;height:10px;color:#6366f1;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                                            {{ $t->name }}
+                                        </span>
+                                        @endforeach
+                                        @if($allTeachers->count() > 2)
+                                        <span style="background:#e0e7ff;color:#4338ca;border-radius:9999px;padding:3px 7px;font-size:10px;font-weight:700;">+{{ $allTeachers->count() - 2 }}</span>
+                                        @endif
+                                    </div>
+                                @else
+                                    <span style="display:inline-flex;align-items:center;gap:4px;color:#94a3b8;font-size:12px;border:1.5px dashed #e2e8f0;border-radius:9999px;padding:3px 10px;">
+                                        <svg style="width:12px;height:12px;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                                        تعيين مدرب
+                                    </span>
+                                @endif
+                            </button>
+                        </td>
+
+                        {{-- Status --}}
+                        <td style="padding:12px 16px;text-align:center;">
+                            @php $isActive = $subject->status === 'active'; @endphp
+                            <div x-data="{ open: false }" class="relative inline-block">
+                                <button @click="open = !open" @click.outside="open = false"
+                                        style="display:inline-flex;align-items:center;gap:4px;border-radius:9999px;padding:4px 10px;font-size:11px;font-weight:700;border:none;cursor:pointer;{{ $isActive ? 'background:#dcfce7;color:#16a34a;' : 'background:#f1f5f9;color:#64748b;' }}">
+                                    <span style="width:6px;height:6px;border-radius:50%;background:{{ $isActive ? '#22c55e' : '#cbd5e1' }};display:inline-block;"></span>
+                                    {{ $isActive ? 'نشط' : 'مقفل' }}
+                                    <svg style="width:10px;height:10px;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
+                                </button>
+                                <div x-show="open" x-cloak
+                                     style="position:absolute;left:0;margin-top:4px;width:110px;background:white;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.12);border:1px solid #e2e8f0;z-index:50;overflow:hidden;">
+                                    @if(!$isActive)
+                                    <form method="POST" action="{{ route('admin.subjects.toggle-status', $subject) }}">
+                                        @csrf @method('PATCH')
+                                        <input type="hidden" name="status" value="active">
+                                        <button type="submit" style="width:100%;text-align:right;padding:8px 12px;font-size:12px;font-weight:600;color:#16a34a;background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:6px;">
+                                            <span style="width:8px;height:8px;border-radius:50%;background:#22c55e;display:inline-block;flex-shrink:0;"></span> تنشيط
+                                        </button>
+                                    </form>
+                                    @endif
+                                    @if($isActive)
+                                    <form method="POST" action="{{ route('admin.subjects.toggle-status', $subject) }}">
+                                        @csrf @method('PATCH')
+                                        <input type="hidden" name="status" value="inactive">
+                                        <button type="submit" style="width:100%;text-align:right;padding:8px 12px;font-size:12px;font-weight:600;color:#64748b;background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:6px;">
+                                            <svg style="width:12px;height:12px;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                                            قفل
+                                        </button>
+                                    </form>
+                                    @endif
+                                </div>
+                            </div>
+                        </td>
+
+                        {{-- Actions --}}
+                        <td style="padding:12px 16px;text-align:center;">
+                            <div style="display:flex;align-items:center;justify-content:center;gap:4px;">
+                                {{-- Edit --}}
+                                <button @click="openEditSubject({
+                                            id: {{ $subject->id }},
+                                            code: '{{ addslashes($subject->code) }}',
+                                            name_ar: '{{ addslashes($subject->name_ar) }}',
+                                            name_en: '{{ addslashes($subject->name_en) }}',
+                                            credits: '{{ $subject->credits }}',
+                                            status: '{{ $subject->status }}'
+                                        })"
+                                        style="display:flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:8px;background:#f0f4ff;color:#2563eb;border:none;cursor:pointer;"
+                                        title="تعديل المقرر">
+                                    <svg style="width:14px;height:14px;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                </button>
+                                {{-- Delete --}}
+                                <button @click="openDeleteSubject({{ $subject->id }}, '{{ addslashes($subject->name_ar ?: $subject->name_en) }}')"
+                                        style="display:flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:8px;background:#fff1f2;color:#ef4444;border:none;cursor:pointer;"
+                                        title="حذف المقرر">
+                                    <svg style="width:14px;height:14px;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+                <tfoot>
+                    <tr style="border-top:2px solid #f1f5f9;background:#f8fafc;">
+                        <td colspan="4" style="padding:10px 16px;font-size:12px;font-weight:600;color:#64748b;">المجموع — {{ $term->subjects->count() }} مقرر</td>
+                        <td style="padding:10px 16px;text-align:center;font-size:13px;font-weight:800;color:#2563eb;">{{ $term->subjects->sum('credits') }}</td>
+                        <td colspan="3"></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        @else
+        <div style="padding:32px;text-align:center;">
+            <div style="width:48px;height:48px;border-radius:14px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">
+                <svg style="width:22px;height:22px;color:#cbd5e1;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+            </div>
+            <p style="font-size:13px;color:#94a3b8;margin-bottom:12px;">لا توجد مقررات في هذا الربع</p>
+            <button @click="openSubjectModal({{ $term->id }}, '{{ addslashes($term->name) }}')"
+                    style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:9px;background:linear-gradient(135deg,#7c3aed,#8b5cf6);color:white;font-size:12px;font-weight:700;border:none;cursor:pointer;">
+                <svg style="width:13px;height:13px;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                إضافة مقرر
             </button>
         </div>
-        @endforelse
+        @endif
     </div>
+    @empty
+    <div style="background:white;border-radius:18px;border:1px solid #e2e8f0;padding:60px;text-align:center;box-shadow:0 2px 12px rgba(0,0,0,.04);">
+        <div style="width:64px;height:64px;border-radius:18px;background:linear-gradient(135deg,#1a3a5c,#2563eb);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
+            <svg style="width:28px;height:28px;color:white;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        </div>
+        <p style="font-size:15px;font-weight:600;color:#475569;margin-bottom:6px;">لا توجد أرباع دراسية بعد</p>
+        <p style="font-size:12px;color:#94a3b8;margin-bottom:20px;">ابدأ بإضافة أول ربع دراسي للبرنامج</p>
+        <button @click="openTermModal()"
+                style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:10px;background:linear-gradient(135deg,#1a3a5c,#2563eb);color:white;font-size:13px;font-weight:700;border:none;cursor:pointer;box-shadow:0 4px 12px rgba(37,99,235,.3);">
+            <svg style="width:15px;height:15px;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            إضافة ربع دراسي
+        </button>
+    </div>
+    @endforelse
+</div>
 
-    {{-- ══════════════════════════════════════════
-         MODAL: Add Term
-    ══════════════════════════════════════════ --}}
-    <div x-show="termModal" x-cloak style="position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem;">
-        <div @click="termModal = false" style="position:absolute;inset:0;background:rgba(0,0,0,0.5);"></div>
-        <div @click.stop style="position:relative;background:white;border-radius:14px;width:100%;max-width:440px;box-shadow:0 25px 60px rgba(0,0,0,0.25);" class="dark:bg-gray-800">
-            <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-gray-700">
-                <h3 class="text-base font-semibold text-gray-900 dark:text-white">إضافة ربع دراسي</h3>
-                <button @click="termModal = false" class="text-gray-400 hover:text-gray-600 transition-colors">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                </button>
+{{-- ══════════════════════════════════════════
+     MODAL: Add Term
+══════════════════════════════════════════ --}}
+<div x-show="termModal" x-cloak style="position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem;">
+    <div @click="termModal=false" style="position:absolute;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(2px);"></div>
+    <div @click.stop style="position:relative;background:white;border-radius:18px;width:100%;max-width:460px;box-shadow:0 30px 60px rgba(0,0,0,.2);">
+        <div style="background:linear-gradient(135deg,#1a3a5c,#2563eb);border-radius:18px 18px 0 0;padding:18px 22px;display:flex;align-items:center;justify-content:space-between;">
+            <div style="display:flex;align-items:center;gap:10px;">
+                <div style="width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;">
+                    <svg style="width:16px;height:16px;color:white;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                </div>
+                <h3 style="font-size:15px;font-weight:700;color:white;margin:0;">إضافة ربع دراسي</h3>
             </div>
-            <form action="{{ route('admin.terms.store') }}" method="POST">
-                @csrf
-                <input type="hidden" name="program_id" value="{{ $program->id }}">
-                <div class="px-5 py-4 space-y-3">
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">اسم الربع *</label>
-                            <input type="text" name="name_ar" required placeholder="الفصل التدريبي الأول"
-                                   class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">رقم الربع *</label>
-                            <input type="number" name="term_number" required min="1" value="{{ $program->terms->count() + 1 }}"
-                                   class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">تاريخ البداية</label>
-                            <input type="date" name="start_date"
-                                   class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">تاريخ النهاية</label>
-                            <input type="date" name="end_date"
-                                   class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        </div>
+            <button @click="termModal=false" style="background:rgba(255,255,255,.15);border:none;border-radius:8px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:white;">
+                <svg style="width:16px;height:16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+        <form action="{{ route('admin.terms.store') }}" method="POST">
+            @csrf
+            <input type="hidden" name="program_id" value="{{ $program->id }}">
+            <div style="padding:20px;display:flex;flex-direction:column;gap:14px;">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                    <div>
+                        <label style="display:block;font-size:11px;font-weight:700;color:#475569;margin-bottom:6px;">اسم الربع *</label>
+                        <input type="text" name="name_ar" required placeholder="الفصل التدريبي الأول"
+                               style="width:100%;padding:9px 12px;font-size:13px;border:1.5px solid #e2e8f0;border-radius:10px;outline:none;font-family:inherit;"
+                               onfocus="this.style.borderColor='#2563eb'" onblur="this.style.borderColor='#e2e8f0'">
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">الحالة</label>
-                        <select name="status" class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <option value="upcoming">قادم</option>
+                        <label style="display:block;font-size:11px;font-weight:700;color:#475569;margin-bottom:6px;">رقم الربع *</label>
+                        <input type="number" name="term_number" required min="1" value="{{ $program->terms->count() + 1 }}"
+                               style="width:100%;padding:9px 12px;font-size:13px;border:1.5px solid #e2e8f0;border-radius:10px;outline:none;font-family:inherit;"
+                               onfocus="this.style.borderColor='#2563eb'" onblur="this.style.borderColor='#e2e8f0'">
+                    </div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                    <div>
+                        <label style="display:block;font-size:11px;font-weight:700;color:#475569;margin-bottom:6px;">تاريخ البداية</label>
+                        <input type="date" name="start_date"
+                               style="width:100%;padding:9px 12px;font-size:13px;border:1.5px solid #e2e8f0;border-radius:10px;outline:none;font-family:inherit;"
+                               onfocus="this.style.borderColor='#2563eb'" onblur="this.style.borderColor='#e2e8f0'">
+                    </div>
+                    <div>
+                        <label style="display:block;font-size:11px;font-weight:700;color:#475569;margin-bottom:6px;">تاريخ النهاية</label>
+                        <input type="date" name="end_date"
+                               style="width:100%;padding:9px 12px;font-size:13px;border:1.5px solid #e2e8f0;border-radius:10px;outline:none;font-family:inherit;"
+                               onfocus="this.style.borderColor='#2563eb'" onblur="this.style.borderColor='#e2e8f0'">
+                    </div>
+                </div>
+                <div>
+                    <label style="display:block;font-size:11px;font-weight:700;color:#475569;margin-bottom:6px;">الحالة</label>
+                    <select name="status" style="width:100%;padding:9px 12px;font-size:13px;border:1.5px solid #e2e8f0;border-radius:10px;outline:none;font-family:inherit;background:white;">
+                        <option value="upcoming">قادم</option>
+                        <option value="active">نشط</option>
+                        <option value="completed">مكتمل</option>
+                    </select>
+                </div>
+            </div>
+            <div style="display:flex;justify-content:flex-end;gap:8px;padding:14px 20px;border-top:1px solid #f1f5f9;">
+                <button type="button" @click="termModal=false" style="padding:9px 18px;font-size:13px;font-weight:600;color:#475569;background:#f1f5f9;border:none;border-radius:10px;cursor:pointer;">إلغاء</button>
+                <button type="submit" style="padding:9px 18px;font-size:13px;font-weight:700;color:white;background:linear-gradient(135deg,#1a3a5c,#2563eb);border:none;border-radius:10px;cursor:pointer;box-shadow:0 4px 12px rgba(37,99,235,.3);">إضافة الربع</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{{-- ══════════════════════════════════════════
+     MODAL: Add Subject
+══════════════════════════════════════════ --}}
+<div x-show="subjectModal" x-cloak style="position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem;">
+    <div @click="subjectModal=false" style="position:absolute;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(2px);"></div>
+    <div @click.stop style="position:relative;background:white;border-radius:18px;width:100%;max-width:500px;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 30px 60px rgba(0,0,0,.2);">
+        <div style="background:linear-gradient(135deg,#7c3aed,#8b5cf6);border-radius:18px 18px 0 0;padding:18px 22px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+            <div style="display:flex;align-items:center;gap:10px;">
+                <div style="width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;">
+                    <svg style="width:16px;height:16px;color:white;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                </div>
+                <div>
+                    <h3 style="font-size:15px;font-weight:700;color:white;margin:0;">إضافة مقرر دراسي</h3>
+                    <p style="font-size:11px;color:rgba(255,255,255,.7);margin:2px 0 0;" x-text="currentTermName"></p>
+                </div>
+            </div>
+            <button @click="subjectModal=false" style="background:rgba(255,255,255,.15);border:none;border-radius:8px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:white;">
+                <svg style="width:16px;height:16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+        <form action="{{ route('admin.subjects.store') }}" method="POST" style="display:flex;flex-direction:column;overflow:hidden;flex:1;">
+            @csrf
+            <input type="hidden" name="program_id" value="{{ $program->id }}">
+            <input type="hidden" name="term_id" :value="currentTermId">
+            <div style="padding:20px;display:flex;flex-direction:column;gap:14px;overflow-y:auto;flex:1;">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                    <div>
+                        <label style="display:block;font-size:11px;font-weight:700;color:#475569;margin-bottom:6px;">كود المقرر *</label>
+                        <input type="text" name="code" required dir="ltr" placeholder="MATH-101"
+                               style="width:100%;padding:9px 12px;font-size:13px;font-family:monospace;border:1.5px solid #e2e8f0;border-radius:10px;outline:none;"
+                               onfocus="this.style.borderColor='#7c3aed'" onblur="this.style.borderColor='#e2e8f0'">
+                    </div>
+                    <div>
+                        <label style="display:block;font-size:11px;font-weight:700;color:#475569;margin-bottom:6px;">الساعات المعتمدة</label>
+                        <input type="number" name="credits" min="1" max="12" value="3"
+                               style="width:100%;padding:9px 12px;font-size:13px;border:1.5px solid #e2e8f0;border-radius:10px;outline:none;font-family:inherit;"
+                               onfocus="this.style.borderColor='#7c3aed'" onblur="this.style.borderColor='#e2e8f0'">
+                    </div>
+                </div>
+                <div>
+                    <label style="display:block;font-size:11px;font-weight:700;color:#475569;margin-bottom:6px;">الاسم العربي *</label>
+                    <input type="text" name="name_ar" required placeholder="مبادئ الرياضيات"
+                           style="width:100%;padding:9px 12px;font-size:13px;border:1.5px solid #e2e8f0;border-radius:10px;outline:none;font-family:inherit;"
+                           onfocus="this.style.borderColor='#7c3aed'" onblur="this.style.borderColor='#e2e8f0'">
+                </div>
+                <div>
+                    <label style="display:block;font-size:11px;font-weight:700;color:#475569;margin-bottom:6px;">الاسم الإنجليزي</label>
+                    <input type="text" name="name_en" dir="ltr" placeholder="Mathematics Fundamentals"
+                           style="width:100%;padding:9px 12px;font-size:13px;border:1.5px solid #e2e8f0;border-radius:10px;outline:none;font-family:inherit;"
+                           onfocus="this.style.borderColor='#7c3aed'" onblur="this.style.borderColor='#e2e8f0'">
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                    <div>
+                        <label style="display:block;font-size:11px;font-weight:700;color:#475569;margin-bottom:6px;">المدرب (اختياري)</label>
+                        <select name="teacher_id" style="width:100%;padding:9px 12px;font-size:13px;border:1.5px solid #e2e8f0;border-radius:10px;outline:none;font-family:inherit;background:white;">
+                            <option value="">— بدون مدرب —</option>
+                            @foreach($teachers ?? [] as $teacher)
+                                <option value="{{ $teacher->id }}">{{ $teacher->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label style="display:block;font-size:11px;font-weight:700;color:#475569;margin-bottom:6px;">الحالة</label>
+                        <select name="status" style="width:100%;padding:9px 12px;font-size:13px;border:1.5px solid #e2e8f0;border-radius:10px;outline:none;font-family:inherit;background:white;">
                             <option value="active">نشط</option>
-                            <option value="completed">مكتمل</option>
+                            <option value="inactive">غير نشط</option>
                         </select>
                     </div>
                 </div>
-                <div class="flex justify-end gap-2 px-5 py-3 border-t border-gray-100 dark:border-gray-700">
-                    <button type="button" @click="termModal = false" class="px-4 py-2 text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">إلغاء</button>
-                    <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors">إضافة الربع</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    {{-- ══════════════════════════════════════════
-         MODAL: Add Subject
-    ══════════════════════════════════════════ --}}
-    <div x-show="subjectModal" x-cloak style="position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem;">
-        <div @click="subjectModal = false" style="position:absolute;inset:0;background:rgba(0,0,0,0.5);"></div>
-        <div @click.stop style="position:relative;background:white;border-radius:14px;width:100%;max-width:480px;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 25px 60px rgba(0,0,0,0.25);" class="dark:bg-gray-800">
-            <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-gray-700 flex-shrink-0">
-                <div>
-                    <h3 class="text-base font-semibold text-gray-900 dark:text-white">إضافة مادة دراسية</h3>
-                    <p class="text-xs text-gray-400 mt-0.5" x-text="currentTermName"></p>
-                </div>
-                <button @click="subjectModal = false" class="text-gray-400 hover:text-gray-600 transition-colors">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                </button>
             </div>
-            <form action="{{ route('admin.subjects.store') }}" method="POST" style="display:flex;flex-direction:column;overflow:hidden;flex:1;">
-                @csrf
-                <input type="hidden" name="program_id" value="{{ $program->id }}">
-                <input type="hidden" name="term_id" :value="currentTermId">
-                <div class="px-5 py-4 space-y-3 overflow-y-auto flex-1">
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">كود المادة *</label>
-                            <input type="text" name="code" required dir="ltr" placeholder="MATH 101"
-                                   class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-purple-500">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">الساعات</label>
-                            <input type="number" name="credits" min="1" max="12" value="3"
-                                   class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500">
-                        </div>
+            <div style="display:flex;justify-content:flex-end;gap:8px;padding:14px 20px;border-top:1px solid #f1f5f9;flex-shrink:0;">
+                <button type="button" @click="subjectModal=false" style="padding:9px 18px;font-size:13px;font-weight:600;color:#475569;background:#f1f5f9;border:none;border-radius:10px;cursor:pointer;">إلغاء</button>
+                <button type="submit" style="padding:9px 18px;font-size:13px;font-weight:700;color:white;background:linear-gradient(135deg,#7c3aed,#8b5cf6);border:none;border-radius:10px;cursor:pointer;box-shadow:0 4px 12px rgba(124,58,237,.3);">إضافة المقرر</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{{-- ══════════════════════════════════════════
+     MODAL: Edit Subject
+══════════════════════════════════════════ --}}
+<div x-show="editSubjectModal" x-cloak style="position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem;">
+    <div @click="editSubjectModal=false" style="position:absolute;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(2px);"></div>
+    <div @click.stop style="position:relative;background:white;border-radius:18px;width:100%;max-width:500px;box-shadow:0 30px 60px rgba(0,0,0,.2);">
+        <div style="background:linear-gradient(135deg,#0071AA,#2563eb);border-radius:18px 18px 0 0;padding:18px 22px;display:flex;align-items:center;justify-content:space-between;">
+            <div style="display:flex;align-items:center;gap:10px;">
+                <div style="width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;">
+                    <svg style="width:16px;height:16px;color:white;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                </div>
+                <div>
+                    <h3 style="font-size:15px;font-weight:700;color:white;margin:0;">تعديل المقرر</h3>
+                    <p style="font-size:11px;color:rgba(255,255,255,.7);margin:2px 0 0;" x-text="editSubject.name_ar"></p>
+                </div>
+            </div>
+            <button @click="editSubjectModal=false" style="background:rgba(255,255,255,.15);border:none;border-radius:8px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:white;">
+                <svg style="width:16px;height:16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+        <form :action="'/admin/subjects/' + editSubject.id" method="POST">
+            @csrf
+            @method('PUT')
+            <input type="hidden" name="program_id" value="{{ $program->id }}">
+            <div style="padding:20px;display:flex;flex-direction:column;gap:14px;">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                    <div>
+                        <label style="display:block;font-size:11px;font-weight:700;color:#475569;margin-bottom:6px;">كود المقرر *</label>
+                        <input type="text" name="code" required dir="ltr" :value="editSubject.code"
+                               style="width:100%;padding:9px 12px;font-size:13px;font-family:monospace;border:1.5px solid #e2e8f0;border-radius:10px;outline:none;"
+                               onfocus="this.style.borderColor='#2563eb'" onblur="this.style.borderColor='#e2e8f0'">
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">الاسم العربي *</label>
-                        <input type="text" name="name_ar" required placeholder="مبادئ الرياضيات"
-                               class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">الاسم الإنجليزي</label>
-                        <input type="text" name="name_en" dir="ltr" placeholder="Mathematics"
-                               class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500">
-                    </div>
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">المدرب</label>
-                            <select name="teacher_id" class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500">
-                                <option value="">— بدون مدرب —</option>
-                                @foreach($teachers ?? [] as $teacher)
-                                    <option value="{{ $teacher->id }}">{{ $teacher->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">الحالة</label>
-                            <select name="status" class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500">
-                                <option value="active">نشط</option>
-                                <option value="inactive">غير نشط</option>
-                            </select>
-                        </div>
+                        <label style="display:block;font-size:11px;font-weight:700;color:#475569;margin-bottom:6px;">الساعات المعتمدة</label>
+                        <input type="number" name="credits" min="1" max="12" :value="editSubject.credits"
+                               style="width:100%;padding:9px 12px;font-size:13px;border:1.5px solid #e2e8f0;border-radius:10px;outline:none;font-family:inherit;"
+                               onfocus="this.style.borderColor='#2563eb'" onblur="this.style.borderColor='#e2e8f0'">
                     </div>
                 </div>
-                <div class="flex justify-end gap-2 px-5 py-3 border-t border-gray-100 dark:border-gray-700 flex-shrink-0">
-                    <button type="button" @click="subjectModal = false" class="px-4 py-2 text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 transition-colors">إلغاء</button>
-                    <button type="submit" class="px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors" style="background:linear-gradient(135deg,#7c3aed,#5b21b6);">إضافة المادة</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    {{-- ══════════════════════════════════════════
-         MODAL: Assign Teachers (multi)
-    ══════════════════════════════════════════ --}}
-    <div x-show="teacherModal" x-cloak style="position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem;">
-        <div @click="teacherModal = false" style="position:absolute;inset:0;background:rgba(0,0,0,0.5);"></div>
-        <div @click.stop style="position:relative;background:white;border-radius:14px;width:100%;max-width:400px;box-shadow:0 25px 60px rgba(0,0,0,0.25);" class="dark:bg-gray-800">
-            <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-gray-700">
                 <div>
-                    <h3 class="text-base font-semibold text-gray-900 dark:text-white">تعيين المدربين</h3>
-                    <p class="text-xs text-gray-400 mt-0.5" x-text="currentSubjectName"></p>
+                    <label style="display:block;font-size:11px;font-weight:700;color:#475569;margin-bottom:6px;">الاسم العربي *</label>
+                    <input type="text" name="name_ar" required :value="editSubject.name_ar"
+                           style="width:100%;padding:9px 12px;font-size:13px;border:1.5px solid #e2e8f0;border-radius:10px;outline:none;font-family:inherit;"
+                           onfocus="this.style.borderColor='#2563eb'" onblur="this.style.borderColor='#e2e8f0'">
                 </div>
-                <button @click="teacherModal = false" class="text-gray-400 hover:text-gray-600 transition-colors">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                </button>
+                <div>
+                    <label style="display:block;font-size:11px;font-weight:700;color:#475569;margin-bottom:6px;">الاسم الإنجليزي</label>
+                    <input type="text" name="name_en" dir="ltr" :value="editSubject.name_en"
+                           style="width:100%;padding:9px 12px;font-size:13px;border:1.5px solid #e2e8f0;border-radius:10px;outline:none;font-family:inherit;"
+                           onfocus="this.style.borderColor='#2563eb'" onblur="this.style.borderColor='#e2e8f0'">
+                </div>
+                <div>
+                    <label style="display:block;font-size:11px;font-weight:700;color:#475569;margin-bottom:6px;">الحالة</label>
+                    <select name="status" style="width:100%;padding:9px 12px;font-size:13px;border:1.5px solid #e2e8f0;border-radius:10px;outline:none;font-family:inherit;background:white;">
+                        <option value="active" :selected="editSubject.status === 'active'">نشط</option>
+                        <option value="inactive" :selected="editSubject.status === 'inactive'">غير نشط</option>
+                    </select>
+                </div>
             </div>
-            <form method="POST" :action="'/admin/subjects/' + currentSubjectId + '/assign-teachers'">
-                @csrf
-                <div class="px-5 py-4 max-h-72 overflow-y-auto space-y-1">
-                    <p class="text-xs text-gray-400 mb-3">اختر مدرباً واحداً أو أكثر لهذا المقرر</p>
+            <div style="display:flex;justify-content:flex-end;gap:8px;padding:14px 20px;border-top:1px solid #f1f5f9;">
+                <button type="button" @click="editSubjectModal=false" style="padding:9px 18px;font-size:13px;font-weight:600;color:#475569;background:#f1f5f9;border:none;border-radius:10px;cursor:pointer;">إلغاء</button>
+                <button type="submit" style="padding:9px 18px;font-size:13px;font-weight:700;color:white;background:linear-gradient(135deg,#0071AA,#2563eb);border:none;border-radius:10px;cursor:pointer;box-shadow:0 4px 12px rgba(37,99,235,.3);">حفظ التعديلات</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{{-- ══════════════════════════════════════════
+     MODAL: Delete Subject
+══════════════════════════════════════════ --}}
+<div x-show="deleteSubjectModal" x-cloak style="position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem;">
+    <div @click="deleteSubjectModal=false" style="position:absolute;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(2px);"></div>
+    <div @click.stop style="position:relative;background:white;border-radius:18px;width:100%;max-width:400px;box-shadow:0 30px 60px rgba(0,0,0,.2);text-align:center;padding:32px 28px;">
+        <div style="width:56px;height:56px;border-radius:16px;background:#fff1f2;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
+            <svg style="width:26px;height:26px;color:#ef4444;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+        </div>
+        <h3 style="font-size:16px;font-weight:700;color:#1e293b;margin:0 0 8px;">حذف المقرر</h3>
+        <p style="font-size:13px;color:#64748b;margin:0 0 6px;">هل أنت متأكد من حذف المقرر:</p>
+        <p style="font-size:14px;font-weight:700;color:#ef4444;margin:0 0 20px;" x-text="'«' + currentSubjectName + '»'"></p>
+        <p style="font-size:12px;color:#94a3b8;margin:0 0 24px;">لا يمكن التراجع عن هذا الإجراء</p>
+        <form :action="'/admin/subjects/' + currentSubjectId" method="POST" style="display:inline;">
+            @csrf
+            @method('DELETE')
+            <div style="display:flex;gap:10px;justify-content:center;">
+                <button type="button" @click="deleteSubjectModal=false" style="padding:10px 22px;font-size:13px;font-weight:600;color:#475569;background:#f1f5f9;border:none;border-radius:10px;cursor:pointer;">إلغاء</button>
+                <button type="submit" style="padding:10px 22px;font-size:13px;font-weight:700;color:white;background:linear-gradient(135deg,#ef4444,#dc2626);border:none;border-radius:10px;cursor:pointer;box-shadow:0 4px 12px rgba(239,68,68,.3);">نعم، احذف</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{{-- ══════════════════════════════════════════
+     MODAL: Assign Teachers (multi)
+══════════════════════════════════════════ --}}
+<div x-show="teacherModal" x-cloak style="position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem;">
+    <div @click="teacherModal=false" style="position:absolute;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(2px);"></div>
+    <div @click.stop style="position:relative;background:white;border-radius:18px;width:100%;max-width:420px;box-shadow:0 30px 60px rgba(0,0,0,.2);">
+        <div style="background:linear-gradient(135deg,#1a3a5c,#2563eb);border-radius:18px 18px 0 0;padding:18px 22px;display:flex;align-items:center;justify-content:space-between;">
+            <div style="display:flex;align-items:center;gap:10px;">
+                <div style="width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;">
+                    <svg style="width:16px;height:16px;color:white;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                </div>
+                <div>
+                    <h3 style="font-size:15px;font-weight:700;color:white;margin:0;">تعيين المدربين</h3>
+                    <p style="font-size:11px;color:rgba(255,255,255,.7);margin:2px 0 0;" x-text="currentSubjectName"></p>
+                </div>
+            </div>
+            <button @click="teacherModal=false" style="background:rgba(255,255,255,.15);border:none;border-radius:8px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:white;">
+                <svg style="width:16px;height:16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+        <form method="POST" :action="'/admin/subjects/' + currentSubjectId + '/assign-teachers'">
+            @csrf
+            <div style="padding:16px 20px;max-height:280px;overflow-y:auto;">
+                <p style="font-size:11px;color:#94a3b8;margin:0 0 12px;">اختر مدرباً واحداً أو أكثر</p>
+                <div style="display:flex;flex-direction:column;gap:4px;">
                     @forelse($teachers as $teacher)
-                    <label class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors">
+                    <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;cursor:pointer;border:1.5px solid #f1f5f9;transition:all .15s;"
+                           onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background=''">
                         <input type="checkbox"
                                name="teacher_ids[]"
                                value="{{ $teacher->id }}"
                                x-init="$el.checked = currentTeacherIds.includes('{{ $teacher->id }}')"
-                               class="w-4 h-4 rounded accent-blue-600 flex-shrink-0">
-                        <div class="flex-1 min-w-0">
-                            <span class="text-sm font-medium text-gray-800 dark:text-gray-200">{{ $teacher->name }}</span>
+                               style="width:16px;height:16px;accent-color:#2563eb;flex-shrink:0;cursor:pointer;">
+                        <div style="width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,#1a3a5c,#2563eb);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                            <span style="font-size:11px;font-weight:700;color:white;">{{ mb_substr($teacher->name, 0, 1) }}</span>
                         </div>
+                        <span style="font-size:13px;font-weight:600;color:#1e293b;">{{ $teacher->name }}</span>
                     </label>
                     @empty
-                    <p class="text-sm text-center text-gray-400 py-4">لا يوجد مدربون في النظام</p>
+                    <div style="text-align:center;padding:24px;color:#94a3b8;font-size:13px;">لا يوجد مدربون في النظام</div>
                     @endforelse
                 </div>
-                <div class="flex justify-end gap-2 px-5 py-3 border-t border-gray-100 dark:border-gray-700">
-                    <button type="button" @click="teacherModal = false" class="px-4 py-2 text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 transition-colors">إلغاء</button>
-                    <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors">حفظ التعيين</button>
-                </div>
-            </form>
-        </div>
+            </div>
+            <div style="display:flex;justify-content:flex-end;gap:8px;padding:14px 20px;border-top:1px solid #f1f5f9;">
+                <button type="button" @click="teacherModal=false" style="padding:9px 18px;font-size:13px;font-weight:600;color:#475569;background:#f1f5f9;border:none;border-radius:10px;cursor:pointer;">إلغاء</button>
+                <button type="submit" style="padding:9px 18px;font-size:13px;font-weight:700;color:white;background:linear-gradient(135deg,#1a3a5c,#2563eb);border:none;border-radius:10px;cursor:pointer;box-shadow:0 4px 12px rgba(37,99,235,.3);">حفظ التعيين</button>
+            </div>
+        </form>
     </div>
+</div>
 
 </div>
 @endsection

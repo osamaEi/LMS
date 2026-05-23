@@ -66,8 +66,12 @@
                        name="national_id"
                        value="{{ old('national_id') }}"
                        required
+                       maxlength="10"
+                       pattern="\d{10}"
+                       inputmode="numeric"
+                       oninput="this.value=this.value.replace(/\D/g,'')"
                        class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-                       placeholder="رقم الهوية الوطنية">
+                       placeholder="رقم الهوية الوطنية (10 أرقام)">
             </div>
 
             <!-- رقم الهاتف -->

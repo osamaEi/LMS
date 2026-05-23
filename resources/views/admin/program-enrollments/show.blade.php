@@ -365,7 +365,7 @@
                                 <svg class="w-4 h-4" style="color:#7c3aed;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
                             </div>
                             <div>
-                                <div class="dr-label">التخصص</div>
+                                <div class="dr-label">نوع المؤهل</div>
                                 <div class="dr-value">
                                     @php
                                         $specMap = ['quran'=>'القرآن الكريم','arabic'=>'اللغة العربية','islamic_studies'=>'الدراسات الإسلامية','education'=>'التربية والتعليم','other'=>'أخرى'];

@@ -61,7 +61,7 @@ class TeacherController extends Controller
         $validated = $request->validate([
             'name'        => 'required|string|max:255',
             'email'       => 'required|email|unique:users,email',
-            'national_id' => 'required|string|unique:users,national_id',
+            'national_id' => 'required|digits:10|unique:users,national_id',
             'phone'       => 'nullable|string|max:20',
             'gender'      => 'nullable|in:male,female',
             'nationality' => 'nullable|string|max:100',
