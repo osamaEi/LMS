@@ -628,6 +628,7 @@
         @foreach($sessionsBySubject as $subjectIdGroup => $subjectSessions)
             @php
                 $subject = $subjectSessions->first()->subject;
+                if (!$subject) continue;
                 $color = $subject->color ?? $colors[$colorIndex % count($colors)];
                 $colorIndex++;
                 $subjectTotal = $subjectSessions->count();

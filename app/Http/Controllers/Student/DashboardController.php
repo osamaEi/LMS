@@ -188,12 +188,22 @@ class DashboardController extends Controller
     {
         $student = auth()->user();
 
-        // Only allow access if the student has been assigned to at least one session in this subject
         $assignedSessionIds = Attendance::where('student_id', $student->id)->pluck('session_id');
 
-        $subject = Subject::whereHas('sessions', fn($q) => $q->whereIn('id', $assignedSessionIds))
-            ->with(['term.program', 'teacher'])
-            ->findOrFail($id);
+        $program   = $student->program;
+        $isDiploma = $program && $program->type === 'diploma';
+
+        // Diploma students: allow access to any subject in their program (sessions may not be assigned yet)
+        // Non-diploma students: require at least one assigned session in this subject
+        if ($isDiploma) {
+            $subject = Subject::whereHas('term', fn($q) => $q->where('program_id', $student->program_id))
+                ->with(['term.program', 'teacher'])
+                ->findOrFail($id);
+        } else {
+            $subject = Subject::whereHas('sessions', fn($q) => $q->whereIn('id', $assignedSessionIds))
+                ->with(['term.program', 'teacher'])
+                ->findOrFail($id);
+        }
 
         // Only sessions the admin has assigned this student to
         $sessions = Session::where('subject_id', $id)
