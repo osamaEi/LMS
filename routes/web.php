@@ -68,7 +68,7 @@ Route::get('/training-programs', function () {
         ->get();
     return view('front.course-list', [
         'programs'  => $programs,
-        'pageTitle' => 'البرامج التدريبية ',
+        'pageTitle' => 'البرامج التأهيلية ',
         'pageType'  => 'training',
     ]);
 })->name('training-programs');

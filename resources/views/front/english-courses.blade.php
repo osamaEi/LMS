@@ -186,7 +186,16 @@ $levelColors = [
 $activeTab = request('tab', 'all');
 if (!array_key_exists($activeTab, $groups)) $activeTab = 'all';
 $byLevel = $programs->keyBy('level');
-$defEngImg = asset('lms3/' . rawurlencode('لغة انجليزية.png'));
+$engPhotos = [
+    'foundation' => asset('english/1.png'),
+    'core-a'     => asset('english/3.png'),
+    'core-b'     => asset('english/' . rawurlencode('تصميم بدون عنوان (1).png')),
+];
+$defEngImg = function($lv) use ($engPhotos) {
+    if ($lv <= 2)  return $engPhotos['foundation'];
+    if ($lv <= 8)  return $engPhotos['core-a'];
+    return $engPhotos['core-b'];
+};
 @endphp
 
 {{-- Hero --}}
@@ -250,7 +259,7 @@ $defEngImg = asset('lms3/' . rawurlencode('لغة انجليزية.png'));
             <a href="{{ route('english-courses.show', $prog) }}" class="eng-card" data-level="{{ $lv }}" style="text-decoration:none;color:inherit;">
                 <div class="eng-card-top" style="background:linear-gradient(90deg,{{ $c['from'] }},{{ $c['to'] }});"></div>
                 <div class="eng-card-img-wrap">
-                    <img src="{{ $prog->image ? asset('storage/' . $prog->image) : $defEngImg }}"
+                    <img src="{{ $prog->image ? asset('storage/' . $prog->image) : $defEngImg($lv) }}"
                          alt="{{ $prog->name_ar }}">
                     <div class="img-overlay"></div>
                     <div class="level-badge"

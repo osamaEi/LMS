@@ -43,6 +43,17 @@ $palette = [
                 <p class="text-blue-100 text-sm opacity-80 mt-0.5">{{ $stats['total'] }} مستوى • من التمهيدي إلى الثاني عشر</p>
             </div>
         </div>
+
+        {{-- Photo strip (desktop only) --}}
+        <div class="hidden lg:block flex-shrink-0" style="position:relative;width:210px;height:68px;">
+            <img src="{{ asset('english/3.png') }}"
+                 style="position:absolute;right:130px;width:90px;height:62px;object-fit:cover;border-radius:10px;border:2px solid rgba(255,255,255,.45);box-shadow:0 4px 16px rgba(0,0,0,.4);transform:rotate(-4deg);" alt="">
+            <img src="{{ asset('english/1.png') }}"
+                 style="position:absolute;right:65px;width:90px;height:62px;object-fit:cover;border-radius:10px;border:2px solid rgba(255,255,255,.45);box-shadow:0 4px 16px rgba(0,0,0,.4);transform:rotate(1.5deg);z-index:1;" alt="">
+            <img src="{{ asset('english/' . rawurlencode('تصميم بدون عنوان (1).png')) }}"
+                 style="position:absolute;right:0;width:90px;height:62px;object-fit:cover;border-radius:10px;border:2px solid rgba(255,255,255,.45);box-shadow:0 4px 16px rgba(0,0,0,.4);transform:rotate(-2deg);z-index:2;" alt="">
+        </div>
+
         <div class="flex items-center gap-3 flex-wrap">
             {{-- mini stats --}}
             <div class="flex items-center gap-3 rounded-xl px-4 py-2.5" style="background:rgba(255,255,255,.13);backdrop-filter:blur(8px);">

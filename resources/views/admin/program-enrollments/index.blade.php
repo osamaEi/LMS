@@ -207,7 +207,7 @@ table.main-table td {
             <div>
                 <h1 style="font-size:1.6rem;font-weight:800;margin:0 0 .3rem;">سجل التسجيل في البرامج</h1>
                 <p style="font-size:.9rem;color:rgba(255,255,255,.8);margin:0;">
-                    عرض جميع طلبات التسجيل في البرامج التدريبية  مع حالاتها
+                    عرض جميع طلبات التسجيل في البرامج التأهيلية  مع حالاتها
                 </p>
             </div>
             <div style="display:flex;align-items:center;gap:.75rem;">

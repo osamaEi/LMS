@@ -521,7 +521,7 @@
 
                 <p class="card-program">
                     <i class="bi bi-mortarboard-fill"></i>
-                    {{ $offer->program ? Str::limit($offer->program->name_ar, 35) : 'جميع البرامج التدريبية ' }}
+                    {{ $offer->program ? Str::limit($offer->program->name_ar, 35) : 'جميع البرامج التأهيلية ' }}
                 </p>
 
                 {{-- Countdown --}}
