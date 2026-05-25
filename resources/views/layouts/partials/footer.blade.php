@@ -25,7 +25,7 @@ $socials = [
             {{-- Brand col --}}
             <div class="col-lg-4 col-md-12">
                 <div class="footer-logo">
-                    <img src="{{ asset('images/nav.png') }}" alt="Logo" onerror="this.style.display='none'" style="background:#fff;border-radius:10px;padding:8px 14px;" />
+                    <img src="{{ asset('images/nav.png') }}" alt="Logo" onerror="this.style.display='none'" style="filter:brightness(0) invert(1);" />
                 </div>
                 <p class="footer-desc">{{ $fDesc }}</p>
                 <div class="footer-social-wrap">
