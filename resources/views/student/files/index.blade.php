@@ -254,7 +254,7 @@
                     </svg>
                 </div>
                 <p style="font-size:1rem;font-weight:700;color:#374151;margin:0 0 6px" class="dark:text-white">لا توجد ملفات بعد</p>
-                <p style="font-size:0.83rem;color:#9ca3af;margin:0">سيتم إضافة الملفات والفيديوهات من قِبل أستاذ المقرر </p>
+                <p style="font-size:0.83rem;color:#9ca3af;margin:0">سيتم إضافة الملفات والفيديوهات من قِبل مدربالمقرر </p>
             </div>
             @else
             @foreach($displaySubjects as $subject)

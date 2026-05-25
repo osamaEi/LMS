@@ -158,7 +158,7 @@ class TeacherController extends Controller
                 ->update(['teacher_id' => $teacher->id]);
         }
 
-        return back()->with('success', 'تم تحديث المقررات للأستاذ ' . $teacher->name);
+        return back()->with('success', 'تم تحديث المقررات للمدرب' . $teacher->name);
     }
 
     public function assignPrograms(Request $request, User $teacher)
@@ -166,7 +166,7 @@ class TeacherController extends Controller
         $request->validate(['program_ids' => 'nullable|array', 'program_ids.*' => 'exists:programs,id']);
         $teacher->teachingPrograms()->sync($request->input('program_ids', []));
 
-        return back()->with('success', 'تم تعيين الدورات للأستاذ ' . $teacher->name);
+        return back()->with('success', 'تم تعيين الدورات للمدرب' . $teacher->name);
     }
 
     public function toggleStatus(User $teacher)

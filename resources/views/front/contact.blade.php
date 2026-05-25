@@ -381,7 +381,14 @@
                                     <select class="country-code">
                                         <option value="+966">+966</option>
                                     </select>
-                                    <input type="tel" name="phone" class="form-control custom-input" placeholder="00 000 0000" value="{{ old('phone') }}" required />
+                                    <input type="tel" name="phone" class="form-control custom-input"
+                                           placeholder="5XXXXXXXX"
+                                           value="{{ old('phone') }}"
+                                           maxlength="9"
+                                           pattern="\d{9}"
+                                           inputmode="numeric"
+                                           oninput="this.value=this.value.replace(/\D/g,'')"
+                                           required />
                                 </div>
                             </div>
                         </div>
@@ -555,7 +562,7 @@
             </div>
             <div class="col-lg-6">
                 <div class="cta-image">
-                    <img loading="lazy" src="{{ $lms3s('6.png') }}" alt="Contact Us" />
+                    <img loading="lazy" src="{{ asset('english/3.png') }}" alt="Contact Us" />
                 </div>
             </div>
         </div>

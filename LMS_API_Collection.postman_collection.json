@@ -880,7 +880,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"knowledge_rating\": 5,\n    \"communication_rating\": 4,\n    \"punctuality_rating\": 5,\n    \"support_rating\": 4,\n    \"comment\": \"أستاذ ممتاز ومتعاون\"\n}"
+									"raw": "{\n    \"knowledge_rating\": 5,\n    \"communication_rating\": 4,\n    \"punctuality_rating\": 5,\n    \"support_rating\": 4,\n    \"comment\": \"مدربممتاز ومتعاون\"\n}"
 								},
 								"url": {
 									"raw": "{{base_url}}/student/teacher-ratings/:subjectId",

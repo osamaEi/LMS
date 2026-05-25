@@ -1,6 +1,6 @@
 @extends('layouts.dashboard')
 
-@section('title', 'إدارة الأساتذة')
+@section('title', 'إدارة المدربون ')
 
 @push('styles')
 <style>
@@ -132,8 +132,8 @@
                         </svg>
                     </div>
                     <div>
-                        <h1 style="font-size:1.7rem;font-weight:900;color:#fff;margin:0;line-height:1.2">إدارة الأساتذة</h1>
-                        <p style="font-size:0.875rem;color:rgba(255,255,255,0.65);margin:5px 0 0">عرض وإدارة جميع الأساتذة في المنصة</p>
+                        <h1 style="font-size:1.7rem;font-weight:900;color:#fff;margin:0;line-height:1.2">إدارة المدربون </h1>
+                        <p style="font-size:0.875rem;color:rgba(255,255,255,0.65);margin:5px 0 0">عرض وإدارة جميع المدربون  في المنصة</p>
                     </div>
                 </div>
                 <div style="display:flex;gap:10px;flex-wrap:wrap">
@@ -160,7 +160,7 @@
             <div style="display:flex;gap:10px;flex-wrap:wrap">
                 <div class="hero-stat">
                     <div style="font-size:1.8rem;font-weight:900;color:#fff;line-height:1">{{ $stats['total'] }}</div>
-                    <div style="font-size:0.75rem;color:rgba(255,255,255,0.65);margin-top:4px">إجمالي الأساتذة</div>
+                    <div style="font-size:0.75rem;color:rgba(255,255,255,0.65);margin-top:4px">إجمالي المدربون </div>
                 </div>
                 <div class="hero-stat">
                     <div style="font-size:1.8rem;font-weight:900;color:#a5b4fc;line-height:1">{{ $stats['with_subjects'] }}</div>
@@ -401,7 +401,7 @@
                     </form>
 
                     <form action="{{ route('admin.teachers.destroy', $teacher) }}" method="POST"
-                          onsubmit="return confirm('هل أنت متأكد من حذف الأستاذ {{ addslashes($teacher->name) }}؟ لا يمكن التراجع عن هذا الإجراء.')">
+                          onsubmit="return confirm('هل أنت متأكد من حذف المدرب{{ addslashes($teacher->name) }}؟ لا يمكن التراجع عن هذا الإجراء.')">
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="action-btn" style="background:#fee2e2;color:#dc2626">
@@ -435,12 +435,12 @@
             @if($search) لا توجد نتائج لـ "{{ $search }}" @else لا يوجد أساتذة مسجلون @endif
         </h3>
         <p style="font-size:0.875rem;color:#9ca3af;margin:0 0 24px">
-            @if($search) جرّب كلمات بحث مختلفة @else ابدأ بإضافة أول أستاذ في المنصة @endif
+            @if($search) جرّب كلمات بحث مختلفة @else ابدأ بإضافة أول مدربفي المنصة @endif
         </p>
         @if($search)
         <a href="{{ route('admin.teachers.index') }}"
            style="display:inline-flex;align-items:center;gap:8px;padding:10px 24px;background:#6366f1;color:#fff;font-weight:700;border-radius:12px;text-decoration:none;font-size:0.875rem">
-            عرض جميع الأساتذة
+            عرض جميع المدربون 
         </a>
         @else
         <a href="{{ route('admin.teachers.create') }}"

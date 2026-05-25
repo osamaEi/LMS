@@ -1,6 +1,6 @@
 <section class="hero-section">
     <div class="hero-slides">
-        <div class="hero-slide active" style="background-image:url('{{ $lms3s('1.png') }}')"></div>
+        <div class="hero-slide active" style="background-image:url('{{ asset('english/' . rawurlencode('تصميم بدون عنوان (1).png')) }}');background-position:center center;"></div>
     </div>
     <div class="hero-vline"></div>
     <div class="hero-content">

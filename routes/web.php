@@ -53,7 +53,7 @@ Route::get('/training-paths', function () {
 
 Route::get('/training-paths/{program}', function (\App\Models\Program $program) {
     abort_if($program->status !== 'active', 404);
-    $program->load(['terms' => fn($q) => $q->with('subjects')->orderBy('term_number')]);
+    $program->load(['terms' => fn($q) => $q->orderBy('term_number')]);
     return view('front.program-show', [
         'program'   => $program,
         'backLabel' => 'المسارات التدريبية',
@@ -98,7 +98,7 @@ Route::get('/courses/developmental', function () {
 
 Route::get('/courses/developmental/{program}', function (\App\Models\Program $program) {
     abort_if($program->status !== 'active', 404);
-    $program->load(['terms' => fn($q) => $q->with('subjects')->orderBy('term_number')]);
+    $program->load(['terms' => fn($q) => $q->orderBy('term_number')]);
     return view('front.program-show', [
         'program'   => $program,
         'backLabel' => 'الدورات التطويرية',
@@ -129,7 +129,7 @@ Route::get('/english-courses', function () {
 
 Route::get('/english-courses/{program}', function (\App\Models\Program $program) {
     abort_if($program->status !== 'active', 404);
-    $program->load(['terms' => fn($q) => $q->with('subjects')->orderBy('term_number')]);
+    $program->load(['terms' => fn($q) => $q->orderBy('term_number')]);
     return view('front.program-show', [
         'program'   => $program,
         'backLabel' => 'برامج اللغة الإنجليزية',

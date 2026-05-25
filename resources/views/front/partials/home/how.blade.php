@@ -7,7 +7,7 @@
         <div class="row align-items-center g-5">
             <div class="col-lg-6 {{ app()->getLocale()=='ar' ? 'order-2' : 'order-1' }}">
                 <div class="how-image" style="height:420px">
-                    <img loading="lazy" src="{{ $lms3s('13.png') }}" alt="How It Works" />
+                    <img loading="lazy" src="{{ asset('english/3.png') }}" alt="How It Works" />
                 </div>
             </div>
             <div class="col-lg-6 {{ app()->getLocale()=='ar' ? 'order-1' : 'order-2' }}">

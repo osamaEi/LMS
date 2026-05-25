@@ -467,14 +467,6 @@ $lms3s = fn(string $n) => asset('lms3/' . rawurlencode('حين يلتقي الت
                         <div class="ps-stat-lbl">فصل دراسي</div>
                     </div>
                     @endif
-                    @php $totalSubjects = $program->terms->sum(fn($t) => $t->subjects->count()); @endphp
-                    @if($totalSubjects > 0)
-                    <div class="ps-stat">
-                        <div class="ps-stat-icon" style="background:#dcfce7;color:#16a34a;"><i class="bi bi-journal-fill"></i></div>
-                        <div class="ps-stat-val">{{ $totalSubjects }}</div>
-                        <div class="ps-stat-lbl">مادة دراسية</div>
-                    </div>
-                    @endif
                     <div class="ps-stat">
                         <div class="ps-stat-icon" style="background:#fce7f3;color:#db2777;"><i class="bi bi-patch-check-fill"></i></div>
                         <div class="ps-stat-val" style="font-size:.85rem;">معتمدة</div>
@@ -529,27 +521,18 @@ $lms3s = fn(string $n) => asset('lms3/' . rawurlencode('حين يلتقي الت
                             <div class="ps-term-right">
                                 <span class="ps-term-status"
                                       style="background:{{ $sc['bg'] }};color:{{ $sc['text'] }};">{{ $sc['label'] }}</span>
-                                <span class="ps-term-count">
-                                    <i class="bi bi-journal-text"></i> {{ $term->subjects->count() }}
-                                </span>
                                 <i class="bi bi-chevron-down ps-term-chevron"></i>
                             </div>
                         </label>
                         <div class="ps-term-body">
-                            @if($term->subjects->isNotEmpty())
-                            <div class="ps-subjects">
-                                @foreach($term->subjects as $subject)
-                                <div class="ps-subject">
-                                    <div class="ps-subject-icon"><i class="bi bi-journal-text"></i></div>
-                                    <span class="ps-subject-name">{{ $subject->name_ar }}</span>
-                                    @if($subject->code)
-                                    <span class="ps-subject-code">{{ $subject->code }}</span>
-                                    @endif
-                                </div>
-                                @endforeach
-                            </div>
+                            @if($term->start_date || $term->end_date)
+                            <p style="font-size:.82rem;color:#6b7280;margin:0;">
+                                <i class="bi bi-calendar2"></i>
+                                {{ $term->start_date?->format('Y/m/d') }}
+                                @if($term->end_date) — {{ $term->end_date->format('Y/m/d') }} @endif
+                            </p>
                             @else
-                            <p class="ps-no-subjects"><i class="bi bi-inbox"></i> لا توجد مواد مضافة لهذا الفصل بعد.</p>
+                            <p class="ps-no-subjects"><i class="bi bi-info-circle"></i> لا توجد تواريخ محددة لهذا الفصل.</p>
                             @endif
                         </div>
                     </div>
