@@ -63,6 +63,7 @@
     <div id="dayPanelContent" style="padding:16px;display:flex;flex-direction:column;gap:10px;"></div>
 </div>
 
+
 </div>
 
 {{-- Assign-students modal --}}
@@ -168,7 +169,7 @@ function renderCalendar() {
         const chips = visible.map(s => {
             const ts   = typeStyle(s.type);
             const time = fmt12(s.scheduled_at);
-            const label = (s.title || s.subject_name || ts.label).substring(0, 18);
+            const label = (s.title || s.subject_name || s.program_name || ts.label).substring(0, 18);
             return `<div class="cal-event"
                          onclick="event.stopPropagation();showDay(${cell.y},${cell.m},${cell.d})"
                          style="background:${ts.bg};color:${ts.color};border-right:2px solid ${ts.color};font-size:10px;font-weight:600;padding:2px 5px;border-radius:3px;margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;">
@@ -224,12 +225,14 @@ function showDay(y, m, d) {
                     <span style="background:${statusBg};color:${statusColor};font-size:11px;font-weight:600;padding:2px 9px;border-radius:20px;">${statusLabel}</span>
                 </div>
                 <p style="margin:0 0 8px;font-size:12px;color:#6b7280;">
-                    📚 ${s.subject_name || '—'}
+                    ${s.is_course ? '🎓' : '📚'} ${s.subject_name || '—'}
+                    ${s.program_name && !s.is_course ? '<span style="color:#9ca3af;"> · ' + s.program_name + '</span>' : ''}
                     ${s.teacher_name ? ' · 👤 ' + s.teacher_name : ''}
                     ${s.duration_minutes ? ' · ' + s.duration_minutes + ' دقيقة' : ''}
                 </p>
                 <div style="display:flex;gap:7px;flex-wrap:wrap;align-items:center;">
                     <span style="background:${ts.bg};color:${ts.color};font-size:11px;font-weight:600;padding:2px 9px;border-radius:20px;">${ts.label}</span>
+                    <span style="background:${s.is_course ? '#fef3c7' : '#ede9fe'};color:${s.is_course ? '#92400e' : '#5b21b6'};font-size:11px;font-weight:600;padding:2px 9px;border-radius:20px;">${s.is_course ? 'دورة' : 'مقرر'}</span>
                     <span style="background:#f3f4f6;color:#6b7280;font-size:11px;padding:2px 9px;border-radius:20px;">👥 ${s.attendance_count} طالب</span>
                     <button onclick="openAssign(${s.id})"
                             style="display:inline-flex;align-items:center;gap:4px;padding:5px 12px;background:linear-gradient(135deg,#0071AA,#005a88);color:white;border:none;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;">

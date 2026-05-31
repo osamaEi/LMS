@@ -13,23 +13,33 @@ class ScheduleController extends Controller
 {
     public function index()
     {
-        $sessions = Session::with(['subject', 'teacher'])
+        $sessions = Session::with(['subject.term.program', 'program', 'teacher'])
             ->orderBy('scheduled_at')
             ->get();
 
-        $calSessions = $sessions->map(fn($s) => [
-            'id'               => $s->id,
-            'title'            => $s->title_ar ?: (($s->subject->name_ar ?? 'جلسة') . ' #' . $s->session_number),
-            'subject_name'     => $s->subject->name_ar ?? '',
-            'teacher_name'     => $s->teacher?->name ?? '',
-            'scheduled_at'     => $s->scheduled_at ? \Carbon\Carbon::parse($s->scheduled_at)->toIso8601String() : null,
-            'duration_minutes' => $s->duration_minutes,
-            'type'             => $s->type ?? '',
-            'status'           => $s->status ?? '',
-            'session_number'   => $s->session_number,
-            'subject_id'       => $s->subject_id,
-            'attendance_count' => $s->attendances()->count(),
-        ])->filter(fn($s) => $s['scheduled_at'])->values();
+        $calSessions = $sessions->map(function ($s) {
+            $subjectName  = $s->subject->name_ar ?? null;
+            $programName  = $s->subject->term->program->name_ar ?? $s->program->name_ar ?? null;
+            $displayName  = $subjectName ?? $programName ?? 'جلسة';
+            $isCourse     = is_null($s->subject_id) && !is_null($s->program_id);
+
+            return [
+                'id'               => $s->id,
+                'title'            => $s->title_ar ?: ($displayName . ' #' . $s->session_number),
+                'subject_name'     => $subjectName ?? $programName ?? '',
+                'program_name'     => $programName ?? '',
+                'teacher_name'     => $s->teacher?->name ?? '',
+                'scheduled_at'     => $s->scheduled_at ? \Carbon\Carbon::parse($s->scheduled_at)->toIso8601String() : null,
+                'duration_minutes' => $s->duration_minutes,
+                'type'             => $s->type ?? '',
+                'status'           => $s->status ?? '',
+                'session_number'   => $s->session_number,
+                'subject_id'       => $s->subject_id,
+                'program_id'       => $s->program_id,
+                'is_course'        => $isCourse,
+                'attendance_count' => $s->attendances()->count(),
+            ];
+        })->filter(fn($s) => $s['scheduled_at'])->values();
 
         $stats = [
             'total'     => $sessions->count(),

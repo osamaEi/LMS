@@ -295,10 +295,12 @@ Route::middleware(['auth', 'role:admin,super_admin'])->prefix('admin')->name('ad
 
     // Term (Semester) Management
     Route::resource('terms', \App\Http\Controllers\Admin\TermController::class);
+    Route::patch('terms/{term}/toggle-status', [\App\Http\Controllers\Admin\TermController::class, 'toggleStatus'])->name('terms.toggle-status');
 
     // Subject Management
     Route::resource('subjects', \App\Http\Controllers\Admin\SubjectController::class);
     Route::patch('subjects/{subject}/toggle-status', [\App\Http\Controllers\Admin\SubjectController::class, 'toggleStatus'])->name('subjects.toggle-status');
+    Route::post('subjects/lock-all', [\App\Http\Controllers\Admin\SubjectController::class, 'lockAllByProgram'])->name('subjects.lock-all');
     Route::patch('subjects/{subject}/assign-teacher', [\App\Http\Controllers\Admin\SubjectController::class, 'assignTeacher'])->name('subjects.assign-teacher');
     Route::post('subjects/{subject}/assign-teachers', [\App\Http\Controllers\Admin\SubjectController::class, 'assignTeachers'])->name('subjects.assign-teachers');
     Route::post('subjects/{subject}/files', [\App\Http\Controllers\Admin\SubjectController::class, 'uploadFile'])->name('subjects.files.upload');

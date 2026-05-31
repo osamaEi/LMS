@@ -172,6 +172,17 @@ class SubjectController extends Controller
         return back()->with('success', $new === 'active' ? 'تم تنشيط المقرر' : 'تم قفل المقرر');
     }
 
+    public function lockAllByProgram(Request $request)
+    {
+        $request->validate(['program_id' => 'required|integer|exists:programs,id']);
+
+        $count = Subject::whereHas('term', fn($q) => $q->where('program_id', $request->program_id))
+            ->where('status', 'active')
+            ->update(['status' => 'inactive']);
+
+        return back()->with('success', "تم قفل {$count} مقرر بنجاح");
+    }
+
     public function destroy(Subject $subject)
     {
         $subject->delete();

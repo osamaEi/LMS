@@ -35,6 +35,16 @@
 
 {{-- ══ Header ══ --}}
 <div class="flex items-center gap-4 mb-6">
+    {{-- Lock All --}}
+    <form action="{{ route('admin.subjects.lock-all') }}" method="POST" onsubmit="return confirm('تأكيد قفل جميع المواد النشطة في هذا البرنامج؟')">
+        @csrf
+        <input type="hidden" name="program_id" value="{{ $program->id }}">
+        <button type="submit"
+                style="display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:10px;border:1.5px solid #fecaca;background:#fff1f2;font-size:12px;font-weight:700;color:#dc2626;cursor:pointer;">
+            <svg style="width:14px;height:14px;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+            قفل جميع المواد
+        </button>
+    </form>
     <a href="{{ isset($backRoute) ? route($backRoute) : route('admin.programs.index') }}"
        style="display:flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:10px;border:1.5px solid #e2e8f0;background:white;color:#64748b;flex-shrink:0;"
        class="hover:bg-gray-50 transition-colors">
@@ -91,13 +101,35 @@
                     <span style="font-size:14px;font-weight:700;color:#1e293b;">{{ $term->name }}</span>
                     <span style="font-size:11px;color:#94a3b8;margin-right:8px;">· {{ $term->subjects->count() }} مقرر · {{ $term->subjects->sum('credits') }} ساعة</span>
                 </div>
-                @if($term->status === 'active')
-                    <span style="background:#dcfce7;color:#16a34a;border-radius:9999px;padding:.15rem .6rem;font-size:.68rem;font-weight:700;">نشط</span>
-                @elseif($term->status === 'upcoming')
-                    <span style="background:#dbeafe;color:#2563eb;border-radius:9999px;padding:.15rem .6rem;font-size:.68rem;font-weight:700;">قادم</span>
-                @else
-                    <span style="background:#f1f5f9;color:#64748b;border-radius:9999px;padding:.15rem .6rem;font-size:.68rem;font-weight:700;">مكتمل</span>
-                @endif
+                @php
+                    $tsBg    = match($term->status) { 'active'=>'#dcfce7','upcoming'=>'#dbeafe', default=>'#f1f5f9' };
+                    $tsColor = match($term->status) { 'active'=>'#16a34a','upcoming'=>'#2563eb', default=>'#64748b' };
+                    $tsLabel = match($term->status) { 'active'=>'نشط','upcoming'=>'قادم', default=>'مكتمل' };
+                @endphp
+                <div x-data="{ open: false }" class="relative inline-block">
+                    <button @click="open = !open" @click.outside="open = false"
+                            style="display:inline-flex;align-items:center;gap:4px;border-radius:9999px;padding:.2rem .75rem;font-size:.68rem;font-weight:700;border:none;cursor:pointer;background:{{ $tsBg }};color:{{ $tsColor }};">
+                        <span style="width:6px;height:6px;border-radius:50%;background:{{ $tsColor }};display:inline-block;"></span>
+                        {{ $tsLabel }}
+                        <svg style="width:10px;height:10px;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                    <div x-show="open" x-cloak
+                         style="position:absolute;top:110%;right:0;width:120px;background:white;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.12);border:1px solid #e2e8f0;z-index:50;overflow:hidden;">
+                        @foreach(['active'=>['نشط','#dcfce7','#16a34a'],'upcoming'=>['قادم','#dbeafe','#2563eb'],'completed'=>['مكتمل','#f1f5f9','#64748b']] as $val=>[$lbl,$bg,$clr])
+                        @if($term->status !== $val)
+                        <form method="POST" action="{{ route('admin.terms.toggle-status', $term) }}">
+                            @csrf @method('PATCH')
+                            <input type="hidden" name="status" value="{{ $val }}">
+                            <button type="submit"
+                                    style="width:100%;text-align:right;padding:8px 12px;font-size:12px;font-weight:600;color:{{ $clr }};background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:6px;">
+                                <span style="width:8px;height:8px;border-radius:50%;background:{{ $clr }};display:inline-block;flex-shrink:0;"></span>
+                                {{ $lbl }}
+                            </button>
+                        </form>
+                        @endif
+                        @endforeach
+                    </div>
+                </div>
             </div>
             <div style="display:flex;align-items:center;gap:6px;">
                 <button @click="openSubjectModal({{ $term->id }}, '{{ addslashes($term->name) }}')"
@@ -405,8 +437,8 @@
                     <div>
                         <label style="display:block;font-size:11px;font-weight:700;color:#475569;margin-bottom:6px;">الحالة</label>
                         <select name="status" style="width:100%;padding:9px 12px;font-size:13px;border:1.5px solid #e2e8f0;border-radius:10px;outline:none;font-family:inherit;background:white;">
+                            <option value="inactive" selected>مقفل</option>
                             <option value="active">نشط</option>
-                            <option value="inactive">غير نشط</option>
                         </select>
                     </div>
                 </div>

@@ -930,72 +930,18 @@
             </div>
         @endif
 
-        @if(isset($availablePrograms) && $availablePrograms->count() > 0)
-            <div class="sec-card">
-                <div class="sec-header">
-                    <div class="sec-title">
-                        <div class="sec-title-icon" style="background: linear-gradient(135deg, #0071AA, #005a88);">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
-                        </div>
-                        البرامج التأهيلية  المتاحة
-                    </div>
-                </div>
-                <div style="padding: 1.5rem;">
-                    <div class="prog-cards">
-                        @foreach($availablePrograms as $availableProgram)
-                            <div class="prog-card">
-                                <div class="prog-card-header">
-                                    <div class="prog-card-name">{{ $availableProgram->name }}</div>
-                                    @if($availableProgram->code)
-                                        <span class="prog-card-code">{{ $availableProgram->code }}</span>
-                                    @endif
-                                </div>
-                                <div class="prog-card-body">
-                                    @if($availableProgram->description)
-                                        <p class="prog-card-desc">{{ Str::limit($availableProgram->description, 120) }}</p>
-                                    @endif
-                                    <div class="prog-card-meta">
-                                        @if($availableProgram->duration_months)
-                                            <div class="prog-card-meta-item">
-                                                <div class="prog-card-meta-icon" style="background:#dbeafe;">
-                                                    <svg style="color:#3b82f6;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                                </div>
-                                                المدة: <strong>{{ $availableProgram->duration_months }} شهر</strong>
-                                            </div>
-                                        @endif
-                                        <div class="prog-card-meta-item">
-                                            <div class="prog-card-meta-icon" style="background:#d1fae5;">
-                                                <svg style="color:#10b981;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                                            </div>
-                                            الفصول: <strong>{{ $availableProgram->terms_count }} فصل</strong>
-                                        </div>
-                                        @if($availableProgram->price)
-                                            <div class="prog-card-meta-item">
-                                                <div class="prog-card-meta-icon" style="background:#fef3c7;">
-                                                    <svg style="color:#f59e0b;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                                </div>
-                                                السعر: <strong>{{ number_format($availableProgram->price, 2) }} <x-riyal /></strong>
-                                            </div>
-                                        @endif
-                                    </div>
-                                    <form action="{{ route('student.enroll-program') }}" method="POST">
-                                        @csrf
-                                        <input type="hidden" name="program_id" value="{{ $availableProgram->id }}">
-                                        @if($availableProgram->price && $availableProgram->price > 0)
-                                            <button type="submit" class="enroll-btn" style="background: linear-gradient(135deg, #635bff, #4f46e5);">
-                                                التسجيل والدفع - {{ number_format($availableProgram->price, 2) }} <x-riyal />
-                                            </button>
-                                        @else
-                                            <button type="submit" class="enroll-btn">التسجيل في هذا البرنامج</button>
-                                        @endif
-                                    </form>
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
-            </div>
-        @else
+        @php
+            $diplomaPrograms = $diplomaPrograms ?? collect();
+            $coursePrograms  = $coursePrograms  ?? collect();
+            $englishPrograms = $englishPrograms ?? collect();
+
+            // Pick default tab = first non-empty group
+            $defaultTab = $diplomaPrograms->isNotEmpty() ? 'diploma'
+                        : ($coursePrograms->isNotEmpty()  ? 'course'
+                        : ($englishPrograms->isNotEmpty() ? 'english' : 'diploma'));
+        @endphp
+
+        @if($diplomaPrograms->isEmpty() && $coursePrograms->isEmpty() && $englishPrograms->isEmpty())
             <div class="sec-card">
                 <div class="no-prog-empty">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
@@ -1003,6 +949,133 @@
                     <p style="font-size:0.88rem;color:#94a3b8;max-width:400px;margin:0.5rem auto 0;">يرجى التواصل مع الإدارة للحصول على المزيد من المعلومات</p>
                 </div>
             </div>
+        @else
+        {{-- ── Tabbed programs card ── --}}
+        <div class="sec-card" style="margin-bottom:1.5rem;">
+
+            {{-- Tab bar --}}
+            <div style="padding:1.25rem 1.5rem 0;border-bottom:1px solid #f1f5f9;display:flex;gap:4px;flex-wrap:wrap;">
+                @if($diplomaPrograms->isNotEmpty())
+                <button onclick="switchTab('diploma')" id="tab-diploma"
+                        style="padding:10px 22px;border-radius:10px 10px 0 0;border:none;cursor:pointer;font-size:.88rem;font-weight:700;font-family:inherit;transition:all .2s;">
+                    🎓 الدبلومات
+                    <span style="background:#eff6ff;color:#1d4ed8;font-size:.7rem;font-weight:700;padding:1px 7px;border-radius:20px;margin-right:4px;">{{ $diplomaPrograms->count() }}</span>
+                </button>
+                @endif
+                @if($coursePrograms->isNotEmpty())
+                <button onclick="switchTab('course')" id="tab-course"
+                        style="padding:10px 22px;border-radius:10px 10px 0 0;border:none;cursor:pointer;font-size:.88rem;font-weight:700;font-family:inherit;transition:all .2s;">
+                    📋 الدورات
+                    <span style="background:#f5f3ff;color:#5b21b6;font-size:.7rem;font-weight:700;padding:1px 7px;border-radius:20px;margin-right:4px;">{{ $coursePrograms->count() }}</span>
+                </button>
+                @endif
+                @if($englishPrograms->isNotEmpty())
+                <button onclick="switchTab('english')" id="tab-english"
+                        style="padding:10px 22px;border-radius:10px 10px 0 0;border:none;cursor:pointer;font-size:.88rem;font-weight:700;font-family:inherit;transition:all .2s;">
+                    🇬🇧 الإنجليزية
+                    <span style="background:#ecfdf5;color:#065f46;font-size:.7rem;font-weight:700;padding:1px 7px;border-radius:20px;margin-right:4px;">{{ $englishPrograms->count() }}</span>
+                </button>
+                @endif
+            </div>
+
+            {{-- Tab panels --}}
+            @php
+                $tabDefs = [
+                    ['diploma',  $diplomaPrograms,  'linear-gradient(135deg,#0071AA,#005a88)',  false],
+                    ['course',   $coursePrograms,   'linear-gradient(135deg,#7c3aed,#5b21b6)',  true],
+                    ['english',  $englishPrograms,  'linear-gradient(135deg,#059669,#047857)',  false],
+                ];
+            @endphp
+
+            @foreach($tabDefs as [$tabKey, $group, $gradient, $showHours])
+            <div id="panel-{{ $tabKey }}" style="padding:1.5rem;display:none;">
+                <div class="prog-cards">
+                    @foreach($group as $availableProgram)
+                    <div class="prog-card">
+                        <div class="prog-card-header" style="background:{{ $gradient }};">
+                            <div class="prog-card-name">{{ $availableProgram->name }}</div>
+                            @if($availableProgram->code)
+                                <span class="prog-card-code">{{ $availableProgram->code }}</span>
+                            @endif
+                        </div>
+                        <div class="prog-card-body">
+                            @if($availableProgram->description)
+                                <p class="prog-card-desc">{{ Str::limit($availableProgram->description, 120) }}</p>
+                            @endif
+                            <div class="prog-card-meta">
+                                @if($showHours && $availableProgram->duration_hours)
+                                    <div class="prog-card-meta-item">
+                                        <div class="prog-card-meta-icon" style="background:#dbeafe;">
+                                            <svg style="color:#3b82f6;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                        </div>
+                                        المدة: <strong>{{ $availableProgram->duration_hours }} ساعة</strong>
+                                    </div>
+                                @elseif(!$showHours && $availableProgram->duration_months)
+                                    <div class="prog-card-meta-item">
+                                        <div class="prog-card-meta-icon" style="background:#dbeafe;">
+                                            <svg style="color:#3b82f6;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                        </div>
+                                        المدة: <strong>{{ $availableProgram->duration_months }} شهر</strong>
+                                    </div>
+                                @endif
+                                @if($availableProgram->terms_count)
+                                    <div class="prog-card-meta-item">
+                                        <div class="prog-card-meta-icon" style="background:#d1fae5;">
+                                            <svg style="color:#10b981;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                        </div>
+                                        الفصول: <strong>{{ $availableProgram->terms_count }} فصل</strong>
+                                    </div>
+                                @endif
+                                @if($availableProgram->price)
+                                    <div class="prog-card-meta-item">
+                                        <div class="prog-card-meta-icon" style="background:#fef3c7;">
+                                            <svg style="color:#f59e0b;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                        </div>
+                                        السعر: <strong>{{ number_format($availableProgram->price, 2) }} <x-riyal /></strong>
+                                    </div>
+                                @endif
+                            </div>
+                            <form action="{{ route('student.enroll-program') }}" method="POST">
+                                @csrf
+                                <input type="hidden" name="program_id" value="{{ $availableProgram->id }}">
+                                @if($availableProgram->price && $availableProgram->price > 0)
+                                    <button type="submit" class="enroll-btn" style="background:{{ $gradient }};">
+                                        التسجيل والدفع - {{ number_format($availableProgram->price, 2) }} <x-riyal />
+                                    </button>
+                                @else
+                                    <button type="submit" class="enroll-btn" style="background:{{ $gradient }};">التسجيل في هذا البرنامج</button>
+                                @endif
+                            </form>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+            @endforeach
+
+        </div>
+
+        <script>
+        const TAB_COLORS = {
+            diploma: { active: '#0071AA', bg: '#eff6ff' },
+            course:  { active: '#7c3aed', bg: '#f5f3ff' },
+            english: { active: '#059669', bg: '#ecfdf5' },
+        };
+        function switchTab(key) {
+            ['diploma','course','english'].forEach(k => {
+                const btn   = document.getElementById('tab-' + k);
+                const panel = document.getElementById('panel-' + k);
+                if (!btn || !panel) return;
+                const isActive = k === key;
+                panel.style.display    = isActive ? 'block' : 'none';
+                btn.style.background   = isActive ? TAB_COLORS[k].bg  : 'transparent';
+                btn.style.color        = isActive ? TAB_COLORS[k].active : '#6b7280';
+                btn.style.borderBottom = isActive ? ('2px solid ' + TAB_COLORS[k].active) : '2px solid transparent';
+                btn.style.marginBottom = isActive ? '-1px' : '0';
+            });
+        }
+        switchTab('{{ $defaultTab }}');
+        </script>
         @endif
 
         {{-- Help Section --}}

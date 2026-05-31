@@ -570,10 +570,14 @@ class DashboardController extends Controller
         $program = $student->program;
 
         if (!$program) {
-            // Get available programs for enrollment
-            $availablePrograms = \App\Models\Program::where('status', 'active')
+            // Get available programs for enrollment grouped by type
+            $allPrograms = \App\Models\Program::where('status', 'active')
                 ->withCount('terms')
                 ->get();
+
+            $diplomaPrograms  = $allPrograms->where('type', 'diploma')->values();
+            $coursePrograms   = $allPrograms->whereIn('type', ['course', 'training'])->values();
+            $englishPrograms  = $allPrograms->where('type', 'english')->values();
 
             return view('student.program.index', [
                 'program' => null,
@@ -582,7 +586,10 @@ class DashboardController extends Controller
                 'subjects' => collect(),
                 'stats' => [],
                 'enrollments' => collect(),
-                'availablePrograms' => $availablePrograms,
+                'availablePrograms' => $allPrograms,
+                'diplomaPrograms'   => $diplomaPrograms,
+                'coursePrograms'    => $coursePrograms,
+                'englishPrograms'   => $englishPrograms,
             ]);
         }
 

@@ -6,7 +6,7 @@
 <style>
 /* ── Hero ── */
 .enroll-hero {
-    background: linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%);
+    background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 55%, #0071AA 100%);
     border-radius: 24px;
     padding: 2rem 2.5rem;
     position: relative;
@@ -186,6 +186,9 @@
 .badge-pending { background: #fef9c3; color: #92400e; padding: .3rem .9rem; border-radius: 20px; font-size: .75rem; font-weight: 700; }
 .badge-active  { background: #dcfce7; color: #16a34a; padding: .3rem .9rem; border-radius: 20px; font-size: .75rem; font-weight: 700; }
 
+/* ── Animations ── */
+@keyframes livePulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.6;transform:scale(1.15)} }
+
 /* ── Lightbox ── */
 #doc-lb {
     display: none; position: fixed; inset: 0; z-index: 9999;
@@ -207,6 +210,28 @@
         العودة للطلبات المعلقة
     </a>
 
+    {{-- ── Approved Banner ── --}}
+    @if($user->program_status === 'approved')
+    <div style="background:linear-gradient(135deg,#065f46,#059669);border-radius:18px;padding:1.1rem 1.5rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:1rem;box-shadow:0 4px 20px rgba(5,150,105,.3);">
+        <div style="width:44px;height:44px;background:rgba(255,255,255,.2);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <svg width="22" height="22" fill="none" stroke="white" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </div>
+        <div>
+            <div style="color:white;font-size:.95rem;font-weight:800;">تم قبول طلب التسجيل ✓</div>
+            <div style="color:rgba(255,255,255,.8);font-size:.78rem;margin-top:2px;">
+                المتدرب <strong>{{ $user->name }}</strong> مسجّل الآن في برنامج <strong>{{ $user->program->name_ar ?? '' }}</strong>
+            </div>
+        </div>
+    </div>
+    @endif
+
+    @if(session('success'))
+    <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-right:4px solid #22c55e;border-radius:12px;padding:14px 18px;margin-bottom:1.25rem;display:flex;align-items:center;gap:10px;">
+        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#16a34a" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span style="color:#15803d;font-size:14px;font-weight:600;">{{ session('success') }}</span>
+    </div>
+    @endif
+
     {{-- ── Hero Header ── --}}
     <div class="enroll-hero">
         <div style="position:relative;z-index:1;">
@@ -223,7 +248,11 @@
                 {{-- Info --}}
                 <div style="flex:1;min-width:200px;">
                     <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.4rem;flex-wrap:wrap;">
+                        @if($user->program_status === 'approved')
+                        <span style="background:rgba(16,185,129,.3);color:#bbf7d0;padding:.25rem .85rem;border-radius:20px;font-size:.72rem;font-weight:700;letter-spacing:.4px;">✓ تم القبول</span>
+                        @else
                         <span style="background:rgba(255,255,255,0.2);color:white;padding:.25rem .85rem;border-radius:20px;font-size:.72rem;font-weight:700;letter-spacing:.4px;">⏳ طلب تسجيل معلق</span>
+                        @endif
                         <span style="background:rgba(255,255,255,0.15);color:rgba(255,255,255,.85);padding:.25rem .85rem;border-radius:20px;font-size:.72rem;font-weight:600;">
                             تقدّم {{ $user->updated_at->diffForHumans() }}
                         </span>
@@ -250,6 +279,12 @@
                 </div>
 
                 {{-- Action Buttons --}}
+                @if($user->program_status === 'approved')
+                <div style="display:flex;align-items:center;gap:.6rem;background:rgba(16,185,129,.25);border:1.5px solid rgba(16,185,129,.4);border-radius:16px;padding:.85rem 1.25rem;">
+                    <svg width="22" height="22" fill="none" stroke="#86efac" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                    <span style="color:#bbf7d0;font-size:.88rem;font-weight:800;">تم القبول</span>
+                </div>
+                @else
                 <div style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;">
                     <form action="{{ route('admin.program-enrollments.approve', $user) }}" method="POST" style="display:inline;">
                         @csrf
@@ -263,6 +298,7 @@
                         رفض الطلب
                     </button>
                 </div>
+                @endif
             </div>
         </div>
     </div>
@@ -451,12 +487,26 @@
             {{-- Quick Actions Card --}}
             <div class="info-card">
                 <div class="card-header">
-                    <div class="card-icon" style="background:linear-gradient(135deg,#f59e0b,#d97706);">
+                    <div class="card-icon" style="background:{{ $user->program_status === 'approved' ? 'linear-gradient(135deg,#10b981,#059669)' : 'linear-gradient(135deg,#0071AA,#005a88)' }};">
+                        @if($user->program_status === 'approved')
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                        @else
                         <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                        @endif
                     </div>
-                    <h3>الإجراءات</h3>
+                    <h3>{{ $user->program_status === 'approved' ? 'حالة الطلب' : 'الإجراءات' }}</h3>
                 </div>
                 <div class="card-body" style="display:flex;flex-direction:column;gap:.75rem;">
+                    @if($user->program_status === 'approved')
+                    {{-- Approved state --}}
+                    <div style="background:linear-gradient(135deg,#ecfdf5,#d1fae5);border:1.5px solid #6ee7b7;border-radius:14px;padding:1.1rem 1.25rem;display:flex;flex-direction:column;align-items:center;text-align:center;gap:.5rem;">
+                        <div style="width:52px;height:52px;background:linear-gradient(135deg,#10b981,#059669);border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(16,185,129,.35);">
+                            <svg width="26" height="26" fill="none" stroke="white" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                        </div>
+                        <div style="font-size:1rem;font-weight:800;color:#065f46;">تم القبول</div>
+                        <div style="font-size:.78rem;color:#059669;font-weight:600;">المتدرب مسجّل بنجاح في البرنامج</div>
+                    </div>
+                    @else
                     <form action="{{ route('admin.program-enrollments.approve', $user) }}" method="POST">
                         @csrf
                         <button type="submit" style="width:100%;padding:.85rem;background:linear-gradient(135deg,#10b981,#059669);color:white;border:none;border-radius:14px;font-size:.95rem;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.6rem;box-shadow:0 4px 16px rgba(16,185,129,.3);transition:opacity .2s;" onmouseover="this.style.opacity='.9'" onmouseout="this.style.opacity='1'">
@@ -468,6 +518,7 @@
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
                         رفض الطلب
                     </button>
+                    @endif
                     <a href="{{ route('admin.students.show', $user) }}" style="width:100%;padding:.75rem;background:#f8fafc;color:#374151;border:1.5px solid #e5e7eb;border-radius:14px;font-size:.875rem;font-weight:700;display:flex;align-items:center;justify-content:center;gap:.6rem;text-decoration:none;transition:background .2s;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='#f8fafc'">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
                         عرض ملف الطالب
@@ -509,10 +560,18 @@
                             <div style="font-size:.82rem;font-weight:700;color:#111827;">طلب التسجيل في البرنامج</div>
                             <div style="font-size:.72rem;color:#9ca3af;margin-top:2px;">{{ $user->updated_at->format('Y/m/d H:i') }}</div>
                         </div>
+                        @if($user->program_status === 'approved')
+                        <div class="tl-item">
+                            <div class="tl-dot green" style="animation:livePulse 2s infinite;"></div>
+                            <div style="font-size:.82rem;font-weight:800;color:#059669;">✓ تمّت الموافقة على الطلب</div>
+                            <div style="font-size:.72rem;color:#6ee7b7;margin-top:2px;">مسجّل في {{ $user->program->name_ar ?? 'البرنامج' }}</div>
+                        </div>
+                        @else
                         <div class="tl-item">
                             <div class="tl-dot gray"></div>
                             <div style="font-size:.82rem;font-weight:600;color:#9ca3af;">في انتظار موافقة الإدارة...</div>
                         </div>
+                        @endif
                     </div>
                 </div>
             </div>

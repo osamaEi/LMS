@@ -135,6 +135,16 @@ class TermController extends Controller
             ->with('success', 'تم تحديث الربع التدريبي  بنجاح');
     }
 
+    public function toggleStatus(Request $request, Term $term)
+    {
+        $new = $request->input('status');
+        abort_unless(in_array($new, ['active', 'upcoming', 'completed']), 422);
+        $term->update(['status' => $new]);
+
+        $labels = ['active' => 'نشط', 'upcoming' => 'قادم', 'completed' => 'مكتمل'];
+        return back()->with('success', 'تم تغيير حالة الفصل إلى: ' . $labels[$new]);
+    }
+
     public function destroy(Term $term)
     {
         $term->delete();
