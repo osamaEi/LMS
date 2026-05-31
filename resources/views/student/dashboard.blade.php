@@ -488,6 +488,17 @@
                     </div>
                 </div>
 
+                {{-- Nationality --}}
+                <div class="flex items-start gap-2.5">
+                    <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5" style="background: #ecfdf5;">
+                        <svg class="w-4 h-4" style="color: #059669;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21V5a2 2 0 012-2h14a2 2 0 012 2v16M3 21h18M12 3v18M3 12h18"/></svg>
+                    </div>
+                    <div>
+                        <div class="text-[0.7rem] text-gray-400 font-medium">الجنسية</div>
+                        <div class="text-sm font-bold text-gray-900 dark:text-white mt-0.5">{{ auth()->user()->nationality ?? '—' }}</div>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>

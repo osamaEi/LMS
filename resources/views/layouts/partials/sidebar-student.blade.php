@@ -63,23 +63,33 @@
 <!-- الاختبارات - Dropdown -->
 @php
     $studentSubjects = collect();
+    $studentProgramType = null;
+    $studentCourseProgram = null;
     if (auth()->check() && auth()->user()->role === 'student') {
         $student = auth()->user();
         if ($student->program_id) {
-            $terms = \App\Models\Term::where('program_id', $student->program_id)
-                ->orderBy('term_number', 'asc')->get();
-            $currentTermNumber = $student->current_term_number ?? 1;
-            $currentTerm = $terms->first(function ($t) {
-                return $t->start_date && $t->end_date
-                    && $t->start_date <= now() && $t->end_date >= now();
-            }) ?? $terms->firstWhere('term_number', $currentTermNumber)
-              ?? $terms->first();
+            $studentProgram = $student->program;
+            $studentProgramType = $studentProgram?->type;
 
-            if ($currentTerm) {
-                $studentSubjects = \App\Models\Subject::where(function($q) use ($currentTerm) {
-                    $q->where('term_id', $currentTerm->id)
-                      ->orWhereHas('terms', fn($tq) => $tq->where('terms.id', $currentTerm->id));
-                })->get();
+            if (in_array($studentProgramType, ['course', 'training', 'english'])) {
+                $studentCourseProgram = $studentProgram;
+            } else {
+                // diploma — load subjects from current term
+                $terms = \App\Models\Term::where('program_id', $student->program_id)
+                    ->orderBy('term_number', 'asc')->get();
+                $currentTermNumber = $student->current_term_number ?? 1;
+                $currentTerm = $terms->first(function ($t) {
+                    return $t->start_date && $t->end_date
+                        && $t->start_date <= now() && $t->end_date >= now();
+                }) ?? $terms->firstWhere('term_number', $currentTermNumber)
+                  ?? $terms->first();
+
+                if ($currentTerm) {
+                    $studentSubjects = \App\Models\Subject::where(function($q) use ($currentTerm) {
+                        $q->where('term_id', $currentTerm->id)
+                          ->orWhereHas('terms', fn($tq) => $tq->where('terms.id', $currentTerm->id));
+                    })->get();
+                }
             }
         }
     }
@@ -121,7 +131,8 @@
     </ul>
 </li>
 
-<!-- مقرراتي - Dropdown -->
+<!-- مقرراتي - Dropdown (diploma only) -->
+@if(!$studentCourseProgram)
 <li x-data="{ open: {{ request()->routeIs('student.subjects.*') ? 'true' : 'false' }} }">
     <button @click="open = !open"
             class="menu-item group relative flex w-full items-center justify-between gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('student.subjects.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
@@ -158,6 +169,20 @@
         @endforelse
     </ul>
 </li>
+@endif
+
+<!-- دوراتي / تدريباتي (course/training/english only) -->
+@if($studentCourseProgram)
+<li>
+    <a href="{{ route('student.my-program') }}"
+       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('student.my-program') ? 'menu-item-active' : 'menu-item-inactive' }}">
+        <svg class="fill-current" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 14H8v-2h8v2zm0-4H8v-2h8v2zm0-4H8V6h8v2z"/>
+        </svg>
+        <span>{{ $studentCourseProgram->type === 'english' ? 'دورتي الإنجليزية' : 'دورتي التدريبية' }}</span>
+    </a>
+</li>
+@endif
 
 <!-- سجل الحضور -->
 <li>
