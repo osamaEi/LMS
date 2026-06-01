@@ -116,6 +116,12 @@ Route::prefix('v1')->group(function () {
             Route::post('/subjects/{subjectId}/quizzes/{quizId}/submit', [App\Http\Controllers\Api\V1\Student\QuizController::class, 'submit']);
             Route::get('/subjects/{subjectId}/quizzes/{quizId}/result/{attemptId}', [App\Http\Controllers\Api\V1\Student\QuizController::class, 'result']);
 
+            // Homework
+            Route::get('/homework', [App\Http\Controllers\Api\V1\Student\HomeworkController::class, 'index']);
+            Route::get('/homework/{id}', [App\Http\Controllers\Api\V1\Student\HomeworkController::class, 'show']);
+            Route::post('/homework/{id}/submit', [App\Http\Controllers\Api\V1\Student\HomeworkController::class, 'submit']);
+            Route::delete('/homework/submissions/{id}', [App\Http\Controllers\Api\V1\Student\HomeworkController::class, 'deleteSubmission']);
+
             // Tickets (Support)
             Route::get('/tickets/options', [App\Http\Controllers\Api\V1\Student\TicketController::class, 'options']);
             Route::get('/tickets', [App\Http\Controllers\Api\V1\Student\TicketController::class, 'index']);
