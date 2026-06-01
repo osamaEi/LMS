@@ -5,10 +5,12 @@ namespace App\Http\Controllers\Api\V1\Student;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\PaymentResource;
 use App\Models\Payment;
+use App\Models\PaymentTransaction;
 use App\Services\PaymentService;
 use App\Services\TamaraPaymentService;
 use App\Services\PayTabsService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class PaymentController extends Controller
 {
@@ -66,6 +68,84 @@ class PaymentController extends Controller
             'success' => true,
             'data' => new PaymentResource($payment),
         ]);
+    }
+
+    /**
+     * POST /api/v1/student/payments/{id}/pay-with-receipt
+     * Submit bank transfer receipt with chosen amount
+     */
+    public function payWithReceipt(Request $request, $id)
+    {
+        $user = auth()->user();
+
+        $payment = Payment::where('user_id', $user->id)->findOrFail($id);
+
+        if ($payment->isFullyPaid()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'الدفعة مكتملة بالفعل',
+            ], 422);
+        }
+
+        if ($payment->isCancelled()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'الدفعة ملغاة',
+            ], 422);
+        }
+
+        $request->validate([
+            'amount'  => 'required|numeric|min:1',
+            'receipt' => 'nullable',
+            'notes'   => 'nullable|string|max:500',
+        ]);
+
+        $amount = (float) $request->input('amount');
+
+        // Clamp to remaining amount
+        $remaining = (float) $payment->remaining_amount;
+        if ($amount > $remaining) {
+            return response()->json([
+                'success' => false,
+                'message' => "المبلغ المدخل ({$amount}) أكبر من المتبقي ({$remaining})",
+            ], 422);
+        }
+
+        // Handle receipt: file upload or string URL
+        $receiptPath = null;
+        if ($request->hasFile('receipt')) {
+            $receiptPath = $request->file('receipt')
+                ->store('payment-receipts/' . $payment->id, 'public');
+        } elseif ($request->filled('receipt')) {
+            $receiptPath = $request->input('receipt');
+        }
+
+        $transaction = PaymentTransaction::create([
+            'payment_id'     => $payment->id,
+            'amount'         => $amount,
+            'type'           => 'payment',
+            'payment_method' => 'bank_transfer',
+            'status'         => 'pending',
+            'receipt_path'   => $receiptPath,
+            'receipt_status' => 'pending',
+            'notes'          => $request->input('notes'),
+            'created_by'     => $user->id,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'تم إرسال إيصال التحويل البنكي بنجاح. سيتم مراجعته من قِبل الإدارة.',
+            'data'    => [
+                'transaction_id'  => $transaction->id,
+                'amount'          => $amount,
+                'receipt_status'  => 'pending',
+                'receipt_url'     => $receiptPath
+                    ? (filter_var($receiptPath, FILTER_VALIDATE_URL)
+                        ? $receiptPath
+                        : asset('storage/' . $receiptPath))
+                    : null,
+            ],
+        ], 201);
     }
 
     /**

@@ -146,6 +146,7 @@ Route::prefix('v1')->group(function () {
             Route::get('/payments/{id}', [App\Http\Controllers\Api\V1\Student\PaymentController::class, 'show']);
             Route::post('/payments/{id}/pay-with-tamara', [App\Http\Controllers\Api\V1\Student\PaymentController::class, 'payWithTamara']);
             Route::post('/payments/{id}/pay-with-paytabs', [App\Http\Controllers\Api\V1\Student\PaymentController::class, 'payWithPayTabs']);
+            Route::post('/payments/{id}/pay-with-receipt', [App\Http\Controllers\Api\V1\Student\PaymentController::class, 'payWithReceipt']);
 
 
             // Notifications
