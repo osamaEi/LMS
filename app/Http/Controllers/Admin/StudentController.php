@@ -8,6 +8,7 @@ use App\Models\Program;
 use App\Models\StudentDocument;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 class StudentController extends Controller
 {
@@ -98,11 +99,20 @@ class StudentController extends Controller
     public function update(Request $request, User $student)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $student->id,
-            'national_id' => 'required|string|unique:users,national_id,' . $student->id,
-            'phone' => 'nullable|string|max:20',
-            'password' => 'nullable|string|min:8|confirmed',
+            'name'                => 'required|string|max:255',
+            'email'               => 'required|email|unique:users,email,' . $student->id,
+            'national_id'         => 'required|string|unique:users,national_id,' . $student->id,
+            'phone'               => 'nullable|string|max:20',
+            'gender'              => 'nullable|in:male,female',
+            'date_of_birth'       => 'nullable|date',
+            'nationality'         => 'nullable|string|max:100',
+            'status'              => 'nullable|in:active,pending,inactive,suspended',
+            'specialization'      => 'nullable|string|max:255',
+            'specialization_type' => 'nullable|string|max:255',
+            'date_of_graduation'  => 'nullable|date',
+            'bio'                 => 'nullable|string|max:500',
+            'profile_photo'       => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'password'            => 'nullable|string|min:8|confirmed',
         ]);
 
         if (!empty($validated['password'])) {
@@ -111,10 +121,19 @@ class StudentController extends Controller
             unset($validated['password']);
         }
 
+        if ($request->hasFile('profile_photo')) {
+            if ($student->profile_photo) {
+                Storage::disk('public')->delete($student->profile_photo);
+            }
+            $validated['profile_photo'] = $request->file('profile_photo')->store('uploads/images', 'public');
+        } else {
+            unset($validated['profile_photo']);
+        }
+
         $student->update($validated);
 
-        return redirect()->route('admin.students.index')
-            ->with('success', 'تم تحديث بيانات ال متدرب بنجاح');
+        return redirect()->route('admin.students.show', $student)
+            ->with('success', 'تم تحديث بيانات المتدرب بنجاح');
     }
 
     public function destroy(User $student)

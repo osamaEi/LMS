@@ -187,7 +187,7 @@
                     <h1 class="text-2xl font-extrabold tracking-tight">{{ $user->name }}</h1>
                     <p class="text-sm opacity-55 mt-0.5">
                         @if($user->program)
-                            {{ $user->program->name }}
+                            {{ $user->program->name_ar }}
                         @else
                             لم يتم تعيين برنامج بعد
                         @endif
@@ -339,7 +339,7 @@
                         </div>
                         <div class="flex-1">
                             <div class="info-lbl">البرنامج التدريبي الحالي</div>
-                            <div class="info-val">{{ $user->program->name }}</div>
+                            <div class="info-val">{{ $user->program->name_ar }}</div>
                         </div>
                         @php
                             $ps = $user->program_status;

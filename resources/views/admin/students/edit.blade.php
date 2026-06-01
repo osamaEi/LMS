@@ -28,7 +28,7 @@
 </div>
 @endif
 
-<form action="{{ route('admin.students.update', $student) }}" method="POST">
+<form action="{{ route('admin.students.update', $student) }}" method="POST" enctype="multipart/form-data">
     @csrf
     @method('PUT')
 
@@ -79,6 +79,101 @@
                            class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
                 </div>
 
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">الجنس</label>
+                    <select name="gender" class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
+                        <option value="">— اختر —</option>
+                        <option value="male"   {{ old('gender', $student->gender) === 'male'   ? 'selected' : '' }}>ذكر</option>
+                        <option value="female" {{ old('gender', $student->gender) === 'female' ? 'selected' : '' }}>أنثى</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">تاريخ الميلاد</label>
+                    <input type="date" name="date_of_birth"
+                           value="{{ old('date_of_birth', $student->date_of_birth?->format('Y-m-d')) }}"
+                           class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">الجنسية</label>
+                    <input type="text" name="nationality"
+                           value="{{ old('nationality', $student->nationality) }}"
+                           class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">الحالة</label>
+                    <select name="status" class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
+                        <option value="active"    {{ old('status', $student->status) === 'active'    ? 'selected' : '' }}>نشط</option>
+                        <option value="pending"   {{ old('status', $student->status) === 'pending'   ? 'selected' : '' }}>قيد المراجعة</option>
+                        <option value="inactive"  {{ old('status', $student->status) === 'inactive'  ? 'selected' : '' }}>غير نشط</option>
+                        <option value="suspended" {{ old('status', $student->status) === 'suspended' ? 'selected' : '' }}>موقوف</option>
+                    </select>
+                </div>
+
+            </div>
+        </div>
+
+        {{-- Academic Info --}}
+        <div class="border-t border-gray-200 dark:border-gray-800 pt-6">
+            <h2 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4">البيانات الأكاديمية</h2>
+            <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">نوع المؤهل التدريبي</label>
+                    <input type="text" name="specialization"
+                           value="{{ old('specialization', $student->specialization) }}"
+                           class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">المؤهل التعليمي</label>
+                    <select name="specialization_type" class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
+                        <option value="">— اختر —</option>
+                        @foreach(['diploma'=>'دبلوم','bachelor'=>'بكالوريوس','master'=>'ماجستير','phd'=>'دكتوراه','training'=>'تدريب مهني'] as $val => $lbl)
+                            <option value="{{ $val }}" {{ old('specialization_type', $student->specialization_type) === $val ? 'selected' : '' }}>{{ $lbl }}</option>
+                        @endforeach
+                        @if($student->specialization_type && !in_array($student->specialization_type, ['diploma','bachelor','master','phd','training']))
+                            <option value="{{ $student->specialization_type }}" selected>{{ $student->specialization_type }}</option>
+                        @endif
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">تاريخ التخرج</label>
+                    <input type="date" name="date_of_graduation"
+                           value="{{ old('date_of_graduation', $student->date_of_graduation?->format('Y-m-d')) }}"
+                           class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
+                </div>
+
+            </div>
+
+            <div class="mt-5">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">نبذة شخصية</label>
+                <textarea name="bio" rows="3"
+                          placeholder="اكتب نبذة مختصرة..."
+                          class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white">{{ old('bio', $student->bio) }}</textarea>
+            </div>
+        </div>
+
+        {{-- Photo --}}
+        <div class="border-t border-gray-200 dark:border-gray-800 pt-6">
+            <h2 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4">الصورة الشخصية</h2>
+            <div class="flex items-center gap-5">
+                <img id="photo-preview"
+                     src="{{ $student->profile_photo ? asset('storage/'.$student->profile_photo) : 'https://ui-avatars.com/api/?name='.urlencode($student->name).'&background=0071AA&color=fff&size=120&bold=true' }}"
+                     alt="{{ $student->name }}"
+                     class="w-20 h-20 rounded-2xl object-cover border-2 border-gray-200 dark:border-gray-700">
+                <div>
+                    <label class="cursor-pointer inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white" style="background:#0071AA;">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                        اختر صورة
+                        <input type="file" name="profile_photo" accept="image/jpg,image/jpeg,image/png"
+                               class="hidden" onchange="previewPhoto(this)">
+                    </label>
+                    <p class="text-xs text-gray-400 mt-1.5">JPG أو PNG · بحد أقصى 2 ميجابايت</p>
+                </div>
             </div>
         </div>
 
@@ -122,4 +217,14 @@
 
     </div>
 </form>
+@push('scripts')
+<script>
+function previewPhoto(input) {
+    if (!input.files[0]) return;
+    const reader = new FileReader();
+    reader.onload = e => document.getElementById('photo-preview').src = e.target.result;
+    reader.readAsDataURL(input.files[0]);
+}
+</script>
+@endpush
 @endsection
