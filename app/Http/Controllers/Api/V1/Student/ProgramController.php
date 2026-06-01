@@ -6,9 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\StudentProgramResource;
 use App\Models\Attendance;
 use App\Models\Enrollment;
+use App\Models\Homework;
+use App\Models\HomeworkSubmission;
 use App\Models\Program;
 use App\Models\Session;
 use App\Models\Subject;
+use App\Models\SubjectFile;
 use Illuminate\Http\Request;
 
 class ProgramController extends Controller
@@ -170,6 +173,160 @@ class ProgramController extends Controller
             'terms'    => $termData,
             'data'     => $data,
             'total'    => $data->count(),
+        ]);
+    }
+
+    /**
+     * GET /api/v1/student/my-course
+     * For course/training/english students: full course content
+     * (sessions with files + homework, program files, attendance)
+     */
+    public function myCourse()
+    {
+        $student = auth()->user();
+        $program = $student->program;
+
+        if (!$program) {
+            return response()->json(['success' => false, 'message' => 'غير مسجل في برنامج'], 403);
+        }
+
+        if ($student->program_status === 'pending') {
+            return response()->json(['success' => false, 'message' => 'طلب التسجيل قيد المراجعة'], 403);
+        }
+
+        if ($program->type === 'diploma') {
+            return response()->json(['success' => false, 'message' => 'هذا المسار مخصص للدورات فقط، استخدم /program-subjects'], 422);
+        }
+
+        // Sessions assigned to this student in this program
+        $assignedSessionIds = Attendance::where('student_id', $student->id)->pluck('session_id');
+
+        $sessions = Session::where('program_id', $program->id)
+            ->whereIn('id', $assignedSessionIds)
+            ->with(['files', 'homework'])
+            ->orderBy('session_number')
+            ->get();
+
+        $attendances = Attendance::where('student_id', $student->id)
+            ->whereIn('session_id', $sessions->pluck('id'))
+            ->get()
+            ->keyBy('session_id');
+
+        $homeworkIds = $sessions->pluck('homework')->filter()->pluck('id');
+        $mySubmissions = HomeworkSubmission::where('student_id', $student->id)
+            ->whereIn('homework_id', $homeworkIds)
+            ->get()
+            ->keyBy('homework_id');
+
+        // Program files
+        $programFiles = SubjectFile::where('program_id', $program->id)
+            ->orderBy('order')
+            ->get()
+            ->map(fn($f) => [
+                'id'    => $f->id,
+                'title' => $f->title,
+                'url'   => asset('storage/' . $f->file_path),
+                'type'  => $f->file_type,
+                'size'  => $f->file_size,
+                'name'  => $f->file_original_name,
+            ])->values();
+
+        // Format sessions
+        $sessionsData = $sessions->map(function ($session) use ($attendances, $mySubmissions) {
+            $attendance = $attendances->get($session->id);
+            $homework   = $session->homework;
+
+            $status = match (true) {
+                !is_null($session->ended_at)   => 'ended',
+                !is_null($session->started_at) => 'live',
+                default                        => 'upcoming',
+            };
+
+            return [
+                'id'               => $session->id,
+                'title'            => $session->title_ar ?? $session->title ?? null,
+                'session_number'   => $session->session_number,
+                'type'             => $session->type,
+                'status'           => $status,
+                'scheduled_at'     => $session->scheduled_at,
+                'duration_minutes' => $session->duration_minutes,
+                'join_url'         => $session->type === 'live_zoom' ? $session->zoom_join_url : null,
+                'zoom_meeting_id'  => $session->zoom_meeting_id ?? null,
+                'video_url'        => $session->type === 'recorded_video' ? $session->getVideoUrl() : null,
+                'recording_url'    => $session->recording_url ?? null,
+                'files'            => $session->files->map(fn($f) => [
+                    'id'    => $f->id,
+                    'title' => $f->title,
+                    'url'   => asset('storage/' . $f->file_path),
+                    'type'  => $f->file_type,
+                    'size'  => $f->file_size,
+                ])->values(),
+                'homework' => $homework ? [
+                    'id'             => $homework->id,
+                    'title_ar'       => $homework->title_ar,
+                    'title_en'       => $homework->title_en,
+                    'description_ar' => $homework->description_ar,
+                    'due_date'       => $homework->due_date?->format('Y-m-d'),
+                    'attachment_url' => $homework->file_url,
+                    'submission'     => $mySubmissions->has($homework->id) ? [
+                        'id'           => $mySubmissions[$homework->id]->id,
+                        'content'      => $mySubmissions[$homework->id]->content,
+                        'file_url'     => $mySubmissions[$homework->id]->file_path
+                            ? (filter_var($mySubmissions[$homework->id]->file_path, FILTER_VALIDATE_URL)
+                                ? $mySubmissions[$homework->id]->file_path
+                                : asset('storage/' . $mySubmissions[$homework->id]->file_path))
+                            : null,
+                        'submitted_at' => $mySubmissions[$homework->id]->submitted_at?->toIso8601String(),
+                        'grade'        => $mySubmissions[$homework->id]->grade,
+                        'feedback'     => $mySubmissions[$homework->id]->feedback,
+                    ] : null,
+                ] : null,
+                'attendance' => [
+                    'attended'         => $attendance?->attended ?? false,
+                    'joined_at'        => $attendance?->joined_at,
+                    'duration_minutes' => $attendance?->duration_minutes ?? 0,
+                ],
+                'links' => [
+                    'join_api'  => url("/api/v1/student/sessions/{$session->id}/join-zoom"),
+                    'leave_api' => url("/api/v1/student/sessions/{$session->id}/leave-zoom"),
+                ],
+            ];
+        })->values();
+
+        // Attendance stats
+        $total    = $sessionsData->count();
+        $attended = $sessionsData->where('attendance.attended', true)->count();
+
+        $program->loadMissing('teachers');
+
+        return response()->json([
+            'success' => true,
+            'data'    => [
+                'program' => [
+                    'id'          => $program->id,
+                    'name_ar'     => $program->name_ar,
+                    'name_en'     => $program->name_en,
+                    'type'        => $program->type,
+                    'description' => $program->description_ar,
+                    'duration_hours'  => $program->duration_hours ?? null,
+                    'duration_months' => $program->duration_months ?? null,
+                    'teacher'     => $program->teachers->first() ? [
+                        'id'    => $program->teachers->first()->id,
+                        'name'  => $program->teachers->first()->name,
+                        'photo' => $program->teachers->first()->profile_photo
+                            ? asset('storage/' . $program->teachers->first()->profile_photo)
+                            : null,
+                    ] : null,
+                ],
+                'files'    => $programFiles,
+                'sessions' => $sessionsData,
+                'attendance' => [
+                    'total_sessions'    => $total,
+                    'attended_sessions' => $attended,
+                    'absent_sessions'   => $total - $attended,
+                    'attendance_rate'   => $total > 0 ? round(($attended / $total) * 100, 1) : 0,
+                ],
+            ],
         ]);
     }
 

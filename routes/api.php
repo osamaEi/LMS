@@ -105,6 +105,7 @@ Route::prefix('v1')->group(function () {
             // Program
             Route::get('/my-program', [App\Http\Controllers\Api\V1\Student\ProgramController::class, 'show']);
             Route::get('/program-subjects', [App\Http\Controllers\Api\V1\Student\ProgramController::class, 'subjects']);
+            Route::get('/my-course', [App\Http\Controllers\Api\V1\Student\ProgramController::class, 'myCourse']);
             Route::get('/term-attendance', [App\Http\Controllers\Api\V1\Student\ProgramController::class, 'termAttendance']);
             Route::post('/enroll-program', [App\Http\Controllers\Api\V1\Student\ProgramController::class, 'enroll']);
 
