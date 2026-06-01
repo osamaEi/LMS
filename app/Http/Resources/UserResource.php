@@ -36,11 +36,7 @@ class UserResource extends JsonResource
             'registration_number'   => $registrationNumber,
 
             // Photo — full URL
-            'profile_photo' => $this->profile_photo
-                ? (filter_var($this->profile_photo, FILTER_VALIDATE_URL)
-                    ? $this->profile_photo
-                    : asset('storage/' . $this->profile_photo))
-                : null,
+            'profile_photo' => $this->profile_photo,
 
             // Academic background
             'specialization'        => $this->specialization ?? null,
