@@ -40,7 +40,7 @@ class MediaUploadController extends Controller
 
         return response()->json([
             'name' => basename($path),
-            'url'  => asset('storage/' . $path),
+          //  'url'  => asset('storage/' . $path),
             'type' => str_starts_with($mime, 'video/') ? 'video' : ($mime === 'application/pdf' ? 'pdf' : 'image'),
         ], 201);
     }
