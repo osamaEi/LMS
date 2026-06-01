@@ -93,19 +93,18 @@ class TicketController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'subject'         => 'required|string|max:255',
-            'category'        => 'required|in:technical,academic,financial,account,other',
-            'priority'        => 'nullable|in:low,medium,high,urgent',
-            'description'     => 'required|string',
-            'attachment'      => 'nullable|file|mimes:jpeg,png,jpg,gif,webp,pdf,doc,docx|max:5120',
-            'attachment_url'  => 'nullable|url|max:2048',
+            'subject'     => 'required|string|max:255',
+            'category'    => 'required|in:technical,academic,financial,account,other',
+            'priority'    => 'nullable|in:low,medium,high,urgent',
+            'description' => 'required|string',
+            'attachment'  => 'nullable',
         ]);
 
         $attachmentPath = null;
         if ($request->hasFile('attachment')) {
             $attachmentPath = $request->file('attachment')->store('ticket-attachments', 'public');
-        } elseif ($request->filled('attachment_url')) {
-            $attachmentPath = $request->input('attachment_url');
+        } elseif ($request->filled('attachment')) {
+            $attachmentPath = $request->input('attachment');
         }
 
         $ticket = Ticket::create([
@@ -163,16 +162,15 @@ class TicketController extends Controller
         }
 
         $validated = $request->validate([
-            'message'        => 'required|string',
-            'attachment'     => 'nullable|file|mimes:jpeg,png,jpg,gif,webp,pdf,doc,docx|max:5120',
-            'attachment_url' => 'nullable|url|max:2048',
+            'message'    => 'required|string',
+            'attachment' => 'nullable',
         ]);
 
         $attachmentPath = null;
         if ($request->hasFile('attachment')) {
             $attachmentPath = $request->file('attachment')->store('ticket-attachments', 'public');
-        } elseif ($request->filled('attachment_url')) {
-            $attachmentPath = $request->input('attachment_url');
+        } elseif ($request->filled('attachment')) {
+            $attachmentPath = $request->input('attachment');
         }
 
         $reply = TicketReply::create([
