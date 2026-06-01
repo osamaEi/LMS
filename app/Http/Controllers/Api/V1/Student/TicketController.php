@@ -93,23 +93,26 @@ class TicketController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'subject'     => 'required|string|max:255',
-            'category'    => 'required|in:technical,academic,financial,account,other',
-            'priority'    => 'required|in:low,medium,high,urgent',
-            'description' => 'required|string',
-            'attachment'  => 'nullable|file|mimes:jpeg,png,jpg,gif,webp,pdf,doc,docx|max:5120',
+            'subject'         => 'required|string|max:255',
+            'category'        => 'required|in:technical,academic,financial,account,other',
+            'priority'        => 'nullable|in:low,medium,high,urgent',
+            'description'     => 'required|string',
+            'attachment'      => 'nullable|file|mimes:jpeg,png,jpg,gif,webp,pdf,doc,docx|max:5120',
+            'attachment_url'  => 'nullable|url|max:2048',
         ]);
 
         $attachmentPath = null;
         if ($request->hasFile('attachment')) {
             $attachmentPath = $request->file('attachment')->store('ticket-attachments', 'public');
+        } elseif ($request->filled('attachment_url')) {
+            $attachmentPath = $request->input('attachment_url');
         }
 
         $ticket = Ticket::create([
             'user_id'     => auth()->id(),
             'subject'     => $validated['subject'],
             'category'    => $validated['category'],
-            'priority'    => $validated['priority'],
+            'priority'    => $validated['priority'] ?? 'medium',
             'description' => $validated['description'],
             'attachment'  => $attachmentPath,
             'status'      => 'open',
@@ -160,13 +163,16 @@ class TicketController extends Controller
         }
 
         $validated = $request->validate([
-            'message'    => 'required|string',
-            'attachment' => 'nullable|file|mimes:jpeg,png,jpg,gif,webp,pdf,doc,docx|max:5120',
+            'message'        => 'required|string',
+            'attachment'     => 'nullable|file|mimes:jpeg,png,jpg,gif,webp,pdf,doc,docx|max:5120',
+            'attachment_url' => 'nullable|url|max:2048',
         ]);
 
         $attachmentPath = null;
         if ($request->hasFile('attachment')) {
             $attachmentPath = $request->file('attachment')->store('ticket-attachments', 'public');
+        } elseif ($request->filled('attachment_url')) {
+            $attachmentPath = $request->input('attachment_url');
         }
 
         $reply = TicketReply::create([
