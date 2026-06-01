@@ -4,7 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\Storage;
+
 
 class StudentProgramResource extends JsonResource
 {
@@ -63,8 +63,9 @@ class StudentProgramResource extends JsonResource
             'current_term_name' => $currentTerm
                 ? ($isEn ? ($currentTerm->name_en ?: $currentTerm->name_ar) : $currentTerm->name_ar)
                 : ($this->resource['current_term_name'] ?? null),
-            'supervisor' => $supervisor ? $this->formatTeacher($supervisor) : null,
-            'teachers'   => $isDiploma ? $termTeachers : $programTeachers,
+            'supervisor' => $isDiploma
+                ? ($supervisor ? $this->formatTeacher($supervisor) : null)
+                : $programTeachers->first(),
         ];
     }
 
