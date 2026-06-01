@@ -45,9 +45,7 @@ class PaymentController extends Controller
             'success' => true,
             'data' => [
                 'payments'           => PaymentResource::collection($payments),
-                'summary'            => $summary,
-                'tamara_configured'  => $this->tamaraService->isConfigured(),
-                'paytabs_configured' => !empty(config('services.paytabs.profile_id')),
+             
             ],
         ]);
     }
