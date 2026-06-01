@@ -35,8 +35,8 @@ class UserResource extends JsonResource
             'status'                => $this->status,
             'registration_number'   => $registrationNumber,
 
-            // Photo — full URL
-            'profile_photo' => $this->profile_photo,
+            // Photo — filename only
+            'profile_photo' => $this->profile_photo ? basename($this->profile_photo) : null,
 
             // Academic background
             'specialization'        => $this->specialization ?? null,
