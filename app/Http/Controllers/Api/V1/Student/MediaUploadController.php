@@ -15,15 +15,17 @@ class MediaUploadController extends Controller
      */
     public function upload(Request $request)
     {
+        $fieldName = $request->hasFile('file') ? 'file' : ($request->hasFile('name') ? 'name' : 'file');
+
         $request->validate([
-            'file' => 'required|file|mimes:jpeg,jpg,png,gif,webp,pdf,mp4,mov,avi,mkv,webm|max:51200',
+            $fieldName => 'required|file|mimes:jpeg,jpg,png,gif,webp,pdf,mp4,mov,avi,mkv,webm|max:51200',
         ], [
-            'file.required' => 'يرجى اختيار ملف',
-            'file.mimes'    => 'نوع الملف غير مدعوم. المسموح به: صورة، PDF، فيديو',
-            'file.max'      => 'حجم الملف لا يتجاوز 50 ميجابايت',
+            $fieldName . '.required' => 'يرجى اختيار ملف',
+            $fieldName . '.mimes'    => 'نوع الملف غير مدعوم. المسموح به: صورة، PDF، فيديو',
+            $fieldName . '.max'      => 'حجم الملف لا يتجاوز 50 ميجابايت',
         ]);
 
-        $file = $request->file('file');
+        $file = $request->file($fieldName);
         $mime = $file->getMimeType();
 
         if (str_starts_with($mime, 'video/')) {
