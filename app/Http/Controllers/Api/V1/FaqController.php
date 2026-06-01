@@ -27,15 +27,22 @@ class FaqController extends Controller
             });
         }
 
-        $faqs = $query->get();
-
-        $grouped = $faqs->groupBy('category');
+        $perPage = (int) $request->get('per_page', 15);
+        $faqs = $query->paginate($perPage)->withQueryString();
 
         return response()->json([
             'success' => true,
             'data'    => FaqResource::collection($faqs),
-            'grouped' => $grouped->map(fn($items) => FaqResource::collection($items)),
-            'total'   => $faqs->count(),
+            'pagination' => [
+                'total'        => $faqs->total(),
+                'per_page'     => $faqs->perPage(),
+                'current_page' => $faqs->currentPage(),
+                'last_page'    => $faqs->lastPage(),
+                'from'         => $faqs->firstItem(),
+                'to'           => $faqs->lastItem(),
+                'next_page_url'=> $faqs->nextPageUrl(),
+                'prev_page_url'=> $faqs->previousPageUrl(),
+            ],
         ]);
     }
 }
