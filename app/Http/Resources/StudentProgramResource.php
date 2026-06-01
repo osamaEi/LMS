@@ -65,7 +65,7 @@ class StudentProgramResource extends JsonResource
                 : ($this->resource['current_term_name'] ?? null),
             'supervisor' => $isDiploma
                 ? ($supervisor ? $supervisor->name : null)
-                : $programTeachers->first()?->name ?? null,
+                : $programTeachers->first()['name'] ?? null,
         ];
     }
 
