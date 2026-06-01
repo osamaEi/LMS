@@ -179,50 +179,106 @@ class ProgramController extends Controller
      */
     public function termAttendance()
     {
-        $student = auth()->user();
-        $program = $student->program;
+        $student   = auth()->user();
+        $program   = $student->program;
+        $isDiploma = $program && $program->type === 'diploma';
 
         if (!$program || $student->program_status === 'pending') {
             return response()->json(['success' => false, 'message' => 'غير مسجل في برنامج'], 403);
         }
 
-        $currentTerm = $program->terms()->orderBy('term_number')->where('status', 'active')->first();
+        if ($isDiploma) {
+            // ── Diploma: attendance based on term subjects ──────────────────
+            $currentTerm = $program->terms()
+                ->where('status', 'active')
+                ->orderBy('term_number')
+                ->first();
 
-        if (!$currentTerm) {
-            return response()->json(['success' => true, 'data' => null]);
+            // Fallback: current_term_number or first term
+            if (!$currentTerm) {
+                $currentTerm = $program->terms()
+                    ->where('term_number', $student->current_term_number ?? 1)
+                    ->first()
+                    ?? $program->terms()->orderBy('term_number')->first();
+            }
+
+            if (!$currentTerm) {
+                return response()->json(['success' => true, 'data' => null]);
+            }
+
+            // All subject IDs in this term (pivot + direct term_id)
+            $termSubjectIds = Subject::where(function ($q) use ($currentTerm) {
+                $q->where('term_id', $currentTerm->id)
+                  ->orWhereHas('terms', fn($tq) => $tq->where('terms.id', $currentTerm->id));
+            })->pluck('id');
+
+            // Sessions assigned to this student (via Attendance records) in these subjects
+            $assignedSessionIds = Attendance::where('student_id', $student->id)->pluck('session_id');
+
+            $sessionIds = Session::whereIn('subject_id', $termSubjectIds)
+                ->whereIn('id', $assignedSessionIds)
+                ->pluck('id');
+
+            $totalSessions    = $sessionIds->count();
+            $attendedSessions = Attendance::where('student_id', $student->id)
+                ->whereIn('session_id', $sessionIds)
+                ->where('attended', true)
+                ->count();
+
+            $attendanceRate = $totalSessions > 0
+                ? round(($attendedSessions / $totalSessions) * 100, 1)
+                : 0;
+
+            return response()->json([
+                'success' => true,
+                'data'    => [
+                    'program_name'     => $program->name_ar,
+                    'program_type'     => $program->type,
+                    'term_name'        => $currentTerm->name ?? ('الفصل ' . $currentTerm->term_number),
+                    'term_number'      => $currentTerm->term_number,
+                    'total_sessions'   => $totalSessions,
+                    'attended_sessions'=> $attendedSessions,
+                    'absent_sessions'  => $totalSessions - $attendedSessions,
+                    'attendance_rate'  => $attendanceRate,
+                    'minimum_required' => 80,
+                    'is_at_risk'       => $attendanceRate < 80,
+                ],
+            ]);
+
+        } else {
+            // ── Course / Training / English: attendance based on program sessions ──
+            $assignedSessionIds = Attendance::where('student_id', $student->id)->pluck('session_id');
+
+            $sessionIds = Session::where('program_id', $program->id)
+                ->whereIn('id', $assignedSessionIds)
+                ->pluck('id');
+
+            $totalSessions    = $sessionIds->count();
+            $attendedSessions = Attendance::where('student_id', $student->id)
+                ->whereIn('session_id', $sessionIds)
+                ->where('attended', true)
+                ->count();
+
+            $attendanceRate = $totalSessions > 0
+                ? round(($attendedSessions / $totalSessions) * 100, 1)
+                : 0;
+
+            return response()->json([
+                'success' => true,
+                'data'    => [
+                    'program_name'     => $program->name_ar,
+                    'program_type'     => $program->type,
+                    'term_name'        => null,
+                    'term_number'      => null,
+                    'total_sessions'   => $totalSessions,
+                    'attended_sessions'=> $attendedSessions,
+                    'absent_sessions'  => $totalSessions - $attendedSessions,
+                    'attendance_rate'  => $attendanceRate,
+                    'minimum_required' => 80,
+                    'is_at_risk'       => $attendanceRate < 80,
+                ],
+            ]);
         }
-
-        // Subjects in this term that the student is enrolled in
-        $termSubjectIds = $currentTerm->subjects()->pluck('subjects.id');
-
-        $enrolledSubjectIds = Enrollment::where('student_id', $student->id)
-            ->whereIn('subject_id', $termSubjectIds)
-            ->pluck('subject_id');
-
-        $sessionIds = Session::whereIn('subject_id', $enrolledSubjectIds)->pluck('id');
-        $totalSessions  = $sessionIds->count();
-
-        $attendedSessions = Attendance::where('student_id', $student->id)
-            ->whereIn('session_id', $sessionIds)
-            ->where('attended', true)
-            ->count();
-
-        $attendanceRate = $totalSessions > 0
-            ? round(($attendedSessions / $totalSessions) * 100, 1)
-            : 0;
-
-        return response()->json([
-            'success' => true,
-            'data'    => [
-                'term_name'        => $currentTerm->name,
-                'term_number'      => $currentTerm->term_number,
-                'total_sessions'   => $totalSessions,
-                'attended_sessions'=> $attendedSessions,
-                'attendance_rate'  => $attendanceRate,
-                'minimum_required' => 80,
-                'is_at_risk'       => $attendanceRate < 80,
-            ],
-        ]);
     }
 
     /**
