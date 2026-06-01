@@ -42,22 +42,35 @@ class ProgramController extends Controller
         }
 
         // ─── Enrolled ──────────────────────────────────────────────────────────
-        $program->loadMissing('supervisor');
+        $isDiploma = $program->type === 'diploma';
 
-        $currentTerm = $program->terms()
-            ->where('status', 'active')
-            ->orderBy('term_number')
-            ->with(['subjects' => fn($q) => $q->with('teacher:id,name,specialization,profile_photo')])
-            ->first();
+        if ($isDiploma) {
+            // Diploma: load supervisor + current term subjects with teachers
+            $program->loadMissing('supervisor');
+
+            $currentTerm = $program->terms()
+                ->where('status', 'active')
+                ->orderBy('term_number')
+                ->with(['subjects' => fn($q) => $q->with('teacher:id,name,specialization,profile_photo')])
+                ->first();
+
+            $programTeachers = collect();
+        } else {
+            // Course / training / english: load teachers assigned to this program
+            $program->loadMissing('teachers');
+            $currentTerm     = null;
+            $programTeachers = $program->teachers;
+        }
 
         return response()->json([
             'success' => true,
             'data'    => new StudentProgramResource([
-                'status'           => 'enrolled',
-                'program'          => $program,
-                'current_term'     => $currentTerm?->term_number ?? 1,
-                'current_term_name'=> $currentTerm?->name,
-                'current_term_obj' => $currentTerm,
+                'status'            => 'enrolled',
+                'program'           => $program,
+                'current_term'      => $currentTerm?->term_number ?? 1,
+                'current_term_name' => $currentTerm?->name,
+                'current_term_obj'  => $currentTerm,
+                'program_teachers'  => $programTeachers,
             ]),
         ]);
     }

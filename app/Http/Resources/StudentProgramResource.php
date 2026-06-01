@@ -21,25 +21,28 @@ class StudentProgramResource extends JsonResource
 
         $currentTerm = $this->resource['current_term_obj'] ?? null;
 
-        // Supervisor
-        $supervisor = $program->relationLoaded('supervisor') ? $program->supervisor : null;
+        $isDiploma = $program->type === 'diploma';
 
-        // Teachers from current term subjects
-        $teachers = [];
-        if ($currentTerm && $currentTerm->relationLoaded('subjects')) {
-            $teachers = $currentTerm->subjects
+        // Supervisor (diploma only)
+        $supervisor = ($isDiploma && $program->relationLoaded('supervisor'))
+            ? $program->supervisor
+            : null;
+
+        // Teachers from current term subjects (diploma)
+        $termTeachers = collect();
+        if ($isDiploma && $currentTerm && $currentTerm->relationLoaded('subjects')) {
+            $termTeachers = $currentTerm->subjects
                 ->filter(fn($s) => $s->teacher)
-                ->map(fn($s) => [
-                    'id'             => $s->teacher->id,
-                    'name'           => $s->teacher->name,
-                    'specialization' => $s->teacher->specialization,
-                    'photo'          => $s->teacher->profile_photo
-                        ? Storage::url($s->teacher->profile_photo)
-                        : null,
-                ])
+                ->map(fn($s) => $this->formatTeacher($s->teacher))
                 ->unique('id')
                 ->values();
         }
+
+        // Teachers assigned to the program directly (course/training/english)
+        $programTeachersRaw = $this->resource['program_teachers'] ?? collect();
+        $programTeachers = collect($programTeachersRaw)
+            ->map(fn($t) => $this->formatTeacher($t))
+            ->values();
 
         // Type labels
         $typeLabels = [
@@ -60,11 +63,22 @@ class StudentProgramResource extends JsonResource
             'current_term_name' => $currentTerm
                 ? ($isEn ? ($currentTerm->name_en ?: $currentTerm->name_ar) : $currentTerm->name_ar)
                 : ($this->resource['current_term_name'] ?? null),
-            'supervisor'   => $supervisor ? [
-                'name'           => $supervisor->name,
-              
-            ] : null,
-           // 'teachers'     => $teachers,
+            'supervisor' => $supervisor ? $this->formatTeacher($supervisor) : null,
+            'teachers'   => $isDiploma ? $termTeachers : $programTeachers,
+        ];
+    }
+
+    private function formatTeacher($teacher): array
+    {
+        return [
+            'id'             => $teacher->id,
+            'name'           => $teacher->name,
+            'specialization' => $teacher->specialization ?? null,
+            'photo'          => $teacher->profile_photo
+                ? (filter_var($teacher->profile_photo, FILTER_VALIDATE_URL)
+                    ? $teacher->profile_photo
+                    : asset('storage/' . $teacher->profile_photo))
+                : null,
         ];
     }
 }
