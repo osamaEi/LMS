@@ -8,6 +8,7 @@ use App\Models\Attendance;
 use App\Models\Enrollment;
 use App\Models\Program;
 use App\Models\Session;
+use App\Models\Subject;
 use Illuminate\Http\Request;
 
 class ProgramController extends Controller
@@ -76,41 +77,86 @@ class ProgramController extends Controller
 
         $filter = $request->query('filter', 'current'); // current | past | all
 
-        $terms = $program->terms()
-            ->when($filter === 'current', fn($q) => $q->where('status', 'active'))
-            ->when($filter === 'past',    fn($q) => $q->where('status', 'completed'))
-            ->orderBy('term_number')
-            ->with(['subjects' => fn($q) => $q
-                ->with('teacher:id,name')
-                ->withCount([
-                    'sessions',
-                    'sessions as recordings_count' => fn($q) => $q->where(fn($q) =>
-                        $q->whereNotNull('video_path')->orWhereNotNull('video_url')
-                    ),
-                ])
+        $termsQuery = $program->terms()->orderBy('term_number');
+
+        if ($filter === 'current') {
+            // Try active terms first; fall back to current_term_number
+            $activeTerms = (clone $termsQuery)->where('status', 'active')->get();
+            $terms = $activeTerms->isNotEmpty()
+                ? $activeTerms
+                : (clone $termsQuery)->where('term_number', $student->current_term_number ?? 1)->get();
+
+            // If still empty, just take the first term
+            if ($terms->isEmpty()) {
+                $terms = (clone $termsQuery)->take(1)->get();
+            }
+        } elseif ($filter === 'past') {
+            $terms = (clone $termsQuery)->where('status', 'completed')->get();
+        } else {
+            $terms = $termsQuery->get();
+        }
+
+        $termIds = $terms->pluck('id');
+
+        // Load subjects via BOTH relationships: direct term_id and pivot term_subject
+        $subjectQuery = Subject::with(['teacher:id,name,profile_photo'])
+            ->withCount([
+                'sessions',
+                'sessions as recordings_count' => fn($q) => $q->where(
+                    fn($q) => $q->whereNotNull('video_path')->orWhereNotNull('video_url')
+                ),
             ])
-            ->get();
+            ->where(function ($q) use ($termIds) {
+                $q->whereIn('term_id', $termIds)
+                  ->orWhereHas('terms', fn($tq) => $tq->whereIn('terms.id', $termIds));
+            });
+
+        $subjects = $subjectQuery->get();
 
         $enrolledSubjectIds = Enrollment::where('student_id', $student->id)
             ->pluck('subject_id')
             ->flip();
 
-        $data = $terms->map(fn($term) => [
-            'subjects' => $term->subjects->map(fn($subject) => [
-                'id'               => $subject->id,
-                'name'             => $subject->name,
-                'description'      => $subject->description,
-                'credits'          => $subject->credits,
-                'teacher'          => $subject->teacher?->name,
-                'sessions_count'   => $subject->sessions_count,
-                'recordings_count' => $subject->recordings_count,
-            ])->values(),
-        ]);
+        $data = $subjects->map(fn($subject) => [
+            'id'               => $subject->id,
+            'name_ar'          => $subject->name_ar,
+            'name_en'          => $subject->name_en,
+            'code'             => $subject->code,
+            'description_ar'   => $subject->description_ar ?? null,
+            'description_en'   => $subject->description_en ?? null,
+            'credits'          => $subject->credits,
+            'status'           => $subject->status,
+            'banner_photo'     => $subject->banner_photo
+                ? asset('storage/' . $subject->banner_photo)
+                : null,
+            'teacher'          => $subject->teacher ? [
+                'id'            => $subject->teacher->id,
+                'name'          => $subject->teacher->name,
+                'profile_photo' => $subject->teacher->profile_photo
+                    ? asset('storage/' . $subject->teacher->profile_photo)
+                    : null,
+            ] : null,
+            'sessions_count'   => $subject->sessions_count,
+            'recordings_count' => $subject->recordings_count,
+            'is_enrolled'      => isset($enrolledSubjectIds[$subject->id]),
+        ])->values();
+
+        // Group by term for context
+        $termData = $terms->map(fn($term) => [
+            'id'          => $term->id,
+            'term_number' => $term->term_number,
+            'name'        => $term->name ?? ('الفصل ' . $term->term_number),
+            'status'      => $term->status,
+            'start_date'  => $term->start_date?->format('Y-m-d'),
+            'end_date'    => $term->end_date?->format('Y-m-d'),
+        ])->values();
 
         return response()->json([
-            'success' => true,
-            'filter'  => $filter,
-            'data'    => $data,
+            'success'  => true,
+            'filter'   => $filter,
+            'terms'    => $termData,
+            'data'     => $data,
+            'total'    => $data->count(),
         ]);
     }
 

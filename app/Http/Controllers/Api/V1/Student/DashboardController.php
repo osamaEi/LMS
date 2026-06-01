@@ -94,14 +94,45 @@ class DashboardController extends Controller
             ->whereIn('status', ['open', 'in_progress'])
             ->count();
 
+        $student->loadMissing(['program', 'track']);
+
         return response()->json([
             'success' => true,
             'data' => [
-                'subjects' => $subjects,
-                'upcoming_sessions' => $upcomingSessions,
-                'recent_sessions' => $recentSessions,
-                'live_sessions' => $liveSessions,
-                'statistics' => $stats,
+                'profile' => [
+                    'id'                  => $student->id,
+                    'name'                => $student->name,
+                    'email'               => $student->email,
+                    'phone'               => $student->phone,
+                    'national_id'         => $student->national_id,
+                    'student_code'        => $student->student_code ?? null,
+                    'gender'              => $student->gender,
+                    'date_of_birth'       => $student->date_of_birth?->format('Y-m-d'),
+                    'nationality'         => $student->nationality ?? null,
+                    'level'               => $student->level ?? null,
+                    'specialization'      => $student->specialization ?? null,
+                    'specialization_type' => $student->specialization_type ?? null,
+                    'date_of_graduation'  => $student->date_of_graduation?->format('Y-m-d') ?? null,
+                    'status'              => $student->status,
+                    'program_status'      => $student->program_status,
+                    'current_term_number' => $student->current_term_number,
+                    'profile_photo'       => $student->profile_photo
+                        ? (filter_var($student->profile_photo, FILTER_VALIDATE_URL)
+                            ? $student->profile_photo
+                            : asset('storage/' . $student->profile_photo))
+                        : null,
+                    'program' => $student->program ? [
+                        'id'     => $student->program->id,
+                        'name'   => $student->program->name_ar ?? $student->program->name,
+                        'name_en'=> $student->program->name_en ?? null,
+                        'type'   => $student->program->type ?? null,
+                    ] : null,
+                ],
+                'subjects'           => $subjects,
+                'upcoming_sessions'  => $upcomingSessions,
+                'recent_sessions'    => $recentSessions,
+                'live_sessions'      => $liveSessions,
+                'statistics'         => $stats,
                 'overall_attendance' => $overallAttendance,
                 'open_tickets_count' => $openTicketsCount,
             ],
