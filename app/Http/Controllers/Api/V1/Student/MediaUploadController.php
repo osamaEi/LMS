@@ -16,25 +16,30 @@ class MediaUploadController extends Controller
     public function upload(Request $request)
     {
         $request->validate([
-            'images'   => 'required_without:image|array|max:10',
-            'images.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:5120',
-            'image'    => 'required_without:images|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+            'file' => 'required|file|mimes:jpeg,jpg,png,gif,webp,pdf,mp4,mov,avi,mkv,webm|max:51200',
+        ], [
+            'file.required' => 'يرجى اختيار ملف',
+            'file.mimes'    => 'نوع الملف غير مدعوم. المسموح به: صورة، PDF، فيديو',
+            'file.max'      => 'حجم الملف لا يتجاوز 50 ميجابايت',
         ]);
 
-        $files = $request->hasFile('images')
-            ? $request->file('images')
-            : [$request->file('image')];
+        $file = $request->file('file');
+        $mime = $file->getMimeType();
 
-        $names = [];
-
-        foreach ($files as $file) {
-            $path    = $file->store('uploads/images', 'public');
-            $names[] = basename($path);
+        if (str_starts_with($mime, 'video/')) {
+            $folder = 'uploads/videos';
+        } elseif ($mime === 'application/pdf') {
+            $folder = 'uploads/pdfs';
+        } else {
+            $folder = 'uploads/images';
         }
 
-        return response()->json(
-            count($names) === 1 ? ['name' => $names[0]] : ['names' => $names],
-            201
-        );
+        $path = $file->store($folder, 'public');
+
+        return response()->json([
+            'name' => basename($path),
+            'url'  => asset('storage/' . $path),
+            'type' => str_starts_with($mime, 'video/') ? 'video' : ($mime === 'application/pdf' ? 'pdf' : 'image'),
+        ], 201);
     }
 }

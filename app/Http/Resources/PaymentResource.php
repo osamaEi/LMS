@@ -19,6 +19,18 @@ class PaymentResource extends JsonResource
             $nextDueDate = $next?->due_date?->format('Y-m-d');
         }
 
+        // Include pending receipt transactions so student sees deduction before admin approval
+        $pendingAmount = 0;
+        if ($this->relationLoaded('transactions')) {
+            $pendingAmount = $this->transactions
+                ->where('status', 'pending')
+                ->where('type', 'payment')
+                ->sum('amount');
+        }
+
+        $effectivePaid      = (float) $this->paid_amount + $pendingAmount;
+        $effectiveRemaining = max(0, (float) $this->total_amount - $effectivePaid - (float) $this->discount_amount);
+
         return [
             'id'               => $this->id,
             'program'          => $this->whenLoaded('program', fn() => [
@@ -31,8 +43,8 @@ class PaymentResource extends JsonResource
             'is_fully_paid'    => $this->isFullyPaid(),
             'due_date'         => $nextDueDate,
             'total_amount'     => $this->total_amount,
-            'paid_amount'      => $this->paid_amount,
-            'remaining_amount' => $this->remaining_amount,
+            'paid_amount'      => number_format($effectivePaid, 3, '.', ''),
+            'remaining_amount' => number_format($effectiveRemaining, 3, '.', ''),
         ];
     }
 }

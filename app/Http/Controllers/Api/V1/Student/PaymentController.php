@@ -10,7 +10,6 @@ use App\Services\PaymentService;
 use App\Services\TamaraPaymentService;
 use App\Services\PayTabsService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 class PaymentController extends Controller
 {
@@ -36,8 +35,6 @@ class PaymentController extends Controller
     {
         $user = auth()->user();
 
-        $summary = $this->paymentService->getStudentPaymentSummary($user->id);
-
         $payments = Payment::with(['program', 'installments', 'transactions'])
             ->where('user_id', $user->id)
             ->orderBy('created_at', 'desc')
@@ -45,10 +42,7 @@ class PaymentController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => [
-                'payments'           => PaymentResource::collection($payments),
-             
-            ],
+            'data' => PaymentResource::collection($payments),
         ]);
     }
 
