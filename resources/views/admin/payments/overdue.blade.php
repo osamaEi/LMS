@@ -35,7 +35,7 @@
             <form action="{{ route('admin.payments.overdue') }}" method="GET">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">الطالب</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">المتدرب </label>
                         <select name="user_id" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                             <option value="">الكل</option>
                             @foreach($students as $student)
@@ -118,7 +118,7 @@
                     <thead>
                         <tr class="border-b border-gray-200">
                             <th class="px-4 py-3 text-right text-sm font-semibold text-gray-600">#</th>
-                            <th class="px-4 py-3 text-right text-sm font-semibold text-gray-600">الطالب</th>
+                            <th class="px-4 py-3 text-right text-sm font-semibold text-gray-600">المتدرب </th>
                             <th class="px-4 py-3 text-right text-sm font-semibold text-gray-600">البرنامج</th>
                             <th class="px-4 py-3 text-right text-sm font-semibold text-gray-600">رقم القسط</th>
                             <th class="px-4 py-3 text-right text-sm font-semibold text-gray-600">المبلغ</th>

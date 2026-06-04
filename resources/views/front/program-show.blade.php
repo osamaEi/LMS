@@ -420,9 +420,6 @@ $lms3s = fn(string $n) => asset('lms3/' . rawurlencode('حين يلتقي الت
                 @if($program->duration_months && $program->type !== 'english')
                 <span class="ps-banner-pill"><i class="bi bi-calendar3"></i> {{ $program->duration_months }} شهر</span>
                 @endif
-                @if($program->terms->isNotEmpty())
-                <span class="ps-banner-pill"><i class="bi bi-layers"></i> {{ $program->terms->count() }} فصول</span>
-                @endif
                 @if($lc && isset($program->level))
                 <span class="ps-banner-pill"><i class="bi bi-bar-chart-steps"></i> {{ $levelLabels[$program->level] ?? '' }}</span>
                 @endif
@@ -442,7 +439,7 @@ $lms3s = fn(string $n) => asset('lms3/' . rawurlencode('حين يلتقي الت
     <div class="ps-main-col">
 
         {{-- Stats row --}}
-        @if($program->duration_hours || $program->duration_months || $program->terms->isNotEmpty() || $program->price !== null)
+        @if($program->duration_hours || $program->duration_months || $program->price !== null)
         <div class="ps-card" style="margin-bottom:1.5rem;">
             <div class="ps-card-body" style="padding:1.25rem;">
                 <div class="ps-stats">
@@ -458,13 +455,6 @@ $lms3s = fn(string $n) => asset('lms3/' . rawurlencode('حين يلتقي الت
                         <div class="ps-stat-icon" style="background:#ede9fe;color:#7c3aed;"><i class="bi bi-calendar3-fill"></i></div>
                         <div class="ps-stat-val">{{ $program->duration_months }}</div>
                         <div class="ps-stat-lbl">شهر</div>
-                    </div>
-                    @endif
-                    @if($program->terms->isNotEmpty())
-                    <div class="ps-stat">
-                        <div class="ps-stat-icon" style="background:#fef3c7;color:#d97706;"><i class="bi bi-layers-fill"></i></div>
-                        <div class="ps-stat-val">{{ $program->terms->count() }}</div>
-                        <div class="ps-stat-lbl">فصل دراسي</div>
                     </div>
                     @endif
                     <div class="ps-stat">
@@ -490,57 +480,6 @@ $lms3s = fn(string $n) => asset('lms3/' . rawurlencode('حين يلتقي الت
         </div>
         @endif
 
-        {{-- Terms accordion --}}
-        @if($program->terms->isNotEmpty())
-        <div class="ps-card">
-            <div class="ps-card-header">
-                <div class="ps-card-header-icon"><i class="bi bi-layers-fill"></i></div>
-                <h3>الفصول الدراسية</h3>
-                <span>{{ $program->terms->count() }} فصل</span>
-            </div>
-            <div class="ps-card-body">
-                <div class="ps-terms">
-                    @foreach($program->terms as $term)
-                    @php $sc = $termStatusColors[$term->status ?? 'upcoming'] ?? $termStatusColors['upcoming']; @endphp
-                    <div class="ps-term">
-                        <input type="checkbox" class="ps-term-toggle" id="term-{{ $term->id }}" {{ $loop->first ? 'checked' : '' }}>
-                        <label class="ps-term-label" for="term-{{ $term->id }}">
-                            <div class="ps-term-left">
-                                <div class="ps-term-num">{{ $term->term_number }}</div>
-                                <div class="ps-term-info">
-                                    <div class="ps-term-name">{{ $term->name_ar ?: ('الفصل ' . $term->term_number) }}</div>
-                                    @if($term->start_date || $term->end_date)
-                                    <div class="ps-term-date">
-                                        <i class="bi bi-calendar2"></i>
-                                        {{ $term->start_date?->format('Y/m/d') }}
-                                        @if($term->end_date) — {{ $term->end_date->format('Y/m/d') }} @endif
-                                    </div>
-                                    @endif
-                                </div>
-                            </div>
-                            <div class="ps-term-right">
-                                <span class="ps-term-status"
-                                      style="background:{{ $sc['bg'] }};color:{{ $sc['text'] }};">{{ $sc['label'] }}</span>
-                                <i class="bi bi-chevron-down ps-term-chevron"></i>
-                            </div>
-                        </label>
-                        <div class="ps-term-body">
-                            @if($term->start_date || $term->end_date)
-                            <p style="font-size:.82rem;color:#6b7280;margin:0;">
-                                <i class="bi bi-calendar2"></i>
-                                {{ $term->start_date?->format('Y/m/d') }}
-                                @if($term->end_date) — {{ $term->end_date->format('Y/m/d') }} @endif
-                            </p>
-                            @else
-                            <p class="ps-no-subjects"><i class="bi bi-info-circle"></i> لا توجد تواريخ محددة لهذا الفصل.</p>
-                            @endif
-                        </div>
-                    </div>
-                    @endforeach
-                </div>
-            </div>
-        </div>
-        @endif
 
     </div>
 
@@ -578,12 +517,6 @@ $lms3s = fn(string $n) => asset('lms3/' . rawurlencode('حين يلتقي الت
                     <li class="ps-meta-item">
                         <div class="ps-meta-item-icon"><i class="bi bi-calendar3-fill"></i></div>
                         <span>المدة: <strong>{{ $program->duration_months }} شهر</strong></span>
-                    </li>
-                    @endif
-                    @if($program->terms->isNotEmpty())
-                    <li class="ps-meta-item">
-                        <div class="ps-meta-item-icon"><i class="bi bi-layers-fill"></i></div>
-                        <span><strong>{{ $program->terms->count() }} فصول</strong> دراسية</span>
                     </li>
                     @endif
                     @if($program->supervisor_name)
@@ -630,20 +563,6 @@ $lms3s = fn(string $n) => asset('lms3/' . rawurlencode('حين يلتقي الت
 </div>
 
 {{-- ── CTA Banner ── --}}
-<div class="ps-cta">
-    <div class="ps-cta-inner">
-        <div style="max-width:600px;">
-            <h3>هل أنت مستعد للانضمام؟</h3>
-            <p>سجّل الآن واستفد من برنامج <strong>{{ $program->name_ar }}</strong> واحصل على شهادة معتمدة تفتح لك أبواب المستقبل.</p>
-            <a href="{{ route('register') }}" class="full-btn"
-               style="display:inline-flex;align-items:center;gap:8px;font-size:.95rem;padding:12px 28px;border-radius:12px;">
-                <i class="bi bi-arrow-left-circle-fill"></i> سجّل الآن
-            </a>
-        </div>
-        <img loading="lazy" src="{{ $lms3s('12.png') }}" alt=""
-             style="max-width:260px;width:100%;border-radius:18px;flex-shrink:0;object-fit:cover;"
-             onerror="this.style.display='none'">
-    </div>
-</div>
+
 
 @endsection

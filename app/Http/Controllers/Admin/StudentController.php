@@ -202,7 +202,7 @@ class StudentController extends Controller
 
         $message = $newStatus === 'active'
             ? 'تم تفعيل حساب ال متدرب بنجاح'
-            : 'تم إلغاء تفعيل حساب الطالب';
+            : 'تم إلغاء تفعيل حساب المتدرب ';
 
         return redirect()->route('admin.students.index')
             ->with('success', $message);

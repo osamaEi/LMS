@@ -175,7 +175,7 @@ class TeacherController extends Controller
             'status' => $teacher->status === 'active' ? 'inactive' : 'active',
         ]);
 
-        $label = $teacher->status === 'active' ? 'تم تفعيل الأستاذ' : 'تم تعطيل الأستاذ';
+        $label = $teacher->status === 'active' ? 'تم تفعيل المتدرب' : 'تم تعطيل المتدرب';
 
         return back()->with('success', $label . ' ' . $teacher->name);
     }

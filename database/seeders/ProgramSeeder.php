@@ -134,7 +134,7 @@ class ProgramSeeder extends Seeder
              'type'=>'course','course_type'=>'developmental','category'=>'تدريب وتعليم','duration_months'=>1,'price'=>0,'status'=>'active'],
 
             ['name_ar'=>'تطوير مهارات المدربين','name_en'=>'Trainer Skills Development','code'=>'DEV-007',
-             'description_ar'=>'دورة تطويرية لرفع كفاءة المدربين وتطوير أساليب التدريب الفعّال.',
+             'description_ar'=>'دورة تطويرية لرفع كفاءة المدربون وتطوير أساليب التدريب الفعّال.',
              'description_en'=>'Developmental course to enhance trainer efficiency and develop effective training methods.',
              'type'=>'course','course_type'=>'developmental','category'=>'تدريب وتعليم','duration_months'=>1,'price'=>0,'status'=>'active'],
 

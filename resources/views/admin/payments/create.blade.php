@@ -410,7 +410,7 @@
                                 <div id="student-trigger"
                                      onclick="toggleStudentPicker()"
                                      style="display:flex;align-items:center;justify-content:space-between;width:100%;padding:.75rem 1rem;border:2px solid {{ $errors->has('user_id') ? '#ef4444' : '#e5e7eb' }};border-radius:12px;font-size:.9375rem;color:#111827;background:#fff;cursor:pointer;box-sizing:border-box;transition:border-color .2s;">
-                                    <span id="student-trigger-text" style="color:#6b7280;">اختر الطالب</span>
+                                    <span id="student-trigger-text" style="color:#6b7280;">اختر المتدرب </span>
                                     <svg id="student-chevron" style="width:18px;height:18px;color:#9ca3af;transition:transform .2s;flex-shrink:0;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                                     </svg>

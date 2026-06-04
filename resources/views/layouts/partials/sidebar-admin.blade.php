@@ -20,13 +20,13 @@
 </li>
 @endcanany
 
-{{-- إدارة المدربين  --}}
+{{-- إدارة المدربون  --}}
 @can('view-teachers')
 <li>
     <a href="{{ route('admin.teachers.index') }}"
        class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('admin.teachers.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
         <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20"><path d="M13.3333 10.8333C14.7167 10.8333 15.8333 9.71667 15.8333 8.33334C15.8333 6.95 14.7167 5.83334 13.3333 5.83334C11.95 5.83334 10.8333 6.95 10.8333 8.33334C10.8333 9.71667 11.95 10.8333 13.3333 10.8333ZM6.66667 10.8333C8.05 10.8333 9.16667 9.71667 9.16667 8.33334C9.16667 6.95 8.05 5.83334 6.66667 5.83334C5.28333 5.83334 4.16667 6.95 4.16667 8.33334C4.16667 9.71667 5.28333 10.8333 6.66667 10.8333ZM6.66667 12.5C4.72222 12.5 0.833333 13.4778 0.833333 15.4167V17.5H12.5V15.4167C12.5 13.4778 8.61111 12.5 6.66667 12.5ZM13.3333 12.5C13.0889 12.5 12.8111 12.5111 12.5167 12.5333C13.5278 13.2333 14.1667 14.1833 14.1667 15.4167V17.5H19.1667V15.4167C19.1667 13.4778 15.2778 12.5 13.3333 12.5Z" fill=""/></svg>
-        <span>إدارة المدربين </span>
+        <span>إدارة المدربون </span>
     </a>
 </li>
 @endcan
@@ -227,7 +227,7 @@
     </a>
 </li>
 
-{{-- آراء المتدربين --}}
+{{-- آراء المتدربون  --}}
 <li>
     <a href="{{ route('admin.testimonials.index') }}"
        class="group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium transition-all duration-200
@@ -236,7 +236,7 @@
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0">
             <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
         </svg>
-        <span class="flex-1">آراء المتدربين</span>
+        <span class="flex-1">آراء المتدربون </span>
     </a>
 </li>
 
@@ -333,7 +333,7 @@
 </li> -->
 @endcan
 
-{{-- تقييم المدربين --}}
+{{-- تقييم المدربون --}}
 @can('view-ratings')
 <!-- <li>
     <a href="{{ route('admin.teacher-ratings.index') }}"

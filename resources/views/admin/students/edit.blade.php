@@ -1,6 +1,6 @@
 @extends('layouts.dashboard')
 
-@section('title', 'تعديل بيانات الطالب')
+@section('title', 'تعديل بيانات المتدرب ')
 
 @section('content')
 <div class="mb-6">
@@ -12,7 +12,7 @@
             </svg>
         </a>
         <div>
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">تعديل بيانات الطالب</h1>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">تعديل بيانات المتدرب </h1>
             <p class="text-sm text-gray-500 dark:text-gray-400">{{ $student->name }} · {{ $student->email }}</p>
         </div>
     </div>

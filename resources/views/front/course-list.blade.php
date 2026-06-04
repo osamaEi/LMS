@@ -167,23 +167,6 @@
 </section>
 
 {{-- Bottom CTA --}}
-<section style="background:linear-gradient(135deg,#004d7a 0%,#0071aa 100%);padding:3rem clamp(1rem,3vw,3rem);color:white;">
-    <div class="row align-items-center">
-        <div class="col-lg-7">
-            <h2 style="font-weight:800;margin-bottom:1rem;">هل أنت مستعد لبدء رحلتك التدريبية ؟</h2>
-            <p style="opacity:.9;line-height:1.8;margin-bottom:1.5rem;">
-                سجّل الآن في {{ $pageTitle }} واحصل على شهادة معتمدة تُعزّز مسيرتك المهنية.
-            </p>
-            <a href="{{ route('register') }}" class="full-btn"
-               style="display:inline-flex;align-items:center;gap:8px;font-size:1rem;padding:12px 28px;border-radius:10px;">
-                <i class="bi bi-arrow-left-circle-fill"></i> سجّل الآن
-            </a>
-        </div>
-        <div class="col-lg-5 text-center mt-4 mt-lg-0">
-            <img loading="lazy" src="{{ $lms3s('10.png') }}" alt="Training"
-                 style="max-width:360px;width:100%;border-radius:20px;object-fit:cover;" onerror="this.style.display='none'">
-        </div>
-    </div>
-</section>
+
 
 @endsection

@@ -233,9 +233,107 @@
         margin-bottom: 1.5rem;
     }
 
-    .contact-image img {
-        width: 100%;
+    /* Formal image frame */
+    .formal-img-wrap {
+        position: relative;
+        padding: 20px 20px 20px 0;
+    }
+    [dir="ltr"] .formal-img-wrap { padding: 20px 0 20px 20px; }
+
+    .formal-img-wrap::before {
+        content: '';
+        position: absolute;
+        top: 0; right: 0;
+        width: 75%; height: 80%;
+        background: linear-gradient(135deg, var(--main-color, #0071AA) 0%, #004d77 100%);
+        border-radius: 24px;
+        z-index: 0;
+        opacity: .12;
+    }
+    .formal-img-wrap::after {
+        content: '';
+        position: absolute;
+        bottom: 0; left: 0;
+        width: 50%; height: 55%;
+        border: 3px solid var(--main-color, #0071AA);
         border-radius: 20px;
+        z-index: 0;
+        opacity: .25;
+    }
+
+    .formal-img-inner {
+        position: relative;
+        z-index: 1;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+    }
+
+    .formal-img-inner img {
+        width: 100%;
+        height: 380px;
+        object-fit: cover;
+        display: block;
+        filter: brightness(.96) contrast(1.04) saturate(1.05);
+    }
+
+    .formal-img-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to top, rgba(0,30,60,.55) 0%, transparent 55%);
+        border-radius: 20px;
+    }
+
+    .formal-img-badge {
+        position: absolute;
+        bottom: 20px;
+        right: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: rgba(255,255,255,.96);
+        backdrop-filter: blur(8px);
+        border-radius: 14px;
+        padding: 10px 16px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    }
+    [dir="ltr"] .formal-img-badge { right: auto; left: 20px; }
+
+    .formal-img-badge-icon {
+        width: 38px; height: 38px;
+        background: linear-gradient(135deg, var(--main-color, #0071AA), #004d77);
+        border-radius: 10px;
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .formal-img-badge-text strong {
+        display: block;
+        font-size: 13px;
+        font-weight: 700;
+        color: #111827;
+        line-height: 1.2;
+    }
+    .formal-img-badge-text span {
+        font-size: 11px;
+        color: #6b7280;
+    }
+
+    .formal-img-corner {
+        position: absolute;
+        top: -12px; left: -12px;
+        width: 56px; height: 56px;
+        background: linear-gradient(135deg, var(--main-color, #0071AA), #005a88);
+        border-radius: 16px;
+        display: flex; align-items: center; justify-content: center;
+        box-shadow: 0 6px 20px rgba(0,113,170,.35);
+        z-index: 2;
+    }
+    [dir="ltr"] .formal-img-corner { left: auto; right: -12px; }
+
+    @media (max-width: 768px) {
+        .formal-img-inner img { height: 260px; }
+        .contact-image { margin-top: 2rem; }
     }
 
     @media (max-width: 991px) {
@@ -402,8 +500,27 @@
                 </div>
             </div>
             <div class="col-lg-6">
-                <div class="contact-image">
-                    <img loading="lazy" src="{{ $lms3s('6.png') }}" alt="Contact Us" />
+                <div class="formal-img-wrap">
+                    <div class="formal-img-inner">
+                        <img loading="lazy" src="{{ $lms3s('6.png') }}" alt="Contact Us" />
+                        <div class="formal-img-overlay"></div>
+                        <div class="formal-img-badge">
+                            <div class="formal-img-badge-icon">
+                                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                                </svg>
+                            </div>
+                            <div class="formal-img-badge-text">
+                                <strong>{{ __('We\'re here for you') }}</strong>
+                                <span>{{ __('24/7 Support') }}</span>
+                            </div>
+                        </div>
+                        <div class="formal-img-corner">
+                            <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="1.8">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                            </svg>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

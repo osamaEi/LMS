@@ -151,7 +151,7 @@
                         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
                         </svg>
-                        إضافة أستاذ
+                        إضافة متدرب
                     </a>
                 </div>
             </div>
@@ -194,7 +194,7 @@
             </svg>
             <input type="text" name="search" value="{{ $search }}"
                    class="search-input"
-                   placeholder="ابحث باسم الأستاذ، البريد، رقم الهوية...">
+                   placeholder="ابحث باسم المتدرب، البريد، رقم الهوية...">
         </form>
         @if($search)
         <a href="{{ route('admin.teachers.index') }}"
@@ -206,7 +206,7 @@
         </a>
         @endif
         <div style="margin-right:auto;font-size:0.8rem;color:#6b7280">
-            {{ $teachers->total() }} أستاذ
+            {{ $teachers->total() }} متدرب
             @if($search)
                 <span style="color:#6366f1">· بحث: "{{ $search }}"</span>
             @endif
@@ -448,7 +448,7 @@
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
             </svg>
-            إضافة أول أستاذ
+            إضافة أول متدرب
         </a>
         @endif
     </div>
@@ -463,7 +463,7 @@
         <div style="display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid #f1f5f9">
             <div>
                 <h3 style="font-size:1rem;font-weight:800;color:#111827;margin:0" class="dark:text-white" id="modal-title">تعيين المقررات</h3>
-                <p style="font-size:0.78rem;color:#6b7280;margin:3px 0 0" id="modal-subtitle">اختر المقررات التي يدرّسها هذا الأستاذ</p>
+                <p style="font-size:0.78rem;color:#6b7280;margin:3px 0 0" id="modal-subtitle">اختر المقررات التي يدرّسها هذا المتدرب</p>
             </div>
             <button onclick="closeAssignModal()" style="width:32px;height:32px;border-radius:8px;border:none;background:#f1f5f9;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#6b7280">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -560,7 +560,7 @@
         <div style="display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid #f1f5f9">
             <div>
                 <h3 style="font-size:1rem;font-weight:800;color:#111827;margin:0" class="dark:text-white" id="prog-modal-title">تعيين الدورات</h3>
-                <p style="font-size:0.78rem;color:#6b7280;margin:3px 0 0">اختر الدورات التي يدرّبها هذا الأستاذ</p>
+                <p style="font-size:0.78rem;color:#6b7280;margin:3px 0 0">اختر الدورات التي يدرّبها هذا المتدرب</p>
             </div>
             <button onclick="closeProgramModal()" style="width:32px;height:32px;border-radius:8px;border:none;background:#f1f5f9;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#6b7280">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">

@@ -935,9 +935,9 @@ document.addEventListener('DOMContentLoaded',function(){
         <div>
             @php
                 $rows = [
-                    ['الطالب',      $payment->user->name],
+                    ['المتدرب ',      $payment->user->name],
                     ['البريد',      $payment->user->email],
-                    ['رقم الطالب',  $payment->user->student_code ?? '--'],
+                    ['رقم المتدرب ',  $payment->user->student_code ?? '--'],
                     ['البرنامج',    $payment->program->name_ar],
                     ['نوع الدفع',   $payment->payment_type=='full'?'دفعة كاملة':'تقسيط'],
                     ['تاريخ الإنشاء', $payment->created_at->format('Y/m/d H:i')],

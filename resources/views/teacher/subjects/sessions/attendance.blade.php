@@ -78,7 +78,7 @@
         <thead>
             <tr style="background:#f9fafb">
                 <th style="padding:10px 18px;text-align:right;font-size:.75rem;font-weight:700;color:#6b7280;white-space:nowrap">#</th>
-                <th style="padding:10px 18px;text-align:right;font-size:.75rem;font-weight:700;color:#6b7280">الطالب</th>
+                <th style="padding:10px 18px;text-align:right;font-size:.75rem;font-weight:700;color:#6b7280">المتدرب </th>
                 <th style="padding:10px 18px;text-align:right;font-size:.75rem;font-weight:700;color:#6b7280">وقت الانضمام</th>
             </tr>
         </thead>

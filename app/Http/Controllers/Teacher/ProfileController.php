@@ -1,9 +1,8 @@
 <?php
 
-namespace App\Http\Controllers\Student;
+namespace App\Http\Controllers\Teacher;
 
 use App\Http\Controllers\Controller;
-use App\Models\StudentDocument;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
@@ -12,11 +11,8 @@ class ProfileController extends Controller
 {
     public function show()
     {
-        $user = auth()->user()->load('documents', 'program', 'track');
-
-        $documents = $user->documents()->get()->keyBy('document_type');
-
-        return view('student.profile', compact('user', 'documents'));
+        $user = auth()->user();
+        return view('teacher.profile', compact('user'));
     }
 
     public function update(Request $request)
@@ -24,13 +20,11 @@ class ProfileController extends Controller
         $user = auth()->user();
 
         $validated = $request->validate([
-            'name'                => 'required|string|max:255',
-            'email'               => 'required|email|max:255|unique:users,email,' . $user->id,
-            'nationality'         => 'nullable|string|max:100',
-            'specialization'      => 'nullable|string|max:255',
-            'specialization_type' => 'nullable|string|max:255',
-            'date_of_graduation'  => 'nullable|date',
-            'bio'                 => 'nullable|string|max:500',
+            'name'        => 'required|string|max:255',
+            'email'       => 'required|email|max:255|unique:users,email,' . $user->id,
+            'phone'       => 'nullable|string|max:20',
+            'nationality' => 'nullable|string|max:100',
+            'bio'         => 'nullable|string|max:500',
         ], [
             'name.required'  => 'الاسم مطلوب',
             'email.required' => 'البريد الإلكتروني مطلوب',
@@ -51,7 +45,6 @@ class ProfileController extends Controller
             'current_password.current_password' => 'كلمة المرور الحالية غير صحيحة',
             'password.required'                 => 'كلمة المرور الجديدة مطلوبة',
             'password.confirmed'                => 'تأكيد كلمة المرور غير متطابق',
-            'password.min'                      => 'كلمة المرور يجب أن تكون 8 أحرف على الأقل',
         ]);
 
         auth()->user()->update(['password' => Hash::make($request->password)]);
@@ -74,8 +67,8 @@ class ProfileController extends Controller
         $user->update(['profile_photo' => $path]);
 
         return response()->json([
-            'success' => true,
-            'message' => 'تم تحديث الصورة الشخصية بنجاح',
+            'success'   => true,
+            'message'   => 'تم تحديث الصورة الشخصية بنجاح',
             'photo_url' => asset('storage/' . $path),
         ]);
     }

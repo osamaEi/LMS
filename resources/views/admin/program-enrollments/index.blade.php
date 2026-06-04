@@ -322,7 +322,7 @@ table.main-table td {
                                 <input type="checkbox" id="select-all" onchange="toggleAll(this)"
                                        style="width:16px;height:16px;cursor:pointer;accent-color:#0071AA;">
                             </th>
-                            <th>الطالب</th>
+                            <th>المتدرب </th>
                             <th>البرنامج</th>
                             <th>حالة التسجيل</th>
                             <th>حالة الحساب</th>

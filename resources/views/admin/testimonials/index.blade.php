@@ -1,6 +1,6 @@
 @extends('layouts.dashboard')
 
-@section('title', 'إدارة آراء المتدربين')
+@section('title', 'إدارة آراء المتدربون ')
 
 @push('styles')
 <style>
@@ -40,7 +40,7 @@
     <div class="testi-hero">
         <div style="position:relative;z-index:2;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;">
             <div>
-                <h1 style="color:#fff;font-size:1.5rem;font-weight:900;margin:0 0 .25rem;">آراء المتدربين</h1>
+                <h1 style="color:#fff;font-size:1.5rem;font-weight:900;margin:0 0 .25rem;">آراء المتدربون </h1>
                 <p style="color:rgba(255,255,255,.75);margin:0;font-size:.9rem;">{{ $testimonials->count() }} تقييم مضاف</p>
             </div>
             <a href="{{ route('admin.testimonials.create') }}"

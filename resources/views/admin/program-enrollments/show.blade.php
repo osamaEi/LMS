@@ -521,7 +521,7 @@
                     @endif
                     <a href="{{ route('admin.students.show', $user) }}" style="width:100%;padding:.75rem;background:#f8fafc;color:#374151;border:1.5px solid #e5e7eb;border-radius:14px;font-size:.875rem;font-weight:700;display:flex;align-items:center;justify-content:center;gap:.6rem;text-decoration:none;transition:background .2s;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='#f8fafc'">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-                        عرض ملف الطالب
+                        عرض ملف المتدرب 
                     </a>
                 </div>
             </div>
@@ -627,7 +627,7 @@
             </div>
             <div>
                 <h3 style="font-size:1.1rem;font-weight:800;color:#111827;margin:0;">تأكيد رفض الطلب</h3>
-                <p style="font-size:.82rem;color:#6b7280;margin:.25rem 0 0;">سيتم إزالة البرنامج من حساب الطالب</p>
+                <p style="font-size:.82rem;color:#6b7280;margin:.25rem 0 0;">سيتم إزالة البرنامج من حساب المتدرب </p>
             </div>
         </div>
         <div style="background:#fef2f2;border-radius:12px;padding:.85rem 1rem;margin-bottom:1.25rem;border:1px solid #fecaca;">

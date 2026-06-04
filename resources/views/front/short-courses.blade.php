@@ -417,8 +417,8 @@
                     </div>
                 </div>
             </div>
-            <div class="col-lg-6 text-center">
-                <img loading="lazy" src="{{ $lms3s('8.png') }}" alt="App Mockup" style="max-width: 450px; border-radius: 20px; object-fit: cover;" onerror="this.style.display='none'" />
+            <div class="col-lg-6 d-flex justify-content-center mt-4 mt-lg-0">
+                @include('front.partials.cta-formal-image', ['src' => asset('new/2.png'), 'badgeText' => 'دورات قصيرة', 'badgeSub' => 'مرنة ومعتمدة', 'tagText' => 'ابدأ اليوم'])
             </div>
         </div>
     </section>

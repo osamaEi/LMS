@@ -21,7 +21,7 @@ class PermissionHelper
     private static array $groups = [
         'dashboard'            => ['name' => 'لوحة التحكم',                    'match' => ['dashboard']],
         'users'                => ['name' => 'إدارة المستخدمين',                'match' => ['user']],
-        'teachers'             => ['name' => 'إدارة المدربين ',                  'match' => ['teacher']],
+        'teachers'             => ['name' => 'إدارة المدربون ',                  'match' => ['teacher']],
         'students'             => ['name' => 'إدارة  المتدربون ',                    'match' => ['student']],
         'programs'             => ['name' => 'الدبلومات    التعليمية',              'match' => ['program']],
         'terms'                => ['name' => 'الفصول التدريبية ',                'match' => ['term']],
@@ -35,7 +35,7 @@ class PermissionHelper
         'reports'              => ['name' => 'التقارير والإحصائيات',            'match' => ['report', 'analytics', 'nelc', 'progress', 'grade-report', 'teacher-performance']],
         'surveys'              => ['name' => 'الاستبيانات',                     'match' => ['survey']],
         'tickets'              => ['name' => 'تذاكر الدعم الفني',              'match' => ['ticket']],
-        'ratings'              => ['name' => 'تقييم المدربين ',                  'match' => ['rating']],
+        'ratings'              => ['name' => 'تقييم المدربون ',                  'match' => ['rating']],
         'pending_users'        => ['name' => 'طلبات التسجيل المعلقة',          'match' => ['pending-user']],
         'activity_logs'        => ['name' => 'سجل النشاطات',                   'match' => ['activity-log']],
         'roles'                => ['name' => 'الأدوار والصلاحيات',             'match' => ['role', 'permission']],

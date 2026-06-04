@@ -267,9 +267,8 @@ $defaultColor = ['top'=>'linear-gradient(90deg,#64748b,#94a3b8)', 'badge'=>'#f1f
                 <i class="bi bi-arrow-left-circle-fill"></i> سجّل الآن
             </a>
         </div>
-        <div class="col-lg-5 text-center mt-4 mt-lg-0">
-            <img loading="lazy" src="{{ $lms3s('10.png') }}" alt="Training"
-                 style="max-width:360px;width:100%;border-radius:20px;object-fit:cover;" onerror="this.style.display='none'">
+        <div class="col-lg-5 mt-4 mt-lg-0 d-flex justify-content-center">
+            @include('front.partials.cta-formal-image', ['src' => asset('new/1.png'), 'badgeText' => 'دورات معتمدة', 'badgeSub' => 'في مجالات متخصصة', 'tagText' => 'سجّل الآن'])
         </div>
     </div>
 </section>

@@ -528,7 +528,7 @@ class NelcComplianceController extends Controller
                 'type' => 'إلزامي',
                 'status' => 'implemented',
                 'link' => route('admin.teacher-ratings.index'),
-                'link_label' => 'تقييم المدربين ',
+                'link_label' => 'تقييم المدربون ',
                 'notes' => 'نظام تقييم متعدد الأبعاد لل مدربين',
             ],
             [

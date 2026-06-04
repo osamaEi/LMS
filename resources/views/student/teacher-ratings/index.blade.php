@@ -51,7 +51,7 @@
 @section('content')
 <div class="tr-page">
     <h1 class="tr-title">تقييم المدربين</h1>
-    <p class="tr-sub">قيّم المدربين في المقررات  المسجلة لديك</p>
+    <p class="tr-sub">قيّم المدربون في المقررات  المسجلة لديك</p>
 
     @if(session('success'))
         <div class="alert-box alert-success">{{ session('success') }}</div>

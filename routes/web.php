@@ -554,7 +554,10 @@ Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')
     })->name('grades.index');
 
     // Profile
-    Route::get('/profile', [\App\Http\Controllers\ProfileController::class, 'edit'])->name('profile');
+    Route::get('/profile', [\App\Http\Controllers\Teacher\ProfileController::class, 'show'])->name('profile');
+    Route::put('/profile', [\App\Http\Controllers\Teacher\ProfileController::class, 'update'])->name('profile.update');
+    Route::post('/profile/update-password', [\App\Http\Controllers\Teacher\ProfileController::class, 'updatePassword'])->name('profile.update-password');
+    Route::post('/profile/update-photo', [\App\Http\Controllers\Teacher\ProfileController::class, 'updatePhoto'])->name('profile.update-photo');
 
     // Surveys (NELC 1.2.11)
     Route::get('/surveys', [\App\Http\Controllers\Teacher\SurveyController::class, 'index'])->name('surveys.index');

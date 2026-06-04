@@ -20,7 +20,7 @@
         <div class="flex flex-wrap items-center justify-between gap-4">
             <div>
                 <h3 class="mb-1.5 text-2xl font-bold text-black dark:text-white">{{ $teacher->name }}</h3>
-                <p class="text-gray-600 dark:text-gray-400">{{ $teacher->getRoleDisplayName() }} - {{ $teacher->specialization ?? 'غير محدد' }}</p>
+                <p class="text-gray-600 dark:text-gray-400">{{ $teacher->getRoleDisplayName() }}{{ $teacher->specialization ? ' - ' . $teacher->specialization : '' }}</p>
                 <div class="mt-2 flex flex-wrap items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
                     <span class="flex items-center gap-1">
                         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -89,6 +89,12 @@
                 <div>
                     <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">الجنس</label>
                     <p class="text-black dark:text-white">{{ $teacher->gender === 'male' ? 'ذكر' : 'أنثى' }}</p>
+                </div>
+                @endif
+                @if($teacher->nationality)
+                <div>
+                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">الجنسية</label>
+                    <p class="text-black dark:text-white">{{ $teacher->nationality }}</p>
                 </div>
                 @endif
             </div>

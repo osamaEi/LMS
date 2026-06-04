@@ -624,11 +624,124 @@
                 </a>
             </div>
         </div>
-        <div class="col-lg-6 text-center mt-4 mt-lg-0">
-            <img loading="lazy" src="{{ $lms3s('10.png') }}" alt="Training" style="max-width:420px;width:100%;border-radius:20px;object-fit:cover;" onerror="this.style.display='none'" />
+        <div class="col-lg-6 mt-4 mt-lg-0 d-flex justify-content-center">
+            @include('front.partials.cta-formal-image', [
+                'src'       => asset('new/1.png'),
+                'badgeText' => 'برامج معتمدة',
+                'badgeSub'  => 'وفق أعلى معايير الجودة',
+                'tagText'   => 'خصم حصري',
+            ])
         </div>
     </div>
 </section>
+
+<style>
+.cta-formal-wrap {
+    position: relative;
+    padding: 18px 0 18px 18px;
+    max-width: 460px;
+    width: 100%;
+}
+[dir="rtl"] .cta-formal-wrap { padding: 18px 18px 18px 0; }
+
+.cta-formal-wrap::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 72%; height: 78%;
+    background: rgba(255,255,255,.08);
+    border-radius: 22px;
+    border: 1.5px solid rgba(255,255,255,.15);
+}
+[dir="rtl"] .cta-formal-wrap::before { left: auto; right: 0; }
+
+.cta-formal-wrap::after {
+    content: '';
+    position: absolute;
+    bottom: 0; right: 0;
+    width: 48%; height: 52%;
+    border: 2px solid rgba(255,255,255,.2);
+    border-radius: 18px;
+}
+[dir="rtl"] .cta-formal-wrap::after { right: auto; left: 0; }
+
+.cta-formal-inner {
+    position: relative;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 24px 60px rgba(0,0,0,.3);
+}
+
+.cta-formal-inner img {
+    width: 100%;
+    height: 340px;
+    object-fit: cover;
+    display: block;
+    filter: brightness(.92) contrast(1.06) saturate(1.08);
+}
+
+.cta-formal-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0,40,80,.6) 0%, transparent 50%);
+    border-radius: 18px;
+}
+
+.cta-corner-tl {
+    position: absolute;
+    top: -10px; right: -10px;
+    width: 48px; height: 48px;
+    background: rgba(255,255,255,.18);
+    backdrop-filter: blur(6px);
+    border: 1.5px solid rgba(255,255,255,.3);
+    border-radius: 13px;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 16px rgba(0,0,0,.2);
+}
+[dir="rtl"] .cta-corner-tl { right: auto; left: -10px; }
+
+.cta-formal-badge {
+    position: absolute;
+    bottom: 16px; right: 16px;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    background: rgba(255,255,255,.95);
+    backdrop-filter: blur(8px);
+    border-radius: 12px;
+    padding: 9px 14px;
+    box-shadow: 0 4px 20px rgba(0,0,0,.18);
+}
+[dir="rtl"] .cta-formal-badge { right: auto; left: 16px; }
+
+.cta-badge-icon {
+    width: 34px; height: 34px;
+    background: linear-gradient(135deg,#0071AA,#004d77);
+    border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+}
+.cta-formal-badge strong { display:block; font-size:12px; font-weight:800; color:#111827; line-height:1.2; }
+.cta-formal-badge span   { font-size:10px; color:#6b7280; }
+
+.cta-disc-tag {
+    position: absolute;
+    top: 16px; left: 16px;
+    background: linear-gradient(135deg,#ef4444,#dc2626);
+    border-radius: 12px;
+    padding: 8px 12px;
+    text-align: center;
+    box-shadow: 0 4px 16px rgba(239,68,68,.4);
+}
+[dir="rtl"] .cta-disc-tag { left: auto; right: 16px; }
+
+.cta-disc-pct { display:block; font-size:1.3rem; font-weight:900; color:#fff; line-height:1; }
+.cta-disc-lbl { display:block; font-size:9px; font-weight:700; color:rgba(255,255,255,.85); margin-top:2px; white-space:nowrap; }
+
+@media (max-width:768px) {
+    .cta-formal-inner img { height: 240px; }
+}
+</style>
 
 @endsection
 

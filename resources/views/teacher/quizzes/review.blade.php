@@ -44,7 +44,7 @@
     <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5">
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
             <div>
-                <p class="text-gray-500 dark:text-gray-400 mb-0.5">الطالب</p>
+                <p class="text-gray-500 dark:text-gray-400 mb-0.5">المتدرب </p>
                 <p class="font-semibold text-gray-900 dark:text-white">{{ $attempt->student->name }}</p>
             </div>
             <div>
@@ -161,7 +161,7 @@
                         @if($isSelected)
                         <span class="mr-auto text-xs font-bold
                             {{ $isRight ? 'text-green-600' : 'text-red-500' }}">
-                            إجابة الطالب
+                            إجابة المتدرب 
                         </span>
                         @elseif($isRight)
                         <span class="mr-auto text-xs font-bold text-green-600">الإجابة الصحيحة</span>
@@ -178,7 +178,7 @@
                 {{-- Essay / Short answer --}}
                 @if($isManual)
                 <div class="rounded-xl border border-gray-200 dark:border-gray-600 p-4 bg-gray-50 dark:bg-gray-700/30 mb-4">
-                    <p class="text-xs text-gray-500 dark:text-gray-400 mb-2 font-medium">إجابة الطالب:</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mb-2 font-medium">إجابة المتدرب :</p>
                     @if($answer->answer_text)
                     <p class="text-gray-800 dark:text-gray-200 text-sm leading-relaxed whitespace-pre-wrap">{{ $answer->answer_text }}</p>
                     @else

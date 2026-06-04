@@ -26,10 +26,10 @@ class PermissionSeeder extends Seeder
         'toggle-user-status'             => 'تفعيل / تعطيل حسابات المستخدمين',
 
         // ─── المدربون──────────────────────────────────
-        'view-teachers'                  => 'عرض المدربين ',
+        'view-teachers'                  => 'عرض المدربون ',
         'create-teachers'                => 'إضافة  مدربين',
-        'edit-teachers'                  => 'تعديل بيانات المدربين ',
-        'delete-teachers'                => 'حذف المدربين ',
+        'edit-teachers'                  => 'تعديل بيانات المدربون ',
+        'delete-teachers'                => 'حذف المدربون ',
 
         // ───  المتدربون  ────────────────────────────────────
         'view-students'                  => 'عرض  المتدربون ',
@@ -37,8 +37,8 @@ class PermissionSeeder extends Seeder
         'edit-students'                  => 'تعديل بيانات  المتدربون ',
         'delete-students'                => 'حذف  المتدربون ',
         'assign-program-to-student'      => 'تعيين دبلوم تدريبي للطالب',
-        'remove-program-from-student'    => 'إزالة الدبلوم التدريبي من الطالب',
-        'toggle-student-status'          => 'تفعيل / تعطيل حساب الطالب',
+        'remove-program-from-student'    => 'إزالة الدبلوم التدريبي من المتدرب ',
+        'toggle-student-status'          => 'تفعيل / تعطيل حساب المتدرب ',
 
         // ─── الدبلومات    التعليمية (البرامج) ─────────────
         'view-programs'                  => 'عرض الدبلومات    التعليمية',
@@ -107,7 +107,7 @@ class PermissionSeeder extends Seeder
         'view-student-progress'          => 'عرض تقارير تقدم  المتدربون ',
         'view-attendance-reports'        => 'عرض تقارير الحضور',
         'view-grade-reports'             => 'عرض تقارير الدرجات',
-        'view-teacher-performance'       => 'عرض تقارير أداء المدربين ',
+        'view-teacher-performance'       => 'عرض تقارير أداء المدربون ',
 
         // ─── الاستبيانات ───────────────────────────────
         'view-surveys'                   => 'عرض الاستبيانات',
@@ -120,10 +120,10 @@ class PermissionSeeder extends Seeder
         'manage-tickets'                 => 'إدارة تذاكر الدعم',
         'assign-tickets'                 => 'تعيين التذاكر للموظفين',
 
-        // ─── تقييم المدربين  ────────────────────────────
-        'view-ratings'                   => 'عرض تقييمات المدربين ',
-        'approve-ratings'                => 'قبول تقييمات المدربين ',
-        'reject-ratings'                 => 'رفض تقييمات المدربين ',
+        // ─── تقييم المدربون  ────────────────────────────
+        'view-ratings'                   => 'عرض تقييمات المدربون ',
+        'approve-ratings'                => 'قبول تقييمات المدربون ',
+        'reject-ratings'                 => 'رفض تقييمات المدربون ',
 
         // ─── المستخدمون المعلقون ───────────────────────
         'view-pending-users'             => 'عرض طلبات التسجيل المعلقة',

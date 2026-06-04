@@ -414,7 +414,7 @@ class PaymentController extends Controller
             'receipt_rejection_reason' => $request->rejection_reason,
         ]);
 
-        return redirect()->back()->with('success', 'تم رفض الإيصال وإشعار الطالب');
+        return redirect()->back()->with('success', 'تم رفض الإيصال وإشعار المتدرب ');
     }
 
     /**

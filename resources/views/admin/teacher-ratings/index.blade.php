@@ -1,14 +1,14 @@
 @extends('layouts.dashboard')
 
-@section('title', 'تقييمات المدربين ')
+@section('title', 'تقييمات المدربون ')
 
 @section('content')
 <div class="space-y-6">
     <!-- Header -->
     <div class="flex flex-wrap items-center justify-between gap-4">
         <div>
-            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">تقييمات المدربين </h2>
-            <p class="text-gray-600 dark:text-gray-400">إدارة وعرض تقييمات المدربين  من قبل  المتدربون  (معيار NELC 2.4.9)</p>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">تقييمات المدربون </h2>
+            <p class="text-gray-600 dark:text-gray-400">إدارة وعرض تقييمات المدربون  من قبل  المتدربون  (معيار NELC 2.4.9)</p>
         </div>
         <a href="{{ route('admin.teacher-ratings.report') }}" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-brand-500 rounded-lg hover:bg-brand-600">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -37,7 +37,7 @@
             <table class="w-full">
                 <thead class="bg-gray-50 dark:bg-gray-700">
                     <tr>
-                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">الطالب</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">المتدرب </th>
                         <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">ال مدرب </th>
                         <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">المقرر </th>
                         <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">التقييم</th>
@@ -113,7 +113,7 @@
     <!-- Teachers List with Ratings -->
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
         <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">تقييمات المدربين </h3>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">تقييمات المدربون </h3>
         </div>
         <div class="overflow-x-auto">
             <table class="w-full">

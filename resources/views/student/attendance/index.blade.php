@@ -875,7 +875,7 @@
                     <div class="space-y-2">
                         @if(auth()->user()->studentId)
                         <div class="flex justify-between text-xs p-2.5 rounded-lg bg-gray-50 dark:bg-gray-800">
-                            <span class="text-gray-500">رقم الطالب</span>
+                            <span class="text-gray-500">رقم المتدرب </span>
                             <span class="font-bold text-gray-900 dark:text-white">{{ auth()->user()->studentId }}</span>
                         </div>
                         @endif

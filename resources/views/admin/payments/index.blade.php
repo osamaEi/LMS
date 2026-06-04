@@ -668,7 +668,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">الطالب</label>
+                        <label class="form-label">المتدرب </label>
                         <select name="user_id" class="form-select">
                             <option value="">الكل</option>
                             @foreach($students as $student)
@@ -764,7 +764,7 @@
                     <thead>
                         <tr>
                             <th>#</th>
-                            <th>الطالب</th>
+                            <th>المتدرب </th>
                             <th>البرنامج</th>
                             <th>نوع الدفع</th>
                             <th>التقدم</th>

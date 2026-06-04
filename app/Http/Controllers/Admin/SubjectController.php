@@ -160,7 +160,7 @@ class SubjectController extends Controller
         $ids = array_map('intval', $request->input('teacher_ids', []));
         $subject->teachers()->sync($ids);
         $subject->update(['teacher_id' => count($ids) ? $ids[0] : null]);
-        return back()->with('success', 'تم تعيين المدربين بنجاح');
+        return back()->with('success', 'تم تعيين المدربون بنجاح');
     }
 
     public function toggleStatus(Request $request, Subject $subject)

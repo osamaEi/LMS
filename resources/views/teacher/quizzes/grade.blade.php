@@ -29,7 +29,7 @@
     <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-6">
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
-                <p class="text-sm text-gray-500 dark:text-gray-400">الطالب</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400">المتدرب </p>
                 <p class="font-medium text-gray-900 dark:text-white">{{ $attempt->student->name }}</p>
             </div>
             <div>
@@ -110,7 +110,7 @@
                             @if($answer->selected_option_id === $option->id)
                                 <span class="text-xs px-2 py-0.5 rounded-full mr-auto"
                                       style="background-color: {{ $option->is_correct ? '#d1fae5' : '#fee2e2' }}; color: {{ $option->is_correct ? '#065f46' : '#991b1b' }};">
-                                    إجابة الطالب
+                                    إجابة المتدرب 
                                 </span>
                             @endif
                         </div>
@@ -126,7 +126,7 @@
                     <!-- Essay/Short Answer -->
                     <div class="mr-14">
                         <div class="p-4 rounded-xl mb-4" style="background-color: #f9fafb;">
-                            <p class="text-sm text-gray-500 mb-2">إجابة الطالب:</p>
+                            <p class="text-sm text-gray-500 mb-2">إجابة المتدرب :</p>
                             <p class="text-gray-900 dark:text-white whitespace-pre-wrap">{{ $answer->answer_text ?: 'لم يتم الإجابة' }}</p>
                         </div>
 

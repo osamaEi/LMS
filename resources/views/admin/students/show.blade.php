@@ -1507,7 +1507,7 @@
                                     </svg>
                                 </div>
                                 <div class="content">
-                                    <div class="label">كود الطالب</div>
+                                    <div class="label">كود المتدرب </div>
                                     <div class="value" style="font-family:monospace;font-weight:800;color:#1d4ed8;letter-spacing:.5px;">
                                         {{ $student->student_code ?? '—' }}
                                     </div>
@@ -1778,7 +1778,7 @@
                                         <span class="text-green-600 font-medium">{{ number_format($student->program->price) }} <x-riyal /></span>
                                     </div>
                                 </div>
-                                <form action="{{ route('admin.students.remove-program', $student) }}" method="POST" onsubmit="return confirm('هل أنت متأكد من إزالة البرنامج من هذا الطالب؟');">
+                                <form action="{{ route('admin.students.remove-program', $student) }}" method="POST" onsubmit="return confirm('هل أنت متأكد من إزالة البرنامج من هذا المتدرب ؟');">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 16px;border-radius:10px;background:linear-gradient(135deg,#ef4444,#dc2626);color:white;font-weight:600;font-size:13px;border:none;cursor:pointer;box-shadow:0 4px 12px rgba(239,68,68,.3);">
@@ -1796,7 +1796,7 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
                                     </svg>
                                 </div>
-                                <p class="text-gray-500 dark:text-gray-400 text-sm mb-4">لم يتم تعيين برنامج لهذا الطالب</p>
+                                <p class="text-gray-500 dark:text-gray-400 text-sm mb-4">لم يتم تعيين برنامج لهذا المتدرب </p>
                             </div>
                             <form action="{{ route('admin.students.assign-program', $student) }}" method="POST">
                                 @csrf
@@ -2116,7 +2116,7 @@
                 @else
                     <div class="empty-state" style="text-align: center; padding: 3rem 1.5rem;">
                         <div style="font-size: 3.5rem; margin-bottom: 1rem;">💰</div>
-                        <p style="color: #6b7280; font-size: 1rem; font-weight: 600;">لا توجد دفعات مسجلة لهذا الطالب</p>
+                        <p style="color: #6b7280; font-size: 1rem; font-weight: 600;">لا توجد دفعات مسجلة لهذا المتدرب </p>
                     </div>
                 @endif
             </div>
