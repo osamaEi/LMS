@@ -34,7 +34,7 @@
 
 /* Body grid */
 .sp-grid {
-    margin-top: 56px;
+    margin-top: 1rem;
     display: grid;
     grid-template-columns: 1fr 268px;
     gap: 1rem;
@@ -135,41 +135,51 @@ $sc = [
 
 {{-- Cover --}}
 <div class="sp-cover">
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:.75rem;position:relative;z-index:1;">
-        <div>
-            <p style="font-size:.72rem;opacity:.5;margin:0 0 .25rem;">ملفي الشخصي</p>
-            <h1 style="font-size:1.45rem;font-weight:800;margin:0;line-height:1.25;">{{ $user->name }}</h1>
-            <p style="font-size:.78rem;opacity:.55;margin:.2rem 0 0;">{{ $user->program?->name_ar ?? 'لا يوجد برنامج' }}</p>
-        </div>
-        <span style="display:inline-flex;align-items:center;gap:.35rem;padding:.28rem .8rem;border-radius:20px;font-size:.7rem;font-weight:700;background:{{ $sc['bg'] }};color:{{ $sc['text'] }};">
-            <span style="width:6px;height:6px;border-radius:50%;background:{{ $sc['dot'] }};"></span>
-            {{ $sc['lbl'] }}
-        </span>
-    </div>
 
-    <div style="display:flex;gap:1.25rem;margin-top:1.5rem;flex-wrap:wrap;position:relative;z-index:1;">
-        @foreach([
-            [$user->national_id??'—','رقم الهوية'],
-            [$user->gender==='male'?'ذكر':($user->gender==='female'?'أنثى':'—'),'الجنس'],
-            [$user->date_of_birth?->format('Y')??'—','الميلاد'],
-            [$user->nationality??'—','الجنسية'],
-        ] as [$v,$l])
-        <div style="text-align:center;">
-            <div style="font-size:.95rem;font-weight:800;">{{ $v }}</div>
-            <div style="font-size:.6rem;opacity:.5;margin-top:.1rem;">{{ $l }}</div>
-        </div>
-        @endforeach
-    </div>
-
+    {{-- Avatar --}}
     <div class="sp-avatar-wrap">
         <img id="sp-av" class="sp-avatar"
-             src="{{ $user->profile_photo ? asset('storage/'.$user->profile_photo) : 'https://ui-avatars.com/api/?name='.urlencode($user->name).'&background=0071AA&color=fff&size=180&bold=true&font-size=0.4' }}"
+             src="{{ $user->profile_photo ? asset('storage/'.$user->profile_photo) : 'https://ui-avatars.com/api/?name='.urlencode($user->name).'&background=0071AA&color=fff&size=160&bold=true&font-size=0.4' }}"
              alt="{{ $user->name }}">
-        <label class="sp-cam" onclick="document.getElementById('sp-fi').click()">
-            <svg width="12" height="12" fill="none" stroke="white" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        <label class="sp-cam" onclick="document.getElementById('sp-fi').click()" title="تغيير الصورة">
+            <svg width="11" height="11" fill="none" stroke="white" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
         </label>
         <input type="file" id="sp-fi" accept="image/*" class="hidden" onchange="spPhoto(this)">
     </div>
+
+    {{-- Info --}}
+    <div style="flex:1;min-width:0;">
+        <div style="display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;margin-bottom:.2rem;">
+            <h1 style="font-size:1.2rem;font-weight:800;color:#111827;margin:0;" class="dark:text-white">{{ $user->name }}</h1>
+            <span style="display:inline-flex;align-items:center;gap:.3rem;padding:.2rem .65rem;border-radius:20px;font-size:.68rem;font-weight:700;background:{{ $sc['bg'] }};color:{{ $sc['dot'] }};">
+                <span style="width:5px;height:5px;border-radius:50%;background:{{ $sc['dot'] }};"></span>
+                {{ $sc['lbl'] }}
+            </span>
+        </div>
+        <p style="font-size:.78rem;color:#6b7280;margin:0 0 .9rem;">{{ $user->program?->name_ar ?? 'لا يوجد برنامج' }}</p>
+
+        <div style="display:flex;flex-wrap:wrap;gap:.5rem;">
+            @foreach([
+                [$user->national_id??'—','رقم الهوية','#eff6ff','#2563eb'],
+                [$user->gender==='male'?'ذكر':($user->gender==='female'?'أنثى':'—'),'الجنس','#fdf2f8','#be185d'],
+                [$user->date_of_birth?->format('Y')??'—','الميلاد','#fef3c7','#d97706'],
+                [$user->nationality??'—','الجنسية','#f0fdf4','#16a34a'],
+            ] as [$v,$l,$bg,$c])
+            <div style="display:flex;align-items:center;gap:.4rem;padding:.3rem .7rem;border-radius:8px;background:{{ $bg }};">
+                <span style="font-size:.75rem;font-weight:700;color:{{ $c }};">{{ $v }}</span>
+                <span style="font-size:.62rem;color:#9ca3af;">{{ $l }}</span>
+            </div>
+            @endforeach
+        </div>
+    </div>
+
+    {{-- Edit button --}}
+    <button onclick="document.getElementById('sp-em').classList.add('open')"
+            style="align-self:flex-start;display:inline-flex;align-items:center;gap:.4rem;padding:.45rem .9rem;border-radius:9px;border:1.5px solid #e5e7eb;background:#fff;color:#374151;font-size:.75rem;font-weight:700;cursor:pointer;flex-shrink:0;"
+            class="dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200">
+        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536M9 13l6.586-6.586a2 2 0 112.828 2.828L11.828 15.828 9 16l.172-3z"/></svg>
+        تعديل
+    </button>
 </div>
 
 {{-- Grid --}}
@@ -183,8 +193,6 @@ $sc = [
             <div class="sp-ch">
                 <div class="sp-ch-ico" style="background:#eff6ff;"><svg width="14" height="14" fill="none" stroke="#2563eb" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg></div>
                 <h4>البيانات الشخصية</h4>
-                <button onclick="document.getElementById('sp-em').classList.add('open')"
-                        style="padding:.25rem .75rem;border-radius:7px;border:none;background:#eff6ff;color:#2563eb;font-size:.72rem;font-weight:700;cursor:pointer;">تعديل</button>
             </div>
             @foreach([
                 ['#eff6ff','#2563eb','M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0','رقم الهوية',$user->national_id??'—',true],
