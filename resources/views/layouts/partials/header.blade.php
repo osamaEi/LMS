@@ -60,12 +60,14 @@
                     class="flex items-center gap-2.5 rounded-xl px-2.5 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                 >
                     <div class="relative flex-shrink-0">
-                        @if(auth()->user()->avatar)
-                            <img src="{{ asset('storage/avatars/' . auth()->user()->avatar) }}"
+                        @php $navPhoto = auth()->user()->profile_photo ?? auth()->user()->avatar; @endphp
+                        @if($navPhoto)
+                            <img id="nav-avatar"
+                                 src="{{ str_starts_with($navPhoto, 'uploads/') ? asset('storage/'.$navPhoto) : asset('storage/avatars/'.$navPhoto) }}"
                                  alt="{{ auth()->user()->name }}"
                                  style="width:38px;height:38px;border-radius:50%;object-fit:cover;border:2px solid #0071AA" />
                         @else
-                            <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#0071AA,#005a88);display:flex;align-items:center;justify-content:center;border:2px solid rgba(0,113,170,0.3);font-size:0.95rem;font-weight:800;color:#fff;flex-shrink:0">
+                            <div id="nav-avatar-init" style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#0071AA,#005a88);display:flex;align-items:center;justify-content:center;border:2px solid rgba(0,113,170,0.3);font-size:0.95rem;font-weight:800;color:#fff;flex-shrink:0">
                                 {{ mb_substr(auth()->user()->name, 0, 1) }}
                             </div>
                         @endif
@@ -100,8 +102,9 @@
                         <div style="padding:16px 18px;background:linear-gradient(135deg,#0071AA,#005a88);position:relative;overflow:hidden">
                             <div style="position:absolute;top:-30%;right:-10%;width:60%;height:200%;background:radial-gradient(ellipse,rgba(255,255,255,0.12) 0%,transparent 70%);pointer-events:none"></div>
                             <div style="display:flex;align-items:center;gap:12px;position:relative">
-                                @if(auth()->user()->avatar)
-                                    <img src="{{ asset('storage/avatars/' . auth()->user()->avatar) }}"
+                                @if($navPhoto)
+                                    <img id="nav-avatar-dd"
+                                         src="{{ str_starts_with($navPhoto, 'uploads/') ? asset('storage/'.$navPhoto) : asset('storage/avatars/'.$navPhoto) }}"
                                          alt="{{ auth()->user()->name }}"
                                          style="width:46px;height:46px;border-radius:50%;object-fit:cover;border:2.5px solid rgba(255,255,255,0.5);flex-shrink:0" />
                                 @else

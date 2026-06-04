@@ -258,7 +258,10 @@
             });
             const data = await res.json();
             if (data.success) {
-                document.getElementById('avatar-img').src = data.photo_url;
+                const url = data.photo_url;
+                document.getElementById('avatar-img').src = url;
+                const nav = document.getElementById('nav-avatar'); if (nav) nav.src = url;
+                const navdd = document.getElementById('nav-avatar-dd'); if (navdd) navdd.src = url;
                 showToast('تم تحديث الصورة الشخصية بنجاح', 'success');
             } else { showToast(data.message || 'حدث خطأ', 'error'); }
         } catch { showToast('حدث خطأ في الاتصال', 'error'); }

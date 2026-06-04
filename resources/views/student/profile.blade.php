@@ -412,9 +412,11 @@ async function spUpload(file) {
         const r = await fetch('{{ route("student.profile.update-photo") }}', { method:'POST', headers:{'X-CSRF-TOKEN':_c,'Accept':'application/json'}, body:fd });
         const d = await r.json();
         if (d.success) {
-            document.getElementById('sp-av').src = d.photo_url;
-            const mav = document.getElementById('sp-m-av');
-            if (mav) mav.src = d.photo_url;
+            const url = d.photo_url;
+            document.getElementById('sp-av').src = url;
+            const mav = document.getElementById('sp-m-av'); if (mav) mav.src = url;
+            const nav = document.getElementById('nav-avatar'); if (nav) nav.src = url;
+            const navdd = document.getElementById('nav-avatar-dd'); if (navdd) navdd.src = url;
             spT(d.message,'s');
         } else spT(d.message||'خطأ','e');
     } catch { spT('خطأ','e'); }
