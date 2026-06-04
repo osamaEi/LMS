@@ -203,12 +203,13 @@ $sc = [
                 ['#f0fdf4','#16a34a','M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9','الجنسية',$user->nationality??'—'],
                 ['#ecfdf5','#059669','M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z','الجوال',$user->phone??'—',true],
                 ['#f3e8ff','#7c3aed','M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z','البريد',$user->email??'—',true],
-            ] as [$bg,$clr,$ico,$lbl,$val,$ltr??false])
+            ] as $row)
+            @php [$bg,$clr,$ico,$lbl,$val] = $row; $ltr = $row[5] ?? false; @endphp
             <div class="sp-row">
                 <div class="sp-row-ico" style="background:{{ $bg }};"><svg width="13" height="13" fill="none" stroke="{{ $clr }}" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="{{ $ico }}"/></svg></div>
                 <div style="min-width:0;">
                     <div class="sp-lbl">{{ $lbl }}</div>
-                    <div class="sp-val" {{ $ltr?'dir="ltr"':'' }}>{{ $val }}</div>
+                    <div class="sp-val" {{ $ltr ? 'dir="ltr"' : '' }}>{{ $val }}</div>
                 </div>
             </div>
             @endforeach
