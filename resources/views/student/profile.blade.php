@@ -7,36 +7,26 @@
 
 /* Cover */
 .sp-cover {
-    background: linear-gradient(135deg, #0a2540, #0071AA);
+    background: #fff;
+    border: 1px solid #e5e7eb;
     border-radius: 20px;
-    padding: 2rem 2rem 4.5rem;
-    color: #fff;
-    position: relative;
-    overflow: hidden;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
 }
-.sp-cover::after {
-    content: '';
-    position: absolute; bottom: -60px; left: -40px;
-    width: 220px; height: 220px; border-radius: 50%;
-    background: rgba(255,255,255,.05);
-    pointer-events: none;
-}
-.sp-avatar-wrap {
-    position: absolute;
-    bottom: -44px; right: 2rem;
-    z-index: 10;
-}
+.dark .sp-cover { background: #1f2937; border-color: #374151; }
 .sp-avatar {
-    width: 88px; height: 88px;
-    border-radius: 20px;
-    border: 3px solid #fff;
-    box-shadow: 0 6px 20px rgba(0,0,0,.2);
+    width: 80px; height: 80px; flex-shrink: 0;
+    border-radius: 18px;
+    border: 3px solid #e5e7eb;
     object-fit: cover;
     display: block;
 }
+.sp-avatar-wrap { position: relative; flex-shrink: 0; }
 .sp-cam {
-    position: absolute; bottom: -7px; left: -7px;
-    width: 26px; height: 26px; border-radius: 8px;
+    position: absolute; bottom: -6px; right: -6px;
+    width: 24px; height: 24px; border-radius: 7px;
     background: #0071AA; border: 2px solid #fff;
     display: flex; align-items: center; justify-content: center;
     cursor: pointer;
