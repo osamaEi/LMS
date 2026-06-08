@@ -150,15 +150,8 @@
                     </div>
                     <div id="step-line-1" class="step-line" style="background:#e2e8f0;margin:0 4px;margin-bottom:18px;"></div>
                 </div>
-                <div style="display:flex;align-items:center;gap:0;">
-                    <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
-                        <div id="step-dot-2" class="step-dot" style="background:#e2e8f0;color:#94a3b8;">2</div>
-                        <span style="font-size:10px;font-weight:600;color:#94a3b8;">نفاذ</span>
-                    </div>
-                    <div id="step-line-2" class="step-line" style="background:#e2e8f0;margin:0 4px;margin-bottom:18px;"></div>
-                </div>
                 <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
-                    <div id="step-dot-3" class="step-dot" style="background:#e2e8f0;color:#94a3b8;">3</div>
+                    <div id="step-dot-3" class="step-dot" style="background:#e2e8f0;color:#94a3b8;">2</div>
                     <span style="font-size:10px;font-weight:600;color:#94a3b8;">البيانات</span>
                 </div>
             </div>
@@ -173,79 +166,32 @@
                             </svg>
                         </div>
                         <h2 style="font-size:20px;font-weight:700;color:#1a3a5c;margin:0 0 6px;">إنشاء حساب جديد</h2>
-                        <p style="font-size:13px;color:#64748b;margin:0;">أدخل رقم الجوال والهوية للتحقق عبر نفاذ</p>
+                        <p style="font-size:13px;color:#64748b;margin:0;">أدخل رقم الجوال ورقم الهوية للمتابعة</p>
                     </div>
 
                     <form id="step1-form" style="display:flex;flex-direction:column;gap:16px;">
                         <div>
-                            <label class="field-label">
-                                رقم الجوال <span style="color:#ef4444;">*</span>
-                            </label>
-                            <input type="text" id="phone" name="phone" placeholder="05XXXXXXXX" maxlength="10" required
-                                   class="field-input" dir="ltr">
+                            <label class="field-label">رقم الجوال <span style="color:#ef4444;">*</span></label>
+                            <input type="text" id="phone" name="phone" placeholder="05XXXXXXXX" maxlength="10" required class="field-input" dir="ltr">
                             <p id="phone-error" class="field-error"></p>
                         </div>
-
                         <div>
-                            <label class="field-label">
-                                رقم الهوية الوطنية <span style="color:#ef4444;">*</span>
-                            </label>
-                            <input type="text" id="national_id" name="national_id" placeholder="1XXXXXXXXX" maxlength="10" required
-                                   class="field-input" dir="ltr">
+                            <label class="field-label">رقم الهوية الوطنية <span style="color:#ef4444;">*</span></label>
+                            <input type="text" id="national_id" name="national_id" placeholder="1XXXXXXXXX" maxlength="10" required class="field-input" dir="ltr">
                             <p id="national_id-error" class="field-error"></p>
                         </div>
-
                         <div id="step1-error" style="display:none;background:#fff7ed;border:1px solid #fde68a;border-right:3px solid #f59e0b;border-radius:10px;padding:12px 14px;font-size:13px;color:#92400e;"></div>
-
                         <button type="submit" id="step1-btn" class="btn-primary">
-                            <span id="step1-btn-text">التحقق عبر نفاذ</span>
+                            <span id="step1-btn-text">متابعة</span>
                             <svg id="step1-spinner" class="hidden spin-slow" style="width:18px;height:18px;display:inline;vertical-align:middle;margin-right:6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
                             </svg>
                         </button>
                     </form>
-
                     <p style="text-align:center;margin-top:18px;font-size:13px;color:#64748b;">
                         لديك حساب؟
                         <a href="{{ route('login') }}" style="color:#1a3a5c;font-weight:700;text-decoration:none;">تسجيل الدخول</a>
                     </p>
-                </div>
-            </div>
-
-            {{-- ══════════ STEP 2 ══════════ --}}
-            <div id="step2" class="step">
-                <div style="background:white; border-radius:20px; padding:28px; box-shadow:0 4px 24px rgba(0,0,0,.06); border:1px solid #e2e8f0; text-align:center;">
-                    <h2 style="font-size:20px;font-weight:700;color:#1a3a5c;margin:0 0 6px;">التحقق عبر نفاذ</h2>
-                    <p style="font-size:13px;color:#64748b;margin:0 0 28px;">افتح تطبيق نفاذ واختر الرقم المطابق</p>
-
-                    <div style="display:flex;justify-content:center;margin-bottom:24px;">
-                        <div style="position:relative;">
-                            <div class="pulse-ring" style="position:absolute;inset:0;border-radius:50%;background:rgba(37,99,235,.18);"></div>
-                            <div style="position:relative;width:120px;height:120px;border-radius:50%;background:linear-gradient(135deg,#1a3a5c,#2563eb);display:flex;align-items:center;justify-content:center;box-shadow:0 8px 32px rgba(37,99,235,.35);">
-                                <span id="nafath-random" style="font-size:48px;font-weight:800;color:white;line-height:1;">--</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <p style="font-size:13px;font-weight:600;color:#1a3a5c;margin-bottom:16px;">اختر هذا الرقم في تطبيق نفاذ</p>
-
-                    <div id="nafath-status" style="background:#eff6ff;border-radius:12px;padding:14px;margin-bottom:14px;">
-                        <div style="display:flex;align-items:center;justify-content:center;gap:10px;">
-                            <svg class="spin-slow" style="width:18px;height:18px;color:#2563eb;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                            </svg>
-                            <span style="font-size:13px;font-weight:600;color:#1e40af;">في انتظار التحقق...</span>
-                        </div>
-                    </div>
-
-                    <p style="font-size:12px;color:#94a3b8;">المهلة المتبقية: <span id="nafath-timer" style="font-weight:700;color:#f97316;">5:00</span></p>
-
-                    <div id="step2-error" style="display:none;background:#fff7ed;border:1px solid #fde68a;border-radius:12px;padding:14px;margin-top:14px;">
-                        <p style="font-size:13px;color:#92400e;font-weight:600;margin:0 0 10px;"></p>
-                        <button onclick="goToStep(1)" style="padding:8px 20px;background:linear-gradient(135deg,#1a3a5c,#2563eb);color:white;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">
-                            حاول مرة أخرى
-                        </button>
-                    </div>
                 </div>
             </div>
 
