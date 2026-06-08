@@ -141,6 +141,8 @@ class RegisterController extends Controller
     public function completeRegistration(Request $request)
     {
         $request->validate([
+            'phone'                 => ['required', 'regex:/^(05|5)\d{8}$/'],
+            'national_id'           => ['required', 'digits:10'],
             'name'                  => 'required|string|max:255',
             'email'                 => 'required|email|max:255|unique:users,email',
             'password'              => 'required|confirmed|min:8',
@@ -183,36 +185,16 @@ class RegisterController extends Controller
             'is_terms.accepted'           => 'يجب الموافقة على الشروط والأحكام',
         ]);
 
-        $phone = session('register_phone');
-        $nationalId = session('register_national_id');
-        $isBypassed = session('register_nafath_bypass', false);
+        // Get phone & national_id from request (sent as hidden fields from Step 1)
+        $rawPhone = $request->input('phone', '');
+        $phone = str_starts_with($rawPhone, '0') ? $rawPhone : '0' . $rawPhone;
+        $nationalId = $request->input('national_id', '');
 
-        if (!$phone || !$nationalId) {
-            return response()->json([
-                'success' => false,
-                'message' => 'انتهت صلاحية الجلسة. يرجى البدء من جديد.',
-            ], 422);
+        if (User::where('national_id', $nationalId)->exists()) {
+            return response()->json(['success' => false, 'message' => 'رقم الهوية مسجل مسبقاً'], 422);
         }
-
-        // BYPASS MODE: Skip Nafath verification check
-        if (!$isBypassed) {
-            $transactionId = session('register_nafath_transaction');
-
-            if (!$transactionId) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'انتهت صلاحية الجلسة. يرجى البدء من جديد.',
-                ], 422);
-            }
-
-            // Verify Nafath transaction is approved
-            $transaction = $this->nafathService->getTransaction($transactionId);
-            if (!$transaction || !$transaction->isApproved()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'لم يتم التحقق من الهوية عبر نفاذ.',
-                ], 422);
-            }
+        if (User::where('phone', $phone)->orWhere('phone', ltrim($phone, '0'))->exists()) {
+            return response()->json(['success' => false, 'message' => 'رقم الجوال مسجل مسبقاً'], 422);
         }
 
         try {
@@ -235,12 +217,6 @@ class RegisterController extends Controller
                 'date_of_register'    => now()->toDateString(),
             ];
 
-            // Add Nafath data if not bypassed
-            if (!$isBypassed && isset($transaction)) {
-                $userData['nafath_verified_at'] = now();
-                $userData['nafath_transaction_id'] = $transaction->transaction_id;
-            }
-
             $user = User::create($userData);
 
             // Store national ID images and certificate in student_documents
@@ -259,14 +235,6 @@ class RegisterController extends Controller
                     ]);
                 }
             }
-
-            // Link transaction to user if exists
-            if (!$isBypassed && isset($transaction)) {
-                $transaction->update(['user_id' => $user->id]);
-            }
-
-            // Clear session
-            session()->forget(['register_phone', 'register_national_id', 'register_nafath_transaction', 'register_nafath_bypass']);
 
             return response()->json([
                 'success' => true,

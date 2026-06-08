@@ -234,6 +234,8 @@
 
                 <div style="background:white;border-radius:0 0 20px 20px;box-shadow:0 8px 32px rgba(0,0,0,.08);border:1px solid #e2e8f0;border-top:none;">
                     <form id="step3-form" style="max-height:60vh;overflow-y:auto;padding:20px;">
+                        <input type="hidden" id="step3-phone" name="phone">
+                        <input type="hidden" id="step3-national-id" name="national_id">
 
                         {{-- ── Section: Personal Info ── --}}
                         <div style="margin-bottom:20px;">
@@ -465,7 +467,6 @@
 
 <script>
 const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
-let pollInterval = null, timerInterval = null, currentTransactionId = null;
 
 // ── Step navigation ──
 function goToStep(step) {
@@ -477,20 +478,27 @@ function goToStep(step) {
     void el.offsetWidth;
     el.classList.add('fade-in');
 
-    if (step === 3) {
+    if (step === 3 || step === 'success') {
         const p = document.getElementById('phone').value.trim();
         const n = document.getElementById('national_id').value.trim();
-        document.getElementById('display-phone').textContent      = p || '—';
-        document.getElementById('display-national-id').textContent = n || '—';
+        const dp = document.getElementById('display-phone');
+        const dn = document.getElementById('display-national-id');
+        if (dp) dp.textContent = p || '—';
+        if (dn) dn.textContent = n || '—';
     }
 
-    for (let i = 1; i <= 3; i++) {
-        const dot = document.getElementById('step-dot-' + i);
-        if (i < step) {
+    // Only 2 dots now: step-dot-1 (التحقق) and step-dot-3 (البيانات)
+    const dotMap = { 1: 'step-dot-1', 3: 'step-dot-3' };
+    const numericStep = step === 'success' ? 3 : step;
+    for (const [num, dotId] of Object.entries(dotMap)) {
+        const dot = document.getElementById(dotId);
+        if (!dot) continue;
+        const n = parseInt(num);
+        if (n < numericStep) {
             dot.style.background = 'linear-gradient(135deg,#16a34a,#22c55e)';
             dot.style.color = 'white';
             dot.style.boxShadow = '0 4px 12px rgba(34,197,94,.3)';
-        } else if (i == step) {
+        } else if (n == numericStep) {
             dot.style.background = 'linear-gradient(135deg,#1a3a5c,#2563eb)';
             dot.style.color = 'white';
             dot.style.boxShadow = '0 4px 12px rgba(37,99,235,.3)';
@@ -500,9 +508,8 @@ function goToStep(step) {
             dot.style.boxShadow = 'none';
         }
     }
-    const g = '#22c55e', g2 = '#e2e8f0';
-    document.getElementById('step-line-1').style.background = step >= 2 ? g : g2;
-    document.getElementById('step-line-2').style.background = (step >= 3 || step === 'success') ? g : g2;
+    const line1 = document.getElementById('step-line-1');
+    if (line1) line1.style.background = numericStep >= 3 ? '#22c55e' : '#e2e8f0';
 }
 
 // ── Step 1 ──
@@ -521,78 +528,10 @@ document.getElementById('step1-form').addEventListener('submit', async function(
         showFieldError('national_id-error', 'رقم الهوية يجب أن يكون 10 أرقام'); return;
     }
 
-    setBtn('step1-btn', 'step1-btn-text', 'step1-spinner', 'جاري الاتصال بنفاذ...', true);
-
-    try {
-        const res = await fetch('/register/nafath', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
-            body: JSON.stringify({ phone, national_id: nationalId }),
-        });
-        const data = await res.json();
-
-        if (!res.ok || !data.success) {
-            const msg = data.message || (data.errors ? Object.values(data.errors).flat().join(', ') : 'حدث خطأ');
-            const el = document.getElementById('step1-error');
-            el.textContent = msg; el.style.display = 'block';
-            setBtn('step1-btn', 'step1-btn-text', 'step1-spinner', 'التحقق عبر نفاذ', false);
-            return;
-        }
-
-        currentTransactionId = data.transaction_id;
-        document.getElementById('nafath-random').textContent = data.random || '--';
-        goToStep(2);
-
-        if (data.bypass) {
-            document.getElementById('nafath-status').innerHTML = `
-                <div style="display:flex;align-items:center;justify-content:center;gap:10px;">
-                    <svg class="spin-slow" style="width:18px;height:18px;color:#2563eb;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                    </svg>
-                    <span style="font-size:13px;font-weight:600;color:#1e40af;">محاكاة التحقق (وضع التطوير)...</span>
-                </div>`;
-            setTimeout(() => goToStep(3), 2000);
-            return;
-        }
-        startPolling(); startTimer();
-    } catch {
-        const el = document.getElementById('step1-error');
-        el.textContent = 'حدث خطأ في الاتصال. حاول مرة أخرى.';
-        el.style.display = 'block';
-        setBtn('step1-btn', 'step1-btn-text', 'step1-spinner', 'التحقق عبر نفاذ', false);
-    }
+    document.getElementById('step3-phone').value = phone;
+    document.getElementById('step3-national-id').value = nationalId;
+    goToStep(3);
 });
-
-// ── Step 2 polling ──
-function startPolling() {
-    if (pollInterval) clearInterval(pollInterval);
-    pollInterval = setInterval(async () => {
-        try {
-            const res  = await fetch('/register/nafath/poll/' + currentTransactionId, { headers: { 'Accept': 'application/json' } });
-            const data = await res.json();
-            if (data.status === 'approved') { clearInterval(pollInterval); clearInterval(timerInterval); goToStep(3); }
-            else if (data.status === 'rejected') { clearInterval(pollInterval); clearInterval(timerInterval); showStep2Error('تم رفض طلب التحقق. حاول مرة أخرى.'); }
-            else if (data.status === 'expired')  { clearInterval(pollInterval); clearInterval(timerInterval); showStep2Error('انتهت صلاحية الطلب. حاول مرة أخرى.'); }
-        } catch { /* silent */ }
-    }, 3000);
-}
-
-function startTimer() {
-    let seconds = 300;
-    if (timerInterval) clearInterval(timerInterval);
-    timerInterval = setInterval(() => {
-        seconds--;
-        const m = Math.floor(seconds / 60), s = seconds % 60;
-        document.getElementById('nafath-timer').textContent = m + ':' + (s < 10 ? '0' : '') + s;
-        if (seconds <= 0) { clearInterval(timerInterval); clearInterval(pollInterval); showStep2Error('انتهت المهلة. حاول مرة أخرى.'); }
-    }, 1000);
-}
-
-function showStep2Error(msg) {
-    document.getElementById('nafath-status').style.display = 'none';
-    const el = document.getElementById('step2-error');
-    el.querySelector('p').textContent = msg; el.style.display = 'block';
-}
 
 // ── File helpers ──
 function previewFile(input, previewId, labelId) {
