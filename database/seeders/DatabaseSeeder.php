@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use Database\Seeders\PermissionSeeder;
+use Database\Seeders\Student29DemoSeeder;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -16,6 +17,7 @@ class DatabaseSeeder extends Seeder
            //  PublicRelationsSubjectsSeeder::class,
 
            PermissionSeeder::class,
+           Student29DemoSeeder::class,
         ]);
     }
 }
