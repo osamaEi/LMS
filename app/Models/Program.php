@@ -93,6 +93,11 @@ class Program extends Model
         return $this->hasMany(Session::class);
     }
 
+    public function classes()
+    {
+        return $this->hasMany(\App\Models\ProgramClass::class);
+    }
+
     public function files()
     {
         return $this->hasMany(SubjectFile::class);

@@ -16,51 +16,43 @@ class SessionController extends Controller
      * GET /api/v1/student/sessions
      * List all sessions from student's program with filters
      */
+    private function assignedSessionIds($student): \Illuminate\Support\Collection
+    {
+        $ids = Attendance::where('student_id', $student->id)->pluck('session_id');
+        if ($student->class_id) {
+            $ids = Session::whereIn('id', $ids)->where('class_id', $student->class_id)->pluck('id');
+        }
+        return $ids;
+    }
+
     public function index(Request $request)
     {
-        $student = auth()->user();
-        $subjectId = $request->query('subject_id');
-        $type = $request->query('type');
+        $student     = auth()->user();
+        $subjectId   = $request->query('subject_id');
+        $type        = $request->query('type');
+        $assignedIds = $this->assignedSessionIds($student);
 
-        $query = Session::whereHas('subject.term', function ($q) use ($student) {
-            $q->where('program_id', $student->program_id);
-        })
+        $query = Session::whereIn('id', $assignedIds)
             ->with(['subject:id,name_ar,name_en', 'subject.teacher:id,name', 'unit:id,title', 'files']);
 
-        if ($subjectId) {
-            $query->where('subject_id', $subjectId);
-        }
+        if ($subjectId) $query->where('subject_id', $subjectId);
+        if ($type)      $query->where('type', $type);
 
-        if ($type) {
-            $query->where('type', $type);
-        }
+        $sessions = $query->orderBy('subject_id')->orderBy('session_number', 'asc')->paginate(20);
 
-        $sessions = $query->orderBy('subject_id')
-            ->orderBy('session_number', 'asc')
-            ->paginate(20);
-
-        // Get attendance records
         $attendances = Attendance::where('student_id', $student->id)
             ->whereIn('session_id', $sessions->pluck('id'))
-            ->get()
-            ->keyBy('session_id');
-
-        // Statistics
-        $allSessions = Session::whereHas('subject.term', function ($q) use ($student) {
-            $q->where('program_id', $student->program_id);
-        });
+            ->get()->keyBy('session_id');
 
         $stats = [
-            'total_sessions' => (clone $allSessions)->count(),
-            'completed_sessions' => (clone $allSessions)->whereNotNull('ended_at')->count(),
-            'zoom_sessions' => (clone $allSessions)->where('type', 'live_zoom')->count(),
-            'live_sessions' => (clone $allSessions)->whereNotNull('started_at')->whereNull('ended_at')->count(),
+            'total_sessions'     => $assignedIds->count(),
+            'completed_sessions' => Session::whereIn('id', $assignedIds)->whereNotNull('ended_at')->count(),
+            'zoom_sessions'      => Session::whereIn('id', $assignedIds)->where('type', 'live_zoom')->count(),
+            'live_sessions'      => Session::whereIn('id', $assignedIds)->whereNotNull('started_at')->whereNull('ended_at')->count(),
         ];
 
-        // Subjects for filter
-        $programSubjects = Subject::whereHas('term', function ($q) use ($student) {
-            $q->where('program_id', $student->program_id);
-        })->select('id', 'name_ar', 'name_en')->get();
+        $programSubjects = Subject::whereHas('sessions', fn($q) => $q->whereIn('id', $assignedIds))
+            ->select('id', 'name_ar', 'name_en')->get();
 
         return response()->json([
             'success' => true,
@@ -83,12 +75,15 @@ class SessionController extends Controller
 
         $session = Session::findOrFail($sessionId);
 
-        // Verify enrollment
-        $isEnrolled = Enrollment::where('student_id', $student->id)
-            ->where('subject_id', $session->subject_id)
+        // Verify access: student must have an Attendance record for this session
+        // and if they belong to a class, the session must belong to that class
+        $hasAttendance = Attendance::where('student_id', $student->id)
+            ->where('session_id', $session->id)
             ->exists();
 
-        if (!$isEnrolled) {
+        $classMatch = !$student->class_id || $session->class_id === $student->class_id;
+
+        if (!$hasAttendance || !$classMatch) {
             return response()->json([
                 'success' => false,
                 'message' => 'ليس لديك صلاحية الانضمام لهذه الجلسة',

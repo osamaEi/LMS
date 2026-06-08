@@ -78,8 +78,13 @@ class CourseController extends Controller
         $allSubjects = Subject::orderBy('name_ar')->get(['id', 'name_ar', 'name_en', 'code']);
         $teachers    = User::where('role', 'teacher')->orderBy('name')->get(['id', 'name']);
         $program     = $course;
+        $classes     = \App\Models\ProgramClass::where('program_id', $program->id)
+                            ->withCount('students')
+                            ->with('teacher:id,name')
+                            ->latest()
+                            ->get();
 
-        return view('admin.programs.show', compact('program', 'allSubjects', 'teachers'))
+        return view('admin.programs.show', compact('program', 'allSubjects', 'teachers', 'classes'))
             ->with('backRoute', 'admin.courses.index')
             ->with('pageLabel', 'الدورات والبرامج التأهيلية');
     }

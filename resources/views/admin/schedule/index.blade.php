@@ -36,6 +36,10 @@
                 <div style="font-size:11px;color:rgba(255,255,255,0.55);margin-top:2px;">{{ $l }}</div>
             </div>
             @endforeach
+            <button onclick="openGenerateModal()" style="display:flex;align-items:center;gap:8px;padding:10px 18px;background:linear-gradient(135deg,#7c3aed,#a855f7);color:white;border:none;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 3px 14px rgba(124,58,237,.4);">
+                <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                إنشاء جدول
+            </button>
         </div>
     </div>
 </div>
@@ -338,5 +342,328 @@ function submitAssign() {
 }
 
 renderCalendar();
+
+// ══════════════════════════════════════
+// Generate Schedule Modal
+// ══════════════════════════════════════
+let allPrograms = [], allSubjects = [];
+
+async function openGenerateModal() {
+    document.getElementById('genModal').style.display = 'flex';
+    // reset
+    document.getElementById('genEntitySearch').value = '';
+    document.getElementById('genEntityId').value = '';
+    document.getElementById('genEntityList').innerHTML = '';
+    document.getElementById('genEntityDropdown').style.display = 'none';
+    document.getElementById('genClassRow').style.display = 'none';
+    document.getElementById('genDatesRow').style.display = 'none';
+    document.getElementById('genResult').style.display = 'none';
+
+    if (!allPrograms.length) {
+        const r = await fetch('/admin/schedule/programs', { headers: { Accept: 'application/json' } });
+        const d = await r.json();
+        allPrograms = d.programs;
+        allSubjects = d.subjects;
+    }
+    renderEntityList('program', '');
+}
+
+function closeGenerateModal() {
+    document.getElementById('genModal').style.display = 'none';
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', e => {
+    const wrap = document.getElementById('genEntitySearch')?.closest('div');
+    if (wrap && !wrap.contains(e.target)) {
+        document.getElementById('genEntityDropdown').style.display = 'none';
+    }
+});
+
+function switchEntityType(type) {
+    document.getElementById('genEntityType').value = type;
+    document.getElementById('tabProgram').style.background = type==='program' ? '#7c3aed' : 'transparent';
+    document.getElementById('tabProgram').style.color      = type==='program' ? 'white' : '#64748b';
+    document.getElementById('tabSubject').style.background = type==='subject' ? '#7c3aed' : 'transparent';
+    document.getElementById('tabSubject').style.color      = type==='subject' ? 'white' : '#64748b';
+    // update label
+    document.getElementById('genEntityLabel').textContent =
+        type === 'program' ? 'اختر البرنامج / الدورة *' : 'اختر المادة / المقرر *';
+    // clear search and selection
+    document.getElementById('genEntitySearch').value = '';
+    document.getElementById('genEntityId').value = '';
+    document.getElementById('genEntityDropdown').style.display = 'none';
+    document.getElementById('genClassRow').style.display = 'none';
+    document.getElementById('genDatesRow').style.display = 'none';
+    document.getElementById('genClassId').innerHTML = '<option value="">— اختر المجموعة —</option>';
+    renderEntityList(type, '');
+}
+
+function filterEntityList() {
+    const type = document.getElementById('genEntityType').value;
+    const q    = document.getElementById('genEntitySearch').value;
+    document.getElementById('genEntityDropdown').style.display = 'block';
+    renderEntityList(type, q);
+}
+
+function renderEntityList(type, q) {
+    const list = (type === 'program' ? allPrograms : allSubjects)
+        .filter(e => !q || e.name_ar.includes(q));
+    const container = document.getElementById('genEntityList');
+    if (!list.length) {
+        container.innerHTML = '<div style="padding:10px 14px;font-size:12px;color:#9ca3af;">لا توجد نتائج</div>';
+        return;
+    }
+    container.innerHTML = list.map(e => `
+        <div onclick="selectEntity(${e.id}, '${e.name_ar.replace(/'/g,"\\'")}', ${e.program_id ?? 'null'}, ${e.duration_months ?? 'null'})"
+             style="padding:9px 14px;font-size:13px;cursor:pointer;border-bottom:1px solid #f1f5f9;color:#1e293b;"
+             onmouseover="this.style.background='#f8faff'" onmouseout="this.style.background='white'">
+            ${e.name_ar}${e.type ? ` <span style="font-size:11px;color:#9ca3af;">(${e.type})</span>` : ''}
+            ${e.program_name ? ` <span style="font-size:11px;color:#a855f7;">— ${e.program_name}</span>` : ''}
+        </div>
+    `).join('');
+}
+
+async function selectEntity(id, name, programId, durationMonths) {
+    document.getElementById('genEntitySearch').value = name;
+    document.getElementById('genEntityId').value = id;
+    document.getElementById('genEntityDropdown').style.display = 'none';
+
+    const type = document.getElementById('genEntityType').value;
+    const pid  = type === 'subject' ? programId : id;
+
+    if (!pid) { alert('هذه المادة غير مرتبطة ببرنامج'); return; }
+
+    // Reset class selection
+    document.getElementById('genClassId').value = '';
+    document.getElementById('genDatesRow').style.display = 'none';
+
+    // Show loading
+    const cards = document.getElementById('genClassCards');
+    const empty = document.getElementById('genClassEmpty');
+    cards.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:20px;color:#9ca3af;font-size:13px;">جار التحميل...</div>`;
+    document.getElementById('genClassRow').style.display = 'block';
+    empty.style.display = 'none';
+
+    const r = await fetch(`/admin/schedule/classes?program_id=${pid}`, { headers: { Accept: 'application/json' } });
+    const d = await r.json();
+
+    document.getElementById('genClassCount').textContent = d.classes.length ? `(${d.classes.length})` : '';
+
+    if (!d.classes.length) {
+        cards.innerHTML = '';
+        empty.style.display = 'block';
+        return;
+    }
+
+    empty.style.display = 'none';
+    cards.innerHTML = d.classes.map(c => {
+        const start = c.start_date ? c.start_date.slice(0,10) : '—';
+        const end   = c.end_date   ? c.end_date.slice(0,10)   : '—';
+        const teacher = c.teacher?.name ?? 'بدون مدرب';
+        return `
+        <div onclick="selectClass(${c.id}, '${(c.start_date||'').slice(0,10)}', '${(c.end_date||'').slice(0,10)}')"
+             id="genClass-${c.id}"
+             style="border:2px solid #e2e8f0;border-radius:14px;padding:14px;cursor:pointer;transition:all .15s;background:white;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+                <span style="font-size:14px;font-weight:700;color:#1e293b;">${c.name}</span>
+                <span style="background:#f3f4f6;color:#374151;font-size:11px;font-weight:700;padding:3px 8px;border-radius:20px;">${c.students_count} طالب</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
+                <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="#7c3aed" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+                <span style="font-size:12px;color:#6b7280;">${teacher}</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;">
+                <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="#6b7280" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                <span style="font-size:11px;color:#9ca3af;">${start} → ${end}</span>
+            </div>
+        </div>`;
+    }).join('');
+
+    // Auto-fill dates from program duration_months
+    if (type === 'program' && durationMonths) {
+        const start = new Date();
+        const end   = new Date(start);
+        end.setMonth(end.getMonth() + durationMonths);
+        document.getElementById('genStartDate').value = start.toISOString().slice(0,10);
+        document.getElementById('genEndDate').value   = end.toISOString().slice(0,10);
+    }
+}
+
+function selectClass(id, startDate, endDate) {
+    // Deselect all cards
+    document.querySelectorAll('[id^="genClass-"]').forEach(el => {
+        el.style.border      = '2px solid #e2e8f0';
+        el.style.background  = 'white';
+        el.style.boxShadow   = 'none';
+    });
+    // Highlight selected
+    const card = document.getElementById('genClass-' + id);
+    card.style.border     = '2px solid #7c3aed';
+    card.style.background = '#faf5ff';
+    card.style.boxShadow  = '0 0 0 4px rgba(124,58,237,.1)';
+
+    document.getElementById('genClassId').value = id;
+
+    // Auto-fill dates from class dates
+    if (startDate) document.getElementById('genStartDate').value = startDate;
+    if (endDate)   document.getElementById('genEndDate').value   = endDate;
+
+    document.getElementById('genDatesRow').style.display = 'flex';
+}
+
+
+async function submitGenerate() {
+    const btn = document.getElementById('genSubmitBtn');
+    btn.disabled = true;
+    btn.textContent = 'جار الإنشاء...';
+
+    const days = [...document.querySelectorAll('#genDays input:checked')].map(c => parseInt(c.value));
+    if (!days.length) { alert('اختر يوماً واحداً على الأقل'); btn.disabled=false; btn.textContent='إنشاء الجدول'; return; }
+
+    const payload = {
+        entity_type:      document.getElementById('genEntityType').value,
+        entity_id:        document.getElementById('genEntityId').value,
+        class_id:         document.getElementById('genClassId').value,
+        days,
+        time:             document.getElementById('genTime').value,
+        duration_minutes: document.getElementById('genDuration').value,
+        start_date:       document.getElementById('genStartDate').value,
+        end_date:         document.getElementById('genEndDate').value,
+        session_type:     document.getElementById('genSessionType').value,
+    };
+
+    if (!payload.entity_id || !payload.class_id || !payload.start_date || !payload.end_date || !payload.time) {
+        alert('يرجى تعبئة جميع الحقول المطلوبة'); btn.disabled=false; btn.textContent='إنشاء الجدول'; return;
+    }
+
+    const r = await fetch('/admin/schedule/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json', 'X-CSRF-TOKEN': CSRF },
+        body: JSON.stringify(payload),
+    });
+    const d = await r.json();
+
+    btn.disabled = false;
+    btn.textContent = 'إنشاء الجدول';
+
+    const res = document.getElementById('genResult');
+    res.style.display = 'block';
+    if (d.success) {
+        res.style.background = '#f0fdf4';
+        res.style.border = '1px solid #bbf7d0';
+        res.style.color = '#15803d';
+        res.innerHTML = `✓ ${d.message}`;
+        // Reload page after 2s to reflect new sessions
+        setTimeout(() => location.reload(), 2000);
+    } else {
+        res.style.background = '#fff1f2';
+        res.style.border = '1px solid #fecaca';
+        res.style.color = '#dc2626';
+        res.innerHTML = `✗ ${d.message}`;
+    }
+}
 </script>
+
+{{-- Generate Schedule Modal --}}
+<div id="genModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.55);align-items:center;justify-content:center;padding:12px;">
+<div style="background:white;border-radius:20px;width:100%;max-width:860px;height:90vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 24px 60px rgba(0,0,0,.3);">
+
+    {{-- Header --}}
+    <div style="padding:20px 24px;background:linear-gradient(135deg,#4c1d95,#7c3aed);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+        <div>
+            <h3 style="color:white;font-size:15px;font-weight:700;margin:0;">إنشاء جدول أسبوعي متكرر</h3>
+            <p style="color:rgba(255,255,255,.7);font-size:12px;margin:3px 0 0;">تحديد الدورة + المجموعة + الأيام → ينشئ الجلسات تلقائياً</p>
+        </div>
+        <button onclick="closeGenerateModal()" style="width:32px;height:32px;background:rgba(255,255,255,.2);border:none;border-radius:8px;cursor:pointer;color:white;font-size:18px;">×</button>
+    </div>
+
+    {{-- Body --}}
+    <div style="overflow-y:auto;flex:1;padding:20px 24px;display:flex;flex-direction:column;gap:14px;">
+
+        {{-- Entity type tabs --}}
+        <div>
+            <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:6px;">نوع الجدول</label>
+            <div style="display:flex;background:#f1f5f9;border-radius:10px;padding:3px;gap:2px;width:fit-content;">
+                <button id="tabProgram" onclick="switchEntityType('program')" style="padding:7px 18px;border-radius:8px;border:none;font-size:12px;font-weight:700;cursor:pointer;background:#7c3aed;color:white;">برنامج / دورة</button>
+                <button id="tabSubject" onclick="switchEntityType('subject')" style="padding:7px 18px;border-radius:8px;border:none;font-size:12px;font-weight:700;cursor:pointer;background:transparent;color:#64748b;">مقرر / مادة</button>
+            </div>
+            <input type="hidden" id="genEntityType" value="program">
+        </div>
+
+        {{-- Entity search + select --}}
+        <div>
+            <label id="genEntityLabel" style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:6px;">اختر البرنامج / الدورة *</label>
+            <div style="position:relative;">
+                <input id="genEntitySearch" type="text" placeholder="ابحث..." oninput="filterEntityList()" autocomplete="off"
+                    style="width:100%;padding:9px 12px 9px 36px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13px;box-sizing:border-box;outline:none;"
+                    onfocus="document.getElementById('genEntityDropdown').style.display='block'"
+                >
+                <svg style="position:absolute;left:10px;top:50%;transform:translateY(-50%);pointer-events:none;" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#9ca3af" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                <input type="hidden" id="genEntityId">
+                <div id="genEntityDropdown" style="display:none;position:absolute;top:100%;right:0;left:0;z-index:999;background:white;border:1.5px solid #e2e8f0;border-top:none;border-radius:0 0 9px 9px;max-height:200px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,.1);">
+                    <div id="genEntityList"></div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Class cards --}}
+        <div id="genClassRow" style="display:none;">
+            <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:8px;">المجموعة * <span id="genClassCount" style="color:#9ca3af;font-weight:400;"></span></label>
+            <input type="hidden" id="genClassId">
+            <div id="genClassCards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;"></div>
+            <p id="genClassEmpty" style="display:none;color:#9ca3af;font-size:13px;text-align:center;padding:16px;background:#f9fafb;border-radius:10px;">لا توجد مجموعات لهذا البرنامج — أنشئ مجموعة أولاً</p>
+        </div>
+
+        {{-- Dates & settings (shown after class selected) --}}
+        <div id="genDatesRow" style="display:none;flex-direction:column;gap:14px;">
+
+            {{-- Days of week --}}
+            <div>
+                <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:8px;">أيام الأسبوع *</label>
+                <div id="genDays" style="display:flex;flex-wrap:wrap;gap:8px;">
+                    @foreach([0=>'الأحد',1=>'الاثنين',2=>'الثلاثاء',3=>'الأربعاء',4=>'الخميس',5=>'الجمعة',6=>'السبت'] as $val=>$name)
+                    <label style="display:flex;align-items:center;gap:5px;padding:6px 12px;border:1.5px solid #e2e8f0;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;color:#374151;user-select:none;">
+                        <input type="checkbox" value="{{ $val }}" style="accent-color:#7c3aed;">
+                        {{ $name }}
+                    </label>
+                    @endforeach
+                </div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                <div>
+                    <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:5px;">وقت الجلسة *</label>
+                    <input id="genTime" type="time" value="09:00" style="width:100%;padding:9px 12px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13px;box-sizing:border-box;">
+                </div>
+                <div>
+                    <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:5px;">المدة (دقيقة) *</label>
+                    <input id="genDuration" type="number" value="60" min="15" max="480" style="width:100%;padding:9px 12px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13px;box-sizing:border-box;">
+                </div>
+                <div>
+                    <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:5px;">من تاريخ *</label>
+                    <input id="genStartDate" type="date" style="width:100%;padding:9px 12px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13px;box-sizing:border-box;">
+                </div>
+                <div>
+                    <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:5px;">إلى تاريخ *</label>
+                    <input id="genEndDate" type="date" style="width:100%;padding:9px 12px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13px;box-sizing:border-box;">
+                </div>
+            </div>
+
+            <input type="hidden" id="genSessionType" value="live_zoom">
+
+            {{-- Result --}}
+            <div id="genResult" style="display:none;padding:12px 16px;border-radius:10px;font-size:13px;font-weight:600;"></div>
+        </div>
+
+    </div>
+
+    {{-- Footer --}}
+    <div style="padding:14px 24px;border-top:1px solid #f1f5f9;display:flex;justify-content:flex-end;gap:8px;flex-shrink:0;">
+        <button onclick="closeGenerateModal()" style="padding:9px 18px;font-size:13px;font-weight:600;color:#475569;background:#f1f5f9;border:none;border-radius:10px;cursor:pointer;">إلغاء</button>
+        <button id="genSubmitBtn" onclick="submitGenerate()" style="padding:9px 20px;font-size:13px;font-weight:700;color:white;background:linear-gradient(135deg,#7c3aed,#a855f7);border:none;border-radius:10px;cursor:pointer;box-shadow:0 4px 12px rgba(124,58,237,.3);">إنشاء الجدول</button>
+    </div>
+</div>
+</div>
+
 @endsection

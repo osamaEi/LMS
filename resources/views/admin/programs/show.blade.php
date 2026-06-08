@@ -85,9 +85,22 @@
 </div>
 @endif
 
+{{-- ── Tabs ── --}}
+<div style="display:flex;align-items:center;gap:4px;background:#f1f5f9;border-radius:12px;padding:4px;margin-bottom:20px;width:fit-content;">
+    <button onclick="switchTab('terms')" id="tab-btn-terms"
+        style="padding:8px 18px;border-radius:9px;font-size:13px;font-weight:700;border:none;cursor:pointer;transition:all .15s;background:white;color:#1e293b;box-shadow:0 1px 4px rgba(0,0,0,.08);">
+        الفصول الدراسية
+        <span style="background:#e2e8f0;color:#64748b;border-radius:9999px;padding:.1rem .5rem;font-size:.65rem;margin-right:4px;font-weight:700;">{{ $program->terms->count() }}</span>
+    </button>
+    <button onclick="switchTab('classes')" id="tab-btn-classes"
+        style="padding:8px 18px;border-radius:9px;font-size:13px;font-weight:700;border:none;cursor:pointer;transition:all .15s;background:transparent;color:#64748b;">
+        المجموعات
+        <span id="classes-count-badge" style="background:#e9d5ff;color:#7c3aed;border-radius:9999px;padding:.1rem .5rem;font-size:.65rem;margin-right:4px;font-weight:700;">{{ $classes->count() }}</span>
+    </button>
+</div>
 
-{{-- ── Terms ── --}}
-<div class="space-y-5">
+{{-- ── Tab: Terms ── --}}
+<div id="tab-terms" class="space-y-5">
     @forelse($program->terms as $term)
     <div style="background:white;border-radius:18px;border:1px solid #e2e8f0;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.04);">
 
@@ -592,6 +605,335 @@
         </form>
     </div>
 </div>
+
+</div>
+</div>{{-- /tab-terms --}}
+
+{{-- ══ Tab: Classes ══ --}}
+<div id="tab-classes" style="display:none;">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+    <div></div>
+    <button onclick="openClassModal()" style="display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:10px;background:linear-gradient(135deg,#7c3aed,#a855f7);color:white;font-size:12px;font-weight:700;border:none;cursor:pointer;box-shadow:0 4px 12px rgba(124,58,237,.3);">
+        <svg style="width:13px;height:13px;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        إضافة مجموعة
+    </button>
+</div>
+
+<div id="classesList" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;">
+    @forelse($classes as $cls)
+    <div id="cls-card-{{ $cls->id }}" style="background:white;border-radius:14px;border:1px solid #e2e8f0;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,.04);">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;">
+            <div>
+                <div style="font-size:14px;font-weight:700;color:#1e293b;">{{ $cls->name }}</div>
+                @if($cls->teacher)
+                <div style="font-size:11px;color:#64748b;margin-top:2px;">{{ $cls->teacher->name }}</div>
+                @endif
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;">
+                @php $stColors = ['active'=>['#dcfce7','#16a34a'],'inactive'=>['#f1f5f9','#64748b'],'completed'=>['#dbeafe','#2563eb']]; $sc=$stColors[$cls->status]??['#f1f5f9','#64748b']; @endphp
+                <span style="background:{{ $sc[0] }};color:{{ $sc[1] }};border-radius:9999px;padding:.18rem .7rem;font-size:.65rem;font-weight:700;">{{ ['active'=>'نشطة','inactive'=>'غير نشطة','completed'=>'منتهية'][$cls->status] ?? $cls->status }}</span>
+            </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:16px;font-size:12px;color:#64748b;margin-bottom:14px;">
+            <span>👥 <strong id="cls-count-{{ $cls->id }}" style="color:#1e293b;">{{ $cls->students_count }}</strong> طالب</span>
+            @if($cls->max_students)
+            <span>/ {{ $cls->max_students }} الحد الأقصى</span>
+            @endif
+            @if($cls->start_date)
+            <span>📅 {{ $cls->start_date->format('Y/m/d') }}</span>
+            @endif
+        </div>
+        <div style="display:flex;gap:8px;">
+            <button onclick="openClassStudents({{ $cls->id }}, '{{ addslashes($cls->name) }}')" style="flex:1;padding:7px;font-size:12px;font-weight:600;color:#7c3aed;background:#f5f3ff;border:1px solid #e9d5ff;border-radius:8px;cursor:pointer;">
+                عرض الطلاب
+            </button>
+            <button onclick="openEditClass({{ $cls->id }}, {{ json_encode(['name'=>$cls->name,'teacher_id'=>$cls->teacher_id,'start_date'=>$cls->start_date?->format('Y-m-d'),'end_date'=>$cls->end_date?->format('Y-m-d'),'max_students'=>$cls->max_students,'status'=>$cls->status]) }})" style="padding:7px 10px;font-size:12px;color:#2563eb;background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;cursor:pointer;">
+                ✏️
+            </button>
+            <button onclick="deleteClass({{ $cls->id }})" style="padding:7px 10px;font-size:12px;color:#dc2626;background:#fff1f2;border:1px solid #fecaca;border-radius:8px;cursor:pointer;">
+                🗑️
+            </button>
+        </div>
+    </div>
+    @empty
+    <div id="noClasses" style="grid-column:1/-1;text-align:center;padding:40px;background:white;border-radius:14px;border:1px dashed #e2e8f0;color:#94a3b8;font-size:13px;">
+        لا توجد مجموعات بعد — أضف أول مجموعة
+    </div>
+    @endforelse
+</div>
+</div>
+
+{{-- Class Create/Edit Modal --}}
+<div id="classModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;align-items:center;justify-content:center;">
+<div style="background:white;border-radius:18px;padding:24px;width:100%;max-width:480px;box-shadow:0 20px 60px rgba(0,0,0,.2);">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
+        <h3 id="classModalTitle" style="font-size:16px;font-weight:700;color:#1e293b;margin:0;">إضافة مجموعة</h3>
+        <button onclick="closeClassModal()" style="background:none;border:none;font-size:20px;color:#94a3b8;cursor:pointer;">×</button>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div style="grid-column:1/-1;">
+            <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">اسم المجموعة *</label>
+            <input id="cls-name" type="text" placeholder="مثال: المجموعة أ - 2025" style="width:100%;padding:9px 12px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13px;box-sizing:border-box;">
+        </div>
+        <div style="grid-column:1/-1;">
+            <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">المدرب/المشرف</label>
+            <select id="cls-teacher" style="width:100%;padding:9px 12px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13px;box-sizing:border-box;">
+                <option value="">— بدون مدرب —</option>
+                @foreach($teachers as $t)
+                <option value="{{ $t->id }}">{{ $t->name }}</option>
+                @endforeach
+            </select>
+        </div>
+        <div>
+            <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">تاريخ البدء</label>
+            <input id="cls-start" type="date" style="width:100%;padding:9px 12px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13px;box-sizing:border-box;">
+        </div>
+        <div>
+            <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">تاريخ الانتهاء</label>
+            <input id="cls-end" type="date" style="width:100%;padding:9px 12px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13px;box-sizing:border-box;">
+        </div>
+        <div>
+            <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">الحد الأقصى للطلاب</label>
+            <input id="cls-max" type="number" min="1" placeholder="غير محدد" style="width:100%;padding:9px 12px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13px;box-sizing:border-box;">
+        </div>
+        <div>
+            <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">الحالة</label>
+            <select id="cls-status" style="width:100%;padding:9px 12px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13px;box-sizing:border-box;">
+                <option value="active">نشطة</option>
+                <option value="inactive">غير نشطة</option>
+                <option value="completed">منتهية</option>
+            </select>
+        </div>
+    </div>
+    <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:18px;">
+        <button onclick="closeClassModal()" style="padding:9px 18px;font-size:13px;font-weight:600;color:#475569;background:#f1f5f9;border:none;border-radius:10px;cursor:pointer;">إلغاء</button>
+        <button onclick="submitClass()" style="padding:9px 18px;font-size:13px;font-weight:700;color:white;background:linear-gradient(135deg,#7c3aed,#a855f7);border:none;border-radius:10px;cursor:pointer;box-shadow:0 4px 12px rgba(124,58,237,.3);">حفظ</button>
+    </div>
+</div>
+</div>
+
+{{-- Class Students Modal --}}
+<div id="classStudentsModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;align-items:center;justify-content:center;">
+<div style="background:white;border-radius:18px;padding:24px;width:100%;max-width:560px;max-height:80vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.2);">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-shrink:0;">
+        <h3 id="csModalTitle" style="font-size:15px;font-weight:700;color:#1e293b;margin:0;">طلاب المجموعة</h3>
+        <button onclick="closeStudentsModal()" style="background:none;border:none;font-size:20px;color:#94a3b8;cursor:pointer;">×</button>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:12px;flex-shrink:0;">
+        <button onclick="showTab('assigned')" id="tab-assigned" style="flex:1;padding:7px;font-size:12px;font-weight:700;border-radius:8px;border:1.5px solid #7c3aed;background:#7c3aed;color:white;cursor:pointer;">الطلاب المسندون</button>
+        <button onclick="showTab('available')" id="tab-available" style="flex:1;padding:7px;font-size:12px;font-weight:700;border-radius:8px;border:1.5px solid #e2e8f0;background:white;color:#64748b;cursor:pointer;">إسناد طلاب</button>
+    </div>
+    <div style="overflow-y:auto;flex:1;">
+        <div id="panel-assigned">
+            <div id="assignedList" style="display:flex;flex-direction:column;gap:6px;"></div>
+        </div>
+        <div id="panel-available" style="display:none;">
+            <div style="margin-bottom:8px;">
+                <input id="searchAvailable" type="text" placeholder="بحث..." oninput="filterAvailable()" style="width:100%;padding:8px 12px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13px;box-sizing:border-box;">
+            </div>
+            <div id="availableList" style="display:flex;flex-direction:column;gap:6px;"></div>
+            <div style="margin-top:12px;display:flex;justify-content:flex-end;">
+                <button onclick="assignSelected()" style="padding:9px 18px;font-size:13px;font-weight:700;color:white;background:linear-gradient(135deg,#7c3aed,#a855f7);border:none;border-radius:10px;cursor:pointer;">إسناد المحددين</button>
+            </div>
+        </div>
+    </div>
+</div>
+</div>{{-- /tab-classes --}}
+
+@push('scripts')
+<script>
+const CSRF   = '{{ csrf_token() }}';
+const PROG_ID = {{ $program->id }};
+let currentClassId = null;
+let availableStudentsData = [];
+
+function openClassModal() {
+    currentClassId = null;
+    document.getElementById('classModalTitle').textContent = 'إضافة مجموعة';
+    ['cls-name','cls-start','cls-end','cls-max'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('cls-teacher').value = '';
+    document.getElementById('cls-status').value = 'active';
+    document.getElementById('classModal').style.display = 'flex';
+}
+
+function openEditClass(id, data) {
+    currentClassId = id;
+    document.getElementById('classModalTitle').textContent = 'تعديل المجموعة';
+    document.getElementById('cls-name').value    = data.name || '';
+    document.getElementById('cls-teacher').value = data.teacher_id || '';
+    document.getElementById('cls-start').value   = data.start_date || '';
+    document.getElementById('cls-end').value     = data.end_date || '';
+    document.getElementById('cls-max').value     = data.max_students || '';
+    document.getElementById('cls-status').value  = data.status || 'active';
+    document.getElementById('classModal').style.display = 'flex';
+}
+
+function closeClassModal() { document.getElementById('classModal').style.display = 'none'; }
+
+function submitClass() {
+    const name = document.getElementById('cls-name').value.trim();
+    if (!name) { alert('اسم المجموعة مطلوب'); return; }
+    const payload = {
+        program_id:   PROG_ID,
+        name,
+        teacher_id:   document.getElementById('cls-teacher').value || null,
+        start_date:   document.getElementById('cls-start').value || null,
+        end_date:     document.getElementById('cls-end').value || null,
+        max_students: document.getElementById('cls-max').value || null,
+        status:       document.getElementById('cls-status').value,
+    };
+
+    const url    = currentClassId ? `/admin/classes/${currentClassId}` : '/admin/classes';
+    const method = currentClassId ? 'PUT' : 'POST';
+
+    fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': CSRF },
+        body: JSON.stringify(payload)
+    }).then(r => r.json()).then(data => {
+        if (data.success) { closeClassModal(); location.reload(); }
+        else { alert(data.message || 'حدث خطأ'); }
+    });
+}
+
+function deleteClass(id) {
+    if (!confirm('حذف المجموعة؟ سيتم إلغاء إسناد جميع الطلاب منها.')) return;
+    fetch(`/admin/classes/${id}`, {
+        method: 'DELETE',
+        headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': CSRF }
+    }).then(r => r.json()).then(d => { if (d.success) location.reload(); });
+}
+
+// Students modal
+function openClassStudents(id, name) {
+    currentClassId = id;
+    document.getElementById('csModalTitle').textContent = 'طلاب: ' + name;
+    showTab('assigned');
+    document.getElementById('classStudentsModal').style.display = 'flex';
+    loadAssigned();
+}
+
+function closeStudentsModal() {
+    document.getElementById('classStudentsModal').style.display = 'none';
+}
+
+function showTab(tab) {
+    document.getElementById('panel-assigned').style.display  = tab === 'assigned'  ? 'block' : 'none';
+    document.getElementById('panel-available').style.display = tab === 'available' ? 'block' : 'none';
+    document.getElementById('tab-assigned').style.background  = tab === 'assigned'  ? '#7c3aed' : 'white';
+    document.getElementById('tab-assigned').style.color       = tab === 'assigned'  ? 'white'   : '#64748b';
+    document.getElementById('tab-assigned').style.borderColor = tab === 'assigned'  ? '#7c3aed' : '#e2e8f0';
+    document.getElementById('tab-available').style.background  = tab === 'available' ? '#7c3aed' : 'white';
+    document.getElementById('tab-available').style.color       = tab === 'available' ? 'white'   : '#64748b';
+    document.getElementById('tab-available').style.borderColor = tab === 'available' ? '#7c3aed' : '#e2e8f0';
+    if (tab === 'available') loadAvailable();
+}
+
+function loadAssigned() {
+    const el = document.getElementById('assignedList');
+    el.innerHTML = '<div style="text-align:center;padding:20px;color:#94a3b8;font-size:13px;">جار التحميل...</div>';
+    fetch(`/admin/classes/${currentClassId}/students`, { headers: { 'Accept': 'application/json' } })
+    .then(r => r.json()).then(data => {
+        if (!data.students.length) {
+            el.innerHTML = '<div style="text-align:center;padding:24px;color:#94a3b8;font-size:13px;">لا يوجد طلاب مسندون بعد</div>';
+            return;
+        }
+        el.innerHTML = data.students.map(s => `
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:#f8fafc;border-radius:9px;border:1px solid #e2e8f0;">
+                <div>
+                    <div style="font-size:13px;font-weight:600;color:#1e293b;">${s.name}</div>
+                    <div style="font-size:11px;color:#94a3b8;">${s.email}</div>
+                </div>
+                <button onclick="removeStudent(${s.id})" style="font-size:11px;color:#dc2626;background:#fff1f2;border:1px solid #fecaca;border-radius:7px;padding:4px 10px;cursor:pointer;">إزالة</button>
+            </div>`).join('');
+    });
+}
+
+function loadAvailable() {
+    const el = document.getElementById('availableList');
+    el.innerHTML = '<div style="text-align:center;padding:20px;color:#94a3b8;font-size:13px;">جار التحميل...</div>';
+    fetch(`/admin/classes/${currentClassId}/available-students`, { headers: { 'Accept': 'application/json' } })
+    .then(r => r.json()).then(data => {
+        availableStudentsData = data.students;
+        renderAvailable(data.students);
+    });
+}
+
+function renderAvailable(students) {
+    const el = document.getElementById('availableList');
+    if (!students.length) {
+        el.innerHTML = '<div style="text-align:center;padding:24px;color:#94a3b8;font-size:13px;">لا يوجد طلاب متاحون</div>';
+        return;
+    }
+    el.innerHTML = students.map(s => `
+        <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:${s.class_id==currentClassId?'#f5f3ff':'#f8fafc'};border-radius:9px;border:1px solid ${s.class_id==currentClassId?'#e9d5ff':'#e2e8f0'};cursor:pointer;">
+            <input type="checkbox" value="${s.id}" ${s.class_id==currentClassId?'checked disabled':''} style="width:15px;height:15px;accent-color:#7c3aed;">
+            <div>
+                <div style="font-size:13px;font-weight:600;color:#1e293b;">${s.name}</div>
+                <div style="font-size:11px;color:#94a3b8;">${s.email}${s.class_id==currentClassId?' · مسند بالفعل':''}</div>
+            </div>
+        </label>`).join('');
+}
+
+function filterAvailable() {
+    const q = document.getElementById('searchAvailable').value.toLowerCase();
+    renderAvailable(availableStudentsData.filter(s => s.name.toLowerCase().includes(q) || s.email.toLowerCase().includes(q)));
+}
+
+function assignSelected() {
+    const ids = [...document.querySelectorAll('#availableList input[type=checkbox]:checked:not(:disabled)')].map(c => c.value);
+    if (!ids.length) { alert('اختر طالباً على الأقل'); return; }
+    fetch(`/admin/classes/${currentClassId}/assign-students`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': CSRF },
+        body: JSON.stringify({ student_ids: ids })
+    }).then(r => r.json()).then(d => {
+        if (d.success) {
+            const countEl = document.getElementById(`cls-count-${currentClassId}`);
+            if (countEl) countEl.textContent = parseInt(countEl.textContent) + (d.assigned || 0);
+            showTab('assigned');
+            loadAssigned();
+        }
+    });
+}
+
+function removeStudent(studentId) {
+    if (!confirm('إزالة الطالب من المجموعة؟')) return;
+    fetch(`/admin/classes/${currentClassId}/remove-student`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': CSRF },
+        body: JSON.stringify({ student_id: studentId })
+    }).then(r => r.json()).then(d => {
+        if (d.success) {
+            const countEl = document.getElementById(`cls-count-${currentClassId}`);
+            if (countEl) countEl.textContent = Math.max(0, parseInt(countEl.textContent) - 1);
+            loadAssigned();
+        }
+    });
+}
+
+// ── Tab switching ──
+function switchTab(tab) {
+    const isTerms = tab === 'terms';
+    document.getElementById('tab-terms').style.display   = isTerms ? 'block' : 'none';
+    document.getElementById('tab-classes').style.display = isTerms ? 'none'  : 'block';
+
+    const btnTerms   = document.getElementById('tab-btn-terms');
+    const btnClasses = document.getElementById('tab-btn-classes');
+
+    btnTerms.style.background  = isTerms ? 'white'       : 'transparent';
+    btnTerms.style.color       = isTerms ? '#1e293b'     : '#64748b';
+    btnTerms.style.boxShadow   = isTerms ? '0 1px 4px rgba(0,0,0,.08)' : 'none';
+
+    btnClasses.style.background = isTerms ? 'transparent' : 'white';
+    btnClasses.style.color      = isTerms ? '#64748b'     : '#7c3aed';
+    btnClasses.style.boxShadow  = isTerms ? 'none'        : '0 1px 4px rgba(0,0,0,.08)';
+}
+
+// Activate tab from URL hash
+if (location.hash === '#classes') switchTab('classes');
+</script>
+@endpush
 
 </div>
 @endsection

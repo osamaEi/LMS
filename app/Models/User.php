@@ -156,6 +156,11 @@ class User extends Authenticatable
         return $this->belongsTo(\App\Models\Program::class);
     }
 
+    public function programClass()
+    {
+        return $this->belongsTo(\App\Models\ProgramClass::class, 'class_id');
+    }
+
     public function track()
     {
         return $this->belongsTo(\App\Models\Track::class);

@@ -1,19 +1,17 @@
 @extends('layouts.dashboard')
-@section('title', __('Academic Schedule'))
+@section('title', 'الجدول الأكاديمي')
 
 @php
 $calSessions = $sessions->map(fn($s) => [
     'id'               => $s->id,
-    'title'            => $s->title ?: ($s->title_ar ?: ''),
+    'title'            => $s->title_ar ?: ($s->subject->name_ar ?? $s->program->name_ar ?? 'جلسة'),
     'subject_name'     => $s->subject->name_ar ?? '',
-    'program_name'     => $s->program->name_ar ?? '',
-    'diploma_name'     => $s->subject?->program?->name_ar ?? $s->subject?->term?->program?->name_ar ?? '',
+    'program_name'     => $s->program->name_ar ?? $s->subject?->program?->name_ar ?? '',
     'scheduled_at'     => $s->scheduled_at ? \Carbon\Carbon::parse($s->scheduled_at)->toIso8601String() : null,
     'duration_minutes' => $s->duration_minutes ?? 60,
     'type'             => $s->type ?? '',
-    'status'           => $s->status ?? '',
+    'status'           => (string)($s->status ?? ''),
     'session_number'   => $s->session_number,
-    'zoom_start_url'   => $s->zoom_start_url,
     'zoom_join_url'    => $s->zoom_join_url,
 ])->filter(fn($s) => $s['scheduled_at'])->values();
 @endphp
@@ -21,647 +19,349 @@ $calSessions = $sessions->map(fn($s) => [
 @section('content')
 <div style="direction:rtl;font-family:'Segoe UI',sans-serif;">
 
-{{-- Alerts --}}
-@if(session('success'))
-<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-right:4px solid #22c55e;border-radius:12px;padding:14px 18px;margin-bottom:20px;display:flex;align-items:center;gap:10px;">
-    <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#16a34a" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-    <span style="color:#15803d;font-size:14px;font-weight:500;">{{ session('success') }}</span>
-</div>
-@endif
-@if($errors->any())
-<div style="background:#fff1f2;border:1px solid #fecaca;border-right:4px solid #ef4444;border-radius:12px;padding:14px 18px;margin-bottom:20px;">
-    <ul style="margin:0;padding-right:18px;color:#dc2626;font-size:13px;">
-        @foreach($errors->all() as $e)<li>{{ $e }}</li>@endforeach
-    </ul>
-</div>
-@endif
-
 {{-- Hero --}}
-<div style="background:linear-gradient(135deg,#0f172a 0%,#1e3a5f 55%,#0071AA 100%);border-radius:20px;padding:28px;margin-bottom:24px;position:relative;overflow:hidden;">
+<div style="background:linear-gradient(135deg,#0f172a 0%,#1e3a5f 55%,#0071AA 100%);border-radius:20px;padding:24px 28px;margin-bottom:24px;position:relative;overflow:hidden;">
     <div style="position:absolute;top:-60px;left:-60px;width:220px;height:220px;background:rgba(255,255,255,.05);border-radius:50%;pointer-events:none;"></div>
-    <div style="position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;">
+    <div style="position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;">
         <div style="display:flex;align-items:center;gap:14px;">
-            <div style="width:50px;height:50px;background:linear-gradient(135deg,#0071AA,#005a88);border-radius:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 16px rgba(0,113,170,.4);">
-                <svg width="24" height="24" fill="white" viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2zM7 12h5v5H7z"/></svg>
+            <div style="width:48px;height:48px;background:rgba(255,255,255,.12);border-radius:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <svg width="22" height="22" fill="white" viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2zM7 12h5v5H7z"/></svg>
             </div>
             <div>
-                <p style="color:rgba(255,255,255,0.5);font-size:12px;margin:0 0 2px;">{{ now()->translatedFormat('l، d F Y') }}</p>
+                <p style="color:rgba(255,255,255,.5);font-size:12px;margin:0 0 2px;">{{ now()->translatedFormat('l، d F Y') }}</p>
                 <h1 style="color:white;font-size:20px;font-weight:700;margin:0;">الجدول الأكاديمي</h1>
             </div>
         </div>
-        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
             @foreach([
-                [$stats['total'],     'الكل',    'rgba(255,255,255,0.75)'],
+                [$stats['total'],     'الكل',    'rgba(255,255,255,.8)'],
                 [$stats['upcoming'],  'قادمة',   '#fde68a'],
-                [$stats['completed'], 'مكتملة',  '#86efac'],
-                [$past->count(),      'ماضية',   'rgba(255,255,255,0.55)'],
+                [$stats['live'],      'مباشرة',  '#86efac'],
+                [$stats['completed'], 'مكتملة',  '#a5b4fc'],
             ] as [$v,$l,$c])
-            <div style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.12);border-radius:12px;padding:8px 16px;text-align:center;min-width:64px;">
+            <div style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:8px 16px;text-align:center;min-width:60px;">
                 <div style="font-size:20px;font-weight:700;color:{{ $c }};line-height:1;">{{ $v }}</div>
-                <div style="font-size:11px;color:rgba(255,255,255,0.55);margin-top:2px;">{{ $l }}</div>
+                <div style="font-size:11px;color:rgba(255,255,255,.5);margin-top:2px;">{{ $l }}</div>
             </div>
             @endforeach
-            {{-- Monthly schedule trigger --}}
-            <button onclick="openMonthlyModal()"
-                    style="display:flex;align-items:center;gap:8px;padding:10px 18px;background:linear-gradient(135deg,#15803d,#166534);color:white;border:none;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 3px 14px rgba(21,128,61,.45);">
-                <svg width="15" height="15" fill="currentColor" viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-5 9h-3v3H9v-3H6v-2h3V8h2v3h3v2z"/></svg>
-                جدولة الشهر كاملاً
-            </button>
         </div>
     </div>
 </div>
 
 {{-- Calendar --}}
-<div>
-        <div style="background:white;border-radius:18px;border:1px solid #e5e7eb;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.06);">
+<div style="background:white;border-radius:18px;border:1px solid #e5e7eb;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.06);">
 
-            {{-- Calendar toolbar --}}
-            <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid #f1f5f9;background:#fafafa;flex-wrap:wrap;gap:10px;">
-                {{-- Prev / Title / Next --}}
-                <div style="display:flex;align-items:center;gap:8px;">
-                    <button id="btnPrev" onclick="navPrev()"
-                            style="width:34px;height:34px;border-radius:9px;border:1.5px solid #e5e7eb;background:white;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#374151;font-size:16px;"
-                            onmouseover="this.style.borderColor='#0071AA';this.style.color='#0071AA'"
-                            onmouseout="this.style.borderColor='#e5e7eb';this.style.color='#374151'">&#8249;</button>
-                    <button onclick="goToToday()"
-                            style="padding:0 14px;height:34px;border-radius:9px;border:1.5px solid #e5e7eb;background:white;cursor:pointer;font-size:12px;font-weight:600;color:#374151;"
-                            onmouseover="this.style.borderColor='#0071AA';this.style.color='#0071AA'"
-                            onmouseout="this.style.borderColor='#e5e7eb';this.style.color='#374151'">اليوم</button>
-                    <button id="btnNext" onclick="navNext()"
-                            style="width:34px;height:34px;border-radius:9px;border:1.5px solid #e5e7eb;background:white;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#374151;font-size:16px;"
-                            onmouseover="this.style.borderColor='#0071AA';this.style.color='#0071AA'"
-                            onmouseout="this.style.borderColor='#e5e7eb';this.style.color='#374151'">&#8250;</button>
-                </div>
-
-                <h2 id="calTitle" style="font-size:16px;font-weight:700;color:#111827;margin:0;flex:1;text-align:center;"></h2>
-
-                {{-- View toggles --}}
-                <div style="display:flex;background:#f1f5f9;border-radius:10px;padding:3px;gap:2px;">
-                    <button id="v-month" onclick="setView('month')"
-                            style="padding:6px 14px;border-radius:8px;border:none;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;background:linear-gradient(135deg,#0071AA,#005a88);color:white;">شهر</button>
-                    <button id="v-week"  onclick="setView('week')"
-                            style="padding:6px 14px;border-radius:8px;border:none;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;background:transparent;color:#6b7280;">أسبوع</button>
-                    <button id="v-day"   onclick="setView('day')"
-                            style="padding:6px 14px;border-radius:8px;border:none;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;background:transparent;color:#6b7280;">يوم</button>
-                </div>
-            </div>
-
-            {{-- Month view --}}
-            <div id="view-month">
-                <div id="calHeaders" style="display:grid;grid-template-columns:repeat(7,1fr);"></div>
-                <div id="calGrid"    style="display:grid;grid-template-columns:repeat(7,1fr);"></div>
-            </div>
-
-            {{-- Week view --}}
-            <div id="view-week" style="display:none;">
-                <div id="weekHeaders" style="display:grid;padding-right:48px;"></div>
-                <div style="overflow-y:auto;max-height:620px;" id="weekScroll">
-                    <div style="display:flex;position:relative;">
-                        <div id="timeLabels" style="width:48px;flex-shrink:0;"></div>
-                        <div id="weekGrid"   style="flex:1;position:relative;"></div>
-                    </div>
-                </div>
-            </div>
-
-            {{-- Day view --}}
-            <div id="view-day" style="display:none;">
-                <div style="overflow-y:auto;max-height:620px;" id="dayScroll">
-                    <div style="display:flex;position:relative;">
-                        <div id="dayTimeLabels" style="width:48px;flex-shrink:0;"></div>
-                        <div id="dayGrid"        style="flex:1;position:relative;"></div>
-                    </div>
-                </div>
-            </div>
-
+    {{-- Toolbar --}}
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid #f1f5f9;background:#fafafa;flex-wrap:wrap;gap:10px;">
+        <div style="display:flex;align-items:center;gap:8px;">
+            <button onclick="navPrev()" style="width:34px;height:34px;border-radius:9px;border:1.5px solid #e5e7eb;background:white;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;color:#374151;">&#8249;</button>
+            <button onclick="goToToday()" style="padding:0 14px;height:34px;border-radius:9px;border:1.5px solid #e5e7eb;background:white;cursor:pointer;font-size:12px;font-weight:600;color:#374151;">اليوم</button>
+            <button onclick="navNext()" style="width:34px;height:34px;border-radius:9px;border:1.5px solid #e5e7eb;background:white;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;color:#374151;">&#8250;</button>
         </div>
-
-        {{-- Day-detail panel (month view click) --}}
-        <div id="dayPanel" style="display:none;background:white;border-radius:16px;border:1px solid #e5e7eb;margin-top:16px;box-shadow:0 2px 12px rgba(0,0,0,.06);overflow:hidden;">
-            <div style="padding:16px 20px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between;background:#fafafa;">
-                <h3 id="dayPanelTitle" style="font-size:15px;font-weight:700;color:#111827;margin:0;"></h3>
-                <button onclick="document.getElementById('dayPanel').style.display='none'"
-                        style="width:28px;height:28px;border-radius:7px;border:none;background:#f1f5f9;cursor:pointer;color:#6b7280;font-size:16px;display:flex;align-items:center;justify-content:center;">×</button>
-            </div>
-            <div id="dayPanelContent" style="padding:16px;display:flex;flex-direction:column;gap:10px;"></div>
+        <h2 id="calTitle" style="font-size:16px;font-weight:700;color:#111827;margin:0;flex:1;text-align:center;"></h2>
+        <div style="display:flex;background:#f1f5f9;border-radius:10px;padding:3px;gap:2px;">
+            <button id="v-month" onclick="setView('month')" style="padding:6px 14px;border-radius:8px;border:none;font-size:12px;font-weight:600;cursor:pointer;background:linear-gradient(135deg,#0071AA,#005a88);color:white;">شهر</button>
+            <button id="v-week"  onclick="setView('week')"  style="padding:6px 14px;border-radius:8px;border:none;font-size:12px;font-weight:600;cursor:pointer;background:transparent;color:#6b7280;">أسبوع</button>
+            <button id="v-day"   onclick="setView('day')"   style="padding:6px 14px;border-radius:8px;border:none;font-size:12px;font-weight:600;cursor:pointer;background:transparent;color:#6b7280;">يوم</button>
         </div>
     </div>
 
-</div>
-</div>
+    {{-- Month view --}}
+    <div id="view-month">
+        <div id="calHeaders" style="display:grid;grid-template-columns:repeat(7,1fr);"></div>
+        <div id="calGrid"    style="display:grid;grid-template-columns:repeat(7,1fr);"></div>
+    </div>
 
-{{-- ══════════════════════════════════════ --}}
-{{-- Monthly Schedule Modal --}}
-{{-- ══════════════════════════════════════ --}}
-<div id="monthlyModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.55);align-items:center;justify-content:center;padding:16px;">
-    <div style="background:white;border-radius:22px;width:100%;max-width:520px;max-height:92vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 28px 70px rgba(0,0,0,.28);">
-        {{-- Modal header --}}
-        <div style="padding:22px 26px 18px;background:linear-gradient(135deg,#15803d,#166534);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
-            <div style="display:flex;align-items:center;gap:12px;">
-                <div style="width:40px;height:40px;background:rgba(255,255,255,.2);border-radius:11px;display:flex;align-items:center;justify-content:center;">
-                    <svg width="19" height="19" fill="white" viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-5 9h-3v3H9v-3H6v-2h3V8h2v3h3v2z"/></svg>
-                </div>
-                <div>
-                    <h3 style="color:white;font-size:16px;font-weight:700;margin:0;">جدولة الشهر كاملاً</h3>
-                    <p style="color:rgba(255,255,255,.7);font-size:12px;margin:3px 0 0;">حدد الأيام المتكررة وسيتم إنشاء جلسات تلقائياً</p>
-                </div>
+    {{-- Week view --}}
+    <div id="view-week" style="display:none;">
+        <div id="weekHeaders" style="display:grid;padding-right:48px;"></div>
+        <div style="overflow-y:auto;max-height:600px;">
+            <div style="display:flex;position:relative;">
+                <div id="timeLabels" style="width:48px;flex-shrink:0;"></div>
+                <div id="weekGrid"   style="flex:1;position:relative;"></div>
             </div>
-            <button onclick="closeMonthlyModal()"
-                    style="width:32px;height:32px;background:rgba(255,255,255,.2);border:none;border-radius:8px;cursor:pointer;color:white;font-size:20px;display:flex;align-items:center;justify-content:center;line-height:1;">×</button>
         </div>
+    </div>
 
-        {{-- Modal body --}}
-        <div style="flex:1;overflow-y:auto;padding:22px 26px;">
-            <form id="monthlyForm" action="{{ route('teacher.schedule.monthly.store') }}" method="POST">
-                @csrf
-
-                {{-- Type toggle --}}
-                <div style="margin-bottom:18px;">
-                    <label style="display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:8px;">نوع الجدول</label>
-                    <div style="display:flex;gap:0;border:1.5px solid #e5e7eb;border-radius:10px;overflow:hidden;">
-                        @if($subjects->isNotEmpty())
-                        <label id="type-lbl-subject"
-                               style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:9px;font-size:12px;font-weight:700;cursor:pointer;background:linear-gradient(135deg,#15803d,#166534);color:white;transition:all .15s;">
-                            <input type="radio" name="schedule_type" value="subject" style="display:none;" checked>
-                            📚 مقرر (دبلوم)
-                        </label>
-                        @endif
-                        @if($programs->isNotEmpty())
-                        <label id="type-lbl-program"
-                               style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:9px;font-size:12px;font-weight:700;cursor:pointer;background:{{ $subjects->isEmpty() ? 'linear-gradient(135deg,#15803d,#166534)' : 'transparent' }};color:{{ $subjects->isEmpty() ? 'white' : '#6b7280' }};transition:all .15s;">
-                            <input type="radio" name="schedule_type" value="program" style="display:none;" {{ $subjects->isEmpty() ? 'checked' : '' }}>
-                            🎓 دورة / برنامج
-                        </label>
-                        @endif
-                    </div>
-                </div>
-
-                {{-- Subject dropdown --}}
-                @if($subjects->isNotEmpty())
-                <div id="subject_field" style="margin-bottom:16px;">
-                    <label style="display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:5px;">المقرر <span style="color:#ef4444;">*</span></label>
-                    <select name="subject_id"
-                            style="width:100%;border-radius:10px;border:1.5px solid #e5e7eb;background:white;padding:10px 13px;font-size:13px;color:#111827;outline:none;font-family:inherit;"
-                            onfocus="this.style.borderColor='#15803d'" onblur="this.style.borderColor='#e5e7eb'">
-                        <option value="">— اختر المقرر —</option>
-                        @foreach($subjects as $subject)
-                        @php $diplomaName = $subject->program?->name_ar ?? $subject->term?->program?->name_ar ?? ''; @endphp
-                        <option value="{{ $subject->id }}">{{ $subject->name_ar }}{{ $diplomaName ? ' — ' . $diplomaName : '' }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                @endif
-
-                {{-- Program dropdown --}}
-                @if($programs->isNotEmpty())
-                <div id="program_field" style="margin-bottom:16px;{{ $subjects->isNotEmpty() ? 'display:none;' : '' }}">
-                    <label style="display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:5px;">الدورة / البرنامج <span style="color:#ef4444;">*</span></label>
-                    <select name="program_id"
-                            style="width:100%;border-radius:10px;border:1.5px solid #e5e7eb;background:white;padding:10px 13px;font-size:13px;color:#111827;outline:none;font-family:inherit;"
-                            onfocus="this.style.borderColor='#15803d'" onblur="this.style.borderColor='#e5e7eb'">
-                        <option value="">— اختر الدورة —</option>
-                        @foreach($programs as $program)
-                        <option value="{{ $program->id }}">{{ $program->name_ar }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                @endif
-
-                {{-- Year + Month --}}
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
-                    <div>
-                        <label style="display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:5px;">السنة</label>
-                        <select name="year" style="width:100%;border-radius:10px;border:1.5px solid #e5e7eb;background:white;padding:10px 13px;font-size:13px;outline:none;font-family:inherit;"
-                                onfocus="this.style.borderColor='#15803d'" onblur="this.style.borderColor='#e5e7eb'">
-                            @for($y = now()->year; $y <= now()->year + 2; $y++)
-                            <option value="{{ $y }}" {{ $y == now()->year ? 'selected' : '' }}>{{ $y }}</option>
-                            @endfor
-                        </select>
-                    </div>
-                    <div>
-                        <label style="display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:5px;">الشهر</label>
-                        <select name="month" style="width:100%;border-radius:10px;border:1.5px solid #e5e7eb;background:white;padding:10px 13px;font-size:13px;outline:none;font-family:inherit;"
-                                onfocus="this.style.borderColor='#15803d'" onblur="this.style.borderColor='#e5e7eb'">
-                            @foreach(['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'] as $mi => $mn)
-                            <option value="{{ $mi + 1 }}" {{ ($mi + 1) == now()->month ? 'selected' : '' }}>{{ $mn }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                </div>
-
-                {{-- Days of week --}}
-                <div style="margin-bottom:16px;">
-                    <label style="display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:8px;">أيام الأسبوع المتكررة <span style="color:#ef4444;">*</span></label>
-                    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:7px;">
-                        @foreach([0=>'الأحد',1=>'الاثنين',2=>'الثلاثاء',3=>'الأربعاء',4=>'الخميس',5=>'الجمعة',6=>'السبت'] as $dow => $dayName)
-                        <label id="day-lbl-{{ $dow }}"
-                               style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:9px 6px;border-radius:10px;border:1.5px solid #e5e7eb;cursor:pointer;font-size:11px;font-weight:600;color:#6b7280;background:white;text-align:center;transition:all .15s;"
-                               onclick="toggleDayLabel(this)">
-                            <input type="checkbox" name="days[]" value="{{ $dow }}" style="display:none;">
-                            {{ $dayName }}
-                        </label>
-                        @endforeach
-                    </div>
-                </div>
-
-                {{-- Time + Duration --}}
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;">
-                    <div>
-                        <label style="display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:5px;">وقت البدء <span style="color:#ef4444;">*</span></label>
-                        <input type="time" name="time" value="09:00" required
-                               style="width:100%;border-radius:10px;border:1.5px solid #e5e7eb;background:white;padding:10px 13px;font-size:13px;color:#111827;outline:none;box-sizing:border-box;"
-                               onfocus="this.style.borderColor='#15803d'" onblur="this.style.borderColor='#e5e7eb'">
-                    </div>
-                    <div>
-                        <label style="display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:5px;">المدة (دقيقة)</label>
-                        <input type="number" name="duration_minutes" value="60" min="15" max="480" step="15"
-                               style="width:100%;border-radius:10px;border:1.5px solid #e5e7eb;background:white;padding:10px 13px;font-size:13px;color:#111827;outline:none;box-sizing:border-box;"
-                               onfocus="this.style.borderColor='#15803d'" onblur="this.style.borderColor='#e5e7eb'">
-                    </div>
-                </div>
-
-                {{-- Preview count hint --}}
-                <div id="previewHint" style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:10px 14px;margin-bottom:18px;font-size:12px;color:#15803d;display:none;"></div>
-
-                {{-- Submit --}}
-                <button type="submit"
-                        style="width:100%;display:flex;align-items:center;justify-content:center;gap:9px;padding:13px;background:linear-gradient(135deg,#15803d,#166534);color:white;border:none;border-radius:11px;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(21,128,61,0.4);">
-                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-5 9h-3v3H9v-3H6v-2h3V8h2v3h3v2z"/></svg>
-                    إنشاء الجدول الشهري
-                </button>
-            </form>
+    {{-- Day view --}}
+    <div id="view-day" style="display:none;">
+        <div style="overflow-y:auto;max-height:600px;">
+            <div style="display:flex;position:relative;">
+                <div id="dayTimeLabels" style="width:48px;flex-shrink:0;"></div>
+                <div id="dayGrid"       style="flex:1;position:relative;"></div>
+            </div>
         </div>
     </div>
 </div>
 
-<style>
-@keyframes livePulse{0%,100%{opacity:1}50%{opacity:.35}}
-.cal-cell{transition:background .12s;}
-.cal-cell:hover{background:#f8faff !important;}
-.cal-event{transition:opacity .12s;}
-.cal-event:hover{opacity:.82;}
-.tg-event{transition:box-shadow .12s,transform .12s;}
-.tg-event:hover{box-shadow:0 4px 16px rgba(0,0,0,.18)!important;transform:translateY(-1px);}
-</style>
+{{-- Day panel --}}
+<div id="dayPanel" style="display:none;background:white;border-radius:16px;border:1px solid #e5e7eb;margin-top:16px;box-shadow:0 2px 12px rgba(0,0,0,.06);overflow:hidden;">
+    <div style="padding:14px 18px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between;background:#fafafa;">
+        <h3 id="dayPanelTitle" style="font-size:14px;font-weight:700;color:#111827;margin:0;"></h3>
+        <button onclick="document.getElementById('dayPanel').style.display='none'" style="width:26px;height:26px;border-radius:7px;border:none;background:#f1f5f9;cursor:pointer;color:#6b7280;font-size:16px;">×</button>
+    </div>
+    <div id="dayPanelContent" style="padding:14px;display:flex;flex-direction:column;gap:8px;"></div>
+</div>
 
+{{-- Session detail modal --}}
+<div id="sessionModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.5);align-items:center;justify-content:center;padding:16px;">
+    <div style="background:white;border-radius:20px;width:100%;max-width:420px;box-shadow:0 20px 60px rgba(0,0,0,.25);overflow:hidden;">
+        <div id="smHeader" style="padding:18px 20px;background:linear-gradient(135deg,#0f172a,#0071AA);display:flex;align-items:center;justify-content:space-between;">
+            <h3 id="smTitle" style="color:white;font-size:15px;font-weight:700;margin:0;"></h3>
+            <button onclick="document.getElementById('sessionModal').style.display='none'" style="background:rgba(255,255,255,.15);border:none;border-radius:8px;width:28px;height:28px;color:white;cursor:pointer;font-size:16px;">×</button>
+        </div>
+        <div id="smBody" style="padding:18px;"></div>
+    </div>
+</div>
+
+</div>
+
+@push('scripts')
 <script>
-const sessions    = @json($calSessions);
-const CSRF = '{{ csrf_token() }}';
+const CAL_SESSIONS = @json($calSessions);
+const DAYS_AR = ['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+const MONTHS_AR = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
 
-const DAY_NAMES   = ['أحد','اثن','ثلا','أرب','خمس','جمع','سبت'];
-const DAY_FULL    = ['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
-const MONTH_NAMES = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+let currentView = 'month';
+let currentDate = new Date();
 
-const TODAY    = new Date();
-let curView    = 'month';
-let curYear    = TODAY.getFullYear();
-let curMonth   = TODAY.getMonth();
-let curWeekStart = getWeekStart(TODAY); // Sunday of current week
-let curDay     = new Date(TODAY.getFullYear(), TODAY.getMonth(), TODAY.getDate());
+// ── Helpers ──
+function sameDay(a,b){ return a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate(); }
+function startOfWeek(d){ const c=new Date(d); c.setDate(c.getDate()-c.getDay()); return c; }
+function fmtTime(dt){ return dt.getHours().toString().padStart(2,'0')+':'+dt.getMinutes().toString().padStart(2,'0'); }
 
-// ── Helpers ──────────────────────────────────
-function getWeekStart(d) {
-    const dt = new Date(d);
-    dt.setDate(dt.getDate() - dt.getDay()); // Sunday
-    return new Date(dt.getFullYear(), dt.getMonth(), dt.getDate());
+function statusLabel(s){
+    const m={'live':'🔴 مباشرة','completed':'✅ مكتملة','scheduled':'📅 مجدولة','cancelled':'❌ ملغاة'};
+    return m[s]||s;
 }
-function addDays(d, n) { const r = new Date(d); r.setDate(r.getDate() + n); return r; }
-function sameDay(a, b)  { return a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate(); }
-
-function sessionsOnDay(d) {
-    return sessions.filter(s => {
-        if (!s.scheduled_at) return false;
-        return sameDay(new Date(s.scheduled_at), d);
-    }).sort((a,b) => new Date(a.scheduled_at) - new Date(b.scheduled_at));
+function typeLabel(t){
+    return t==='live_zoom'?'🎥 زووم':t==='recorded_video'?'🎬 مسجلة':'📚 محاضرة';
 }
 
-function typeStyle(type) {
-    if (type === 'live_zoom')      return { bg:'#dbeafe', color:'#1d4ed8', border:'#93c5fd', label:'Zoom' };
-    if (type === 'in_person')      return { bg:'#dcfce7', color:'#15803d', border:'#86efac', label:'حضوري' };
-    if (type === 'recorded_video') return { bg:'#fce7f3', color:'#be185d', border:'#f9a8d4', label:'مسجّل' };
-    return { bg:'#f3f4f6', color:'#4b5563', border:'#d1d5db', label: type || '—' };
+// ── Navigation ──
+function navPrev(){
+    if(currentView==='month'){ currentDate.setMonth(currentDate.getMonth()-1); }
+    else if(currentView==='week'){ currentDate.setDate(currentDate.getDate()-7); }
+    else { currentDate.setDate(currentDate.getDate()-1); }
+    render();
 }
-
-function fmt12(iso) {
-    const d = new Date(iso), h = d.getHours(), m = d.getMinutes();
-    return (h%12||12) + ':' + String(m).padStart(2,'0') + (h<12?' ص':' م');
+function navNext(){
+    if(currentView==='month'){ currentDate.setMonth(currentDate.getMonth()+1); }
+    else if(currentView==='week'){ currentDate.setDate(currentDate.getDate()+7); }
+    else { currentDate.setDate(currentDate.getDate()+1); }
+    render();
 }
-
-// ── View switching ───────────────────────────
-function setView(v) {
-    curView = v;
-    ['month','week','day'].forEach(x => {
-        document.getElementById('view-'+x).style.display = x===v ? 'block' : 'none';
-        const btn = document.getElementById('v-'+x);
-        if (x===v) { btn.style.background='linear-gradient(135deg,#0071AA,#005a88)'; btn.style.color='white'; }
-        else        { btn.style.background='transparent'; btn.style.color='#6b7280'; }
+function goToToday(){ currentDate = new Date(); render(); }
+function setView(v){
+    currentView=v;
+    ['month','week','day'].forEach(x=>{
+        document.getElementById('view-'+x).style.display = x===v?'block':'none';
+        const btn=document.getElementById('v-'+x);
+        btn.style.background = x===v?'linear-gradient(135deg,#0071AA,#005a88)':'transparent';
+        btn.style.color      = x===v?'white':'#6b7280';
     });
-    document.getElementById('dayPanel').style.display = 'none';
     render();
 }
 
-function navPrev() {
-    if (curView==='month')      { curMonth--; if(curMonth<0){curMonth=11;curYear--;} }
-    else if (curView==='week')  { curWeekStart = addDays(curWeekStart,-7); }
-    else                        { curDay = addDays(curDay,-1); }
-    render();
-}
-function navNext() {
-    if (curView==='month')      { curMonth++; if(curMonth>11){curMonth=0;curYear++;} }
-    else if (curView==='week')  { curWeekStart = addDays(curWeekStart,7); }
-    else                        { curDay = addDays(curDay,1); }
-    render();
-}
-function goToToday() {
-    curYear=TODAY.getFullYear(); curMonth=TODAY.getMonth();
-    curWeekStart=getWeekStart(TODAY);
-    curDay=new Date(TODAY.getFullYear(),TODAY.getMonth(),TODAY.getDate());
-    render();
+// ── Session detail modal ──
+function openSession(s){
+    const dt = s.scheduled_at ? new Date(s.scheduled_at) : null;
+    document.getElementById('smTitle').textContent = s.title || ('جلسة #'+s.session_number);
+    document.getElementById('sessionModal').style.display='flex';
+
+    const rows = [
+        dt ? ['📅 الموعد', dt.toLocaleDateString('ar-SA',{weekday:'long',year:'numeric',month:'long',day:'numeric'})+' - '+fmtTime(dt)] : null,
+        dt ? ['⏱ المدة', (s.duration_minutes||60)+' دقيقة'] : null,
+        s.subject_name ? ['📚 المادة', s.subject_name] : null,
+        s.program_name ? ['🎓 البرنامج', s.program_name] : null,
+        ['🔖 النوع', typeLabel(s.type)],
+        ['📊 الحالة', statusLabel(s.status)],
+    ].filter(Boolean);
+
+    let html = '<div style="display:flex;flex-direction:column;gap:10px;">';
+    rows.forEach(([k,v])=>{
+        html+=`<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:#f8fafc;border-radius:9px;">
+            <span style="font-size:12px;color:#64748b;min-width:90px;">${k}</span>
+            <span style="font-size:13px;font-weight:600;color:#1e293b;">${v}</span>
+        </div>`;
+    });
+
+    if(s.zoom_join_url && s.status !== 'completed'){
+        html+=`<a href="${s.zoom_join_url}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:white;border-radius:10px;text-decoration:none;font-size:13px;font-weight:700;margin-top:4px;">
+            <svg width="16" height="16" fill="white" viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
+            انضمام عبر Zoom
+        </a>`;
+    }
+
+    html += '</div>';
+    document.getElementById('smBody').innerHTML = html;
 }
 
-function render() {
-    if (curView==='month') renderMonth();
-    else if (curView==='week') renderWeek();
+function sessionChip(s, compact=false){
+    const colors = {
+        live:      ['#fee2e2','#dc2626'],
+        completed: ['#dcfce7','#16a34a'],
+        scheduled: ['#dbeafe','#2563eb'],
+        cancelled: ['#f1f5f9','#94a3b8'],
+    };
+    const [bg,cl] = colors[s.status] || ['#f1f5f9','#64748b'];
+    const label = s.title || ('جلسة #'+s.session_number);
+    const dt = s.scheduled_at ? new Date(s.scheduled_at) : null;
+    const time = dt ? fmtTime(dt) : '';
+
+    return `<div onclick='openSession(${JSON.stringify(s)})' style="background:${bg};border-right:3px solid ${cl};border-radius:6px;padding:${compact?'3px 6px':'5px 8px'};cursor:pointer;margin-bottom:2px;overflow:hidden;">
+        <div style="font-size:${compact?'10':'11'}px;font-weight:700;color:${cl};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${time} ${label}</div>
+        ${!compact&&s.subject_name?`<div style="font-size:10px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${s.subject_name||s.program_name}</div>`:''}
+    </div>`;
+}
+
+// ── Month view ──
+function renderMonth(){
+    const today = new Date();
+    const year  = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+    document.getElementById('calTitle').textContent = MONTHS_AR[month]+' '+year;
+
+    const headers = document.getElementById('calHeaders');
+    headers.innerHTML = DAYS_AR.map(d=>`<div style="padding:10px 4px;text-align:center;font-size:11px;font-weight:700;color:#6b7280;border-bottom:1px solid #f1f5f9;">${d}</div>`).join('');
+
+    const first = new Date(year,month,1).getDay();
+    const days  = new Date(year,month+1,0).getDate();
+    const grid  = document.getElementById('calGrid');
+    grid.innerHTML='';
+
+    for(let i=0;i<first;i++) grid.innerHTML+=`<div style="min-height:90px;border:1px solid #f8fafc;"></div>`;
+
+    for(let d=1;d<=days;d++){
+        const date = new Date(year,month,d);
+        const isToday = sameDay(date,today);
+        const daySessions = CAL_SESSIONS.filter(s=>sameDay(new Date(s.scheduled_at),date));
+
+        const cell = document.createElement('div');
+        cell.style.cssText=`min-height:90px;border:1px solid #f1f5f9;padding:6px;background:${isToday?'#eff6ff':'white'};cursor:pointer;transition:background .15s;`;
+        cell.onmouseenter=()=>{ if(!isToday) cell.style.background='#f8fafc'; };
+        cell.onmouseleave=()=>{ if(!isToday) cell.style.background='white'; };
+
+        let html=`<div style="font-size:12px;font-weight:700;color:${isToday?'#2563eb':'#374151'};margin-bottom:4px;${isToday?'background:#2563eb;color:white;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;':''}">${d}</div>`;
+
+        const visible = daySessions.slice(0,2);
+        visible.forEach(s=>{ html+=sessionChip(s,true); });
+        if(daySessions.length>2){
+            html+=`<div onclick="showDayPanel(new Date(${date.getTime()}))" style="font-size:10px;color:#2563eb;font-weight:600;cursor:pointer;">+${daySessions.length-2} أخرى</div>`;
+        }
+        cell.innerHTML=html;
+        if(daySessions.length) cell.onclick=()=>showDayPanel(date);
+        grid.appendChild(cell);
+    }
+}
+
+function showDayPanel(date){
+    const sessions = CAL_SESSIONS.filter(s=>sameDay(new Date(s.scheduled_at),date));
+    document.getElementById('dayPanelTitle').textContent = DAYS_AR[date.getDay()]+' '+date.getDate()+' '+MONTHS_AR[date.getMonth()]+' '+date.getFullYear();
+    document.getElementById('dayPanelContent').innerHTML = sessions.length
+        ? sessions.map(s=>sessionChip(s,false)).join('')
+        : '<p style="color:#94a3b8;font-size:13px;text-align:center;padding:20px 0;">لا توجد جلسات</p>';
+    document.getElementById('dayPanel').style.display='block';
+}
+
+// ── Week view ──
+function renderWeek(){
+    const start = startOfWeek(currentDate);
+    const days  = Array.from({length:7},(_,i)=>{ const d=new Date(start); d.setDate(d.getDate()+i); return d; });
+    document.getElementById('calTitle').textContent = DAYS_AR[days[0].getDay()]+' '+days[0].getDate()+' - '+DAYS_AR[days[6].getDay()]+' '+days[6].getDate()+' '+MONTHS_AR[days[0].getMonth()];
+
+    const today = new Date();
+    const headers = document.getElementById('weekHeaders');
+    headers.style.gridTemplateColumns='repeat(7,1fr)';
+    headers.innerHTML = days.map(d=>`
+        <div style="padding:8px 4px;text-align:center;border-bottom:1px solid #f1f5f9;${sameDay(d,today)?'color:#2563eb;font-weight:800;':'color:#374151;'}">
+            <div style="font-size:10px;color:#94a3b8;">${DAYS_AR[d.getDay()]}</div>
+            <div style="font-size:16px;font-weight:700;">${d.getDate()}</div>
+        </div>`).join('');
+
+    const timeLabels = document.getElementById('timeLabels');
+    const weekGrid   = document.getElementById('weekGrid');
+    const PX_PER_HOUR = 60;
+    const HOURS = 24;
+    timeLabels.style.cssText='width:48px;flex-shrink:0;position:relative;';
+    timeLabels.innerHTML='';
+    for(let h=0;h<HOURS;h++){
+        timeLabels.innerHTML+=`<div style="height:${PX_PER_HOUR}px;font-size:10px;color:#94a3b8;padding-top:2px;text-align:center;">${h.toString().padStart(2,'0')}:00</div>`;
+    }
+
+    weekGrid.style.cssText=`display:grid;grid-template-columns:repeat(7,1fr);position:relative;height:${HOURS*PX_PER_HOUR}px;`;
+    weekGrid.innerHTML='';
+    for(let h=0;h<HOURS;h++){
+        for(let col=0;col<7;col++){
+            const cell=document.createElement('div');
+            cell.style.cssText=`border-top:1px solid #f1f5f9;border-right:1px solid #f1f5f9;height:${PX_PER_HOUR}px;`;
+            weekGrid.appendChild(cell);
+        }
+    }
+
+    days.forEach((day,colIdx)=>{
+        CAL_SESSIONS.filter(s=>sameDay(new Date(s.scheduled_at),day)).forEach(s=>{
+            const dt=new Date(s.scheduled_at);
+            const top=(dt.getHours()*60+dt.getMinutes())/60*PX_PER_HOUR;
+            const h=(s.duration_minutes||60)/60*PX_PER_HOUR;
+            const colors={live:['#fee2e2','#dc2626'],completed:['#dcfce7','#16a34a'],scheduled:['#dbeafe','#2563eb'],cancelled:['#f1f5f9','#94a3b8']};
+            const [bg,cl]=colors[s.status]||['#f1f5f9','#64748b'];
+            const el=document.createElement('div');
+            el.style.cssText=`position:absolute;top:${top}px;left:calc(${colIdx}/7*100%);width:calc(100%/7 - 2px);height:${Math.max(h,20)}px;background:${bg};border-right:3px solid ${cl};border-radius:5px;padding:2px 4px;overflow:hidden;cursor:pointer;z-index:1;`;
+            el.innerHTML=`<div style="font-size:10px;font-weight:700;color:${cl};">${fmtTime(dt)} ${s.title||'جلسة #'+s.session_number}</div>`;
+            el.onclick=()=>openSession(s);
+            weekGrid.appendChild(el);
+        });
+    });
+}
+
+// ── Day view ──
+function renderDay(){
+    const today = new Date();
+    document.getElementById('calTitle').textContent = DAYS_AR[currentDate.getDay()]+' '+currentDate.getDate()+' '+MONTHS_AR[currentDate.getMonth()]+' '+currentDate.getFullYear();
+    const PX_PER_HOUR=80;
+    const HOURS=24;
+
+    const timeLabels=document.getElementById('dayTimeLabels');
+    const dayGrid=document.getElementById('dayGrid');
+    timeLabels.style.cssText='width:48px;flex-shrink:0;';
+    timeLabels.innerHTML='';
+    for(let h=0;h<HOURS;h++){
+        timeLabels.innerHTML+=`<div style="height:${PX_PER_HOUR}px;font-size:10px;color:#94a3b8;padding-top:2px;text-align:center;">${h.toString().padStart(2,'0')}:00</div>`;
+    }
+
+    dayGrid.style.cssText=`position:relative;height:${HOURS*PX_PER_HOUR}px;`;
+    dayGrid.innerHTML='';
+    for(let h=0;h<HOURS;h++){
+        const line=document.createElement('div');
+        line.style.cssText=`position:absolute;top:${h*PX_PER_HOUR}px;left:0;right:0;border-top:1px solid #f1f5f9;`;
+        dayGrid.appendChild(line);
+    }
+
+    CAL_SESSIONS.filter(s=>sameDay(new Date(s.scheduled_at),currentDate)).forEach(s=>{
+        const dt=new Date(s.scheduled_at);
+        const top=(dt.getHours()*60+dt.getMinutes())/60*PX_PER_HOUR;
+        const h=(s.duration_minutes||60)/60*PX_PER_HOUR;
+        const colors={live:['#fee2e2','#dc2626'],completed:['#dcfce7','#16a34a'],scheduled:['#dbeafe','#2563eb'],cancelled:['#f1f5f9','#94a3b8']};
+        const [bg,cl]=colors[s.status]||['#f1f5f9','#64748b'];
+        const el=document.createElement('div');
+        el.style.cssText=`position:absolute;top:${top}px;left:4px;right:4px;height:${Math.max(h,30)}px;background:${bg};border-right:4px solid ${cl};border-radius:8px;padding:6px 10px;overflow:hidden;cursor:pointer;`;
+        el.innerHTML=`<div style="font-size:12px;font-weight:700;color:${cl};">${fmtTime(dt)} — ${s.title||'جلسة #'+s.session_number}</div>
+            ${s.subject_name?`<div style="font-size:11px;color:#64748b;">${s.subject_name||s.program_name}</div>`:''}`;
+        el.onclick=()=>openSession(s);
+        dayGrid.appendChild(el);
+    });
+}
+
+// ── Main render ──
+function render(){
+    document.getElementById('dayPanel').style.display='none';
+    if(currentView==='month') renderMonth();
+    else if(currentView==='week') renderWeek();
     else renderDay();
 }
 
-// ── MONTH VIEW ───────────────────────────────
-function renderMonth() {
-    document.getElementById('calTitle').textContent = MONTH_NAMES[curMonth] + ' ' + curYear;
-
-    document.getElementById('calHeaders').innerHTML = DAY_NAMES.map(d =>
-        `<div style="padding:9px 4px;text-align:center;font-size:11px;font-weight:700;color:#9ca3af;background:#f9fafb;border-bottom:1px solid #e5e7eb;">${d}</div>`
-    ).join('');
-
-    const firstDow    = new Date(curYear,curMonth,1).getDay();
-    const daysInMonth = new Date(curYear,curMonth+1,0).getDate();
-    const prevDays    = new Date(curYear,curMonth,0).getDate();
-
-    let cells=[];
-    for(let i=firstDow-1;i>=0;i--) cells.push({d:prevDays-i,dt:new Date(curYear,curMonth-1,prevDays-i),cur:false});
-    for(let d=1;d<=daysInMonth;d++) cells.push({d,dt:new Date(curYear,curMonth,d),cur:true});
-    let fill=42-cells.length;
-    for(let d=1;d<=fill;d++) cells.push({d,dt:new Date(curYear,curMonth+1,d),cur:false});
-
-    document.getElementById('calGrid').innerHTML = cells.map(cell => {
-        const isTd = sameDay(cell.dt,TODAY);
-        const daySes = cell.cur ? sessionsOnDay(cell.dt) : [];
-        const visible = daySes.slice(0,3), more=daySes.length-visible.length;
-
-        const chips = visible.map(s => {
-            const ts=typeStyle(s.type), time=fmt12(s.scheduled_at);
-            const label=(s.title||s.subject_name||s.program_name||ts.label).substring(0,18);
-            return `<div class="cal-event" onclick="event.stopPropagation();showDayPanel(${cell.dt.getFullYear()},${cell.dt.getMonth()},${cell.dt.getDate()})"
-                         style="background:${ts.bg};color:${ts.color};border-right:2px solid ${ts.color};font-size:10px;font-weight:600;padding:2px 5px;border-radius:3px;margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;">${time} ${label}</div>`;
-        }).join('');
-        const moreEl = more>0 ? `<div style="font-size:10px;color:#6b7280;text-align:center;cursor:pointer;" onclick="showDayPanel(${cell.dt.getFullYear()},${cell.dt.getMonth()},${cell.dt.getDate()})">+${more} أخرى</div>` : '';
-
-        const cellBg = isTd ? '#eff6ff' : (cell.cur?'white':'#fafafa');
-        const numSt  = isTd ? 'display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;background:#0071AA;color:white;border-radius:50%;font-weight:700;font-size:12px;'
-                            : `font-size:12px;font-weight:${cell.cur?'500':'400'};color:${cell.cur?'#374151':'#cbd5e1'};`;
-        return `<div class="cal-cell" onclick="showDayPanel(${cell.dt.getFullYear()},${cell.dt.getMonth()},${cell.dt.getDate()})"
-                     style="min-height:90px;padding:5px;border-left:1px solid #f1f5f9;border-bottom:1px solid #f1f5f9;background:${cellBg};cursor:pointer;">
-                    <div style="margin-bottom:3px;text-align:left;"><span style="${numSt}">${cell.d}</span></div>
-                    ${chips}${moreEl}
-                </div>`;
-    }).join('');
-}
-
-// ── WEEK VIEW ────────────────────────────────
-const TG_START = 7;   // 7am
-const TG_END   = 22;  // 10pm
-const PX_PER_HR = 60; // 60px per hour
-
-function renderTimeLabels(containerId) {
-    let html = `<div style="height:${PX_PER_HR/2}px;"></div>`; // top offset
-    for(let h=TG_START;h<=TG_END;h++) {
-        html += `<div style="height:${PX_PER_HR}px;display:flex;align-items:flex-start;padding-top:0;justify-content:flex-end;padding-left:6px;padding-right:6px;">
-                    <span style="font-size:10px;color:#9ca3af;font-weight:500;white-space:nowrap;">${h%12||12}${h<12?'ص':'م'}</span>
-                 </div>`;
-    }
-    document.getElementById(containerId).innerHTML = html;
-}
-
-function renderTimeGrid(containerId, days) {
-    const hours = TG_END - TG_START + 1;
-    const totalH = hours * PX_PER_HR;
-
-    // Build background grid lines
-    let bg = '';
-    for(let h=0;h<=hours;h++) {
-        const y = h * PX_PER_HR;
-        bg += `<div style="position:absolute;top:${y}px;left:0;right:0;height:1px;background:${h===0?'#e5e7eb':'#f1f5f9'};"></div>`;
-    }
-
-    // Columns
-    const colW = 100 / days.length;
-    const colHtml = days.map((day,ci) => {
-        const isTd = sameDay(day,TODAY);
-        const daySes = sessionsOnDay(day);
-
-        const events = daySes.map(s => {
-            const dt       = new Date(s.scheduled_at);
-            const startMin = (dt.getHours() - TG_START) * 60 + dt.getMinutes();
-            const dur      = Math.max(s.duration_minutes || 60, 15);
-            const top      = startMin;   // 1px per minute
-            const height   = Math.max(dur, 30);
-            const ts       = typeStyle(s.type);
-            const time     = fmt12(s.scheduled_at);
-            const label    = (s.title || s.subject_name || s.program_name || ts.label).substring(0,24);
-
-            if(startMin < 0 || top > (TG_END-TG_START)*60) return '';
-            return `<div class="tg-event" onclick="showDayPanel(${day.getFullYear()},${day.getMonth()},${day.getDate()})"
-                         style="position:absolute;top:${top}px;left:2px;right:2px;height:${height}px;
-                                background:${ts.bg};color:${ts.color};border-right:3px solid ${ts.color};
-                                border-radius:6px;padding:3px 6px;font-size:10px;font-weight:600;
-                                overflow:hidden;cursor:pointer;z-index:2;box-shadow:0 1px 4px rgba(0,0,0,.08);">
-                        <div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${time}</div>
-                        <div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:.85;">${label}</div>
-                    </div>`;
-        }).join('');
-
-        const todayBg = isTd ? 'rgba(0,113,170,.04)' : 'transparent';
-        return `<div style="position:absolute;top:0;bottom:0;left:${ci*colW}%;width:${colW}%;background:${todayBg};border-left:1px solid #f1f5f9;">
-                    <div style="position:relative;height:${totalH}px;">
-                        ${events}
-                    </div>
-                </div>`;
-    }).join('');
-
-    // Now marker
-    const nowDate = new Date();
-    const inRange = nowDate >= days[0] && nowDate <= addDays(days[days.length-1],1);
-    const nowLine = inRange ? (() => {
-        const nowMin = (nowDate.getHours()-TG_START)*60 + nowDate.getMinutes();
-        if(nowMin<0 || nowMin>(TG_END-TG_START)*60) return '';
-        // find which column
-        const ci = days.findIndex(d => sameDay(d,nowDate));
-        if(ci<0) return '';
-        const leftPct = ci*colW + '%';
-        const widthPct = colW + '%';
-        return `<div style="position:absolute;top:${nowMin}px;left:${leftPct};width:${widthPct};height:2px;background:#ef4444;z-index:10;">
-                    <div style="position:absolute;right:-1px;top:-4px;width:8px;height:8px;background:#ef4444;border-radius:50%;"></div>
-                </div>`;
-    })() : '';
-
-    document.getElementById(containerId).innerHTML =
-        `<div style="position:relative;height:${totalH}px;">${bg}${colHtml}${nowLine}</div>`;
-
-    // Scroll to 8am on render
-    const scroll = containerId === 'weekGrid' ? document.getElementById('weekScroll') : document.getElementById('dayScroll');
-    if(scroll) { setTimeout(()=>{ scroll.scrollTop = (8-TG_START)*PX_PER_HR - 20; },50); }
-}
-
-function renderWeek() {
-    const days = [];
-    for(let i=0;i<7;i++) days.push(addDays(curWeekStart,i));
-
-    // Title
-    const wEnd = addDays(curWeekStart,6);
-    document.getElementById('calTitle').textContent =
-        MONTH_NAMES[curWeekStart.getMonth()] + ' ' + curWeekStart.getDate() +
-        ' — ' + MONTH_NAMES[wEnd.getMonth()] + ' ' + wEnd.getDate() + '، ' + wEnd.getFullYear();
-
-    // Headers
-    document.getElementById('weekHeaders').style.gridTemplateColumns = '48px repeat(7,1fr)';
-    document.getElementById('weekHeaders').innerHTML =
-        '<div></div>' +
-        days.map(d => {
-            const isTd = sameDay(d,TODAY);
-            const numSt = isTd ? 'display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;background:#0071AA;color:white;border-radius:50%;font-weight:800;'
-                                : 'font-weight:700;color:#374151;';
-            return `<div style="padding:10px 4px;text-align:center;border-bottom:1px solid #e5e7eb;background:${isTd?'#eff6ff':'#f9fafb'};">
-                        <div style="font-size:11px;color:#9ca3af;margin-bottom:2px;">${DAY_NAMES[d.getDay()]}</div>
-                        <span style="${numSt};font-size:13px;">${d.getDate()}</span>
-                    </div>`;
-        }).join('');
-
-    renderTimeLabels('timeLabels');
-    renderTimeGrid('weekGrid', days);
-}
-
-function renderDay() {
-    document.getElementById('calTitle').textContent =
-        DAY_FULL[curDay.getDay()] + ' ' + curDay.getDate() + ' ' + MONTH_NAMES[curDay.getMonth()] + ' ' + curDay.getFullYear();
-
-    renderTimeLabels('dayTimeLabels');
-    renderTimeGrid('dayGrid', [curDay]);
-}
-
-// ── Day panel ────────────────────────────────
-function showDayPanel(y,m,d) {
-    const dt = new Date(y,m,d);
-    const daySes = sessionsOnDay(dt);
-    const panel  = document.getElementById('dayPanel');
-    if(!daySes.length){ panel.style.display='none'; return; }
-
-    const dateLabel = new Intl.DateTimeFormat('ar-SA',{weekday:'long',year:'numeric',month:'long',day:'numeric'}).format(dt);
-    document.getElementById('dayPanelTitle').textContent = dateLabel + ' — ' + daySes.length + ' محاضرة';
-
-    document.getElementById('dayPanelContent').innerHTML = daySes.map(s => {
-        const ts=typeStyle(s.type), time=fmt12(s.scheduled_at);
-        const stBg    = s.status==='completed'?'#dcfce7':s.status==='live'?'#fee2e2':'#dbeafe';
-        const stColor = s.status==='completed'?'#15803d':s.status==='live'?'#dc2626':'#1d4ed8';
-        const stLabel = s.status==='completed'?'مكتملة':s.status==='live'?'● مباشر':'مجدولة';
-        return `<div style="background:#fafafa;border-radius:12px;border:1px solid #e5e7eb;padding:14px;display:flex;gap:12px;">
-            <div style="width:46px;text-align:center;flex-shrink:0;background:white;border-radius:9px;border:1px solid #e5e7eb;padding:7px 4px;">
-                <div style="font-size:17px;font-weight:800;color:#111827;line-height:1;">${time.split(':')[0]}</div>
-                <div style="font-size:11px;color:#6b7280;">${time.split(':')[1]}</div>
-            </div>
-            <div style="flex:1;min-width:0;">
-                <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:5px;margin-bottom:5px;">
-                    <h4 style="margin:0;font-size:13px;font-weight:700;color:#111827;">${s.title||ts.label}${s.session_number?' <span style="font-size:11px;color:#9ca3af;">#'+s.session_number+'</span>':''}</h4>
-                    <span style="background:${stBg};color:${stColor};font-size:11px;font-weight:600;padding:2px 9px;border-radius:20px;">${stLabel}</span>
-                </div>
-                <p style="margin:0 0 7px;font-size:12px;color:#6b7280;">📚 ${s.subject_name||s.program_name||'—'}${s.diploma_name&&s.subject_name?' <span style="color:#9ca3af;">— '+s.diploma_name+'</span>':''}${s.duration_minutes?' · '+s.duration_minutes+' دقيقة':''}</p>
-                <div style="display:flex;gap:6px;flex-wrap:wrap;">
-                    <span style="background:${ts.bg};color:${ts.color};font-size:11px;font-weight:600;padding:2px 9px;border-radius:20px;">${ts.label}</span>
-                    ${s.zoom_start_url?`<a href="${s.zoom_start_url}" target="_blank" style="padding:4px 11px;background:linear-gradient(135deg,#ef4444,#dc2626);color:white;border-radius:7px;font-size:11px;font-weight:700;text-decoration:none;">▶ ابدأ الجلسة</a>`:''}
-                    ${s.zoom_join_url?`<a href="${s.zoom_join_url}" target="_blank" style="padding:4px 11px;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:white;border-radius:7px;font-size:11px;font-weight:700;text-decoration:none;">دخول Zoom</a>`:''}
-                </div>
-            </div>
-        </div>`;
-    }).join('');
-
-    panel.style.display='block';
-    panel.scrollIntoView({behavior:'smooth',block:'nearest'});
-}
-
-// ── Monthly modal ────────────────────────────
-function openMonthlyModal() {
-    document.getElementById('monthlyModal').style.display='flex';
-    document.body.style.overflow='hidden';
-}
-function closeMonthlyModal() {
-    document.getElementById('monthlyModal').style.display='none';
-    document.body.style.overflow='';
-}
-document.addEventListener('keydown', e => { if(e.key==='Escape') closeMonthlyModal(); });
-document.getElementById('monthlyModal').addEventListener('click', function(e) {
-    if(e.target===this) closeMonthlyModal();
-});
-
-// Toggle schedule type (subject vs program)
-function toggleScheduleType(type) {
-    const subjectField = document.getElementById('subject_field');
-    const programField = document.getElementById('program_field');
-    const subjectLbl   = document.getElementById('type-lbl-subject');
-    const programLbl   = document.getElementById('type-lbl-program');
-
-    if (subjectField) subjectField.style.display = type === 'subject' ? 'block' : 'none';
-    if (programField) programField.style.display = type === 'program' ? 'block' : 'none';
-
-    const activeStyle   = 'flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:9px;font-size:12px;font-weight:700;cursor:pointer;background:linear-gradient(135deg,#15803d,#166534);color:white;transition:all .15s;';
-    const inactiveStyle = 'flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:9px;font-size:12px;font-weight:700;cursor:pointer;background:transparent;color:#6b7280;transition:all .15s;';
-
-    if (subjectLbl) subjectLbl.style.cssText = type === 'subject' ? activeStyle : inactiveStyle;
-    if (programLbl) programLbl.style.cssText = type === 'program' ? activeStyle : inactiveStyle;
-}
-
-// Wire type toggle labels
-document.querySelectorAll('#monthlyForm input[name="schedule_type"]').forEach(radio => {
-    radio.closest('label').addEventListener('click', function() {
-        this.querySelector('input').checked = true;
-        toggleScheduleType(this.querySelector('input').value);
-    });
-});
-
-// Toggle day-of-week label style
-function toggleDayLabel(lbl) {
-    const cb = lbl.querySelector('input');
-    cb.checked = !cb.checked;
-    if(cb.checked) {
-        lbl.style.background='#f0fdf4'; lbl.style.borderColor='#15803d'; lbl.style.color='#15803d';
-    } else {
-        lbl.style.background='white'; lbl.style.borderColor='#e5e7eb'; lbl.style.color='#6b7280';
-    }
-    updatePreviewHint();
-}
-
-function updatePreviewHint() {
-    const yearEl  = document.querySelector('#monthlyForm select[name=year]');
-    const monthEl = document.querySelector('#monthlyForm select[name=month]');
-    const checked = document.querySelectorAll('#monthlyForm input[name="days[]"]:checked');
-    if(!yearEl||!monthEl||!checked.length) { document.getElementById('previewHint').style.display='none'; return; }
-
-    const y=parseInt(yearEl.value), m=parseInt(monthEl.value)-1;
-    const days=[...checked].map(c=>parseInt(c.value));
-    const start=new Date(y,m,1), end=new Date(y,m+1,0);
-    let count=0, cur=new Date(start);
-    while(cur<=end){if(days.includes(cur.getDay()))count++;cur.setDate(cur.getDate()+1);}
-    const hint=document.getElementById('previewHint');
-    hint.textContent='✓ سيتم إنشاء '+count+' جلسة في شهر '+MONTH_NAMES[m]+' '+y;
-    hint.style.display='block';
-}
-
-// Wire up year/month selects to update hint
-document.querySelector('#monthlyForm select[name=year]').addEventListener('change',updatePreviewHint);
-document.querySelector('#monthlyForm select[name=month]').addEventListener('change',updatePreviewHint);
-
-// Open modal if validation errors exist (form was re-submitted)
-@if($errors->any())
-openMonthlyModal();
-@endif
-
 render();
 </script>
+@endpush
 @endsection

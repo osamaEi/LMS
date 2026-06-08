@@ -241,6 +241,9 @@ Route::middleware(['auth', 'role:admin,super_admin'])->prefix('admin')->name('ad
     Route::get('/schedule', [\App\Http\Controllers\Admin\ScheduleController::class, 'index'])->name('schedule');
     Route::get('/schedule/sessions/{session}/students', [\App\Http\Controllers\Admin\ScheduleController::class, 'sessionStudents'])->name('schedule.session-students');
     Route::post('/schedule/sessions/{session}/assign', [\App\Http\Controllers\Admin\ScheduleController::class, 'assignStudents'])->name('schedule.assign-students');
+    Route::post('/schedule/generate', [\App\Http\Controllers\Admin\ScheduleController::class, 'generate'])->name('schedule.generate');
+    Route::get('/schedule/classes', [\App\Http\Controllers\Admin\ScheduleController::class, 'getClasses'])->name('schedule.classes');
+    Route::get('/schedule/programs', [\App\Http\Controllers\Admin\ScheduleController::class, 'getPrograms'])->name('schedule.programs');
 
     // Teachers Management
     Route::get('/teachers/export', [\App\Http\Controllers\Admin\TeacherController::class, 'export'])->name('teachers.export');
@@ -283,6 +286,16 @@ Route::middleware(['auth', 'role:admin,super_admin'])->prefix('admin')->name('ad
     // Program (Path) Management
     Route::get('/programs/export', [\App\Http\Controllers\Admin\ProgramController::class, 'export'])->name('programs.export');
     Route::resource('programs', \App\Http\Controllers\Admin\ProgramController::class);
+
+    // Program Classes
+    Route::get('/classes', [\App\Http\Controllers\Admin\ProgramClassController::class, 'index'])->name('classes.index');
+    Route::post('/classes', [\App\Http\Controllers\Admin\ProgramClassController::class, 'store'])->name('classes.store');
+    Route::put('/classes/{class}', [\App\Http\Controllers\Admin\ProgramClassController::class, 'update'])->name('classes.update');
+    Route::delete('/classes/{class}', [\App\Http\Controllers\Admin\ProgramClassController::class, 'destroy'])->name('classes.destroy');
+    Route::get('/classes/{class}/students', [\App\Http\Controllers\Admin\ProgramClassController::class, 'students'])->name('classes.students');
+    Route::get('/classes/{class}/available-students', [\App\Http\Controllers\Admin\ProgramClassController::class, 'availableStudents'])->name('classes.available-students');
+    Route::post('/classes/{class}/assign-students', [\App\Http\Controllers\Admin\ProgramClassController::class, 'assignStudents'])->name('classes.assign-students');
+    Route::post('/classes/{class}/remove-student', [\App\Http\Controllers\Admin\ProgramClassController::class, 'removeStudent'])->name('classes.remove-student');
 
     // Training Programs Management
     Route::resource('training-programs', \App\Http\Controllers\Admin\TrainingProgramController::class);

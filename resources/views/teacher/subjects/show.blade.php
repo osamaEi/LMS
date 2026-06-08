@@ -222,14 +222,6 @@
                     </svg>
                     رفع ملف
                 </button>
-                <button @click="createModal = true"
-                        class="action-btn"
-                        style="background:rgba(16,185,129,.9);color:#fff;box-shadow:0 4px 12px rgba(16,185,129,.35)">
-                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                    </svg>
-                    إنشاء  محاضرة 
-                </button>
             </div>
         </div>
     </div>
@@ -279,14 +271,6 @@
                     <p class="text-xs text-gray-500">{{ $sessions->count() }}  محاضرة مضافة</p>
                 </div>
             </div>
-            <button @click="createModal = true"
-                    class="action-btn"
-                    style="background:linear-gradient(135deg,#0071AA,#005a88);color:#fff">
-                <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                </svg>
-                إضافة  محاضرة 
-            </button>
         </div>
 
         @if($sessions->isEmpty())
@@ -375,20 +359,6 @@
                            class="action-btn" style="background:#f5f3ff;color:#6d28d9">
                             الحضور
                         </a>
-                        <a href="{{ route('teacher.my-subjects.sessions.edit', [$subject->id, $session->id]) }}"
-                           class="action-btn" style="background:#f1f5f9;color:#374151">
-                            تعديل
-                        </a>
-                        <form action="{{ route('teacher.my-subjects.sessions.destroy', [$subject->id, $session->id]) }}"
-                              method="POST" class="inline"
-                              onsubmit="return confirm('هل أنت متأكد من حذف هذه ال محاضرة ؟')">
-                            @csrf @method('DELETE')
-                            <button type="submit" class="action-btn" style="background:#fee2e2;color:#dc2626">
-                                <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                </svg>
-                            </button>
-                        </form>
                     </div>
                 </div>
             @endforeach
@@ -465,15 +435,6 @@
                             <a href="{{ asset('storage/'.$sFile->file_path) }}" download
                                class="action-btn" style="background:#dcfce7;color:#15803d">تحميل</a>
                         @endif
-                        <form action="{{ route('teacher.files.destroy', $sFile) }}" method="POST" class="inline"
-                              onsubmit="return confirm('هل أنت متأكد؟')">
-                            @csrf @method('DELETE')
-                            <button type="submit" class="action-btn" style="background:#fee2e2;color:#dc2626">
-                                <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                </svg>
-                            </button>
-                        </form>
                     </div>
                 </div>
             @endforeach
@@ -533,67 +494,6 @@
     </div>
 </div>
 
-{{-- ─── Create Session Modal ─── --}}
-<div x-show="createModal" x-cloak
-     style="position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);"
-     @keydown.escape.window="createModal = false">
-    <div style="background:#fff;border-radius:20px;box-shadow:0 24px 80px rgba(0,0,0,.22);width:100%;max-width:420px;margin:1rem;overflow:hidden;"
-         class="dark:bg-gray-900">
-
-        {{-- Header --}}
-        <div style="background:linear-gradient(135deg,#0071AA 0%,#005a88 60%,#003f6b 100%);padding:1.25rem 1.5rem;position:relative;overflow:hidden;">
-            <div style="position:absolute;top:-50%;right:-5%;width:180px;height:180px;background:radial-gradient(circle,rgba(255,255,255,.1) 0%,transparent 70%);border-radius:50%;pointer-events:none;"></div>
-            <div class="relative flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <div style="width:40px;height:40px;border-radius:11px;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;">
-                        <svg class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                        </svg>
-                    </div>
-                    <div>
-                        <h3 style="color:#fff;font-size:1rem;font-weight:800;line-height:1.2;">إنشاء  محاضرة جديدة</h3>
-                        <p style="color:rgba(255,255,255,.7);font-size:.75rem;margin-top:2px;">{{ $subject->name }}</p>
-                    </div>
-                </div>
-                <button @click="createModal = false"
-                        style="width:34px;height:34px;border-radius:9px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;">
-                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                    </svg>
-                </button>
-            </div>
-        </div>
-
-        {{-- Body --}}
-        <form id="cm_form"
-              action="{{ route('teacher.my-subjects.sessions.store', $subject->id) }}"
-              method="POST">
-            @csrf
-            <div style="padding:1.5rem;">
-                <label style="display:block;font-size:.85rem;font-weight:600;color:#374151;margin-bottom:.5rem;" class="dark:text-gray-300">
-                    موعد ال محاضرة 
-                </label>
-                <input type="datetime-local" name="scheduled_at" required
-                       style="width:100%;border:1.5px solid #e5e7eb;border-radius:10px;padding:.65rem .9rem;font-size:.9rem;color:#111827;outline:none;box-sizing:border-box;transition:border .2s;"
-                       class="dark:bg-gray-800 dark:border-gray-700 dark:text-white"
-                       onfocus="this.style.borderColor='#0071AA'" onblur="this.style.borderColor='#e5e7eb'">
-            </div>
-
-            {{-- Footer --}}
-            <div style="padding:.9rem 1.5rem 1.25rem;display:flex;gap:.65rem;justify-content:flex-end;">
-                <button type="button" @click="createModal = false"
-                        style="border:1.5px solid #e5e7eb;border-radius:10px;padding:.55rem 1.1rem;font-size:.875rem;font-weight:600;color:#374151;cursor:pointer;background:#fff;"
-                        class="dark:border-gray-700 dark:text-gray-300 dark:bg-gray-800">
-                    إلغاء
-                </button>
-                <button type="submit"
-                        style="border-radius:10px;padding:.55rem 1.4rem;font-size:.875rem;font-weight:700;color:#fff;cursor:pointer;background:linear-gradient(135deg,#0071AA,#005a88);border:none;box-shadow:0 4px 12px rgba(0,113,170,.3);">
-                    إنشاء
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
 
 </div>{{-- end x-data --}}
 @endsection

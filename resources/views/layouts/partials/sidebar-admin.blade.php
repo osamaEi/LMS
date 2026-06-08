@@ -51,56 +51,13 @@
 </li>
 @endcanany
 
-{{-- الدبلومات (Dropdown) --}}
-@canany(['view-programs','view-subjects','view-sessions'])
-<li x-data="{ open: {{ (request()->routeIs('admin.programs.*') || request()->routeIs('admin.subjects.*') || request()->routeIs('admin.sessions.*')) ? 'true' : 'false' }} }">
-    <button @click="open = !open"
-            class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium w-full {{ (request()->routeIs('admin.programs.*') || request()->routeIs('admin.subjects.*') || request()->routeIs('admin.sessions.*')) ? 'menu-item-active' : 'menu-item-inactive' }}">
-        <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20"><path d="M10 1.66666L1.66667 5.83333V8.33333C1.66667 12.4833 4.65 16.3583 8.75 17.4583C9.575 17.6833 10.425 17.6833 11.25 17.4583C15.35 16.3583 18.3333 12.4833 18.3333 8.33333V5.83333L10 1.66666ZM10 3.33333L16.6667 6.66666V8.33333C16.6667 11.6667 14.2667 14.7417 11.0833 15.6417C10.3833 15.8167 9.61667 15.8167 8.91667 15.6417C5.73333 14.7417 3.33333 11.6667 3.33333 8.33333V6.66666L10 3.33333ZM9.16667 10.8333L7.08333 8.74999L6.08333 9.74999L9.16667 12.8333L14.1667 7.83333L13.1667 6.83333L9.16667 10.8333Z" fill=""/></svg>
-        <span class="flex-1">الدبلومات</span>
-        <svg class="fill-current ms-auto transition-transform duration-200" :class="{ 'rotate-180': open }" width="16" height="16" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
-        </svg>
-    </button>
-    <ul x-show="open" x-collapse class="mt-1 mr-4 space-y-0.5 border-r-2 border-white/20 pr-3">
-        @can('view-programs')
-        <li>
-            <a href="{{ route('admin.programs.index') }}"
-               class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors {{ request()->routeIs('admin.programs.*') ? 'bg-white/20 text-white' : 'text-white hover:bg-white/10' }}">
-                <span class="w-2 h-2 rounded-full {{ request()->routeIs('admin.programs.*') ? 'bg-white' : 'bg-white/50' }}"></span>
-                الدبلومات
-            </a>
-        </li>
-        @endcan
-        @can('view-sessions')
-        <li>
-            <a href="{{ route('admin.sessions.index') }}"
-               class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors {{ request()->routeIs('admin.sessions.*') ? 'bg-white/20 text-white' : 'text-white hover:bg-white/10' }}">
-                <span class="w-2 h-2 rounded-full {{ request()->routeIs('admin.sessions.*') ? 'bg-white' : 'bg-white/50' }}"></span>
-                الدروس والمحاضرات
-            </a>
-        </li>
-        <li>
-            <a href="{{ route('admin.schedule') }}"
-               class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors {{ request()->routeIs('admin.schedule*') ? 'bg-white/20 text-white' : 'text-white hover:bg-white/10' }}">
-                <span class="w-2 h-2 rounded-full {{ request()->routeIs('admin.schedule*') ? 'bg-white' : 'bg-white/50' }}"></span>
-                إدارة الجدول
-            </a>
-        </li>
-        @endcan
-    </ul>
-</li>
-@endcanany
-
-{{-- البرامج التأهيلية  --}}
+{{-- الدبلومات --}}
 @can('view-programs')
 <li>
-    <a href="{{ route('admin.training-programs.index') }}"
-       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('admin.training-programs.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
-        <svg class="fill-current" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
-        </svg>
-        <span>البرامج التأهيلية </span>
+    <a href="{{ route('admin.programs.index') }}"
+       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('admin.programs.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
+        <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20"><path d="M10 1.66666L1.66667 5.83333V8.33333C1.66667 12.4833 4.65 16.3583 8.75 17.4583C9.575 17.6833 10.425 17.6833 11.25 17.4583C15.35 16.3583 18.3333 12.4833 18.3333 8.33333V5.83333L10 1.66666ZM10 3.33333L16.6667 6.66666V8.33333C16.6667 11.6667 14.2667 14.7417 11.0833 15.6417C10.3833 15.8167 9.61667 15.8167 8.91667 15.6417C5.73333 14.7417 3.33333 11.6667 3.33333 8.33333V6.66666L10 3.33333ZM9.16667 10.8333L7.08333 8.74999L6.08333 9.74999L9.16667 12.8333L14.1667 7.83333L13.1667 6.83333L9.16667 10.8333Z" fill=""/></svg>
+        <span>الدبلومات</span>
     </a>
 </li>
 @endcan
@@ -116,22 +73,24 @@
 </li>
 @endcan
 
-{{-- دورات اللغة الإنجليزية --}}
+{{-- اللغة الإنجليزية --}}
 @can('view-programs')
 <li>
     <a href="{{ route('admin.english.index') }}"
-       class="group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium transition-all duration-200 text-white shadow-md"
-       style="background:linear-gradient(135deg,#2563eb,#0ea5e9);">
+       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('admin.english.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
+        <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20"><path d="M10 1.667A8.333 8.333 0 1 0 10 18.333 8.333 8.333 0 0 0 10 1.667zm0 1.666a6.62 6.62 0 0 1 2.44.463C12.09 4.74 11.49 5.5 10.833 5.5H9.167c-.657 0-1.258-.76-1.608-1.704A6.62 6.62 0 0 1 10 3.333zm-3.41.9C7.09 5.49 7.833 6.5 8.333 6.5v.833a1.667 1.667 0 0 0 0 3.334v.5c0 .92-.746 1.666-1.666 1.666H5.59A6.69 6.69 0 0 1 3.333 10c0-2.42 1.29-4.54 3.257-5.767zm6.82 0C15.377 5.46 16.667 7.58 16.667 10a6.69 6.69 0 0 1-2.257 2.833h-1.077c-.92 0-1.666-.746-1.666-1.666v-.5a1.667 1.667 0 0 0 0-3.334V6.5c.5 0 1.243-1.01 1.743-2.267zM10 15a6.62 6.62 0 0 1-2.44-.463C7.91 13.593 8.51 12.833 9.167 12.833h1.666c.657 0 1.258.76 1.608 1.704A6.62 6.62 0 0 1 10 15z" fill=""/></svg>
+        <span>اللغة الإنجليزية</span>
+    </a>
+</li>
+@endcan
 
-        {{-- colored icon wrapper --}}
-      
-
-        <span class="flex-1">اللغة الإنجليزية</span>
-
-        {{-- "EN" pill --}}
-        <span class="text-[10px] font-bold px-1.5 py-0.5 rounded leading-none bg-white/25 text-white">
-            EN
-        </span>
+{{-- إدارة الجدول --}}
+@can('view-sessions')
+<li>
+    <a href="{{ route('admin.schedule') }}"
+       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('admin.schedule*') ? 'menu-item-active' : 'menu-item-inactive' }}">
+        <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20"><path d="M16.6667 2.5H15V0.833333H13.3333V2.5H6.66667V0.833333H5V2.5H3.33333C2.41667 2.5 1.66667 3.25 1.66667 4.16667V17.5C1.66667 18.4167 2.41667 19.1667 3.33333 19.1667H16.6667C17.5833 19.1667 18.3333 18.4167 18.3333 17.5V4.16667C18.3333 3.25 17.5833 2.5 16.6667 2.5ZM16.6667 17.5H3.33333V7.5H16.6667V17.5ZM16.6667 5.83333H3.33333V4.16667H16.6667V5.83333Z" fill=""/></svg>
+        <span>إدارة الجدول</span>
     </a>
 </li>
 @endcan

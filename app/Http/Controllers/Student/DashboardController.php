@@ -190,6 +190,12 @@ class DashboardController extends Controller
 
         $assignedSessionIds = Attendance::where('student_id', $student->id)->pluck('session_id');
 
+        if ($student->class_id) {
+            $assignedSessionIds = Session::whereIn('id', $assignedSessionIds)
+                ->where('class_id', $student->class_id)
+                ->pluck('id');
+        }
+
         $program   = $student->program;
         $isDiploma = $program && $program->type === 'diploma';
 
@@ -237,8 +243,15 @@ class DashboardController extends Controller
         $program    = $student->program;
         $isDiploma  = $program && $program->type === 'diploma';
 
-        // Only show sessions the admin has explicitly assigned the student to
-        $assignedSessionIds = Attendance::where('student_id', $student->id)->pluck('session_id');
+        // Only show sessions assigned to this student, filtered to their class if they have one
+        $attendanceQuery = Attendance::where('student_id', $student->id);
+        $assignedSessionIds = $attendanceQuery->pluck('session_id');
+
+        if ($student->class_id) {
+            $assignedSessionIds = Session::whereIn('id', $assignedSessionIds)
+                ->where('class_id', $student->class_id)
+                ->pluck('id');
+        }
 
         // ── Non-diploma (training / english / course) ──────────────────────
         if (!$isDiploma) {

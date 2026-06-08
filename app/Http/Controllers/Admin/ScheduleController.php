@@ -5,8 +5,12 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Attendance;
 use App\Models\Enrollment;
+use App\Models\Program;
+use App\Models\ProgramClass;
 use App\Models\Session;
+use App\Models\Subject;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class ScheduleController extends Controller
@@ -99,7 +103,7 @@ class ScheduleController extends Controller
     public function assignStudents(Request $request, Session $session)
     {
         $request->validate([
-            'student_ids'   => 'required|array',
+            'student_ids'   => 'required|array', 
             'student_ids.*' => 'integer|exists:users,id',
         ]);
 
@@ -120,5 +124,137 @@ class ScheduleController extends Controller
         }
 
         return response()->json(['success' => true, 'inserted' => $inserted]);
+    }
+
+    // Return programs/subjects for the generate modal
+    public function getPrograms()
+    {
+        $programs = Program::where('status', 'active')
+            ->orderBy('name_ar')
+            ->get(['id', 'name_ar', 'type', 'duration_months']);
+
+        $subjects = Subject::where('status', 'active')
+            ->where(fn($q) => $q->whereNotNull('program_id')->orWhereNotNull('term_id'))
+            ->with(['program:id,name_ar', 'term.program:id,name_ar'])
+            ->orderBy('name_ar')
+            ->get()
+            ->map(function($s) {
+                $programId   = $s->program_id ?? $s->term?->program_id;
+                $programName = $s->program?->name_ar ?? $s->term?->program?->name_ar;
+                if (!$programId) return null;
+                return [
+                    'id'           => $s->id,
+                    'name_ar'      => $s->name_ar,
+                    'program_id'   => $programId,
+                    'program_name' => $programName,
+                ];
+            })
+            ->filter()
+            ->values();
+
+        return response()->json(['programs' => $programs, 'subjects' => $subjects]);
+    }
+
+    // Return classes for a given program
+    public function getClasses(Request $request)
+    {
+        $programId = $request->query('program_id');
+        $classes = ProgramClass::where('program_id', $programId)
+            ->where('status', 'active')
+            ->withCount('students')
+            ->with('teacher:id,name')
+            ->get(['id', 'name', 'teacher_id', 'start_date', 'end_date', 'max_students']);
+
+        return response()->json(['classes' => $classes]);
+    }
+
+    // Generate weekly recurring sessions for a class
+    public function generate(Request $request)
+    {
+        $data = $request->validate([
+            'entity_type'      => 'required|in:program,subject',
+            'entity_id'        => 'required|integer',
+            'class_id'         => 'required|exists:program_classes,id',
+            'teacher_id'       => 'nullable|exists:users,id',
+            'days'             => 'required|array|min:1',
+            'days.*'           => 'integer|min:0|max:6',
+            'time'             => 'required|date_format:H:i',
+            'duration_minutes' => 'required|integer|min:15|max:480',
+            'start_date'       => 'required|date',
+            'end_date'         => 'required|date|after:start_date',
+            'session_type'     => 'required|in:live_zoom,recorded_video,in_person',
+        ]);
+
+        $class = ProgramClass::with('students')->findOrFail($data['class_id']);
+
+        // Resolve FK column and value
+        if ($data['entity_type'] === 'program') {
+            $fkCol = 'program_id';
+            $fkVal = $data['entity_id'];
+            $label = Program::find($fkVal)?->name_ar ?? 'جلسة';
+        } else {
+            $fkCol = 'subject_id';
+            $fkVal = $data['entity_id'];
+            $label = Subject::find($fkVal)?->name_ar ?? 'جلسة';
+        }
+
+        $teacherId = $data['teacher_id'] ?? $class->teacher_id;
+        [$hh, $mm]  = explode(':', $data['time']);
+        $start      = Carbon::parse($data['start_date']);
+        $end        = Carbon::parse($data['end_date']);
+        $days       = array_map('intval', $data['days']);
+
+        // Build list of matching dates
+        $dates = [];
+        $cur   = $start->copy();
+        while ($cur->lte($end)) {
+            if (in_array($cur->dayOfWeek, $days)) {
+                $dates[] = $cur->copy()->setHour((int)$hh)->setMinute((int)$mm)->setSecond(0);
+            }
+            $cur->addDay();
+        }
+
+        if (empty($dates)) {
+            return response()->json(['success' => false, 'message' => 'لا توجد أيام مطابقة في الفترة المحددة'], 422);
+        }
+
+        $nextNumber = Session::where($fkCol, $fkVal)->max('session_number') ?? 0;
+        $students   = $class->students;
+        $created    = 0;
+
+        foreach ($dates as $scheduledAt) {
+            $nextNumber++;
+            $sessionTitle = $label . ' (#' . $nextNumber . ')';
+
+            $session = Session::create([
+                $fkCol             => $fkVal,
+                'class_id'         => $class->id,
+                'teacher_id'       => $teacherId,
+                'type'             => $data['session_type'],
+                'status'           => 'scheduled',
+                'scheduled_at'     => $scheduledAt,
+                'duration_minutes' => $data['duration_minutes'],
+                'session_number'   => $nextNumber,
+                'title_ar'         => $sessionTitle,
+            ]);
+
+            foreach ($students as $student) {
+                Attendance::firstOrCreate([
+                    'session_id' => $session->id,
+                    'student_id' => $student->id,
+                ], ['attended' => false]);
+            }
+
+            $created++;
+        }
+
+        $msg = "تم إنشاء {$created} جلسة وإسناد {$students->count()} طالب لكل جلسة";
+
+        return response()->json([
+            'success'  => true,
+            'created'  => $created,
+            'students' => $students->count(),
+            'message'  => $msg,
+        ]);
     }
 }

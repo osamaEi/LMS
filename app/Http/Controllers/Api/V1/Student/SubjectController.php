@@ -25,7 +25,14 @@ class SubjectController extends Controller
             ->with(['term.program', 'teacher:id,name,email,profile_photo'])
             ->findOrFail($id);
 
+        $assignedIds = Attendance::where('student_id', $student->id)->pluck('session_id');
+        if ($student->class_id) {
+            $assignedIds = Session::whereIn('id', $assignedIds)
+                ->where('class_id', $student->class_id)->pluck('id');
+        }
+
         $sessions = Session::where('subject_id', $id)
+            ->whereIn('id', $assignedIds)
             ->with('files')
             ->orderBy('session_number', 'asc')
             ->get();
@@ -64,8 +71,12 @@ class SubjectController extends Controller
         $program  = $student->program;
         $isDiploma = $program && $program->type === 'diploma';
 
-        // Session IDs the admin has assigned this student to (via Attendance records)
+        // Session IDs assigned to this student, filtered by class if applicable
         $assignedSessionIds = Attendance::where('student_id', $student->id)->pluck('session_id');
+        if ($student->class_id) {
+            $assignedSessionIds = Session::whereIn('id', $assignedSessionIds)
+                ->where('class_id', $student->class_id)->pluck('id');
+        }
 
         // Access check: diploma students can access any subject in their program;
         // others need at least one assigned session in this subject

@@ -41,18 +41,16 @@ class DashboardController extends Controller
             ->withCount('sessions')
             ->get();
 
-        $upcomingSessions = Session::whereHas('subject.enrollments', function ($query) use ($student) {
-            $query->where('student_id', $student->id);
-        })
+        $assignedIds = $this->assignedSessionIds($student);
+
+        $upcomingSessions = Session::whereIn('id', $assignedIds)
             ->where('scheduled_at', '>', now())
             ->with(['subject:id,name_ar,name_en'])
             ->orderBy('scheduled_at', 'asc')
             ->take(5)
             ->get();
 
-        $recentSessions = Session::whereHas('subject.enrollments', function ($query) use ($student) {
-            $query->where('student_id', $student->id);
-        })
+        $recentSessions = Session::whereIn('id', $assignedIds)
             ->with(['subject:id,name_ar,name_en'])
             ->orderBy('created_at', 'desc')
             ->take(5)
@@ -329,6 +327,15 @@ class DashboardController extends Controller
      * GET /api/v1/student/upcoming-sessions
      * Upcoming & live sessions for the student's program (enrollment not required)
      */
+    private function assignedSessionIds($student): \Illuminate\Support\Collection
+    {
+        $ids = Attendance::where('student_id', $student->id)->pluck('session_id');
+        if ($student->class_id) {
+            $ids = Session::whereIn('id', $ids)->where('class_id', $student->class_id)->pluck('id');
+        }
+        return $ids;
+    }
+
     public function upcomingSessions()
     {
         $student = auth()->user();
@@ -340,16 +347,7 @@ class DashboardController extends Controller
             ], 404);
         }
 
-        // Subject IDs in the student's program
-        $programSubjectIds = Subject::whereHas('term', fn($q) => $q->where('program_id', $student->program_id))
-            ->pluck('id');
-
-        // Also include subjects the student is explicitly enrolled in (other programs / standalone)
-        $enrolledSubjectIds = Enrollment::where('student_id', $student->id)
-            ->where('status', 'active')
-            ->pluck('subject_id');
-
-        $subjectIds = $programSubjectIds->merge($enrolledSubjectIds)->unique();
+        $assignedIds = $this->assignedSessionIds($student);
 
         $sessionWith = [
             'subject:id,name_ar,name_en,code,color',
@@ -357,8 +355,7 @@ class DashboardController extends Controller
             'unit:id,title',
         ];
 
-        // Live sessions (currently running)
-        $liveSessions = Session::whereIn('subject_id', $subjectIds)
+        $liveSessions = Session::whereIn('id', $assignedIds)
             ->where('type', 'live_zoom')
             ->whereNotNull('started_at')
             ->whereNull('ended_at')
@@ -366,8 +363,7 @@ class DashboardController extends Controller
             ->get()
             ->map(fn($s) => $this->formatSession($s, $student->id, true));
 
-        // Upcoming sessions
-        $upcomingSessions = Session::whereIn('subject_id', $subjectIds)
+        $upcomingSessions = Session::whereIn('id', $assignedIds)
             ->where('scheduled_at', '>=', now())
             ->whereNull('started_at')
             ->with($sessionWith)
@@ -375,8 +371,7 @@ class DashboardController extends Controller
             ->paginate(15)
             ->through(fn($s) => $this->formatSession($s, $student->id, false));
 
-        // Past sessions (last 10)
-        $pastSessions = Session::whereIn('subject_id', $subjectIds)
+        $pastSessions = Session::whereIn('id', $assignedIds)
             ->whereNotNull('ended_at')
             ->with($sessionWith)
             ->orderBy('ended_at', 'desc')

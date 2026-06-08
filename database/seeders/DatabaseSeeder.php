@@ -5,24 +5,19 @@ namespace Database\Seeders;
 use Database\Seeders\ProgramCSSeeder;
 use Database\Seeders\ProgramHRSeeder;
 use Database\Seeders\ProgramMKTSeeder;
+use Database\Seeders\PublicRelationsDiplomaSeeder;
+use Database\Seeders\PublicRelationsSubjectsSeeder;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
-    /**
-     * Seed the application's database.
-     */
     public function run(): void
     {
         $this->call([
-            // 1. Roles and Permissions (must be first)
-
-            // 2. Super Admin user with all permissions
-           // SubjectsSeeder::class,
-
-            // 3. FAQ content
             ProgramMKTSeeder::class,
             ProgramHRSeeder::class,
+            PublicRelationsDiplomaSeeder::class,
+            PublicRelationsSubjectsSeeder::class,
         ]);
     }
 }
