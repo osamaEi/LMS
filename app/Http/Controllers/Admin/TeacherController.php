@@ -53,7 +53,16 @@ class TeacherController extends Controller
 
     public function create()
     {
-        return view('admin.teachers.create');
+        $subjectsByProgram = Program::with(['terms.subjects' => function ($q) {
+            $q->select('subjects.id', 'subjects.name_ar', 'subjects.name_en', 'subjects.term_id')
+              ->orderBy('subjects.name_ar');
+        }])->whereIn('type', ['diploma'])->orderBy('name_ar')->get();
+
+        $courseSubjects = Subject::whereHas('program', fn($q) => $q->whereIn('type', ['course', 'english', 'training']))
+            ->with('program:id,name_ar,type')
+            ->orderBy('name_ar')->get();
+
+        return view('admin.teachers.create', compact('subjectsByProgram', 'courseSubjects'));
     }
 
     public function store(Request $request)
@@ -66,15 +75,25 @@ class TeacherController extends Controller
             'gender'      => 'nullable|in:male,female',
             'nationality' => 'nullable|string|max:100',
             'password'    => 'required|string|min:8|confirmed',
+            'subjects'    => 'nullable|array',
+            'subjects.*'  => 'exists:subjects,id',
         ]);
 
         $validated['role'] = 'teacher';
         $validated['password'] = Hash::make($validated['password']);
 
-        User::create($validated);
+        $teacher = User::create($validated);
+
+        // Assign subjects if provided
+        $subjectIds = array_map('intval', $request->input('subjects', []));
+        if (!empty($subjectIds)) {
+            $teacher->assignedSubjects()->sync($subjectIds);
+            Subject::whereIn('id', $subjectIds)->whereNull('teacher_id')
+                ->update(['teacher_id' => $teacher->id]);
+        }
 
         return redirect()->route('admin.teachers.index')
-            ->with('success', 'تم إضافة ال مدرب  بنجاح');
+            ->with('success', 'تم إضافة المدرب بنجاح');
     }
 
     public function show(User $teacher)

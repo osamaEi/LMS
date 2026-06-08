@@ -59,7 +59,6 @@ class UserManagementController extends Controller
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
             'phone' => 'nullable|string|max:20',
-            'role' => 'required|in:admin,super_admin',
             'status' => 'required|in:active,inactive,pending,suspended',
             'spatie_roles' => 'nullable|array',
             'spatie_roles.*' => 'exists:roles,id',
@@ -70,7 +69,7 @@ class UserManagementController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'phone' => $request->phone,
-            'role' => $request->role,
+            'role' => 'admin',
             'status' => $request->status,
         ]);
 

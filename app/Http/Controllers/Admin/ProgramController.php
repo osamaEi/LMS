@@ -8,6 +8,7 @@ use App\Models\Term;
 use App\Models\Subject;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class ProgramController extends Controller
@@ -109,14 +110,29 @@ class ProgramController extends Controller
         ]);
 
         $allSubjects = Subject::orderBy('name_ar')->get(['id', 'name_ar', 'name_en', 'code']);
-        $teachers    = \App\Models\User::where('role', 'teacher')->orderBy('name')->get(['id', 'name']);
         $classes     = \App\Models\ProgramClass::where('program_id', $program->id)
                             ->withCount('students')
                             ->with('teacher:id,name')
                             ->latest()
                             ->get();
 
-        return view('admin.programs.show', compact('program', 'allSubjects', 'teachers', 'classes'));
+        // Teachers linked to this diploma: via terms → subjects (teacher_id + subject_teacher pivot)
+        $subjectIds = Subject::whereHas('term', fn($q) => $q->where('program_id', $program->id))->pluck('id');
+        $linkedTeacherIds = collect();
+        $linkedTeacherIds = $linkedTeacherIds
+            ->merge(Subject::whereIn('id', $subjectIds)->whereNotNull('teacher_id')->pluck('teacher_id'))
+            ->merge(DB::table('subject_teacher')->whereIn('subject_id', $subjectIds)->pluck('teacher_id'))
+            ->merge($program->teachers()->pluck('users.id'))
+            ->unique();
+
+        $teachers = $linkedTeacherIds->isNotEmpty()
+            ? User::whereIn('id', $linkedTeacherIds)->orderBy('name')->get(['id', 'name'])
+            : collect();
+
+        $programTeacherId = $linkedTeacherIds->first();
+
+        return view('admin.programs.show', compact('program', 'allSubjects', 'teachers', 'classes'))
+            ->with('programTeacherId', $programTeacherId);
     }
 
     public function edit(Program $program)

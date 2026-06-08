@@ -26,14 +26,45 @@ class DashboardController extends Controller
             ->withCount('enrollments')
             ->get();
 
+        // Program IDs for course/training/english sessions (no subject_id)
+        $teacherProgramIds = $teacher->teachingPrograms()
+            ->whereIn('type', ['training', 'english', 'course'])
+            ->pluck('id');
+
         // Get upcoming sessions
-        $upcomingSessions = Session::whereHas('subject', function($query) use ($teacher) {
-                $query->assignedToTeacher($teacher->id);
+        $upcomingSessions = Session::where(function($q) use ($teacher, $teacherProgramIds) {
+                $q->whereHas('subject', fn($sq) => $sq->assignedToTeacher($teacher->id))
+                  ->orWhereIn('program_id', $teacherProgramIds);
             })
             ->where('scheduled_at', '>', now())
-            ->with('subject')
+            ->with(['subject.program', 'subject.term', 'program'])
             ->orderBy('scheduled_at', 'asc')
             ->take(5)
+            ->get();
+
+        // Get live/current sessions (started but not ended)
+        $liveSessions = Session::where(function($q) use ($teacher, $teacherProgramIds) {
+                $q->whereHas('subject', fn($sq) => $sq->assignedToTeacher($teacher->id))
+                  ->orWhereIn('program_id', $teacherProgramIds);
+            })
+            ->whereNotNull('started_at')
+            ->whereNull('ended_at')
+            ->with(['subject.program', 'subject.term', 'program'])
+            ->orderBy('started_at', 'desc')
+            ->get();
+
+        // Get past sessions (ended or scheduled_at in past)
+        $pastSessions = Session::where(function($q) use ($teacher, $teacherProgramIds) {
+                $q->whereHas('subject', fn($sq) => $sq->assignedToTeacher($teacher->id))
+                  ->orWhereIn('program_id', $teacherProgramIds);
+            })
+            ->where(function($q) {
+                $q->whereNotNull('ended_at')
+                  ->orWhere('scheduled_at', '<', now()->subHour());
+            })
+            ->with(['subject.program', 'subject.term', 'program'])
+            ->orderBy('scheduled_at', 'desc')
+            ->take(20)
             ->get();
 
         // Get recent sessions
@@ -153,6 +184,8 @@ class DashboardController extends Controller
         return view($dashboardView, compact(
             'subjects',
             'upcomingSessions',
+            'liveSessions',
+            'pastSessions',
             'recentSessions',
             'recentSessionsWithAttendance',
             'stats',

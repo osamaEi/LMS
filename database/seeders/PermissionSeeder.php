@@ -143,6 +143,79 @@ class PermissionSeeder extends Seeder
         'edit-settings'                  => 'تعديل إعدادات النظام',
         'manage-system'                  => 'إدارة النظام الكاملة',
         'manage-xapi'                    => 'إدارة بيانات xAPI',
+
+        // ─── المجموعات / الفصول الدراسية ──────────────
+        'view-classes'                   => 'عرض المجموعات الدراسية',
+        'create-classes'                 => 'إضافة مجموعات دراسية',
+        'edit-classes'                   => 'تعديل المجموعات الدراسية',
+        'delete-classes'                 => 'حذف المجموعات الدراسية',
+        'assign-students-to-class'       => 'إسناد متدربين للمجموعة',
+
+        // ─── الدورات التدريبية ─────────────────────────
+        'view-courses'                   => 'عرض الدورات التدريبية',
+        'create-courses'                 => 'إضافة دورات تدريبية',
+        'edit-courses'                   => 'تعديل الدورات التدريبية',
+        'delete-courses'                 => 'حذف الدورات التدريبية',
+
+        // ─── برامج اللغة الإنجليزية ────────────────────
+        'view-english'                   => 'عرض برامج اللغة الإنجليزية',
+        'create-english'                 => 'إضافة برامج اللغة الإنجليزية',
+        'edit-english'                   => 'تعديل برامج اللغة الإنجليزية',
+        'delete-english'                 => 'حذف برامج اللغة الإنجليزية',
+
+        // ─── برامج التدريب المهني ──────────────────────
+        'view-training-programs'         => 'عرض برامج التدريب المهني',
+        'create-training-programs'       => 'إضافة برامج التدريب المهني',
+        'edit-training-programs'         => 'تعديل برامج التدريب المهني',
+        'delete-training-programs'       => 'حذف برامج التدريب المهني',
+
+        // ─── الجدول الدراسي ────────────────────────────
+        'view-schedule'                  => 'عرض الجدول الدراسي',
+        'manage-schedule'                => 'إدارة الجدول الدراسي',
+
+        // ─── آراء العملاء / الشهادات ───────────────────
+        'view-testimonials'              => 'عرض آراء العملاء',
+        'manage-testimonials'            => 'إدارة آراء العملاء',
+
+        // ─── الأخبار والمحتوى ──────────────────────────
+        'view-news'                      => 'عرض الأخبار',
+        'create-news'                    => 'إضافة أخبار',
+        'edit-news'                      => 'تعديل الأخبار',
+        'delete-news'                    => 'حذف الأخبار',
+
+        // ─── الأسئلة الشائعة ───────────────────────────
+        'view-faqs'                      => 'عرض الأسئلة الشائعة',
+        'manage-faqs'                    => 'إدارة الأسئلة الشائعة',
+
+        // ─── طلبات التواصل ─────────────────────────────
+        'view-contacts'                  => 'عرض طلبات التواصل',
+        'manage-contacts'                => 'إدارة طلبات التواصل',
+        'reply-contacts'                 => 'الرد على طلبات التواصل',
+
+        // ─── الشركاء ───────────────────────────────────
+        'view-partners'                  => 'عرض الشركاء',
+        'manage-partners'                => 'إدارة الشركاء',
+
+        // ─── العروض والخصومات ──────────────────────────
+        'view-offers'                    => 'عرض العروض والخصومات',
+        'create-offers'                  => 'إضافة عروض وخصومات',
+        'edit-offers'                    => 'تعديل العروض والخصومات',
+        'delete-offers'                  => 'حذف العروض والخصومات',
+
+        // ─── الصفحات الثابتة ───────────────────────────
+        'view-pages'                     => 'عرض الصفحات الثابتة',
+        'manage-pages'                   => 'إدارة الصفحات الثابتة',
+
+        // ─── إعدادات الفوتر ────────────────────────────
+        'manage-footer'                  => 'إدارة إعدادات الفوتر',
+
+        // ─── واتساب AI ─────────────────────────────────
+        'view-whatsapp-chat'             => 'عرض محادثات واتساب',
+        'manage-whatsapp-chat'           => 'إدارة محادثات واتساب',
+
+        // ─── سجل الأخطاء (Logs) ────────────────────────
+        'view-logs'                      => 'عرض سجل أخطاء النظام',
+        'manage-logs'                    => 'إدارة سجل الأخطاء',
     ];
 
     /**
@@ -197,6 +270,26 @@ class PermissionSeeder extends Seeder
             'view-settings', 'edit-settings',
             // xAPI
             'manage-xapi',
+            // Classes
+            'view-classes', 'create-classes', 'edit-classes', 'delete-classes', 'assign-students-to-class',
+            // Courses / English / Training
+            'view-courses', 'create-courses', 'edit-courses', 'delete-courses',
+            'view-english', 'create-english', 'edit-english', 'delete-english',
+            'view-training-programs', 'create-training-programs', 'edit-training-programs', 'delete-training-programs',
+            // Schedule
+            'view-schedule', 'manage-schedule',
+            // Content
+            'view-testimonials', 'manage-testimonials',
+            'view-news', 'create-news', 'edit-news', 'delete-news',
+            'view-faqs', 'manage-faqs',
+            'view-contacts', 'manage-contacts', 'reply-contacts',
+            'view-partners', 'manage-partners',
+            'view-offers', 'create-offers', 'edit-offers', 'delete-offers',
+            'view-pages', 'manage-pages',
+            'manage-footer',
+            // WhatsApp / Logs
+            'view-whatsapp-chat', 'manage-whatsapp-chat',
+            'view-logs', 'manage-logs',
         ],
 
         'teacher' => [
@@ -231,6 +324,14 @@ class PermissionSeeder extends Seeder
             'view-terms',
             'view-recordings', 'manage-recordings', 'sync-recordings',
             'view-quizzes', 'create-quizzes', 'edit-quizzes',
+            'view-news', 'create-news', 'edit-news', 'delete-news',
+            'view-faqs', 'manage-faqs',
+            'view-testimonials', 'manage-testimonials',
+            'view-pages', 'manage-pages',
+            'manage-footer',
+            'view-courses', 'create-courses', 'edit-courses',
+            'view-english', 'create-english', 'edit-english',
+            'view-training-programs', 'create-training-programs', 'edit-training-programs',
         ],
 
         'support-agent' => [

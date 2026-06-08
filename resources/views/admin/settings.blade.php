@@ -6,34 +6,31 @@
 <div style="direction:rtl;font-family:'Segoe UI',sans-serif;" x-data="{ activeTab: 'general' }">
 
     {{-- Hero --}}
-    <div style="background:linear-gradient(135deg,#0f172a 0%,#1e293b 60%,#0f172a 100%);border-radius:20px;padding:32px 28px;margin-bottom:26px;position:relative;overflow:hidden;">
-        <div style="position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:none;">
-            <div style="position:absolute;top:-60px;left:-60px;width:220px;height:220px;background:rgba(0,113,170,.15);border-radius:50%;"></div>
-            <div style="position:absolute;bottom:-70px;right:10%;width:260px;height:260px;background:rgba(99,102,241,.08);border-radius:50%;"></div>
-            <div style="position:absolute;top:20px;right:30%;width:120px;height:120px;background:rgba(255,255,255,.03);border-radius:50%;"></div>
-        </div>
-        <div style="position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;">
-            <div style="display:flex;align-items:center;gap:16px;">
-                <div style="width:54px;height:54px;background:linear-gradient(135deg,#0071AA,#005a88);border-radius:14px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(0,113,170,0.4);flex-shrink:0;">
+    <div style="background:linear-gradient(135deg,#0071AA 0%,#004d77 100%);border-radius:24px;padding:2rem 2.5rem;color:#fff;position:relative;overflow:hidden;margin-bottom:1.5rem;">
+        <div style="position:absolute;top:-40%;right:-10%;width:280px;height:280px;background:radial-gradient(circle,rgba(255,255,255,0.08) 0%,transparent 70%);border-radius:50%;pointer-events:none;"></div>
+        <div style="position:absolute;bottom:-50%;left:5%;width:220px;height:220px;background:radial-gradient(circle,rgba(255,255,255,0.05) 0%,transparent 70%);border-radius:50%;pointer-events:none;"></div>
+        <div style="position:relative;z-index:1;">
+            <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem;flex-wrap:wrap;">
+                <div style="width:52px;height:52px;border-radius:16px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
                     <svg width="26" height="26" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                     </svg>
                 </div>
-                <div>
-                    <h1 style="color:white;font-size:22px;font-weight:700;margin:0;">إعدادات النظام</h1>
-                    <p style="color:rgba(255,255,255,0.55);font-size:13px;margin:3px 0 0;">إدارة وتخصيص إعدادات التطبيق والنظام</p>
+                <div style="flex:1;min-width:0;">
+                    <h1 style="font-size:1.6rem;font-weight:800;line-height:1.2;margin:0;">إعدادات النظام</h1>
+                    <p style="opacity:.75;font-size:.9rem;margin:.2rem 0 0;">إدارة وتخصيص إعدادات التطبيق والنظام</p>
                 </div>
             </div>
             @php $totalSettings = collect($settings)->flatten(1)->count(); @endphp
-            <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);padding:7px 14px;border-radius:20px;">
-                    <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="rgba(255,255,255,0.7)" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-                    <span style="color:rgba(255,255,255,0.75);font-size:12px;">{{ $totalSettings }} إعداد</span>
+            <div style="display:flex;gap:1rem;flex-wrap:wrap;">
+                <div style="background:rgba(255,255,255,0.15);border-radius:14px;padding:.75rem 1.25rem;text-align:center;">
+                    <div style="font-size:1.4rem;font-weight:800;">{{ $totalSettings }}</div>
+                    <div style="font-size:.72rem;opacity:.8;">إجمالي الإعدادات</div>
                 </div>
-                <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);padding:7px 14px;border-radius:20px;">
-                    <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="rgba(255,255,255,0.7)" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
-                    <span style="color:rgba(255,255,255,0.75);font-size:12px;">{{ count($settings) }} أقسام</span>
+                <div style="background:rgba(255,255,255,0.15);border-radius:14px;padding:.75rem 1.25rem;text-align:center;">
+                    <div style="font-size:1.4rem;font-weight:800;">{{ count($settings) }}</div>
+                    <div style="font-size:.72rem;opacity:.8;">أقسام</div>
                 </div>
             </div>
         </div>

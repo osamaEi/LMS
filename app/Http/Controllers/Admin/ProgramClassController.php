@@ -97,9 +97,9 @@ class ProgramClassController extends Controller
 
         $inserted = User::whereIn('id', $request->student_ids)
             ->where(function ($q) use ($class) {
-                $q->whereNull('class_id')->orWhere('class_id', '!=', $class->id);
+                $q->where('program_id', $class->program_id)
+                  ->orWhereHas('programs', fn($sq) => $sq->where('programs.id', $class->program_id));
             })
-            ->where('program_id', $class->program_id)
             ->update(['class_id' => $class->id]);
 
         return response()->json(['success' => true, 'assigned' => $inserted]);
@@ -114,10 +114,11 @@ class ProgramClassController extends Controller
 
     public function availableStudents(ProgramClass $class)
     {
-        $students = User::where('program_id', $class->program_id)
-            ->where('role', 'student')
+        $students = User::where('role', 'student')
             ->where(function ($q) use ($class) {
-                $q->whereNull('class_id')->orWhere('class_id', $class->id);
+                // Primary program assignment OR via student_programs pivot
+                $q->where('program_id', $class->program_id)
+                  ->orWhereHas('programs', fn($sq) => $sq->where('programs.id', $class->program_id));
             })
             ->get(['id', 'name', 'email', 'national_id', 'class_id']);
 

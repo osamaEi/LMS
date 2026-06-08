@@ -540,6 +540,9 @@ Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')
     // Simple session show route for teachers (for calendar clicks)
     Route::get('/sessions/{session}', [\App\Http\Controllers\Teacher\SessionController::class, 'show'])->name('sessions.show');
 
+    // Teacher updates join URL only
+    Route::patch('/sessions/{session}/join-url', [\App\Http\Controllers\Teacher\SessionController::class, 'updateJoinUrl'])->name('sessions.update-join-url');
+
     // Zoom signature generation for teachers
     Route::post('/zoom/generate-signature', [\App\Http\Controllers\Api\V1\Admin\ZoomController::class, 'generateSignature'])->name('zoom.generate-signature');
 

@@ -38,7 +38,14 @@
     </div>
 
     <!-- Page Wrapper -->
-    <div class="flex h-screen overflow-hidden">
+    <div class="flex h-screen overflow-hidden" x-data="{ sidebarToggle: false }">
+        <!-- Mobile Overlay -->
+        <div x-show="sidebarToggle"
+             x-cloak
+             @click="sidebarToggle = false"
+             class="fixed inset-0 z-9998 bg-black/50 lg:hidden"
+             style="display:none"></div>
+
         <!-- Sidebar -->
         @include('layouts.partials.sidebar')
 

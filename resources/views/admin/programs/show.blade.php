@@ -35,16 +35,6 @@
 
 {{-- ══ Header ══ --}}
 <div class="flex items-center gap-4 mb-6">
-    {{-- Lock All --}}
-    <form action="{{ route('admin.subjects.lock-all') }}" method="POST" onsubmit="return confirm('تأكيد قفل جميع المواد النشطة في هذا البرنامج؟')">
-        @csrf
-        <input type="hidden" name="program_id" value="{{ $program->id }}">
-        <button type="submit"
-                style="display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:10px;border:1.5px solid #fecaca;background:#fff1f2;font-size:12px;font-weight:700;color:#dc2626;cursor:pointer;">
-            <svg style="width:14px;height:14px;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-            قفل جميع المواد
-        </button>
-    </form>
     <a href="{{ isset($backRoute) ? route($backRoute) : route('admin.programs.index') }}"
        style="display:flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:10px;border:1.5px solid #e2e8f0;background:white;color:#64748b;flex-shrink:0;"
        class="hover:bg-gray-50 transition-colors">
@@ -86,6 +76,7 @@
 @endif
 
 {{-- ── Tabs ── --}}
+@if(!($showClassesOnly ?? false))
 <div style="display:flex;align-items:center;gap:4px;background:#f1f5f9;border-radius:12px;padding:4px;margin-bottom:20px;width:fit-content;">
     <button onclick="switchTab('terms')" id="tab-btn-terms"
         style="padding:8px 18px;border-radius:9px;font-size:13px;font-weight:700;border:none;cursor:pointer;transition:all .15s;background:white;color:#1e293b;box-shadow:0 1px 4px rgba(0,0,0,.08);">
@@ -98,9 +89,10 @@
         <span id="classes-count-badge" style="background:#e9d5ff;color:#7c3aed;border-radius:9999px;padding:.1rem .5rem;font-size:.65rem;margin-right:4px;font-weight:700;">{{ $classes->count() }}</span>
     </button>
 </div>
+@endif
 
 {{-- ── Tab: Terms ── --}}
-<div id="tab-terms" class="space-y-5">
+<div id="tab-terms" class="space-y-5" @if($showClassesOnly ?? false) style="display:none;" @endif>
     @forelse($program->terms as $term)
     <div style="background:white;border-radius:18px;border:1px solid #e2e8f0;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.04);">
 
@@ -610,11 +602,14 @@
 </div>{{-- /tab-terms --}}
 
 {{-- ══ Tab: Classes ══ --}}
-<div id="tab-classes" style="display:none;">
-<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-    <div></div>
-    <button onclick="openClassModal()" style="display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:10px;background:linear-gradient(135deg,#7c3aed,#a855f7);color:white;font-size:12px;font-weight:700;border:none;cursor:pointer;box-shadow:0 4px 12px rgba(124,58,237,.3);">
-        <svg style="width:13px;height:13px;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+<div id="tab-classes" style="display:{{ ($showClassesOnly ?? false) ? 'block' : 'none' }};">
+<div style="background:#fff;border-radius:20px;border:1px solid #e2e8f0;box-shadow:0 2px 12px rgba(0,0,0,.04);padding:20px;">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
+    <div style="font-size:15px;font-weight:700;color:#1e293b;">المجموعات الدراسية
+        <span style="font-size:12px;color:#64748b;font-weight:500;margin-right:6px;">({{ $classes->count() }} مجموعة)</span>
+    </div>
+    <button onclick="openClassModal()" style="display:flex;align-items:center;gap:6px;padding:9px 16px;border-radius:10px;background:linear-gradient(135deg,#0071AA,#004d77);color:white;font-size:13px;font-weight:700;border:none;cursor:pointer;box-shadow:0 4px 12px rgba(0,113,170,.3);">
+        <svg style="width:14px;height:14px;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
         إضافة مجموعة
     </button>
 </div>
@@ -656,12 +651,17 @@
         </div>
     </div>
     @empty
-    <div id="noClasses" style="grid-column:1/-1;text-align:center;padding:40px;background:white;border-radius:14px;border:1px dashed #e2e8f0;color:#94a3b8;font-size:13px;">
-        لا توجد مجموعات بعد — أضف أول مجموعة
+    <div id="noClasses" style="grid-column:1/-1;text-align:center;padding:48px 20px;">
+        <div style="width:56px;height:56px;border-radius:16px;background:#f0f9ff;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">
+            <svg style="width:26px;height:26px;color:#0071AA;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        </div>
+        <p style="color:#94a3b8;font-size:13px;font-weight:600;">لا توجد مجموعات بعد</p>
+        <p style="color:#cbd5e1;font-size:12px;margin-top:4px;">اضغط "إضافة مجموعة" لإنشاء أول مجموعة</p>
     </div>
     @endforelse
-</div>
-</div>
+</div>{{-- /classesList --}}
+</div>{{-- /card wrapper --}}
+</div>{{-- /tab-classes --}}
 
 {{-- Class Create/Edit Modal --}}
 <div id="classModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;align-items:center;justify-content:center;">
@@ -680,7 +680,7 @@
             <select id="cls-teacher" style="width:100%;padding:9px 12px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13px;box-sizing:border-box;">
                 <option value="">— بدون مدرب —</option>
                 @foreach($teachers as $t)
-                <option value="{{ $t->id }}">{{ $t->name }}</option>
+                <option value="{{ $t->id }}" {{ isset($programTeacherId) && $programTeacherId == $t->id ? 'selected' : '' }}>{{ $t->name }}</option>
                 @endforeach
             </select>
         </div>
@@ -744,6 +744,7 @@
 <script>
 const CSRF   = '{{ csrf_token() }}';
 const PROG_ID = {{ $program->id }};
+const DEFAULT_TEACHER_ID = '{{ $programTeacherId ?? '' }}';
 let currentClassId = null;
 let availableStudentsData = [];
 
@@ -751,7 +752,7 @@ function openClassModal() {
     currentClassId = null;
     document.getElementById('classModalTitle').textContent = 'إضافة مجموعة';
     ['cls-name','cls-start','cls-end','cls-max'].forEach(id => document.getElementById(id).value = '');
-    document.getElementById('cls-teacher').value = '';
+    document.getElementById('cls-teacher').value = DEFAULT_TEACHER_ID;
     document.getElementById('cls-status').value = 'active';
     document.getElementById('classModal').style.display = 'flex';
 }

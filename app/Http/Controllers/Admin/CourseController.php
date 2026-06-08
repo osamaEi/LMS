@@ -7,6 +7,7 @@ use App\Models\Program;
 use App\Models\Subject;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class CourseController extends Controller
@@ -76,7 +77,6 @@ class CourseController extends Controller
         ]);
 
         $allSubjects = Subject::orderBy('name_ar')->get(['id', 'name_ar', 'name_en', 'code']);
-        $teachers    = User::where('role', 'teacher')->orderBy('name')->get(['id', 'name']);
         $program     = $course;
         $classes     = \App\Models\ProgramClass::where('program_id', $program->id)
                             ->withCount('students')
@@ -84,9 +84,28 @@ class CourseController extends Controller
                             ->latest()
                             ->get();
 
+        // Teachers linked to this course: via program_teacher pivot OR subject teacher_id/subject_teacher pivot
+        $linkedTeacherIds = collect();
+        $linkedTeacherIds = $linkedTeacherIds->merge($program->teachers()->pluck('users.id'));
+        $subjectTeacherIds = Subject::where('program_id', $program->id)
+            ->whereNotNull('teacher_id')->pluck('teacher_id');
+        $subjectPivotIds = \DB::table('subject_teacher')
+            ->whereIn('subject_id', Subject::where('program_id', $program->id)->pluck('id'))
+            ->pluck('teacher_id');
+        $linkedTeacherIds = $linkedTeacherIds->merge($subjectTeacherIds)->merge($subjectPivotIds)->unique();
+
+        $teachers = $linkedTeacherIds->isNotEmpty()
+            ? User::whereIn('id', $linkedTeacherIds)->orderBy('name')->get(['id', 'name'])
+            : collect();
+
+        // Default teacher = first linked teacher
+        $programTeacherId = $linkedTeacherIds->first();
+
         return view('admin.programs.show', compact('program', 'allSubjects', 'teachers', 'classes'))
             ->with('backRoute', 'admin.courses.index')
-            ->with('pageLabel', 'الدورات والبرامج التأهيلية');
+            ->with('pageLabel', 'الدورات والبرامج التأهيلية')
+            ->with('showClassesOnly', true)
+            ->with('programTeacherId', $programTeacherId);
     }
 
     public function edit(Program $course)

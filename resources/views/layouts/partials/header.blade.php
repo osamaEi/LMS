@@ -13,7 +13,7 @@
             </button>
 
             <!-- Welcome Text -->
-            <div>
+            <div class="hidden lg:block">
                 @php
                     $role = auth()->user()->role;
                     $gender = auth()->user()->gender;

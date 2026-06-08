@@ -11,23 +11,22 @@ class TeacherRatingController extends Controller
 {
     public function index()
     {
-        $student = auth()->user();
+        $student    = auth()->user();
+        $programIds = $student->allProgramIds();
 
-        // Get subjects where student can rate the teacher
-        // (enrolled and not yet rated)
-        $ratableSubjects = Subject::whereHas('enrollments', function($q) use ($student) {
-                $q->where('student_id', $student->id)
-                  ->where('status', 'active');
+        // Subjects where student can rate (enrolled directly OR in any of their programs via term)
+        $ratableSubjects = Subject::where(function ($q) use ($student, $programIds) {
+                $q->whereHas('enrollments', fn($eq) => $eq->where('student_id', $student->id))
+                  ->orWhereHas('term', fn($tq) => $tq->whereIn('program_id', $programIds));
             })
-            ->whereDoesntHave('teacherRatings', function($q) use ($student) {
-                $q->where('student_id', $student->id);
-            })
-            ->with('teacher')
+            ->whereNotNull('teacher_id')
+            ->whereDoesntHave('teacherRatings', fn($q) => $q->where('student_id', $student->id))
+            ->with(['teacher', 'term.program'])
             ->get();
 
-        // Get submitted ratings
+        // Submitted ratings
         $submittedRatings = TeacherRating::where('student_id', $student->id)
-            ->with(['teacher', 'subject'])
+            ->with(['teacher', 'subject.term.program'])
             ->latest()
             ->get();
 

@@ -475,10 +475,10 @@
                 <div>
                     <h1 class="text-2xl font-extrabold tracking-tight">سجل الحضور والغياب</h1>
                     <p class="text-sm opacity-70 mt-0.5">
-                        @if($termFilter === 'current' && isset($currentTerm) && $currentTerm)
-                            الفصل الحالي &mdash; {{ $currentTerm->name }}
+                        @if($termFilter === 'current' && $currentTerm)
+                            الفصل الحالي &mdash; {{ $currentTerm->name_ar ?? $currentTerm->name }}
                         @else
-                            {{ auth()->user()->name }}@if(auth()->user()->studentId) &mdash; {{ auth()->user()->studentId }}@endif
+                            {{ auth()->user()->name }}@if(auth()->user()->student_code) &mdash; {{ auth()->user()->student_code }}@endif
                         @endif
                     </p>
                 </div>
@@ -490,30 +490,48 @@
         </div>
     </div>
 
-    {{-- ── Diploma only: term tabs ── --}}
-    @if(($isDiploma ?? true) && isset($currentTerm) && $currentTerm)
-    <div style="display: flex; gap: 0.375rem; background: #f3f4f6; padding: 0.375rem; border-radius: 16px;">
-        <a href="{{ route('student.attendance', ['term_filter' => 'current']) }}"
-           style="flex: 1; text-align: center; padding: 0.625rem 1.25rem; border-radius: 12px; font-size: 0.875rem; font-weight: 700; text-decoration: none; transition: all 0.2s;
-                  {{ $termFilter === 'current' ? 'background: linear-gradient(135deg,#0071AA,#005a88); color:#fff; box-shadow:0 2px 8px rgba(0,113,170,0.25);' : 'color:#6b7280;' }}">
-            <svg style="width: 15px; height: 15px; display: inline; margin-left: 0.375rem; vertical-align: -2px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-            </svg>
-            الفصل الحالي
-            <span style="margin-right: 0.375rem; font-size: 0.75rem; opacity: 0.85;">— {{ $currentTerm->name }}</span>
+    {{-- ── Program tabs (shown when student has more than one program) ── --}}
+    @if($allPrograms->count() > 1)
+    <div style="display:flex;gap:0.375rem;background:#f3f4f6;padding:0.375rem;border-radius:16px;flex-wrap:wrap;">
+        @foreach($allPrograms as $prog)
+        @php
+            $isActiveProg = $prog->id == $programId;
+            $progTypeColor = match($prog->type ?? 'course') {
+                'diploma'  => '#7c3aed',
+                'english'  => '#0891b2',
+                'training' => '#059669',
+                default    => '#0071AA',
+            };
+        @endphp
+        <a href="{{ route('student.attendance', array_filter(['program_id'=>$prog->id,'term_filter'=>'current'])) }}"
+           style="flex:1;min-width:140px;text-align:center;padding:0.65rem 1rem;border-radius:12px;font-size:0.85rem;font-weight:700;text-decoration:none;transition:all .2s;
+                  {{ $isActiveProg ? 'background:linear-gradient(135deg,'.$progTypeColor.','.($prog->type==='diploma'?'#5b21b6':($prog->type==='english'?'#0e7490':($prog->type==='training'?'#047857':'#005a88'))).');color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.18);' : 'color:#6b7280;' }}">
+            {{ Str::limit($prog->name_ar ?? $prog->name, 30) }}
         </a>
-        <a href="{{ route('student.attendance', ['term_filter' => 'all']) }}"
-           style="flex: 1; text-align: center; padding: 0.625rem 1.25rem; border-radius: 12px; font-size: 0.875rem; font-weight: 700; text-decoration: none; transition: all 0.2s;
-                  {{ $termFilter === 'all' ? 'background: #fff; color:#374151; box-shadow:0 1px 4px rgba(0,0,0,0.1);' : 'color:#6b7280;' }}">
-            <svg style="width: 15px; height: 15px; display: inline; margin-left: 0.375rem; vertical-align: -2px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
-            </svg>
+        @endforeach
+    </div>
+    @endif
+
+    {{-- ── Term filter tabs (diploma only) ── --}}
+    @if($isDiploma && $currentTerm)
+    <div style="display:flex;gap:0.375rem;background:#f3f4f6;padding:0.375rem;border-radius:16px;">
+        <a href="{{ route('student.attendance', array_filter(['program_id'=>$programId,'term_filter'=>'current','subject_id'=>$subjectId])) }}"
+           style="flex:1;text-align:center;padding:0.65rem 1.25rem;border-radius:12px;font-size:0.875rem;font-weight:700;text-decoration:none;transition:all .2s;
+                  {{ $termFilter==='current' ? 'background:linear-gradient(135deg,#0071AA,#005a88);color:#fff;box-shadow:0 2px 8px rgba(0,113,170,.25);' : 'color:#6b7280;' }}">
+            <svg style="width:14px;height:14px;display:inline;margin-left:5px;vertical-align:-2px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            الفصل الحالي
+            <span style="font-size:.75rem;opacity:.85;margin-right:4px;">— {{ $currentTerm->name_ar ?? $currentTerm->name }}</span>
+        </a>
+        <a href="{{ route('student.attendance', array_filter(['program_id'=>$programId,'term_filter'=>'all','subject_id'=>$subjectId])) }}"
+           style="flex:1;text-align:center;padding:0.65rem 1.25rem;border-radius:12px;font-size:0.875rem;font-weight:700;text-decoration:none;transition:all .2s;
+                  {{ $termFilter==='all' ? 'background:#fff;color:#374151;box-shadow:0 1px 4px rgba(0,0,0,.1);' : 'color:#6b7280;' }}">
+            <svg style="width:14px;height:14px;display:inline;margin-left:5px;vertical-align:-2px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
             جميع الفصول
         </a>
     </div>
     @endif
 
-    {{-- ── Diploma only: subjects panel ── --}}
+    {{-- ── Subjects panel ── --}}
     @if(($isDiploma ?? true) && $subjectStats->isNotEmpty())
     <div class="att-card" style="padding: 1.25rem 1.5rem;">
         <div class="flex items-center justify-between mb-4">
@@ -527,7 +545,7 @@
                 <span class="text-xs text-gray-400 font-medium">({{ $subjectStats->count() }} مقرر)</span>
             </div>
             @if($subjectId)
-                <a href="{{ route('student.attendance', array_filter(['term_filter' => $termFilter === 'all' ? 'all' : null])) }}"
+                <a href="{{ route('student.attendance', array_filter(['program_id'=>$programId,'term_filter' => $termFilter])) }}"
                    class="text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors"
                    style="background:#f1f5f9; color:#374151;">
                     عرض الكل
@@ -540,10 +558,7 @@
                     $isActive = $subjectId == $stat['subject']->id;
                     $rate     = $stat['rate'];
                     $barColor = $rate >= 75 ? '#10b981' : ($rate >= 50 ? '#f59e0b' : ($rate > 0 ? '#ef4444' : '#d1d5db'));
-                    $url      = route('student.attendance', array_filter([
-                        'subject_id'  => $stat['subject']->id,
-                        'term_filter' => $termFilter === 'all' ? 'all' : null,
-                    ]));
+                    $url = route('student.attendance', array_filter(['program_id'=>$programId,'subject_id' => $stat['subject']->id, 'term_filter' => $termFilter]));
                 @endphp
                 <a href="{{ $url }}" class="subj-att-card {{ $isActive ? 'active' : '' }}">
                     <div class="subj-att-name">{{ $stat['subject']->name }}</div>
@@ -634,7 +649,7 @@
                         </svg>
                         <span class="text-sm font-bold" style="color:#0071AA;">{{ $selectedSubject?->name ?? 'مقرر محدد' }}</span>
                     </div>
-                    <a href="{{ route('student.attendance', array_filter(['term_filter' => $termFilter === 'all' ? 'all' : null])) }}"
+                    <a href="{{ route('student.attendance', array_filter(['program_id'=>$programId,'term_filter' => $termFilter])) }}"
                        class="flex items-center gap-1 text-xs font-semibold text-gray-500 hover:text-gray-700 transition-colors">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
                         إلغاء التصفية
@@ -649,7 +664,7 @@
                         <tr>
                             <th style="width: 50px;">#</th>
                             <th>الجلسة</th>
-                            @if($isDiploma ?? true) <th>المقرر</th> @endif
+                            <th>المقرر / البرنامج</th>
                             <th class="center">التاريخ</th>
                             <th class="center">الحالة</th>
                             <th class="center">المدة</th>
@@ -658,6 +673,7 @@
                     </thead>
                     <tbody>
                         @forelse($attendances as $index => $attendance)
+                            @if(!$attendance->session) @continue @endif
                             <tr>
                                 <td>
                                     <span class="row-num" style="background: {{ $attendance->attended ? '#10b981' : '#ef4444' }};">
@@ -670,11 +686,18 @@
                                         <div class="text-xs text-gray-400 mt-0.5">{{ $attendance->session->unit->title }}</div>
                                     @endif
                                 </td>
-                                @if($isDiploma ?? true)
                                 <td>
-                                    <span class="text-sm font-semibold" style="color: #0071AA;">{{ $attendance->session->subject->name ?? '—' }}</span>
+                                    @if($attendance->session->subject)
+                                        <span class="text-sm font-semibold" style="color: #0071AA;">{{ $attendance->session->subject->name_ar ?? $attendance->session->subject->name }}</span>
+                                        @if($attendance->session->subject->term)
+                                            <div class="text-xs text-gray-400 mt-0.5">{{ $attendance->session->subject->term->name_ar ?? $attendance->session->subject->term->name }}</div>
+                                        @endif
+                                    @elseif($attendance->session->program)
+                                        <span class="text-sm font-semibold text-gray-500">{{ $attendance->session->program->name_ar ?? $attendance->session->program->name }}</span>
+                                    @else
+                                        <span class="text-gray-300">—</span>
+                                    @endif
                                 </td>
-                                @endif
                                 <td class="center">
                                     <div class="text-sm font-semibold text-gray-800 dark:text-gray-200">
                                         {{ $attendance->session->scheduled_at?->format('d/m/Y') ?? $attendance->created_at->format('d/m/Y') }}
@@ -730,7 +753,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="{{ ($isDiploma ?? true) ? 7 : 6 }}" class="text-center" style="padding: 4rem 1rem;">
+                                <td colspan="7" class="text-center" style="padding: 4rem 1rem;">
                                     <div class="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-2xl flex items-center justify-center mx-auto mb-3">
                                         <svg class="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
                                     </div>
@@ -745,6 +768,7 @@
 
             <!-- Mobile Cards -->
             @foreach($attendances as $index => $attendance)
+                @if(!$attendance->session) @continue @endif
                 <div class="mobile-att-card">
                     <div class="flex items-start gap-3">
                         <span class="row-num flex-shrink-0" style="background: {{ $attendance->attended ? '#10b981' : '#ef4444' }}; margin-top: 2px;">
@@ -752,8 +776,10 @@
                         </span>
                         <div class="flex-1 min-w-0">
                             <div class="font-bold text-gray-900 dark:text-white text-sm truncate">{{ $attendance->session->title_ar ?: $attendance->session->title_en ?: ('جلسة #'.($attendance->session->session_number ?? '—')) }}</div>
-                            @if(($isDiploma ?? true) && $attendance->session->subject)
-                            <div class="text-xs mt-0.5" style="color: #0071AA; font-weight: 600;">{{ $attendance->session->subject->name }}</div>
+                            @if($attendance->session->subject)
+                                <div class="text-xs mt-0.5" style="color: #0071AA; font-weight: 600;">{{ $attendance->session->subject->name_ar ?? $attendance->session->subject->name }}</div>
+                            @elseif($attendance->session->program)
+                                <div class="text-xs mt-0.5 text-gray-400 font-semibold">{{ $attendance->session->program->name_ar ?? $attendance->session->program->name }}</div>
                             @endif
                             <div class="flex flex-wrap items-center gap-2 mt-2">
                                 @if($attendance->attended)

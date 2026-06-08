@@ -2,261 +2,254 @@
 
 @section('title', 'إدارة الأدوار')
 
-@section('content')
-<div class="min-h-screen py-6" style="background: linear-gradient(135deg, #f0f9ff, #ede9fe);">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+@push('styles')
+<style>
+.roles-page { max-width: 1200px; margin: 0 auto; }
 
-        <!-- Header -->
-        <div class="mb-8">
-            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                <div>
-                    <div class="flex items-center gap-3 mb-2">
-                        <div class="p-2.5 rounded-xl shadow-lg" style="background: #3b82f6;">
-                            <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M10 1L3 5V9C3 13.55 5.99 17.74 10 19C14.01 17.74 17 13.55 17 9V5L10 1ZM10 9.99H15C14.47 13.11 12.54 15.87 10 16.9V10H5V6.3L10 3.69V9.99Z"/>
-                            </svg>
-                        </div>
-                        <h1 class="text-3xl font-bold" style="color: #1e3a5f;">إدارة الأدوار والصلاحيات</h1>
-                    </div>
-                    <p class="mr-14 font-medium" style="color: #64748b;">تحكم في أدوار المستخدمين وصلاحياتهم بسهولة</p>
+.roles-header {
+    background: linear-gradient(135deg, #0071AA 0%, #004d77 100%);
+    border-radius: 24px; padding: 2rem 2.5rem; color: #fff;
+    position: relative; overflow: hidden; margin-bottom: 1.5rem;
+}
+.roles-header::before {
+    content:''; position:absolute; top:-40%; right:-10%;
+    width:280px; height:280px;
+    background:radial-gradient(circle,rgba(255,255,255,0.08) 0%,transparent 70%);
+    border-radius:50%;
+}
+
+.roles-stat {
+    background: rgba(255,255,255,0.12); border-radius: 14px;
+    padding: .75rem 1.25rem; text-align: center;
+}
+.roles-stat .sv { font-size: 1.4rem; font-weight: 800; }
+.roles-stat .sl { font-size: .72rem; opacity: .8; }
+
+.roles-card {
+    background: #fff; border-radius: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.06);
+    overflow: hidden;
+}
+.dark .roles-card { background: #1f2937; }
+
+.roles-table { width: 100%; border-collapse: collapse; }
+.roles-table thead th {
+    padding: .85rem 1.25rem;
+    text-align: right; font-size: .75rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .05em;
+    color: #6b7280; background: #f9fafb;
+    border-bottom: 2px solid #f1f5f9; white-space: nowrap;
+}
+.dark .roles-table thead th { background: #111827; color: #9ca3af; border-color: #374151; }
+.roles-table thead th.center { text-align: center; }
+.roles-table tbody tr {
+    border-bottom: 1px solid #f8fafc; transition: background .15s;
+}
+.dark .roles-table tbody tr { border-color: #374151; }
+.roles-table tbody tr:hover { background: #f0f9ff; }
+.dark .roles-table tbody tr:hover { background: rgba(0,113,170,.06); }
+.roles-table tbody tr:last-child { border-bottom: none; }
+.roles-table td { padding: 1rem 1.25rem; vertical-align: middle; font-size: .875rem; }
+.roles-table td.center { text-align: center; }
+
+.role-badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 40px; height: 40px; border-radius: 12px;
+    background: linear-gradient(135deg, #0071AA, #004d77);
+    color: #fff; font-weight: 800; font-size: 1rem; flex-shrink: 0;
+}
+
+.perm-chip {
+    display: inline-block; font-size: .68rem; font-weight: 700;
+    padding: .18rem .55rem; border-radius: 6px;
+    background: #e0f2fe; color: #0369a1; margin: .1rem;
+}
+.dark .perm-chip { background: rgba(0,113,170,.2); color: #38bdf8; }
+
+.count-badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 28px; height: 28px; padding: 0 .5rem;
+    border-radius: 8px; font-size: .8rem; font-weight: 800;
+    background: #e0f2fe; color: #0071AA;
+}
+.dark .count-badge { background: rgba(0,113,170,.2); color: #38bdf8; }
+
+.btn-action {
+    display: inline-flex; align-items: center; gap: .4rem;
+    padding: .45rem .9rem; border-radius: 10px; font-size: .8rem;
+    font-weight: 700; text-decoration: none; transition: opacity .2s;
+    white-space: nowrap;
+}
+.btn-action:hover { opacity: .85; }
+.btn-view { background: #0071AA; color: #fff; }
+.btn-edit { background: #10b981; color: #fff; }
+.btn-del  { background: #ef4444; color: #fff; border: none; cursor: pointer; }
+
+.alert-box { padding: .85rem 1.25rem; border-radius: 12px; font-size: .9rem; font-weight: 600; margin-bottom: 1rem; }
+.alert-success { background: #ecfdf5; color: #065f46; }
+.alert-error   { background: #fef2f2; color: #991b1b; }
+</style>
+@endpush
+
+@section('content')
+<div class="roles-page space-y-5">
+
+    {{-- Header --}}
+    <div class="roles-header">
+        <div style="position:relative;z-index:1;">
+            <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem;flex-wrap:wrap;">
+                <div style="width:52px;height:52px;border-radius:16px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <svg style="width:26px;height:26px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                    </svg>
                 </div>
-                <div class="flex items-center gap-3">
+                <div style="flex:1;min-width:0;">
+                    <h1 style="font-size:1.6rem;font-weight:800;line-height:1.2;">إدارة الأدوار والصلاحيات</h1>
+                    <p style="opacity:.75;font-size:.9rem;margin-top:.2rem;">تحكم في أدوار المستخدمين وصلاحياتهم</p>
+                </div>
+                <div style="display:flex;gap:.75rem;flex-wrap:wrap;">
                     <a href="{{ route('admin.permissions.index') }}"
-                       class="inline-flex items-center gap-2 px-5 py-2.5 bg-white font-semibold rounded-xl transition-all shadow-sm hover:shadow-md border-2" style="color: #3b82f6; border-color: #93c5fd;">
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M10 1L3 5V9C3 13.55 5.99 17.74 10 19C14.01 17.74 17 13.55 17 9V5L10 1ZM10 9.99H15C14.47 13.11 12.54 15.87 10 16.9V10H5V6.3L10 3.69V9.99Z"/>
-                        </svg>
+                       style="display:inline-flex;align-items:center;gap:.5rem;padding:.6rem 1.2rem;border-radius:12px;background:rgba(255,255,255,0.15);font-size:.875rem;font-weight:700;text-decoration:none;color:#fff;">
+                        <svg style="width:16px;height:16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
                         الصلاحيات
                     </a>
                     <a href="{{ route('admin.roles.create') }}"
-                       class="inline-flex items-center gap-2 px-5 py-2.5 text-white font-semibold rounded-xl transition-all shadow-lg hover:shadow-xl transform hover:scale-105" style="background: #3b82f6;">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                        </svg>
+                       style="display:inline-flex;align-items:center;gap:.5rem;padding:.6rem 1.2rem;border-radius:12px;background:rgba(255,255,255,0.22);font-size:.875rem;font-weight:700;text-decoration:none;color:#fff;">
+                        <svg style="width:16px;height:16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
                         دور جديد
                     </a>
                 </div>
             </div>
-        </div>
-
-        <!-- Alerts -->
-        @if(session('success'))
-        <div class="mb-6 text-white px-6 py-4 rounded-2xl shadow-lg flex items-center gap-4" style="background: #22c55e;">
-            <div class="p-2 rounded-xl" style="background: rgba(255,255,255,0.2);">
-                <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                </svg>
-            </div>
-            <p class="font-semibold">{{ session('success') }}</p>
-        </div>
-        @endif
-
-        @if(session('error'))
-        <div class="mb-6 text-white px-6 py-4 rounded-2xl shadow-lg flex items-center gap-4" style="background: #f97316;">
-            <div class="p-2 rounded-xl" style="background: rgba(255,255,255,0.2);">
-                <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
-                </svg>
-            </div>
-            <p class="font-semibold">{{ session('error') }}</p>
-        </div>
-        @endif
-
-        <!-- Statistics Grid -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
-            <div class="relative overflow-hidden rounded-2xl shadow-lg hover:shadow-xl transition-all" style="background: #3b82f6;">
-                <div class="absolute top-0 right-0 w-32 h-32 rounded-full -mr-16 -mt-16" style="background: rgba(255,255,255,0.1);"></div>
-                <div class="relative p-6">
-                    <div class="p-3 rounded-xl mb-4 inline-block" style="background: rgba(255,255,255,0.2);">
-                        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
-                        </svg>
-                    </div>
-                    <p class="text-sm font-medium mb-1" style="color: #dbeafe;">إجمالي الأدوار</p>
-                    <p class="text-4xl font-bold text-white">{{ $totalRoles }}</p>
+            <div style="display:flex;gap:1rem;flex-wrap:wrap;">
+                <div class="roles-stat">
+                    <div class="sv">{{ $totalRoles }}</div>
+                    <div class="sl">إجمالي الأدوار</div>
                 </div>
-            </div>
-
-            <div class="relative overflow-hidden rounded-2xl shadow-lg hover:shadow-xl transition-all" style="background: #22c55e;">
-                <div class="absolute top-0 right-0 w-32 h-32 rounded-full -mr-16 -mt-16" style="background: rgba(255,255,255,0.1);"></div>
-                <div class="relative p-6">
-                    <div class="p-3 rounded-xl mb-4 inline-block" style="background: rgba(255,255,255,0.2);">
-                        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M10 1L3 5V9C3 13.55 5.99 17.74 10 19C14.01 17.74 17 13.55 17 9V5L10 1ZM10 9.99H15C14.47 13.11 12.54 15.87 10 16.9V10H5V6.3L10 3.69V9.99Z"/>
-                        </svg>
-                    </div>
-                    <p class="text-sm font-medium mb-1" style="color: #dcfce7;">إجمالي الصلاحيات</p>
-                    <p class="text-4xl font-bold text-white">{{ $totalPermissions }}</p>
+                <div class="roles-stat">
+                    <div class="sv">{{ $totalPermissions }}</div>
+                    <div class="sl">إجمالي الصلاحيات</div>
                 </div>
-            </div>
-
-            <div class="relative overflow-hidden rounded-2xl shadow-lg hover:shadow-xl transition-all" style="background: #f97316;">
-                <div class="absolute top-0 right-0 w-32 h-32 rounded-full -mr-16 -mt-16" style="background: rgba(255,255,255,0.1);"></div>
-                <div class="relative p-6">
-                    <div class="p-3 rounded-xl mb-4 inline-block" style="background: rgba(255,255,255,0.2);">
-                        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"/>
-                        </svg>
-                    </div>
-                    <p class="text-sm font-medium mb-1" style="color: #ffedd5;">أدوار مستخدمة</p>
-                    <p class="text-4xl font-bold text-white">{{ $rolesWithUsers }}</p>
+                <div class="roles-stat">
+                    <div class="sv">{{ $rolesWithUsers }}</div>
+                    <div class="sl">أدوار مستخدمة</div>
                 </div>
-            </div>
-
-            <div class="relative overflow-hidden rounded-2xl shadow-lg hover:shadow-xl transition-all" style="background: #3b82f6;">
-                <div class="absolute top-0 right-0 w-32 h-32 rounded-full -mr-16 -mt-16" style="background: rgba(255,255,255,0.1);"></div>
-                <div class="relative p-6">
-                    <div class="p-3 rounded-xl mb-4 inline-block" style="background: rgba(255,255,255,0.2);">
-                        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/>
-                        </svg>
-                    </div>
-                    <p class="text-sm font-medium mb-1" style="color: #dbeafe;">متوسط الصلاحيات</p>
-                    <p class="text-4xl font-bold text-white">{{ number_format($avgPermissionsPerRole ?? 0, 1) }}</p>
+                <div class="roles-stat">
+                    <div class="sv">{{ number_format($avgPermissionsPerRole ?? 0, 1) }}</div>
+                    <div class="sl">متوسط الصلاحيات</div>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Roles Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            @forelse($roles as $role)
-            @php
-                $colors = [
-                    ['bg' => '#3b82f6', 'light' => '#dbeafe'],
-                    ['bg' => '#22c55e', 'light' => '#dcfce7'],
-                    ['bg' => '#f97316', 'light' => '#ffedd5'],
-                ];
-                $color = $colors[$loop->index % count($colors)];
-            @endphp
+    @if(session('success'))
+        <div class="alert-box alert-success">{{ session('success') }}</div>
+    @endif
+    @if(session('error'))
+        <div class="alert-box alert-error">{{ session('error') }}</div>
+    @endif
 
-            <div class="rounded-2xl shadow-lg hover:shadow-2xl transition-all overflow-hidden transform hover:scale-105 bg-white">
-                <!-- Card Header -->
-                <div class="relative p-6" style="background: {{ $color['bg'] }};">
-                    <div class="absolute top-0 left-0 w-24 h-24 rounded-full -ml-12 -mt-12" style="background: rgba(255,255,255,0.1);"></div>
-                    <div class="relative flex items-center gap-3">
-                        <div class="w-14 h-14 rounded-xl flex items-center justify-center shadow-xl" style="background: rgba(255,255,255,0.25);">
-                            <span class="text-2xl font-bold text-white">{{ mb_substr($role->name, 0, 1) }}</span>
-                        </div>
-                        <div>
-                            <h3 class="text-lg font-bold text-white line-clamp-1">{{ $role->name }}</h3>
-                            <p class="text-xs font-medium mt-1" style="color: rgba(255,255,255,0.8);">{{ $role->guard_name }}</p>
-                        </div>
-                    </div>
-                </div>
+    {{-- Table --}}
+    <div class="roles-card">
+        <div style="padding:1.25rem 1.5rem;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;gap:.75rem;">
+            <div style="width:32px;height:32px;border-radius:10px;background:#e0f2fe;display:flex;align-items:center;justify-content:center;">
+                <svg style="width:16px;height:16px;color:#0071AA;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+            </div>
+            <span style="font-weight:700;font-size:.9rem;color:#111827;" class="dark:text-white">قائمة الأدوار</span>
+            <span style="font-size:.75rem;color:#6b7280;margin-right:auto;">{{ $roles->total() }} دور</span>
+        </div>
 
-                <!-- Card Body -->
-                <div class="p-6">
-                    <!-- Stats -->
-                    <div class="grid grid-cols-2 gap-4 mb-5">
-                        <div class="text-center p-4 rounded-xl border-2" style="background: {{ $color['light'] }}; border-color: {{ $color['bg'] }}30;">
-                            <p class="text-2xl font-bold" style="color: {{ $color['bg'] }};">{{ $role->permissions->count() }}</p>
-                            <p class="text-xs mt-1 font-semibold" style="color: #64748b;">صلاحية</p>
-                        </div>
-                        <div class="text-center p-4 rounded-xl border-2" style="background: {{ $color['light'] }}; border-color: {{ $color['bg'] }}30;">
+        <div style="overflow-x:auto;">
+            <table class="roles-table">
+                <thead>
+                    <tr>
+                        <th style="width:48px;">#</th>
+                        <th>الدور</th>
+                        <th class="center">الصلاحيات</th>
+                        <th class="center">المستخدمون</th>
+                        <th>أبرز الصلاحيات</th>
+                        <th class="center">تاريخ الإنشاء</th>
+                        <th class="center">الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($roles as $index => $role)
+                    <tr>
+                        <td>
+                            <div class="role-badge">{{ mb_substr($role->name, 0, 1) }}</div>
+                        </td>
+                        <td>
+                            <div style="font-weight:700;color:#111827;" class="dark:text-white">{{ $role->name }}</div>
+                            <div style="font-size:.75rem;color:#9ca3af;margin-top:.2rem;">{{ $role->guard_name }}</div>
+                        </td>
+                        <td class="center">
+                            <span class="count-badge">{{ $role->permissions->count() }}</span>
+                        </td>
+                        <td class="center">
                             @php $userCount = $role->users()->count(); @endphp
-                            <p class="text-2xl font-bold" style="color: {{ $color['bg'] }};">{{ $userCount }}</p>
-                            <p class="text-xs mt-1 font-semibold" style="color: #64748b;">مستخدم</p>
-                        </div>
-                    </div>
-
-                    <!-- Permissions Preview -->
-                    <div class="mb-5">
-                        <p class="text-xs font-bold uppercase mb-3 flex items-center gap-1" style="color: {{ $color['bg'] }};">
-                            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M10 1L3 5V9C3 13.55 5.99 17.74 10 19C14.01 17.74 17 13.55 17 9V5L10 1Z"/>
-                            </svg>
-                            الصلاحيات
-                        </p>
-                        <div class="flex flex-wrap gap-2">
-                            @forelse($role->permissions->take(4) as $permission)
-                            @php
-                                $permColors = ['#3b82f6', '#22c55e', '#f97316'];
-                                $permColor = $permColors[$loop->index % 3];
-                            @endphp
-                            <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold text-white shadow-sm" style="background: {{ $permColor }};">
-                                {{ \App\Helpers\PermissionHelper::translatePermission($permission->name) }}
-                            </span>
-                            @empty
-                            <span class="text-xs italic" style="color: #94a3b8;">لا توجد صلاحيات</span>
-                            @endforelse
-                            @if($role->permissions->count() > 4)
-                            <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-bold shadow-sm" style="background: #e2e8f0; color: #475569;">
-                                +{{ $role->permissions->count() - 4 }}
-                            </span>
-                            @endif
-                        </div>
-                    </div>
-
-                    <!-- Meta -->
-                    <div class="flex items-center gap-2 text-xs mb-5 pb-5" style="color: {{ $color['bg'] }}; border-bottom: 2px solid {{ $color['light'] }};">
-                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
-                        </svg>
-                        <span class="font-medium">{{ $role->created_at->diffForHumans() }}</span>
-                    </div>
-
-                    <!-- Actions -->
-                    <div class="flex items-center gap-2">
-                        <a href="{{ route('admin.roles.show', $role) }}"
-                           class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 text-white font-semibold rounded-xl transition-all shadow-md hover:shadow-lg" style="background: #3b82f6;">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                            </svg>
-                            عرض
-                        </a>
-                        <a href="{{ route('admin.roles.edit', $role) }}"
-                           class="p-3 text-white rounded-xl transition-all shadow-md hover:shadow-lg" style="background: #22c55e;"
-                           title="تعديل">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                            </svg>
-                        </a>
-                        <form action="{{ route('admin.roles.destroy', $role) }}" method="POST" class="inline"
-                              onsubmit="return confirm('هل أنت متأكد من حذف هذا الدور؟')">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit"
-                                    class="p-3 text-white rounded-xl transition-all shadow-md hover:shadow-lg" style="background: #f97316;"
-                                    title="حذف">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                </svg>
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-            @empty
-            <div class="col-span-full">
-                <div class="bg-white rounded-3xl shadow-lg border-2 p-12" style="border-color: #93c5fd;">
-                    <div class="text-center max-w-md mx-auto">
-                        <div class="w-24 h-24 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-xl" style="background: #3b82f6;">
-                            <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
-                            </svg>
-                        </div>
-                        <h3 class="text-2xl font-bold mb-3" style="color: #1e3a5f;">لا توجد أدوار حتى الآن</h3>
-                        <p class="mb-8 text-lg" style="color: #64748b;">ابدأ بإنشاء دور جديد لإدارة صلاحيات المستخدمين</p>
-                        <a href="{{ route('admin.roles.create') }}"
-                           class="inline-flex items-center gap-3 px-8 py-4 text-white font-bold rounded-xl transition-all shadow-xl hover:shadow-2xl transform hover:scale-105" style="background: #3b82f6;">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                            </svg>
-                            إنشاء دور جديد
-                        </a>
-                    </div>
-                </div>
-            </div>
-            @endforelse
+                            <span class="count-badge" style="background:#ecfdf5;color:#059669;">{{ $userCount }}</span>
+                        </td>
+                        <td>
+                            <div style="display:flex;flex-wrap:wrap;gap:.2rem;max-width:300px;">
+                                @foreach($role->permissions->take(5) as $perm)
+                                    <span class="perm-chip">{{ \App\Helpers\PermissionHelper::translatePermission($perm->name) }}</span>
+                                @endforeach
+                                @if($role->permissions->count() > 5)
+                                    <span class="perm-chip" style="background:#f1f5f9;color:#6b7280;">+{{ $role->permissions->count() - 5 }}</span>
+                                @endif
+                                @if($role->permissions->isEmpty())
+                                    <span style="font-size:.78rem;color:#d1d5db;font-style:italic;">لا توجد صلاحيات</span>
+                                @endif
+                            </div>
+                        </td>
+                        <td class="center">
+                            <div style="font-size:.8rem;font-weight:600;color:#374151;" class="dark:text-gray-300">{{ $role->created_at->format('d/m/Y') }}</div>
+                            <div style="font-size:.72rem;color:#9ca3af;">{{ $role->created_at->diffForHumans() }}</div>
+                        </td>
+                        <td class="center">
+                            <div style="display:flex;align-items:center;justify-content:center;gap:.5rem;flex-wrap:wrap;">
+                                <a href="{{ route('admin.roles.show', $role) }}" class="btn-action btn-view">
+                                    <svg style="width:13px;height:13px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                    عرض
+                                </a>
+                                <a href="{{ route('admin.roles.edit', $role) }}" class="btn-action btn-edit">
+                                    <svg style="width:13px;height:13px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                    تعديل
+                                </a>
+                                <form action="{{ route('admin.roles.destroy', $role) }}" method="POST" style="display:inline;"
+                                      onsubmit="return confirm('هل أنت متأكد من حذف هذا الدور؟')">
+                                    @csrf @method('DELETE')
+                                    <button type="submit" class="btn-action btn-del">
+                                        <svg style="width:13px;height:13px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                        حذف
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="7" style="text-align:center;padding:4rem 1rem;">
+                            <div style="width:64px;height:64px;border-radius:18px;background:#e0f2fe;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;">
+                                <svg style="width:32px;height:32px;color:#0071AA;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                            </div>
+                            <p style="color:#6b7280;font-weight:600;">لا توجد أدوار حتى الآن</p>
+                            <a href="{{ route('admin.roles.create') }}" style="display:inline-flex;align-items:center;gap:.5rem;margin-top:1rem;padding:.65rem 1.4rem;border-radius:12px;background:#0071AA;color:#fff;font-weight:700;font-size:.875rem;text-decoration:none;">
+                                <svg style="width:16px;height:16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+                                إنشاء دور جديد
+                            </a>
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
 
-        <!-- Pagination -->
         @if($roles->hasPages())
-        <div class="mt-8">
+        <div style="padding:1rem 1.5rem;border-top:1px solid #f1f5f9;">
             {{ $roles->links() }}
         </div>
         @endif
     </div>
+
 </div>
 @endsection
