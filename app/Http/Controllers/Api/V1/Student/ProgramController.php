@@ -18,63 +18,125 @@ class ProgramController extends Controller
 {
     /**
      * GET /api/v1/student/my-program
-     * Show student's program details
+     * Return all programs the student is enrolled in (primary + pivot).
      */
     public function show()
     {
         $student = auth()->user();
-        $program = $student->program;
 
-        // ─── No program ────────────────────────────────────────────────────────
-        if (!$program) {
+        // Collect all programs: pivot first, then primary if missing from pivot
+        $pivotPrograms = $student->programs()->get(); // student_programs pivot
+
+        $allPrograms = $pivotPrograms;
+        if ($student->program_id && !$pivotPrograms->contains('id', $student->program_id)) {
+            $primary = $student->program;
+            if ($primary) {
+                // Attach synthetic pivot data from the users table columns
+                $primary->pivot_status              = $student->program_status ?? 'approved';
+                $primary->pivot_current_term_number = $student->current_term_number ?? 1;
+                $primary->pivot_enrolled_at         = $student->created_at;
+                $allPrograms                        = $pivotPrograms->prepend($primary);
+            }
+        }
+
+        if ($allPrograms->isEmpty()) {
             return response()->json([
                 'success' => true,
-                'data'    => new StudentProgramResource(['status' => 'no_program']),
+                'data'    => [],
+                'message' => 'لا توجد برامج مسجل فيها',
             ]);
         }
 
-        // ─── Pending ───────────────────────────────────────────────────────────
-        if ($student->program_status === 'pending') {
-            return response()->json([
-                'success' => true,
-                'data'    => new StudentProgramResource([
-                    'status'  => 'pending',
-                    'program' => $program,
-                ]),
-            ]);
-        }
+        $data = $allPrograms->map(function ($program) {
+            // Pivot fields (from belongsToMany withPivot or synthetic)
+            $pivotStatus      = $program->pivot?->status      ?? $program->pivot_status      ?? 'approved';
+            $pivotTermNumber  = $program->pivot?->current_term_number ?? $program->pivot_current_term_number ?? 1;
+            $pivotEnrolledAt  = $program->pivot?->enrolled_at ?? $program->pivot_enrolled_at ?? null;
 
-        // ─── Enrolled ──────────────────────────────────────────────────────────
-        $isDiploma = $program->type === 'diploma';
+            $isDiploma = $program->type === 'diploma';
 
-        if ($isDiploma) {
-            // Diploma: load supervisor + current term subjects with teachers
-            $program->loadMissing('supervisor');
-
-            $currentTerm = $program->terms()
-                ->where('status', 'active')
-                ->orderBy('term_number')
-                ->with(['subjects' => fn($q) => $q->with('teacher:id,name,specialization,profile_photo')])
-                ->first();
-
-            $programTeachers = collect();
-        } else {
-            // Course / training / english: load teachers assigned to this program
-            $program->loadMissing('teachers');
             $currentTerm     = null;
-            $programTeachers = $program->teachers;
-        }
+            $programTeachers = collect();
+
+            if ($pivotStatus === 'approved' || $pivotStatus === 'completed') {
+                if ($isDiploma) {
+                    $program->loadMissing('supervisor');
+                    $currentTerm = $program->terms()
+                        ->where('status', 'active')
+                        ->orderBy('term_number')
+                        ->with(['subjects' => fn($q) => $q->with('teacher:id,name,specialization,profile_photo')])
+                        ->first();
+                } else {
+                    $program->loadMissing('teachers');
+                    $programTeachers = $program->teachers;
+                }
+            }
+
+            $result = [
+                'id'              => $program->id,
+                'name_ar'         => $program->name_ar,
+                'name_en'         => $program->name_en,
+                'type'            => $program->type,
+                'course_type'     => $program->course_type ?? null,
+                'description_ar'  => $program->description_ar ?? null,
+                'image'           => $program->image ? asset('storage/' . $program->image) : null,
+                'duration_months' => $program->duration_months ?? null,
+                'duration_hours'  => $program->duration_hours  ?? null,
+                'status'          => $program->status,
+
+                // Enrollment info from pivot
+                'enrollment_status'   => $pivotStatus,
+                'current_term_number' => $pivotTermNumber,
+                'enrolled_at'         => $pivotEnrolledAt,
+            ];
+
+            if ($isDiploma && $currentTerm) {
+                $result['current_term'] = [
+                    'id'          => $currentTerm->id,
+                    'term_number' => $currentTerm->term_number,
+                    'name'        => $currentTerm->name ?? ('الفصل ' . $currentTerm->term_number),
+                    'status'      => $currentTerm->status,
+                    'subjects'    => $currentTerm->subjects->map(fn($s) => [
+                        'id'      => $s->id,
+                        'name_ar' => $s->name_ar,
+                        'name_en' => $s->name_en,
+                        'code'    => $s->code,
+                        'teacher' => $s->teacher ? [
+                            'id'             => $s->teacher->id,
+                            'name'           => $s->teacher->name,
+                            'specialization' => $s->teacher->specialization,
+                            'profile_photo'  => $s->teacher->profile_photo
+                                ? asset('storage/' . $s->teacher->profile_photo)
+                                : null,
+                        ] : null,
+                    ])->values(),
+                ];
+
+                if ($program->supervisor ?? null) {
+                    $result['supervisor'] = [
+                        'id'   => $program->supervisor->id,
+                        'name' => $program->supervisor->name,
+                    ];
+                }
+            }
+
+            if (!$isDiploma && $programTeachers->isNotEmpty()) {
+                $result['teachers'] = $programTeachers->map(fn($t) => [
+                    'id'            => $t->id,
+                    'name'          => $t->name,
+                    'profile_photo' => $t->profile_photo
+                        ? asset('storage/' . $t->profile_photo)
+                        : null,
+                ])->values();
+            }
+
+            return $result;
+        })->values();
 
         return response()->json([
             'success' => true,
-            'data'    => new StudentProgramResource([
-                'status'            => 'enrolled',
-                'program'           => $program,
-                'current_term'      => $currentTerm?->term_number ?? 1,
-                'current_term_name' => $currentTerm?->name,
-                'current_term_obj'  => $currentTerm,
-                'program_teachers'  => $programTeachers,
-            ]),
+            'total'   => $data->count(),
+            'data'    => $data,
         ]);
     }
 
