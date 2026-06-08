@@ -428,13 +428,7 @@
                 </div>
                 <div>
                     <h1 class="header-title">جلساتي</h1>
-                    <p class="header-subtitle">
-                        @if($termFilter === 'current' && $currentTerm)
-                            جلسات الفصل الحالي &mdash; {{ $currentTerm->name }}
-                        @else
-                            جميع جلسات ومحاضرات برنامجك التدريبي 
-                        @endif
-                    </p>
+                    <p class="header-subtitle">جميع جلسات ومحاضرات برامجك التدريبية</p>
                 </div>
             </div>
             <div class="header-stats">
@@ -458,280 +452,281 @@
         </div>
     </div>
 
-    @if(!$isDiploma)
+    @php
+        $progTabColors = ['#0071AA','#10b981','#8b5cf6','#f59e0b','#ef4444','#ec4899','#06b6d4'];
+        $subjColors    = ['#0071AA','#10b981','#8b5cf6','#f59e0b','#ef4444','#ec4899','#06b6d4','#84cc16'];
+        $pci = 0;
+        $firstProgId = array_key_first($programsSessionData ?? []);
+    @endphp
 
-    {{-- Flat session list --}}
-    @if($sessions->count() > 0)
-    <div style="display:flex;flex-direction:column;gap:10px;">
-        @foreach($sessions as $session)
+    @if(!empty($programsSessionData) && count($programsSessionData) > 0)
+
+    {{-- Program tabs bar (only shown if more than 1 program) --}}
+    @if(count($programsSessionData) > 1)
+    <div style="display:flex;gap:8px;background:#fff;border-radius:18px;box-shadow:0 1px 3px rgba(0,0,0,.05);margin-bottom:16px;padding:12px 16px;flex-wrap:wrap;overflow-x:auto;">
+        @foreach($programsSessionData as $progId => $pd)
         @php
-            $isLive      = $session->started_at && !$session->ended_at;
-            $isCompleted = !is_null($session->ended_at);
-            $att         = $attendances[$session->id] ?? null;
+            $ptc = $progTabColors[$pci % count($progTabColors)];
+            $pci++;
+            $ptypeBadge = match($pd['program']->type) {
+                'diploma'  => 'دبلومة',
+                'course'   => 'دورة',
+                'english'  => 'إنجليزي',
+                default    => 'تدريب',
+            };
         @endphp
-        <div class="session-card" style="border-radius:16px;">
-            <div class="session-card-top">
-                <div class="session-num" style="background: linear-gradient(135deg,{{ $isLive ? '#ef4444,#dc2626' : ($isCompleted ? '#10b981,#059669' : '#0071AA,#005a88') }});">
-                    {{ $session->session_number ?? '—' }}
-                </div>
-                <div style="flex:1;min-width:0;">
-                    <div class="session-title">{{ $session->title_ar ?: $session->title_en ?: 'جلسة بدون عنوان' }}</div>
-                    <div class="session-info">
-                        @if($isLive)
-                            <span class="badge badge-live"><svg style="width:10px;height:10px;" fill="currentColor" viewBox="0 0 8 8"><circle cx="4" cy="4" r="4"/></svg> مباشر</span>
-                        @elseif($isCompleted)
-                            <span class="badge badge-completed">مكتمل</span>
-                        @else
-                            <span class="badge badge-scheduled">مجدول</span>
-                        @endif
-                        @if($session->type === 'live_zoom') <span class="badge badge-zoom">Zoom</span>
-                        @else <span class="badge badge-video">فيديو</span> @endif
-                        @if($att)
-                            @if($att->attended)
-                                <span class="badge badge-attended"><svg style="width:10px;height:10px;" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> حضرت</span>
-                            @else
-                                <span class="badge badge-absent"><svg style="width:10px;height:10px;" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg> غائب</span>
-                            @endif
-                        @endif
-                        @if($session->files->count() > 0)
-                            <span class="badge" style="background:#f3e8ff;color:#7c3aed;">{{ $session->files->count() }} ملف</span>
-                        @endif
-                        @if($session->homework)
-                            <span class="badge" style="background:#fef3c7;color:#d97706;">واجب</span>
-                        @endif
-                    </div>
-                </div>
-                <a href="{{ route('student.sessions.show', $session) }}" class="btn btn-view-subject" style="white-space:nowrap;flex-shrink:0;">
-                    <svg style="width:13px;height:13px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                    عرض
-                </a>
-            </div>
-
-            @if($session->scheduled_at || $session->duration_minutes)
-            <div class="session-card-meta">
-                @if($session->scheduled_at)
-                <div class="meta-item">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                    {{ \Carbon\Carbon::parse($session->scheduled_at)->format('Y/m/d · H:i') }}
-                </div>
-                @endif
-                @if($session->duration_minutes)
-                <div class="meta-item">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                    {{ $session->duration_minutes }} دقيقة
-                </div>
-                @endif
-            </div>
-            @endif
-
-            @if($session->type === 'live_zoom' && $session->zoom_meeting_id && !$session->ended_at)
-            <div class="session-card-actions">
-                <a href="{{ route('student.sessions.join-zoom', $session->id) }}"
-                   class="btn {{ $isLive ? 'btn-join' : 'btn-join' }}" style="{{ $isLive ? '' : 'background:linear-gradient(135deg,#2563eb,#1d4ed8);' }}">
-                    <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-                    {{ $isLive ? 'انضم الآن' : 'انضم عبر Zoom' }}
-                </a>
-            </div>
-            @endif
-        </div>
+        <button onclick="switchProgSessionTab({{ $progId }})" id="progsess-tab-{{ $progId }}" data-color="{{ $ptc }}"
+            style="padding:8px 18px;border:none;border-radius:999px;cursor:pointer;font-size:.85rem;font-weight:700;font-family:inherit;transition:all .18s;white-space:nowrap;background:#f3f4f6;color:#6b7280;">
+            <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:{{ $ptc }};margin-left:6px;"></span>
+            {{ $pd['program']->name }}
+            <span style="font-size:.7rem;opacity:.75;margin-right:4px;">({{ $ptypeBadge }})</span>
+            <span style="font-size:.72rem;opacity:.8;margin-right:4px;">{{ $pd['totalSessions'] }}</span>
+        </button>
         @endforeach
     </div>
-    @else
+    @endif
+
+    {{-- Program panels --}}
+    @php $pci = 0; @endphp
+    @foreach($programsSessionData as $progId => $pd)
+    @php
+        $ptc = $progTabColors[$pci % count($progTabColors)];
+        $pci++;
+        $sci = 0;
+    @endphp
+    <div id="progsess-panel-{{ $progId }}" class="progsess-panel" style="{{ $loop->first ? 'display:block' : 'display:none' }};">
+
+        @if($pd['isDiploma'])
+        {{-- Diploma: subject tabs --}}
+        @php
+            $subjectGroups = [];
+            foreach($pd['sessionsBySubject'] as $sid => $subSessions) {
+                $subj = $subSessions->first()->subject ?? null;
+                if (!$subj) continue;
+                $subjectGroups[$sid] = [
+                    'subject'   => $subj,
+                    'sessions'  => $subSessions,
+                    'color'     => $subj->color ?? $subjColors[$sci % count($subjColors)],
+                    'total'     => $subSessions->count(),
+                    'completed' => $subSessions->whereNotNull('ended_at')->count(),
+                ];
+                $sci++;
+            }
+        @endphp
+
+        @if(count($subjectGroups) > 0)
+        {{-- Subject tabs bar --}}
+        <div style="display:flex;gap:8px;background:#fff;border-radius:18px;box-shadow:0 1px 3px rgba(0,0,0,.05);margin-bottom:20px;padding:12px 16px;flex-wrap:wrap;overflow-x:auto;">
+            <button onclick="switchSubjTab_{{ $progId }}('all')" id="subjtab-{{ $progId }}-all" data-color="{{ $ptc }}"
+                style="padding:8px 18px;border:none;border-radius:999px;cursor:pointer;font-size:.85rem;font-weight:700;font-family:inherit;transition:all .18s;white-space:nowrap;background:{{ $ptc }};color:white;">
+                الكل
+                <span style="font-size:.72rem;opacity:.85;margin-right:4px;">{{ $pd['totalSessions'] }}</span>
+            </button>
+            @foreach($subjectGroups as $sid => $sg)
+            <button onclick="switchSubjTab_{{ $progId }}({{ $sid }})" id="subjtab-{{ $progId }}-{{ $sid }}" data-color="{{ $sg['color'] }}"
+                style="padding:8px 18px;border:none;border-radius:999px;cursor:pointer;font-size:.85rem;font-weight:700;font-family:inherit;transition:all .18s;white-space:nowrap;background:#f3f4f6;color:#6b7280;">
+                {{ $sg['subject']->name_ar ?? $sg['subject']->name }}
+                <span style="font-size:.72rem;opacity:.8;margin-right:4px;">{{ $sg['completed'] }}/{{ $sg['total'] }}</span>
+            </button>
+            @endforeach
+        </div>
+
+        {{-- Per-subject panels --}}
+        @foreach($subjectGroups as $sid => $sg)
+        @php $color = $sg['color']; @endphp
+        <div id="subjpanel-{{ $progId }}-{{ $sid }}" class="subj-panel-{{ $progId }}" style="display:none;">
+            <div class="subject-section">
+                <div class="subject-header" style="border-color:{{ $color }};">
+                    <div class="subject-icon" style="background:linear-gradient(135deg,{{ $color }},{{ $color }}cc);">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                    </div>
+                    <div style="flex:1;">
+                        <div class="subject-name">{{ $sg['subject']->name_ar ?? $sg['subject']->name }}</div>
+                        <div class="subject-meta">
+                            @if($sg['subject']->term) {{ $sg['subject']->term->name_ar ?? $sg['subject']->term->name }} @endif
+                            @if($sg['subject']->teacher) &bull; {{ $sg['subject']->teacher->name }} @endif
+                        </div>
+                    </div>
+                    <span class="subject-badge">{{ $sg['completed'] }}/{{ $sg['total'] }} جلسة</span>
+                </div>
+                <div class="sessions-grid">
+                    @foreach($sg['sessions'] as $session)
+                    @include('student.sessions._session_card', ['session'=>$session,'color'=>$color,'attendances'=>$pd['attendances']])
+                    @endforeach
+                </div>
+            </div>
+        </div>
+        @endforeach
+
+        {{-- "All" panel for this program --}}
+        <div id="subjpanel-{{ $progId }}-all" style="display:block;">
+            @foreach($subjectGroups as $sid => $sg)
+            @php $color = $sg['color']; @endphp
+            <div class="subject-section">
+                <div class="subject-header" style="border-color:{{ $color }};">
+                    <div class="subject-icon" style="background:linear-gradient(135deg,{{ $color }},{{ $color }}cc);">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                    </div>
+                    <div style="flex:1;">
+                        <div class="subject-name">{{ $sg['subject']->name_ar ?? $sg['subject']->name }}</div>
+                        <div class="subject-meta">
+                            @if($sg['subject']->term) {{ $sg['subject']->term->name_ar ?? $sg['subject']->term->name }} @endif
+                            @if($sg['subject']->teacher) &bull; {{ $sg['subject']->teacher->name }} @endif
+                        </div>
+                    </div>
+                    <span class="subject-badge">{{ $sg['completed'] }}/{{ $sg['total'] }} جلسة</span>
+                </div>
+                <div class="sessions-grid">
+                    @foreach($sg['sessions'] as $session)
+                    @include('student.sessions._session_card', ['session'=>$session,'color'=>$color,'attendances'=>$pd['attendances']])
+                    @endforeach
+                </div>
+            </div>
+            @endforeach
+        </div>
+
+        <script>
+        function switchSubjTab_{{ $progId }}(id) {
+            document.querySelectorAll('.subj-panel-{{ $progId }}').forEach(p => p.style.display='none');
+            var allPanel = document.getElementById('subjpanel-{{ $progId }}-all');
+            if (id === 'all') {
+                if(allPanel) allPanel.style.display = 'block';
+            } else {
+                if(allPanel) allPanel.style.display = 'none';
+                var p = document.getElementById('subjpanel-{{ $progId }}-' + id);
+                if(p) p.style.display = 'block';
+            }
+            document.querySelectorAll('[id^="subjtab-{{ $progId }}-"]').forEach(btn => {
+                btn.style.background = '#f3f4f6';
+                btn.style.color = '#6b7280';
+            });
+            var activeBtn = document.getElementById('subjtab-{{ $progId }}-' + id);
+            if (activeBtn) {
+                var c = activeBtn.dataset.color || '{{ $ptc }}';
+                activeBtn.style.background = c;
+                activeBtn.style.color = '#fff';
+            }
+        }
+        switchSubjTab_{{ $progId }}('all');
+        </script>
+
+        @else
+        <div class="empty-state">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+            <h3>لا توجد جلسات لهذا البرنامج</h3>
+            <p>سيتم عرض الجلسات هنا عند توفرها</p>
+        </div>
+        @endif
+
+        @else
+        {{-- Non-diploma: flat session list --}}
+        @if($pd['sessions']->count() > 0)
+        <div style="display:flex;flex-direction:column;gap:10px;">
+            @foreach($pd['sessions'] as $session)
+            @php
+                $isLive      = $session->started_at && !$session->ended_at;
+                $isCompleted = !is_null($session->ended_at);
+                $att         = $pd['attendances'][$session->id] ?? null;
+            @endphp
+            <div class="session-card" style="border-radius:16px;">
+                <div class="session-card-top">
+                    <div class="session-num" style="background: linear-gradient(135deg,{{ $isLive ? '#ef4444,#dc2626' : ($isCompleted ? '#10b981,#059669' : $ptc.','.$ptc.'cc') }});">
+                        {{ $session->session_number ?? '—' }}
+                    </div>
+                    <div style="flex:1;min-width:0;">
+                        <div class="session-title">{{ $session->title_ar ?: $session->title_en ?: 'جلسة بدون عنوان' }}</div>
+                        <div class="session-info">
+                            @if($isLive)
+                                <span class="badge badge-live"><svg style="width:10px;height:10px;" fill="currentColor" viewBox="0 0 8 8"><circle cx="4" cy="4" r="4"/></svg> مباشر</span>
+                            @elseif($isCompleted)
+                                <span class="badge badge-completed">مكتمل</span>
+                            @else
+                                <span class="badge badge-scheduled">مجدول</span>
+                            @endif
+                            @if($session->type === 'live_zoom') <span class="badge badge-zoom">Zoom</span>
+                            @else <span class="badge badge-video">فيديو</span> @endif
+                            @if($att)
+                                @if($att->attended)
+                                    <span class="badge badge-attended">حضرت</span>
+                                @else
+                                    <span class="badge badge-absent">غائب</span>
+                                @endif
+                            @endif
+                            @if($session->files && $session->files->count() > 0)
+                                <span class="badge" style="background:#f3e8ff;color:#7c3aed;">{{ $session->files->count() }} ملف</span>
+                            @endif
+                            @if($session->homework)
+                                <span class="badge" style="background:#fef3c7;color:#d97706;">واجب</span>
+                            @endif
+                        </div>
+                    </div>
+                    <a href="{{ route('student.sessions.show', $session) }}" class="btn btn-view-subject" style="white-space:nowrap;flex-shrink:0;">عرض</a>
+                </div>
+                @if($session->scheduled_at || $session->duration_minutes)
+                <div class="session-card-meta">
+                    @if($session->scheduled_at)
+                    <div class="meta-item">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                        {{ \Carbon\Carbon::parse($session->scheduled_at)->format('Y/m/d · H:i') }}
+                    </div>
+                    @endif
+                    @if($session->duration_minutes)
+                    <div class="meta-item">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        {{ $session->duration_minutes }} دقيقة
+                    </div>
+                    @endif
+                </div>
+                @endif
+                @if($session->zoom_link && !$session->ended_at)
+                <div class="session-card-actions">
+                    <a href="{{ $session->zoom_link }}" target="_blank"
+                       class="btn btn-join" style="{{ !$isLive ? 'background:linear-gradient(135deg,#2563eb,#1d4ed8);' : '' }}">
+                        <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                        {{ $isLive ? 'انضم الآن' : 'رابط الجلسة' }}
+                    </a>
+                </div>
+                @endif
+            </div>
+            @endforeach
+        </div>
+        @else
         <div class="empty-state">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
             <h3>لا توجد جلسات حالياً</h3>
             <p>سيتم عرض جلسات ومحاضرات برنامجك التدريبي هنا عند توفرها</p>
         </div>
-    @endif
+        @endif
+        @endif {{-- end isDiploma --}}
+
+    </div>
+    @endforeach {{-- end programsSessionData loop --}}
+
+    <script>
+    function switchProgSessionTab(id) {
+        document.querySelectorAll('.progsess-panel').forEach(p => p.style.display='none');
+        var panel = document.getElementById('progsess-panel-' + id);
+        if(panel) panel.style.display = 'block';
+        document.querySelectorAll('[id^="progsess-tab-"]').forEach(btn => {
+            btn.style.background = '#f3f4f6';
+            btn.style.color = '#6b7280';
+        });
+        var tab = document.getElementById('progsess-tab-' + id);
+        if(tab) {
+            tab.style.background = tab.dataset.color;
+            tab.style.color = '#fff';
+        }
+    }
+    @if($firstProgId) switchProgSessionTab({{ $firstProgId }}); @endif
+    </script>
 
     @else
-    {{-- ══ Diploma: term tabs + subject filter + grouped by subject ══ --}}
-
-    <!-- Term Tabs -->
-    @if($currentTerm)
-    <div style="display: flex; gap: 0.375rem; background: #f3f4f6; padding: 0.375rem; border-radius: 16px; margin-bottom: 1.25rem;">
-        <a href="{{ route('student.my-sessions', ['term_filter' => 'current']) }}"
-           style="flex: 1; text-align: center; padding: 0.625rem 1.25rem; border-radius: 12px; font-size: 0.875rem; font-weight: 700; text-decoration: none; transition: all 0.2s;
-                  {{ $termFilter === 'current' ? 'background: linear-gradient(135deg,#0071AA,#005a88); color:#fff; box-shadow:0 2px 8px rgba(0,113,170,0.25);' : 'color:#6b7280;' }}">
-            <svg style="width: 15px; height: 15px; display: inline; margin-left: 0.375rem; vertical-align: -2px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-            </svg>
-            الفصل الحالي
-            <span style="margin-right: 0.375rem; font-size: 0.75rem; opacity: 0.85;">— {{ $currentTerm->name }}</span>
-        </a>
-        <a href="{{ route('student.my-sessions', ['term_filter' => 'all']) }}"
-           style="flex: 1; text-align: center; padding: 0.625rem 1.25rem; border-radius: 12px; font-size: 0.875rem; font-weight: 700; text-decoration: none; transition: all 0.2s;
-                  {{ $termFilter === 'all' ? 'background: #fff; color:#374151; box-shadow:0 1px 4px rgba(0,0,0,0.1);' : 'color:#6b7280;' }}">
-            <svg style="width: 15px; height: 15px; display: inline; margin-left: 0.375rem; vertical-align: -2px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
-            </svg>
-            جميع الفصول
-        </a>
+    <div class="empty-state">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+        <h3>لا توجد برامج مسجّل فيها</h3>
+        <p>يرجى التواصل مع الإدارة لتسجيلك في برنامج تدريبي</p>
     </div>
     @endif
-
-
-    <!-- Sessions By Subject -->
-    @if($sessions->count() > 0)
-        @php
-            $colors = ['#0071AA', '#10b981', '#8b5cf6', '#f59e0b', '#ef4444', '#ec4899', '#06b6d4', '#84cc16'];
-            $colorIndex = 0;
-        @endphp
-
-        @foreach($sessionsBySubject as $subjectIdGroup => $subjectSessions)
-            @php
-                $subject = $subjectSessions->first()->subject;
-                if (!$subject) continue;
-                $color = $subject->color ?? $colors[$colorIndex % count($colors)];
-                $colorIndex++;
-                $subjectTotal = $subjectSessions->count();
-                $subjectCompleted = $subjectSessions->whereNotNull('ended_at')->count();
-            @endphp
-
-            <div class="subject-section">
-                <!-- Subject Header -->
-                <div class="subject-header" style="border-color: {{ $color }};">
-                    <div class="subject-icon" style="background: linear-gradient(135deg, {{ $color }}, {{ $color }}dd);">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-                        </svg>
-                    </div>
-                    <div style="flex: 1;">
-                        <div class="subject-name">{{ $subject->name }}</div>
-                        <div class="subject-meta">
-                            @if($subject->term)
-                                {{ $subject->term->name }}
-                            @endif
-                            @if($subject->teacher)
-                                &bull; {{ $subject->teacher->name }}
-                            @endif
-                        </div>
-                    </div>
-                    <span class="subject-badge">{{ $subjectCompleted }}/{{ $subjectTotal }} جلسة</span>
-                </div>
-
-                <!-- Sessions Grid -->
-                <div class="sessions-grid">
-                    @foreach($subjectSessions as $session)
-                    <div class="session-card">
-                        <!-- Top -->
-                        <div class="session-card-top">
-                            <div class="session-num" style="background: linear-gradient(135deg, {{ $session->ended_at ? '#10b981, #059669' : ($session->started_at && !$session->ended_at ? '#ef4444, #dc2626' : $color . ',' . $color . 'cc') }});">
-                                {{ $session->session_number }}
-                            </div>
-                            <div style="flex: 1; min-width: 0;">
-                                <div class="session-title">{{ $session->title }}</div>
-                                <div class="session-info">
-                                    @if($session->started_at && !$session->ended_at)
-                                        <span class="badge badge-live">
-                                            <svg style="width: 10px; height: 10px;" fill="currentColor" viewBox="0 0 8 8"><circle cx="4" cy="4" r="4"/></svg>
-                                            مباشر
-                                        </span>
-                                    @elseif($session->ended_at)
-                                        <span class="badge badge-completed">مكتمل</span>
-                                    @else
-                                        <span class="badge badge-scheduled">مجدول</span>
-                                    @endif
-
-                                    @if($session->type === 'live_zoom')
-                                        <span class="badge badge-zoom">Zoom</span>
-                                    @else
-                                        <span class="badge badge-video">فيديو</span>
-                                    @endif
-
-                                    @if(isset($attendances[$session->id]))
-                                        @if($attendances[$session->id]->attended)
-                                            <span class="badge badge-attended">
-                                                <svg style="width: 10px; height: 10px;" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
-                                                حضرت
-                                            </span>
-                                        @else
-                                            <span class="badge badge-absent">
-                                                <svg style="width: 10px; height: 10px;" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
-                                                غائب
-                                            </span>
-                                        @endif
-                                    @endif
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Meta -->
-                        <div class="session-card-meta">
-                            @if($session->scheduled_at)
-                            <div class="meta-item">
-                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                                {{ $session->scheduled_at->translatedFormat('D d M Y') }}
-                            </div>
-                            <div class="meta-item">
-                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                {{ $session->scheduled_at->format('h:i A') }}
-                            </div>
-                            @endif
-                            @if($session->duration_minutes)
-                            <div class="meta-item">
-                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                                {{ $session->duration_minutes }} دقيقة
-                            </div>
-                            @endif
-                        </div>
-
-                        <!-- Files -->
-                        @if($session->files && $session->files->count() > 0)
-                        <div style="padding: 0.5rem 1.25rem; display: flex; gap: 0.5rem; flex-wrap: wrap; border-top: 1px solid #f3f4f6;">
-                            @foreach($session->files as $file)
-                            <a href="{{ asset('storage/' . $file->file_path) }}" target="_blank" class="file-tag">
-                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
-                                {{ Str::limit($file->title, 20) }}
-                            </a>
-                            @endforeach
-                        </div>
-                        @endif
-
-                        <!-- Actions -->
-                        <div class="session-card-actions">
-                            @if($session->type === 'live_zoom' && $session->zoom_meeting_id)
-                                @if($session->started_at && !$session->ended_at)
-                                    <a href="{{ route('student.sessions.join-zoom', $session->id) }}" class="btn btn-join">
-                                        <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-                                        انضم الآن
-                                    </a>
-                                @elseif(!$session->ended_at)
-                                    <a href="{{ route('student.sessions.join-zoom', $session->id) }}" class="btn btn-join" style="background: linear-gradient(135deg, #2563eb, #1d4ed8);">
-                                        <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-                                        انضم عبر Zoom
-                                    </a>
-                                    @if($session->scheduled_at && $session->scheduled_at > now())
-                                        <span class="badge" style="background: #fef3c7; color: #92400e; padding: 0.375rem 0.75rem;">
-                                            {{ $session->scheduled_at->diffForHumans() }}
-                                        </span>
-                                    @endif
-                                @endif
-                            @endif
-
-                            @if($session->type === 'recorded_video' && $session->hasVideo())
-                                <a href="{{ $session->getVideoUrl() }}" target="_blank" class="btn btn-watch">
-                                    <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/></svg>
-                                    مشاهدة
-                                </a>
-                            @endif
-                        </div>
-                    </div>
-                    @endforeach
-                </div>
-            </div>
-        @endforeach
-    @else
-        <div class="empty-state">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
-            </svg>
-            <h3>لا توجد جلسات حالياً</h3>
-            <p>سيتم عرض جلسات ومحاضرات برنامجك التدريبي هنا عند توفرها</p>
-        </div>
-    @endif
-
-    @endif {{-- end isDiploma --}}
 
 </div>
 @endsection

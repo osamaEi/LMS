@@ -152,47 +152,76 @@ class StudentController extends Controller
 
         $program = Program::with('terms.subjects')->findOrFail($validated['program_id']);
 
-        // Update student with program
-        $student->update([
-            'program_id' => $program->id,
-            'program_status' => 'approved', // Auto-approve when admin assigns
-            'current_term_number' => 1, // Start at first term
-            'status' => 'active', // Activate student account
-        ]);
+        $isPrimary = is_null($student->program_id);
 
-        // Auto-enroll student in all subjects of the program
+        // If no primary program yet → set as primary on users table
+        if ($isPrimary) {
+            $student->update([
+                'program_id'          => $program->id,
+                'program_status'      => 'approved',
+                'current_term_number' => 1,
+                'status'              => 'active',
+            ]);
+        } else {
+            // Already has a primary → add to student_programs pivot
+            $student->programs()->syncWithoutDetaching([
+                $program->id => [
+                    'status'              => 'approved',
+                    'current_term_number' => 1,
+                    'enrolled_at'         => now()->toDateString(),
+                ],
+            ]);
+            // Ensure student is active
+            if ($student->status !== 'active') {
+                $student->update(['status' => 'active']);
+            }
+        }
+
+        // Auto-enroll in all program subjects
         $enrolledCount = 0;
         foreach ($program->terms as $term) {
             foreach ($term->subjects as $subject) {
-                // Check if enrollment already exists
                 $exists = \App\Models\Enrollment::where('student_id', $student->id)
-                    ->where('subject_id', $subject->id)
-                    ->exists();
-
+                    ->where('subject_id', $subject->id)->exists();
                 if (!$exists) {
                     \App\Models\Enrollment::create([
-                        'student_id' => $student->id,
-                        'subject_id' => $subject->id,
+                        'student_id'  => $student->id,
+                        'subject_id'  => $subject->id,
                         'enrolled_at' => now(),
-                        'status' => 'active',
+                        'status'      => 'active',
                     ]);
                     $enrolledCount++;
                 }
             }
         }
 
+        $label = $isPrimary ? 'البرنامج الأساسي' : 'برنامج إضافي';
         return redirect()->route('admin.students.show', $student)
-            ->with('success', "تم تعيين البرنامج لل متدرب بنجاح وتسجيله في {$enrolledCount} مادة");
+            ->with('success', "تم إضافة {$label} ({$program->name_ar}) وتسجيل الطالب في {$enrolledCount} مادة");
     }
 
-    public function removeProgram(User $student)
+    public function removeProgram(Request $request, User $student)
     {
-        $student->update([
-            'program_id' => null,
-        ]);
+        $programId = $request->input('program_id', $student->program_id);
+
+        // If removing primary program
+        if ($student->program_id == $programId) {
+            // Promote next program from pivot to primary if exists
+            $next = $student->programs()->where('programs.id', '!=', $programId)->first();
+            $student->update([
+                'program_id'     => $next?->id,
+                'program_status' => $next ? 'approved' : null,
+            ]);
+            if ($next) {
+                $student->programs()->detach($next->id);
+            }
+        } else {
+            // Remove from pivot only
+            $student->programs()->detach($programId);
+        }
 
         return redirect()->route('admin.students.show', $student)
-            ->with('success', 'تم إزالة البرنامج من ال متدرب بنجاح');
+            ->with('success', 'تم إزالة البرنامج من المتدرب بنجاح');
     }
 
     public function toggleStatus(User $student)

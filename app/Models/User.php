@@ -156,6 +156,34 @@ class User extends Authenticatable
         return $this->belongsTo(\App\Models\Program::class);
     }
 
+    // All programs (primary via program_id + additional via student_programs pivot)
+    public function programs()
+    {
+        return $this->belongsToMany(\App\Models\Program::class, 'student_programs', 'student_id', 'program_id')
+            ->withPivot(['status', 'class_id', 'current_term_number', 'enrolled_at'])
+            ->withTimestamps();
+    }
+
+    // All programs including primary (unified view)
+    public function allPrograms()
+    {
+        $pivot = $this->programs;
+        if ($this->program_id && !$pivot->contains('id', $this->program_id)) {
+            $primary = $this->program;
+            if ($primary) $pivot->prepend($primary);
+        }
+        return $pivot;
+    }
+
+    // All program IDs (primary + additional) — use this for queries
+    public function allProgramIds(): \Illuminate\Support\Collection
+    {
+        $ids = collect();
+        if ($this->program_id) $ids->push($this->program_id);
+        $ids = $ids->merge($this->programs()->pluck('programs.id'));
+        return $ids->unique()->values();
+    }
+
     public function programClass()
     {
         return $this->belongsTo(\App\Models\ProgramClass::class, 'class_id');

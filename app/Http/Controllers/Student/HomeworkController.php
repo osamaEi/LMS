@@ -15,10 +15,11 @@ class HomeworkController extends Controller
     {
         $student = auth()->user();
 
-        $subjectIds = Subject::where(function ($q) use ($student) {
-                $q->where('program_id', $student->program_id)
-                  ->orWhereHas('term', fn($tq) => $tq->where('program_id', $student->program_id))
-                  ->orWhereHas('terms', fn($tq) => $tq->where('program_id', $student->program_id))
+        $programIds = $student->allProgramIds();
+
+        $subjectIds = Subject::where(function ($q) use ($student, $programIds) {
+                $q->whereIn('program_id', $programIds)
+                  ->orWhereHas('term', fn($tq) => $tq->whereIn('program_id', $programIds))
                   ->orWhereHas('enrollments', fn($eq) => $eq->where('student_id', $student->id));
             })->pluck('id');
 
@@ -28,8 +29,8 @@ class HomeworkController extends Controller
             ->orderByDesc('created_at')
             ->get();
 
-        // Homeworks from programs (course/training/english)
-        $programHomeworks = Homework::whereHas('session', fn($q) => $q->where('program_id', $student->program_id))
+        // Homeworks from programs (course/training/english) — all student programs
+        $programHomeworks = Homework::whereHas('session', fn($q) => $q->whereIn('program_id', $programIds))
             ->with(['session.program'])
             ->orderByDesc('created_at')
             ->get();

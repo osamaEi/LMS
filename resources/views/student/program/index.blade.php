@@ -328,586 +328,302 @@
 
 @section('content')
 <div class="prog-page">
-    @if($program)
 
-        @if($program->type !== 'diploma')
-        {{-- ══════════════════════════════════════════════════════════════
-             NON-DIPLOMA (training / english / course) — sessions list
-        ══════════════════════════════════════════════════════════════ --}}
+@if(!empty($programsData) && count($programsData) > 0)
 
-        {{-- Hero --}}
-        <div style="background:linear-gradient(135deg,#0f172a 0%,#1e3a5f 55%,#0071AA 100%);border-radius:20px;padding:28px 32px;margin-bottom:24px;position:relative;overflow:hidden;">
-            <div style="position:absolute;top:-50px;left:-50px;width:200px;height:200px;background:rgba(255,255,255,.04);border-radius:50%;pointer-events:none;"></div>
-            <div style="position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;">
-                <div>
-                    <h1 style="color:white;font-size:1.4rem;font-weight:900;margin:0 0 4px;">{{ $program->name }}</h1>
-                    <p style="color:rgba(255,255,255,.65);font-size:.85rem;margin:0;">{{ $program->description ?? 'برنامجك التدريبي' }}</p>
-                    @if($program->duration_hours)
-                    <span style="display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.12);border-radius:20px;padding:4px 12px;font-size:.78rem;color:rgba(255,255,255,.8);margin-top:8px;">
-                        <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                        {{ $program->duration_hours }} ساعة تدريبية
-                    </span>
-                    @endif
+{{-- ══════════════════════════════════════════════════════════════
+     PROGRAM TABS — one tab per enrolled program
+══════════════════════════════════════════════════════════════ --}}
+@php
+    $tabKeys = array_keys($programsData);
+    $firstTabKey = $tabKeys[0] ?? null;
+@endphp
+
+{{-- Tab bar --}}
+<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:0;border-bottom:2px solid #e5e7eb;padding-bottom:0;">
+    @foreach($programsData as $progId => $pd)
+    @php
+        $prog = $pd['program'];
+        $tabColor = $prog->type === 'diploma' ? '#0071AA'
+                  : ($prog->type === 'english' ? '#059669' : '#7c3aed');
+        $typeLabel = match($prog->type) {
+            'diploma'  => 'دبلومة',
+            'english'  => 'إنجليزي',
+            'course'   => 'دورة',
+            'training' => 'تدريب',
+            default    => $prog->type,
+        };
+    @endphp
+    <button onclick="switchProgTab({{ $progId }})" id="progtab-{{ $progId }}"
+            data-color="{{ $tabColor }}"
+            style="padding:10px 20px;border:none;border-bottom:3px solid transparent;background:transparent;cursor:pointer;
+                   font-size:.88rem;font-weight:700;font-family:inherit;color:#6b7280;
+                   transition:all .2s;border-radius:10px 10px 0 0;margin-bottom:-2px;display:flex;align-items:center;gap:8px;">
+        <span style="width:8px;height:8px;border-radius:50%;background:{{ $tabColor }};display:inline-block;flex-shrink:0;"></span>
+        {{ $prog->name_ar ?? $prog->name }}
+        <span style="background:#f1f5f9;color:#6b7280;font-size:.7rem;font-weight:700;padding:1px 7px;border-radius:20px;">{{ $typeLabel }}</span>
+    </button>
+    @endforeach
+</div>
+
+{{-- Tab panels --}}
+@foreach($programsData as $progId => $pd)
+@php
+    $prog                = $pd['program'];
+    $pdStats             = $pd['stats'];
+    $pdTerms             = $pd['terms'];
+    $pdCurrentTerm       = $pd['currentTerm'];
+    $pdCurrentTermIndex  = $pd['currentTermIndex'];
+    $pdCurrentTermSubj   = $pd['currentTermSubjects'];
+    $pdSubjects          = $pd['subjects'];
+    $pdSubjProgress      = $pd['subjectsProgress'];
+    $pdSessions          = $pd['programSessions'];
+    $tabColor = $prog->type === 'diploma' ? '#0071AA'
+              : ($prog->type === 'english' ? '#059669' : '#7c3aed');
+    $gradBg = $prog->type === 'diploma'
+            ? 'linear-gradient(135deg,#0f172a 0%,#1e3a5f 55%,#0071AA 100%)'
+            : ($prog->type === 'english'
+                ? 'linear-gradient(135deg,#022c22,#065f46,#059669)'
+                : 'linear-gradient(135deg,#1e1b4b,#3730a3,#7c3aed)');
+@endphp
+<div id="progpanel-{{ $progId }}" style="display:none;padding-top:20px;">
+
+@if($pd['isDiploma'])
+{{-- ── DIPLOMA panel ── --}}
+
+<div class="prog-hero" style="background:{{ $gradBg }};">
+    <div class="hero-top">
+        <div class="hero-info">
+            <h1 class="hero-name">{{ $prog->name_ar ?? $prog->name }}</h1>
+            <p class="hero-desc">{{ $prog->description ?? 'برنامجك التدريبي الحالي' }}</p>
+        </div>
+        <div class="hero-term-box">
+            <div class="hero-term-num">{{ $pdCurrentTermIndex }}<span style="font-size:1rem;opacity:.7;"> / {{ $pdStats['total_terms'] }}</span></div>
+            <div class="hero-term-label">الفصل الحالي</div>
+        </div>
+    </div>
+    <div class="hero-progress">
+        <div class="hero-progress-labels">
+            <span>التقدم في البرنامج</span>
+            <span style="font-weight:800;">{{ $pdStats['progress_percentage'] ?? 0 }}%</span>
+        </div>
+        <div class="hero-progress-bar">
+            <div class="hero-progress-fill" style="width:{{ $pdStats['progress_percentage'] ?? 0 }}%;"></div>
+        </div>
+    </div>
+</div>
+
+{{-- ── Program Info + Terms Timeline ── --}}
+<div class="two-col">
+    <div class="sec-card">
+        <div class="sec-header">
+            <div class="sec-title">
+                <div class="sec-title-icon" style="background:linear-gradient(135deg,{{ $tabColor }},{{ $tabColor }}cc);">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 </div>
-                <div style="display:flex;gap:10px;flex-wrap:wrap;">
-                    @foreach([
-                        [$stats['total_sessions'],     'إجمالي الجلسات', 'rgba(255,255,255,.75)'],
-                        [$stats['completed_sessions'],  'مكتملة',          '#86efac'],
-                        [$stats['attendance_rate'].'%', 'نسبة الحضور',     '#fde68a'],
-                    ] as [$v,$l,$c])
-                    <div style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:8px 16px;text-align:center;min-width:70px;">
-                        <div style="font-size:1.3rem;font-weight:800;color:{{ $c }};line-height:1.1;">{{ $v }}</div>
-                        <div style="font-size:.7rem;color:rgba(255,255,255,.55);margin-top:2px;">{{ $l }}</div>
-                    </div>
-                    @endforeach
-                </div>
+                معلومات البرنامج
             </div>
         </div>
+        <div class="info-list">
+            <div class="info-row"><span class="info-key">اسم البرنامج</span><span class="info-val">{{ $prog->name_ar ?? $prog->name }}</span></div>
+            @if($prog->code)<div class="info-row"><span class="info-key">رمز البرنامج</span><span class="info-val">{{ $prog->code }}</span></div>@endif
+            @if($prog->duration_months)<div class="info-row"><span class="info-key">مدة البرنامج</span><span class="info-val">{{ $prog->duration_months }} شهر</span></div>@endif
+            <div class="info-row"><span class="info-key">عدد الفصول</span><span class="info-val">{{ $pdStats['total_terms'] ?? $pdTerms->count() }} فصول</span></div>
+            <div class="info-row"><span class="info-key">إجمالي المقررات</span><span class="info-val">{{ $pdStats['total_subjects'] ?? $pdSubjects->count() }}</span></div>
+            <div class="info-row"><span class="info-key">نسبة الحضور</span><span class="info-val">{{ $pdStats['attendance_rate'] ?? 0 }}%</span></div>
+            <div class="info-row"><span class="info-key">الحالة</span><span class="info-badge">نشط</span></div>
+        </div>
+    </div>
 
-        {{-- Sessions list --}}
-        <div style="background:white;border-radius:18px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.05);margin-bottom:20px;">
-            <div style="padding:18px 22px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;gap:10px;">
-                <div style="width:36px;height:36px;background:linear-gradient(135deg,#0071AA,#005a88);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                    <svg width="18" height="18" fill="white" viewBox="0 0 24 24"><path d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+    <div class="sec-card">
+        <div class="sec-header">
+            <div class="sec-title">
+                <div class="sec-title-icon" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed);">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                 </div>
-                <h2 style="font-size:1rem;font-weight:800;color:#111827;margin:0;">المحاضرات والجلسات</h2>
-                <span style="background:#0071AA;color:white;font-size:.72rem;font-weight:700;padding:2px 9px;border-radius:20px;">{{ $programSessions->count() }}</span>
+                الفصول التدريبية
             </div>
-
-            @if($programSessions->isEmpty())
-            <div style="text-align:center;padding:48px 20px;">
-                <div style="width:56px;height:56px;background:#f8fafc;border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">
-                    <svg width="28" height="28" fill="none" stroke="#cbd5e1" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-                </div>
-                <p style="font-size:.9rem;color:#6b7280;margin:0;">لا توجد جلسات مضافة بعد</p>
-            </div>
-            @else
-            <div style="display:flex;flex-direction:column;gap:0;">
-                @foreach($programSessions as $sess)
+        </div>
+        <div class="timeline">
+            @if($pdTerms->count() > 0)
+                @foreach($pdTerms as $termLoop)
                 @php
-                    $isCompleted = !is_null($sess->ended_at);
-                    $isLive      = !is_null($sess->started_at) && is_null($sess->ended_at);
-                    $fileCount   = $sess->files->count();
-                    $hasHomework = !is_null($sess->homework);
+                    $isCT = $pdCurrentTerm && $termLoop->id === $pdCurrentTerm->id;
+                    $isPT = !$isCT && (($termLoop->end_date && $termLoop->end_date < now()) ||
+                            ($pdCurrentTerm && $pdTerms->search(fn($t)=>$t->id===$termLoop->id) < $pdTerms->search(fn($t)=>$t->id===$pdCurrentTerm->id)));
+                    $state = $isPT ? 'past' : ($isCT ? 'current' : 'future');
                 @endphp
-                <div style="border-bottom:1px solid #f8fafc;padding:14px 22px;display:flex;align-items:center;justify-content:space-between;gap:12px;transition:background .15s;"
-                     onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background=''">
-                    <div style="display:flex;align-items:center;gap:12px;min-width:0;flex:1;">
-                        {{-- Status indicator --}}
-                        <div style="width:36px;height:36px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;
-                             background:{{ $isLive ? 'linear-gradient(135deg,#22c55e,#16a34a)' : ($isCompleted ? '#f0fdf4' : '#f8fafc') }};">
-                            @if($isLive)
-                            <svg width="16" height="16" fill="white" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M2 12C2 6.48 6.48 2 12 2s10 4.48 10 10-4.48 10-10 10S2 17.52 2 12z" opacity=".3"/></svg>
-                            @elseif($isCompleted)
-                            <svg width="16" height="16" fill="none" stroke="#16a34a" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
-                            @else
-                            <span style="font-size:.78rem;font-weight:800;color:#9ca3af;">{{ $sess->session_number ?? '—' }}</span>
-                            @endif
-                        </div>
-                        <div style="min-width:0;">
-                            <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-                                <h4 style="font-size:.9rem;font-weight:700;color:#111827;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
-                                    {{ $sess->title_ar ?: $sess->title_en ?: ('جلسة #'.($sess->session_number ?? '—')) }}
-                                </h4>
-                                @if($isLive)
-                                <span style="background:#dcfce7;color:#15803d;font-size:.65rem;font-weight:700;padding:1px 7px;border-radius:20px;animation:pulse 2s infinite;">مباشر</span>
-                                @endif
-                            </div>
-                            <div style="display:flex;align-items:center;gap:10px;margin-top:3px;flex-wrap:wrap;">
-                                @if($sess->scheduled_at)
-                                <span style="font-size:.72rem;color:#9ca3af;">
-                                    {{ \Carbon\Carbon::parse($sess->scheduled_at)->format('Y/m/d · H:i') }}
-                                </span>
-                                @endif
-                                @if($fileCount > 0)
-                                <span style="font-size:.72rem;color:#0071AA;background:#eff6ff;padding:1px 7px;border-radius:20px;">
-                                    {{ $fileCount }} ملف
-                                </span>
-                                @endif
-                                @if($hasHomework)
-                                <span style="font-size:.72rem;color:#d97706;background:#fef3c7;padding:1px 7px;border-radius:20px;">واجب</span>
-                                @endif
-                            </div>
-                        </div>
+                <div class="tl-item {{ $state }}">
+                    <div class="tl-circle {{ $state }}">
+                        @if($isPT)<svg style="width:20px;height:20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+                        @else{{ $termLoop->term_number }}@endif
                     </div>
-                    <a href="{{ route('student.sessions.show', $sess) }}"
-                       style="flex-shrink:0;display:inline-flex;align-items:center;gap:5px;padding:7px 14px;background:linear-gradient(135deg,#0071AA,#005a88);color:white;border-radius:9px;font-size:.78rem;font-weight:700;text-decoration:none;white-space:nowrap;box-shadow:0 2px 8px rgba(0,113,170,.25);">
-                        <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                        عرض
-                    </a>
+                    <div class="tl-body">
+                        <div class="tl-row">
+                            <div>
+                                <div class="tl-name">{{ $termLoop->name_ar ?? $termLoop->name }}</div>
+                                <div class="tl-meta">
+                                    @if($termLoop->start_date && $termLoop->end_date)
+                                    <span style="display:flex;align-items:center;gap:3px;">
+                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:13px;height:13px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                        {{ $termLoop->start_date->format('Y/m/d') }} - {{ $termLoop->end_date->format('Y/m/d') }}
+                                    </span>
+                                    @endif
+                                    <span>{{ $termLoop->subjects->count() }} مادة</span>
+                                </div>
+                            </div>
+                            <span class="tl-badge {{ $state }}">
+                                @if($isPT)<svg style="width:12px;height:12px;" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> مكتمل
+                                @elseif($isCT)<span style="width:7px;height:7px;background:#fff;border-radius:50%;display:inline-block;animation:pulse 2s infinite;"></span> الحالي
+                                @else قادم @endif
+                            </span>
+                        </div>
+                        @if($isCT && $termLoop->subjects->count() > 0)
+                        <div class="tl-subjects">
+                            @foreach($termLoop->subjects as $s)<span class="tl-subj-chip">{{ $s->name_ar ?? $s->name }}</span>@endforeach
+                        </div>
+                        @endif
+                    </div>
                 </div>
                 @endforeach
-            </div>
-            @endif
-        </div>
-
-        @else
-        {{-- ══════════════════════════════════════════════════════════════
-             DIPLOMA — existing terms / subjects view
-        ══════════════════════════════════════════════════════════════ --}}
-
-        {{-- ===== Hero Header ===== --}}
-        <div class="prog-hero">
-            <div class="hero-top">
-                <div class="hero-info">
-                    <h1 class="hero-name">{{ $program->name }}</h1>
-                    <p class="hero-desc">{{ $program->description ?? 'برنامجك التدريبي الحالي' }}</p>
-                    @if($track)
-                        <span class="hero-track">
-                            <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
-                            الدبلوم: {{ $track->name }}
-                        </span>
-                    @endif
-                </div>
-                <div class="hero-term-box">
-                    <div class="hero-term-num">{{ $currentTermIndex ?? $stats['current_term'] }}<span style="font-size: 1rem; opacity: 0.7;"> / {{ $stats['total_terms'] }}</span></div>
-                    <div class="hero-term-label">الفصل الحالي</div>
-                </div>
-            </div>
-            <div class="hero-progress">
-                <div class="hero-progress-labels">
-                    <span>التقدم في البرنامج</span>
-                    <span style="font-weight: 800;">{{ $stats['progress_percentage'] ?? 0 }}%</span>
-                </div>
-                <div class="hero-progress-bar">
-                    <div class="hero-progress-fill" style="width: {{ $stats['progress_percentage'] ?? 0 }}%;"></div>
-                </div>
-            </div>
-        </div>
-
-        {{-- ===== Current Term Spotlight (removed) ===== --}}
-        @if(false)
-            {{-- bg decoration --}}
-            <div style="position:absolute;top:-40px;left:-40px;width:180px;height:180px;
-                        border-radius:50%;background:rgba(124,58,237,.08);pointer-events:none;"></div>
-            <div style="position:absolute;bottom:-30px;right:-30px;width:140px;height:140px;
-                        border-radius:50%;background:rgba(99,102,241,.06);pointer-events:none;"></div>
-
-            <div style="position:relative;z-index:1;">
-                {{-- header row --}}
-                <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem;">
-                    <div style="display:flex;align-items:center;gap:1rem;">
-                        <div style="width:52px;height:52px;border-radius:14px;flex-shrink:0;
-                                    background:linear-gradient(135deg,#7c3aed,#4f46e5);
-                                    display:flex;align-items:center;justify-content:center;
-                                    box-shadow:0 6px 20px rgba(124,58,237,.4);">
-                            <svg width="24" height="24" fill="none" stroke="white" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                            </svg>
-                        </div>
-                        <div>
-                            <div style="color:#a78bfa;font-size:.78rem;font-weight:600;text-transform:uppercase;
-                                        letter-spacing:.07em;margin-bottom:.2rem;">فصلك التدريبي الحالي</div>
-                            <h2 style="color:#f1f5f9;font-size:1.35rem;font-weight:800;margin:0;">
-                                {{ $currentTerm->name_ar ?? $currentTerm->name ?? 'الفصل ' . $currentTermNumber }}
-                            </h2>
-                        </div>
-                    </div>
-
-                    {{-- badges row --}}
-                    <div style="display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;">
-                        <span style="background:rgba(124,58,237,.2);border:1px solid rgba(124,58,237,.4);
-                                     color:#c4b5fd;font-size:.78rem;font-weight:700;
-                                     padding:.35rem .85rem;border-radius:999px;">
-                            الفصل {{ $currentTermIndex ?? $stats['current_term'] }} من {{ $terms->count() }}
-                        </span>
-                        <span style="background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.3);
-                                     color:#6ee7b7;font-size:.78rem;font-weight:700;
-                                     padding:.35rem .85rem;border-radius:999px;
-                                     display:flex;align-items:center;gap:.35rem;">
-                            <span style="width:7px;height:7px;border-radius:50%;background:#10b981;
-                                         display:inline-block;animation:pulse 2s infinite;"></span>
-                            جارٍ الآن
-                        </span>
-                        @if($currentTerm->subjects->count() > 0)
-                        <span style="background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.3);
-                                     color:#93c5fd;font-size:.78rem;font-weight:700;
-                                     padding:.35rem .85rem;border-radius:999px;">
-                            {{ $currentTerm->subjects->count() }} مادة
-                        </span>
-                        @endif
-                    </div>
-                </div>
-
-                {{-- dates row --}}
-                @if($currentTerm->start_date || $currentTerm->end_date)
-                <div style="display:flex;flex-wrap:wrap;gap:1.5rem;margin-bottom:1.5rem;
-                            padding:1rem 1.25rem;background:rgba(255,255,255,.04);
-                            border:1px solid rgba(255,255,255,.07);border-radius:12px;">
-                    @if($currentTerm->start_date)
-                    <div style="display:flex;align-items:center;gap:.5rem;">
-                        <div style="width:32px;height:32px;border-radius:8px;background:rgba(16,185,129,.15);
-                                    display:flex;align-items:center;justify-content:center;">
-                            <svg width="16" height="16" fill="none" stroke="#10b981" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                            </svg>
-                        </div>
-                        <div>
-                            <div style="color:#64748b;font-size:.72rem;">تاريخ البداية</div>
-                            <div style="color:#e2e8f0;font-size:.85rem;font-weight:700;">
-                                {{ $currentTerm->start_date->format('d / m / Y') }}
-                            </div>
-                        </div>
-                    </div>
-                    @endif
-                    @if($currentTerm->end_date)
-                    <div style="display:flex;align-items:center;gap:.5rem;">
-                        <div style="width:32px;height:32px;border-radius:8px;background:rgba(239,68,68,.12);
-                                    display:flex;align-items:center;justify-content:center;">
-                            <svg width="16" height="16" fill="none" stroke="#ef4444" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                        </div>
-                        <div>
-                            <div style="color:#64748b;font-size:.72rem;">تاريخ الانتهاء</div>
-                            <div style="color:#e2e8f0;font-size:.85rem;font-weight:700;">
-                                {{ $currentTerm->end_date->format('d / m / Y') }}
-                            </div>
-                        </div>
-                    </div>
-                    @php
-                        $daysLeft = now()->diffInDays($currentTerm->end_date, false);
-                    @endphp
-                    @if($daysLeft > 0)
-                    <div style="display:flex;align-items:center;gap:.5rem;">
-                        <div style="width:32px;height:32px;border-radius:8px;background:rgba(245,158,11,.12);
-                                    display:flex;align-items:center;justify-content:center;">
-                            <svg width="16" height="16" fill="none" stroke="#f59e0b" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                      d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                            </svg>
-                        </div>
-                        <div>
-                            <div style="color:#64748b;font-size:.72rem;">المتبقي</div>
-                            <div style="color:#fcd34d;font-size:.85rem;font-weight:700;">{{ $daysLeft }} يوم</div>
-                        </div>
-                    </div>
-                    @endif
-                    @endif
-                </div>
-                @endif
-
-                {{-- subjects in current term --}}
-                @if($currentTerm->subjects->count() > 0)
-                <div>
-                    <div style="color:#94a3b8;font-size:.78rem;font-weight:600;
-                                text-transform:uppercase;letter-spacing:.06em;margin-bottom:.85rem;">
-                        مقرارت هذا الفصل
-                    </div>
-                    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:.75rem;">
-                        @foreach($currentTerm->subjects as $s)
-                        @php
-                            $sp = $subjectsProgress[$s->id] ?? null;
-                            $pct = $sp ? $sp['percentage'] : 0;
-                            $barColor = $pct >= 80 ? '#10b981' : ($pct >= 50 ? '#f59e0b' : '#ef4444');
-                        @endphp
-                        <div style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);
-                                    border-radius:14px;padding:1rem;transition:background .2s;">
-                            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem;margin-bottom:.65rem;">
-                                <div style="font-weight:700;font-size:.88rem;color:#e2e8f0;line-height:1.4;">
-                                    {{ $s->name_ar ?? $s->name }}
-                                </div>
-                                <div style="width:32px;height:32px;border-radius:8px;flex-shrink:0;
-                                            background:rgba({{ $s->color ? '0,0,0' : '124,58,237' }},.15);
-                                            display:flex;align-items:center;justify-content:center;">
-                                    <svg width="16" height="16" fill="none" stroke="{{ $s->color ?? '#a78bfa' }}" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                              d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-                                    </svg>
-                                </div>
-                            </div>
-                            @if($s->teacher)
-                            <div style="color:#64748b;font-size:.75rem;margin-bottom:.65rem;
-                                        display:flex;align-items:center;gap:.3rem;">
-                                <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                                </svg>
-                                {{ $s->teacher->name }}
-                            </div>
-                            @endif
-                            {{-- attendance bar --}}
-                            @if($sp)
-                            <div>
-                                <div style="display:flex;justify-content:space-between;font-size:.72rem;
-                                            color:#64748b;margin-bottom:.3rem;">
-                                    <span>الحضور</span>
-                                    <span style="color:{{ $barColor }};font-weight:700;">{{ $pct }}%</span>
-                                </div>
-                                <div style="height:5px;background:rgba(255,255,255,.08);border-radius:999px;overflow:hidden;">
-                                    <div style="height:100%;width:{{ $pct }}%;background:{{ $barColor }};
-                                                border-radius:999px;transition:width .6s;"></div>
-                                </div>
-                            </div>
-                            @endif
-                        </div>
-                        @endforeach
-                    </div>
-                </div>
-                @endif
-            </div>
-        </div>
-        @endif
-
-        {{-- ===== Stats Row ===== --}}
-        <!-- <div class="stats-row">
-            <div class="stat-card">
-                <div class="stat-icon" style="background: linear-gradient(135deg, #3b82f6, #2563eb);">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
-                </div>
-                <div>
-                    <div class="stat-val">{{ $stats['total_subjects'] }}</div>
-                    <div class="stat-label">المقررات  المسجلة</div>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon" style="background: linear-gradient(135deg, #0071AA, #005a88);">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-                </div>
-                <div>
-                    <div class="stat-val">{{ $stats['total_sessions'] }}</div>
-                    <div class="stat-label">إجمالي الجلسات</div>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon" style="background: linear-gradient(135deg, #10b981, #059669);">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                </div>
-                <div>
-                    <div class="stat-val">{{ $stats['completed_sessions'] }}</div>
-                    <div class="stat-label">جلسات مكتملة</div>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
-                </div>
-                <div>
-                    <div class="stat-val">{{ $stats['attendance_rate'] }}%</div>
-                    <div class="stat-label">نسبة الحضور</div>
-                </div>
-            </div>
-        </div> -->
-
-        {{-- ===== Program Info + Terms Timeline ===== --}}
-        <div class="two-col">
-            {{-- Program Info --}}
-            <div class="sec-card">
-                <div class="sec-header">
-                    <div class="sec-title">
-                        <div class="sec-title-icon" style="background: linear-gradient(135deg, #0071AA, #005a88);">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                        </div>
-                        معلومات البرنامج
-                    </div>
-                </div>
-                <div class="info-list">
-                    <div class="info-row">
-                        <span class="info-key">اسم البرنامج</span>
-                        <span class="info-val">{{ $program->name }}</span>
-                    </div>
-                    @if($program->code)
-                    <div class="info-row">
-                        <span class="info-key">رمز البرنامج</span>
-                        <span class="info-val">{{ $program->code }}</span>
-                    </div>
-                    @endif
-                    @if($program->duration_months)
-                    <div class="info-row">
-                        <span class="info-key">مدة البرنامج</span>
-                        <span class="info-val">{{ $program->duration_months }} شهر</span>
-                    </div>
-                    @endif
-                    <div class="info-row">
-                        <span class="info-key">عدد الفصول</span>
-                        <span class="info-val">{{ $stats['total_terms'] }} فصول</span>
-                    </div>
-                    @if($track)
-                    <div class="info-row">
-                        <span class="info-key">الدبلوم</span>
-                        <span class="info-val">{{ $track->name }}</span>
-                    </div>
-                    @endif
-                    <div class="info-row">
-                        <span class="info-key">الحالة</span>
-                        <span class="info-badge">نشط</span>
-                    </div>
-                </div>
-            </div>
-
-            {{-- Terms Timeline --}}
-            <div class="sec-card">
-                <div class="sec-header">
-                    <div class="sec-title">
-                        <div class="sec-title-icon" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                        </div>
-                        الفصول التدريبية 
-                    </div>
-                </div>
-                <div class="timeline">
-                    @if($terms->count() > 0)
-                        @foreach($terms as $termLoop)
-                            @php
-                                // State by date first, then fall back to position vs currentTerm
-                                $isCurrentTerm = isset($currentTerm) && $currentTerm && $termLoop->id === $currentTerm->id;
-                                // A term is past if it ended before today, or if it appears before the currentTerm in the sorted list
-                                $isPastTerm = false;
-                                if (!$isCurrentTerm) {
-                                    if ($termLoop->end_date && $termLoop->end_date < now()) {
-                                        $isPastTerm = true;
-                                    } elseif (isset($currentTerm) && $currentTerm) {
-                                        // Compare positions in the sorted $terms collection
-                                        $currentTermPos = $terms->search(fn($t) => $t->id === $currentTerm->id);
-                                        $thisTermPos    = $terms->search(fn($t) => $t->id === $termLoop->id);
-                                        $isPastTerm = $thisTermPos < $currentTermPos;
-                                    }
-                                }
-                                $term  = $termLoop; // keep template variable name
-                                $state = $isPastTerm ? 'past' : ($isCurrentTerm ? 'current' : 'future');
-                            @endphp
-                            <div class="tl-item {{ $state }}">
-                                <div class="tl-circle {{ $state }}">
-                                    @if($isPastTerm)
-                                        <svg style="width:20px;height:20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
-                                    @else
-                                        {{ $term->term_number }}
-                                    @endif
-                                </div>
-                                <div class="tl-body">
-                                    <div class="tl-row">
-                                        <div>
-                                            <div class="tl-name">{{ $term->name }}</div>
-                                            <div class="tl-meta">
-                                                @if($term->start_date && $term->end_date)
-                                                    <span style="display:flex;align-items:center;gap:0.25rem;">
-                                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                                                        {{ $term->start_date->format('Y/m/d') }} - {{ $term->end_date->format('Y/m/d') }}
-                                                    </span>
-                                                @endif
-                                                <span style="display:flex;align-items:center;gap:0.25rem;">
-                                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
-                                                    {{ $term->subjects->count() }} مادة
-                                                </span>
-                                            </div>
-                                        </div>
-                                        <span class="tl-badge {{ $state }}">
-                                            @if($isPastTerm)
-                                                <svg style="width:12px;height:12px;" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
-                                                مكتمل
-                                            @elseif($isCurrentTerm)
-                                                <span style="width:7px;height:7px;background:#fff;border-radius:50;display:inline-block;animation:pulse 2s infinite;"></span>
-                                                الفصل الحالي
-                                            @else
-                                                قادم
-                                            @endif
-                                        </span>
-                                    </div>
-                                    @if($isCurrentTerm && $term->subjects->count() > 0)
-                                        <div class="tl-subjects">
-                                            @foreach($term->subjects as $s)
-                                                <span class="tl-subj-chip">{{ $s->name }}</span>
-                                            @endforeach
-                                        </div>
-                                    @endif
-                                </div>
-                            </div>
-                        @endforeach
-                    @else
-                        <div style="text-align:center;padding:2rem;color:#94a3b8;">لا توجد فصول دراسية مسجلة</div>
-                    @endif
-                </div>
-            </div>
-        </div>
-
-        {{-- ===== Subjects of Current Term ===== --}}
-        <div class="sec-card">
-            <div class="sec-header">
-                <div class="sec-title">
-                    <div class="sec-title-icon" style="background: linear-gradient(135deg, #0071AA, #005a88);">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
-                    </div>
-                    مقرارت الفصل الحالي
-                    @if(isset($currentTerm) && $currentTerm)
-                        <span style="background:#e0f2fe;color:#0369a1;font-size:.72rem;font-weight:700;
-                                     padding:.2rem .65rem;border-radius:999px;margin-right:.25rem;">
-                            {{ $currentTerm->name_ar ?? $currentTerm->name }}
-                        </span>
-                    @endif
-                </div>
-                <a href="{{ route('student.my-sessions') }}" class="sec-link">
-                    جميع الجلسات
-                    <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
-                </a>
-            </div>
-
-            @if($currentTermSubjects->count() > 0)
-                <div class="subj-grid">
-                    @foreach($currentTermSubjects as $subject)
-                        @php
-                            $color = $subject->color ?? '#0071AA';
-                            $progress = $subjectsProgress[$subject->id] ?? null;
-                        @endphp
-                        <div class="subj-card">
-                            <div class="subj-top" style="background: {{ $color }};"></div>
-                            <div class="subj-body">
-                                <div class="subj-name">{{ $subject->name }}</div>
-                                <div class="subj-chips">
-                                    @if($subject->teacher)
-                                        <span class="subj-chip">
-                                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-                                            {{ $subject->teacher->name }}
-                                        </span>
-                                    @endif
-                                    <span class="subj-chip">
-                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-                                        {{ $subject->sessions->count() }} جلسة
-                                    </span>
-                                </div>
-
-                                @if($progress)
-                                    <div class="subj-progress">
-                                        <div class="subj-progress-header">
-                                            <span class="subj-progress-label">نسبة الحضور</span>
-                                            <span class="subj-progress-pct">{{ $progress['percentage'] }}%</span>
-                                        </div>
-                                        <div class="subj-progress-track">
-                                            <div class="subj-progress-fill" style="width: {{ $progress['percentage'] }}%;"></div>
-                                        </div>
-                                        <div class="subj-progress-text">{{ $progress['attended'] }} من {{ $progress['total'] }} جلسة</div>
-                                    </div>
-                                @endif
-
-                                <a href="{{ route('student.subjects.show', $subject->id) }}" class="subj-btn">
-                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                                    عرض التفاصيل
-                                </a>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
             @else
-                <div style="text-align:center;padding:3rem 1rem;">
-                    <div style="width:64px;height:64px;border-radius:16px;background:#f8fafc;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;">
-                        <svg style="width:32px;height:32px;color:#cbd5e1;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
-                    </div>
-                    <h3 style="font-size:1.1rem;font-weight:800;color:#1e293b;margin-bottom:0.25rem;">لا توجد مقرارت في هذا الفصل</h3>
-                    <p style="font-size:0.85rem;color:#94a3b8;">
-                        لم يتم إضافة مقرارت للفصل الحالي بعد
-                        @if(isset($currentTerm) && $currentTerm)
-                            ({{ $currentTerm->name_ar ?? $currentTerm->name }})
-                        @endif
-                    </p>
-                </div>
+                <div style="text-align:center;padding:2rem;color:#94a3b8;">لا توجد فصول</div>
             @endif
         </div>
+    </div>
+</div>
 
-        @endif {{-- end diploma --}}
-
+{{-- ── Current Term Subjects ── --}}
+<div class="sec-card">
+    <div class="sec-header">
+        <div class="sec-title">
+            <div class="sec-title-icon" style="background:linear-gradient(135deg,{{ $tabColor }},{{ $tabColor }}cc);">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+            </div>
+            مقررات الفصل الحالي
+            @if($pdCurrentTerm)
+            <span style="background:#e0f2fe;color:#0369a1;font-size:.72rem;font-weight:700;padding:.2rem .65rem;border-radius:999px;margin-right:.25rem;">{{ $pdCurrentTerm->name_ar ?? $pdCurrentTerm->name }}</span>
+            @endif
+        </div>
+        <a href="{{ route('student.my-sessions') }}" class="sec-link">جميع الجلسات <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg></a>
+    </div>
+    @if($pdCurrentTermSubj->count() > 0)
+    <div class="subj-grid">
+        @foreach($pdCurrentTermSubj as $subject)
+        @php $color=$subject->color??$tabColor; $progress=$pdSubjProgress[$subject->id]??null; @endphp
+        <div class="subj-card">
+            <div class="subj-top" style="background:{{ $color }};"></div>
+            <div class="subj-body">
+                <div class="subj-name">{{ $subject->name_ar ?? $subject->name }}</div>
+                <div class="subj-chips">
+                    @if($subject->teacher)<span class="subj-chip"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>{{ $subject->teacher->name }}</span>@endif
+                    <span class="subj-chip"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>{{ $subject->sessions->count() }} جلسة</span>
+                </div>
+                @if($progress)
+                <div class="subj-progress">
+                    <div class="subj-progress-header"><span class="subj-progress-label">نسبة الحضور</span><span class="subj-progress-pct">{{ $progress['percentage'] }}%</span></div>
+                    <div class="subj-progress-track"><div class="subj-progress-fill" style="width:{{ $progress['percentage'] }}%;"></div></div>
+                    <div class="subj-progress-text">{{ $progress['attended'] }} من {{ $progress['total'] }} جلسة</div>
+                </div>
+                @endif
+                <a href="{{ route('student.subjects.show', $subject->id) }}" class="subj-btn"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>عرض التفاصيل</a>
+            </div>
+        </div>
+        @endforeach
+    </div>
     @else
+    <div style="text-align:center;padding:3rem 1rem;color:#94a3b8;">لا توجد مقررات في هذا الفصل</div>
+    @endif
+</div>
+
+@else
+{{-- ── NON-DIPLOMA panel ── --}}
+<div style="background:{{ $gradBg }};border-radius:20px;padding:28px 32px;margin-bottom:24px;position:relative;overflow:hidden;">
+    <div style="position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;">
+        <div>
+            <h1 style="color:white;font-size:1.4rem;font-weight:900;margin:0 0 4px;">{{ $prog->name_ar ?? $prog->name }}</h1>
+            <p style="color:rgba(255,255,255,.65);font-size:.85rem;margin:0;">{{ $prog->description ?? 'برنامجك التدريبي' }}</p>
+            @if($prog->duration_hours)<span style="display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.12);border-radius:20px;padding:4px 12px;font-size:.78rem;color:rgba(255,255,255,.8);margin-top:8px;">{{ $prog->duration_hours }} ساعة تدريبية</span>@endif
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            @foreach([[$pdStats['total_sessions'],'إجمالي الجلسات','rgba(255,255,255,.75)'],[$pdStats['completed_sessions'],'مكتملة','#86efac'],[$pdStats['attendance_rate'].'%','نسبة الحضور','#fde68a']] as [$v,$l,$c])
+            <div style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:8px 16px;text-align:center;min-width:70px;">
+                <div style="font-size:1.3rem;font-weight:800;color:{{ $c }};line-height:1.1;">{{ $v }}</div>
+                <div style="font-size:.7rem;color:rgba(255,255,255,.55);margin-top:2px;">{{ $l }}</div>
+            </div>
+            @endforeach
+        </div>
+    </div>
+</div>
+
+<div style="background:white;border-radius:18px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.05);margin-bottom:20px;">
+    <div style="padding:18px 22px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;gap:10px;">
+        <div style="width:36px;height:36px;background:linear-gradient(135deg,{{ $tabColor }},{{ $tabColor }}cc);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <svg width="18" height="18" fill="white" viewBox="0 0 24 24"><path d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+        </div>
+        <h2 style="font-size:1rem;font-weight:800;color:#111827;margin:0;">المحاضرات والجلسات</h2>
+        <span style="background:{{ $tabColor }};color:white;font-size:.72rem;font-weight:700;padding:2px 9px;border-radius:20px;">{{ $pdSessions->count() }}</span>
+    </div>
+    @if($pdSessions->isEmpty())
+    <div style="text-align:center;padding:48px 20px;color:#6b7280;">لا توجد جلسات مضافة بعد</div>
+    @else
+    <div>
+        @foreach($pdSessions as $sess)
+        @php $isComp=!is_null($sess->ended_at);$isLive=!is_null($sess->started_at)&&is_null($sess->ended_at); @endphp
+        <div style="border-bottom:1px solid #f8fafc;padding:14px 22px;display:flex;align-items:center;justify-content:space-between;gap:12px;" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background=''">
+            <div style="display:flex;align-items:center;gap:12px;min-width:0;flex:1;">
+                <div style="width:36px;height:36px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:{{ $isLive?'linear-gradient(135deg,#22c55e,#16a34a)':($isComp?'#f0fdf4':'#f8fafc') }};">
+                    @if($isLive)<svg width="16" height="16" fill="white" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/></svg>
+                    @elseif($isComp)<svg width="16" height="16" fill="none" stroke="#16a34a" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                    @else<span style="font-size:.78rem;font-weight:800;color:#9ca3af;">{{ $sess->session_number??'—' }}</span>@endif
+                </div>
+                <div style="min-width:0;">
+                    <h4 style="font-size:.9rem;font-weight:700;color:#111827;margin:0;">{{ $sess->title_ar?:$sess->title_en??('جلسة #'.($sess->session_number??'—')) }}</h4>
+                    <div style="display:flex;align-items:center;gap:10px;margin-top:3px;flex-wrap:wrap;">
+                        @if($sess->scheduled_at)<span style="font-size:.72rem;color:#9ca3af;">{{ \Carbon\Carbon::parse($sess->scheduled_at)->format('Y/m/d · H:i') }}</span>@endif
+                        @if($sess->files->count()>0)<span style="font-size:.72rem;color:#0071AA;background:#eff6ff;padding:1px 7px;border-radius:20px;">{{ $sess->files->count() }} ملف</span>@endif
+                        @if($sess->homework)<span style="font-size:.72rem;color:#d97706;background:#fef3c7;padding:1px 7px;border-radius:20px;">واجب</span>@endif
+                    </div>
+                </div>
+            </div>
+            <a href="{{ route('student.sessions.show', $sess) }}" style="flex-shrink:0;display:inline-flex;align-items:center;gap:5px;padding:7px 14px;background:linear-gradient(135deg,{{ $tabColor }},{{ $tabColor }}cc);color:white;border-radius:9px;font-size:.78rem;font-weight:700;text-decoration:none;">
+                <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                عرض
+            </a>
+        </div>
+        @endforeach
+    </div>
+    @endif
+</div>
+@endif
+
+</div>{{-- end panel --}}
+@endforeach{{-- end programsData loop --}}
+
+{{-- Tab switch JS --}}
+<script>
+function switchProgTab(id) {
+    document.querySelectorAll('[id^="progpanel-"]').forEach(p => p.style.display = 'none');
+    document.querySelectorAll('[id^="progtab-"]').forEach(btn => {
+        btn.style.color = '#6b7280';
+        btn.style.borderBottomColor = 'transparent';
+        btn.style.background = 'transparent';
+    });
+    var panel = document.getElementById('progpanel-' + id);
+    var tab   = document.getElementById('progtab-'  + id);
+    if (panel) panel.style.display = 'block';
+    if (tab) {
+        var c = tab.dataset.color;
+        tab.style.color = c;
+        tab.style.borderBottomColor = c;
+        tab.style.background = c + '12';
+    }
+}
+// Activate first tab
+@if($firstTabKey)switchProgTab({{ $firstTabKey }});@endif
+</script>
+
+@else
         {{-- ===== No Program - Enrollment Flow ===== --}}
         <div class="enroll-hero">
             <div class="enroll-icon">

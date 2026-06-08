@@ -1760,33 +1760,52 @@
                                     </form>
                                 </div>
                             @else
-                                {{-- Approved / assigned state --}}
-                                <div class="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl p-4 mb-4">
-                                    <div class="flex items-center gap-3 mb-2">
-                                        <div class="w-10 h-10 rounded-lg bg-gradient-to-r from-green-500 to-emerald-500 flex items-center justify-center">
-                                            <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                            </svg>
+                                {{-- Primary program card --}}
+                                @php
+                                    $extraPrograms = $student->programs()->get();
+                                    $allAssigned   = collect();
+                                    if ($student->program) $allAssigned->push(['program' => $student->program, 'primary' => true]);
+                                    foreach ($extraPrograms as $ep) {
+                                        if ($ep->id !== $student->program_id)
+                                            $allAssigned->push(['program' => $ep, 'primary' => false]);
+                                    }
+                                @endphp
+
+                                @foreach($allAssigned as $entry)
+                                @php $prog = $entry['program']; $isPrimary = $entry['primary']; @endphp
+                                <div style="background:linear-gradient(135deg,#f0fdf4,#ecfdf5);border:1px solid #bbf7d0;border-radius:12px;padding:14px;margin-bottom:10px;">
+                                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+                                        <div style="display:flex;align-items:center;gap:10px;">
+                                            <div style="width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,#22c55e,#16a34a);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                                <svg width="16" height="16" fill="white" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                            </div>
+                                            <div>
+                                                <p style="font-size:13px;font-weight:700;color:#1e293b;margin:0;">{{ $prog->name_ar }}</p>
+                                                <p style="font-size:11px;color:#6b7280;margin:0;">{{ $prog->code }} @if($isPrimary) <span style="background:#dbeafe;color:#1d4ed8;padding:1px 6px;border-radius:10px;font-size:10px;font-weight:700;">أساسي</span>@endif</p>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <p class="font-semibold text-gray-900 dark:text-white">{{ $student->program->name }}</p>
-                                            <p class="text-xs text-gray-500">{{ $student->program->code }}</p>
-                                        </div>
+                                        <form action="{{ route('admin.students.remove-program', $student) }}" method="POST" onsubmit="return confirm('إزالة البرنامج؟')">
+                                            @csrf @method('DELETE')
+                                            <input type="hidden" name="program_id" value="{{ $prog->id }}">
+                                            <button type="submit" style="width:28px;height:28px;background:#fee2e2;border:none;border-radius:6px;cursor:pointer;color:#dc2626;font-size:16px;display:flex;align-items:center;justify-content:center;">×</button>
+                                        </form>
                                     </div>
-                                    <div class="flex items-center justify-between text-sm">
-                                        <span class="text-gray-500">المدة: {{ $student->program->duration_months }} شهر</span>
-                                        <span class="text-green-600 font-medium">{{ number_format($student->program->price) }} <x-riyal /></span>
-                                    </div>
+                                    <div style="font-size:11px;color:#6b7280;">المدة: {{ $prog->duration_months }} شهر</div>
                                 </div>
-                                <form action="{{ route('admin.students.remove-program', $student) }}" method="POST" onsubmit="return confirm('هل أنت متأكد من إزالة البرنامج من هذا المتدرب ؟');">
+                                @endforeach
+
+                                {{-- Add another program --}}
+                                <form action="{{ route('admin.students.assign-program', $student) }}" method="POST" style="margin-top:8px;">
                                     @csrf
-                                    @method('DELETE')
-                                    <button type="submit" style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 16px;border-radius:10px;background:linear-gradient(135deg,#ef4444,#dc2626);color:white;font-weight:600;font-size:13px;border:none;cursor:pointer;box-shadow:0 4px 12px rgba(239,68,68,.3);">
-                                        <svg style="width:16px;height:16px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                        </svg>
-                                        إزالة البرنامج
-                                    </button>
+                                    <select name="program_id" required style="width:100%;padding:8px 12px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13px;margin-bottom:8px;box-sizing:border-box;">
+                                        <option value="">+ إضافة برنامج آخر...</option>
+                                        @foreach($programs as $prog)
+                                            @if($prog->id !== $student->program_id && !$extraPrograms->contains('id', $prog->id))
+                                            <option value="{{ $prog->id }}">{{ $prog->name_ar }} ({{ $prog->code }})</option>
+                                            @endif
+                                        @endforeach
+                                    </select>
+                                    <button type="submit" style="width:100%;padding:9px;background:linear-gradient(135deg,#0071AA,#005a88);color:white;border:none;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;">إضافة برنامج</button>
                                 </form>
                             @endif
                         @else
@@ -1796,7 +1815,7 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
                                     </svg>
                                 </div>
-                                <p class="text-gray-500 dark:text-gray-400 text-sm mb-4">لم يتم تعيين برنامج لهذا المتدرب </p>
+                                <p class="text-gray-500 dark:text-gray-400 text-sm mb-4">لم يتم تعيين برنامج لهذا المتدرب</p>
                             </div>
                             <form action="{{ route('admin.students.assign-program', $student) }}" method="POST">
                                 @csrf
@@ -1804,7 +1823,7 @@
                                     <select name="program_id" required class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2.5 text-gray-900 dark:text-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500">
                                         <option value="">اختر البرنامج...</option>
                                         @foreach($programs as $program)
-                                            <option value="{{ $program->id }}">{{ $program->name }} ({{ $program->code }})</option>
+                                            <option value="{{ $program->id }}">{{ $program->name_ar }} ({{ $program->code }})</option>
                                         @endforeach
                                     </select>
                                     <button type="submit" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-brand-500 text-white hover:bg-brand-600 transition-colors font-medium text-sm">

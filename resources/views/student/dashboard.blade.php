@@ -261,6 +261,7 @@
         padding: 0.85rem 1.25rem;
         border-bottom: 1px solid #f8fafc;
         font-size: 0.85rem;
+        min-width: 0;
     }
     .dark .ticket-row { border-color: #1f2937; }
     .ticket-row:last-child { border-bottom: none; }
@@ -503,214 +504,13 @@
         </div>
     </div>
 
-    <!-- Row 1: Upcoming Sessions + Calendar -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Upcoming Sessions -->
-        <div class="lg:col-span-2 d-card">
-            <div class="d-card-head">
-                <div class="icon-wrap" style="background: #eff6ff;">
-                    <svg class="w-4.5 h-4.5" style="color: #2563eb;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-                </div>
-                <span class="text-sm font-bold text-gray-900 dark:text-white flex-1">الجلسات القادمة</span>
-                <a href="{{ route('student.my-sessions') }}" class="link-all" style="background: #eff6ff; color: #2563eb;">عرض الكل</a>
-            </div>
-            @if($upcomingSessions->count() > 0)
-                @foreach($upcomingSessions as $session)
-                    <div class="sess-item">
-                        <div class="sess-icon" style="background: {{ $session->type === 'live_zoom' ? 'linear-gradient(135deg, #2563eb, #1d4ed8)' : 'linear-gradient(135deg, #8b5cf6, #7c3aed)' }};">
-                            @if($session->type === 'live_zoom')
-                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-                            @else
-                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                            @endif
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <div class="font-bold text-sm text-gray-900 dark:text-white truncate">{{ $session->title }}</div>
-                            <div class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{{ $session->subject->name }}</div>
-                        </div>
-                        <div class="text-left flex-shrink-0">
-                            @if($session->scheduled_at)
-                                <div class="text-sm font-bold text-gray-800 dark:text-gray-200">{{ $session->scheduled_at->format('d/m') }}</div>
-                                <div class="text-xs text-gray-400">{{ $session->scheduled_at->format('H:i') }}</div>
-                            @endif
-                        </div>
-                        @if($session->type === 'live_zoom' && $session->zoom_meeting_id)
-                            <a href="{{ route('student.sessions.join-zoom', $session->id) }}"
-                               class="px-3 py-1.5 text-white text-xs font-bold rounded-lg flex-shrink-0" style="background: #0071AA;">
-                                انضم
-                            </a>
-                        @endif
-                    </div>
-                @endforeach
-            @else
-                <div class="py-12 text-center">
-                    <div class="w-14 h-14 bg-gray-100 dark:bg-gray-800 rounded-2xl flex items-center justify-center mx-auto mb-3">
-                        <svg class="w-7 h-7 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-                    </div>
-                    <p class="text-gray-400 text-sm font-medium">لا توجد جلسات قادمة</p>
-                </div>
-            @endif
-        </div>
+  
 
-        <!-- Calendar -->
-        <div class="d-card">
-            <div class="d-card-head">
-                <div class="icon-wrap" style="background: #fef3c7;">
-                    <svg class="w-4.5 h-4.5" style="color: #d97706;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                </div>
-                <span class="text-sm font-bold text-gray-900 dark:text-white">التقويم</span>
-            </div>
-            <div class="p-4">
-                @php
-                    $now = now();
-                    $cMonth = $now->month;
-                    $cYear = $now->year;
-                    $firstDay = $now->copy()->startOfMonth();
-                    $daysInM = $now->copy()->endOfMonth()->day;
-                    $startDow = $firstDay->dayOfWeek;
-                    $sessDates = $upcomingSessions->pluck('scheduled_at')->map(fn($d) => $d?->format('Y-m-d'))->filter()->toArray();
-                    $arMonths = ['','يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
-                    $arDays = ['ح','ن','ث','ر','خ','ج','س'];
-                @endphp
-                <div class="text-center mb-3">
-                    <span class="text-sm font-bold text-gray-900 dark:text-white">{{ $arMonths[$cMonth] }} {{ $cYear }}</span>
-                </div>
-                <div class="cal-grid mb-1">
-                    @foreach($arDays as $d)<div class="cal-head">{{ $d }}</div>@endforeach
-                </div>
-                <div class="cal-grid">
-                    @for($i = 0; $i < $startDow; $i++)<div></div>@endfor
-                    @for($dy = 1; $dy <= $daysInM; $dy++)
-                        @php
-                            $ds = $cYear.'-'.str_pad($cMonth,2,'0',STR_PAD_LEFT).'-'.str_pad($dy,2,'0',STR_PAD_LEFT);
-                            $isT = ($dy == $now->day);
-                            $hasS = in_array($ds, $sessDates);
-                        @endphp
-                        <div class="cal-cell {{ $isT ? 'today' : '' }} {{ $hasS ? 'has-session' : '' }}">{{ $dy }}</div>
-                    @endfor
-                </div>
-                <div class="flex items-center justify-center gap-4 mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
-                    <div class="flex items-center gap-1.5">
-                        <span class="w-2.5 h-2.5 rounded-full" style="background: #0071AA;"></span>
-                        <span class="text-[0.7rem] text-gray-400">اليوم</span>
-                    </div>
-                    <div class="flex items-center gap-1.5">
-                        <span class="w-2.5 h-2.5 rounded-full" style="background: #10b981;"></span>
-                        <span class="text-[0.7rem] text-gray-400">جلسة</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+  
 
-    <!-- Row 2: Subjects Progress + Attendance Chart -->
+    <!-- Row 3: Tickets + Ratings -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <!-- Subjects Progress -->
-        <div class="d-card">
-            <div class="d-card-head">
-                <div class="icon-wrap" style="background: #ecfdf5;">
-                    <svg class="w-4.5 h-4.5" style="color: #059669;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-                </div>
-                <span class="text-sm font-bold text-gray-900 dark:text-white flex-1">تقدم المقررات </span>
-                <a href="{{ route('student.attendance') }}" class="link-all" style="background: #ecfdf5; color: #059669;">سجل الحضور</a>
-            </div>
-            <div class="p-5 space-y-4">
-                @forelse($subjectsProgress as $id => $prog)
-                    <div>
-                        <div class="flex justify-between items-center mb-1.5">
-                            <a href="{{ route('student.subjects.show', $id) }}" class="text-sm font-bold text-gray-900 dark:text-white hover:underline" style="color: #0071AA;">{{ $prog['name'] }}</a>
-                            <span class="text-xs font-bold" style="color: {{ $prog['percentage'] >= 75 ? '#059669' : ($prog['percentage'] >= 50 ? '#d97706' : '#dc2626') }};">{{ $prog['percentage'] }}%</span>
-                        </div>
-                        <div class="prog-track">
-                            <div class="prog-fill" style="width: {{ $prog['percentage'] }}%; background: {{ $prog['percentage'] >= 75 ? '#10b981' : ($prog['percentage'] >= 50 ? '#f59e0b' : '#ef4444') }};"></div>
-                        </div>
-                        <div class="flex justify-between mt-1">
-                            <span class="text-[0.7rem] text-gray-400">{{ $prog['attended'] }} / {{ $prog['total'] }} جلسة</span>
-                        </div>
-                    </div>
-                @empty
-                    <div class="text-center py-6">
-                        <p class="text-gray-400 text-sm">لا توجد مقرارت مسجلة</p>
-                    </div>
-                @endforelse
-            </div>
-        </div>
-
-        <!-- Monthly Attendance Chart -->
-        <div class="d-card">
-            <div class="d-card-head">
-                <div class="icon-wrap" style="background: #f3e8ff;">
-                    <svg class="w-4.5 h-4.5" style="color: #7c3aed;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-                </div>
-                <span class="text-sm font-bold text-gray-900 dark:text-white">الحضور الشهري</span>
-            </div>
-            <div class="p-5">
-                @if($monthlyAttendance->count() > 0)
-                    <div class="flex items-end gap-3 justify-center" style="height: 160px;">
-                        @php
-                            $arShortMonths = ['01'=>'يناير','02'=>'فبراير','03'=>'مارس','04'=>'أبريل','05'=>'مايو','06'=>'يونيو','07'=>'يوليو','08'=>'أغسطس','09'=>'سبتمبر','10'=>'أكتوبر','11'=>'نوفمبر','12'=>'ديسمبر'];
-                        @endphp
-                        @foreach($monthlyAttendance as $m)
-                            @php
-                                $mKey = explode('-', $m->month)[1];
-                                $barH = max($m->rate * 1.4, 8);
-                                $barColor = $m->rate >= 75 ? '#10b981' : ($m->rate >= 50 ? '#f59e0b' : '#ef4444');
-                            @endphp
-                            <div class="flex flex-col items-center gap-1 flex-1">
-                                <span class="text-[0.65rem] font-bold" style="color: {{ $barColor }};">{{ $m->rate }}%</span>
-                                <div style="width: 100%; max-width: 36px; height: {{ $barH }}px; background: {{ $barColor }}; border-radius: 6px 6px 2px 2px; opacity: 0.85;"></div>
-                                <span class="text-[0.6rem] text-gray-400 mt-0.5">{{ $arShortMonths[$mKey] ?? $mKey }}</span>
-                            </div>
-                        @endforeach
-                    </div>
-                    <div class="mt-4 pt-3 border-t border-gray-100 dark:border-gray-700 text-center">
-                        <span class="text-xs text-gray-400">آخر 6 أشهر — المعدل العام: <strong style="color: #0071AA;">{{ $overallAttendance }}%</strong></span>
-                    </div>
-                @else
-                    <div class="text-center py-8">
-                        <p class="text-gray-400 text-sm">لا توجد بيانات حضور شهرية بعد</p>
-                    </div>
-                @endif
-            </div>
-        </div>
-    </div>
-
-    <!-- Row 3: Surveys + Tickets + Ratings -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Pending Surveys -->
-        <div class="d-card">
-            <div class="d-card-head">
-                <div class="icon-wrap" style="background: #fef3c7;">
-                    <svg class="w-4.5 h-4.5" style="color: #d97706;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
-                </div>
-                <span class="text-sm font-bold text-gray-900 dark:text-white flex-1">الاستبيانات</span>
-                @if($pendingSurveys->count() > 0)
-                    <span class="px-2 py-0.5 text-xs font-bold text-white rounded-full" style="background: #f59e0b;">{{ $pendingSurveys->count() }}</span>
-                @endif
-            </div>
-            @if($pendingSurveys->count() > 0)
-                @foreach($pendingSurveys as $survey)
-                    <div class="survey-item">
-                        <div class="text-sm font-bold text-gray-900 dark:text-white">{{ $survey->title }}</div>
-                        @if($survey->subject)
-                            <div class="text-xs text-gray-400 mt-0.5">{{ $survey->subject->name }}</div>
-                        @endif
-                        <div class="mt-2">
-                            <a href="{{ route('student.surveys.show', $survey->id) }}" class="px-3 py-1.5 text-xs font-bold rounded-lg text-white" style="background: #f59e0b;">
-                                أجب الآن
-                            </a>
-                        </div>
-                    </div>
-                @endforeach
-            @else
-                <div class="py-10 text-center">
-                    <div class="w-12 h-12 bg-gray-100 dark:bg-gray-800 rounded-xl flex items-center justify-center mx-auto mb-2">
-                        <svg class="w-6 h-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                    </div>
-                    <p class="text-xs text-gray-400">لا توجد استبيانات معلقة</p>
-                </div>
-            @endif
-        </div>
+     
 
         <!-- My Tickets -->
         <div class="d-card">
@@ -722,23 +522,33 @@
                 @if($openTicketsCount > 0)
                     <span class="px-2 py-0.5 text-xs font-bold text-white rounded-full" style="background: #ef4444;">{{ $openTicketsCount }}</span>
                 @endif
+                <a href="{{ route('student.tickets.create') }}" class="text-xs font-bold px-3 py-1.5 rounded-lg text-white" style="background:#dc2626;">+ تذكرة جديدة</a>
             </div>
             @if($myTickets->count() > 0)
                 @foreach($myTickets as $ticket)
-                    <div class="ticket-row">
+                    <a href="{{ route('student.tickets.show', $ticket->id) }}" class="ticket-row hover:bg-red-50 dark:hover:bg-gray-800" style="text-decoration:none;color:inherit;">
                         <div class="ticket-dot" style="background: {{ $ticket->status === 'open' ? '#f59e0b' : ($ticket->status === 'in_progress' ? '#3b82f6' : ($ticket->status === 'resolved' ? '#10b981' : '#9ca3af')) }};"></div>
                         <div class="flex-1 min-w-0">
                             <div class="font-semibold text-gray-900 dark:text-white truncate text-sm">{{ $ticket->subject ?? $ticket->title ?? 'تذكرة #'.$ticket->id }}</div>
+                            <div class="text-[0.68rem] text-gray-400 mt-0.5">
+                                @php
+                                    $statusLabels = ['open'=>'مفتوحة','in_progress'=>'قيد المعالجة','resolved'=>'محلولة','closed'=>'مغلقة'];
+                                    $statusColors = ['open'=>'#f59e0b','in_progress'=>'#3b82f6','resolved'=>'#10b981','closed'=>'#9ca3af'];
+                                @endphp
+                                <span style="color:{{ $statusColors[$ticket->status] ?? '#9ca3af' }};">{{ $statusLabels[$ticket->status] ?? $ticket->status }}</span>
+                                · {{ $ticket->created_at->diffForHumans() }}
+                            </div>
                         </div>
-                        <span class="text-[0.65rem] text-gray-400 flex-shrink-0">{{ $ticket->created_at->diffForHumans() }}</span>
-                    </div>
+                        <svg class="w-4 h-4 text-gray-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                    </a>
                 @endforeach
             @else
                 <div class="py-10 text-center">
                     <div class="w-12 h-12 bg-gray-100 dark:bg-gray-800 rounded-xl flex items-center justify-center mx-auto mb-2">
                         <svg class="w-6 h-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/></svg>
                     </div>
-                    <p class="text-xs text-gray-400">لا توجد تذاكر</p>
+                    <p class="text-xs text-gray-400 mb-3">لا توجد تذاكر حتى الآن</p>
+                    <a href="{{ route('student.tickets.create') }}" class="text-xs font-bold px-4 py-2 rounded-lg text-white" style="background:#dc2626;">افتح تذكرة</a>
                 </div>
             @endif
         </div>
