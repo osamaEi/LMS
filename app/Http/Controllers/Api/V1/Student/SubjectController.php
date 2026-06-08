@@ -67,37 +67,38 @@ class SubjectController extends Controller
      */
     public function sessions($id)
     {
-        $student  = auth()->user();
-        $program  = $student->program;
-        $isDiploma = $program && $program->type === 'diploma';
+        $student   = auth()->user();
+        $allProgramIds = $student->allProgramIds();
 
-        // Session IDs assigned to this student, filtered by class if applicable
-        $assignedSessionIds = Attendance::where('student_id', $student->id)->pluck('session_id');
-        if ($student->class_id) {
-            $assignedSessionIds = Session::whereIn('id', $assignedSessionIds)
-                ->where('class_id', $student->class_id)->pluck('id');
+        // Find the subject and verify it belongs to one of the student's programs
+        $subject = Subject::where(function ($q) use ($allProgramIds) {
+            $q->whereHas('term', fn($tq) => $tq->whereIn('program_id', $allProgramIds))
+              ->orWhereHas('terms', fn($tq) => $tq->whereIn('program_id', $allProgramIds));
+        })->with(['term.program', 'teacher:id,name,profile_photo', 'files'])
+          ->findOrFail($id);
+
+        // Resolve the program this subject belongs to, then get the student's class for it
+        $subjectProgramId = $subject->term?->program_id
+            ?? $subject->terms()->pluck('program_id')->first();
+
+        $classId = null;
+        if ($subjectProgramId) {
+            $pivotClassId = $student->programs()
+                ->where('programs.id', $subjectProgramId)
+                ->first()?->pivot?->class_id;
+            $classId = $pivotClassId ?? ($student->program_id == $subjectProgramId ? $student->class_id : null);
         }
 
-        // Access check: diploma students can access any subject in their program;
-        // others need at least one assigned session in this subject
-        if ($isDiploma) {
-            $subject = Subject::where(function ($q) use ($student) {
-                $q->whereHas('term', fn($tq) => $tq->where('program_id', $student->program_id))
-                  ->orWhereHas('terms', fn($tq) => $tq->where('program_id', $student->program_id));
-            })->with(['term.program', 'teacher:id,name,profile_photo', 'files'])
-              ->findOrFail($id);
-        } else {
-            $subject = Subject::whereHas('sessions', fn($q) => $q->whereIn('id', $assignedSessionIds))
-                ->with(['term.program', 'teacher:id,name,profile_photo', 'files'])
-                ->findOrFail($id);
-        }
-
-        // Only show sessions the admin has assigned this student to
-        $sessions = Session::where('subject_id', $id)
-            ->whereIn('id', $assignedSessionIds)
+        // Load sessions filtered by class if the student is assigned to one
+        $sessionQuery = Session::where('subject_id', $id)
             ->with(['files', 'homework'])
-            ->orderBy('session_number', 'asc')
-            ->get();
+            ->orderBy('session_number', 'asc');
+
+        if ($classId) {
+            $sessionQuery->where('class_id', $classId);
+        }
+
+        $sessions = $sessionQuery->get();
 
         $attendances = Attendance::where('student_id', $student->id)
             ->whereIn('session_id', $sessions->pluck('id'))

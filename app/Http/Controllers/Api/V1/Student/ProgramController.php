@@ -260,14 +260,23 @@ class ProgramController extends Controller
             return response()->json(['success' => false, 'message' => 'هذا المسار مخصص للدورات فقط، استخدم /program-subjects'], 422);
         }
 
-        // Sessions assigned to this student in this program
-        $assignedSessionIds = Attendance::where('student_id', $student->id)->pluck('session_id');
+        // Determine the student's class for this program
+        // Prefer pivot class_id (student_programs table), fall back to users.class_id
+        $pivotClassId = $student->programs()
+            ->where('programs.id', $program->id)
+            ->first()?->pivot?->class_id;
+        $classId = $pivotClassId ?? $student->class_id;
 
-        $sessions = Session::where('program_id', $program->id)
-            ->whereIn('id', $assignedSessionIds)
+        // Filter sessions by program and class (if assigned to a class)
+        $sessionQuery = Session::where('program_id', $program->id)
             ->with(['files', 'homework'])
-            ->orderBy('session_number')
-            ->get();
+            ->orderBy('session_number');
+
+        if ($classId) {
+            $sessionQuery->where('class_id', $classId);
+        }
+
+        $sessions = $sessionQuery->get();
 
         $attendances = Attendance::where('student_id', $student->id)
             ->whereIn('session_id', $sessions->pluck('id'))
