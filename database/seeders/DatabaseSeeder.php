@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
            //  PublicRelationsSubjectsSeeder::class,
 
            PermissionSeeder::class,
+           SuperAdminSeeder::class,
            Student29DemoSeeder::class,
         ]);
     }

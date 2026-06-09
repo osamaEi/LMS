@@ -1,6 +1,6 @@
 {{-- Reusable term card: renders one term's header + subjects table.
      Expects: $term (with loaded subjects). Optional: $classId (string|int) to scope the Add-Subject modal. --}}
-@php $classId = $classId ?? ''; @endphp
+@php $classId = $classId ?? ''; $showTeachers = $showTeachers ?? true; @endphp
 <div style="background:white;border-radius:18px;border:1px solid #e2e8f0;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.04);">
 
     {{-- Term Header --}}
@@ -68,7 +68,9 @@
                     <th style="padding:10px 16px;text-align:right;font-size:11px;font-weight:700;color:#94a3b8;">المقرر</th>
                     <th style="padding:10px 16px;text-align:right;font-size:11px;font-weight:700;color:#94a3b8;" class="hidden md:table-cell">English</th>
                     <th style="padding:10px 16px;text-align:center;font-size:11px;font-weight:700;color:#94a3b8;width:60px;">س.م</th>
+                    @if($showTeachers)
                     <th style="padding:10px 16px;text-align:right;font-size:11px;font-weight:700;color:#94a3b8;">المدرب/ون</th>
+                    @endif
                     <th style="padding:10px 16px;text-align:center;font-size:11px;font-weight:700;color:#94a3b8;width:80px;">الحالة</th>
                     <th style="padding:10px 16px;text-align:center;font-size:11px;font-weight:700;color:#94a3b8;width:90px;">إجراءات</th>
                 </tr>
@@ -94,6 +96,7 @@
                     </td>
 
                     {{-- Teachers cell --}}
+                    @if($showTeachers)
                     <td style="padding:12px 16px;">
                         <button @click="openTeacherModal({{ $subject->id }}, '{{ addslashes($subject->name_ar ?: $subject->name_en) }}', {{ json_encode($allTeachers->pluck('id')->all()) }})"
                                 style="display:flex;align-items:center;gap:6px;background:none;border:none;cursor:pointer;padding:0;text-align:right;">
@@ -117,6 +120,7 @@
                             @endif
                         </button>
                     </td>
+                    @endif
 
                     {{-- Status --}}
                     <td style="padding:12px 16px;text-align:center;">
@@ -184,7 +188,7 @@
                 <tr style="border-top:2px solid #f1f5f9;background:#f8fafc;">
                     <td colspan="4" style="padding:10px 16px;font-size:12px;font-weight:600;color:#64748b;">المجموع — {{ $term->subjects->count() }} مقرر</td>
                     <td style="padding:10px 16px;text-align:center;font-size:13px;font-weight:800;color:#2563eb;">{{ $term->subjects->sum('credits') }}</td>
-                    <td colspan="3"></td>
+                    <td colspan="{{ $showTeachers ? 3 : 2 }}"></td>
                 </tr>
             </tfoot>
         </table>

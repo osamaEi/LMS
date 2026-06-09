@@ -71,7 +71,7 @@
 @if($class->program && $class->program->type === 'diploma')
 <div class="space-y-5">
     @forelse($class->terms as $term)
-        @include('admin.programs.partials.term-block', ['term' => $term, 'classId' => $class->id])
+        @include('admin.programs.partials.term-block', ['term' => $term, 'classId' => $class->id, 'showTeachers' => false])
 
         {{-- Inline add-subject (dropdown) under each term --}}
         @php $available = $programSubjects->whereNotIn('id', $usedSubjectIds); @endphp
