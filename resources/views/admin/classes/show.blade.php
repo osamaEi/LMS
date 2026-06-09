@@ -17,7 +17,6 @@
     editSubject: {},
     classId: '{{ $class->id }}',
     openTermModal()   { this.termModal = true; },
-    // In the class screen the table's "مقرر" button picks from the diploma subjects (dropdown)
     openSubjectModal(id, name) { this.openAttachModal(id, name); },
     openAttachModal(id, name)  { this.currentTermId = id; this.currentTermName = name; this.attachModal = true; },
     openTeacherModal(sid, sname, tids) {
