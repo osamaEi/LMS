@@ -13,6 +13,7 @@ class Subject extends Model
 
     protected $fillable = [
         'program_id',
+        'class_id',
         'term_id',
         'teacher_id',
         'name_ar',
@@ -60,6 +61,11 @@ class Subject extends Model
     public function term(): BelongsTo
     {
         return $this->belongsTo(Term::class);
+    }
+
+    public function programClass(): BelongsTo
+    {
+        return $this->belongsTo(ProgramClass::class, 'class_id');
     }
 
     public function terms()

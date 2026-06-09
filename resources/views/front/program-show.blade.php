@@ -459,8 +459,8 @@ $lms3s = fn(string $n) => asset('lms3/' . rawurlencode('حين يلتقي الت
                     @endif
                     <div class="ps-stat">
                         <div class="ps-stat-icon" style="background:#fce7f3;color:#db2777;"><i class="bi bi-patch-check-fill"></i></div>
-                        <div class="ps-stat-val" style="font-size:.85rem;">معتمدة</div>
-                        <div class="ps-stat-lbl">شهادة</div>
+                        <div class="ps-stat-val" style="font-size:.75rem;line-height:1.3;">من المؤسسة العامة للتدريب التقني والمهني</div>
+                        <div class="ps-stat-lbl">شهادة معتمدة</div>
                     </div>
                 </div>
             </div>
@@ -513,7 +513,7 @@ $lms3s = fn(string $n) => asset('lms3/' . rawurlencode('حين يلتقي الت
                         <span><strong>{{ $program->duration_hours }}</strong> ساعة تدريبية</span>
                     </li>
                     @endif
-                    @if($program->duration_months && $program->type !== 'english')
+                    @if($program->duration_months && $program->type === 'diploma')
                     <li class="ps-meta-item">
                         <div class="ps-meta-item-icon"><i class="bi bi-calendar3-fill"></i></div>
                         <span>المدة: <strong>{{ $program->duration_months }} شهر</strong></span>

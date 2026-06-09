@@ -74,6 +74,7 @@ class SubjectController extends Controller
     {
         $validated = $request->validate([
             'program_id'    => 'nullable|exists:programs,id',
+            'class_id'      => 'nullable|exists:program_classes,id',
             'term_id'       => 'nullable|exists:terms,id',
             'teacher_id'    => 'nullable|exists:users,id',
             'name_ar'       => 'nullable|string|max:255',
@@ -94,6 +95,11 @@ class SubjectController extends Controller
 
         if (!empty($validated['term_id'])) {
             $subject->terms()->syncWithoutDetaching([$validated['term_id']]);
+        }
+
+        if ($request->filled('class_id')) {
+            return redirect()->route('admin.classes.show', $validated['class_id'])
+                ->with('success', 'تم إضافة المقرر بنجاح');
         }
 
         if ($request->filled('program_id')) {
@@ -126,6 +132,7 @@ class SubjectController extends Controller
     {
         $validated = $request->validate([
             'program_id' => 'nullable|exists:programs,id',
+            'class_id'   => 'nullable|exists:program_classes,id',
             'teacher_id' => 'nullable|exists:users,id',
             'name_ar' => 'nullable|string|max:255',
             'name_en' => 'nullable|string|max:255',
@@ -142,6 +149,11 @@ class SubjectController extends Controller
         }
 
         $subject->update($validated);
+
+        if ($request->filled('class_id')) {
+            return redirect()->route('admin.classes.show', $validated['class_id'])
+                ->with('success', 'تم تحديث المقرر بنجاح');
+        }
 
         return redirect()->route('admin.subjects.show', $subject)
             ->with('success', 'تم تحديث المقرر  بنجاح');
@@ -185,7 +197,13 @@ class SubjectController extends Controller
 
     public function destroy(Subject $subject)
     {
+        $classId = $subject->class_id;
         $subject->delete();
+
+        if ($classId) {
+            return redirect()->route('admin.classes.show', $classId)
+                ->with('success', 'تم حذف المقرر بنجاح');
+        }
 
         return redirect()->route('admin.subjects.index')
             ->with('success', 'تم حذف المقرر  بنجاح');

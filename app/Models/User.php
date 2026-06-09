@@ -189,6 +189,15 @@ class User extends Authenticatable
         return $this->belongsTo(\App\Models\ProgramClass::class, 'class_id');
     }
 
+    // Resolve the class this student belongs to within a given program.
+    // Prefers the student_programs pivot, falls back to the legacy primary program.
+    public function classIdForProgram(int $programId): ?int
+    {
+        $pivotClassId = $this->programs()->where('programs.id', $programId)->first()?->pivot?->class_id;
+        return $pivotClassId
+            ?? ($this->program_id == $programId ? $this->class_id : null);
+    }
+
     public function track()
     {
         return $this->belongsTo(\App\Models\Track::class);

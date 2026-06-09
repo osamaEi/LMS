@@ -101,8 +101,10 @@ class ProgramController extends Controller
     public function show(Program $program)
     {
         $program->load([
+            // Program-wide (shared) terms only — class-scoped terms render inside their class card
             'terms' => function ($query) {
-                $query->withCount('subjects')
+                $query->whereNull('class_id')
+                      ->withCount('subjects')
                       ->with(['subjects' => fn($q) => $q->with(['teacher:id,name', 'teachers:id,name'])->orderBy('name_ar')])
                       ->orderBy('term_number');
             },
@@ -110,9 +112,24 @@ class ProgramController extends Controller
         ]);
 
         $allSubjects = Subject::orderBy('name_ar')->get(['id', 'name_ar', 'name_en', 'code']);
+
+        // Flat list of this program's subjects (program-wide, not class-specific)
+        $programSubjects = Subject::where('program_id', $program->id)
+            ->whereNull('class_id')
+            ->with(['teacher:id,name', 'teachers:id,name'])
+            ->orderBy('name_ar')
+            ->get();
+
         $classes     = \App\Models\ProgramClass::where('program_id', $program->id)
                             ->withCount('students')
-                            ->with('teacher:id,name')
+                            ->with([
+                                'teacher:id,name',
+                                'terms' => function ($query) {
+                                    $query->withCount('subjects')
+                                          ->with(['subjects' => fn($q) => $q->with(['teacher:id,name', 'teachers:id,name'])->orderBy('name_ar')])
+                                          ->orderBy('term_number');
+                                },
+                            ])
                             ->latest()
                             ->get();
 
@@ -131,7 +148,7 @@ class ProgramController extends Controller
 
         $programTeacherId = $linkedTeacherIds->first();
 
-        return view('admin.programs.show', compact('program', 'allSubjects', 'teachers', 'classes'))
+        return view('admin.programs.show', compact('program', 'allSubjects', 'programSubjects', 'teachers', 'classes'))
             ->with('programTeacherId', $programTeacherId);
     }
 

@@ -61,10 +61,14 @@ class ProgramController extends Controller
             if ($pivotStatus === 'approved' || $pivotStatus === 'completed') {
                 if ($isDiploma) {
                     $program->loadMissing('supervisor');
+                    $classId = auth()->user()->classIdForProgram($program->id);
                     $currentTerm = $program->terms()
                         ->where('status', 'active')
+                        ->where(fn($q) => $q->whereNull('class_id')->orWhere('class_id', $classId))
                         ->orderBy('term_number')
-                        ->with(['subjects' => fn($q) => $q->with('teacher:id,name,specialization,profile_photo')])
+                        ->with(['subjects' => fn($q) => $q
+                            ->where(fn($sq) => $sq->whereNull('class_id')->orWhere('class_id', $classId))
+                            ->with('teacher:id,name,specialization,profile_photo')])
                         ->first();
                 } else {
                     $program->loadMissing('teachers');
@@ -155,7 +159,11 @@ class ProgramController extends Controller
 
         $filter = $request->query('filter', 'current'); // current | past | all
 
-        $termsQuery = $program->terms()->orderBy('term_number');
+        // Scope to the student's class for this program (plus shared/program-wide records)
+        $classId = $student->classIdForProgram($program->id);
+
+        $termsQuery = $program->terms()->orderBy('term_number')
+            ->where(fn($q) => $q->whereNull('class_id')->orWhere('class_id', $classId));
 
         if ($filter === 'current') {
             // Try active terms first; fall back to current_term_number
@@ -187,7 +195,8 @@ class ProgramController extends Controller
             ->where(function ($q) use ($termIds) {
                 $q->whereIn('term_id', $termIds)
                   ->orWhereHas('terms', fn($tq) => $tq->whereIn('terms.id', $termIds));
-            });
+            })
+            ->where(fn($q) => $q->whereNull('class_id')->orWhere('class_id', $classId));
 
         $subjects = $subjectQuery->get();
 

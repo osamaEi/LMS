@@ -44,6 +44,16 @@ class ProgramClass extends Model
         return $this->hasMany(User::class, 'class_id');
     }
 
+    public function terms()
+    {
+        return $this->hasMany(Term::class, 'class_id');
+    }
+
+    public function subjects()
+    {
+        return $this->hasMany(Subject::class, 'class_id');
+    }
+
     public function getStudentsCountAttribute(): int
     {
         return $this->students()->count();

@@ -1,11 +1,11 @@
-<div style="position:relative;padding:18px 0 18px 18px;max-width:420px;width:100%;">
+<div style="position:relative;padding:18px 0 18px 18px;max-width:520px;width:100%;">
     {{-- background geometric frames --}}
     <div style="position:absolute;top:0;right:0;width:74%;height:76%;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.15);border-radius:20px;pointer-events:none;"></div>
     <div style="position:absolute;bottom:0;left:0;width:48%;height:50%;border:2px solid rgba(255,255,255,.15);border-radius:16px;pointer-events:none;"></div>
 
     <div style="position:relative;border-radius:18px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.3);">
         <img loading="lazy" src="{{ $src }}" alt="{{ $badgeText }}"
-             style="width:100%;height:300px;object-fit:cover;display:block;filter:brightness(.93) contrast(1.05) saturate(1.07);"
+             style="width:100%;height:420px;object-fit:cover;display:block;filter:brightness(.93) contrast(1.05) saturate(1.07);"
              onerror="this.parentElement.parentElement.style.display='none'">
 
         {{-- dark gradient overlay --}}

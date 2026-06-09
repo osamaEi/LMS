@@ -54,6 +54,7 @@ class TermController extends Controller
     {
         $validated = $request->validate([
             'program_id' => 'nullable|exists:programs,id',
+            'class_id' => 'nullable|exists:program_classes,id',
             'term_number' => 'nullable|integer|min:1',
             'name_ar' => 'nullable|string|max:255',
             'name_en' => 'nullable|string|max:255',
@@ -67,6 +68,11 @@ class TermController extends Controller
         // Assign subjects if provided
         if ($request->has('subject_ids') && is_array($request->subject_ids)) {
             $term->subjects()->sync($request->subject_ids);
+        }
+
+        if ($request->filled('class_id')) {
+            return redirect()->route('admin.classes.show', $request->class_id)
+                ->with('success', 'تم إضافة الربع التدريبي بنجاح');
         }
 
         if ($request->has('program_id') && $request->header('referer') && str_contains($request->header('referer'), 'programs')) {
@@ -119,6 +125,7 @@ class TermController extends Controller
     {
         $validated = $request->validate([
             'program_id'  => 'nullable|exists:programs,id',
+            'class_id'    => 'nullable|exists:program_classes,id',
             'term_number' => 'nullable|integer|min:1',
             'name_ar'     => 'nullable|string|max:255',
             'name_en'     => 'nullable|string|max:255',

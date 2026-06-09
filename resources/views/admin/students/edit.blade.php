@@ -76,6 +76,7 @@
                     <input type="text" name="phone"
                            value="{{ old('phone', $student->phone) }}"
                            dir="ltr"
+                           maxlength="10"
                            class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
                 </div>
 

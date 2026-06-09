@@ -25,6 +25,11 @@ class SubjectController extends Controller
             ->with(['term.program', 'teacher:id,name,email,profile_photo'])
             ->findOrFail($id);
 
+        // Guard: a class-scoped subject must match the student's class
+        if ($subject->class_id !== null && $subject->class_id != $student->class_id) {
+            return response()->json(['success' => false, 'message' => 'هذا المقرر غير متاح لمجموعتك'], 403);
+        }
+
         $assignedIds = Attendance::where('student_id', $student->id)->pluck('session_id');
         if ($student->class_id) {
             $assignedIds = Session::whereIn('id', $assignedIds)
@@ -87,6 +92,11 @@ class SubjectController extends Controller
                 ->where('programs.id', $subjectProgramId)
                 ->first()?->pivot?->class_id;
             $classId = $pivotClassId ?? ($student->program_id == $subjectProgramId ? $student->class_id : null);
+        }
+
+        // Guard: a class-scoped subject must match the student's class
+        if ($subject->class_id !== null && $subject->class_id != $classId) {
+            return response()->json(['success' => false, 'message' => 'هذا المقرر غير متاح لمجموعتك'], 403);
         }
 
         // Load sessions filtered by class if the student is assigned to one

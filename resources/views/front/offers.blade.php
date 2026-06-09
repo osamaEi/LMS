@@ -119,8 +119,8 @@
 
     .offer-card .card-title {
         font-weight: 800;
-        font-size: 1rem;
-        margin-bottom: 0.35rem;
+        font-size: 1.2rem;
+        margin-bottom: 0.4rem;
         color: #1e293b;
         line-height: 1.4;
     }
@@ -129,7 +129,7 @@
         display: flex;
         align-items: center;
         gap: 6px;
-        font-size: 0.82rem;
+        font-size: 1rem;
         color: #64748b;
         font-weight: 600;
         margin-bottom: 0.85rem;

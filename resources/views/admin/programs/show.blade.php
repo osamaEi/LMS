@@ -10,12 +10,13 @@
     deleteSubjectModal: false,
     currentTermId: null,
     currentTermName: '',
+    currentTermClassId: '',
     currentSubjectId: null,
     currentSubjectName: '',
     currentTeacherIds: [],
     editSubject: {},
-    openTermModal()   { this.termModal = true; },
-    openSubjectModal(id, name) { this.currentTermId = id; this.currentTermName = name; this.subjectModal = true; },
+    openTermModal(classId)   { this.currentTermClassId = classId || ''; this.termModal = true; },
+    openSubjectModal(id, name, classId) { this.currentTermId = id; this.currentTermName = name; this.currentTermClassId = classId || ''; this.subjectModal = true; },
     openTeacherModal(sid, sname, tids) {
         this.currentSubjectId = sid;
         this.currentSubjectName = sname;
@@ -80,13 +81,15 @@
 {{-- ── Tabs ── --}}
 @if(!($showClassesOnly ?? false))
 <div style="display:flex;align-items:center;gap:4px;background:#f1f5f9;border-radius:12px;padding:4px;margin-bottom:20px;width:fit-content;">
+    @if($program->type === 'diploma')
     <button onclick="switchTab('terms')" id="tab-btn-terms"
         style="padding:8px 18px;border-radius:9px;font-size:13px;font-weight:700;border:none;cursor:pointer;transition:all .15s;background:white;color:#1e293b;box-shadow:0 1px 4px rgba(0,0,0,.08);">
-        الفصول الدراسية
-        <span style="background:#e2e8f0;color:#64748b;border-radius:9999px;padding:.1rem .5rem;font-size:.65rem;margin-right:4px;font-weight:700;">{{ $program->terms->count() }}</span>
+        المواد الدراسية
+        <span style="background:#e2e8f0;color:#64748b;border-radius:9999px;padding:.1rem .5rem;font-size:.65rem;margin-right:4px;font-weight:700;">{{ $programSubjects->count() }}</span>
     </button>
+    @endif
     <button onclick="switchTab('classes')" id="tab-btn-classes"
-        style="padding:8px 18px;border-radius:9px;font-size:13px;font-weight:700;border:none;cursor:pointer;transition:all .15s;background:transparent;color:#64748b;">
+        style="padding:8px 18px;border-radius:9px;font-size:13px;font-weight:700;border:none;cursor:pointer;transition:all .15s;{{ $program->type !== 'diploma' ? 'background:white;color:#1e293b;box-shadow:0 1px 4px rgba(0,0,0,.08);' : 'background:transparent;color:#64748b;' }}">
         المجموعات
         <span id="classes-count-badge" style="background:#e9d5ff;color:#7c3aed;border-radius:9999px;padding:.1rem .5rem;font-size:.65rem;margin-right:4px;font-weight:700;">{{ $classes->count() }}</span>
     </button>
@@ -94,66 +97,21 @@
 @endif
 
 {{-- ── Tab: Terms ── --}}
-<div id="tab-terms" class="space-y-5" @if($showClassesOnly ?? false) style="display:none;" @endif>
-    @forelse($program->terms as $term)
+<div id="tab-terms" class="space-y-5" @if(($showClassesOnly ?? false) || $program->type !== 'diploma') style="display:none;" @endif>
     <div style="background:white;border-radius:18px;border:1px solid #e2e8f0;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.04);">
-
-        {{-- Term Header --}}
+        {{-- Header --}}
         <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:linear-gradient(135deg,#f8fafc,#f1f5f9);border-bottom:1px solid #e2e8f0;">
-            <div style="display:flex;align-items:center;gap:12px;">
-                <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#1a3a5c,#2563eb);display:flex;align-items:center;justify-content:center;color:white;font-size:14px;font-weight:800;flex-shrink:0;">
-                    {{ $term->term_number }}
-                </div>
-                <div>
-                    <span style="font-size:14px;font-weight:700;color:#1e293b;">{{ $term->name }}</span>
-                    <span style="font-size:11px;color:#94a3b8;margin-right:8px;">· {{ $term->subjects->count() }} مقرر · {{ $term->subjects->sum('credits') }} ساعة</span>
-                </div>
-                @php
-                    $tsBg    = match($term->status) { 'active'=>'#dcfce7','upcoming'=>'#dbeafe', default=>'#f1f5f9' };
-                    $tsColor = match($term->status) { 'active'=>'#16a34a','upcoming'=>'#2563eb', default=>'#64748b' };
-                    $tsLabel = match($term->status) { 'active'=>'نشط','upcoming'=>'قادم', default=>'مكتمل' };
-                @endphp
-                <div x-data="{ open: false }" class="relative inline-block">
-                    <button @click="open = !open" @click.outside="open = false"
-                            style="display:inline-flex;align-items:center;gap:4px;border-radius:9999px;padding:.2rem .75rem;font-size:.68rem;font-weight:700;border:none;cursor:pointer;background:{{ $tsBg }};color:{{ $tsColor }};">
-                        <span style="width:6px;height:6px;border-radius:50%;background:{{ $tsColor }};display:inline-block;"></span>
-                        {{ $tsLabel }}
-                        <svg style="width:10px;height:10px;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
-                    </button>
-                    <div x-show="open" x-cloak
-                         style="position:absolute;top:110%;right:0;width:120px;background:white;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.12);border:1px solid #e2e8f0;z-index:50;overflow:hidden;">
-                        @foreach(['active'=>['نشط','#dcfce7','#16a34a'],'upcoming'=>['قادم','#dbeafe','#2563eb'],'completed'=>['مكتمل','#f1f5f9','#64748b']] as $val=>[$lbl,$bg,$clr])
-                        @if($term->status !== $val)
-                        <form method="POST" action="{{ route('admin.terms.toggle-status', $term) }}">
-                            @csrf @method('PATCH')
-                            <input type="hidden" name="status" value="{{ $val }}">
-                            <button type="submit"
-                                    style="width:100%;text-align:right;padding:8px 12px;font-size:12px;font-weight:600;color:{{ $clr }};background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:6px;">
-                                <span style="width:8px;height:8px;border-radius:50%;background:{{ $clr }};display:inline-block;flex-shrink:0;"></span>
-                                {{ $lbl }}
-                            </button>
-                        </form>
-                        @endif
-                        @endforeach
-                    </div>
-                </div>
-            </div>
-            <div style="display:flex;align-items:center;gap:6px;">
-                <button @click="openSubjectModal({{ $term->id }}, '{{ addslashes($term->name) }}')"
-                        style="display:flex;align-items:center;gap:5px;padding:7px 12px;border-radius:9px;background:linear-gradient(135deg,#7c3aed,#8b5cf6);color:white;font-size:11px;font-weight:700;border:none;cursor:pointer;">
-                    <svg style="width:12px;height:12px;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
-                    مقرر
-                </button>
-                <a href="{{ route('admin.terms.edit', $term) }}"
-                   style="display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:9px;border:1.5px solid #e2e8f0;background:white;color:#64748b;text-decoration:none;"
-                   class="hover:bg-gray-50 transition-colors" title="تعديل الربع">
-                    <svg style="width:14px;height:14px;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                </a>
-            </div>
+            <span style="font-size:14px;font-weight:700;color:#1e293b;">المواد الدراسية
+                <span style="font-size:11px;color:#94a3b8;margin-right:8px;">· {{ $programSubjects->count() }} مقرر · {{ $programSubjects->sum('credits') }} ساعة</span>
+            </span>
+            <button @click="openSubjectModal(null, 'مادة جديدة', '')"
+                    style="display:flex;align-items:center;gap:5px;padding:7px 12px;border-radius:9px;background:linear-gradient(135deg,#7c3aed,#8b5cf6);color:white;font-size:11px;font-weight:700;border:none;cursor:pointer;">
+                <svg style="width:12px;height:12px;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                إضافة مقرر
+            </button>
         </div>
 
-        {{-- Subjects Table --}}
-        @if($term->subjects->isNotEmpty())
+        @if($programSubjects->isNotEmpty())
         <div style="overflow-x:auto;">
             <table style="width:100%;border-collapse:collapse;font-size:13px;">
                 <thead>
@@ -169,7 +127,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($term->subjects as $idx => $subject)
+                    @foreach($programSubjects as $idx => $subject)
                     @php
                         $allTeachers = $subject->teachers->isNotEmpty()
                             ? $subject->teachers
@@ -233,8 +191,7 @@
                                             <span style="width:8px;height:8px;border-radius:50%;background:#22c55e;display:inline-block;flex-shrink:0;"></span> تنشيط
                                         </button>
                                     </form>
-                                    @endif
-                                    @if($isActive)
+                                    @else
                                     <form method="POST" action="{{ route('admin.subjects.toggle-status', $subject) }}">
                                         @csrf @method('PATCH')
                                         <input type="hidden" name="status" value="inactive">
@@ -251,7 +208,6 @@
                         {{-- Actions --}}
                         <td style="padding:12px 16px;text-align:center;">
                             <div style="display:flex;align-items:center;justify-content:center;gap:4px;">
-                                {{-- Edit --}}
                                 <button @click="openEditSubject({
                                             id: {{ $subject->id }},
                                             code: '{{ addslashes($subject->code) }}',
@@ -264,7 +220,6 @@
                                         title="تعديل المقرر">
                                     <svg style="width:14px;height:14px;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                                 </button>
-                                {{-- Delete --}}
                                 <button @click="openDeleteSubject({{ $subject->id }}, '{{ addslashes($subject->name_ar ?: $subject->name_en) }}')"
                                         style="display:flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:8px;background:#fff1f2;color:#ef4444;border:none;cursor:pointer;"
                                         title="حذف المقرر">
@@ -275,43 +230,22 @@
                     </tr>
                     @endforeach
                 </tbody>
-                <tfoot>
-                    <tr style="border-top:2px solid #f1f5f9;background:#f8fafc;">
-                        <td colspan="4" style="padding:10px 16px;font-size:12px;font-weight:600;color:#64748b;">المجموع — {{ $term->subjects->count() }} مقرر</td>
-                        <td style="padding:10px 16px;text-align:center;font-size:13px;font-weight:800;color:#2563eb;">{{ $term->subjects->sum('credits') }}</td>
-                        <td colspan="3"></td>
-                    </tr>
-                </tfoot>
             </table>
         </div>
         @else
-        <div style="padding:32px;text-align:center;">
-            <div style="width:48px;height:48px;border-radius:14px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">
-                <svg style="width:22px;height:22px;color:#cbd5e1;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+        <div style="padding:48px;text-align:center;">
+            <div style="width:56px;height:56px;border-radius:16px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">
+                <svg style="width:24px;height:24px;color:#cbd5e1;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
             </div>
-            <p style="font-size:13px;color:#94a3b8;margin-bottom:12px;">لا توجد مقررات في هذا الربع</p>
-            <button @click="openSubjectModal({{ $term->id }}, '{{ addslashes($term->name) }}')"
-                    style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:9px;background:linear-gradient(135deg,#7c3aed,#8b5cf6);color:white;font-size:12px;font-weight:700;border:none;cursor:pointer;">
+            <p style="font-size:14px;font-weight:600;color:#475569;margin-bottom:12px;">لا توجد مواد دراسية بعد</p>
+            <button @click="openSubjectModal(null, 'مادة جديدة', '')"
+                    style="display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:9px;background:linear-gradient(135deg,#7c3aed,#8b5cf6);color:white;font-size:12px;font-weight:700;border:none;cursor:pointer;">
                 <svg style="width:13px;height:13px;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
                 إضافة مقرر
             </button>
         </div>
         @endif
     </div>
-    @empty
-    <div style="background:white;border-radius:18px;border:1px solid #e2e8f0;padding:60px;text-align:center;box-shadow:0 2px 12px rgba(0,0,0,.04);">
-        <div style="width:64px;height:64px;border-radius:18px;background:linear-gradient(135deg,#1a3a5c,#2563eb);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
-            <svg style="width:28px;height:28px;color:white;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-        </div>
-        <p style="font-size:15px;font-weight:600;color:#475569;margin-bottom:6px;">لا توجد أرباع دراسية بعد</p>
-        <p style="font-size:12px;color:#94a3b8;margin-bottom:20px;">ابدأ بإضافة أول ربع دراسي للبرنامج</p>
-        <button @click="openTermModal()"
-                style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:10px;background:linear-gradient(135deg,#1a3a5c,#2563eb);color:white;font-size:13px;font-weight:700;border:none;cursor:pointer;box-shadow:0 4px 12px rgba(37,99,235,.3);">
-            <svg style="width:15px;height:15px;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-            إضافة ربع دراسي
-        </button>
-    </div>
-    @endforelse
 </div>
 
 {{-- ══════════════════════════════════════════
@@ -334,6 +268,7 @@
         <form action="{{ route('admin.terms.store') }}" method="POST">
             @csrf
             <input type="hidden" name="program_id" value="{{ $program->id }}">
+            <input type="hidden" name="class_id" :value="currentTermClassId">
             <div style="padding:20px;display:flex;flex-direction:column;gap:14px;">
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
                     <div>
@@ -403,6 +338,7 @@
         <form action="{{ route('admin.subjects.store') }}" method="POST" style="display:flex;flex-direction:column;overflow:hidden;flex:1;">
             @csrf
             <input type="hidden" name="program_id" value="{{ $program->id }}">
+            <input type="hidden" name="class_id" :value="currentTermClassId">
             <input type="hidden" name="term_id" :value="currentTermId">
             <div style="padding:20px;display:flex;flex-direction:column;gap:14px;overflow-y:auto;flex:1;">
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
@@ -604,7 +540,7 @@
 </div>{{-- /tab-terms --}}
 
 {{-- ══ Tab: Classes ══ --}}
-<div id="tab-classes" style="display:{{ ($showClassesOnly ?? false) ? 'block' : 'none' }};">
+<div id="tab-classes" style="display:{{ (($showClassesOnly ?? false) || $program->type !== 'diploma') ? 'block' : 'none' }};">
 <div style="background:#fff;border-radius:20px;border:1px solid #e2e8f0;box-shadow:0 2px 12px rgba(0,0,0,.04);padding:20px;">
 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
     <div style="font-size:15px;font-weight:700;color:#1e293b;">المجموعات الدراسية
@@ -651,6 +587,17 @@
                 🗑️
             </button>
         </div>
+
+        {{-- Per-class terms & subjects — opens dedicated screen --}}
+        <a href="{{ route('admin.classes.show', $cls->id) }}"
+           style="display:flex;align-items:center;justify-content:space-between;margin-top:14px;border-top:1px dashed #e2e8f0;padding-top:12px;text-decoration:none;">
+            <span style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:#7c3aed;">
+                <svg style="width:14px;height:14px;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                إدارة الأرباع والمواد
+                <span style="background:#f3e8ff;color:#7c3aed;border-radius:9999px;padding:.05rem .45rem;font-size:.62rem;font-weight:700;">{{ $cls->terms->count() }}</span>
+            </span>
+            <svg style="width:14px;height:14px;color:#94a3b8;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+        </a>
     </div>
     @empty
     <div id="noClasses" style="grid-column:1/-1;text-align:center;padding:48px 20px;">
