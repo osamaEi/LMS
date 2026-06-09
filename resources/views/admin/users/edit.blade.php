@@ -71,22 +71,8 @@
                         @enderror
                     </div>
 
-                    <!-- Role Type -->
-                    <div>
-                        <label for="role" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            نوع المستخدم <span class="text-red-500">*</span>
-                        </label>
-                        <select name="role"
-                                id="role"
-                                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-                                required>
-                            <option value="admin" {{ old('role', $user->role) == 'admin' ? 'selected' : '' }}>مدير</option>
-                            <option value="super_admin" {{ old('role', $user->role) == 'super_admin' ? 'selected' : '' }}>مدير عام</option>
-                        </select>
-                        @error('role')
-                        <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
-                        @enderror
-                    </div>
+                    <!-- Role Type (hidden) -->
+                    <input type="hidden" name="role" value="{{ old('role', $user->role) }}">
 
                     <!-- Status -->
                     <div>

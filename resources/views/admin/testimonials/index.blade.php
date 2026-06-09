@@ -99,17 +99,23 @@
             {{-- actions --}}
             <div class="flex gap-2 pt-2 border-t border-gray-100 dark:border-gray-700">
                 <a href="{{ route('admin.testimonials.edit', $t) }}"
-                   class="flex-1 text-center py-2 rounded-lg text-sm font-bold text-white"
+                   class="flex-1 flex items-center justify-center gap-1 py-2 rounded-lg text-sm font-bold text-white"
                    style="background:#0071AA; text-decoration:none;">
-                    <i class="bi bi-pencil-fill"></i> تعديل
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536M9 13l6.586-6.586a2 2 0 012.828 2.828L11.828 15.828A2 2 0 0110.414 16H8v-2.414a2 2 0 01.586-1.414z"/>
+                    </svg>
+                    تعديل
                 </a>
                 <form action="{{ route('admin.testimonials.destroy', $t) }}" method="POST"
                       onsubmit="return confirm('حذف هذا التقييم؟')">
                     @csrf @method('DELETE')
                     <button type="submit"
-                            class="px-4 py-2 rounded-lg text-sm font-bold text-white"
+                            class="flex items-center gap-1 px-4 py-2 rounded-lg text-sm font-bold text-white"
                             style="background:#ef4444;border:none;cursor:pointer;">
-                        <i class="bi bi-trash3-fill"></i>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7V4h6v3M3 7h18"/>
+                        </svg>
+                        حذف
                     </button>
                 </form>
             </div>

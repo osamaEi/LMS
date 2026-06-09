@@ -73,6 +73,17 @@
 </li>
 @endcan
 
+{{-- الكلاسات --}}
+<li>
+    <a href="{{ route('admin.classes.index') }}"
+       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('admin.classes.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
+        <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20">
+            <path d="M2.5 3.33333C2.5 2.41667 3.25 1.66667 4.16667 1.66667H15.8333C16.75 1.66667 17.5 2.41667 17.5 3.33333V13.3333C17.5 14.25 16.75 15 15.8333 15H11.6667L10 18.3333L8.33333 15H4.16667C3.25 15 2.5 14.25 2.5 13.3333V3.33333ZM4.16667 3.33333V13.3333H9.16667L10 14.9167L10.8333 13.3333H15.8333V3.33333H4.16667ZM5.83333 5.83333H14.1667V7.5H5.83333V5.83333ZM5.83333 9.16667H11.6667V10.8333H5.83333V9.16667Z" fill=""/>
+        </svg>
+        <span>الكلاسات</span>
+    </a>
+</li>
+
 {{-- اللغة الإنجليزية --}}
 @can('view-programs')
 <li>

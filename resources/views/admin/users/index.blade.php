@@ -106,9 +106,6 @@
                         المستخدم
                     </th>
                     <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                        النوع
-                    </th>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                         الأدوار
                     </th>
                     <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
@@ -137,13 +134,6 @@
                                 <div class="text-xs text-gray-500 dark:text-gray-400">{{ $user->email }}</div>
                             </div>
                         </div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                            {{ $user->role == 'admin' ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300' : '' }}
-                            {{ $user->role == 'super_admin' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300' : '' }}">
-                            {{ $user->getRoleDisplayName() }}
-                        </span>
                     </td>
                     <td class="px-6 py-4">
                         <div class="flex flex-wrap gap-1">
