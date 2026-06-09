@@ -82,6 +82,7 @@
 @if(!($showClassesOnly ?? false))
 <div style="display:flex;align-items:center;gap:4px;background:#f1f5f9;border-radius:12px;padding:4px;margin-bottom:20px;width:fit-content;">
     @if($program->type === 'diploma')
+    @php $programSubjects = $programSubjects ?? collect(); @endphp
     <button onclick="switchTab('terms')" id="tab-btn-terms"
         style="padding:8px 18px;border-radius:9px;font-size:13px;font-weight:700;border:none;cursor:pointer;transition:all .15s;background:white;color:#1e293b;box-shadow:0 1px 4px rgba(0,0,0,.08);">
         المواد الدراسية
@@ -98,6 +99,8 @@
 
 {{-- ── Tab: Terms ── --}}
 <div id="tab-terms" class="space-y-5" @if(($showClassesOnly ?? false) || $program->type !== 'diploma') style="display:none;" @endif>
+    @if($program->type === 'diploma')
+    @php $programSubjects = $programSubjects ?? collect(); @endphp
     <div style="background:white;border-radius:18px;border:1px solid #e2e8f0;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.04);">
         {{-- Header --}}
         <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:linear-gradient(135deg,#f8fafc,#f1f5f9);border-bottom:1px solid #e2e8f0;">
@@ -246,6 +249,7 @@
         </div>
         @endif
     </div>
+    @endif
 </div>
 
 {{-- ══════════════════════════════════════════
@@ -588,13 +592,17 @@
             </button>
         </div>
 
-        {{-- Per-class terms & subjects — opens dedicated screen --}}
+        {{-- Open dedicated class screen --}}
         <a href="{{ route('admin.classes.show', $cls->id) }}"
            style="display:flex;align-items:center;justify-content:space-between;margin-top:14px;border-top:1px dashed #e2e8f0;padding-top:12px;text-decoration:none;">
             <span style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:#7c3aed;">
                 <svg style="width:14px;height:14px;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
-                إدارة الأرباع والمواد
-                <span style="background:#f3e8ff;color:#7c3aed;border-radius:9999px;padding:.05rem .45rem;font-size:.62rem;font-weight:700;">{{ $cls->terms->count() }}</span>
+                @if($program->type === 'diploma')
+                    إدارة الأرباع والمواد
+                    <span style="background:#f3e8ff;color:#7c3aed;border-radius:9999px;padding:.05rem .45rem;font-size:.62rem;font-weight:700;">{{ $cls->terms->count() }}</span>
+                @else
+                    عرض المجموعة
+                @endif
             </span>
             <svg style="width:14px;height:14px;color:#94a3b8;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
         </a>

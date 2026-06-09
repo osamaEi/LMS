@@ -45,11 +45,13 @@
         </div>
         <p class="text-xs text-gray-400 mt-0.5">{{ $class->program->name ?? '' }} · 👥 {{ $class->students_count }} طالب{{ $class->teacher ? ' · '.$class->teacher->name : '' }}</p>
     </div>
+    @if($class->program && $class->program->type === 'diploma')
     <button @click="openTermModal()"
             style="display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:10px;background:linear-gradient(135deg,#1a3a5c,#2563eb);color:white;font-size:12px;font-weight:700;border:none;cursor:pointer;box-shadow:0 4px 12px rgba(37,99,235,.3);">
         <svg style="width:14px;height:14px;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
         إضافة ربع للمجموعة
     </button>
+    @endif
 </div>
 
 {{-- ── Flash ── --}}
@@ -65,7 +67,8 @@
 </div>
 @endif
 
-{{-- ── Terms list ── --}}
+{{-- ── Terms list (diploma only — courses/English have no terms) ── --}}
+@if($class->program && $class->program->type === 'diploma')
 <div class="space-y-5">
     @forelse($class->terms as $term)
         @include('admin.programs.partials.term-block', ['term' => $term, 'classId' => $class->id])
@@ -116,6 +119,15 @@
     </div>
     @endforelse
 </div>
+@else
+<div style="background:white;border-radius:18px;border:1px solid #e2e8f0;padding:48px;text-align:center;box-shadow:0 2px 12px rgba(0,0,0,.04);">
+    <div style="width:56px;height:56px;border-radius:16px;background:#f0f9ff;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">
+        <svg style="width:26px;height:26px;color:#0071AA;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+    </div>
+    <p style="font-size:14px;font-weight:600;color:#475569;margin-bottom:4px;">هذه المجموعة لا تحتوي على أرباع</p>
+    <p style="font-size:12px;color:#94a3b8;">الأرباع والمواد الدراسية خاصة بالدبلومات فقط. تُدار جلسات هذه المجموعة من صفحة الجلسات.</p>
+</div>
+@endif
 
 {{-- ══ MODAL: Add Term (scoped to this class) ══ --}}
 <div x-show="termModal" x-cloak style="position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem;">
