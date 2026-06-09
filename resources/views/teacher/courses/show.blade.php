@@ -55,7 +55,7 @@
 @endpush
 
 @section('content')
-<div x-data="{ tab: 'sessions', uploadModal: false, createModal: false }">
+<div x-data="{ tab: 'sessions', uploadModal: false }">
 
 {{-- Hero --}}
 <div class="course-hero">
@@ -105,13 +105,6 @@
                     </svg>
                     رفع ملف
                 </button>
-                <button @click="createModal = true"
-                        class="action-btn" style="background:rgba(255,255,255,.9);color:#059669;font-weight:700">
-                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                    </svg>
-                    إضافة محاضرة
-                </button>
             </div>
         </div>
     </div>
@@ -159,12 +152,6 @@
                     <p class="text-xs text-gray-500">{{ $sessions->count() }} محاضرة مضافة</p>
                 </div>
             </div>
-            <button @click="createModal=true" class="action-btn" style="background:linear-gradient(135deg,#059669,#047857);color:#fff">
-                <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                </svg>
-                إضافة محاضرة
-            </button>
         </div>
 
         @if($sessions->isEmpty())
@@ -175,12 +162,6 @@
                     </svg>
                 </div>
                 <p class="font-semibold text-gray-600 dark:text-gray-400">لا توجد محاضرات بعد</p>
-                <button @click="createModal=true" class="action-btn mt-3" style="background:linear-gradient(135deg,#059669,#047857);color:#fff">
-                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                    </svg>
-                    إنشاء أول محاضرة
-                </button>
             </div>
         @else
             @foreach($sessions as $session)
@@ -368,69 +349,6 @@
     </div>
 </div>
 
-{{-- Create Session Modal --}}
-<div x-show="createModal" x-cloak
-     style="position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);"
-     @keydown.escape.window="createModal=false">
-    <div style="background:#fff;border-radius:20px;box-shadow:0 24px 80px rgba(0,0,0,.22);width:100%;max-width:440px;margin:1rem;overflow:hidden;" class="dark:bg-gray-900">
-        <div style="background:linear-gradient(135deg,#059669 0%,#047857 60%,#065f46 100%);padding:1.25rem 1.5rem;position:relative;overflow:hidden;">
-            <div style="position:absolute;top:-50%;right:-5%;width:180px;height:180px;background:radial-gradient(circle,rgba(255,255,255,.1) 0%,transparent 70%);border-radius:50%;pointer-events:none;"></div>
-            <div class="relative flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <div style="width:40px;height:40px;border-radius:11px;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;">
-                        <svg class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                        </svg>
-                    </div>
-                    <div>
-                        <h3 style="color:#fff;font-size:1rem;font-weight:800;">إنشاء محاضرة جديدة</h3>
-                        <p style="color:rgba(255,255,255,.7);font-size:.75rem;margin-top:2px;">{{ $program->name_ar }}</p>
-                    </div>
-                </div>
-                <button @click="createModal=false"
-                        style="width:34px;height:34px;border-radius:9px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;">
-                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                    </svg>
-                </button>
-            </div>
-        </div>
-        <form action="{{ route('teacher.my-courses.sessions.store', $program->id) }}" method="POST">
-            @csrf
-            <div style="padding:1.5rem;" class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">عنوان المحاضرة</label>
-                    <input type="text" name="title_ar"
-                           style="width:100%;border:1.5px solid #e5e7eb;border-radius:10px;padding:.65rem .9rem;font-size:.9rem;color:#111827;outline:none;box-sizing:border-box;"
-                           class="dark:bg-gray-800 dark:border-gray-700 dark:text-white"
-                           placeholder="اتركه فارغاً للترقيم التلقائي">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">موعد المحاضرة</label>
-                    <input type="datetime-local" name="scheduled_at"
-                           style="width:100%;border:1.5px solid #e5e7eb;border-radius:10px;padding:.65rem .9rem;font-size:.9rem;color:#111827;outline:none;box-sizing:border-box;"
-                           class="dark:bg-gray-800 dark:border-gray-700 dark:text-white">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">نوع المحاضرة</label>
-                    <select name="type"
-                            style="width:100%;border:1.5px solid #e5e7eb;border-radius:10px;padding:.65rem .9rem;font-size:.9rem;color:#111827;outline:none;box-sizing:border-box;"
-                            class="dark:bg-gray-800 dark:border-gray-700 dark:text-white">
-                        <option value="recorded_video">مسجلة</option>
-                        <option value="live_zoom">مباشرة (Zoom)</option>
-                    </select>
-                </div>
-            </div>
-            <div style="padding:.9rem 1.5rem 1.25rem;display:flex;gap:.65rem;justify-content:flex-end;">
-                <button type="button" @click="createModal=false"
-                        style="border:1.5px solid #e5e7eb;border-radius:10px;padding:.55rem 1.1rem;font-size:.875rem;font-weight:600;color:#374151;cursor:pointer;background:#fff;"
-                        class="dark:border-gray-700 dark:text-gray-300 dark:bg-gray-800">إلغاء</button>
-                <button type="submit"
-                        style="border-radius:10px;padding:.55rem 1.4rem;font-size:.875rem;font-weight:700;color:#fff;cursor:pointer;background:linear-gradient(135deg,#059669,#047857);border:none;box-shadow:0 4px 12px rgba(5,150,105,.3);">إنشاء</button>
-            </div>
-        </form>
-    </div>
-</div>
 
 </div>{{-- end x-data --}}
 @endsection
