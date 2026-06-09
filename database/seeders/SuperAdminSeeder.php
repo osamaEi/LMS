@@ -21,7 +21,7 @@ class SuperAdminSeeder extends Seeder
             ['email' => 'admin@lms.com'],
             [
                 'name'               => 'Super Admin',
-                'national_id'        => '1234567890',
+                'national_id'        => '1234222290',
                 'password'           => Hash::make('password123'),
                 'role'               => 'super_admin',
                 'status'             => 'active',
