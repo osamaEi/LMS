@@ -72,19 +72,6 @@
                        placeholder="مثال: PROG-001">
             </div>
 
-            <!-- المدة بالأشهر -->
-            <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    المدة بالأشهر
-                </label>
-                <input type="number"
-                       name="duration_months"
-                       value="{{ old('duration_months', $program->duration_months) }}"
-                       min="1"
-                       class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-                       placeholder="مثال: 12">
-            </div>
-
             <!-- المدة بالساعات -->
             <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">

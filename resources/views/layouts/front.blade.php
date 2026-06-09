@@ -1198,11 +1198,7 @@
                     <li class="nav-item">
                         <a href="{{ route('training-paths') }}" class="{{ request()->routeIs('training-paths') ? 'active' : '' }}">{{ __('Training Paths') }}</a>
                     </li>
-                          <li  class="nav-item">
-                                <a href="{{ route('training-programs') }}" class="{{ request()->routeIs('training-programs') ? 'active' : '' }}">
-                                    {{ __('Training Programs') }}
-                                </a>
-                            </li>
+                        
                     {{-- Courses dropdown --}}
                     <li class="nav-item nav-dropdown-wrap" id="coursesWrap">
                         <a href="#" id="coursesToggle"

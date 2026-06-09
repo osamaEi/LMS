@@ -286,7 +286,6 @@
                         <th class="px-6 py-4 text-right text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">المدة</th>
                         <th class="px-6 py-4 text-right text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">السعر</th>
                         <th class="px-6 py-4 text-right text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">النوع</th>
-                        <th class="px-6 py-4 text-right text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">الأرباع</th>
                         <th class="px-6 py-4 text-right text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">الحالة</th>
                         <th class="px-6 py-4 text-center text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">الإجراءات</th>
                     </tr>
@@ -321,7 +320,7 @@
                         </td>
                         <td class="px-6 py-5">
                             <span class="text-sm text-gray-700 dark:text-gray-300 font-medium">
-                                {{ $program->duration_months ? $program->duration_months . ' شهر' : '-' }}
+                                {{ $program->duration_hours ? $program->duration_hours . ' ساعة' : '-' }}
                             </span>
                         </td>
                         <td class="px-6 py-5">
@@ -347,14 +346,6 @@
                             @else
                                 <span class="text-gray-400 text-xs">—</span>
                             @endif
-                        </td>
-                        <td class="px-6 py-5">
-                            <div class="flex items-center gap-2">
-                                <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:#fef3c7;">
-                                    <span class="text-sm font-bold" style="color:#d97706;">{{ $program->terms_count }}</span>
-                                </div>
-                                <span class="text-xs text-gray-500 dark:text-gray-400">ربع</span>
-                            </div>
                         </td>
                         <td class="px-6 py-5">
                             @if($program->status === 'active')

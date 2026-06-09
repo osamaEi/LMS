@@ -417,7 +417,7 @@ $lms3s = fn(string $n) => asset('lms3/' . rawurlencode('حين يلتقي الت
                 @if($program->duration_hours)
                 <span class="ps-banner-pill"><i class="bi bi-clock"></i> {{ $program->duration_hours }} ساعة</span>
                 @endif
-                @if($program->duration_months && $program->type !== 'english')
+                @if($program->duration_months && $program->type === 'diploma')
                 <span class="ps-banner-pill"><i class="bi bi-calendar3"></i> {{ $program->duration_months }} شهر</span>
                 @endif
                 @if($lc && isset($program->level))
@@ -439,7 +439,7 @@ $lms3s = fn(string $n) => asset('lms3/' . rawurlencode('حين يلتقي الت
     <div class="ps-main-col">
 
         {{-- Stats row --}}
-        @if($program->duration_hours || $program->duration_months || $program->price !== null)
+        @if($program->duration_hours || ($program->duration_months && $program->type === 'diploma') || $program->price !== null)
         <div class="ps-card" style="margin-bottom:1.5rem;">
             <div class="ps-card-body" style="padding:1.25rem;">
                 <div class="ps-stats">
@@ -450,7 +450,7 @@ $lms3s = fn(string $n) => asset('lms3/' . rawurlencode('حين يلتقي الت
                         <div class="ps-stat-lbl">ساعة تدريبية</div>
                     </div>
                     @endif
-                    @if($program->duration_months && $program->type !== 'english')
+                    @if($program->duration_months && $program->type === 'diploma')
                     <div class="ps-stat">
                         <div class="ps-stat-icon" style="background:#ede9fe;color:#7c3aed;"><i class="bi bi-calendar3-fill"></i></div>
                         <div class="ps-stat-val">{{ $program->duration_months }}</div>

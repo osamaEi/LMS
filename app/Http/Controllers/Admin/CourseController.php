@@ -122,6 +122,7 @@ class CourseController extends Controller
             'description_ar'  => 'nullable|string',
             'description_en'  => 'nullable|string',
             'duration_months' => 'nullable|integer|min:1',
+            'duration_hours'  => 'nullable|integer|min:1',
             'price'           => 'nullable|numeric|min:0',
             'status'          => 'nullable|in:active,inactive',
             'supervisor_name' => 'nullable|string|max:255',
