@@ -18,7 +18,7 @@
         </div>
 
         <!-- Form -->
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 pb-10">
             <form action="{{ route('admin.roles.store') }}" method="POST">
                 @csrf
 
@@ -91,9 +91,9 @@
                 </div>
 
                 <!-- Actions -->
-                <div class="flex items-center gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
+                <div class="flex items-center gap-4 pt-6 mt-6 border-t border-gray-200 dark:border-gray-700">
                     <button type="submit"
-                            class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition">
+                            class="px-8 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow transition">
                         إنشاء الدور
                     </button>
                     <a href="{{ route('admin.roles.index') }}"

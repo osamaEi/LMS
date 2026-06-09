@@ -136,76 +136,129 @@
 
     </div>
 
-    {{-- قسم المواد والمقررات --}}
+    {{-- التعيينات --}}
     <div class="rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900 mt-6">
         <div class="flex items-center gap-2 mb-5">
             <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:#e0f2fe;">
                 <svg style="width:16px;height:16px;color:#0071AA;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
             </div>
-            <h2 class="text-base font-bold text-gray-900 dark:text-white">المواد والمقررات</h2>
+            <h2 class="text-base font-bold text-gray-900 dark:text-white">التعيينات</h2>
             <span class="text-xs text-gray-400 font-medium">(اختياري — يمكن التعيين لاحقاً)</span>
         </div>
 
-        {{-- بحث سريع --}}
-        <div class="mb-4">
-            <input type="text" id="subjectSearch" placeholder="بحث في المواد..."
-                   oninput="filterSubjects(this.value)"
-                   class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:outline-none focus:border-blue-500">
-        </div>
+        {{-- Tabs --}}
+        <div x-data="{ tab: 'diploma' }" class="w-full">
 
-        @if($subjectsByProgram->isNotEmpty())
-        <div class="mb-5">
-            <p class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">مواد الدبلومات</p>
-            @foreach($subjectsByProgram as $prog)
-                @foreach($prog->terms as $term)
-                    @if($term->subjects->isNotEmpty())
-                    <div class="mb-3">
-                        <p class="text-xs font-semibold mb-2" style="color:#7c3aed;">
-                            {{ $prog->name_ar }} — {{ $term->name_ar ?? 'الفصل '.$term->term_number }}
-                        </p>
-                        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 subjects-group">
-                            @foreach($term->subjects as $subj)
-                            <label class="subject-item flex items-center gap-2 p-2.5 rounded-lg border cursor-pointer transition-all hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 border-gray-200 dark:border-gray-700"
-                                   data-name="{{ strtolower($subj->name_ar . ' ' . $subj->name_en) }}">
-                                <input type="checkbox" name="subjects[]" value="{{ $subj->id }}"
-                                       class="w-4 h-4 rounded text-blue-600 border-gray-300 focus:ring-blue-500"
-                                       {{ in_array($subj->id, old('subjects', [])) ? 'checked' : '' }}>
-                                <span class="text-xs font-semibold text-gray-700 dark:text-gray-300 leading-tight">{{ $subj->name_ar ?: $subj->name_en }}</span>
-                            </label>
-                            @endforeach
-                        </div>
-                    </div>
+            {{-- Tab Headers --}}
+            <div class="flex gap-1 mb-5 border-b border-gray-200 dark:border-gray-700">
+                <button type="button" @click="tab='diploma'"
+                    :class="tab==='diploma' ? 'border-b-2 border-blue-600 text-blue-600 font-semibold' : 'text-gray-500 hover:text-gray-700'"
+                    class="px-4 py-2 text-sm transition-colors">
+                    مواد الدبلومات
+                    @if($subjectsByProgram->isNotEmpty())
+                    <span class="mr-1 text-xs bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded-full">
+                        {{ $subjectsByProgram->sum(fn($p) => $p->terms->sum(fn($t) => $t->subjects->count())) }}
+                    </span>
                     @endif
-                @endforeach
-            @endforeach
-        </div>
-        @endif
+                </button>
+                <button type="button" @click="tab='course'"
+                    :class="tab==='course' ? 'border-b-2 border-blue-600 text-blue-600 font-semibold' : 'text-gray-500 hover:text-gray-700'"
+                    class="px-4 py-2 text-sm transition-colors">
+                    الدورات
+                    @if($coursePrograms->isNotEmpty())
+                    <span class="mr-1 text-xs bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-full">{{ $coursePrograms->count() }}</span>
+                    @endif
+                </button>
+                <button type="button" @click="tab='english'"
+                    :class="tab==='english' ? 'border-b-2 border-blue-600 text-blue-600 font-semibold' : 'text-gray-500 hover:text-gray-700'"
+                    class="px-4 py-2 text-sm transition-colors">
+                    اللغة الإنجليزية
+                    @if($englishPrograms->isNotEmpty())
+                    <span class="mr-1 text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full">{{ $englishPrograms->count() }}</span>
+                    @endif
+                </button>
+            </div>
 
-        @if($courseSubjects->isNotEmpty())
-        <div>
-            <p class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">مواد الدورات والبرامج</p>
-            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 subjects-group">
-                @foreach($courseSubjects as $subj)
-                <label class="subject-item flex items-center gap-2 p-2.5 rounded-lg border cursor-pointer transition-all hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 border-gray-200 dark:border-gray-700"
-                       data-name="{{ strtolower($subj->name_ar . ' ' . $subj->name_en) }}">
-                    <input type="checkbox" name="subjects[]" value="{{ $subj->id }}"
-                           class="w-4 h-4 rounded text-blue-600 border-gray-300 focus:ring-blue-500"
-                           {{ in_array($subj->id, old('subjects', [])) ? 'checked' : '' }}>
-                    <div class="min-w-0">
-                        <div class="text-xs font-semibold text-gray-700 dark:text-gray-300 leading-tight truncate">{{ $subj->name_ar ?: $subj->name_en }}</div>
-                        @if($subj->program)
-                        <div class="text-xs text-gray-400 truncate">{{ Str::limit($subj->program->name_ar, 20) }}</div>
+            {{-- Tab: Diploma Subjects --}}
+            <div x-show="tab==='diploma'">
+                <div class="mb-3">
+                    <input type="text" placeholder="بحث في المواد..."
+                           oninput="filterItems(this,'diploma-item')"
+                           class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:outline-none focus:border-blue-500">
+                </div>
+                @forelse($subjectsByProgram as $prog)
+                    @foreach($prog->terms as $term)
+                        @if($term->subjects->isNotEmpty())
+                        <div class="mb-4">
+                            <p class="text-xs font-semibold mb-2 px-1" style="color:#7c3aed;">
+                                {{ $prog->name_ar }} — {{ $term->name_ar ?? 'الفصل '.$term->term_number }}
+                            </p>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
+                                @foreach($term->subjects as $subj)
+                                <label class="diploma-item flex items-center gap-2 p-2.5 rounded-lg border cursor-pointer transition-all hover:border-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 border-gray-200 dark:border-gray-700"
+                                       data-name="{{ strtolower($subj->name_ar . ' ' . $subj->name_en) }}">
+                                    <input type="checkbox" name="subjects[]" value="{{ $subj->id }}"
+                                           class="w-4 h-4 rounded text-purple-600 border-gray-300 focus:ring-purple-500"
+                                           {{ in_array($subj->id, old('subjects', [])) ? 'checked' : '' }}>
+                                    <span class="text-xs font-semibold text-gray-700 dark:text-gray-300 leading-tight">{{ $subj->name_ar ?: $subj->name_en }}</span>
+                                </label>
+                                @endforeach
+                            </div>
+                        </div>
                         @endif
+                    @endforeach
+                @empty
+                <p class="text-sm text-gray-400 text-center py-8">لا توجد مواد دبلومات</p>
+                @endforelse
+            </div>
+
+            {{-- Tab: Course Programs --}}
+            <div x-show="tab==='course'">
+                <div class="mb-3">
+                    <input type="text" placeholder="بحث في الدورات..."
+                           oninput="filterItems(this,'course-item')"
+                           class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:outline-none focus:border-blue-500">
+                </div>
+                @forelse($coursePrograms as $prog)
+                <label class="course-item flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 border-gray-200 dark:border-gray-700 mb-2"
+                       data-name="{{ strtolower($prog->name_ar) }}">
+                    <input type="checkbox" name="programs[]" value="{{ $prog->id }}"
+                           class="w-4 h-4 rounded text-blue-600 border-gray-300 focus:ring-blue-500"
+                           {{ in_array($prog->id, old('programs', [])) ? 'checked' : '' }}>
+                    <div>
+                        <div class="text-sm font-semibold text-gray-700 dark:text-gray-300">{{ $prog->name_ar }}</div>
+                        <div class="text-xs text-gray-400">دورة تدريبية</div>
                     </div>
                 </label>
-                @endforeach
+                @empty
+                <p class="text-sm text-gray-400 text-center py-8">لا توجد دورات</p>
+                @endforelse
             </div>
-        </div>
-        @endif
 
-        @if($subjectsByProgram->isEmpty() && $courseSubjects->isEmpty())
-        <p class="text-sm text-gray-400 text-center py-6">لا توجد مواد مضافة في النظام بعد</p>
-        @endif
+            {{-- Tab: English Programs --}}
+            <div x-show="tab==='english'">
+                <div class="mb-3">
+                    <input type="text" placeholder="بحث في برامج اللغة..."
+                           oninput="filterItems(this,'english-item')"
+                           class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:outline-none focus:border-blue-500">
+                </div>
+                @forelse($englishPrograms as $prog)
+                <label class="english-item flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all hover:border-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 border-gray-200 dark:border-gray-700 mb-2"
+                       data-name="{{ strtolower($prog->name_ar) }}">
+                    <input type="checkbox" name="programs[]" value="{{ $prog->id }}"
+                           class="w-4 h-4 rounded text-green-600 border-gray-300 focus:ring-green-500"
+                           {{ in_array($prog->id, old('programs', [])) ? 'checked' : '' }}>
+                    <div>
+                        <div class="text-sm font-semibold text-gray-700 dark:text-gray-300">{{ $prog->name_ar }}</div>
+                        <div class="text-xs text-gray-400">برنامج لغة إنجليزية</div>
+                    </div>
+                </label>
+                @empty
+                <p class="text-sm text-gray-400 text-center py-8">لا توجد برامج إنجليزي</p>
+                @endforelse
+            </div>
+
+        </div>{{-- end x-data --}}
     </div>
 
         <!-- الأزرار -->
@@ -224,9 +277,9 @@
 
 @push('scripts')
 <script>
-function filterSubjects(val) {
-    val = val.toLowerCase().trim();
-    document.querySelectorAll('.subject-item').forEach(el => {
+function filterItems(input, cls) {
+    const val = input.value.toLowerCase().trim();
+    document.querySelectorAll('.' + cls).forEach(el => {
         el.style.display = (!val || el.dataset.name.includes(val)) ? '' : 'none';
     });
 }

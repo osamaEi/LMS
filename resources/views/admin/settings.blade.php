@@ -53,10 +53,10 @@
     <div style="display:flex;gap:22px;align-items:flex-start;">
 
         {{-- ── Sidebar ── --}}
-        <div style="width:230px;flex-shrink:0;position:sticky;top:20px;">
+        <div style="width:260px;flex-shrink:0;position:sticky;top:20px;">
             <div style="background:white;border-radius:16px;border:1px solid #e5e7eb;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.06);">
 
-                <div style="padding:14px 16px 10px;background:linear-gradient(135deg,#f8f9fa,#f0f4f8);border-bottom:1px solid #e5e7eb;">
+                <div style="padding:14px 18px 10px;background:linear-gradient(135deg,#f8f9fa,#f0f4f8);border-bottom:1px solid #e5e7eb;">
                     <p style="font-size:11px;font-weight:700;color:#9ca3af;letter-spacing:1.2px;text-transform:uppercase;margin:0;">أقسام الإعدادات</p>
                 </div>
 
@@ -72,24 +72,24 @@
                 ];
                 @endphp
 
-                <nav style="padding:8px;">
+                <nav style="padding:10px;">
                     @foreach($tabs as $tab)
                     @php $cnt = count($settings[$tab['id']] ?? []); @endphp
                     <button @click="activeTab = '{{ $tab['id'] }}'"
                             x-bind:style="activeTab === '{{ $tab['id'] }}' ? 'background:linear-gradient(135deg,{{ $tab['grad'] }});color:white;box-shadow:0 3px 10px rgba(0,0,0,0.18);' : 'background:transparent;color:#374151;'"
-                            style="width:100%;display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:10px;border:none;cursor:pointer;font-size:13px;font-weight:600;text-align:right;transition:all .15s;margin-bottom:3px;min-width:0;">
+                            style="width:100%;display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;border:none;cursor:pointer;font-size:13px;font-weight:600;text-align:right;transition:all .15s;margin-bottom:4px;">
                         <div x-bind:style="activeTab === '{{ $tab['id'] }}' ? 'background:rgba(255,255,255,0.22)' : 'background:{{ $tab['light'] }}'"
-                             style="width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;">
+                             style="width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;">
                             <svg width="15" height="15" fill="none" viewBox="0 0 24 24"
                                  x-bind:stroke="activeTab === '{{ $tab['id'] }}' ? 'white' : '{{ $tab['text'] }}'"
                                  stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="{{ $tab['icon'] }}"/>
                             </svg>
                         </div>
-                        <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:right;">{{ $tab['label'] }}</span>
+                        <span style="flex:1;text-align:right;">{{ $tab['label'] }}</span>
                         @if($cnt > 0)
-                        <span x-bind:style="activeTab === '{{ $tab['id'] }}' ? 'background:rgba(255,255,255,0.22);color:white;' : 'background:{{ $tab['light'] }};color:{{ $tab['text'] }};'"
-                              style="font-size:11px;font-weight:700;padding:2px 6px;border-radius:8px;transition:all .15s;flex-shrink:0;min-width:20px;text-align:center;">{{ $cnt }}</span>
+                        <span x-bind:style="activeTab === '{{ $tab['id'] }}' ? 'background:rgba(255,255,255,0.25);color:white;' : 'background:{{ $tab['light'] }};color:{{ $tab['text'] }};'"
+                              style="font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;transition:all .15s;flex-shrink:0;">{{ $cnt }}</span>
                         @endif
                     </button>
                     @endforeach

@@ -368,16 +368,7 @@
 </li>
 @endcan
 
-{{-- الصلاحيات --}}
-@can('manage-permissions')
-<li>
-    <a href="{{ route('admin.permissions.index') }}"
-       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('admin.permissions.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
-        <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20"><path d="M10 1L3 5V9C3 13.55 5.99 17.74 10 19C14.01 17.74 17 13.55 17 9V5L10 1ZM10 9.99H15C14.47 13.11 12.54 15.87 10 16.9V10H5V6.3L10 3.69V9.99Z" fill=""/></svg>
-        <span>الصلاحيات</span>
-    </a>
-</li>
-@endcan
+{{-- الصلاحيات (مخفي) --}}
 
 {{-- الشركاء --}}
 <li>
@@ -388,23 +379,9 @@
     </a>
 </li>
 
-{{-- إعدادات الفوتر --}}
-<li>
-    <a href="{{ route('admin.footer-settings.index') }}"
-       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('admin.footer-settings*') ? 'menu-item-active' : 'menu-item-inactive' }}">
-        <svg class="fill-current" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
-        <span>إعدادات الفوتر</span>
-    </a>
-</li>
+{{-- إعدادات الفوتر (مخفي) --}}
 
-{{-- الصفحات --}}
-<li>
-    <a href="{{ route('admin.pages.index') }}"
-       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('admin.pages*') ? 'menu-item-active' : 'menu-item-inactive' }}">
-        <svg class="fill-current" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-        <span>الصفحات</span>
-    </a>
-</li>
+{{-- الصفحات (مخفي) --}}
 
 {{-- الإعدادات --}}
 @can('view-settings')

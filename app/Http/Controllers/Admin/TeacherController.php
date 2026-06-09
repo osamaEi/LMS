@@ -53,16 +53,17 @@ class TeacherController extends Controller
 
     public function create()
     {
+        // Diploma subjects grouped by program → term
         $subjectsByProgram = Program::with(['terms.subjects' => function ($q) {
             $q->select('subjects.id', 'subjects.name_ar', 'subjects.name_en', 'subjects.term_id')
               ->orderBy('subjects.name_ar');
-        }])->whereIn('type', ['diploma'])->orderBy('name_ar')->get();
+        }])->where('type', 'diploma')->orderBy('name_ar')->get();
 
-        $courseSubjects = Subject::whereHas('program', fn($q) => $q->whereIn('type', ['course', 'english', 'training']))
-            ->with('program:id,name_ar,type')
-            ->orderBy('name_ar')->get();
+        // Course / English / Training programs (for direct program assignment)
+        $coursePrograms  = Program::where('type', 'course')->orderBy('name_ar')->get(['id','name_ar','type']);
+        $englishPrograms = Program::where('type', 'english')->orderBy('name_ar')->get(['id','name_ar','type']);
 
-        return view('admin.teachers.create', compact('subjectsByProgram', 'courseSubjects'));
+        return view('admin.teachers.create', compact('subjectsByProgram', 'coursePrograms', 'englishPrograms'));
     }
 
     public function store(Request $request)
@@ -71,12 +72,24 @@ class TeacherController extends Controller
             'name'        => 'required|string|max:255',
             'email'       => 'required|email|unique:users,email',
             'national_id' => 'required|digits:10|unique:users,national_id',
-            'phone'       => 'nullable|string|max:20',
+            'phone'       => 'nullable|string|max:20|unique:users,phone',
             'gender'      => 'nullable|in:male,female',
             'nationality' => 'nullable|string|max:100',
             'password'    => 'required|string|min:8|confirmed',
             'subjects'    => 'nullable|array',
             'subjects.*'  => 'exists:subjects,id',
+            'programs'    => 'nullable|array',
+            'programs.*'  => 'exists:programs,id',
+        ], [
+            'email.unique'       => 'البريد الإلكتروني مستخدم بالفعل، يرجى اختيار بريد آخر.',
+            'national_id.unique' => 'رقم الهوية مستخدم بالفعل.',
+            'national_id.digits' => 'رقم الهوية يجب أن يكون 10 أرقام.',
+            'phone.unique'       => 'رقم الهاتف مستخدم بالفعل، يرجى إدخال رقم آخر.',
+            'password.confirmed' => 'كلمة المرور وتأكيدها غير متطابقتان.',
+            'password.min'       => 'كلمة المرور يجب أن تكون 8 أحرف على الأقل.',
+            'name.required'      => 'الاسم مطلوب.',
+            'email.required'     => 'البريد الإلكتروني مطلوب.',
+            'national_id.required' => 'رقم الهوية مطلوب.',
         ]);
 
         $validated['role'] = 'teacher';
@@ -84,12 +97,18 @@ class TeacherController extends Controller
 
         $teacher = User::create($validated);
 
-        // Assign subjects if provided
+        // Assign diploma subjects
         $subjectIds = array_map('intval', $request->input('subjects', []));
         if (!empty($subjectIds)) {
             $teacher->assignedSubjects()->sync($subjectIds);
             Subject::whereIn('id', $subjectIds)->whereNull('teacher_id')
                 ->update(['teacher_id' => $teacher->id]);
+        }
+
+        // Assign course / english programs
+        $programIds = array_map('intval', $request->input('programs', []));
+        if (!empty($programIds)) {
+            $teacher->teachingPrograms()->sync($programIds);
         }
 
         return redirect()->route('admin.teachers.index')

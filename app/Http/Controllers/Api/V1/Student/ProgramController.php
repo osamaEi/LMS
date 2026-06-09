@@ -243,17 +243,47 @@ class ProgramController extends Controller
      * For course/training/english students: full course content
      * (sessions with files + homework, program files, attendance)
      */
-    public function myCourse()
+    public function myCourse(Request $request)
     {
         $student = auth()->user();
-        $program = $student->program;
 
-        if (!$program) {
-            return response()->json(['success' => false, 'message' => 'غير مسجل في برنامج'], 403);
-        }
+        // If program_id provided, load that specific program from pivot
+        if ($request->filled('program_id')) {
+            $programId = (int) $request->input('program_id');
 
-        if ($student->program_status === 'pending') {
-            return response()->json(['success' => false, 'message' => 'طلب التسجيل قيد المراجعة'], 403);
+            // Check pivot enrollment first
+            $pivotProgram = $student->programs()->where('programs.id', $programId)->first();
+            if ($pivotProgram) {
+                $program = $pivotProgram;
+                $pivotStatus = $pivotProgram->pivot->status;
+            } elseif ($student->program_id === $programId) {
+                $program     = $student->program;
+                $pivotStatus = $student->program_status;
+            } else {
+                return response()->json(['success' => false, 'message' => 'غير مسجل في هذا البرنامج'], 403);
+            }
+
+            if ($pivotStatus === 'pending') {
+                return response()->json(['success' => false, 'message' => 'طلب التسجيل قيد المراجعة'], 403);
+            }
+        } else {
+            // Default: first non-diploma program from all enrollments
+            $program = $student->programs()
+                ->whereIn('programs.type', ['course', 'training', 'english'])
+                ->wherePivot('status', 'approved')
+                ->first();
+
+            if (!$program) {
+                // Fallback to primary program if it's not diploma
+                $primary = $student->program;
+                if ($primary && $primary->type !== 'diploma' && $student->program_status === 'approved') {
+                    $program = $primary;
+                }
+            }
+
+            if (!$program) {
+                return response()->json(['success' => false, 'message' => 'لا توجد دورات مسجل فيها'], 403);
+            }
         }
 
         if ($program->type === 'diploma') {
@@ -261,11 +291,10 @@ class ProgramController extends Controller
         }
 
         // Determine the student's class for this program
-        // Prefer pivot class_id (student_programs table), fall back to users.class_id
         $pivotClassId = $student->programs()
             ->where('programs.id', $program->id)
             ->first()?->pivot?->class_id;
-        $classId = $pivotClassId ?? $student->class_id;
+        $classId = $pivotClassId ?? ($student->program_id === $program->id ? $student->class_id : null);
 
         // Filter sessions by program and class (if assigned to a class)
         $sessionQuery = Session::where('program_id', $program->id)

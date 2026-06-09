@@ -626,9 +626,7 @@ Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')
     })->name('assignments.index');
 
     // Grades
-    Route::get('/grades', function () {
-        return view('student.grades.index');
-    })->name('grades.index');
+    Route::get('/grades', [\App\Http\Controllers\Student\GradesController::class, 'index'])->name('grades.index');
 
     // Attendance
     Route::get('/attendance', [\App\Http\Controllers\Student\DashboardController::class, 'attendance'])->name('attendance');

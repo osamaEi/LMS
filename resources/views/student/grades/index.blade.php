@@ -191,6 +191,26 @@
                 <p class="opacity-75 text-sm mt-0.5">متابعة درجاتك في جميع المقررات </p>
             </div>
         </div>
+        @if(!empty($subjectGrades))
+        <div class="flex gap-6 mt-4 relative z-10" style="padding-top: 0.5rem; border-top: 1px solid rgba(255,255,255,0.15);">
+            <div class="text-center">
+                <div class="text-2xl font-extrabold">{{ count($subjectGrades) }}</div>
+                <div class="text-xs opacity-70 mt-0.5">مقرر</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-extrabold">{{ $totalEvaluations }}</div>
+                <div class="text-xs opacity-70 mt-0.5">تقييم</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-extrabold">{{ $totalQuizzes }}</div>
+                <div class="text-xs opacity-70 mt-0.5">اختبار</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-extrabold">{{ number_format($avgPercentage ?? 0, 0) }}%</div>
+                <div class="text-xs opacity-70 mt-0.5">متوسط</div>
+            </div>
+        </div>
+        @endif
     </div>
 
     <!-- Main Content -->
@@ -206,7 +226,8 @@
             </div>
         </div>
 
-        <!-- Empty State - Show when no grades available -->
+        @if(empty($subjectGrades))
+        <!-- Empty State -->
         <div class="empty-state">
             <div class="empty-icon">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -219,26 +240,43 @@
                 تابع حضور جلساتك وأداء واجباتك للحصول على أفضل النتائج.
             </p>
         </div>
-
-        {{--
-        <!-- Sample Grade Items - Uncomment when data is available -->
+        @else
+        @php
+            $gradeBadgeClass = function(float $pct): string {
+                return match(true) {
+                    $pct >= 90 => 'grade-excellent',
+                    $pct >= 75 => 'grade-good',
+                    $pct >= 60 => 'grade-average',
+                    default    => 'grade-poor',
+                };
+            };
+            $colors = ['#3b82f6','#8b5cf6','#10b981','#f59e0b','#ef4444','#06b6d4','#ec4899'];
+        @endphp
+        @foreach($subjectGrades as $idx => $data)
         <div class="subject-grade-item">
-            <div class="subject-color" style="background: linear-gradient(135deg, #3b82f6, #2563eb);">
+            <div class="subject-color" style="background: linear-gradient(135deg, {{ $colors[$idx % count($colors)] }}, {{ $colors[($idx+1) % count($colors)] }});">
                 <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
                 </svg>
             </div>
             <div class="subject-info">
-                <div class="subject-name">أساسيات البرمجة</div>
-                <div class="subject-teacher">أ. محمد أحمد</div>
+                <div class="subject-name">{{ $data['subject']->name_ar ?? $data['subject']->name }}</div>
+                @if($data['subject']->teacher)
+                <div class="subject-teacher">أ. {{ $data['subject']->teacher->name }}</div>
+                @endif
+                <div class="text-xs text-gray-400 mt-0.5">
+                    {{ $data['evaluations']->count() }} تقييم
+                    @if($data['attempts']->count()) · {{ $data['attempts']->count() }} اختبار @endif
+                </div>
             </div>
             <div class="grade-display">
-                <div class="grade-value" style="color: #059669;">95</div>
-                <div class="grade-label">من 100</div>
+                <div class="grade-value" style="color: {{ $data['percentage'] >= 75 ? '#059669' : ($data['percentage'] >= 60 ? '#d97706' : '#dc2626') }};">{{ number_format($data['percentage'], 0) }}%</div>
+                <div class="grade-label">النسبة</div>
             </div>
-            <span class="grade-badge grade-excellent">ممتاز</span>
+            <span class="grade-badge {{ $gradeBadgeClass($data['percentage']) }}">{{ $data['grade_label'] }}</span>
         </div>
-        --}}
+        @endforeach
+        @endif
     </div>
 
     <!-- Info Card -->
