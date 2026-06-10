@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Notifications\CustomNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 
 class ContactController extends Controller
 {
@@ -76,8 +77,13 @@ class ContactController extends Controller
                         ->from(config('mail.from.address'), config('mail.from.name', $adminName));
                 }
             );
-        } catch (\Exception) {
-            // Log but don't block — still update status
+        } catch (\Exception $e) {
+            Log::error('Contact reply email failed', [
+                'contact_id' => $contact->id,
+                'to'         => $contact->email,
+                'error'      => $e->getMessage(),
+                'trace'      => $e->getTraceAsString(),
+            ]);
         }
 
         // Save reply + update status
