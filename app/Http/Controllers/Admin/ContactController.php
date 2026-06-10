@@ -58,16 +58,25 @@ class ContactController extends Controller
         ]);
 
         $replyText = $request->input('reply_message');
-        $adminName = auth()->user()->name ?? 'إدارة المنصة';
+        $adminName = auth()->check() ? auth()->user()->name : 'إدارة المنصة';
 
         // Send reply email to the contact
         try {
-            Mail::raw($replyText, function ($message) use ($contact, $adminName) {
-                $message->to($contact->email, $contact->first_name . ' ' . $contact->last_name)
-                    ->subject('رد على رسالتك: ' . ($contact->subject ?? 'تواصل معنا'))
-                    ->from(config('mail.from.address'), config('mail.from.name', $adminName));
-            });
-        } catch (\Exception $e) {
+            $logoUrl     = config('app.url') . '/logo/logo.png';
+            $subject     = $contact->subject ?? 'تواصل معنا';
+            $recipientName   = $contact->first_name . ' ' . $contact->last_name;
+            $originalMessage = $contact->message;
+
+            Mail::send(
+                'emails.contact_reply',
+                compact('replyText', 'recipientName', 'subject', 'originalMessage', 'logoUrl'),
+                function ($message) use ($contact, $adminName, $subject) {
+                    $message->to($contact->email, $contact->first_name . ' ' . $contact->last_name)
+                        ->subject('رد على رسالتك: ' . $subject)
+                        ->from(config('mail.from.address'), config('mail.from.name', $adminName));
+                }
+            );
+        } catch (\Exception) {
             // Log but don't block — still update status
         }
 
