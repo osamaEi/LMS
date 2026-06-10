@@ -126,8 +126,11 @@ class ProgramClassController extends Controller
 
         // Resolve FK column/value + title label + the end-of-period date
         if ($isDiploma) {
-            $subject = \App\Models\Subject::with(['term', 'teachers'])->findOrFail($data['subject_id']);
-            if ($subject->class_id != $class->id) {
+            $subject = \App\Models\Subject::with(['term', 'teachers', 'terms'])->findOrFail($data['subject_id']);
+            
+            // Check if subject belongs to a term of this class
+            $belongsToClass = $subject->terms->contains(fn($t) => $t->class_id === $class->id);
+            if (!$belongsToClass) {
                 return $err('المقرر لا يخص هذه المجموعة');
             }
             // The session teacher must be one assigned to this subject
@@ -137,11 +140,15 @@ class ProgramClassController extends Controller
             if (!$assignedTeacherIds->contains((int) $data['teacher_id'])) {
                 return $err('المدرب المختار غير معيّن لهذا المقرر');
             }
+            
+            // Get the term of this subject that belongs to this class
+            $term = $subject->terms->first(fn($t) => $t->class_id === $class->id);
+            
             $fkCol = 'subject_id';
             $fkVal = $subject->id;
             $label = $subject->name_ar ?? 'جلسة';
             // Sessions run weekly until the term ends
-            $end = $subject->term?->end_date;
+            $end = $term?->end_date;
         } else {
             $fkCol = 'program_id';
             $fkVal = $class->program_id;
@@ -157,8 +164,8 @@ class ProgramClassController extends Controller
                 return $err('حدّد تاريخ نهاية الجلسات');
             }
             $end = \Carbon\Carbon::parse($data['end_date']);
-            if ($isDiploma && $subject->term) {
-                $subject->term->update(['end_date' => $end->toDateString()]);
+            if ($isDiploma && $term) {
+                $term->update(['end_date' => $end->toDateString()]);
             } elseif (!$isDiploma) {
                 $class->update(['end_date' => $end->toDateString()]);
             }
