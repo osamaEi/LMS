@@ -4,64 +4,76 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>رد على رسالتك</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
-<body style="margin:0;padding:0;background:#f1f5f9;font-family:'Segoe UI',Tahoma,Arial,sans-serif;direction:rtl;">
+<body style="margin:0;padding:0;background:#f1f5f9;font-family:'Cairo',Arial,sans-serif;direction:rtl;">
 
 <table width="100%" cellpadding="0" cellspacing="0" style="background:#f1f5f9;padding:40px 16px;">
   <tr>
     <td align="center">
-      <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
+      <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;font-family:'Cairo',Arial,sans-serif;">
 
-        {{-- ── Header / Logo ── --}}
+        {{-- ── Header ── --}}
         <tr>
-          <td style="background:linear-gradient(135deg,#0f172a 0%,#1e293b 60%,#0f2744 100%);border-radius:16px 16px 0 0;padding:32px 40px;text-align:center;">
-            <img src="{{ $logoUrl }}" alt="Logo" style="height:52px;max-width:180px;object-fit:contain;display:inline-block;">
-            <p style="margin:14px 0 0;color:#94a3b8;font-size:13px;letter-spacing:.04em;">منصة التدريب والتطوير</p>
+          <td style="background:linear-gradient(135deg,#0a1628 0%,#0f2744 50%,#0a1f3d 100%);border-radius:16px 16px 0 0;padding:36px 40px;text-align:center;">
+
+            {{-- Logo --}}
+            <img src="{{ $logoUrl }}"
+                 alt="{{ config('app.name') }}"
+                 width="160"
+                 style="display:inline-block;height:auto;max-height:60px;object-fit:contain;">
+
+            {{-- Divider --}}
+            <div style="width:48px;height:3px;background:linear-gradient(90deg,#0071AA,#38bdf8);border-radius:99px;margin:20px auto 0;"></div>
           </td>
         </tr>
 
         {{-- ── Body ── --}}
         <tr>
-          <td style="background:#ffffff;padding:40px;">
+          <td style="background:#ffffff;padding:40px 44px;font-family:'Cairo',Arial,sans-serif;">
 
             {{-- Greeting --}}
-            <p style="margin:0 0 8px;font-size:22px;font-weight:700;color:#1e293b;">
-              مرحباً {{ $recipientName }}،
-            </p>
-            <p style="margin:0 0 28px;font-size:14px;color:#64748b;line-height:1.7;">
-              شكراً لتواصلك معنا. يسعدنا الرد على رسالتك التي أرسلتها بخصوص:
-              <strong style="color:#1e293b;">"{{ $subject }}"</strong>
+            <h1 style="margin:0 0 6px;font-size:24px;font-weight:800;color:#0f172a;font-family:'Cairo',Arial,sans-serif;">
+              مرحباً {{ $recipientName }} 👋
+            </h1>
+            <p style="margin:0 0 28px;font-size:14px;color:#64748b;line-height:1.8;font-family:'Cairo',Arial,sans-serif;">
+              شكراً لتواصلك معنا. يسعدنا الرد على رسالتك بخصوص
+              <strong style="color:#0f172a;">"{{ $subject }}"</strong>
             </p>
 
-            {{-- Divider --}}
-            <div style="height:1px;background:linear-gradient(90deg,transparent,#e2e8f0,transparent);margin-bottom:28px;"></div>
+            {{-- Separator --}}
+            <div style="height:1px;background:#e2e8f0;margin-bottom:28px;"></div>
 
-            {{-- Reply box --}}
-            <div style="background:#f8fafc;border:1px solid #e2e8f0;border-right:4px solid #0071AA;border-radius:12px;padding:24px 28px;margin-bottom:28px;">
-              <p style="margin:0 0 10px;font-size:11px;font-weight:700;color:#0071AA;text-transform:uppercase;letter-spacing:.08em;">رد فريق الدعم</p>
-              <p style="margin:0;font-size:15px;color:#374151;line-height:1.85;white-space:pre-line;">{{ $replyText }}</p>
+            {{-- Reply Box --}}
+            <div style="background:#f0f7ff;border:1px solid #bfdbfe;border-right:5px solid #0071AA;border-radius:12px;padding:24px 28px;margin-bottom:28px;">
+              <p style="margin:0 0 12px;font-size:11px;font-weight:700;color:#0071AA;text-transform:uppercase;letter-spacing:.1em;font-family:'Cairo',Arial,sans-serif;">
+                ✉️ رد فريق الدعم
+              </p>
+              <p style="margin:0;font-size:15px;color:#1e293b;line-height:2;white-space:pre-line;font-family:'Cairo',Arial,sans-serif;">{{ $replyText }}</p>
             </div>
 
-            {{-- Divider --}}
-            <div style="height:1px;background:#f1f5f9;margin-bottom:28px;"></div>
-
-            {{-- Original message reference --}}
-            <p style="margin:0 0 10px;font-size:12px;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;">رسالتك الأصلية</p>
-            <div style="background:#fafafa;border:1px solid #e2e8f0;border-radius:10px;padding:16px 20px;margin-bottom:32px;">
-              <p style="margin:0;font-size:13px;color:#94a3b8;line-height:1.8;white-space:pre-line;">{{ $originalMessage }}</p>
+            {{-- Original Message --}}
+            <p style="margin:0 0 10px;font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.08em;font-family:'Cairo',Arial,sans-serif;">
+              رسالتك الأصلية
+            </p>
+            <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:18px 22px;margin-bottom:32px;">
+              <p style="margin:0;font-size:13px;color:#94a3b8;line-height:1.9;white-space:pre-line;font-family:'Cairo',Arial,sans-serif;">{{ $originalMessage }}</p>
             </div>
+
+            {{-- Separator --}}
+            <div style="height:1px;background:#e2e8f0;margin-bottom:28px;"></div>
 
             {{-- CTA --}}
             <div style="text-align:center;margin-bottom:32px;">
               <a href="{{ config('app.url') }}"
-                 style="display:inline-block;background:#0071AA;color:#ffffff;text-decoration:none;padding:14px 36px;border-radius:10px;font-size:14px;font-weight:700;letter-spacing:.02em;">
+                 style="display:inline-block;background:#0071AA;color:#ffffff;text-decoration:none;padding:14px 40px;border-radius:10px;font-size:15px;font-weight:700;letter-spacing:.02em;font-family:'Cairo',Arial,sans-serif;">
                 زيارة المنصة
               </a>
             </div>
 
-            <p style="margin:0;font-size:13px;color:#64748b;line-height:1.7;text-align:center;">
-              إذا كان لديك أي استفسار إضافي، لا تتردد في التواصل معنا مجدداً.<br>
-              نحن هنا لمساعدتك دائماً.
+            <p style="margin:0;font-size:13px;color:#94a3b8;line-height:1.9;text-align:center;font-family:'Cairo',Arial,sans-serif;">
+              لديك استفسار آخر؟ لا تتردد في التواصل معنا مجدداً.<br>
+              نحن هنا لمساعدتك دائماً 💙
             </p>
 
           </td>
@@ -69,10 +81,16 @@
 
         {{-- ── Footer ── --}}
         <tr>
-          <td style="background:#f8fafc;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 16px 16px;padding:24px 40px;text-align:center;">
-            <p style="margin:0 0 6px;font-size:13px;font-weight:700;color:#1e293b;">{{ config('app.name') }}</p>
-            <p style="margin:0;font-size:12px;color:#94a3b8;">
-              هذه رسالة آلية رداً على تواصلك معنا · لا ترد على هذا البريد مباشرة
+          <td style="background:#f8fafc;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 16px 16px;padding:24px 40px;text-align:center;font-family:'Cairo',Arial,sans-serif;">
+            <img src="{{ $logoUrl }}"
+                 alt="{{ config('app.name') }}"
+                 width="80"
+                 style="display:inline-block;height:auto;max-height:30px;object-fit:contain;opacity:.6;margin-bottom:10px;">
+            <p style="margin:0 0 4px;font-size:13px;font-weight:700;color:#475569;font-family:'Cairo',Arial,sans-serif;">
+              {{ config('app.name') }}
+            </p>
+            <p style="margin:0;font-size:11px;color:#94a3b8;line-height:1.7;font-family:'Cairo',Arial,sans-serif;">
+              هذه رسالة آلية · لا ترد على هذا البريد مباشرة
             </p>
           </td>
         </tr>
