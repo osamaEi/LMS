@@ -59,13 +59,24 @@ class User extends Authenticatable
 
     public static function generateStudentCode(): string
     {
-        $last = static::where('student_code', 'like', 'STU-%')
+        // Include soft-deleted rows so we never reuse a code held by a trashed user
+        $query = method_exists(static::class, 'withTrashed')
+            ? static::withTrashed()
+            : static::query();
+
+        $last = (clone $query)->where('student_code', 'like', 'STU-%')
             ->orderByRaw('CAST(SUBSTRING(student_code, 5) AS UNSIGNED) DESC')
             ->value('student_code');
 
         $next = $last ? ((int) substr($last, 4)) + 1 : 1;
 
-        return 'STU-' . str_pad($next, 6, '0', STR_PAD_LEFT);
+        // Guard against any gap/collision — advance until the code is free
+        do {
+            $code = 'STU-' . str_pad($next, 6, '0', STR_PAD_LEFT);
+            $next++;
+        } while ((clone $query)->where('student_code', $code)->exists());
+
+        return $code;
     }
 
     /**
