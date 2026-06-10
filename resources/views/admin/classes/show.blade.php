@@ -420,7 +420,7 @@
         let head = `<th style="padding:10px 6px;background:#0071AA;color:#fff;font-size:12px;font-weight:700;border:1px solid #fff;width:80px;">اليوم<br><span style="font-size:10px;opacity:.85;">الفترة</span></th>`;
         PERIODS.forEach(p=>{
             head += `<th style="padding:8px 6px;background:#0071AA;color:#fff;font-size:12px;font-weight:700;border:1px solid #fff;line-height:1.6;">
-                <span dir="ltr">${p.range}</span><br><span style="font-size:11px;font-weight:600;opacity:.9;">${p.name}</span>
+                ${p.name}<br><span dir="ltr" style="font-size:11px;font-weight:600;opacity:.9;display:inline-block;">${p.range}</span>
             </th>`;
         });
 
