@@ -243,6 +243,13 @@
                 <svg style="width:14px;height:14px;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
                 إنشاء جلسات
             </button>
+            @if($sessions->isNotEmpty())
+            <button type="button" onclick="clearAllSessions()"
+                    style="display:flex;align-items:center;gap:6px;padding:8px 16px;border-radius:10px;background:#fff1f2;color:#dc2626;border:1px solid #fecaca;font-size:12px;font-weight:700;cursor:pointer;">
+                <svg style="width:14px;height:14px;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                مسح الجلسات
+            </button>
+            @endif
         </div>
     </div>
 
@@ -386,13 +393,13 @@
         // Fixed academic periods (start/end in minutes from midnight) + labels
         const t = (h,m)=> h*60+m;
         const PERIODS = [
-            { s:t(8,10),  e:t(9,20),  range:'من الساعة (8:10) إلى الساعة (9:20)',  name:'الفترة الصباحية (1)' },
-            { s:t(9,30),  e:t(10,40), range:'من الساعة (9:30) إلى الساعة (10:40)', name:'الفترة الصباحية (2)' },
-            { s:t(10,50), e:t(12,0),  range:'من الساعة (10:50) إلى الساعة (12:00)',name:'الفترة الصباحية (3)' },
-            { s:t(12,20), e:t(13,25), range:'من الساعة (12:20) إلى الساعة (1:25)', name:'الفترة المسائية (1)' },
-            { s:t(13,35), e:t(14,40), range:'من الساعة (1:35) إلى الساعة (2:40)',  name:'الفترة المسائية (2)' },
-            { s:t(14,50), e:t(15,55), range:'من الساعة (2:50) إلى الساعة (3:55)',  name:'الفترة المسائية (3)' },
-            { s:t(16,0),  e:t(17,15), range:'من الساعة (4:00) إلى الساعة (5:15)',  name:'الفترة المسائية (4)' },
+            { s:t(8,10),  e:t(9,20),  range:'8:10 - 9:20',   name:'الفترة الصباحية (1)' },
+            { s:t(9,30),  e:t(10,40), range:'9:30 - 10:40',  name:'الفترة الصباحية (2)' },
+            { s:t(10,50), e:t(12,0),  range:'10:50 - 12:00', name:'الفترة الصباحية (3)' },
+            { s:t(12,20), e:t(13,25), range:'12:20 - 1:25',  name:'الفترة المسائية (1)' },
+            { s:t(13,35), e:t(14,40), range:'1:35 - 2:40',  name:'الفترة المسائية (2)' },
+            { s:t(14,50), e:t(15,55), range:'2:50 - 3:55',  name:'الفترة المسائية (3)' },
+            { s:t(16,0),  e:t(17,15), range:'4:00 - 5:15',  name:'الفترة المسائية (4)' },
         ];
         const periodIndex = mins => {
             for(let p=0;p<PERIODS.length;p++){ if(mins < PERIODS[p].e) return p; }
@@ -412,8 +419,8 @@
         // Header: day + period columns (time range + period name)
         let head = `<th style="padding:10px 6px;background:#0071AA;color:#fff;font-size:12px;font-weight:700;border:1px solid #fff;width:80px;">اليوم<br><span style="font-size:10px;opacity:.85;">الفترة</span></th>`;
         PERIODS.forEach(p=>{
-            head += `<th style="padding:8px 6px;background:#0071AA;color:#fff;font-size:11px;font-weight:700;border:1px solid #fff;line-height:1.5;">
-                ${p.range}<br><span style="font-size:11px;font-weight:600;opacity:.9;">${p.name}</span>
+            head += `<th style="padding:8px 6px;background:#0071AA;color:#fff;font-size:12px;font-weight:700;border:1px solid #fff;line-height:1.6;">
+                <span dir="ltr">${p.range}</span><br><span style="font-size:11px;font-weight:600;opacity:.9;">${p.name}</span>
             </th>`;
         });
 
@@ -503,16 +510,35 @@
 // ── Edit / delete a session from the weekly grid ──
 const _SESS_CSRF = '{{ csrf_token() }}';
 window.rescheduleSession = function(id, currentAt){
-    // currentAt = "Y-m-d H:i:s"
-    const cur = (currentAt || '').slice(0,16).replace(' ','T');
-    const val = prompt('الموعد الجديد (YYYY-MM-DD HH:MM):', cur.replace('T',' '));
-    if(!val) return;
-    const scheduled = val.trim().replace('T',' ');
+    // currentAt = "Y-m-d H:i:s" → fill the edit modal
+    const datePart = (currentAt || '').slice(0,10);
+    const timePart = (currentAt || '').slice(11,16); // HH:MM (24h)
+    document.getElementById('editSessId').value   = id;
+    document.getElementById('editSessDate').value = datePart;
+    const timeSel = document.getElementById('editSessTime');
+    timeSel.value = timePart;
+    if (timeSel.value !== timePart) timeSel.value = ''; // not a known period
+    document.getElementById('editSessModal').style.display = 'flex';
+};
+window.closeEditSession = function(){ document.getElementById('editSessModal').style.display='none'; };
+window.submitEditSession = function(){
+    const id   = document.getElementById('editSessId').value;
+    const date = document.getElementById('editSessDate').value;
+    const time = document.getElementById('editSessTime').value;
+    if(!date || !time){ alert('اختر التاريخ والفترة'); return; }
     fetch(`/admin/sessions/${id}/reschedule`, {
         method:'POST',
         headers:{'Content-Type':'application/json','Accept':'application/json','X-CSRF-TOKEN':_SESS_CSRF},
-        body: JSON.stringify({ scheduled_at: scheduled })
+        body: JSON.stringify({ scheduled_at: date + ' ' + time + ':00' })
     }).then(r=>r.json()).then(d=>{ if(d.success){ location.hash='#sessions'; location.reload(); } else { alert(d.message||'تعذّر التعديل'); } });
+};
+window.clearAllSessions = function(){
+    if(!confirm('سيتم حذف كل جلسات هذه المجموعة. هل أنت متأكد؟')) return;
+    fetch(`/admin/classes/{{ $class->id }}/sessions`, {
+        method:'POST',
+        headers:{'Content-Type':'application/json','Accept':'application/json','X-CSRF-TOKEN':_SESS_CSRF},
+        body: JSON.stringify({ _method:'DELETE' })
+    }).then(r=>r.json().catch(()=>({success:r.ok}))).then(d=>{ if(d.success!==false){ location.hash='#sessions'; location.reload(); } else { alert('تعذّر الحذف'); } });
 };
 window.deleteSession = function(id){
     if(!confirm('حذف هذه الجلسة؟')) return;
@@ -524,6 +550,40 @@ window.deleteSession = function(id){
 };
 </script>
 </div>{{-- /ctab-sessions --}}
+
+{{-- ══ MODAL: Edit Session (reschedule) ══ --}}
+<div id="editSessModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.5);backdrop-filter:blur(2px);align-items:center;justify-content:center;padding:1rem;">
+    <div style="background:white;border-radius:18px;width:100%;max-width:420px;box-shadow:0 30px 60px rgba(0,0,0,.2);overflow:hidden;">
+        <div style="background:linear-gradient(135deg,#0071AA,#004d77);padding:18px 22px;display:flex;align-items:center;justify-content:space-between;">
+            <h3 style="font-size:15px;font-weight:700;color:white;margin:0;">تعديل موعد الجلسة</h3>
+            <button onclick="closeEditSession()" style="background:rgba(255,255,255,.15);border:none;border-radius:8px;width:30px;height:30px;color:white;cursor:pointer;font-size:16px;">×</button>
+        </div>
+        <div style="padding:20px;display:flex;flex-direction:column;gap:14px;">
+            <input type="hidden" id="editSessId">
+            <div>
+                <label style="display:block;font-size:11px;font-weight:700;color:#475569;margin-bottom:6px;">التاريخ *</label>
+                <input type="date" id="editSessDate" style="width:100%;padding:9px 12px;font-size:13px;border:1.5px solid #e2e8f0;border-radius:10px;outline:none;font-family:inherit;">
+            </div>
+            <div>
+                <label style="display:block;font-size:11px;font-weight:700;color:#475569;margin-bottom:6px;">الفترة (الوقت) *</label>
+                <select id="editSessTime" style="width:100%;padding:9px 12px;font-size:13px;border:1.5px solid #e2e8f0;border-radius:10px;outline:none;font-family:inherit;background:white;">
+                    <option value="">— اختر الفترة —</option>
+                    <option value="08:10">الفترة الصباحية (1) — 8:10</option>
+                    <option value="09:30">الفترة الصباحية (2) — 9:30</option>
+                    <option value="10:50">الفترة الصباحية (3) — 10:50</option>
+                    <option value="12:20">الفترة المسائية (1) — 12:20</option>
+                    <option value="13:35">الفترة المسائية (2) — 1:35</option>
+                    <option value="14:50">الفترة المسائية (3) — 2:50</option>
+                    <option value="16:00">الفترة المسائية (4) — 4:00</option>
+                </select>
+            </div>
+        </div>
+        <div style="display:flex;justify-content:flex-end;gap:8px;padding:14px 20px;border-top:1px solid #f1f5f9;">
+            <button onclick="closeEditSession()" style="padding:9px 18px;font-size:13px;font-weight:600;color:#475569;background:#f1f5f9;border:none;border-radius:10px;cursor:pointer;">إلغاء</button>
+            <button onclick="submitEditSession()" style="padding:9px 18px;font-size:13px;font-weight:700;color:white;background:linear-gradient(135deg,#0071AA,#004d77);border:none;border-radius:10px;cursor:pointer;">حفظ</button>
+        </div>
+    </div>
+</div>
 
 {{-- Tab switcher --}}
 <script>

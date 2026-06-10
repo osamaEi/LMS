@@ -222,6 +222,27 @@ class ProgramClassController extends Controller
     }
 
     /**
+     * Delete all sessions of this class (and their attendance).
+     */
+    public function clearSessions(ProgramClass $class)
+    {
+        $sessions = \App\Models\Session::where('class_id', $class->id)->get();
+        $count = $sessions->count();
+
+        foreach ($sessions as $session) {
+            \App\Models\Attendance::where('session_id', $session->id)->delete();
+            $session->delete();
+        }
+
+        if (request()->wantsJson()) {
+            return response()->json(['success' => true, 'deleted' => $count]);
+        }
+
+        return redirect()->to(route('admin.classes.show', $class->id) . '#sessions')
+            ->with('success', "تم حذف {$count} جلسة");
+    }
+
+    /**
      * Attach an existing program subject to a class term.
      * If the source subject is program-wide (class_id null), clone it for this class
      * so other classes keep their own copy; otherwise assign directly.
