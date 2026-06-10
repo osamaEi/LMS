@@ -379,56 +379,66 @@
         document.getElementById('calTitle').textContent =
             ws.getDate()+' '+MONTH_NAMES[ws.getMonth()]+' — '+wend.getDate()+' '+MONTH_NAMES[wend.getMonth()];
 
+        // Show Sun → Thu (5 academic days)
         const weekDays = [];
-        for(let i=0;i<7;i++){ const d=new Date(ws); d.setDate(d.getDate()+i); weekDays.push(d); }
+        for(let i=0;i<5;i++){ const d=new Date(ws); d.setDate(d.getDate()+i); weekDays.push(d); }
 
-        // Fixed hourly columns from 9 AM to 6 PM
-        const START_HOUR = 9, END_HOUR = 18;
-        const hourLabel = h => { const ap=h>=12?'م':'ص'; const hh=h%12||12; return hh+':00 '+ap; };
-        const slots = [];
-        for(let h=START_HOUR; h<=END_HOUR; h++) slots.push(h);   // slots hold the hour number
+        // Fixed academic periods (start/end in minutes from midnight) + labels
+        const t = (h,m)=> h*60+m;
+        const PERIODS = [
+            { s:t(8,10),  e:t(9,20),  range:'من الساعة (8:10) إلى الساعة (9:20)',  name:'الفترة الصباحية (1)' },
+            { s:t(9,30),  e:t(10,40), range:'من الساعة (9:30) إلى الساعة (10:40)', name:'الفترة الصباحية (2)' },
+            { s:t(10,50), e:t(12,0),  range:'من الساعة (10:50) إلى الساعة (12:00)',name:'الفترة الصباحية (3)' },
+            { s:t(12,20), e:t(13,25), range:'من الساعة (12:20) إلى الساعة (1:25)', name:'الفترة المسائية (1)' },
+            { s:t(13,35), e:t(14,40), range:'من الساعة (1:35) إلى الساعة (2:40)',  name:'الفترة المسائية (2)' },
+            { s:t(14,50), e:t(15,55), range:'من الساعة (2:50) إلى الساعة (3:55)',  name:'الفترة المسائية (3)' },
+            { s:t(16,0),  e:t(17,15), range:'من الساعة (4:00) إلى الساعة (5:15)',  name:'الفترة المسائية (4)' },
+        ];
+        const periodIndex = mins => {
+            for(let p=0;p<PERIODS.length;p++){ if(mins < PERIODS[p].e) return p; }
+            return PERIODS.length-1;
+        };
 
-        // Bucket each session into its day + hour
-        const cellMap = {}; // key: dayIndex + '|' + hour
+        // Bucket each session into its day + period
+        const cellMap = {}; // key: dayIndex + '|' + periodIndex
         weekDays.forEach((d,i)=>{
             onDay(d).forEach(s=>{
-                let h = parse(s.at).getHours();
-                if (h < START_HOUR) h = START_HOUR;       // clamp early
-                if (h > END_HOUR)   h = END_HOUR;          // clamp late
-                (cellMap[i+'|'+h] = cellMap[i+'|'+h] || []).push(s);
+                const dt=parse(s.at); const mins=dt.getHours()*60+dt.getMinutes();
+                const p=periodIndex(mins);
+                (cellMap[i+'|'+p] = cellMap[i+'|'+p] || []).push(s);
             });
         });
 
-        // Header row (time slots across the top; first column = "اليوم")
-        let head = `<th style="padding:10px 6px;background:#0071AA;color:#fff;font-size:12px;font-weight:700;border:1px solid #e5e7eb;width:70px;">اليوم</th>`;
-        slots.forEach(slot=>{
-            head += `<th style="padding:10px 4px;background:#0071AA;color:#fff;font-size:12px;font-weight:700;border:1px solid #e5e7eb;white-space:nowrap;">${hourLabel(slot)}</th>`;
+        // Header: day + period columns (time range + period name)
+        let head = `<th style="padding:10px 6px;background:#0071AA;color:#fff;font-size:12px;font-weight:700;border:1px solid #fff;width:80px;">اليوم<br><span style="font-size:10px;opacity:.85;">الفترة</span></th>`;
+        PERIODS.forEach(p=>{
+            head += `<th style="padding:8px 6px;background:#0071AA;color:#fff;font-size:11px;font-weight:700;border:1px solid #fff;line-height:1.5;">
+                ${p.range}<br><span style="font-size:11px;font-weight:600;opacity:.9;">${p.name}</span>
+            </th>`;
         });
 
         // Body rows (one per day)
         let body='';
         weekDays.forEach((d,i)=>{
             const today = sameDay(d,TODAY);
-            let row = `<td style="padding:10px 6px;text-align:center;font-size:12px;font-weight:700;color:#fff;background:${today?'#005a88':'#0071AA'};border:1px solid #e5e7eb;line-height:1.4;">
-                ${DAY_NAMES[i]}<br><span style="font-size:10px;opacity:.85;">${d.getDate()}/${d.getMonth()+1}</span>
+            let row = `<td style="padding:10px 6px;text-align:center;font-size:13px;font-weight:700;color:#fff;background:${today?'#005a88':'#0071AA'};border:1px solid #fff;line-height:1.4;">
+                ${DAY_NAMES[i]}
             </td>`;
-            slots.forEach(slot=>{
-                const items = cellMap[i+'|'+slot] || [];
+            PERIODS.forEach((p,pi)=>{
+                const items = cellMap[i+'|'+pi] || [];
                 const inner = items.map(s=>{
-                    const c=st(s.status);
                     return `<div style="background:#eff6ff;border-right:3px solid #0071AA;border-radius:6px;padding:6px 8px;margin-bottom:4px;line-height:1.35;">
-                        <div style="font-size:11px;font-weight:700;color:#0071AA;">${fmtTime(parse(s.at))}</div>
                         <div style="font-size:12px;font-weight:700;color:#1e3a8a;">${s.title}</div>
                         ${s.subject?`<div style="font-size:10px;color:#64748b;">${s.subject}</div>`:''}
                     </div>`;
                 }).join('');
-                row += `<td style="height:72px;padding:5px;vertical-align:top;border:1px solid #e5e7eb;${today?'background:#f8fdff;':''}">${inner||'<div style="text-align:center;color:#e5e7eb;font-size:12px;">·</div>'}</td>`;
+                row += `<td style="height:80px;padding:5px;vertical-align:top;border:1px solid #d6e4f0;${today?'background:#f8fdff;':''}">${inner}</td>`;
             });
             body += `<tr>${row}</tr>`;
         });
 
         return `<div style="padding:14px;overflow-x:auto;">
-            <table style="width:100%;min-width:880px;border-collapse:collapse;table-layout:fixed;">
+            <table style="width:100%;min-width:1000px;border-collapse:collapse;table-layout:fixed;">
                 <thead><tr>${head}</tr></thead>
                 <tbody>${body}</tbody>
             </table>
