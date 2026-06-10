@@ -55,6 +55,7 @@ class StudentController extends Controller
     {
         $validated = $request->validate([
             'name'                => 'required|string|max:255',
+            'student_code'        => 'nullable|string|max:50|unique:users,student_code',
             'email'               => 'required|email|unique:users,email',
             'national_id'         => 'required|digits:10|unique:users,national_id',
             'phone'               => 'nullable|string|max:20|unique:users,phone',
@@ -79,6 +80,7 @@ class StudentController extends Controller
             'national_id.required'     => 'رقم الهوية مطلوب.',
             'national_id.digits'       => 'رقم الهوية يجب أن يكون 10 أرقام.',
             'national_id.unique'       => 'رقم الهوية مستخدم مسبقاً.',
+            'student_code.unique'      => 'كود المتدرب مستخدم مسبقاً.',
             'phone.unique'             => 'رقم الهاتف مستخدم مسبقاً.',
             'password.required'        => 'كلمة المرور مطلوبة.',
             'password.min'             => 'كلمة المرور يجب أن تكون 8 أحرف على الأقل.',

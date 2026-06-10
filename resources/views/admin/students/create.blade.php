@@ -49,6 +49,15 @@
 
             <div>
                 <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    كود المتدرب
+                </label>
+                <input type="text" name="student_code" value="{{ old('student_code') }}" dir="ltr"
+                       placeholder="يُولّد تلقائيًا إن تُرك فارغًا (مثال: STU-000123)"
+                       class="input-field">
+            </div>
+
+            <div>
+                <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
                     البريد الإلكتروني <span class="text-red-500">*</span>
                 </label>
                 <input type="email" name="email" value="{{ old('email') }}" required dir="ltr"
