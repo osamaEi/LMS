@@ -71,7 +71,7 @@ class TermController extends Controller
         }
 
         if ($request->filled('class_id')) {
-            return redirect()->route('admin.classes.show', $request->class_id)
+            return redirect()->to(route('admin.classes.show', $request->class_id) . '#terms')
                 ->with('success', 'تم إضافة الربع التدريبي بنجاح');
         }
 
@@ -125,7 +125,6 @@ class TermController extends Controller
     {
         $validated = $request->validate([
             'program_id'  => 'nullable|exists:programs,id',
-            'class_id'    => 'nullable|exists:program_classes,id',
             'term_number' => 'nullable|integer|min:1',
             'name_ar'     => 'nullable|string|max:255',
             'name_en'     => 'nullable|string|max:255',
@@ -134,9 +133,18 @@ class TermController extends Controller
             'status'      => 'nullable|in:upcoming,active,completed',
         ]);
 
+        // class_id is intentionally NOT editable here — preserve the existing link
         $term->update($validated);
 
-        $term->subjects()->sync($request->input('subject_ids', []));
+        if ($request->has('subject_ids')) {
+            $term->subjects()->sync($request->input('subject_ids', []));
+        }
+
+        // Class-scoped term → back to its class (Terms tab)
+        if ($term->class_id) {
+            return redirect()->to(route('admin.classes.show', $term->class_id) . '#terms')
+                ->with('success', 'تم تحديث الربع التدريبي بنجاح');
+        }
 
         return redirect()->route('admin.terms.show', $term)
             ->with('success', 'تم تحديث الربع التدريبي  بنجاح');
@@ -154,7 +162,13 @@ class TermController extends Controller
 
     public function destroy(Term $term)
     {
+        $classId = $term->class_id;
         $term->delete();
+
+        if ($classId) {
+            return redirect()->to(route('admin.classes.show', $classId) . '#terms')
+                ->with('success', 'تم حذف الربع التدريبي بنجاح');
+        }
 
         return redirect()->route('admin.terms.index')
             ->with('success', 'تم حذف الربع التدريبي بنجاح');

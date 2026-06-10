@@ -250,14 +250,23 @@
                         <p style="font-size:0.875rem;color:rgba(255,255,255,0.75);margin:5px 0 0">عرض وإدارة جميع  المتدربون  المسجلين في المنصة</p>
                     </div>
                 </div>
-                <a href="{{ route('admin.students.export') }}"
-                   style="display:inline-flex;align-items:center;gap:8px;padding:10px 22px;background:rgba(255,255,255,0.15);border:1.5px solid rgba(255,255,255,0.35);color:#fff;font-weight:700;border-radius:14px;text-decoration:none;font-size:0.875rem;transition:all 0.2s"
-                   onmouseover="this.style.background='rgba(255,255,255,0.25)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'">
-                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
-                    </svg>
-                    تصدير Excel
-                </a>
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <a href="{{ route('admin.students.create') }}"
+                       style="display:inline-flex;align-items:center;gap:8px;padding:10px 22px;background:#fff;color:#0071AA;font-weight:700;border-radius:14px;text-decoration:none;font-size:0.875rem;transition:all 0.2s;box-shadow:0 4px 12px rgba(0,0,0,.12);">
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        إضافة متدرب
+                    </a>
+                    <a href="{{ route('admin.students.export') }}"
+                       style="display:inline-flex;align-items:center;gap:8px;padding:10px 22px;background:rgba(255,255,255,0.15);border:1.5px solid rgba(255,255,255,0.35);color:#fff;font-weight:700;border-radius:14px;text-decoration:none;font-size:0.875rem;transition:all 0.2s"
+                       onmouseover="this.style.background='rgba(255,255,255,0.25)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'">
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                        </svg>
+                        تصدير Excel
+                    </a>
+                </div>
             </div>
 
             {{-- Stats --}}

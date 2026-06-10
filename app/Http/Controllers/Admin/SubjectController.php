@@ -98,7 +98,7 @@ class SubjectController extends Controller
         }
 
         if ($request->filled('class_id')) {
-            return redirect()->route('admin.classes.show', $validated['class_id'])
+            return redirect()->to(route('admin.classes.show', $validated['class_id']) . '#terms')
                 ->with('success', 'تم إضافة المقرر بنجاح');
         }
 
@@ -151,7 +151,7 @@ class SubjectController extends Controller
         $subject->update($validated);
 
         if ($request->filled('class_id')) {
-            return redirect()->route('admin.classes.show', $validated['class_id'])
+            return redirect()->to(route('admin.classes.show', $validated['class_id']) . '#terms')
                 ->with('success', 'تم تحديث المقرر بنجاح');
         }
 
@@ -201,7 +201,7 @@ class SubjectController extends Controller
         $subject->delete();
 
         if ($classId) {
-            return redirect()->route('admin.classes.show', $classId)
+            return redirect()->to(route('admin.classes.show', $classId) . '#terms')
                 ->with('success', 'تم حذف المقرر بنجاح');
         }
 

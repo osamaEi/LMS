@@ -47,26 +47,77 @@ class StudentController extends Controller
 
     public function create()
     {
-        return view('admin.students.create');
+        $programs = Program::where('status', 'active')->orderBy('name_ar')->get(['id', 'name_ar', 'name_en', 'type']);
+        return view('admin.students.create', compact('programs'));
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'national_id' => 'required|string|unique:users,national_id',
-            'phone' => 'nullable|string|max:20',
-            'password' => 'required|string|min:8|confirmed',
+            'name'                => 'required|string|max:255',
+            'email'               => 'required|email|unique:users,email',
+            'national_id'         => 'required|digits:10|unique:users,national_id',
+            'phone'               => 'nullable|string|max:20',
+            'gender'              => 'nullable|in:male,female',
+            'date_of_birth'       => 'nullable|date',
+            'nationality'         => 'nullable|string|max:100',
+            'status'              => 'nullable|in:active,pending,inactive,suspended',
+            'specialization'      => 'nullable|string|max:255',
+            'specialization_type' => 'nullable|string|max:255',
+            'date_of_graduation'  => 'nullable|date',
+            'bio'                 => 'nullable|string|max:500',
+            'profile_photo'       => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'password'            => 'required|string|min:8|confirmed',
+            'program_ids'         => 'nullable|array',
+            'program_ids.*'       => 'exists:programs,id',
+        ], [
+            'name.required'            => 'الاسم مطلوب.',
+            'name.max'                 => 'الاسم لا يتجاوز 255 حرفاً.',
+            'email.required'           => 'البريد الإلكتروني مطلوب.',
+            'email.email'              => 'البريد الإلكتروني غير صحيح.',
+            'email.unique'             => 'البريد الإلكتروني مستخدم مسبقاً.',
+            'national_id.required'     => 'رقم الهوية مطلوب.',
+            'national_id.digits'       => 'رقم الهوية يجب أن يكون 10 أرقام.',
+            'national_id.unique'       => 'رقم الهوية مستخدم مسبقاً.',
+            'password.required'        => 'كلمة المرور مطلوبة.',
+            'password.min'             => 'كلمة المرور يجب أن تكون 8 أحرف على الأقل.',
+            'password.confirmed'       => 'تأكيد كلمة المرور غير متطابق.',
+            'profile_photo.image'      => 'الصورة يجب أن تكون ملف صورة.',
+            'profile_photo.mimes'      => 'الصورة يجب أن تكون JPG أو PNG.',
+            'profile_photo.max'        => 'حجم الصورة لا يتجاوز 2 ميجابايت.',
+            'date_of_birth.date'       => 'تاريخ الميلاد غير صحيح.',
+            'date_of_graduation.date'  => 'تاريخ التخرج غير صحيح.',
+            'program_ids.*.exists'     => 'أحد البرامج المختارة غير موجود.',
         ]);
+
+        $programIds = $validated['program_ids'] ?? [];
+        unset($validated['program_ids']);
 
         $validated['role'] = 'student';
         $validated['password'] = Hash::make($validated['password']);
+        $validated['status'] = $validated['status'] ?? 'active';
 
-        User::create($validated);
+        if ($request->hasFile('profile_photo')) {
+            $validated['profile_photo'] = $request->file('profile_photo')->store('uploads/images', 'public');
+        }
 
-        return redirect()->route('admin.students.index')
-            ->with('success', 'تم إضافة ال متدرب بنجاح');
+        // First chosen program becomes the primary program_id (legacy field)
+        if (!empty($programIds)) {
+            $validated['program_id'] = $programIds[0];
+            $validated['program_status'] = 'approved';
+        }
+
+        $student = User::create($validated);
+
+        // Attach all chosen programs via the student_programs pivot
+        foreach ($programIds as $pid) {
+            $student->programs()->syncWithoutDetaching([
+                $pid => ['status' => 'approved', 'enrolled_at' => now()],
+            ]);
+        }
+
+        return redirect()->route('admin.students.show', $student)
+            ->with('success', 'تم إضافة المتدرب بنجاح');
     }
 
     public function show(User $student)
@@ -111,7 +162,10 @@ class StudentController extends Controller
 
     public function edit(User $student)
     {
-        return view('admin.students.edit', compact('student'));
+        $programs = Program::where('status', 'active')->orderBy('name_ar')->get(['id', 'name_ar', 'name_en', 'type']);
+        $student->load('programs');
+        $assignedProgramIds = $student->allProgramIds()->all();
+        return view('admin.students.edit', compact('student', 'programs', 'assignedProgramIds'));
     }
 
     public function update(Request $request, User $student)
@@ -119,7 +173,7 @@ class StudentController extends Controller
         $validated = $request->validate([
             'name'                => 'required|string|max:255',
             'email'               => 'required|email|unique:users,email,' . $student->id,
-            'national_id'         => 'required|string|unique:users,national_id,' . $student->id,
+            'national_id'         => 'required|digits:10|unique:users,national_id,' . $student->id,
             'phone'               => 'nullable|string|max:20',
             'gender'              => 'nullable|in:male,female',
             'date_of_birth'       => 'nullable|date',
@@ -131,7 +185,12 @@ class StudentController extends Controller
             'bio'                 => 'nullable|string|max:500',
             'profile_photo'       => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'password'            => 'nullable|string|min:8|confirmed',
+            'program_ids'         => 'nullable|array',
+            'program_ids.*'       => 'exists:programs,id',
         ]);
+
+        $programIds = $validated['program_ids'] ?? null;
+        unset($validated['program_ids']);
 
         if (!empty($validated['password'])) {
             $validated['password'] = Hash::make($validated['password']);
@@ -149,6 +208,27 @@ class StudentController extends Controller
         }
 
         $student->update($validated);
+
+        // Sync assigned programs (only when the field was submitted)
+        if ($programIds !== null) {
+            // Preserve existing pivot class_id where possible
+            $existing = $student->programs()->pluck('student_programs.class_id', 'programs.id');
+            $syncData = [];
+            foreach ($programIds as $pid) {
+                $syncData[$pid] = [
+                    'status'   => 'approved',
+                    'class_id' => $existing[$pid] ?? null,
+                ];
+            }
+            $student->programs()->sync($syncData);
+
+            // Keep legacy primary program_id pointing at one of the assigned programs
+            if (!empty($programIds) && !in_array($student->program_id, $programIds)) {
+                $student->update(['program_id' => $programIds[0], 'program_status' => 'approved']);
+            } elseif (empty($programIds)) {
+                $student->update(['program_id' => null]);
+            }
+        }
 
         return redirect()->route('admin.students.show', $student)
             ->with('success', 'تم تحديث بيانات المتدرب بنجاح');

@@ -18,6 +18,9 @@ class ProgramClassController extends Controller
         if ($request->filled('program_id')) {
             $query->where('program_id', $request->program_id);
         }
+        if ($request->filled('type')) {
+            $query->whereHas('program', fn($q) => $q->where('type', $request->type));
+        }
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
@@ -222,61 +225,91 @@ class ProgramClassController extends Controller
     public function attachSubject(Request $request, ProgramClass $class)
     {
         $data = $request->validate([
-            'term_id'    => 'required|exists:terms,id',
-            'subject_id' => 'required|exists:subjects,id',
+            'term_id'      => 'required|exists:terms,id',
+            'subject_id'   => 'nullable|exists:subjects,id',          // single (modal)
+            'subject_ids'  => 'nullable|array',                       // multiple (checkboxes)
+            'subject_ids.*'=> 'integer|exists:subjects,id',
         ]);
 
         $term = \App\Models\Term::findOrFail($data['term_id']);
         abort_unless($term->class_id == $class->id, 403, 'الربع لا يخص هذه المجموعة');
 
-        $source = \App\Models\Subject::findOrFail($data['subject_id']);
+        // Collect chosen subject IDs from either input
+        $ids = collect($data['subject_ids'] ?? [])
+            ->merge(!empty($data['subject_id']) ? [$data['subject_id']] : [])
+            ->unique()->values();
+
+        if ($ids->isEmpty()) {
+            return $request->wantsJson()
+                ? response()->json(['success' => false, 'message' => 'اختر مقرراً واحداً على الأقل'], 422)
+                : back()->with('error', 'اختر مقرراً واحداً على الأقل');
+        }
+
+        $attached = 0;
+        $skipped  = [];
+        foreach ($ids as $sid) {
+            $result = $this->attachOneSubject($class, $term, (int) $sid);
+            if ($result === true) {
+                $attached++;
+            } else {
+                $skipped[] = $result; // error message
+            }
+        }
+
+        if ($request->wantsJson()) {
+            return response()->json(['success' => $attached > 0, 'attached' => $attached, 'skipped' => $skipped]);
+        }
+
+        $msg = "تم إضافة {$attached} مقرر للمجموعة";
+        $redirect = redirect()->to(route('admin.classes.show', $class->id) . '#terms');
+        return !empty($skipped)
+            ? $redirect->with('error', $msg . ' — تم تخطي: ' . implode('، ', array_unique($skipped)))
+            : $redirect->with('success', $msg);
+    }
+
+    /**
+     * Attach a single subject to a class term.
+     * Returns true on success, or a string error message to skip.
+     */
+    private function attachOneSubject(ProgramClass $class, \App\Models\Term $term, int $sourceId)
+    {
+        $source = \App\Models\Subject::find($sourceId);
+        if (!$source) return 'مقرر غير موجود';
 
         if ($source->class_id === null) {
             // Clone the program-wide subject into this class.
-            // Code is unique per (program_id, code), so suffix it for the class copy.
             $subject = $source->replicate(['class_id']);
             $subject->class_id = $class->id;
             $subject->term_id  = $term->id;
             $baseCode = $source->code ? $source->code . '-C' . $class->id : null;
             $subject->code = $baseCode;
 
-            // Enforce: a subject can only live in one term per class
             $existing = $baseCode
                 ? \App\Models\Subject::where('program_id', $class->program_id)->where('code', $baseCode)->first()
                 : null;
             if ($existing && $existing->term_id) {
-                $msg = 'المقرر مُسند بالفعل لربع آخر في هذه المجموعة';
-                return $request->wantsJson()
-                    ? response()->json(['success' => false, 'message' => $msg], 422)
-                    : back()->with('error', $msg);
+                return ($source->name_ar ?: $source->name_en) . ' (مُسند لربع آخر)';
             }
             if ($existing) {
-                // Cloned before but not in a term yet — assign it
                 $existing->update(['term_id' => $term->id, 'class_id' => $class->id]);
                 $existing->terms()->syncWithoutDetaching([$term->id]);
-                return $request->wantsJson()
-                    ? response()->json(['success' => true])
-                    : back()->with('success', 'تم إضافة المقرر للمجموعة');
+                return true;
             }
             $subject->save();
             if ($source->teacher_id) {
                 $subject->teachers()->sync($source->teachers()->pluck('users.id')->all());
             }
         } else {
-            // Already class-specific — just move it under this term
-            abort_unless($source->class_id == $class->id, 403, 'المقرر يخص مجموعة أخرى');
+            if ($source->class_id != $class->id) {
+                return ($source->name_ar ?: $source->name_en) . ' (يخص مجموعة أخرى)';
+            }
             $subject = $source;
             $subject->term_id = $term->id;
             $subject->save();
         }
 
         $subject->terms()->syncWithoutDetaching([$term->id]);
-
-        if ($request->wantsJson()) {
-            return response()->json(['success' => true]);
-        }
-
-        return back()->with('success', 'تم إضافة المقرر للمجموعة');
+        return true;
     }
 
     public function store(Request $request)

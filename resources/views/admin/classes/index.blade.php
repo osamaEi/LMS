@@ -25,6 +25,13 @@
         <option value="{{ $p->id }}" {{ request('program_id')==$p->id?'selected':'' }}>{{ $p->name_ar }}</option>
         @endforeach
     </select>
+    <select name="type" style="padding:8px 12px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13px;">
+        <option value="">كل الأنواع</option>
+        <option value="diploma"  {{ request('type')=='diploma'?'selected':'' }}>دبلومة</option>
+        <option value="course"   {{ request('type')=='course'?'selected':'' }}>دورة</option>
+        <option value="english"  {{ request('type')=='english'?'selected':'' }}>إنجليزي</option>
+        <option value="training" {{ request('type')=='training'?'selected':'' }}>تدريب</option>
+    </select>
     <select name="status" style="padding:8px 12px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13px;">
         <option value="">كل الحالات</option>
         <option value="active"    {{ request('status')=='active'?'selected':'' }}>نشطة</option>
@@ -32,7 +39,7 @@
         <option value="completed" {{ request('status')=='completed'?'selected':'' }}>منتهية</option>
     </select>
     <button type="submit" style="padding:8px 16px;border-radius:9px;background:#1e293b;color:white;font-size:13px;font-weight:600;border:none;cursor:pointer;">بحث</button>
-    @if(request()->hasAny(['search','program_id','status']))
+    @if(request()->hasAny(['search','program_id','type','status']))
     <a href="{{ route('admin.classes.index') }}" style="padding:8px 14px;border-radius:9px;background:#f1f5f9;color:#64748b;font-size:13px;font-weight:600;text-decoration:none;">مسح</a>
     @endif
 </form>

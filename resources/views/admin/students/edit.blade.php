@@ -3,6 +3,9 @@
 @section('title', 'تعديل بيانات المتدرب ')
 
 @section('content')
+<style>
+    select option { color:#111827 !important; background:#ffffff !important; }
+</style>
 <div class="mb-6">
     <div class="flex items-center gap-3 mb-3">
         <a href="{{ route('admin.students.show', $student) }}"
@@ -66,6 +69,9 @@
                     <input type="text" name="national_id"
                            value="{{ old('national_id', $student->national_id) }}"
                            required dir="ltr"
+                           maxlength="10" minlength="10" pattern="[0-9]{10}" inputmode="numeric"
+                           oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,10)"
+                           title="رقم الهوية يجب أن يكون 10 أرقام"
                            class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
                 </div>
 
@@ -202,6 +208,29 @@
                 </div>
 
             </div>
+        </div>
+
+        {{-- Assigned Programs --}}
+        <div class="border-t border-gray-200 dark:border-gray-800 pt-6">
+            <h2 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4">البرامج المسجّلة</h2>
+            @php
+                $typeLabels = ['diploma'=>'دبلومة','course'=>'دورة','english'=>'إنجليزي','training'=>'تدريب'];
+                $assigned = old('program_ids', $assignedProgramIds ?? []);
+            @endphp
+            <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                @forelse($programs as $p)
+                <label class="flex items-center gap-3 rounded-lg border border-gray-200 px-4 py-2.5 cursor-pointer hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800">
+                    <input type="checkbox" name="program_ids[]" value="{{ $p->id }}"
+                           {{ in_array($p->id, $assigned) ? 'checked' : '' }}
+                           class="w-4 h-4" style="accent-color:#0071AA;">
+                    <span class="text-sm text-gray-800 dark:text-gray-200">{{ $p->name_ar }}</span>
+                    <span class="text-xs text-gray-400 ms-auto">{{ $typeLabels[$p->type] ?? $p->type }}</span>
+                </label>
+                @empty
+                <p class="text-sm text-gray-400">لا توجد برامج نشطة.</p>
+                @endforelse
+            </div>
+            <p class="text-xs text-gray-400 mt-2">أول برنامج مختار يُعتبر البرنامج الأساسي. إسناد المجموعة (الكلاس) يتم من صفحة المجموعات.</p>
         </div>
 
         {{-- Buttons --}}

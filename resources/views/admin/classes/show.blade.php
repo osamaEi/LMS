@@ -159,22 +159,26 @@
             </button>
 
             <form x-show="open" x-cloak action="{{ route('admin.classes.attach-subject', $class->id) }}" method="POST"
-                  style="display:flex;align-items:center;gap:8px;background:white;border:1px solid #e2e8f0;border-radius:12px;padding:10px 12px;box-shadow:0 2px 8px rgba(0,0,0,.04);">
+                  style="background:white;border:1px solid #e2e8f0;border-radius:12px;padding:12px;box-shadow:0 2px 8px rgba(0,0,0,.04);">
                 @csrf
                 <input type="hidden" name="term_id" value="{{ $term->id }}">
-                <select name="subject_id" required
-                        style="flex:1;padding:9px 12px;font-size:13px;border:1.5px solid #e2e8f0;border-radius:9px;outline:none;font-family:inherit;background:white;">
-                    <option value="">— اختر مقرر من الدبلومة —</option>
+                <div style="font-size:12px;font-weight:700;color:#475569;margin-bottom:8px;">اختر المقررات من الدبلومة</div>
+                <div style="display:flex;flex-direction:column;gap:6px;max-height:220px;overflow-y:auto;margin-bottom:10px;">
                     @foreach($available as $s)
-                        <option value="{{ $s->id }}">{{ ($s->name_ar ?: $s->name_en) }} ({{ $s->code }})</option>
+                    <label style="display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid #f1f5f9;border-radius:8px;cursor:pointer;font-size:13px;color:#1e293b;">
+                        <input type="checkbox" name="subject_ids[]" value="{{ $s->id }}" style="width:15px;height:15px;accent-color:#7c3aed;flex-shrink:0;">
+                        <span>{{ ($s->name_ar ?: $s->name_en) }} <span style="color:#94a3b8;font-size:11px;">({{ $s->code }})</span></span>
+                    </label>
                     @endforeach
-                </select>
-                <button type="submit" @if($available->isEmpty()) disabled @endif
-                        style="padding:9px 18px;font-size:13px;font-weight:700;color:white;background:linear-gradient(135deg,#7c3aed,#8b5cf6);border:none;border-radius:9px;cursor:pointer;{{ $available->isEmpty() ? 'opacity:.5;cursor:not-allowed;' : '' }}">
-                    حفظ
-                </button>
-                <button type="button" @click="open = false"
-                        style="padding:9px 14px;font-size:13px;font-weight:600;color:#475569;background:#f1f5f9;border:none;border-radius:9px;cursor:pointer;">إلغاء</button>
+                </div>
+                <div style="display:flex;gap:8px;justify-content:flex-end;">
+                    <button type="button" @click="open = false"
+                            style="padding:9px 14px;font-size:13px;font-weight:600;color:#475569;background:#f1f5f9;border:none;border-radius:9px;cursor:pointer;">إلغاء</button>
+                    <button type="submit" @if($available->isEmpty()) disabled @endif
+                            style="padding:9px 18px;font-size:13px;font-weight:700;color:white;background:linear-gradient(135deg,#7c3aed,#8b5cf6);border:none;border-radius:9px;cursor:pointer;{{ $available->isEmpty() ? 'opacity:.5;cursor:not-allowed;' : '' }}">
+                        حفظ المحدد
+                    </button>
+                </div>
             </form>
             @if($available->isEmpty())
             <p x-show="open" x-cloak style="font-size:12px;color:#dc2626;margin-top:6px;">كل مواد الدبلومة مُسندة بالفعل لأرباع هذه المجموعة.</p>
@@ -371,25 +375,63 @@
 
     function renderWeek(){
         const ws=weekStart();
+        const wend=new Date(ws.getFullYear(),ws.getMonth(),ws.getDate()+6);
         document.getElementById('calTitle').textContent =
-            ws.getDate()+' '+MONTH_NAMES[ws.getMonth()]+' — '+new Date(ws.getFullYear(),ws.getMonth(),ws.getDate()+6).getDate()+' '+MONTH_NAMES[new Date(ws.getFullYear(),ws.getMonth(),ws.getDate()+6).getMonth()];
-        let cols='';
-        for(let i=0;i<7;i++){
-            const d=new Date(ws); d.setDate(d.getDate()+i);
-            const today=sameDay(d,TODAY);
-            const items=onDay(d).map(s=>{
-                const c=st(s.status);
-                return `<div style="background:#eff6ff;border-right:3px solid #0071AA;border-radius:6px;padding:5px 7px;margin-bottom:5px;">
-                    <div style="font-size:11px;font-weight:700;color:#1e3a8a;">${fmtTime(parse(s.at))}</div>
-                    <div style="font-size:11px;color:#334155;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${s.title}</div>
-                </div>`;
-            }).join('') || `<div style="font-size:11px;color:#d1d5db;text-align:center;margin-top:14px;">—</div>`;
-            cols+=`<div style="border:1px solid ${today?'#0071AA':'#f1f5f9'};${today?'background:#f0f9ff;':''}border-radius:12px;min-height:150px;padding:8px;">
-                <div style="text-align:center;font-size:11px;font-weight:700;color:${today?'#0071AA':'#64748b'};margin-bottom:8px;">${DAY_NAMES[i]}<br><span style="font-size:15px;color:${today?'#0071AA':'#111827'};">${d.getDate()}</span></div>
-                ${items}
-            </div>`;
-        }
-        return `<div style="padding:16px;overflow-x:auto;"><div style="display:grid;grid-template-columns:repeat(7,minmax(130px,1fr));gap:8px;">${cols}</div></div>`;
+            ws.getDate()+' '+MONTH_NAMES[ws.getMonth()]+' — '+wend.getDate()+' '+MONTH_NAMES[wend.getMonth()];
+
+        const weekDays = [];
+        for(let i=0;i<7;i++){ const d=new Date(ws); d.setDate(d.getDate()+i); weekDays.push(d); }
+
+        // Fixed hourly columns from 9 AM to 9 PM
+        const START_HOUR = 9, END_HOUR = 21;
+        const hourLabel = h => { const ap=h>=12?'م':'ص'; const hh=h%12||12; return hh+':00 '+ap; };
+        const slots = [];
+        for(let h=START_HOUR; h<=END_HOUR; h++) slots.push(h);   // slots hold the hour number
+
+        // Bucket each session into its day + hour
+        const cellMap = {}; // key: dayIndex + '|' + hour
+        weekDays.forEach((d,i)=>{
+            onDay(d).forEach(s=>{
+                let h = parse(s.at).getHours();
+                if (h < START_HOUR) h = START_HOUR;       // clamp early
+                if (h > END_HOUR)   h = END_HOUR;          // clamp late
+                (cellMap[i+'|'+h] = cellMap[i+'|'+h] || []).push(s);
+            });
+        });
+
+        // Header row (time slots across the top; first column = "اليوم")
+        let head = `<th style="padding:5px 3px;background:#0071AA;color:#fff;font-size:9px;font-weight:700;border:1px solid #e5e7eb;width:46px;">اليوم</th>`;
+        slots.forEach(slot=>{
+            head += `<th style="padding:5px 2px;background:#0071AA;color:#fff;font-size:9px;font-weight:700;border:1px solid #e5e7eb;">${hourLabel(slot)}</th>`;
+        });
+
+        // Body rows (one per day)
+        let body='';
+        weekDays.forEach((d,i)=>{
+            const today = sameDay(d,TODAY);
+            let row = `<td style="padding:4px 2px;text-align:center;font-size:9px;font-weight:700;color:#fff;background:${today?'#005a88':'#0071AA'};border:1px solid #e5e7eb;line-height:1.2;">
+                ${DAY_NAMES[i]}<br><span style="font-size:8px;opacity:.85;">${d.getDate()}/${d.getMonth()+1}</span>
+            </td>`;
+            slots.forEach(slot=>{
+                const items = cellMap[i+'|'+slot] || [];
+                const inner = items.map(s=>{
+                    const c=st(s.status);
+                    return `<div style="background:#eff6ff;border-right:2px solid #0071AA;border-radius:4px;padding:2px 3px;margin-bottom:2px;line-height:1.25;">
+                        <div style="font-size:9px;font-weight:700;color:#0071AA;">${fmtTime(parse(s.at))}</div>
+                        <div style="font-size:9px;font-weight:700;color:#1e3a8a;">${s.title}</div>
+                    </div>`;
+                }).join('');
+                row += `<td style="padding:2px;vertical-align:top;border:1px solid #e5e7eb;${today?'background:#f8fdff;':''}">${inner||'<div style="text-align:center;color:#e5e7eb;font-size:9px;">·</div>'}</td>`;
+            });
+            body += `<tr>${row}</tr>`;
+        });
+
+        return `<div style="padding:10px;">
+            <table style="width:100%;border-collapse:collapse;table-layout:fixed;">
+                <thead><tr>${head}</tr></thead>
+                <tbody>${body}</tbody>
+            </table>
+        </div>`;
     }
 
     function renderMonth(){
@@ -456,6 +498,14 @@ function switchClassTab(tab){
         }
     });
 }
+
+// Open the tab named in the URL hash (e.g. #terms after adding a term/subject)
+(function(){
+    const h = (location.hash || '').replace('#','');
+    if (['students','sessions','terms'].includes(h) && document.getElementById('ctab-btn-'+h)) {
+        switchClassTab(h);
+    }
+})();
 </script>
 
 {{-- ══ MODAL: Generate Sessions ══ --}}
