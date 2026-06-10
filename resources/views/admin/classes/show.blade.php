@@ -427,9 +427,11 @@
             PERIODS.forEach((p,pi)=>{
                 const items = cellMap[i+'|'+pi] || [];
                 const inner = items.map(s=>{
+                    // Avoid repeating the subject name when the title already contains it
+                    const showSub = s.subject && !(s.title || '').includes(s.subject);
                     return `<div style="background:#eff6ff;border-right:3px solid #0071AA;border-radius:6px;padding:6px 8px;margin-bottom:4px;line-height:1.35;">
                         <div style="font-size:12px;font-weight:700;color:#1e3a8a;">${s.title}</div>
-                        ${s.subject?`<div style="font-size:10px;color:#64748b;">${s.subject}</div>`:''}
+                        ${showSub?`<div style="font-size:10px;color:#64748b;">${s.subject}</div>`:''}
                     </div>`;
                 }).join('');
                 row += `<td style="height:80px;padding:5px;vertical-align:top;border:1px solid #d6e4f0;${today?'background:#f8fdff;':''}">${inner}</td>`;
