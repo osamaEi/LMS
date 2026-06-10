@@ -149,6 +149,31 @@
                 </div>
             </div>
 
+            {{-- Sent Reply Card --}}
+            @if($contact->reply_message)
+            <div style="background:#fff;border-radius:1.25rem;border:1px solid #bbf7d0;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.05);">
+                <div style="padding:1rem 1.5rem;border-bottom:1px solid #dcfce7;background:linear-gradient(135deg,rgba(34,197,94,.08),rgba(22,163,74,.03));display:flex;align-items:center;gap:10px;">
+                    <div style="width:36px;height:36px;border-radius:10px;background:rgba(34,197,94,.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                        <svg style="width:17px;height:17px;color:#16a34a" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                    <div style="flex:1;">
+                        <h3 style="font-size:1rem;font-weight:700;color:#166534;margin:0;">تم إرسال الرد</h3>
+                        <p style="font-size:.78rem;color:#64748b;margin:0;">
+                            بواسطة {{ $contact->replied_by ?? '—' }}
+                            @if($contact->replied_at)
+                            · {{ \Carbon\Carbon::parse($contact->replied_at)->format('Y/m/d H:i') }}
+                            @endif
+                        </p>
+                    </div>
+                </div>
+                <div style="padding:1.5rem;">
+                    <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-right:4px solid #22c55e;border-radius:12px;padding:18px 22px;font-size:.9rem;color:#374151;line-height:1.85;white-space:pre-line;">{{ $contact->reply_message }}</div>
+                </div>
+            </div>
+            @endif
+
             {{-- Reply Form Card --}}
             <div style="background:#fff;border-radius:1.25rem;border:1px solid #e2e8f0;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.05);">
                 <div style="padding:1rem 1.5rem;border-bottom:1px solid #f1f5f9;background:linear-gradient(135deg,rgba(34,197,94,.06),rgba(22,163,74,.02));display:flex;align-items:center;gap:10px;">

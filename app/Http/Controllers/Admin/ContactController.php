@@ -58,7 +58,7 @@ class ContactController extends Controller
         ]);
 
         $replyText = $request->input('reply_message');
-        $adminName = auth()->check() ? auth()->user()->name : 'إدارة المنصة';
+        $adminName = \Auth::user()?->name ?? 'إدارة المنصة';
 
         // Send reply email to the contact
         try {
@@ -80,8 +80,13 @@ class ContactController extends Controller
             // Log but don't block — still update status
         }
 
-        // Update contact status to replied
-        $contact->update(['status' => 'replied']);
+        // Save reply + update status
+        $contact->update([
+            'status'        => 'replied',
+            'reply_message' => $replyText,
+            'replied_at'    => now(),
+            'replied_by'    => $adminName,
+        ]);
 
         // Notify all superadmins
         $superAdmins = User::where('role', 'super_admin')->get();
