@@ -291,6 +291,7 @@ Route::middleware(['auth', 'role:admin,super_admin'])->prefix('admin')->name('ad
     Route::get('/classes', [\App\Http\Controllers\Admin\ProgramClassController::class, 'index'])->name('classes.index');
     Route::get('/classes/{class}', [\App\Http\Controllers\Admin\ProgramClassController::class, 'show'])->name('classes.show');
     Route::post('/classes/{class}/attach-subject', [\App\Http\Controllers\Admin\ProgramClassController::class, 'attachSubject'])->name('classes.attach-subject');
+    Route::post('/classes/{class}/generate-sessions', [\App\Http\Controllers\Admin\ProgramClassController::class, 'generateSessions'])->name('classes.generate-sessions');
     Route::post('/classes', [\App\Http\Controllers\Admin\ProgramClassController::class, 'store'])->name('classes.store');
     Route::put('/classes/{class}', [\App\Http\Controllers\Admin\ProgramClassController::class, 'update'])->name('classes.update');
     Route::delete('/classes/{class}', [\App\Http\Controllers\Admin\ProgramClassController::class, 'destroy'])->name('classes.destroy');

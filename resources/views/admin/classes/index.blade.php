@@ -45,6 +45,7 @@
                 <th style="padding:12px 16px;text-align:right;font-weight:700;color:#374151;">#</th>
                 <th style="padding:12px 16px;text-align:right;font-weight:700;color:#374151;">اسم المجموعة</th>
                 <th style="padding:12px 16px;text-align:right;font-weight:700;color:#374151;">البرنامج</th>
+                <th style="padding:12px 16px;text-align:center;font-weight:700;color:#374151;">النوع</th>
                 <th style="padding:12px 16px;text-align:right;font-weight:700;color:#374151;">المدرب</th>
                 <th style="padding:12px 16px;text-align:center;font-weight:700;color:#374151;">الطلاب</th>
                 <th style="padding:12px 16px;text-align:center;font-weight:700;color:#374151;">الحالة</th>
@@ -59,6 +60,18 @@
                 <td style="padding:12px 16px;color:#94a3b8;">{{ $cls->id }}</td>
                 <td style="padding:12px 16px;font-weight:600;color:#1e293b;">{{ $cls->name }}</td>
                 <td style="padding:12px 16px;color:#64748b;">{{ $cls->program?->name_ar ?? '—' }}</td>
+                <td style="padding:12px 16px;text-align:center;">
+                    @php
+                        $typeMap = [
+                            'diploma'  => ['دبلومة', '#ede9fe', '#7c3aed'],
+                            'course'   => ['دورة', '#dcfce7', '#16a34a'],
+                            'english'  => ['إنجليزي', '#dbeafe', '#2563eb'],
+                            'training' => ['تدريب', '#fef3c7', '#d97706'],
+                        ];
+                        $t = $typeMap[$cls->program?->type] ?? ['—', '#f1f5f9', '#64748b'];
+                    @endphp
+                    <span style="background:{{ $t[1] }};color:{{ $t[2] }};border-radius:9999px;padding:.18rem .7rem;font-size:.65rem;font-weight:700;">{{ $t[0] }}</span>
+                </td>
                 <td style="padding:12px 16px;color:#64748b;">{{ $cls->teacher?->name ?? '—' }}</td>
                 <td style="padding:12px 16px;text-align:center;">
                     <span style="font-weight:700;color:#7c3aed;">{{ $cls->students_count }}</span>
@@ -81,7 +94,7 @@
             </tr>
             @empty
             <tr>
-                <td colspan="8" style="padding:48px;text-align:center;color:#94a3b8;font-size:13px;">لا توجد مجموعات</td>
+                <td colspan="9" style="padding:48px;text-align:center;color:#94a3b8;font-size:13px;">لا توجد مجموعات</td>
             </tr>
             @endforelse
         </tbody>

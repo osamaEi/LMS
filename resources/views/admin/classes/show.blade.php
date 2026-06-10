@@ -9,6 +9,7 @@
     editSubjectModal: false,
     deleteSubjectModal: false,
     attachModal: false,
+    sessionModal: false,
     currentTermId: null,
     currentTermName: '',
     currentSubjectId: null,
@@ -42,7 +43,7 @@
             @php $stColors = ['active'=>['#dcfce7','#16a34a'],'inactive'=>['#f1f5f9','#64748b'],'completed'=>['#dbeafe','#2563eb']]; $sc=$stColors[$class->status]??['#f1f5f9','#64748b']; @endphp
             <span style="background:{{ $sc[0] }};color:{{ $sc[1] }};border-radius:9999px;padding:.18rem .7rem;font-size:.7rem;font-weight:700;">{{ ['active'=>'نشطة','inactive'=>'غير نشطة','completed'=>'منتهية'][$class->status] ?? $class->status }}</span>
         </div>
-        <p class="text-xs text-gray-400 mt-0.5">{{ $class->program->name ?? '' }} · 👥 {{ $class->students_count }} طالب{{ $class->teacher ? ' · '.$class->teacher->name : '' }}</p>
+        <p class="text-xs text-gray-400 mt-0.5">{{ $class->program->name ?? '' }} · 👥 {{ $studentsCount }} طالب{{ $class->teacher ? ' · '.$class->teacher->name : '' }}</p>
     </div>
     @if($class->program && $class->program->type === 'diploma')
     <button @click="openTermModal()"
@@ -66,6 +67,82 @@
 </div>
 @endif
 
+@php $isDiplomaClass = $class->program && $class->program->type === 'diploma'; @endphp
+
+{{-- ── Tabs ── --}}
+<div style="display:flex;align-items:center;gap:4px;background:#f1f5f9;border-radius:12px;padding:4px;margin-bottom:20px;width:fit-content;">
+    <button onclick="switchClassTab('students')" id="ctab-btn-students"
+        style="padding:8px 18px;border-radius:9px;font-size:13px;font-weight:700;border:none;cursor:pointer;transition:all .15s;background:white;color:#1e293b;box-shadow:0 1px 4px rgba(0,0,0,.08);">
+        الطلاب
+        <span style="background:#dbeafe;color:#2563eb;border-radius:9999px;padding:.1rem .5rem;font-size:.65rem;margin-right:4px;font-weight:700;">{{ $studentsCount }}</span>
+    </button>
+    <button onclick="switchClassTab('sessions')" id="ctab-btn-sessions"
+        style="padding:8px 18px;border-radius:9px;font-size:13px;font-weight:700;border:none;cursor:pointer;transition:all .15s;background:transparent;color:#64748b;">
+        الجلسات
+        <span style="background:#cffafe;color:#0891b2;border-radius:9999px;padding:.1rem .5rem;font-size:.65rem;margin-right:4px;font-weight:700;">{{ $sessions->count() }}</span>
+    </button>
+    @if($isDiplomaClass)
+    <button onclick="switchClassTab('terms')" id="ctab-btn-terms"
+        style="padding:8px 18px;border-radius:9px;font-size:13px;font-weight:700;border:none;cursor:pointer;transition:all .15s;background:transparent;color:#64748b;">
+        الأرباع والمواد
+        <span style="background:#ede9fe;color:#7c3aed;border-radius:9999px;padding:.1rem .5rem;font-size:.65rem;margin-right:4px;font-weight:700;">{{ $class->terms->count() }}</span>
+    </button>
+    @endif
+</div>
+
+{{-- ════ TAB: Students ════ --}}
+<div id="ctab-students">
+    <div style="background:white;border-radius:18px;border:1px solid #e5e7eb;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.06);">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #f1f5f9;background:#fafafa;">
+            <div style="display:flex;align-items:center;gap:8px;">
+                <span style="font-size:15px;font-weight:700;color:#111827;">طلاب المجموعة</span>
+                <span style="background:#dbeafe;color:#2563eb;border-radius:9999px;padding:.12rem .55rem;font-size:.68rem;font-weight:700;">{{ $studentsCount }}</span>
+            </div>
+            <button onclick="openStudentsModal({{ $class->id }}, '{{ addslashes($class->name) }}')"
+                    style="display:flex;align-items:center;gap:6px;padding:8px 16px;border-radius:10px;background:linear-gradient(135deg,#0071AA,#004d77);color:white;font-size:12px;font-weight:700;border:none;cursor:pointer;">
+                <svg style="width:14px;height:14px;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                إدارة الطلاب
+            </button>
+        </div>
+        @if($class->students->isNotEmpty())
+        <div style="overflow-x:auto;">
+            <table style="width:100%;border-collapse:collapse;font-size:13px;">
+                <thead>
+                    <tr style="border-bottom:2px solid #f1f5f9;background:#fafafa;">
+                        <th style="padding:11px 16px;text-align:right;font-size:11px;font-weight:700;color:#94a3b8;width:40px;">#</th>
+                        <th style="padding:11px 16px;text-align:right;font-size:11px;font-weight:700;color:#94a3b8;">الاسم</th>
+                        <th style="padding:11px 16px;text-align:right;font-size:11px;font-weight:700;color:#94a3b8;">البريد</th>
+                        <th style="padding:11px 16px;text-align:right;font-size:11px;font-weight:700;color:#94a3b8;">الهوية</th>
+                        <th style="padding:11px 16px;text-align:right;font-size:11px;font-weight:700;color:#94a3b8;">الجوال</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($class->students as $i => $student)
+                    <tr style="border-bottom:1px solid #f8fafc;">
+                        <td style="padding:12px 16px;color:#cbd5e1;font-size:11px;">{{ $i + 1 }}</td>
+                        <td style="padding:12px 16px;font-weight:600;color:#1e293b;">{{ $student->name }}</td>
+                        <td style="padding:12px 16px;color:#475569;" dir="ltr">{{ $student->email }}</td>
+                        <td style="padding:12px 16px;color:#64748b;" dir="ltr">{{ $student->national_id ?? '—' }}</td>
+                        <td style="padding:12px 16px;color:#64748b;" dir="ltr">{{ $student->phone ?? '—' }}</td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+        @else
+        <div style="padding:48px;text-align:center;">
+            <p style="font-size:13px;color:#94a3b8;margin-bottom:12px;">لا يوجد طلاب في هذه المجموعة بعد</p>
+            <button onclick="openStudentsModal({{ $class->id }}, '{{ addslashes($class->name) }}')"
+                    style="display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:9px;background:linear-gradient(135deg,#0071AA,#004d77);color:white;font-size:12px;font-weight:700;border:none;cursor:pointer;">
+                إضافة طلاب
+            </button>
+        </div>
+        @endif
+    </div>
+</div>
+
+{{-- ════ TAB: Terms ════ --}}
+<div id="ctab-terms" style="display:none;">
 {{-- ── Terms list (diploma only — courses/English have no terms) ── --}}
 @if($class->program && $class->program->type === 'diploma')
 <div class="space-y-5">
@@ -124,11 +201,308 @@
         <svg style="width:26px;height:26px;color:#0071AA;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
     </div>
     <p style="font-size:14px;font-weight:600;color:#475569;margin-bottom:4px;">هذه المجموعة لا تحتوي على أرباع</p>
-    <p style="font-size:12px;color:#94a3b8;">الأرباع والمواد الدراسية خاصة بالدبلومات فقط. تُدار جلسات هذه المجموعة من صفحة الجلسات.</p>
+    <p style="font-size:12px;color:#94a3b8;">الأرباع والمواد خاصة بالدبلومات فقط. أنشئ جلسات هذه المجموعة من تبويب الجلسات.</p>
 </div>
 @endif
+</div>{{-- /ctab-terms --}}
+
+{{-- ════ TAB: Sessions ════ --}}
+<div id="ctab-sessions" style="display:none;">
+{{-- ══ الجدول والجلسات ══ --}}
+@php
+    $sessionsJs = $sessions->map(fn($s) => [
+        'id'       => $s->id,
+        'title'    => $s->title_ar ?: 'جلسة',
+        'subject'  => $s->subject->name_ar ?? null,
+        'at'       => $s->scheduled_at ? \Carbon\Carbon::parse($s->scheduled_at)->format('Y-m-d H:i:s') : null,
+        'duration' => $s->duration_minutes,
+        'status'   => $s->status,
+        'number'   => $s->session_number,
+    ])->filter(fn($s) => $s['at'])->values();
+@endphp
+<div style="margin-top:24px;background:white;border-radius:18px;border:1px solid #e5e7eb;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.06);">
+    {{-- Header --}}
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;padding:16px 20px;border-bottom:1px solid #f1f5f9;background:#fafafa;">
+        <div style="display:flex;align-items:center;gap:8px;">
+            <span style="font-size:15px;font-weight:700;color:#111827;">الجدول والجلسات</span>
+            <span style="background:#eef2ff;color:#4338ca;border-radius:9999px;padding:.12rem .55rem;font-size:.68rem;font-weight:700;">{{ $sessions->count() }}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+            {{-- View switcher --}}
+            <div style="display:inline-flex;background:#f1f5f9;border-radius:10px;padding:3px;">
+                <button type="button" id="vbtn-list"  onclick="calSetView('list')"  style="padding:7px 16px;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;background:white;color:#0071AA;box-shadow:0 1px 3px rgba(0,0,0,.1);">قائمة</button>
+                <button type="button" id="vbtn-week"  onclick="calSetView('week')"  style="padding:7px 16px;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;background:transparent;color:#64748b;">أسبوعي</button>
+                <button type="button" id="vbtn-month" onclick="calSetView('month')" style="padding:7px 16px;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;background:transparent;color:#64748b;">شهري</button>
+            </div>
+            <button @click="sessionModal = true"
+                    style="display:flex;align-items:center;gap:6px;padding:8px 16px;border-radius:10px;background:linear-gradient(135deg,#0071AA,#004d77);color:white;font-size:12px;font-weight:700;border:none;cursor:pointer;">
+                <svg style="width:14px;height:14px;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                إنشاء جلسات
+            </button>
+        </div>
+    </div>
+
+    {{-- Period nav (hidden for list) --}}
+    <div id="calNav" style="display:none;align-items:center;justify-content:center;gap:16px;padding:14px;border-bottom:1px solid #f1f5f9;background:white;">
+        <button type="button" onclick="calPrev()" style="width:36px;height:36px;border-radius:10px;border:1.5px solid #e5e7eb;background:white;cursor:pointer;color:#374151;font-size:18px;">&#8249;</button>
+        <h3 id="calTitle" style="font-size:16px;font-weight:700;color:#111827;margin:0;min-width:200px;text-align:center;"></h3>
+        <button type="button" onclick="calNext()" style="width:36px;height:36px;border-radius:10px;border:1.5px solid #e5e7eb;background:white;cursor:pointer;color:#374151;font-size:18px;">&#8250;</button>
+        <button type="button" onclick="calToday()" style="padding:8px 14px;border-radius:10px;border:1.5px solid #e5e7eb;background:white;cursor:pointer;color:#0071AA;font-size:12px;font-weight:700;font-family:inherit;">اليوم</button>
+    </div>
+
+    <div id="calBody"></div>
+</div>
+
+<script>
+(function(){
+    const SESSIONS = {!! $sessionsJs->toJson() !!};
+    const TODAY = new Date();
+    const DAY_NAMES = ['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+    const MONTH_NAMES = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+    const STATUS = {
+        scheduled:['#dbeafe','#1d4ed8','مجدولة'],
+        live:['#fee2e2','#dc2626','● مباشر'],
+        completed:['#dcfce7','#15803d','مكتملة'],
+        cancelled:['#fee2e2','#dc2626','ملغاة'],
+    };
+    let view = 'list';
+    let cur  = new Date();
+
+    const parse = at => new Date(at.replace(' ','T'));
+    const fmtTime = d => { let h=d.getHours(), m=String(d.getMinutes()).padStart(2,'0'); let ap=h>=12?'م':'ص'; let hh=h%12||12; return hh+':'+m+' '+ap; };
+    const sameDay = (a,b)=> a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate();
+    const onDay = date => SESSIONS.filter(s=>sameDay(parse(s.at),date)).sort((a,b)=>parse(a.at)-parse(b.at));
+    const st = s => STATUS[s] || ['#f1f5f9','#64748b',s];
+
+    window.calSetView = function(v){
+        view = v;
+        ['list','week','month'].forEach(x=>{
+            const b=document.getElementById('vbtn-'+x);
+            const on = x===v;
+            b.style.background = on?'white':'transparent';
+            b.style.color = on?'#0071AA':'#64748b';
+            b.style.boxShadow = on?'0 1px 3px rgba(0,0,0,.1)':'none';
+        });
+        document.getElementById('calNav').style.display = v==='list'?'none':'flex';
+        render();
+    };
+    window.calPrev = function(){ if(view==='week') cur.setDate(cur.getDate()-7); else cur.setMonth(cur.getMonth()-1); render(); };
+    window.calNext = function(){ if(view==='week') cur.setDate(cur.getDate()+7); else cur.setMonth(cur.getMonth()+1); render(); };
+    window.calToday = function(){ cur = new Date(); render(); };
+
+    function emptyState(){
+        return `<div style="padding:48px 20px;text-align:center;color:#94a3b8;font-size:13px;">لا توجد جلسات في هذه الفترة</div>`;
+    }
+
+    function renderList(){
+        if(!SESSIONS.length) return `<div style="padding:48px;text-align:center;color:#94a3b8;font-size:13px;">لا توجد جلسات لهذه المجموعة بعد</div>`;
+        const rows = [...SESSIONS].sort((a,b)=>parse(a.at)-parse(b.at)).map((s,i)=>{
+            const d=parse(s.at); const c=st(s.status);
+            const date = d.toLocaleDateString('ar-EG',{year:'numeric',month:'2-digit',day:'2-digit'});
+            return `<tr style="border-bottom:1px solid #f8fafc;">
+                <td style="padding:12px 16px;color:#cbd5e1;font-size:11px;">${s.number ?? i+1}</td>
+                <td style="padding:12px 16px;font-weight:600;color:#1e293b;">${s.title}</td>
+                <td style="padding:12px 16px;color:#475569;" dir="ltr">${date} · ${fmtTime(d)}</td>
+                <td style="padding:12px 16px;text-align:center;color:#64748b;">${s.duration} د</td>
+                <td style="padding:12px 16px;text-align:center;"><span style="background:${c[0]};color:${c[1]};border-radius:9999px;padding:.18rem .7rem;font-size:.65rem;font-weight:700;">${c[2]}</span></td>
+            </tr>`;
+        }).join('');
+        return `<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:13px;">
+            <thead><tr style="border-bottom:2px solid #f1f5f9;background:#fafafa;">
+                <th style="padding:11px 16px;text-align:right;font-size:11px;font-weight:700;color:#94a3b8;width:40px;">#</th>
+                <th style="padding:11px 16px;text-align:right;font-size:11px;font-weight:700;color:#94a3b8;">العنوان</th>
+                <th style="padding:11px 16px;text-align:right;font-size:11px;font-weight:700;color:#94a3b8;">الموعد</th>
+                <th style="padding:11px 16px;text-align:center;font-size:11px;font-weight:700;color:#94a3b8;width:70px;">المدة</th>
+                <th style="padding:11px 16px;text-align:center;font-size:11px;font-weight:700;color:#94a3b8;width:100px;">الحالة</th>
+            </tr></thead><tbody>${rows}</tbody></table></div>`;
+    }
+
+    function weekStart(){ const d=new Date(cur); d.setDate(d.getDate()-d.getDay()); d.setHours(0,0,0,0); return d; }
+
+    function renderWeek(){
+        const ws=weekStart();
+        document.getElementById('calTitle').textContent =
+            ws.getDate()+' '+MONTH_NAMES[ws.getMonth()]+' — '+new Date(ws.getFullYear(),ws.getMonth(),ws.getDate()+6).getDate()+' '+MONTH_NAMES[new Date(ws.getFullYear(),ws.getMonth(),ws.getDate()+6).getMonth()];
+        let cols='';
+        for(let i=0;i<7;i++){
+            const d=new Date(ws); d.setDate(d.getDate()+i);
+            const today=sameDay(d,TODAY);
+            const items=onDay(d).map(s=>{
+                const c=st(s.status);
+                return `<div style="background:#eff6ff;border-right:3px solid #0071AA;border-radius:6px;padding:5px 7px;margin-bottom:5px;">
+                    <div style="font-size:11px;font-weight:700;color:#1e3a8a;">${fmtTime(parse(s.at))}</div>
+                    <div style="font-size:11px;color:#334155;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${s.title}</div>
+                </div>`;
+            }).join('') || `<div style="font-size:11px;color:#d1d5db;text-align:center;margin-top:14px;">—</div>`;
+            cols+=`<div style="border:1px solid ${today?'#0071AA':'#f1f5f9'};${today?'background:#f0f9ff;':''}border-radius:12px;min-height:150px;padding:8px;">
+                <div style="text-align:center;font-size:11px;font-weight:700;color:${today?'#0071AA':'#64748b'};margin-bottom:8px;">${DAY_NAMES[i]}<br><span style="font-size:15px;color:${today?'#0071AA':'#111827'};">${d.getDate()}</span></div>
+                ${items}
+            </div>`;
+        }
+        return `<div style="padding:16px;overflow-x:auto;"><div style="display:grid;grid-template-columns:repeat(7,minmax(130px,1fr));gap:8px;">${cols}</div></div>`;
+    }
+
+    function renderMonth(){
+        const y=cur.getFullYear(), m=cur.getMonth();
+        document.getElementById('calTitle').textContent = MONTH_NAMES[m]+' '+y;
+        const firstDow=new Date(y,m,1).getDay();
+        const dim=new Date(y,m+1,0).getDate();
+        const prevDim=new Date(y,m,0).getDate();
+        let cells=[];
+        for(let i=firstDow-1;i>=0;i--) cells.push({d:prevDim-i,cur:false});
+        for(let d=1;d<=dim;d++) cells.push({d,cur:true});
+        let fill=42-cells.length; for(let d=1;d<=fill;d++) cells.push({d,cur:false});
+
+        const headers = DAY_NAMES.map(d=>`<div style="padding:10px 4px;text-align:center;font-size:11px;font-weight:700;color:#9ca3af;background:#f9fafb;border-bottom:1px solid #e5e7eb;">${d}</div>`).join('');
+
+        const grid = cells.map(cell=>{
+            if(!cell.cur) return `<div style="min-height:104px;padding:6px;border-left:1px solid #f1f5f9;border-bottom:1px solid #f1f5f9;background:#fafafa;"><span style="font-size:13px;color:#d1d5db;">${cell.d}</span></div>`;
+            const date=new Date(y,m,cell.d);
+            const isToday=sameDay(date,TODAY);
+            const items=onDay(date);
+            const chips=items.slice(0,3).map(s=>`<div style="background:#eff6ff;color:#1e3a8a;border-right:2px solid #0071AA;font-size:10px;font-weight:600;padding:2px 5px;border-radius:3px;margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${fmtTime(parse(s.at))} ${s.title}</div>`).join('');
+            const more=items.length-3>0?`<div style="font-size:10px;color:#7c3aed;font-weight:700;">+${items.length-3} أخرى</div>`:'';
+            const num=isToday?`display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;background:#0071AA;color:white;border-radius:50%;font-weight:700;font-size:13px;`:`font-size:13px;font-weight:500;color:#374151;`;
+            return `<div style="min-height:104px;padding:6px;border-left:1px solid #f1f5f9;border-bottom:1px solid #f1f5f9;background:${isToday?'#eff6ff':'white'};">
+                <div style="margin-bottom:4px;text-align:left;"><span style="${num}">${cell.d}</span></div>
+                ${chips}${more}
+            </div>`;
+        }).join('');
+
+        return `<div style="display:grid;grid-template-columns:repeat(7,1fr);">${headers}</div>
+                <div style="display:grid;grid-template-columns:repeat(7,1fr);">${grid}</div>`;
+    }
+
+    function render(){
+        const body=document.getElementById('calBody');
+        if(view==='list')      body.innerHTML=renderList();
+        else if(view==='week') body.innerHTML=renderWeek();
+        else                   body.innerHTML=renderMonth();
+    }
+
+    render();
+})();
+</script>
+</div>{{-- /ctab-sessions --}}
+
+{{-- Tab switcher --}}
+<script>
+function switchClassTab(tab){
+    ['students','sessions','terms'].forEach(t=>{
+        const pane=document.getElementById('ctab-'+t);
+        const btn=document.getElementById('ctab-btn-'+t);
+        if(pane) pane.style.display = (t===tab)?'block':'none';
+        if(btn){
+            const on=(t===tab);
+            btn.style.background = on?'white':'transparent';
+            btn.style.color = on?'#1e293b':'#64748b';
+            btn.style.boxShadow = on?'0 1px 4px rgba(0,0,0,.08)':'none';
+        }
+    });
+}
+</script>
+
+{{-- ══ MODAL: Generate Sessions ══ --}}
+<template x-teleport="body">
+<div x-show="sessionModal" x-cloak style="position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem;">
+    <div @click="sessionModal=false" style="position:absolute;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(2px);"></div>
+    <div @click.stop style="position:relative;background:white;border-radius:18px;width:100%;max-width:520px;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 30px 60px rgba(0,0,0,.2);">
+        <div style="background:linear-gradient(135deg,#0071AA,#004d77);border-radius:18px 18px 0 0;padding:18px 22px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+            <h3 style="font-size:15px;font-weight:700;color:white;margin:0;">إنشاء جلسات للمجموعة</h3>
+            <button @click="sessionModal=false" style="background:rgba(255,255,255,.15);border:none;border-radius:8px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:white;">
+                <svg style="width:16px;height:16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+        <form action="{{ route('admin.classes.generate-sessions', $class->id) }}" method="POST" style="display:flex;flex-direction:column;overflow:hidden;flex:1;">
+            @csrf
+            @php
+                // subject_id => term end date (for the auto-end note)
+                $termEndMap = $classSubjects->mapWithKeys(fn($cs) => [$cs->id => optional($cs->term?->end_date)->format('Y-m-d')]);
+                $classEnd = $class->end_date?->format('Y-m-d');
+            @endphp
+            <div x-data="{
+                    subjectId: '',
+                    termEnds: {{ $termEndMap->toJson() }},
+                    classEnd: '{{ $classEnd }}',
+                    isDiploma: {{ ($class->program && $class->program->type === 'diploma') ? 'true' : 'false' }},
+                    get endDate() { return this.isDiploma ? (this.termEnds[this.subjectId] || '') : this.classEnd; }
+                }" style="padding:20px;display:flex;flex-direction:column;gap:14px;overflow-y:auto;flex:1;">
+
+                @if($class->program && $class->program->type === 'diploma')
+                <div>
+                    <label style="display:block;font-size:11px;font-weight:700;color:#475569;margin-bottom:6px;">المقرر *</label>
+                    <select name="subject_id" x-model="subjectId" required style="width:100%;padding:9px 12px;font-size:13px;border:1.5px solid #e2e8f0;border-radius:10px;outline:none;font-family:inherit;background:white;">
+                        <option value="">— اختر مقرر —</option>
+                        @foreach($classSubjects as $cs)
+                            <option value="{{ $cs->id }}">{{ ($cs->name_ar ?: $cs->name_en) }} ({{ $cs->code }})</option>
+                        @endforeach
+                    </select>
+                    @if($classSubjects->isEmpty())
+                    <p style="font-size:11px;color:#dc2626;margin-top:6px;">أضف مواد لأرباع المجموعة أولاً.</p>
+                    @endif
+                </div>
+                @endif
+
+                <div>
+                    <label style="display:block;font-size:11px;font-weight:700;color:#475569;margin-bottom:6px;">المدرب (اختياري)</label>
+                    <select name="teacher_id" style="width:100%;padding:9px 12px;font-size:13px;border:1.5px solid #e2e8f0;border-radius:10px;outline:none;font-family:inherit;background:white;">
+                        <option value="">— مدرب المجموعة الافتراضي —</option>
+                        @foreach($teachers as $teacher)
+                            <option value="{{ $teacher->id }}" {{ $class->teacher_id == $teacher->id ? 'selected' : '' }}>{{ $teacher->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                {{-- Weekly days --}}
+                <div>
+                    <label style="display:block;font-size:11px;font-weight:700;color:#475569;margin-bottom:6px;">أيام الأسبوع *</label>
+                    <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                        @foreach(['الأحد'=>0,'الإثنين'=>1,'الثلاثاء'=>2,'الأربعاء'=>3,'الخميس'=>4,'الجمعة'=>5,'السبت'=>6] as $dName=>$dVal)
+                        <label style="display:inline-flex;align-items:center;gap:5px;padding:6px 10px;border:1.5px solid #e2e8f0;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;color:#475569;">
+                            <input type="checkbox" name="days[]" value="{{ $dVal }}" style="accent-color:#0071AA;">
+                            {{ $dName }}
+                        </label>
+                        @endforeach
+                    </div>
+                </div>
+
+                {{-- Start date + time --}}
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                    <div>
+                        <label style="display:block;font-size:11px;font-weight:700;color:#475569;margin-bottom:6px;">تبدأ من *</label>
+                        <input type="date" name="start_date" required value="{{ $class->start_date?->format('Y-m-d') }}" style="width:100%;padding:9px 12px;font-size:13px;border:1.5px solid #e2e8f0;border-radius:10px;outline:none;font-family:inherit;">
+                    </div>
+                    <div>
+                        <label style="display:block;font-size:11px;font-weight:700;color:#475569;margin-bottom:6px;">الوقت *</label>
+                        <input type="time" name="time" required style="width:100%;padding:9px 12px;font-size:13px;border:1.5px solid #e2e8f0;border-radius:10px;outline:none;font-family:inherit;">
+                    </div>
+                </div>
+
+                {{-- Auto end note (when an end date is available) --}}
+                <div x-show="endDate" style="display:flex;align-items:center;gap:8px;background:#eff6ff;border:1px solid #dbeafe;border-radius:10px;padding:9px 12px;font-size:12px;color:#1e40af;">
+                    <svg style="width:14px;height:14px;flex-shrink:0;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <span>الجلسات أسبوعية وتنتهي تلقائيًا بنهاية {{ $class->program && $class->program->type === 'diploma' ? 'الربع' : 'المجموعة' }}: <strong x-text="endDate"></strong></span>
+                </div>
+
+                {{-- Manual end date (when no auto end date is available) --}}
+                <div x-show="!endDate" x-cloak>
+                    <label style="display:block;font-size:11px;font-weight:700;color:#475569;margin-bottom:6px;">تنتهي في *</label>
+                    <input type="date" name="end_date" :required="!endDate" style="width:100%;padding:9px 12px;font-size:13px;border:1.5px solid #e2e8f0;border-radius:10px;outline:none;font-family:inherit;">
+                    <p style="font-size:11px;color:#b45309;margin-top:6px;">@if($class->program && $class->program->type === 'diploma')لا يوجد تاريخ نهاية للربع — حدّد تاريخ نهاية الجلسات.@else لا يوجد تاريخ نهاية للمجموعة — حدّد تاريخ نهاية الجلسات.@endif</p>
+                </div>
+
+            </div>
+            <div style="display:flex;justify-content:flex-end;gap:8px;padding:14px 20px;border-top:1px solid #f1f5f9;flex-shrink:0;">
+                <button type="button" @click="sessionModal=false" style="padding:9px 18px;font-size:13px;font-weight:600;color:#475569;background:#f1f5f9;border:none;border-radius:10px;cursor:pointer;">إلغاء</button>
+                <button type="submit" style="padding:9px 18px;font-size:13px;font-weight:700;color:white;background:linear-gradient(135deg,#0071AA,#004d77);border:none;border-radius:10px;cursor:pointer;">إنشاء الجلسات</button>
+            </div>
+        </form>
+    </div>
+</div>
+</template>
 
 {{-- ══ MODAL: Add Term (scoped to this class) ══ --}}
+<template x-teleport="body">
 <div x-show="termModal" x-cloak style="position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem;">
     <div @click="termModal=false" style="position:absolute;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(2px);"></div>
     <div @click.stop style="position:relative;background:white;border-radius:18px;width:100%;max-width:460px;box-shadow:0 30px 60px rgba(0,0,0,.2);">
@@ -181,8 +555,10 @@
         </form>
     </div>
 </div>
+</template>
 
 {{-- ══ MODAL: Attach existing program subject ══ --}}
+<template x-teleport="body">
 <div x-show="attachModal" x-cloak style="position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem;">
     <div @click="attachModal=false" style="position:absolute;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(2px);"></div>
     <div @click.stop style="position:relative;background:white;border-radius:18px;width:100%;max-width:460px;box-shadow:0 30px 60px rgba(0,0,0,.2);">
@@ -218,8 +594,10 @@
         </form>
     </div>
 </div>
+</template>
 
 {{-- ══ MODAL: Add Subject (new, scoped to this class) ══ --}}
+<template x-teleport="body">
 <div x-show="subjectModal" x-cloak style="position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem;">
     <div @click="subjectModal=false" style="position:absolute;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(2px);"></div>
     <div @click.stop style="position:relative;background:white;border-radius:18px;width:100%;max-width:500px;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 30px 60px rgba(0,0,0,.2);">
@@ -286,8 +664,10 @@
         </form>
     </div>
 </div>
+</template>
 
 {{-- ══ MODAL: Edit Subject ══ --}}
+<template x-teleport="body">
 <div x-show="editSubjectModal" x-cloak style="position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem;">
     <div @click="editSubjectModal=false" style="position:absolute;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(2px);"></div>
     <div @click.stop style="position:relative;background:white;border-radius:18px;width:100%;max-width:460px;box-shadow:0 30px 60px rgba(0,0,0,.2);">
@@ -332,8 +712,10 @@
         </form>
     </div>
 </div>
+</template>
 
 {{-- ══ MODAL: Delete Subject ══ --}}
+<template x-teleport="body">
 <div x-show="deleteSubjectModal" x-cloak style="position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem;">
     <div @click="deleteSubjectModal=false" style="position:absolute;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(2px);"></div>
     <div @click.stop style="position:relative;background:white;border-radius:18px;width:100%;max-width:400px;padding:24px;box-shadow:0 30px 60px rgba(0,0,0,.2);">
@@ -345,8 +727,10 @@
         </form>
     </div>
 </div>
+</template>
 
 {{-- ══ MODAL: Assign Teachers ══ --}}
+<template x-teleport="body">
 <div x-show="teacherModal" x-cloak style="position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem;">
     <div @click="teacherModal=false" style="position:absolute;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(2px);"></div>
     <div @click.stop style="position:relative;background:white;border-radius:18px;width:100%;max-width:440px;box-shadow:0 30px 60px rgba(0,0,0,.2);">
@@ -378,6 +762,147 @@
         </form>
     </div>
 </div>
+</template>
 
 </div>
+
+{{-- ══ Students Manage Modal (reused from index) ══ --}}
+<div id="studentsModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1100;align-items:center;justify-content:center;">
+<div style="background:white;border-radius:18px;width:100%;max-width:580px;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 24px 60px rgba(0,0,0,.25);overflow:hidden;">
+    <div style="padding:18px 22px;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:linear-gradient(135deg,#0071AA,#0ea5e9);">
+        <div>
+            <div style="color:#fff;font-size:15px;font-weight:800;" id="sm-title">طلاب المجموعة</div>
+            <div style="color:rgba(255,255,255,.7);font-size:12px;margin-top:2px;" id="sm-subtitle"></div>
+        </div>
+        <button onclick="document.getElementById('studentsModal').style.display='none'" style="background:rgba(255,255,255,.2);border:none;border-radius:8px;width:32px;height:32px;color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;">×</button>
+    </div>
+    <div style="display:flex;border-bottom:1px solid #e2e8f0;flex-shrink:0;">
+        <button id="tab-current" onclick="showTab('current')" style="flex:1;padding:11px;font-size:13px;font-weight:700;border:none;cursor:pointer;background:#f0f9ff;color:#0369a1;border-bottom:2px solid #0369a1;">الطلاب الحاليون</button>
+        <button id="tab-add" onclick="showTab('add')" style="flex:1;padding:11px;font-size:13px;font-weight:600;border:none;cursor:pointer;background:#f8fafc;color:#64748b;border-bottom:2px solid transparent;">إضافة طلاب</button>
+    </div>
+    <div id="pane-current" style="flex:1;overflow-y:auto;padding:16px;">
+        <div id="sm-loading" style="text-align:center;padding:32px;color:#94a3b8;font-size:13px;">جاري التحميل...</div>
+        <div id="sm-list" style="display:none;"></div>
+        <div id="sm-empty" style="display:none;text-align:center;padding:32px;color:#94a3b8;font-size:13px;">لا يوجد طلاب في هذه المجموعة</div>
+    </div>
+    <div id="pane-add" style="display:none;flex:1;overflow-y:auto;padding:16px;">
+        <input id="sm-search" placeholder="بحث بالاسم أو الرقم الوطني..." oninput="filterAvailable()" style="width:100%;padding:9px 12px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13px;margin-bottom:12px;box-sizing:border-box;">
+        <div id="sm-available-loading" style="text-align:center;padding:32px;color:#94a3b8;font-size:13px;">جاري التحميل...</div>
+        <div id="sm-available-list" style="display:none;"></div>
+        <div id="sm-available-empty" style="display:none;text-align:center;padding:24px;color:#94a3b8;font-size:13px;">لا يوجد طلاب متاحون للإضافة</div>
+        <div id="sm-add-actions" style="display:none;padding-top:12px;border-top:1px solid #f1f5f9;margin-top:12px;">
+            <button onclick="assignSelected()" style="padding:9px 20px;background:linear-gradient(135deg,#0071AA,#0ea5e9);color:#fff;border:none;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;">إضافة المحددين</button>
+        </div>
+    </div>
+</div>
+</div>
+
+<script>
+const CSRF = '{{ csrf_token() }}';
+let _classId = {{ $class->id }};
+let _allAvailable = [];
+let _selectedIds = new Set();
+
+function showTab(tab) {
+    document.getElementById('pane-current').style.display = tab === 'current' ? 'block' : 'none';
+    document.getElementById('pane-add').style.display     = tab === 'add'     ? 'block' : 'none';
+    document.getElementById('tab-current').style.cssText  = tab === 'current'
+        ? 'flex:1;padding:11px;font-size:13px;font-weight:700;border:none;cursor:pointer;background:#f0f9ff;color:#0369a1;border-bottom:2px solid #0369a1;'
+        : 'flex:1;padding:11px;font-size:13px;font-weight:600;border:none;cursor:pointer;background:#f8fafc;color:#64748b;border-bottom:2px solid transparent;';
+    document.getElementById('tab-add').style.cssText = tab === 'add'
+        ? 'flex:1;padding:11px;font-size:13px;font-weight:700;border:none;cursor:pointer;background:#f0f9ff;color:#0369a1;border-bottom:2px solid #0369a1;'
+        : 'flex:1;padding:11px;font-size:13px;font-weight:600;border:none;cursor:pointer;background:#f8fafc;color:#64748b;border-bottom:2px solid transparent;';
+}
+function openStudentsModal(classId, className) {
+    _classId = classId; _selectedIds = new Set();
+    document.getElementById('sm-subtitle').textContent = className;
+    document.getElementById('sm-search').value = '';
+    showTab('current');
+    document.getElementById('studentsModal').style.display = 'flex';
+    loadCurrentStudents(); loadAvailableStudents();
+}
+function loadCurrentStudents() {
+    document.getElementById('sm-loading').style.display = 'block';
+    document.getElementById('sm-list').style.display = 'none';
+    document.getElementById('sm-empty').style.display = 'none';
+    fetch(`/admin/classes/${_classId}/students`, { headers: { 'Accept': 'application/json' } })
+        .then(r => r.json()).then(d => {
+            document.getElementById('sm-loading').style.display = 'none';
+            if (!d.students.length) { document.getElementById('sm-empty').style.display = 'block'; return; }
+            const list = document.getElementById('sm-list');
+            list.innerHTML = d.students.map(s => `
+                <div id="student-row-${s.id}" style="display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;border:1px solid #f1f5f9;margin-bottom:8px;">
+                    <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#a855f7);display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:700;flex-shrink:0;">${s.name.charAt(0)}</div>
+                    <div style="flex:1;min-width:0;">
+                        <div style="font-size:13px;font-weight:700;color:#1e293b;">${s.name}</div>
+                        <div style="font-size:11px;color:#94a3b8;">${s.national_id || s.email || ''}</div>
+                    </div>
+                    <button onclick="removeStudent(${s.id})" style="padding:5px 12px;font-size:11px;color:#dc2626;background:#fff1f2;border:1px solid #fecaca;border-radius:7px;cursor:pointer;font-weight:600;flex-shrink:0;">إزالة</button>
+                </div>`).join('');
+            list.style.display = 'block';
+        });
+}
+function removeStudent(studentId) {
+    if (!confirm('إزالة الطالب من المجموعة؟')) return;
+    fetch(`/admin/classes/${_classId}/remove-student`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': CSRF },
+        body: JSON.stringify({ student_id: studentId })
+    }).then(r => r.json()).then(d => {
+        if (d.success) { location.reload(); }
+    });
+}
+function loadAvailableStudents() {
+    document.getElementById('sm-available-loading').style.display = 'block';
+    document.getElementById('sm-available-list').style.display = 'none';
+    document.getElementById('sm-available-empty').style.display = 'none';
+    document.getElementById('sm-add-actions').style.display = 'none';
+    fetch(`/admin/classes/${_classId}/available-students`, { headers: { 'Accept': 'application/json' } })
+        .then(r => r.json()).then(d => {
+            document.getElementById('sm-available-loading').style.display = 'none';
+            _allAvailable = d.students.filter(s => !s.class_id || s.class_id != _classId);
+            renderAvailable(_allAvailable);
+        });
+}
+function renderAvailable(students) {
+    if (!students.length) {
+        document.getElementById('sm-available-empty').style.display = 'block';
+        document.getElementById('sm-available-list').style.display = 'none';
+        document.getElementById('sm-add-actions').style.display = 'none';
+        return;
+    }
+    document.getElementById('sm-available-empty').style.display = 'none';
+    const list = document.getElementById('sm-available-list');
+    list.innerHTML = students.map(s => `
+        <label style="display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;border:1px solid #f1f5f9;margin-bottom:8px;cursor:pointer;" onchange="updateAddBtn()">
+            <input type="checkbox" value="${s.id}" class="avail-cb" ${_selectedIds.has(s.id)?'checked':''} style="width:15px;height:15px;accent-color:#0071AA;flex-shrink:0;">
+            <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#0369a1,#0ea5e9);display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:700;flex-shrink:0;">${s.name.charAt(0)}</div>
+            <div style="flex:1;min-width:0;">
+                <div style="font-size:13px;font-weight:700;color:#1e293b;">${s.name}</div>
+                <div style="font-size:11px;color:#94a3b8;">${s.national_id || s.email || ''}</div>
+            </div>
+            ${s.class_id ? '<span style="font-size:10px;color:#f59e0b;background:#fef3c7;padding:2px 7px;border-radius:20px;flex-shrink:0;">في مجموعة أخرى</span>' : ''}
+        </label>`).join('');
+    list.style.display = 'block';
+    updateAddBtn();
+}
+function filterAvailable() {
+    const q = document.getElementById('sm-search').value.toLowerCase();
+    renderAvailable(_allAvailable.filter(s => s.name.toLowerCase().includes(q) || (s.national_id||'').includes(q)));
+}
+function updateAddBtn() {
+    _selectedIds = new Set([...document.querySelectorAll('.avail-cb:checked')].map(c => parseInt(c.value)));
+    document.getElementById('sm-add-actions').style.display = _selectedIds.size ? 'block' : 'none';
+}
+function assignSelected() {
+    if (!_selectedIds.size) return;
+    fetch(`/admin/classes/${_classId}/assign-students`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': CSRF },
+        body: JSON.stringify({ student_ids: [..._selectedIds] })
+    }).then(r => r.json()).then(d => {
+        if (d.success) { location.reload(); }
+    });
+}
+</script>
 @endsection

@@ -75,10 +75,28 @@ class StudentController extends Controller
         $student->load([
             'program',
             'track',
+            'programs',
             'enrollments.subject',
             'payments.program',
             'documents',
         ]);
+
+        // All classes the student belongs to: legacy class_id + per-program pivot class_id
+        $classIds = collect();
+        if ($student->class_id) {
+            $classIds->push($student->class_id);
+        }
+        $classIds = $classIds
+            ->merge($student->programs->pluck('pivot.class_id')->filter())
+            ->unique()
+            ->values();
+
+        $studentClasses = $classIds->isNotEmpty()
+            ? \App\Models\ProgramClass::whereIn('id', $classIds)
+                ->with(['program:id,name_ar,name_en,type', 'teacher:id,name'])
+                ->withCount('students')
+                ->get()
+            : collect();
 
         // Get all active programs for assignment dropdown
         $programs = Program::where('status', 'active')->get();
@@ -88,7 +106,7 @@ class StudentController extends Controller
         $totalPaid = $student->payments->sum('paid_amount');
         $totalRemaining = $student->payments->sum('remaining_amount');
 
-        return view('admin.students.show', compact('student', 'programs', 'totalPayments', 'totalPaid', 'totalRemaining'));
+        return view('admin.students.show', compact('student', 'programs', 'studentClasses', 'totalPayments', 'totalPaid', 'totalRemaining'));
     }
 
     public function edit(User $student)

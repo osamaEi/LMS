@@ -660,7 +660,13 @@
                             @endif
                         </div>
                     </div>
-                    <a href="{{ route('student.sessions.show', $session) }}" class="btn btn-view-subject" style="white-space:nowrap;flex-shrink:0;">عرض</a>
+                    @php $joinUrl = $session->zoom_link ?? $session->zoom_join_url ?? null; @endphp
+                    @if($joinUrl && !$session->ended_at)
+                    <a href="{{ $joinUrl }}" target="_blank" class="btn btn-join" style="white-space:nowrap;flex-shrink:0;{{ !$isLive ? 'background:linear-gradient(135deg,#2563eb,#1d4ed8);' : '' }}">
+                        <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                        انضم للحصة
+                    </a>
+                    @endif
                 </div>
                 @if($session->scheduled_at || $session->duration_minutes)
                 <div class="session-card-meta">
@@ -676,15 +682,6 @@
                         {{ $session->duration_minutes }} دقيقة
                     </div>
                     @endif
-                </div>
-                @endif
-                @if($session->zoom_link && !$session->ended_at)
-                <div class="session-card-actions">
-                    <a href="{{ $session->zoom_link }}" target="_blank"
-                       class="btn btn-join" style="{{ !$isLive ? 'background:linear-gradient(135deg,#2563eb,#1d4ed8);' : '' }}">
-                        <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-                        {{ $isLive ? 'انضم الآن' : 'رابط الجلسة' }}
-                    </a>
                 </div>
                 @endif
             </div>

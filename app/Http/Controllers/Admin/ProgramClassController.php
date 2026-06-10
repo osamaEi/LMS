@@ -43,7 +43,20 @@ class ProgramClassController extends Controller
                       ->orderBy('term_number');
             },
         ]);
-        $class->loadCount('students');
+
+        // Students assigned via legacy users.class_id OR via the student_programs pivot
+        $classStudents = User::where('role', 'student')
+            ->where(function ($q) use ($class) {
+                $q->where('class_id', $class->id)
+                  ->orWhereHas('programs', fn($sq) => $sq
+                      ->where('programs.id', $class->program_id)
+                      ->where('student_programs.class_id', $class->id));
+            })
+            ->get(['id', 'name', 'email', 'national_id', 'phone', 'class_id']);
+
+        // Make the combined set available to the view as $class->students
+        $class->setRelation('students', $classStudents);
+        $studentsCount = $classStudents->count();
 
         // Program (diploma) subjects available to pick from the dropdown — program-wide only
         $programSubjects = \App\Models\Subject::where('program_id', $class->program_id)
@@ -66,7 +79,129 @@ class ProgramClassController extends Controller
 
         $teachers = User::where('role', 'teacher')->orderBy('name')->get(['id', 'name']);
 
-        return view('admin.classes.show', compact('class', 'programSubjects', 'usedSubjectIds', 'teachers'));
+        // Subjects belonging to THIS class (used as the session subject picker for diplomas).
+        // Attach each subject's term so the form can derive the term end date.
+        $classSubjects = $class->terms->flatMap(function ($term) {
+            return $term->subjects->each(fn($s) => $s->setRelation('term', $term));
+        })->values();
+
+        // Existing sessions for this class
+        $sessions = \App\Models\Session::where('class_id', $class->id)
+            ->with('subject:id,name_ar,name_en')
+            ->orderBy('scheduled_at')
+            ->get();
+
+        return view('admin.classes.show', compact('class', 'programSubjects', 'usedSubjectIds', 'classSubjects', 'sessions', 'teachers', 'studentsCount'));
+    }
+
+    /**
+     * Generate weekly recurring sessions scoped to this class.
+     * Diploma: requires a subject that belongs to this class.
+     * Course/English: program-level sessions (no subject).
+     */
+    public function generateSessions(Request $request, ProgramClass $class)
+    {
+        $isDiploma = $class->program && $class->program->type === 'diploma';
+
+        $data = $request->validate([
+            'subject_id'       => [$isDiploma ? 'required' : 'nullable', 'exists:subjects,id'],
+            'teacher_id'       => 'nullable|exists:users,id',
+            'days'             => 'required|array|min:1',
+            'days.*'           => 'integer|min:0|max:6',
+            'time'             => 'required|date_format:H:i',
+            'start_date'       => 'required|date',
+            'end_date'         => 'nullable|date|after:start_date',
+        ]);
+
+        $class->loadMissing('students');
+
+        // Resolve FK column/value + title label + the end-of-period date
+        if ($isDiploma) {
+            $subject = \App\Models\Subject::with('term')->findOrFail($data['subject_id']);
+            if ($subject->class_id != $class->id) {
+                return back()->with('error', 'المقرر لا يخص هذه المجموعة');
+            }
+            $fkCol = 'subject_id';
+            $fkVal = $subject->id;
+            $label = $subject->name_ar ?? 'جلسة';
+            // Sessions run weekly until the term ends
+            $end = $subject->term?->end_date;
+        } else {
+            $fkCol = 'program_id';
+            $fkVal = $class->program_id;
+            $label = $class->program->name_ar ?? 'جلسة';
+            // Courses/English: bound by the class end date
+            $end = $class->end_date;
+        }
+        $programId = $class->program_id;
+
+        // No auto end date — use the one the admin entered, and persist it for next time
+        if (!$end) {
+            if (empty($data['end_date'])) {
+                return back()->with('error', 'حدّد تاريخ نهاية الجلسات');
+            }
+            $end = \Carbon\Carbon::parse($data['end_date']);
+            if ($isDiploma && $subject->term) {
+                $subject->term->update(['end_date' => $end->toDateString()]);
+            } elseif (!$isDiploma) {
+                $class->update(['end_date' => $end->toDateString()]);
+            }
+        }
+
+        $teacherId = $data['teacher_id'] ?? $class->teacher_id;
+
+        // Build weekly recurring datetimes from start_date until the period end
+        [$hh, $mm] = explode(':', $data['time']);
+        $start = \Carbon\Carbon::parse($data['start_date']);
+        $end   = \Carbon\Carbon::parse($end)->endOfDay();
+        $days  = array_map('intval', $data['days']);
+
+        if ($start->gt($end)) {
+            return back()->with('error', 'تاريخ البداية بعد نهاية الفترة');
+        }
+
+        $dates = [];
+        $cur   = $start->copy();
+        while ($cur->lte($end)) {
+            if (in_array($cur->dayOfWeek, $days)) {
+                $dates[] = $cur->copy()->setHour((int) $hh)->setMinute((int) $mm)->setSecond(0);
+            }
+            $cur->addDay();
+        }
+
+        if (empty($dates)) {
+            return back()->with('error', 'لا توجد أيام مطابقة في الفترة المحددة');
+        }
+
+        $nextNumber = \App\Models\Session::where($fkCol, $fkVal)->where('class_id', $class->id)->max('session_number') ?? 0;
+        $students   = $class->students;
+        $created    = 0;
+
+        foreach ($dates as $scheduledAt) {
+            $nextNumber++;
+            $session = \App\Models\Session::create([
+                $fkCol             => $fkVal,
+                'program_id'       => $programId,
+                'class_id'         => $class->id,
+                'teacher_id'       => $teacherId,
+                'type'             => 'live_zoom',
+                'status'           => 'scheduled',
+                'scheduled_at'     => $scheduledAt,
+                'duration_minutes' => 60,
+                'session_number'   => $nextNumber,
+                'title_ar'         => $label . ' (#' . $nextNumber . ')',
+            ]);
+
+            foreach ($students as $student) {
+                \App\Models\Attendance::firstOrCreate([
+                    'session_id' => $session->id,
+                    'student_id' => $student->id,
+                ], ['attended' => false]);
+            }
+            $created++;
+        }
+
+        return back()->with('success', "تم إنشاء {$created} جلسة وإسناد {$students->count()} طالب لكل جلسة");
     }
 
     /**
@@ -186,7 +321,16 @@ class ProgramClassController extends Controller
 
     public function students(ProgramClass $class)
     {
-        $students = $class->students()->get(['id', 'name', 'email', 'national_id', 'status', 'profile_photo']);
+        // Students assigned via legacy users.class_id OR via the student_programs pivot
+        $students = User::where('role', 'student')
+            ->where(function ($q) use ($class) {
+                $q->where('class_id', $class->id)
+                  ->orWhereHas('programs', fn($sq) => $sq
+                      ->where('programs.id', $class->program_id)
+                      ->where('student_programs.class_id', $class->id));
+            })
+            ->get(['id', 'name', 'email', 'national_id', 'status', 'profile_photo']);
+
         return response()->json(['students' => $students]);
     }
 
@@ -197,20 +341,54 @@ class ProgramClassController extends Controller
             'student_ids.*' => 'exists:users,id',
         ]);
 
-        $inserted = User::whereIn('id', $request->student_ids)
+        // Only students who belong to this class's program (primary or via pivot)
+        $students = User::whereIn('id', $request->student_ids)
             ->where(function ($q) use ($class) {
                 $q->where('program_id', $class->program_id)
                   ->orWhereHas('programs', fn($sq) => $sq->where('programs.id', $class->program_id));
             })
-            ->update(['class_id' => $class->id]);
+            ->get();
 
-        return response()->json(['success' => true, 'assigned' => $inserted]);
+        $assigned = 0;
+        foreach ($students as $student) {
+            // Source of truth: the student_programs pivot (one class per program).
+            // Ensure a pivot row exists for this program, then set its class_id.
+            if ($student->programs()->where('programs.id', $class->program_id)->exists()) {
+                $student->programs()->updateExistingPivot($class->program_id, ['class_id' => $class->id]);
+            } else {
+                // Primary-program enrollment with no pivot row yet — create one
+                $student->programs()->attach($class->program_id, [
+                    'class_id'   => $class->id,
+                    'status'     => $student->program_status ?? 'approved',
+                    'enrolled_at'=> now(),
+                ]);
+            }
+
+            // Mirror to legacy users.class_id ONLY for the student's primary program
+            if ($student->program_id == $class->program_id) {
+                $student->update(['class_id' => $class->id]);
+            }
+            $assigned++;
+        }
+
+        return response()->json(['success' => true, 'assigned' => $assigned]);
     }
 
     public function removeStudent(Request $request, ProgramClass $class)
     {
         $request->validate(['student_id' => 'required|exists:users,id']);
-        User::where('id', $request->student_id)->where('class_id', $class->id)->update(['class_id' => null]);
+
+        $student = User::find($request->student_id);
+        if ($student) {
+            // Clear the per-program pivot assignment
+            if ($student->programs()->where('programs.id', $class->program_id)->exists()) {
+                $student->programs()->updateExistingPivot($class->program_id, ['class_id' => null]);
+            }
+            // Clear legacy column if it points to this class
+            if ($student->class_id == $class->id) {
+                $student->update(['class_id' => null]);
+            }
+        }
         return response()->json(['success' => true]);
     }
 
@@ -222,7 +400,15 @@ class ProgramClassController extends Controller
                 $q->where('program_id', $class->program_id)
                   ->orWhereHas('programs', fn($sq) => $sq->where('programs.id', $class->program_id));
             })
-            ->get(['id', 'name', 'email', 'national_id', 'class_id']);
+            ->with(['programs' => fn($q) => $q->where('programs.id', $class->program_id)])
+            ->get(['id', 'name', 'email', 'national_id', 'class_id', 'program_id']);
+
+        // Report the student's class WITHIN THIS program only (so a student in another
+        // program's class isn't falsely shown as "in another group" here).
+        $students->transform(function ($s) use ($class) {
+            $s->class_id = $s->classIdForProgram((int) $class->program_id);
+            return $s;
+        });
 
         return response()->json(['students' => $students]);
     }

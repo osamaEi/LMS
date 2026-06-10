@@ -190,12 +190,23 @@ class User extends Authenticatable
     }
 
     // Resolve the class this student belongs to within a given program.
-    // Prefers the student_programs pivot, falls back to the legacy primary program.
+    // Prefers the student_programs pivot; falls back to the legacy users.class_id
+    // ONLY if that class actually belongs to the given program.
     public function classIdForProgram(int $programId): ?int
     {
         $pivotClassId = $this->programs()->where('programs.id', $programId)->first()?->pivot?->class_id;
-        return $pivotClassId
-            ?? ($this->program_id == $programId ? $this->class_id : null);
+        if ($pivotClassId) {
+            return $pivotClassId;
+        }
+        if ($this->class_id) {
+            // Only use the legacy column if the class belongs to this program
+            $belongs = \App\Models\ProgramClass::where('id', $this->class_id)
+                ->where('program_id', $programId)->exists();
+            if ($belongs) {
+                return $this->class_id;
+            }
+        }
+        return null;
     }
 
     public function track()

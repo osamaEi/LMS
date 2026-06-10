@@ -36,10 +36,10 @@
                 <div style="font-size:11px;color:rgba(255,255,255,0.55);margin-top:2px;">{{ $l }}</div>
             </div>
             @endforeach
-            <button onclick="openGenerateModal()" style="display:flex;align-items:center;gap:8px;padding:10px 18px;background:linear-gradient(135deg,#7c3aed,#a855f7);color:white;border:none;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 3px 14px rgba(124,58,237,.4);">
-                <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
-                إنشاء جدول
-            </button>
+            <a href="{{ route('admin.classes.index') }}" style="display:flex;align-items:center;gap:8px;padding:10px 18px;background:rgba(255,255,255,.15);color:white;border:1px solid rgba(255,255,255,.25);border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;text-decoration:none;">
+                <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                إنشاء الجلسات من المجموعات
+            </a>
         </div>
     </div>
 </div>

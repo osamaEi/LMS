@@ -1616,6 +1616,43 @@
                     </div>
                 </div>
 
+                <!-- Classes Card -->
+                <div class="info-card">
+                    <div class="info-card-header">
+                        <div class="icon">
+                            <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                        </div>
+                        <h3>المجموعات</h3>
+                    </div>
+                    <div class="info-card-body">
+                        @php
+                            $clsTypeMap = ['diploma'=>['دبلومة','#ede9fe','#7c3aed'],'course'=>['دورة','#dcfce7','#16a34a'],'english'=>['إنجليزي','#dbeafe','#2563eb'],'training'=>['تدريب','#fef3c7','#d97706']];
+                        @endphp
+                        @if($studentClasses->isNotEmpty())
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            @foreach($studentClasses as $cls)
+                            @php $ct = $clsTypeMap[$cls->program?->type] ?? ['—','#f1f5f9','#64748b']; @endphp
+                            <a href="{{ route('admin.classes.show', $cls->id) }}" style="display:block;border:1px solid #e5e7eb;border-radius:14px;padding:14px;text-decoration:none;transition:all .15s;" onmouseover="this.style.borderColor='#7c3aed';this.style.boxShadow='0 2px 10px rgba(124,58,237,.1)'" onmouseout="this.style.borderColor='#e5e7eb';this.style.boxShadow='none'">
+                                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+                                    <span style="font-size:14px;font-weight:700;color:#1e293b;">{{ $cls->name }}</span>
+                                    <span style="background:{{ $ct[1] }};color:{{ $ct[2] }};border-radius:9999px;padding:.15rem .6rem;font-size:.62rem;font-weight:700;">{{ $ct[0] }}</span>
+                                </div>
+                                <div style="font-size:12px;color:#64748b;">{{ $cls->program?->name_ar ?? '—' }}</div>
+                                <div style="display:flex;align-items:center;gap:12px;margin-top:8px;font-size:11px;color:#94a3b8;">
+                                    <span>👥 {{ $cls->students_count }} طالب</span>
+                                    @if($cls->teacher)<span>👤 {{ $cls->teacher->name }}</span>@endif
+                                </div>
+                            </a>
+                            @endforeach
+                        </div>
+                        @else
+                        <p style="text-align:center;padding:24px;color:#94a3b8;font-size:13px;">الطالب غير مسند لأي مجموعة بعد</p>
+                        @endif
+                    </div>
+                </div>
+
                 <!-- Enrolled Subjects Card -->
                 <div class="info-card">
                     <div class="info-card-header">

@@ -255,6 +255,7 @@
 {{-- ══════════════════════════════════════════
      MODAL: Add Term
 ══════════════════════════════════════════ --}}
+<template x-teleport="body">
 <div x-show="termModal" x-cloak style="position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem;">
     <div @click="termModal=false" style="position:absolute;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(2px);"></div>
     <div @click.stop style="position:relative;background:white;border-radius:18px;width:100%;max-width:460px;box-shadow:0 30px 60px rgba(0,0,0,.2);">
@@ -318,10 +319,12 @@
         </form>
     </div>
 </div>
+</template>
 
 {{-- ══════════════════════════════════════════
      MODAL: Add Subject
 ══════════════════════════════════════════ --}}
+<template x-teleport="body">
 <div x-show="subjectModal" x-cloak style="position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem;">
     <div @click="subjectModal=false" style="position:absolute;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(2px);"></div>
     <div @click.stop style="position:relative;background:white;border-radius:18px;width:100%;max-width:500px;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 30px 60px rgba(0,0,0,.2);">
@@ -397,10 +400,12 @@
         </form>
     </div>
 </div>
+</template>
 
 {{-- ══════════════════════════════════════════
      MODAL: Edit Subject
 ══════════════════════════════════════════ --}}
+<template x-teleport="body">
 <div x-show="editSubjectModal" x-cloak style="position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem;">
     <div @click="editSubjectModal=false" style="position:absolute;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(2px);"></div>
     <div @click.stop style="position:relative;background:white;border-radius:18px;width:100%;max-width:500px;box-shadow:0 30px 60px rgba(0,0,0,.2);">
@@ -464,10 +469,12 @@
         </form>
     </div>
 </div>
+</template>
 
 {{-- ══════════════════════════════════════════
      MODAL: Delete Subject
 ══════════════════════════════════════════ --}}
+<template x-teleport="body">
 <div x-show="deleteSubjectModal" x-cloak style="position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem;">
     <div @click="deleteSubjectModal=false" style="position:absolute;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(2px);"></div>
     <div @click.stop style="position:relative;background:white;border-radius:18px;width:100%;max-width:400px;box-shadow:0 30px 60px rgba(0,0,0,.2);text-align:center;padding:32px 28px;">
@@ -488,10 +495,12 @@
         </form>
     </div>
 </div>
+</template>
 
 {{-- ══════════════════════════════════════════
      MODAL: Assign Teachers (multi)
 ══════════════════════════════════════════ --}}
+<template x-teleport="body">
 <div x-show="teacherModal" x-cloak style="position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem;">
     <div @click="teacherModal=false" style="position:absolute;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(2px);"></div>
     <div @click.stop style="position:relative;background:white;border-radius:18px;width:100%;max-width:420px;box-shadow:0 30px 60px rgba(0,0,0,.2);">
@@ -539,6 +548,7 @@
         </form>
     </div>
 </div>
+</template>
 
 </div>
 </div>{{-- /tab-terms --}}

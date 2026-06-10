@@ -28,11 +28,24 @@ class DashboardController extends Controller
     private function studentSubjectIds($student): \Illuminate\Support\Collection
     {
         $programIds = $this->studentProgramIds($student);
+
+        // The student's class per program (to scope subjects to their class + shared)
+        $classIds = $programIds->map(fn($pid) => $student->classIdForProgram((int) $pid))
+            ->filter()->unique()->values()->all();
+
         return Subject::where(function ($q) use ($student, $programIds) {
-            $q->whereIn('program_id', $programIds)
-              ->orWhereHas('term', fn($tq) => $tq->whereIn('program_id', $programIds))
-              ->orWhereHas('enrollments', fn($eq) => $eq->where('student_id', $student->id));
-        })->pluck('id');
+                $q->whereIn('program_id', $programIds)
+                  ->orWhereHas('term', fn($tq) => $tq->whereIn('program_id', $programIds))
+                  ->orWhereHas('enrollments', fn($eq) => $eq->where('student_id', $student->id));
+            })
+            // Class scoping: show class-specific subjects of the student's class + shared (NULL)
+            ->where(function ($q) use ($classIds) {
+                $q->whereNull('class_id');
+                if (!empty($classIds)) {
+                    $q->orWhereIn('class_id', $classIds);
+                }
+            })
+            ->pluck('id');
     }
     // ──────────────────────────────────────────────────────────────────────────
 
@@ -264,11 +277,19 @@ class DashboardController extends Controller
         $programIds = $this->studentProgramIds($student);
         $allPrograms = $student->allPrograms();
 
-        // Sessions assigned to this student (via attendance records)
+        // All classes the student belongs to (one per program — student can be in
+        // multiple classes across different programs, never two in the same program)
+        $studentClassIds = $programIds
+            ->map(fn($pid) => $student->classIdForProgram((int) $pid))
+            ->filter()->unique()->values();
+
+        // Sessions assigned to this student (via attendance records), scoped to their
+        // classes + any class-agnostic sessions (class_id NULL)
         $assignedSessionIds = Attendance::where('student_id', $student->id)->pluck('session_id');
-        if ($student->class_id) {
+        if ($studentClassIds->isNotEmpty()) {
             $assignedSessionIds = Session::whereIn('id', $assignedSessionIds)
-                ->where('class_id', $student->class_id)->pluck('id');
+                ->where(fn($q) => $q->whereIn('class_id', $studentClassIds)->orWhereNull('class_id'))
+                ->pluck('id');
         }
 
         // Build per-program session data
@@ -606,9 +627,24 @@ class DashboardController extends Controller
             $isDiploma = $prog->type === 'diploma';
 
             if ($isDiploma) {
+                $classId = $student->classIdForProgram((int) $prog->id);
+
+                // Show the class's OWN terms only. If the class has none yet, fall back to
+                // the program-wide (shared) terms so the page isn't empty.
+                $hasClassTerms = $classId
+                    ? Term::where('program_id', $prog->id)->where('class_id', $classId)->exists()
+                    : false;
+
+                $subjectScope = fn($sq) => $hasClassTerms
+                    ? $sq->where('class_id', $classId)
+                    : $sq->whereNull('class_id');
+
                 $progTerms = Term::where('program_id', $prog->id)
+                    ->when($hasClassTerms,
+                        fn($q) => $q->where('class_id', $classId),
+                        fn($q) => $q->whereNull('class_id'))
                     ->orderBy('term_number', 'asc')
-                    ->with(['subjects' => fn($q) => $q->with(['teacher', 'sessions'])])
+                    ->with(['subjects' => fn($q) => $subjectScope($q)->with(['teacher', 'sessions'])])
                     ->get();
 
                 $currentTerm = $progTerms->first(fn($t) =>
@@ -619,7 +655,9 @@ class DashboardController extends Controller
                     ? $progTerms->search(fn($t) => $t->id === $currentTerm->id) + 1
                     : 1;
 
-                $progSubjects = Subject::whereIn('term_id', $progTerms->pluck('id'))->get();
+                $progSubjects = Subject::whereIn('term_id', $progTerms->pluck('id'))
+                    ->where(fn($sq) => $subjectScope($sq))
+                    ->get();
 
                 $currentTermSubjects = $currentTerm
                     ? $currentTerm->subjects->load(['teacher', 'sessions'])
@@ -665,7 +703,10 @@ class DashboardController extends Controller
                     ],
                 ];
             } else {
+                // Scope course/English sessions to the student's class
+                $classId = $student->classIdForProgram((int) $prog->id);
                 $progSessions = Session::where('program_id', $prog->id)
+                    ->when($classId, fn($q) => $q->where('class_id', $classId))
                     ->with(['files', 'homework'])
                     ->orderBy('session_number')->orderBy('scheduled_at')->get();
 

@@ -67,12 +67,14 @@ class ScheduleController extends Controller
             ->pluck('student')
             ->filter();
 
-        // Students enrolled in the diploma program that owns this subject's term
+        // Students enrolled in the diploma program that owns this subject's term,
+        // scoped to the session's class when available.
         $programId = $session->subject?->term?->program_id;
         $fromProgram = $programId
             ? User::where('role', 'student')
                 ->where('program_id', $programId)
                 ->where('program_status', 'approved')
+                ->when($session->class_id, fn($q) => $q->where('class_id', $session->class_id))
                 ->get(['id', 'name', 'email'])
             : collect();
 
@@ -134,6 +136,7 @@ class ScheduleController extends Controller
             ->get(['id', 'name_ar', 'type', 'duration_months']);
 
         $subjects = Subject::where('status', 'active')
+            ->whereNull('class_id') // exclude class-specific clones from the global picker
             ->where(fn($q) => $q->whereNotNull('program_id')->orWhereNotNull('term_id'))
             ->with(['program:id,name_ar', 'term.program:id,name_ar'])
             ->orderBy('name_ar')
