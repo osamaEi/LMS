@@ -31,11 +31,18 @@ class DashboardController extends Controller
             ->whereIn('type', ['training', 'english', 'course'])
             ->pluck('id');
 
+        // Reusable filter: a diploma subject assigned to the teacher, OR a program
+        // session explicitly assigned to this teacher (session.teacher_id).
+        $teacherSessionFilter = function ($q) use ($teacher, $teacherProgramIds) {
+            $q->whereHas('subject', fn($sq) => $sq->assignedToTeacher($teacher->id))
+              ->orWhere(function ($pq) use ($teacherProgramIds, $teacher) {
+                  $pq->whereIn('program_id', $teacherProgramIds)
+                     ->where('teacher_id', $teacher->id);
+              });
+        };
+
         // Get upcoming sessions
-        $upcomingSessions = Session::where(function($q) use ($teacher, $teacherProgramIds) {
-                $q->whereHas('subject', fn($sq) => $sq->assignedToTeacher($teacher->id))
-                  ->orWhereIn('program_id', $teacherProgramIds);
-            })
+        $upcomingSessions = Session::where($teacherSessionFilter)
             ->where('scheduled_at', '>', now())
             ->with(['subject.program', 'subject.term', 'program'])
             ->orderBy('scheduled_at', 'asc')
@@ -43,10 +50,7 @@ class DashboardController extends Controller
             ->get();
 
         // Get live/current sessions (started but not ended)
-        $liveSessions = Session::where(function($q) use ($teacher, $teacherProgramIds) {
-                $q->whereHas('subject', fn($sq) => $sq->assignedToTeacher($teacher->id))
-                  ->orWhereIn('program_id', $teacherProgramIds);
-            })
+        $liveSessions = Session::where($teacherSessionFilter)
             ->whereNotNull('started_at')
             ->whereNull('ended_at')
             ->with(['subject.program', 'subject.term', 'program'])
@@ -54,10 +58,7 @@ class DashboardController extends Controller
             ->get();
 
         // Get past sessions (ended or scheduled_at in past)
-        $pastSessions = Session::where(function($q) use ($teacher, $teacherProgramIds) {
-                $q->whereHas('subject', fn($sq) => $sq->assignedToTeacher($teacher->id))
-                  ->orWhereIn('program_id', $teacherProgramIds);
-            })
+        $pastSessions = Session::where($teacherSessionFilter)
             ->where(function($q) {
                 $q->whereNotNull('ended_at')
                   ->orWhere('scheduled_at', '<', now()->subHour());

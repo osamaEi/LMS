@@ -77,7 +77,10 @@ class ProgramClassController extends Controller
             return $s->code && in_array($s->code . $suffix, $usedCodes, true);
         })->pluck('id')->all();
 
-        $teachers = User::where('role', 'teacher')->orderBy('name')->get(['id', 'name']);
+        // Teachers registered for THIS program (program_teacher pivot)
+        $teachers = $class->program
+            ? $class->program->teachers()->orderBy('name')->get(['users.id', 'users.name'])
+            : collect();
 
         // Subjects belonging to THIS class (used as the session subject picker for diplomas).
         // Attach each subject's term so the form can derive the term end date.
@@ -105,7 +108,7 @@ class ProgramClassController extends Controller
 
         $data = $request->validate([
             'subject_id'       => [$isDiploma ? 'required' : 'nullable', 'exists:subjects,id'],
-            'teacher_id'       => 'nullable|exists:users,id',
+            'teacher_id'       => 'required|exists:users,id',
             'days'             => 'required|array|min:1',
             'days.*'           => 'integer|min:0|max:6',
             'time'             => 'required|date_format:H:i',
@@ -117,9 +120,16 @@ class ProgramClassController extends Controller
 
         // Resolve FK column/value + title label + the end-of-period date
         if ($isDiploma) {
-            $subject = \App\Models\Subject::with('term')->findOrFail($data['subject_id']);
+            $subject = \App\Models\Subject::with(['term', 'teachers'])->findOrFail($data['subject_id']);
             if ($subject->class_id != $class->id) {
                 return back()->with('error', 'المقرر لا يخص هذه المجموعة');
+            }
+            // The session teacher must be one assigned to this subject
+            $assignedTeacherIds = $subject->teachers->pluck('id')
+                ->merge($subject->teacher_id ? [$subject->teacher_id] : [])
+                ->unique();
+            if (!$assignedTeacherIds->contains((int) $data['teacher_id'])) {
+                return back()->with('error', 'المدرب المختار غير معيّن لهذا المقرر');
             }
             $fkCol = 'subject_id';
             $fkVal = $subject->id;
@@ -148,7 +158,7 @@ class ProgramClassController extends Controller
             }
         }
 
-        $teacherId = $data['teacher_id'] ?? $class->teacher_id;
+        $teacherId = $data['teacher_id'];
 
         // Build weekly recurring datetimes from start_date until the period end
         [$hh, $mm] = explode(':', $data['time']);
@@ -272,13 +282,13 @@ class ProgramClassController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'program_id'   => 'required|exists:programs,id',
-            'name'         => 'required|string|max:255',
-            'teacher_id'   => 'nullable|exists:users,id',
-            'start_date'   => 'nullable|date',
-            'end_date'     => 'nullable|date|after_or_equal:start_date',
-            'max_students' => 'nullable|integer|min:1',
-            'status'       => 'nullable|in:active,inactive,completed',
+            'program_id'      => 'required|exists:programs,id',
+            'name'            => 'required|string|max:255',
+            'supervisor_name' => 'nullable|string|max:255',
+            'start_date'      => 'nullable|date',
+            'end_date'        => 'nullable|date|after_or_equal:start_date',
+            'max_students'    => 'nullable|integer|min:1',
+            'status'          => 'nullable|in:active,inactive,completed',
         ]);
 
         $class = ProgramClass::create($data);
@@ -293,12 +303,12 @@ class ProgramClassController extends Controller
     public function update(Request $request, ProgramClass $class)
     {
         $data = $request->validate([
-            'name'         => 'required|string|max:255',
-            'teacher_id'   => 'nullable|exists:users,id',
-            'start_date'   => 'nullable|date',
-            'end_date'     => 'nullable|date|after_or_equal:start_date',
-            'max_students' => 'nullable|integer|min:1',
-            'status'       => 'nullable|in:active,inactive,completed',
+            'name'            => 'required|string|max:255',
+            'supervisor_name' => 'nullable|string|max:255',
+            'start_date'      => 'nullable|date',
+            'end_date'        => 'nullable|date|after_or_equal:start_date',
+            'max_students'    => 'nullable|integer|min:1',
+            'status'          => 'nullable|in:active,inactive,completed',
         ]);
 
         $class->update($data);

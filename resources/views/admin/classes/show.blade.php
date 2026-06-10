@@ -242,6 +242,29 @@
         </div>
     </div>
 
+    {{-- Filters --}}
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 20px;border-bottom:1px solid #f1f5f9;background:white;">
+        <input id="calSearch" type="text" placeholder="بحث بالعنوان..." oninput="calApplyFilters()"
+               style="flex:1;min-width:160px;padding:8px 12px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:12px;font-family:inherit;">
+        @if($class->program && $class->program->type === 'diploma')
+        <select id="calSubject" onchange="calApplyFilters()" style="padding:8px 12px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:12px;font-family:inherit;background:white;">
+            <option value="">كل المقررات</option>
+            @foreach($classSubjects as $cs)
+                <option value="{{ $cs->name_ar ?: $cs->name_en }}">{{ $cs->name_ar ?: $cs->name_en }}</option>
+            @endforeach
+        </select>
+        @endif
+        <select id="calStatus" onchange="calApplyFilters()" style="padding:8px 12px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:12px;font-family:inherit;background:white;">
+            <option value="">كل الحالات</option>
+            <option value="scheduled">مجدولة</option>
+            <option value="live">مباشرة</option>
+            <option value="completed">مكتملة</option>
+            <option value="cancelled">ملغاة</option>
+        </select>
+        <button type="button" onclick="calResetFilters()" style="padding:8px 12px;border:1.5px solid #e2e8f0;border-radius:9px;background:white;cursor:pointer;color:#64748b;font-size:12px;font-weight:600;font-family:inherit;">إعادة تعيين</button>
+        <span id="calFilterCount" style="font-size:11px;color:#94a3b8;"></span>
+    </div>
+
     {{-- Period nav (hidden for list) --}}
     <div id="calNav" style="display:none;align-items:center;justify-content:center;gap:16px;padding:14px;border-bottom:1px solid #f1f5f9;background:white;">
         <button type="button" onclick="calPrev()" style="width:36px;height:36px;border-radius:10px;border:1.5px solid #e5e7eb;background:white;cursor:pointer;color:#374151;font-size:18px;">&#8249;</button>
@@ -267,12 +290,37 @@
     };
     let view = 'list';
     let cur  = new Date();
+    let filters = { q: '', subject: '', status: '' };
 
     const parse = at => new Date(at.replace(' ','T'));
     const fmtTime = d => { let h=d.getHours(), m=String(d.getMinutes()).padStart(2,'0'); let ap=h>=12?'م':'ص'; let hh=h%12||12; return hh+':'+m+' '+ap; };
     const sameDay = (a,b)=> a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate();
-    const onDay = date => SESSIONS.filter(s=>sameDay(parse(s.at),date)).sort((a,b)=>parse(a.at)-parse(b.at));
     const st = s => STATUS[s] || ['#f1f5f9','#64748b',s];
+
+    // Apply the active filters to the session list
+    function filtered(){
+        return SESSIONS.filter(s => {
+            if (filters.q && !((s.title||'').toLowerCase().includes(filters.q.toLowerCase()))) return false;
+            if (filters.subject && (s.subject||'') !== filters.subject) return false;
+            if (filters.status && (s.status||'') !== filters.status) return false;
+            return true;
+        });
+    }
+    const onDay = date => filtered().filter(s=>sameDay(parse(s.at),date)).sort((a,b)=>parse(a.at)-parse(b.at));
+
+    window.calApplyFilters = function(){
+        filters.q       = document.getElementById('calSearch')?.value || '';
+        filters.subject = document.getElementById('calSubject')?.value || '';
+        filters.status  = document.getElementById('calStatus')?.value || '';
+        render();
+    };
+    window.calResetFilters = function(){
+        filters = { q:'', subject:'', status:'' };
+        const s1=document.getElementById('calSearch'); if(s1) s1.value='';
+        const s2=document.getElementById('calSubject'); if(s2) s2.value='';
+        const s3=document.getElementById('calStatus'); if(s3) s3.value='';
+        render();
+    };
 
     window.calSetView = function(v){
         view = v;
@@ -295,8 +343,10 @@
     }
 
     function renderList(){
+        const data = filtered();
         if(!SESSIONS.length) return `<div style="padding:48px;text-align:center;color:#94a3b8;font-size:13px;">لا توجد جلسات لهذه المجموعة بعد</div>`;
-        const rows = [...SESSIONS].sort((a,b)=>parse(a.at)-parse(b.at)).map((s,i)=>{
+        if(!data.length) return `<div style="padding:48px;text-align:center;color:#94a3b8;font-size:13px;">لا توجد جلسات مطابقة للفلتر</div>`;
+        const rows = [...data].sort((a,b)=>parse(a.at)-parse(b.at)).map((s,i)=>{
             const d=parse(s.at); const c=st(s.status);
             const date = d.toLocaleDateString('ar-EG',{year:'numeric',month:'2-digit',day:'2-digit'});
             return `<tr style="border-bottom:1px solid #f8fafc;">
@@ -378,6 +428,12 @@
         if(view==='list')      body.innerHTML=renderList();
         else if(view==='week') body.innerHTML=renderWeek();
         else                   body.innerHTML=renderMonth();
+        // Filter count indicator
+        const cntEl=document.getElementById('calFilterCount');
+        if(cntEl){
+            const n=filtered().length, total=SESSIONS.length;
+            cntEl.textContent = (n===total) ? `${total} جلسة` : `${n} من ${total}`;
+        }
     }
 
     render();
@@ -419,13 +475,22 @@ function switchClassTab(tab){
                 // subject_id => term end date (for the auto-end note)
                 $termEndMap = $classSubjects->mapWithKeys(fn($cs) => [$cs->id => optional($cs->term?->end_date)->format('Y-m-d')]);
                 $classEnd = $class->end_date?->format('Y-m-d');
+                // subject_id => assigned teachers [{id,name}] (subject.teacher + subject.teachers pivot)
+                $subjectTeachersMap = $classSubjects->mapWithKeys(function ($cs) {
+                    $teachers = $cs->teachers->isNotEmpty()
+                        ? $cs->teachers
+                        : ($cs->teacher ? collect([$cs->teacher]) : collect());
+                    return [$cs->id => $teachers->map(fn($t) => ['id' => $t->id, 'name' => $t->name])->values()];
+                });
             @endphp
             <div x-data="{
                     subjectId: '',
                     termEnds: {{ $termEndMap->toJson() }},
+                    subjectTeachers: {{ $subjectTeachersMap->toJson() }},
                     classEnd: '{{ $classEnd }}',
                     isDiploma: {{ ($class->program && $class->program->type === 'diploma') ? 'true' : 'false' }},
-                    get endDate() { return this.isDiploma ? (this.termEnds[this.subjectId] || '') : this.classEnd; }
+                    get endDate() { return this.isDiploma ? (this.termEnds[this.subjectId] || '') : this.classEnd; },
+                    get teacherOptions() { return this.isDiploma ? (this.subjectTeachers[this.subjectId] || []) : @js($teachers->map(fn($t)=>['id'=>$t->id,'name'=>$t->name])->values()); }
                 }" style="padding:20px;display:flex;flex-direction:column;gap:14px;overflow-y:auto;flex:1;">
 
                 @if($class->program && $class->program->type === 'diploma')
@@ -444,13 +509,19 @@ function switchClassTab(tab){
                 @endif
 
                 <div>
-                    <label style="display:block;font-size:11px;font-weight:700;color:#475569;margin-bottom:6px;">المدرب (اختياري)</label>
-                    <select name="teacher_id" style="width:100%;padding:9px 12px;font-size:13px;border:1.5px solid #e2e8f0;border-radius:10px;outline:none;font-family:inherit;background:white;">
-                        <option value="">— مدرب المجموعة الافتراضي —</option>
-                        @foreach($teachers as $teacher)
-                            <option value="{{ $teacher->id }}" {{ $class->teacher_id == $teacher->id ? 'selected' : '' }}>{{ $teacher->name }}</option>
-                        @endforeach
+                    <label style="display:block;font-size:11px;font-weight:700;color:#475569;margin-bottom:6px;">المدرب *</label>
+                    <select name="teacher_id" required style="width:100%;padding:9px 12px;font-size:13px;border:1.5px solid #e2e8f0;border-radius:10px;outline:none;font-family:inherit;background:white;">
+                        <option value="">— اختر المدرب —</option>
+                        <template x-for="t in teacherOptions" :key="t.id">
+                            <option :value="t.id" x-text="t.name"></option>
+                        </template>
                     </select>
+                    <template x-if="isDiploma && subjectId && teacherOptions.length === 0">
+                        <p style="font-size:11px;color:#dc2626;margin-top:6px;">لا يوجد مدرب معيّن لهذا المقرر — عيّن مدربًا للمقرر أولاً.</p>
+                    </template>
+                    <template x-if="!isDiploma && teacherOptions.length === 0">
+                        <p style="font-size:11px;color:#dc2626;margin-top:6px;">لا يوجد مدربون مسجّلون لهذه الدورة — سجّل مدربًا للبرنامج أولاً.</p>
+                    </template>
                 </div>
 
                 {{-- Weekly days --}}

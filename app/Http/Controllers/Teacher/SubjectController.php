@@ -56,10 +56,14 @@ class SubjectController extends Controller
             ->withCount('enrollments')
             ->findOrFail($id);
 
-        $sessions = Session::where('subject_id', $id)
-            ->with(['unit', 'files'])
-            ->orderBy('session_number', 'asc')
-            ->get();
+        // Only the lectures assigned to THIS teacher for this subject.
+        // Fall back to all the subject's sessions if none carry a teacher_id yet (legacy).
+        $sessionsQuery = Session::where('subject_id', $id)->with(['unit', 'files']);
+        $hasTeacherSessions = (clone $sessionsQuery)->where('teacher_id', $teacher->id)->exists();
+        if ($hasTeacherSessions) {
+            $sessionsQuery->where('teacher_id', $teacher->id);
+        }
+        $sessions = $sessionsQuery->orderBy('session_number', 'asc')->get();
 
         return view('teacher.subjects.show', compact('subject', 'sessions'));
     }

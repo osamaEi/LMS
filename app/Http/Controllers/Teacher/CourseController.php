@@ -46,7 +46,10 @@ class CourseController extends Controller
             ->withCount(['enrolledStudents'])
             ->findOrFail($id);
 
+        // Show only the sessions (lectures) assigned to THIS teacher in this program.
+        // Session teacher_id is set when sessions are generated for a class.
         $sessions = Session::where('program_id', $id)
+            ->where('teacher_id', $teacher->id)
             ->with(['files'])
             ->orderBy('session_number', 'asc')
             ->get();

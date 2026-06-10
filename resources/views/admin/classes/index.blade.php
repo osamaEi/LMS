@@ -46,7 +46,7 @@
                 <th style="padding:12px 16px;text-align:right;font-weight:700;color:#374151;">اسم المجموعة</th>
                 <th style="padding:12px 16px;text-align:right;font-weight:700;color:#374151;">البرنامج</th>
                 <th style="padding:12px 16px;text-align:center;font-weight:700;color:#374151;">النوع</th>
-                <th style="padding:12px 16px;text-align:right;font-weight:700;color:#374151;">المدرب</th>
+                <th style="padding:12px 16px;text-align:right;font-weight:700;color:#374151;">المشرف</th>
                 <th style="padding:12px 16px;text-align:center;font-weight:700;color:#374151;">الطلاب</th>
                 <th style="padding:12px 16px;text-align:center;font-weight:700;color:#374151;">الحالة</th>
                 <th style="padding:12px 16px;text-align:right;font-weight:700;color:#374151;">الفترة</th>
@@ -72,7 +72,7 @@
                     @endphp
                     <span style="background:{{ $t[1] }};color:{{ $t[2] }};border-radius:9999px;padding:.18rem .7rem;font-size:.65rem;font-weight:700;">{{ $t[0] }}</span>
                 </td>
-                <td style="padding:12px 16px;color:#64748b;">{{ $cls->teacher?->name ?? '—' }}</td>
+                <td style="padding:12px 16px;color:#64748b;">{{ $cls->supervisor_name ?: ($cls->teacher?->name ?? '—') }}</td>
                 <td style="padding:12px 16px;text-align:center;">
                     <span style="font-weight:700;color:#7c3aed;">{{ $cls->students_count }}</span>
                     @if($cls->max_students)<span style="color:#94a3b8;font-size:11px;"> / {{ $cls->max_students }}</span>@endif
@@ -88,6 +88,19 @@
                     <div style="display:flex;gap:6px;justify-content:center;">
                         <a href="{{ route('admin.classes.show', $cls->id) }}" style="padding:5px 10px;font-size:11px;color:#7c3aed;background:#f5f3ff;border:1px solid #e9d5ff;border-radius:7px;cursor:pointer;font-weight:600;text-decoration:none;">عرض</a>
                         <button onclick="openStudentsModal({{ $cls->id }}, '{{ addslashes($cls->name) }}')" style="padding:5px 10px;font-size:11px;color:#0369a1;background:#e0f2fe;border:1px solid #bae6fd;border-radius:7px;cursor:pointer;font-weight:600;">الطلاب</button>
+                        @php
+                            $clsEdit = [
+                                'id'           => $cls->id,
+                                'program_id'   => $cls->program_id,
+                                'name'         => $cls->name,
+                                'supervisor_name' => $cls->supervisor_name,
+                                'max_students' => $cls->max_students,
+                                'status'       => $cls->status,
+                                'start_date'   => optional($cls->start_date)->format('Y-m-d'),
+                                'end_date'     => optional($cls->end_date)->format('Y-m-d'),
+                            ];
+                        @endphp
+                        <button onclick='openEditClass(@json($clsEdit))' style="padding:5px 10px;font-size:11px;color:#d97706;background:#fffbeb;border:1px solid #fde68a;border-radius:7px;cursor:pointer;font-weight:600;">تعديل</button>
                         <button onclick="confirmDelete({{ $cls->id }})" style="padding:5px 10px;font-size:11px;color:#dc2626;background:#fff1f2;border:1px solid #fecaca;border-radius:7px;cursor:pointer;">حذف</button>
                     </div>
                 </td>
@@ -112,7 +125,7 @@
 <div id="createModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;align-items:center;justify-content:center;">
 <div style="background:white;border-radius:18px;padding:24px;width:100%;max-width:480px;box-shadow:0 20px 60px rgba(0,0,0,.2);">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
-        <h3 style="font-size:16px;font-weight:700;color:#1e293b;margin:0;">إضافة مجموعة جديدة</h3>
+        <h3 id="createModalTitle" style="font-size:16px;font-weight:700;color:#1e293b;margin:0;">إضافة مجموعة جديدة</h3>
         <button onclick="document.getElementById('createModal').style.display='none'" style="background:none;border:none;font-size:20px;color:#94a3b8;cursor:pointer;">×</button>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
@@ -130,13 +143,8 @@
             <input id="m-name" type="text" placeholder="مثال: المجموعة أ" style="width:100%;padding:9px 12px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13px;box-sizing:border-box;">
         </div>
         <div style="grid-column:1/-1;">
-            <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">المدرب/المشرف</label>
-            <select id="m-teacher" style="width:100%;padding:9px 12px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13px;box-sizing:border-box;">
-                <option value="">— بدون —</option>
-                @foreach($teachers as $t)
-                <option value="{{ $t->id }}">{{ $t->name }}</option>
-                @endforeach
-            </select>
+            <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">اسم المشرف</label>
+            <input id="m-supervisor" type="text" placeholder="اسم المشرف" style="width:100%;padding:9px 12px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13px;box-sizing:border-box;">
         </div>
         <div>
             <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">تاريخ البدء</label>
@@ -161,7 +169,7 @@
     </div>
     <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:18px;">
         <button onclick="document.getElementById('createModal').style.display='none'" style="padding:9px 18px;font-size:13px;font-weight:600;color:#475569;background:#f1f5f9;border:none;border-radius:10px;cursor:pointer;">إلغاء</button>
-        <button onclick="submitCreate()" style="padding:9px 18px;font-size:13px;font-weight:700;color:white;background:linear-gradient(135deg,#7c3aed,#a855f7);border:none;border-radius:10px;cursor:pointer;">حفظ</button>
+        <button id="createModalSubmit" onclick="submitCreate()" style="padding:9px 18px;font-size:13px;font-weight:700;color:white;background:linear-gradient(135deg,#7c3aed,#a855f7);border:none;border-radius:10px;cursor:pointer;">حفظ</button>
     </div>
 </div>
 </div>
@@ -209,7 +217,37 @@
 @push('scripts')
 <script>
 const CSRF = '{{ csrf_token() }}';
-function openCreateModal() { document.getElementById('createModal').style.display = 'flex'; }
+let _editClassId = null;
+
+function openCreateModal() {
+    _editClassId = null;
+    document.getElementById('createModalTitle').textContent = 'إضافة مجموعة جديدة';
+    document.getElementById('createModalSubmit').textContent = 'حفظ';
+    document.getElementById('m-program').value = '';
+    document.getElementById('m-program').disabled = false;
+    document.getElementById('m-name').value = '';
+    document.getElementById('m-supervisor').value = '';
+    document.getElementById('m-start').value = '';
+    document.getElementById('m-end').value = '';
+    document.getElementById('m-max').value = '';
+    document.getElementById('m-status').value = 'active';
+    document.getElementById('createModal').style.display = 'flex';
+}
+
+function openEditClass(c) {
+    _editClassId = c.id;
+    document.getElementById('createModalTitle').textContent = 'تعديل المجموعة';
+    document.getElementById('createModalSubmit').textContent = 'تحديث';
+    document.getElementById('m-program').value = c.program_id ?? '';
+    document.getElementById('m-program').disabled = true; // program can't change after creation
+    document.getElementById('m-name').value = c.name ?? '';
+    document.getElementById('m-supervisor').value = c.supervisor_name ?? '';
+    document.getElementById('m-start').value = c.start_date ?? '';
+    document.getElementById('m-end').value = c.end_date ?? '';
+    document.getElementById('m-max').value = c.max_students ?? '';
+    document.getElementById('m-status').value = c.status ?? 'active';
+    document.getElementById('createModal').style.display = 'flex';
+}
 function confirmDelete(id) {
     if (!confirm('حذف المجموعة وإلغاء إسناد الطلاب؟')) return;
     fetch(`/admin/classes/${id}`, {
@@ -356,19 +394,26 @@ function submitCreate() {
     const name       = document.getElementById('m-name').value.trim();
     if (!program_id) { alert('اختر برنامجاً'); return; }
     if (!name)       { alert('اسم المجموعة مطلوب'); return; }
-    fetch('/admin/classes', {
-        method: 'POST',
+
+    const payload = {
+        program_id,
+        name,
+        supervisor_name: document.getElementById('m-supervisor').value || null,
+        start_date:   document.getElementById('m-start').value || null,
+        end_date:     document.getElementById('m-end').value || null,
+        max_students: document.getElementById('m-max').value || null,
+        status:       document.getElementById('m-status').value,
+    };
+
+    const isEdit = !!_editClassId;
+    const url    = isEdit ? `/admin/classes/${_editClassId}` : '/admin/classes';
+    if (isEdit) payload._method = 'PUT';
+
+    fetch(url, {
+        method: 'POST', // method spoofing via _method for PUT
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': CSRF },
-        body: JSON.stringify({
-            program_id,
-            name,
-            teacher_id:   document.getElementById('m-teacher').value || null,
-            start_date:   document.getElementById('m-start').value || null,
-            end_date:     document.getElementById('m-end').value || null,
-            max_students: document.getElementById('m-max').value || null,
-            status:       document.getElementById('m-status').value,
-        })
-    }).then(r => r.json()).then(d => { if (d.success) location.reload(); });
+        body: JSON.stringify(payload)
+    }).then(r => r.json()).then(d => { if (d.success) location.reload(); else alert(d.message || 'حدث خطأ'); });
 }
 </script>
 @endpush

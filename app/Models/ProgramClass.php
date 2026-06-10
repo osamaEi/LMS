@@ -15,6 +15,7 @@ class ProgramClass extends Model
         'program_id',
         'name',
         'teacher_id',
+        'supervisor_name',
         'start_date',
         'end_date',
         'status',
