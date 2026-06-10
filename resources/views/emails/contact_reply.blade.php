@@ -18,10 +18,10 @@
           <td style="background:linear-gradient(135deg,#0a1628 0%,#0f2744 50%,#0a1f3d 100%);border-radius:16px 16px 0 0;padding:36px 40px;text-align:center;">
 
             {{-- Logo --}}
-            <img src="{{ $logoUrl }}"
+            <img src="https://www.alertiqa.edu.sa/images/nav.png"
                  alt="{{ config('app.name') }}"
-                 width="160"
-                 style="display:inline-block;height:auto;max-height:60px;object-fit:contain;">
+                 width="180"
+                 style="display:inline-block;height:auto;max-height:64px;object-fit:contain;filter:brightness(0) invert(1);">
 
             {{-- Divider --}}
             <div style="width:48px;height:3px;background:linear-gradient(90deg,#0071AA,#38bdf8);border-radius:99px;margin:20px auto 0;"></div>
@@ -82,10 +82,10 @@
         {{-- ── Footer ── --}}
         <tr>
           <td style="background:#f8fafc;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 16px 16px;padding:24px 40px;text-align:center;font-family:'Cairo',Arial,sans-serif;">
-            <img src="{{ $logoUrl }}"
+            <img src="https://www.alertiqa.edu.sa/images/nav.png"
                  alt="{{ config('app.name') }}"
                  width="80"
-                 style="display:inline-block;height:auto;max-height:30px;object-fit:contain;opacity:.6;margin-bottom:10px;">
+                 style="display:inline-block;height:auto;max-height:30px;object-fit:contain;opacity:.5;margin-bottom:10px;filter:brightness(0);">
             <p style="margin:0 0 4px;font-size:13px;font-weight:700;color:#475569;font-family:'Cairo',Arial,sans-serif;">
               {{ config('app.name') }}
             </p>
