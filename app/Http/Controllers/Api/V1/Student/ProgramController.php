@@ -62,12 +62,18 @@ class ProgramController extends Controller
                 if ($isDiploma) {
                     $program->loadMissing('supervisor');
                     $classId = auth()->user()->classIdForProgram($program->id);
+
+                    // Prefer the student's own class terms; fall back to shared (class_id NULL)
+                    $hasClassTerms = $classId
+                        ? \App\Models\Term::where('program_id', $program->id)->where('class_id', $classId)->exists()
+                        : false;
+                    $termScope = fn($q) => $hasClassTerms ? $q->where('class_id', $classId) : $q->whereNull('class_id');
+
                     $currentTerm = $program->terms()
                         ->where('status', 'active')
-                        ->where(fn($q) => $q->whereNull('class_id')->orWhere('class_id', $classId))
+                        ->where(fn($q) => $termScope($q))
                         ->orderBy('term_number')
-                        ->with(['subjects' => fn($q) => $q
-                            ->where(fn($sq) => $sq->whereNull('class_id')->orWhere('class_id', $classId))
+                        ->with(['subjects' => fn($q) => $termScope($q)
                             ->with('teacher:id,name,specialization,profile_photo')])
                         ->first();
                 } else {
@@ -159,11 +165,14 @@ class ProgramController extends Controller
 
         $filter = $request->query('filter', 'current'); // current | past | all
 
-        // Scope to the student's class for this program (plus shared/program-wide records)
+        // Prefer the student's own class terms; fall back to shared (class_id NULL)
         $classId = $student->classIdForProgram($program->id);
+        $hasClassTerms = $classId
+            ? \App\Models\Term::where('program_id', $program->id)->where('class_id', $classId)->exists()
+            : false;
+        $termScope = fn($q) => $hasClassTerms ? $q->where('class_id', $classId) : $q->whereNull('class_id');
 
-        $termsQuery = $program->terms()->orderBy('term_number')
-            ->where(fn($q) => $q->whereNull('class_id')->orWhere('class_id', $classId));
+        $termsQuery = $program->terms()->orderBy('term_number')->where(fn($q) => $termScope($q));
 
         if ($filter === 'current') {
             // Try active terms first; fall back to current_term_number
@@ -196,7 +205,7 @@ class ProgramController extends Controller
                 $q->whereIn('term_id', $termIds)
                   ->orWhereHas('terms', fn($tq) => $tq->whereIn('terms.id', $termIds));
             })
-            ->where(fn($q) => $q->whereNull('class_id')->orWhere('class_id', $classId));
+            ->where(fn($q) => $termScope($q));
 
         $subjects = $subjectQuery->get();
 
@@ -300,10 +309,7 @@ class ProgramController extends Controller
         }
 
         // Determine the student's class for this program
-        $pivotClassId = $student->programs()
-            ->where('programs.id', $program->id)
-            ->first()?->pivot?->class_id;
-        $classId = $pivotClassId ?? ($student->program_id === $program->id ? $student->class_id : null);
+        $classId = $student->classIdForProgram($program->id);
 
         // Filter sessions by program and class (if assigned to a class)
         $sessionQuery = Session::where('program_id', $program->id)

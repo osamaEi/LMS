@@ -382,8 +382,8 @@
         const weekDays = [];
         for(let i=0;i<7;i++){ const d=new Date(ws); d.setDate(d.getDate()+i); weekDays.push(d); }
 
-        // Fixed hourly columns from 9 AM to 9 PM
-        const START_HOUR = 9, END_HOUR = 21;
+        // Fixed hourly columns from 9 AM to 6 PM
+        const START_HOUR = 9, END_HOUR = 18;
         const hourLabel = h => { const ap=h>=12?'م':'ص'; const hh=h%12||12; return hh+':00 '+ap; };
         const slots = [];
         for(let h=START_HOUR; h<=END_HOUR; h++) slots.push(h);   // slots hold the hour number
@@ -400,34 +400,35 @@
         });
 
         // Header row (time slots across the top; first column = "اليوم")
-        let head = `<th style="padding:5px 3px;background:#0071AA;color:#fff;font-size:9px;font-weight:700;border:1px solid #e5e7eb;width:46px;">اليوم</th>`;
+        let head = `<th style="padding:10px 6px;background:#0071AA;color:#fff;font-size:12px;font-weight:700;border:1px solid #e5e7eb;width:70px;">اليوم</th>`;
         slots.forEach(slot=>{
-            head += `<th style="padding:5px 2px;background:#0071AA;color:#fff;font-size:9px;font-weight:700;border:1px solid #e5e7eb;">${hourLabel(slot)}</th>`;
+            head += `<th style="padding:10px 4px;background:#0071AA;color:#fff;font-size:12px;font-weight:700;border:1px solid #e5e7eb;white-space:nowrap;">${hourLabel(slot)}</th>`;
         });
 
         // Body rows (one per day)
         let body='';
         weekDays.forEach((d,i)=>{
             const today = sameDay(d,TODAY);
-            let row = `<td style="padding:4px 2px;text-align:center;font-size:9px;font-weight:700;color:#fff;background:${today?'#005a88':'#0071AA'};border:1px solid #e5e7eb;line-height:1.2;">
-                ${DAY_NAMES[i]}<br><span style="font-size:8px;opacity:.85;">${d.getDate()}/${d.getMonth()+1}</span>
+            let row = `<td style="padding:10px 6px;text-align:center;font-size:12px;font-weight:700;color:#fff;background:${today?'#005a88':'#0071AA'};border:1px solid #e5e7eb;line-height:1.4;">
+                ${DAY_NAMES[i]}<br><span style="font-size:10px;opacity:.85;">${d.getDate()}/${d.getMonth()+1}</span>
             </td>`;
             slots.forEach(slot=>{
                 const items = cellMap[i+'|'+slot] || [];
                 const inner = items.map(s=>{
                     const c=st(s.status);
-                    return `<div style="background:#eff6ff;border-right:2px solid #0071AA;border-radius:4px;padding:2px 3px;margin-bottom:2px;line-height:1.25;">
-                        <div style="font-size:9px;font-weight:700;color:#0071AA;">${fmtTime(parse(s.at))}</div>
-                        <div style="font-size:9px;font-weight:700;color:#1e3a8a;">${s.title}</div>
+                    return `<div style="background:#eff6ff;border-right:3px solid #0071AA;border-radius:6px;padding:6px 8px;margin-bottom:4px;line-height:1.35;">
+                        <div style="font-size:11px;font-weight:700;color:#0071AA;">${fmtTime(parse(s.at))}</div>
+                        <div style="font-size:12px;font-weight:700;color:#1e3a8a;">${s.title}</div>
+                        ${s.subject?`<div style="font-size:10px;color:#64748b;">${s.subject}</div>`:''}
                     </div>`;
                 }).join('');
-                row += `<td style="padding:2px;vertical-align:top;border:1px solid #e5e7eb;${today?'background:#f8fdff;':''}">${inner||'<div style="text-align:center;color:#e5e7eb;font-size:9px;">·</div>'}</td>`;
+                row += `<td style="height:72px;padding:5px;vertical-align:top;border:1px solid #e5e7eb;${today?'background:#f8fdff;':''}">${inner||'<div style="text-align:center;color:#e5e7eb;font-size:12px;">·</div>'}</td>`;
             });
             body += `<tr>${row}</tr>`;
         });
 
-        return `<div style="padding:10px;">
-            <table style="width:100%;border-collapse:collapse;table-layout:fixed;">
+        return `<div style="padding:14px;overflow-x:auto;">
+            <table style="width:100%;min-width:880px;border-collapse:collapse;table-layout:fixed;">
                 <thead><tr>${head}</tr></thead>
                 <tbody>${body}</tbody>
             </table>

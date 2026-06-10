@@ -86,13 +86,7 @@ class SubjectController extends Controller
         $subjectProgramId = $subject->term?->program_id
             ?? $subject->terms()->pluck('program_id')->first();
 
-        $classId = null;
-        if ($subjectProgramId) {
-            $pivotClassId = $student->programs()
-                ->where('programs.id', $subjectProgramId)
-                ->first()?->pivot?->class_id;
-            $classId = $pivotClassId ?? ($student->program_id == $subjectProgramId ? $student->class_id : null);
-        }
+        $classId = $subjectProgramId ? $student->classIdForProgram((int) $subjectProgramId) : null;
 
         // Guard: a class-scoped subject must match the student's class
         if ($subject->class_id !== null && $subject->class_id != $classId) {
