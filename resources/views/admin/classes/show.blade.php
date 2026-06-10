@@ -436,15 +436,15 @@
                 const inner = items.map(s=>{
                     // Avoid repeating the subject name when the title already contains it
                     const showSub = s.subject && !(s.title || '').includes(s.subject);
-                    return `<div style="background:#eff6ff;border-right:3px solid #0071AA;border-radius:6px;padding:6px 8px;margin-bottom:4px;line-height:1.35;position:relative;">
-                        <div style="display:flex;gap:4px;justify-content:flex-start;margin-bottom:3px;">
+                    return `<div style="background:#eff6ff;border-right:3px solid #0071AA;border-radius:6px;padding:6px 8px;margin-bottom:4px;line-height:1.35;">
+                        <div style="font-size:12px;font-weight:700;color:#1e3a8a;">${s.title}</div>
+                        ${showSub?`<div style="font-size:10px;color:#64748b;">${s.subject}</div>`:''}
+                        <div style="display:flex;gap:4px;justify-content:flex-start;margin-top:5px;">
                             <button type="button" onclick="rescheduleSession(${s.id}, '${s.at}')" title="تعديل الموعد"
                                     style="width:20px;height:20px;border:none;border-radius:5px;background:#dbeafe;color:#1d4ed8;cursor:pointer;font-size:10px;line-height:1;">✎</button>
                             <button type="button" onclick="deleteSession(${s.id})" title="حذف"
                                     style="width:20px;height:20px;border:none;border-radius:5px;background:#fee2e2;color:#dc2626;cursor:pointer;font-size:11px;line-height:1;">🗑</button>
                         </div>
-                        <div style="font-size:12px;font-weight:700;color:#1e3a8a;">${s.title}</div>
-                        ${showSub?`<div style="font-size:10px;color:#64748b;">${s.subject}</div>`:''}
                     </div>`;
                 }).join('');
                 row += `<td style="height:80px;padding:5px;vertical-align:top;border:1px solid #d6e4f0;${today?'background:#f8fdff;':''}">${inner}</td>`;

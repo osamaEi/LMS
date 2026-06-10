@@ -57,7 +57,7 @@ class StudentController extends Controller
             'name'                => 'required|string|max:255',
             'email'               => 'required|email|unique:users,email',
             'national_id'         => 'required|digits:10|unique:users,national_id',
-            'phone'               => 'nullable|string|max:20',
+            'phone'               => 'nullable|string|max:20|unique:users,phone',
             'gender'              => 'nullable|in:male,female',
             'date_of_birth'       => 'nullable|date',
             'nationality'         => 'nullable|string|max:100',
@@ -79,6 +79,7 @@ class StudentController extends Controller
             'national_id.required'     => 'رقم الهوية مطلوب.',
             'national_id.digits'       => 'رقم الهوية يجب أن يكون 10 أرقام.',
             'national_id.unique'       => 'رقم الهوية مستخدم مسبقاً.',
+            'phone.unique'             => 'رقم الهاتف مستخدم مسبقاً.',
             'password.required'        => 'كلمة المرور مطلوبة.',
             'password.min'             => 'كلمة المرور يجب أن تكون 8 أحرف على الأقل.',
             'password.confirmed'       => 'تأكيد كلمة المرور غير متطابق.',
@@ -174,7 +175,7 @@ class StudentController extends Controller
             'name'                => 'required|string|max:255',
             'email'               => 'required|email|unique:users,email,' . $student->id,
             'national_id'         => 'required|digits:10|unique:users,national_id,' . $student->id,
-            'phone'               => 'nullable|string|max:20',
+            'phone'               => 'nullable|string|max:20|unique:users,phone,' . $student->id,
             'gender'              => 'nullable|in:male,female',
             'date_of_birth'       => 'nullable|date',
             'nationality'         => 'nullable|string|max:100',
@@ -187,6 +188,11 @@ class StudentController extends Controller
             'password'            => 'nullable|string|min:8|confirmed',
             'program_ids'         => 'nullable|array',
             'program_ids.*'       => 'exists:programs,id',
+        ], [
+            'email.unique'       => 'البريد الإلكتروني مستخدم مسبقاً.',
+            'national_id.unique' => 'رقم الهوية مستخدم مسبقاً.',
+            'national_id.digits' => 'رقم الهوية يجب أن يكون 10 أرقام.',
+            'phone.unique'       => 'رقم الهاتف مستخدم مسبقاً.',
         ]);
 
         $programIds = $validated['program_ids'] ?? null;
