@@ -121,18 +121,21 @@ class ProgramClassController extends Controller
 
         $class->loadMissing('students');
 
+        // Errors should land back on the Sessions tab of this class
+        $err = fn($msg) => redirect()->to(route('admin.classes.show', $class->id) . '#sessions')->with('error', $msg);
+
         // Resolve FK column/value + title label + the end-of-period date
         if ($isDiploma) {
             $subject = \App\Models\Subject::with(['term', 'teachers'])->findOrFail($data['subject_id']);
             if ($subject->class_id != $class->id) {
-                return back()->with('error', 'المقرر لا يخص هذه المجموعة');
+                return $err('المقرر لا يخص هذه المجموعة');
             }
             // The session teacher must be one assigned to this subject
             $assignedTeacherIds = $subject->teachers->pluck('id')
                 ->merge($subject->teacher_id ? [$subject->teacher_id] : [])
                 ->unique();
             if (!$assignedTeacherIds->contains((int) $data['teacher_id'])) {
-                return back()->with('error', 'المدرب المختار غير معيّن لهذا المقرر');
+                return $err('المدرب المختار غير معيّن لهذا المقرر');
             }
             $fkCol = 'subject_id';
             $fkVal = $subject->id;
@@ -151,7 +154,7 @@ class ProgramClassController extends Controller
         // No auto end date — use the one the admin entered, and persist it for next time
         if (!$end) {
             if (empty($data['end_date'])) {
-                return back()->with('error', 'حدّد تاريخ نهاية الجلسات');
+                return $err('حدّد تاريخ نهاية الجلسات');
             }
             $end = \Carbon\Carbon::parse($data['end_date']);
             if ($isDiploma && $subject->term) {
@@ -170,7 +173,7 @@ class ProgramClassController extends Controller
         $days  = array_map('intval', $data['days']);
 
         if ($start->gt($end)) {
-            return back()->with('error', 'تاريخ البداية بعد نهاية الفترة');
+            return $err('تاريخ البداية بعد نهاية الفترة');
         }
 
         $dates = [];
@@ -183,7 +186,7 @@ class ProgramClassController extends Controller
         }
 
         if (empty($dates)) {
-            return back()->with('error', 'لا توجد أيام مطابقة في الفترة المحددة');
+            return $err('لا توجد أيام مطابقة في الفترة المحددة');
         }
 
         $nextNumber = \App\Models\Session::where($fkCol, $fkVal)->where('class_id', $class->id)->max('session_number') ?? 0;
@@ -214,7 +217,8 @@ class ProgramClassController extends Controller
             $created++;
         }
 
-        return back()->with('success', "تم إنشاء {$created} جلسة وإسناد {$students->count()} طالب لكل جلسة");
+        return redirect()->to(route('admin.classes.show', $class->id) . '#sessions')
+            ->with('success', "تم إنشاء {$created} جلسة وإسناد {$students->count()} طالب لكل جلسة");
     }
 
     /**

@@ -429,7 +429,13 @@
                 const inner = items.map(s=>{
                     // Avoid repeating the subject name when the title already contains it
                     const showSub = s.subject && !(s.title || '').includes(s.subject);
-                    return `<div style="background:#eff6ff;border-right:3px solid #0071AA;border-radius:6px;padding:6px 8px;margin-bottom:4px;line-height:1.35;">
+                    return `<div style="background:#eff6ff;border-right:3px solid #0071AA;border-radius:6px;padding:6px 8px;margin-bottom:4px;line-height:1.35;position:relative;">
+                        <div style="display:flex;gap:4px;justify-content:flex-start;margin-bottom:3px;">
+                            <button type="button" onclick="rescheduleSession(${s.id}, '${s.at}')" title="تعديل الموعد"
+                                    style="width:20px;height:20px;border:none;border-radius:5px;background:#dbeafe;color:#1d4ed8;cursor:pointer;font-size:10px;line-height:1;">✎</button>
+                            <button type="button" onclick="deleteSession(${s.id})" title="حذف"
+                                    style="width:20px;height:20px;border:none;border-radius:5px;background:#fee2e2;color:#dc2626;cursor:pointer;font-size:11px;line-height:1;">🗑</button>
+                        </div>
                         <div style="font-size:12px;font-weight:700;color:#1e3a8a;">${s.title}</div>
                         ${showSub?`<div style="font-size:10px;color:#64748b;">${s.subject}</div>`:''}
                     </div>`;
@@ -493,6 +499,29 @@
 
     render();
 })();
+
+// ── Edit / delete a session from the weekly grid ──
+const _SESS_CSRF = '{{ csrf_token() }}';
+window.rescheduleSession = function(id, currentAt){
+    // currentAt = "Y-m-d H:i:s"
+    const cur = (currentAt || '').slice(0,16).replace(' ','T');
+    const val = prompt('الموعد الجديد (YYYY-MM-DD HH:MM):', cur.replace('T',' '));
+    if(!val) return;
+    const scheduled = val.trim().replace('T',' ');
+    fetch(`/admin/sessions/${id}/reschedule`, {
+        method:'POST',
+        headers:{'Content-Type':'application/json','Accept':'application/json','X-CSRF-TOKEN':_SESS_CSRF},
+        body: JSON.stringify({ scheduled_at: scheduled })
+    }).then(r=>r.json()).then(d=>{ if(d.success){ location.hash='#sessions'; location.reload(); } else { alert(d.message||'تعذّر التعديل'); } });
+};
+window.deleteSession = function(id){
+    if(!confirm('حذف هذه الجلسة؟')) return;
+    fetch(`/admin/sessions/${id}`, {
+        method:'POST',
+        headers:{'Content-Type':'application/json','Accept':'application/json','X-CSRF-TOKEN':_SESS_CSRF},
+        body: JSON.stringify({ _method:'DELETE' })
+    }).then(r=>r.json().catch(()=>({success:r.ok}))).then(d=>{ if(d.success!==false){ location.hash='#sessions'; location.reload(); } else { alert('تعذّر الحذف'); } });
+};
 </script>
 </div>{{-- /ctab-sessions --}}
 
@@ -607,8 +636,17 @@ function switchClassTab(tab){
                         <input type="date" name="start_date" required value="{{ $class->start_date?->format('Y-m-d') }}" style="width:100%;padding:9px 12px;font-size:13px;border:1.5px solid #e2e8f0;border-radius:10px;outline:none;font-family:inherit;">
                     </div>
                     <div>
-                        <label style="display:block;font-size:11px;font-weight:700;color:#475569;margin-bottom:6px;">الوقت *</label>
-                        <input type="time" name="time" required style="width:100%;padding:9px 12px;font-size:13px;border:1.5px solid #e2e8f0;border-radius:10px;outline:none;font-family:inherit;">
+                        <label style="display:block;font-size:11px;font-weight:700;color:#475569;margin-bottom:6px;">الفترة (الوقت) *</label>
+                        <select name="time" required style="width:100%;padding:9px 12px;font-size:13px;border:1.5px solid #e2e8f0;border-radius:10px;outline:none;font-family:inherit;background:white;">
+                            <option value="">— اختر الفترة —</option>
+                            <option value="08:10">الفترة الصباحية (1) — 8:10</option>
+                            <option value="09:30">الفترة الصباحية (2) — 9:30</option>
+                            <option value="10:50">الفترة الصباحية (3) — 10:50</option>
+                            <option value="12:20">الفترة المسائية (1) — 12:20</option>
+                            <option value="13:35">الفترة المسائية (2) — 1:35</option>
+                            <option value="14:50">الفترة المسائية (3) — 2:50</option>
+                            <option value="16:00">الفترة المسائية (4) — 4:00</option>
+                        </select>
                     </div>
                 </div>
 
