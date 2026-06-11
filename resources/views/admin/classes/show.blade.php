@@ -232,12 +232,7 @@
             <span style="background:#eef2ff;color:#4338ca;border-radius:9999px;padding:.12rem .55rem;font-size:.68rem;font-weight:700;">{{ $sessions->count() }}</span>
         </div>
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-            {{-- View switcher --}}
-            <div style="display:inline-flex;background:#f1f5f9;border-radius:10px;padding:3px;">
-                <button type="button" id="vbtn-list"  onclick="calSetView('list')"  style="padding:7px 16px;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;background:white;color:#0071AA;box-shadow:0 1px 3px rgba(0,0,0,.1);">قائمة</button>
-                <button type="button" id="vbtn-week"  onclick="calSetView('week')"  style="padding:7px 16px;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;background:transparent;color:#64748b;">أسبوعي</button>
-                <button type="button" id="vbtn-month" onclick="calSetView('month')" style="padding:7px 16px;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;background:transparent;color:#64748b;">شهري</button>
-            </div>
+            {{-- View: weekly only --}}
             <button @click="sessionModal = true"
                     style="display:flex;align-items:center;gap:6px;padding:8px 16px;border-radius:10px;background:linear-gradient(135deg,#0071AA,#004d77);color:white;font-size:12px;font-weight:700;border:none;cursor:pointer;">
                 <svg style="width:14px;height:14px;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
@@ -277,7 +272,7 @@
     </div>
 
     {{-- Period nav (hidden for list) --}}
-    <div id="calNav" style="display:none;align-items:center;justify-content:center;gap:16px;padding:14px;border-bottom:1px solid #f1f5f9;background:white;">
+    <div id="calNav" style="display:flex;align-items:center;justify-content:center;gap:16px;padding:14px;border-bottom:1px solid #f1f5f9;background:white;">
         <button type="button" onclick="calPrev()" style="width:36px;height:36px;border-radius:10px;border:1.5px solid #e5e7eb;background:white;cursor:pointer;color:#374151;font-size:18px;">&#8249;</button>
         <h3 id="calTitle" style="font-size:16px;font-weight:700;color:#111827;margin:0;min-width:200px;text-align:center;"></h3>
         <button type="button" onclick="calNext()" style="width:36px;height:36px;border-radius:10px;border:1.5px solid #e5e7eb;background:white;cursor:pointer;color:#374151;font-size:18px;">&#8250;</button>
@@ -299,7 +294,7 @@
         completed:['#dcfce7','#15803d','مكتملة'],
         cancelled:['#fee2e2','#dc2626','ملغاة'],
     };
-    let view = 'list';
+    let view = 'week';
     let cur  = new Date();
     let filters = { q: '', subject: '', status: '' };
 
@@ -335,14 +330,7 @@
 
     window.calSetView = function(v){
         view = v;
-        ['list','week','month'].forEach(x=>{
-            const b=document.getElementById('vbtn-'+x);
-            const on = x===v;
-            b.style.background = on?'white':'transparent';
-            b.style.color = on?'#0071AA':'#64748b';
-            b.style.boxShadow = on?'0 1px 3px rgba(0,0,0,.1)':'none';
-        });
-        document.getElementById('calNav').style.display = v==='list'?'none':'flex';
+        document.getElementById('calNav').style.display = 'flex';
         render();
     };
     window.calPrev = function(){ if(view==='week') cur.setDate(cur.getDate()-7); else cur.setMonth(cur.getMonth()-1); render(); };
