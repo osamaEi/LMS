@@ -459,6 +459,220 @@
         $firstProgId = array_key_first($programsSessionData ?? []);
     @endphp
 
+    {{-- View switcher --}}
+    <div style="display:flex;align-items:center;gap:8px;background:#fff;border-radius:16px;box-shadow:0 1px 3px rgba(0,0,0,.05);margin-bottom:16px;padding:10px 16px;">
+        <button onclick="switchMainView('weekly')" id="mv-weekly"
+            style="padding:8px 20px;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;background:linear-gradient(135deg,#0071AA,#005a88);color:white;box-shadow:0 2px 8px rgba(0,113,170,.25);">
+            أسبوعي
+        </button>
+        <button onclick="switchMainView('list')" id="mv-list"
+            style="padding:8px 20px;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;background:transparent;color:#6b7280;">
+            قائمة
+        </button>
+    </div>
+
+    {{-- Weekly view --}}
+    <div id="main-view-weekly">
+    @php
+        $allCalSessions = collect();
+        foreach ($programsSessionData as $pd) {
+            foreach ($pd['sessions'] as $s) {
+                if (!$s->scheduled_at) continue;
+                $att = $pd['attendances'][$s->id] ?? null;
+                $allCalSessions->push([
+                    'id'               => $s->id,
+                    'title'            => $s->title_ar ?: ($s->subject->name_ar ?? $pd['program']->name ?? 'جلسة'),
+                    'subject_name'     => $s->subject->name_ar ?? '',
+                    'scheduled_at'     => \Carbon\Carbon::parse($s->scheduled_at)->toIso8601String(),
+                    'duration_minutes' => $s->duration_minutes ?? 60,
+                    'type'             => $s->type ?? '',
+                    'status'           => (string)($s->status ?? ''),
+                    'session_number'   => $s->session_number,
+                    'zoom_join_url'    => $s->zoom_link ?? $s->zoom_join_url ?? null,
+                    'attended'         => $att ? (bool)$att->attended : null,
+                ]);
+            }
+        }
+    @endphp
+
+    <div style="background:white;border-radius:18px;border:1px solid #e5e7eb;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.06);">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;padding:16px 20px;border-bottom:1px solid #f1f5f9;background:#fafafa;">
+            <span style="font-size:15px;font-weight:700;color:#111827;">الجدول الأسبوعي</span>
+            <div style="display:flex;align-items:center;gap:10px;">
+                <button type="button" onclick="calPrev()" style="width:36px;height:36px;border-radius:10px;border:1.5px solid #e5e7eb;background:white;cursor:pointer;color:#374151;font-size:18px;">&#8249;</button>
+                <h3 id="calTitle" style="font-size:16px;font-weight:700;color:#111827;margin:0;min-width:220px;text-align:center;"></h3>
+                <button type="button" onclick="calNext()" style="width:36px;height:36px;border-radius:10px;border:1.5px solid #e5e7eb;background:white;cursor:pointer;color:#374151;font-size:18px;">&#8250;</button>
+                <button type="button" onclick="calToday()" style="padding:8px 14px;border-radius:10px;border:1.5px solid #e5e7eb;background:white;cursor:pointer;color:#0071AA;font-size:12px;font-weight:700;">اليوم</button>
+            </div>
+        </div>
+        <div id="calBody" style="overflow-x:auto;"></div>
+    </div>
+
+    {{-- Session detail modal --}}
+    <div id="sessionModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.5);align-items:center;justify-content:center;padding:16px;">
+        <div style="background:white;border-radius:20px;width:100%;max-width:420px;box-shadow:0 20px 60px rgba(0,0,0,.25);overflow:hidden;">
+            <div style="padding:18px 20px;background:linear-gradient(135deg,#0f172a,#0071AA);display:flex;align-items:center;justify-content:space-between;">
+                <h3 id="smTitle" style="color:white;font-size:15px;font-weight:700;margin:0;"></h3>
+                <button onclick="document.getElementById('sessionModal').style.display='none'" style="background:rgba(255,255,255,.15);border:none;border-radius:8px;width:28px;height:28px;color:white;cursor:pointer;font-size:16px;">×</button>
+            </div>
+            <div id="smBody" style="padding:18px;"></div>
+        </div>
+    </div>
+
+    <script>
+    const CAL_SESSIONS = @json($allCalSessions->values());
+    const TODAY_CAL = new Date();
+    let curCal = new Date();
+
+    const DAY_NAMES_CAL   = ['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+    const MONTH_NAMES_CAL = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+
+    const tMin = (h,m) => h*60+m;
+    const PERIODS_CAL = [
+        { e:tMin(9,20),  range:'9:20 - 8:10',   name:'الفترة الصباحية (1)' },
+        { e:tMin(10,40), range:'10:40 - 9:30',  name:'الفترة الصباحية (2)' },
+        { e:tMin(12,0),  range:'12:00 - 10:50', name:'الفترة الصباحية (3)' },
+        { e:tMin(13,25), range:'1:25 - 12:20',  name:'الفترة المسائية (1)' },
+        { e:tMin(14,40), range:'2:40 - 1:35',   name:'الفترة المسائية (2)' },
+        { e:tMin(15,55), range:'3:55 - 2:50',   name:'الفترة المسائية (3)' },
+        { e:tMin(17,15), range:'5:15 - 4:00',   name:'الفترة المسائية (4)' },
+    ];
+    const getPeriod = mins => { for(let p=0;p<PERIODS_CAL.length;p++) if(mins<PERIODS_CAL[p].e) return p; return PERIODS_CAL.length-1; };
+
+    function sameDayCal(a,b){ return a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate(); }
+    function fmtTimeCal(iso){ const d=new Date(iso); let h=d.getHours(),m=String(d.getMinutes()).padStart(2,'0'); return (h%12||12)+':'+m+(h<12?' ص':' م'); }
+    function typeStyleCal(type){
+        if(type==='live_zoom')      return {bg:'#dbeafe',color:'#1d4ed8',label:'Zoom'};
+        if(type==='in_person')      return {bg:'#dcfce7',color:'#15803d',label:'حضوري'};
+        if(type==='recorded_video') return {bg:'#fce7f3',color:'#be185d',label:'مسجّل'};
+        return {bg:'#f3f4f6',color:'#4b5563',label:type||'—'};
+    }
+    function weekStartCal(d){ const c=new Date(d); c.setDate(c.getDate()-c.getDay()); c.setHours(0,0,0,0); return c; }
+    function sessionsOnDayCal(date){ return CAL_SESSIONS.filter(s=>s.scheduled_at&&sameDayCal(new Date(s.scheduled_at),date)).sort((a,b)=>new Date(a.scheduled_at)-new Date(b.scheduled_at)); }
+
+    function openSessionCal(s){
+        document.getElementById('smTitle').textContent = s.title||('جلسة #'+s.session_number);
+        document.getElementById('sessionModal').style.display='flex';
+        const ts=typeStyleCal(s.type);
+        const statusBg    = s.status==='completed'?'#dcfce7':s.status==='live'?'#fee2e2':'#dbeafe';
+        const statusColor = s.status==='completed'?'#15803d':s.status==='live'?'#dc2626':'#1d4ed8';
+        const statusLabel = s.status==='completed'?'مكتملة':s.status==='live'?'● مباشر':'مجدولة';
+        const rows=[
+            s.scheduled_at?['📅 الموعد', new Date(s.scheduled_at).toLocaleDateString('ar-SA',{weekday:'long',year:'numeric',month:'long',day:'numeric'})+' — '+fmtTimeCal(s.scheduled_at)]:null,
+            s.duration_minutes?['⏱ المدة', s.duration_minutes+' دقيقة']:null,
+            s.subject_name?['📚 المادة', s.subject_name]:null,
+            ['🔖 النوع', ts.label],
+            ['📊 الحالة', statusLabel],
+            s.attended!==null?['✅ الحضور', s.attended?'حضرت':'غائب']:null,
+        ].filter(Boolean);
+        let html='<div style="display:flex;flex-direction:column;gap:10px;">';
+        rows.forEach(([k,v])=>{
+            html+=`<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:#f8fafc;border-radius:9px;">
+                <span style="font-size:12px;color:#64748b;min-width:90px;">${k}</span>
+                <span style="font-size:13px;font-weight:600;color:#1e293b;">${v}</span>
+            </div>`;
+        });
+        if(s.zoom_join_url&&s.status!=='completed'){
+            html+=`<a href="${s.zoom_join_url}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:white;border-radius:10px;text-decoration:none;font-size:13px;font-weight:700;margin-top:4px;">
+                <svg width="16" height="16" fill="white" viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
+                انضمام عبر Zoom
+            </a>`;
+        }
+        if(s.status==='completed'){
+            html+=`<div style="text-align:center;padding:8px;background:#f0fdf4;border-radius:10px;font-size:13px;font-weight:600;color:#15803d;">✓ انتهت هذه الجلسة</div>`;
+        }
+        html+='</div>';
+        document.getElementById('smBody').innerHTML=html;
+    }
+
+    function renderCal(){
+        const ws=weekStartCal(curCal);
+        const wend=new Date(ws.getFullYear(),ws.getMonth(),ws.getDate()+6);
+        document.getElementById('calTitle').textContent=ws.getDate()+' '+MONTH_NAMES_CAL[ws.getMonth()]+' — '+wend.getDate()+' '+MONTH_NAMES_CAL[wend.getMonth()]+' '+wend.getFullYear();
+
+        const weekDays=[];
+        for(let i=0;i<5;i++){ const d=new Date(ws); d.setDate(d.getDate()+i); weekDays.push(d); }
+
+        const cellMap={};
+        weekDays.forEach((d,i)=>{
+            sessionsOnDayCal(d).forEach(s=>{
+                const dt=new Date(s.scheduled_at); const mins=dt.getHours()*60+dt.getMinutes();
+                const p=getPeriod(mins);
+                (cellMap[i+'|'+p]=cellMap[i+'|'+p]||[]).push(s);
+            });
+        });
+
+        let head=`<th style="padding:10px 6px;background:#0071AA;color:#fff;font-size:12px;font-weight:700;border:1px solid #fff;width:80px;">اليوم<br><span style="font-size:10px;opacity:.85;">الفترة</span></th>`;
+        PERIODS_CAL.forEach(p=>{
+            head+=`<th style="padding:8px 6px;background:#0071AA;color:#fff;font-size:12px;font-weight:700;border:1px solid #fff;line-height:1.6;">
+                ${p.name}<br><bdi dir="ltr" style="font-size:11px;font-weight:600;opacity:.9;display:inline-block;unicode-bidi:isolate;">${p.range}</bdi>
+            </th>`;
+        });
+
+        let body='';
+        weekDays.forEach((d,i)=>{
+            const isToday=sameDayCal(d,TODAY_CAL);
+            let row=`<td style="padding:10px 6px;text-align:center;font-size:13px;font-weight:700;color:#fff;background:${isToday?'#005a88':'#0071AA'};border:1px solid #fff;line-height:1.4;">
+                ${DAY_NAMES_CAL[i]}<br><span style="font-size:11px;font-weight:500;opacity:.85;">${d.getDate()} ${MONTH_NAMES_CAL[d.getMonth()]}</span>
+            </td>`;
+            PERIODS_CAL.forEach((p,pi)=>{
+                const items=cellMap[i+'|'+pi]||[];
+                const inner=items.map(s=>{
+                    const ts=typeStyleCal(s.type);
+                    const statusBg    = s.status==='completed'?'#dcfce7':s.status==='live'?'#fee2e2':'#eff6ff';
+                    const statusColor = s.status==='completed'?'#15803d':s.status==='live'?'#dc2626':'#1e3a8a';
+                    const statusLabel = s.status==='completed'?'مكتملة':s.status==='live'?'● مباشر':'مجدولة';
+                    const showSub = s.subject_name && !(s.title||'').includes(s.subject_name);
+                    const attendedBadge = s.attended===true?`<span style="background:#dcfce7;color:#15803d;font-size:10px;font-weight:600;padding:1px 6px;border-radius:20px;">حضرت</span>`:s.attended===false?`<span style="background:#fee2e2;color:#dc2626;font-size:10px;font-weight:600;padding:1px 6px;border-radius:20px;">غائب</span>`:'';
+                    return `<div onclick='openSessionCal(${JSON.stringify(s)})' style="background:#eff6ff;border-right:3px solid #0071AA;border-radius:6px;padding:6px 8px;margin-bottom:4px;line-height:1.35;cursor:pointer;">
+                        <div style="font-size:12px;font-weight:700;color:#1e3a8a;">${s.title||s.subject_name||'جلسة'}</div>
+                        ${showSub?`<div style="font-size:10px;color:#64748b;">${s.subject_name}</div>`:''}
+                        <div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:4px;">
+                            <span style="background:${ts.bg};color:${ts.color};font-size:10px;font-weight:600;padding:1px 6px;border-radius:20px;">${ts.label}</span>
+                            <span style="background:${statusBg};color:${statusColor};font-size:10px;font-weight:600;padding:1px 6px;border-radius:20px;">${statusLabel}</span>
+                            ${attendedBadge}
+                            ${(s.status==='live'||s.status==='scheduled')&&s.zoom_join_url
+                                ?`<a href="${s.zoom_join_url}" target="_blank" onclick="event.stopPropagation()" style="background:#2563eb;color:white;font-size:10px;font-weight:700;padding:1px 7px;border-radius:20px;text-decoration:none;">📹 انضم</a>`
+                                :''}
+                        </div>
+                    </div>`;
+                }).join('');
+                row+=`<td style="min-height:80px;padding:5px;vertical-align:top;border:1px solid #d6e4f0;${isToday?'background:#f8fdff;':''}">${inner}</td>`;
+            });
+            body+=`<tr>${row}</tr>`;
+        });
+
+        document.getElementById('calBody').innerHTML=`
+            <table style="width:100%;min-width:1000px;border-collapse:collapse;table-layout:fixed;">
+                <thead><tr>${head}</tr></thead>
+                <tbody>${body}</tbody>
+            </table>`;
+    }
+
+    function calPrev(){ curCal.setDate(curCal.getDate()-7); renderCal(); }
+    function calNext(){ curCal.setDate(curCal.getDate()+7); renderCal(); }
+    function calToday(){ curCal=new Date(); renderCal(); }
+
+    renderCal();
+
+    function switchMainView(v){
+        document.getElementById('main-view-weekly').style.display = v==='weekly'?'block':'none';
+        document.getElementById('main-view-list').style.display   = v==='list'  ?'block':'none';
+        const wBtn=document.getElementById('mv-weekly'), lBtn=document.getElementById('mv-list');
+        if(v==='weekly'){
+            wBtn.style.background='linear-gradient(135deg,#0071AA,#005a88)'; wBtn.style.color='white'; wBtn.style.boxShadow='0 2px 8px rgba(0,113,170,.25)';
+            lBtn.style.background='transparent'; lBtn.style.color='#6b7280'; lBtn.style.boxShadow='none';
+        } else {
+            lBtn.style.background='linear-gradient(135deg,#0071AA,#005a88)'; lBtn.style.color='white'; lBtn.style.boxShadow='0 2px 8px rgba(0,113,170,.25)';
+            wBtn.style.background='transparent'; wBtn.style.color='#6b7280'; wBtn.style.boxShadow='none';
+        }
+    }
+    </script>
+    </div>{{-- /main-view-weekly --}}
+
+    {{-- List view --}}
+    <div id="main-view-list" style="display:none;">
+
     @if(!empty($programsSessionData) && count($programsSessionData) > 0)
 
     {{-- Program tabs bar (only shown if more than 1 program) --}}
@@ -724,6 +938,8 @@
         <p>يرجى التواصل مع الإدارة لتسجيلك في برنامج تدريبي</p>
     </div>
     @endif
+
+    </div>{{-- /main-view-list --}}
 
 </div>
 @endsection
