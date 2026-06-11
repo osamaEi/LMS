@@ -3,9 +3,10 @@
 namespace App\Http\Controllers\Teacher;
 
 use App\Http\Controllers\Controller;
-use App\Models\ProgramClass;
+use App\Models\Attendance;
+use App\Models\Session;
 use App\Models\User;
-use App\Models\Subject;
+
 class StudentsController extends Controller
 {
     public function index()
@@ -13,17 +14,19 @@ class StudentsController extends Controller
         /** @var \App\Models\User $teacher */
         $teacher = auth()->user();
 
-        // Classes where this teacher is the assigned teacher
-        $classes = ProgramClass::where('teacher_id', $teacher->id)
-            ->with(['program', 'students' => function ($q) {
-                $q->orderBy('name');
-            }])
+        // Students who have attendance records in sessions taught by this teacher
+        $sessionIds = Session::where('teacher_id', $teacher->id)->pluck('id');
+
+        $students = User::whereIn('id',
+                Attendance::whereIn('session_id', $sessionIds)->distinct()->pluck('student_id')
+            )
+            ->where('role', 'student')
+            ->with(['program'])
             ->orderBy('name')
             ->get();
 
-        // Total unique students across all classes
-        $totalStudents = $classes->flatMap(fn($c) => $c->students)->unique('id')->count();
+        $totalStudents = $students->count();
 
-        return view('teacher.students.index', compact('classes', 'totalStudents'));
+        return view('teacher.students.index', compact('students', 'totalStudents'));
     }
 }

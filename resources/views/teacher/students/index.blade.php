@@ -15,132 +15,58 @@
             </div>
             <div>
                 <h1 style="color:white;font-size:20px;font-weight:700;margin:0;">طلابي</h1>
-                <p style="color:rgba(255,255,255,.5);font-size:12px;margin:2px 0 0;">الطلاب المسجلون في مجموعاتك</p>
+                <p style="color:rgba(255,255,255,.5);font-size:12px;margin:2px 0 0;">الطلاب الذين حضروا جلساتك</p>
             </div>
         </div>
-        <div style="display:flex;gap:10px;flex-wrap:wrap;">
-            <div style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:8px 16px;text-align:center;min-width:60px;">
-                <div style="font-size:20px;font-weight:700;color:#fde68a;line-height:1;">{{ $totalStudents }}</div>
-                <div style="font-size:11px;color:rgba(255,255,255,.5);margin-top:2px;">إجمالي الطلاب</div>
-            </div>
-            <div style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:8px 16px;text-align:center;min-width:60px;">
-                <div style="font-size:20px;font-weight:700;color:#86efac;line-height:1;">{{ $classes->count() }}</div>
-                <div style="font-size:11px;color:rgba(255,255,255,.5);margin-top:2px;">المجموعات</div>
-            </div>
+        <div style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:8px 16px;text-align:center;min-width:60px;">
+            <div style="font-size:20px;font-weight:700;color:#fde68a;line-height:1;">{{ $totalStudents }}</div>
+            <div style="font-size:11px;color:rgba(255,255,255,.5);margin-top:2px;">إجمالي الطلاب</div>
         </div>
     </div>
 </div>
 
-@if($classes->isEmpty())
+@if($students->isEmpty())
 <div style="background:white;border-radius:18px;border:1px solid #e5e7eb;padding:60px;text-align:center;box-shadow:0 2px 12px rgba(0,0,0,.06);">
     <svg style="width:56px;height:56px;color:#d1d5db;margin:0 auto 16px;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-    <p style="font-size:15px;font-weight:600;color:#475569;margin-bottom:4px;">لا توجد مجموعات مسندة إليك</p>
-    <p style="font-size:13px;color:#94a3b8;">سيتم عرض طلابك هنا عند إسناد مجموعة لك</p>
+    <p style="font-size:15px;font-weight:600;color:#475569;margin-bottom:4px;">لا يوجد طلاب بعد</p>
+    <p style="font-size:13px;color:#94a3b8;">سيظهر الطلاب هنا بعد حضورهم جلساتك</p>
 </div>
 @else
-
-{{-- Class tabs --}}
-@if($classes->count() > 1)
-<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;">
-    @foreach($classes as $i => $class)
-    <button onclick="switchClass({{ $class->id }})" id="ctab-{{ $class->id }}"
-        style="padding:8px 18px;border:none;border-radius:999px;cursor:pointer;font-size:13px;font-weight:700;font-family:inherit;transition:all .15s;white-space:nowrap;
-        {{ $i === 0 ? 'background:#0071AA;color:white;box-shadow:0 2px 8px rgba(0,113,170,.3);' : 'background:#f1f5f9;color:#64748b;' }}">
-        {{ $class->name }}
-        <span style="font-size:11px;opacity:.8;margin-right:4px;">({{ $class->students->count() }})</span>
-    </button>
-    @endforeach
-</div>
-@endif
-
-{{-- Class panels --}}
-@foreach($classes as $i => $class)
-<div id="cpanel-{{ $class->id }}" class="cpanel" style="{{ $i > 0 ? 'display:none;' : '' }}">
-
-    {{-- Class info bar --}}
-    <div style="background:white;border-radius:14px;border:1px solid #e5e7eb;padding:14px 20px;margin-bottom:16px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;box-shadow:0 1px 4px rgba(0,0,0,.04);">
-        <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;">
-            <div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#0071AA,#004d77);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                <svg width="18" height="18" fill="white" viewBox="0 0 24 24"><path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-            </div>
-            <div>
-                <div style="font-size:15px;font-weight:700;color:#111827;">{{ $class->name }}</div>
-                <div style="font-size:12px;color:#64748b;">{{ $class->program->name ?? '—' }}
-                    @if($class->start_date) · {{ $class->start_date->format('Y/m/d') }} @endif
-                    @if($class->end_date) ← {{ $class->end_date->format('Y/m/d') }} @endif
-                </div>
-            </div>
-        </div>
-        <div style="display:flex;gap:8px;align-items:center;">
-            @php
-                $stColors = ['active'=>['#dcfce7','#16a34a','نشطة'],'inactive'=>['#f1f5f9','#64748b','غير نشطة'],'completed'=>['#dbeafe','#2563eb','منتهية']];
-                $sc = $stColors[$class->status] ?? ['#f1f5f9','#64748b',$class->status];
-            @endphp
-            <span style="background:{{ $sc[0] }};color:{{ $sc[1] }};border-radius:9999px;padding:.2rem .75rem;font-size:.72rem;font-weight:700;">{{ $sc[2] }}</span>
-            <span style="background:#eff6ff;color:#2563eb;border-radius:9999px;padding:.2rem .75rem;font-size:.72rem;font-weight:700;">👥 {{ $class->students->count() }} طالب</span>
-        </div>
-    </div>
-
-    {{-- Students table --}}
-    <div style="background:white;border-radius:18px;border:1px solid #e5e7eb;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.06);">
-        @if($class->students->isNotEmpty())
-        <div style="overflow-x:auto;">
-            <table style="width:100%;border-collapse:collapse;font-size:13px;">
-                <thead>
-                    <tr style="border-bottom:2px solid #f1f5f9;background:#fafafa;">
-                        <th style="padding:12px 16px;text-align:right;font-size:11px;font-weight:700;color:#94a3b8;width:40px;">#</th>
-                        <th style="padding:12px 16px;text-align:right;font-size:11px;font-weight:700;color:#94a3b8;">الاسم</th>
-                        <th style="padding:12px 16px;text-align:right;font-size:11px;font-weight:700;color:#94a3b8;">البريد الإلكتروني</th>
-                        <th style="padding:12px 16px;text-align:right;font-size:11px;font-weight:700;color:#94a3b8;">الهوية</th>
-                        <th style="padding:12px 16px;text-align:right;font-size:11px;font-weight:700;color:#94a3b8;">الجوال</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($class->students as $i => $student)
-                    <tr style="border-bottom:1px solid #f8fafc;transition:background .1s;" onmouseover="this.style.background='#f8faff'" onmouseout="this.style.background=''">
-                        <td style="padding:13px 16px;color:#cbd5e1;font-size:11px;">{{ $i + 1 }}</td>
-                        <td style="padding:13px 16px;">
-                            <div style="display:flex;align-items:center;gap:10px;">
-                                <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#0071AA,#004d77);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:white;font-weight:700;font-size:13px;">
-                                    {{ mb_substr($student->name, 0, 1) }}
-                                </div>
-                                <span style="font-weight:600;color:#1e293b;">{{ $student->name }}</span>
+<div style="background:white;border-radius:18px;border:1px solid #e5e7eb;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.06);">
+    <div style="overflow-x:auto;">
+        <table style="width:100%;border-collapse:collapse;font-size:13px;">
+            <thead>
+                <tr style="border-bottom:2px solid #f1f5f9;background:#fafafa;">
+                    <th style="padding:12px 16px;text-align:right;font-size:11px;font-weight:700;color:#94a3b8;width:40px;">#</th>
+                    <th style="padding:12px 16px;text-align:right;font-size:11px;font-weight:700;color:#94a3b8;">الاسم</th>
+                    <th style="padding:12px 16px;text-align:right;font-size:11px;font-weight:700;color:#94a3b8;">البريد الإلكتروني</th>
+                    <th style="padding:12px 16px;text-align:right;font-size:11px;font-weight:700;color:#94a3b8;">البرنامج</th>
+                    <th style="padding:12px 16px;text-align:right;font-size:11px;font-weight:700;color:#94a3b8;">الهوية</th>
+                    <th style="padding:12px 16px;text-align:right;font-size:11px;font-weight:700;color:#94a3b8;">الجوال</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($students as $i => $student)
+                <tr style="border-bottom:1px solid #f8fafc;transition:background .1s;" onmouseover="this.style.background='#f8faff'" onmouseout="this.style.background=''">
+                    <td style="padding:13px 16px;color:#cbd5e1;font-size:11px;">{{ $i + 1 }}</td>
+                    <td style="padding:13px 16px;">
+                        <div style="display:flex;align-items:center;gap:10px;">
+                            <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#0071AA,#004d77);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:white;font-weight:700;font-size:13px;">
+                                {{ mb_substr($student->name, 0, 1) }}
                             </div>
-                        </td>
-                        <td style="padding:13px 16px;color:#475569;" dir="ltr">{{ $student->email }}</td>
-                        <td style="padding:13px 16px;color:#64748b;" dir="ltr">{{ $student->national_id ?? '—' }}</td>
-                        <td style="padding:13px 16px;color:#64748b;" dir="ltr">{{ $student->phone ?? '—' }}</td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
-        @else
-        <div style="padding:48px;text-align:center;color:#94a3b8;font-size:13px;">لا يوجد طلاب مسجلون في هذه المجموعة بعد</div>
-        @endif
+                            <span style="font-weight:600;color:#1e293b;">{{ $student->name }}</span>
+                        </div>
+                    </td>
+                    <td style="padding:13px 16px;color:#475569;" dir="ltr">{{ $student->email }}</td>
+                    <td style="padding:13px 16px;color:#64748b;">{{ $student->program->name ?? '—' }}</td>
+                    <td style="padding:13px 16px;color:#64748b;" dir="ltr">{{ $student->national_id ?? '—' }}</td>
+                    <td style="padding:13px 16px;color:#64748b;" dir="ltr">{{ $student->phone ?? '—' }}</td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
     </div>
-
 </div>
-@endforeach
-
-@if($classes->count() > 1)
-<script>
-function switchClass(id) {
-    document.querySelectorAll('.cpanel').forEach(p => p.style.display = 'none');
-    document.getElementById('cpanel-' + id).style.display = 'block';
-    document.querySelectorAll('[id^="ctab-"]').forEach(b => {
-        b.style.background = '#f1f5f9';
-        b.style.color = '#64748b';
-        b.style.boxShadow = 'none';
-    });
-    const btn = document.getElementById('ctab-' + id);
-    btn.style.background = '#0071AA';
-    btn.style.color = 'white';
-    btn.style.boxShadow = '0 2px 8px rgba(0,113,170,.3)';
-}
-</script>
-@endif
-
 @endif
 
 </div>

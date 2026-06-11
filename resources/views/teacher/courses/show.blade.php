@@ -135,6 +135,13 @@
         ملفات الدورة
         <span class="tab-count" :class="tab==='files'?'tab-count-on':'tab-count-off'">{{ $program->files->count() }}</span>
     </button>
+    <button @click="tab='students'" :class="tab==='students'?'active':''" class="tab-btn">
+        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+        </svg>
+        الطلاب
+        <span class="tab-count" :class="tab==='students'?'tab-count-on':'tab-count-off'">{{ $students->count() }}</span>
+    </button>
 </div>
 
 {{-- ═══ Sessions Tab ═══ --}}
@@ -349,6 +356,55 @@
     </div>
 </div>
 
+{{-- ═══ Students Tab ═══ --}}
+<div x-show="tab==='students'">
+    <div class="section-card">
+        <div class="section-header">
+            <div class="flex items-center gap-3">
+                <div style="width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#7c3aed,#5b21b6)">
+                    <svg class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h2 class="text-sm font-bold text-gray-900 dark:text-white">الطلاب</h2>
+                    <p class="text-xs text-gray-500">{{ $students->count() }} طالب</p>
+                </div>
+            </div>
+        </div>
+        @if($students->isEmpty())
+        <div style="padding:48px;text-align:center;color:#94a3b8;font-size:13px;">لا يوجد طلاب مسجلون في هذه الدورة بعد</div>
+        @else
+        <div style="overflow-x:auto;">
+            <table style="width:100%;border-collapse:collapse;font-size:13px;">
+                <thead>
+                    <tr style="border-bottom:2px solid #f1f5f9;background:#fafafa;">
+                        <th style="padding:10px 16px;text-align:right;font-size:11px;font-weight:700;color:#94a3b8;width:36px;">#</th>
+                        <th style="padding:10px 16px;text-align:right;font-size:11px;font-weight:700;color:#94a3b8;">الاسم</th>
+                        <th style="padding:10px 16px;text-align:right;font-size:11px;font-weight:700;color:#94a3b8;">البريد</th>
+                        <th style="padding:10px 16px;text-align:right;font-size:11px;font-weight:700;color:#94a3b8;">الجوال</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($students as $i => $st)
+                    <tr style="border-bottom:1px solid #f8fafc;" onmouseover="this.style.background='#f8faff'" onmouseout="this.style.background=''">
+                        <td style="padding:11px 16px;color:#cbd5e1;font-size:11px;">{{ $i+1 }}</td>
+                        <td style="padding:11px 16px;">
+                            <div style="display:flex;align-items:center;gap:9px;">
+                                <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#5b21b6);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:12px;flex-shrink:0;">{{ mb_substr($st->name,0,1) }}</div>
+                                <span style="font-weight:600;color:#1e293b;">{{ $st->name }}</span>
+                            </div>
+                        </td>
+                        <td style="padding:11px 16px;color:#475569;" dir="ltr">{{ $st->email }}</td>
+                        <td style="padding:11px 16px;color:#64748b;" dir="ltr">{{ $st->phone ?? '—' }}</td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+        @endif
+    </div>
+</div>
 
 </div>{{-- end x-data --}}
 @endsection

@@ -54,7 +54,18 @@ class CourseController extends Controller
             ->orderBy('session_number', 'asc')
             ->get();
 
-        return view('teacher.courses.show', compact('program', 'sessions'));
+        // Students enrolled in this program OR who attended its sessions
+        $classIds    = \App\Models\ProgramClass::where('program_id', $id)->pluck('id');
+        $pivotIds    = \Illuminate\Support\Facades\DB::table('student_programs')
+                        ->where('program_id', $id)->orWhereIn('class_id', $classIds)
+                        ->distinct()->pluck('student_id');
+        $legacyIds   = User::where('program_id', $id)->pluck('id');
+        $attendedIds = \App\Models\Attendance::whereIn('session_id', $sessions->pluck('id'))->distinct()->pluck('student_id');
+        $studentIds  = $pivotIds->merge($legacyIds)->merge($attendedIds)->unique()->values();
+        $students    = User::whereIn('id', $studentIds)->where('role', 'student')
+                        ->with('program:id,name_ar,name_en')->orderBy('name')->get();
+
+        return view('teacher.courses.show', compact('program', 'sessions', 'students'));
     }
 
     public function storeSession(Request $request, $programId)
