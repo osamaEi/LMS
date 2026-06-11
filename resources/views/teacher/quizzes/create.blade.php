@@ -460,6 +460,7 @@
                             <option value="quiz" {{ old('type') === 'quiz' ? 'selected' : '' }}>اختبار قصير</option>
                             <option value="exam" {{ old('type') === 'exam' ? 'selected' : '' }}>امتحان نهائي</option>
                             <option value="homework" {{ old('type') === 'homework' ? 'selected' : '' }}>واجب منزلي</option>
+                            <option value="paper" {{ old('type') === 'paper' ? 'selected' : '' }}>ورقة أعمال</option>
                         </select>
                     </div>
 

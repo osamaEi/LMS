@@ -102,10 +102,11 @@ class Quiz extends Model
     public function getTypeLabelAttribute()
     {
         return match($this->type) {
-            'quiz' => 'اختبار قصير',
-            'exam' => 'امتحان',
+            'quiz'     => 'اختبار قصير',
+            'exam'     => 'امتحان',
             'homework' => 'واجب',
-            default => $this->type,
+            'paper'    => 'ورقة أعمال',
+            default    => $this->type,
         };
     }
 

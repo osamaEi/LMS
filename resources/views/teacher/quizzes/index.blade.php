@@ -194,6 +194,11 @@
         color: #b45309;
     }
 
+    .badge-paper {
+        background: #f3e8ff;
+        color: #7c3aed;
+    }
+
     .badge-active {
         background: #d1fae5;
         color: #047857;
@@ -421,7 +426,7 @@
                             <div class="flex-1 min-w-0">
                                 <div class="flex items-center gap-3 flex-wrap mb-2">
                                     <h3 class="quiz-title">{{ $quiz->title_ar }}</h3>
-                                    <span class="quiz-badge {{ $quiz->type === 'exam' ? 'badge-exam' : ($quiz->type === 'homework' ? 'badge-homework' : 'badge-quiz') }}">
+                                    <span class="quiz-badge {{ $quiz->type === 'exam' ? 'badge-exam' : ($quiz->type === 'homework' ? 'badge-homework' : ($quiz->type === 'paper' ? 'badge-paper' : 'badge-quiz')) }}">
                                         {{ $quiz->type_label }}
                                     </span>
                                     @if($quiz->is_active)

@@ -14,12 +14,18 @@ class QuizController extends Controller
 {
     private function canAccessSubject($student, $subjectId): bool
     {
+        $programIds = $student->allProgramIds();
+        $classIds   = $programIds->map(fn($pid) => $student->classIdForProgram((int) $pid))->filter()->unique()->values();
+
         return Subject::where('id', $subjectId)
-            ->where(function ($q) use ($student) {
-                $q->where('program_id', $student->program_id)
-                  ->orWhereHas('term', fn($tq) => $tq->where('program_id', $student->program_id))
-                  ->orWhereHas('terms', fn($tq) => $tq->where('program_id', $student->program_id))
+            ->where(function ($q) use ($student, $programIds, $classIds) {
+                $q->whereIn('program_id', $programIds)
+                  ->orWhereHas('term', fn($tq) => $tq->whereIn('program_id', $programIds))
                   ->orWhereHas('enrollments', fn($eq) => $eq->where('student_id', $student->id));
+                if ($classIds->isNotEmpty()) {
+                    $q->orWhereIn('class_id', $classIds)
+                      ->orWhereHas('term', fn($tq) => $tq->whereIn('class_id', $classIds));
+                }
             })->exists();
     }
 

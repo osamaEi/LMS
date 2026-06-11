@@ -56,6 +56,7 @@
                         <option value="quiz" {{ old('type', $quiz->type) === 'quiz' ? 'selected' : '' }}>اختبار قصير</option>
                         <option value="exam" {{ old('type', $quiz->type) === 'exam' ? 'selected' : '' }}>امتحان</option>
                         <option value="homework" {{ old('type', $quiz->type) === 'homework' ? 'selected' : '' }}>واجب</option>
+                        <option value="paper" {{ old('type', $quiz->type) === 'paper' ? 'selected' : '' }}>ورقة أعمال</option>
                     </select>
                 </div>
 

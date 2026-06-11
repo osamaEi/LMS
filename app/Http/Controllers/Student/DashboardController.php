@@ -227,22 +227,31 @@ class DashboardController extends Controller
     {
         $student = auth()->user();
 
-        $assignedSessionIds = Attendance::where('student_id', $student->id)->pluck('session_id');
+        $programIds = $this->studentProgramIds($student);
+        $classIds   = $programIds->map(fn($pid) => $student->classIdForProgram((int) $pid))->filter()->unique()->values();
 
-        if ($student->class_id) {
+        // Sessions the student is assigned to (via attendance), scoped to their classes
+        $assignedSessionIds = Attendance::where('student_id', $student->id)->pluck('session_id');
+        if ($classIds->isNotEmpty()) {
             $assignedSessionIds = Session::whereIn('id', $assignedSessionIds)
-                ->where('class_id', $student->class_id)
+                ->where(fn($q) => $q->whereIn('class_id', $classIds)->orWhereNull('class_id'))
                 ->pluck('id');
         }
 
-        $programIds = $this->studentProgramIds($student);
-        $program    = $student->program;
-        $isDiploma  = $program && $program->type === 'diploma';
+        // Check if any of the student's programs is a diploma
+        $allPrograms = \App\Models\Program::whereIn('id', $programIds)->get();
+        $isDiploma   = $allPrograms->contains(fn($p) => $p->type === 'diploma');
 
-        // Diploma: allow access to any subject in any of student's programs
+        // Diploma: allow access to any subject in student's programs/classes
         // Non-diploma: require at least one assigned session in this subject
         if ($isDiploma) {
-            $subject = Subject::whereHas('term', fn($q) => $q->whereIn('program_id', $programIds))
+            $subject = Subject::where(function ($q) use ($programIds, $classIds) {
+                    $q->whereHas('term', fn($tq) => $tq->whereIn('program_id', $programIds));
+                    if ($classIds->isNotEmpty()) {
+                        $q->orWhereIn('class_id', $classIds)
+                          ->orWhereHas('term', fn($tq) => $tq->whereIn('class_id', $classIds));
+                    }
+                })
                 ->with(['term.program', 'teacher'])
                 ->findOrFail($id);
         } else {
@@ -251,12 +260,12 @@ class DashboardController extends Controller
                 ->findOrFail($id);
         }
 
-        // Only sessions the admin has assigned this student to
-        $sessions = Session::where('subject_id', $id)
-            ->whereIn('id', $assignedSessionIds)
-            ->with(['files', 'homework'])
-            ->orderBy('session_number', 'asc')
-            ->get();
+        // Sessions for this subject — class-scoped
+        $sessionsQuery = Session::where('subject_id', $id)->with(['files', 'homework']);
+        if ($classIds->isNotEmpty()) {
+            $sessionsQuery->where(fn($q) => $q->whereIn('class_id', $classIds)->orWhereNull('class_id'));
+        }
+        $sessions = $sessionsQuery->orderBy('session_number', 'asc')->get();
 
         // Get attendance for this subject
         $attendances = Attendance::where('student_id', $student->id)

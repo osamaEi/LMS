@@ -67,16 +67,32 @@
     $studentCourseProgram = null;
     if (auth()->check() && auth()->user()->role === 'student') {
         $student = auth()->user();
-        if ($student->program_id) {
-            $studentProgram = $student->program;
-            $studentProgramType = $studentProgram?->type;
 
-            if (in_array($studentProgramType, ['course', 'training', 'english'])) {
-                $studentCourseProgram = $studentProgram;
-            } else {
-                // diploma — load subjects from current term
-                $terms = \App\Models\Term::where('program_id', $student->program_id)
+        // Get all program IDs (pivot first, then legacy users.program_id)
+        $allProgramIds = $student->allProgramIds();
+
+        if ($allProgramIds->isNotEmpty()) {
+            // Determine if any program is a diploma type
+            $allPrograms = \App\Models\Program::whereIn('id', $allProgramIds)->get();
+            $diplomaProgram = $allPrograms->first(fn($p) => $p->type === 'diploma');
+            $courseProgram  = $allPrograms->first(fn($p) => in_array($p->type, ['course','training','english']));
+
+            $studentCourseProgram = $courseProgram;
+
+            if ($diplomaProgram) {
+                $classId = $student->classIdForProgram((int) $diplomaProgram->id);
+
+                // Try class-specific terms first, then shared terms
+                $terms = \App\Models\Term::where('program_id', $diplomaProgram->id)
+                    ->when($classId, fn($q) => $q->where('class_id', $classId))
                     ->orderBy('term_number', 'asc')->get();
+
+                if ($terms->isEmpty()) {
+                    $terms = \App\Models\Term::where('program_id', $diplomaProgram->id)
+                        ->whereNull('class_id')
+                        ->orderBy('term_number', 'asc')->get();
+                }
+
                 $currentTermNumber = $student->current_term_number ?? 1;
                 $currentTerm = $terms->first(function ($t) {
                     return $t->start_date && $t->end_date
@@ -85,10 +101,13 @@
                   ?? $terms->first();
 
                 if ($currentTerm) {
-                    $studentSubjects = \App\Models\Subject::where(function($q) use ($currentTerm) {
-                        $q->where('term_id', $currentTerm->id)
-                          ->orWhereHas('terms', fn($tq) => $tq->where('terms.id', $currentTerm->id));
-                    })->get();
+                    $studentSubjects = \App\Models\Subject::where('term_id', $currentTerm->id)
+                        ->where(function($q) use ($classId) {
+                            $q->whereNull('class_id');
+                            if ($classId) $q->orWhere('class_id', $classId);
+                        })
+                        ->orderBy('name_ar')
+                        ->get();
                 }
             }
         }
