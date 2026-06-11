@@ -3,32 +3,27 @@
 namespace App\Http\Controllers\Teacher;
 
 use App\Http\Controllers\Controller;
+use App\Models\ProgramClass;
 use App\Models\User;
 use App\Models\Subject;
-use Illuminate\Http\Request;
-
 class StudentsController extends Controller
 {
     public function index()
     {
+        /** @var \App\Models\User $teacher */
         $teacher = auth()->user();
 
-        // Get all students enrolled in teacher's subjects
-        $students = User::whereHas('enrollments.subject', function($query) use ($teacher) {
-                $query->assignedToTeacher($teacher->id);
-            })
-            ->with(['enrollments' => function($query) use ($teacher) {
-                $query->whereHas('subject', function($q) use ($teacher) {
-                    $q->assignedToTeacher($teacher->id);
-                })->with('subject');
+        // Classes where this teacher is the assigned teacher
+        $classes = ProgramClass::where('teacher_id', $teacher->id)
+            ->with(['program', 'students' => function ($q) {
+                $q->orderBy('name');
             }])
+            ->orderBy('name')
             ->get();
 
-        // Get teacher's subjects for filtering
-        $subjects = Subject::assignedToTeacher($teacher->id)
-            ->orderBy(app()->getLocale() === 'en' ? 'name_en' : 'name_ar')
-            ->get();
+        // Total unique students across all classes
+        $totalStudents = $classes->flatMap(fn($c) => $c->students)->unique('id')->count();
 
-        return view('teacher.students.index', compact('students', 'subjects'));
+        return view('teacher.students.index', compact('classes', 'totalStudents'));
     }
 }

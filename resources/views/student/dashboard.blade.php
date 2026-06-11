@@ -388,7 +388,7 @@
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
             </div>
             <span class="text-sm font-bold text-gray-900 dark:text-white flex-1">محاضراتي القادمة</span>
-            <a href="{{ route('student.upcoming-sessions') }}"
+            <a href="{{ route('student.my-sessions') }}"
                style="font-size:.75rem;font-weight:700;color:#0071AA;text-decoration:none;padding:.3rem .75rem;background:#f0f9ff;border:1px solid #bae6fd;border-radius:20px;">
                 عرض الكل
             </a>

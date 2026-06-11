@@ -459,41 +459,9 @@
         $firstProgId = array_key_first($programsSessionData ?? []);
     @endphp
 
-    {{-- View switcher --}}
-    <div style="display:flex;align-items:center;gap:8px;background:#fff;border-radius:16px;box-shadow:0 1px 3px rgba(0,0,0,.05);margin-bottom:16px;padding:10px 16px;">
-        <button onclick="switchMainView('weekly')" id="mv-weekly"
-            style="padding:8px 20px;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;background:linear-gradient(135deg,#0071AA,#005a88);color:white;box-shadow:0 2px 8px rgba(0,113,170,.25);">
-            أسبوعي
-        </button>
-        <button onclick="switchMainView('list')" id="mv-list"
-            style="padding:8px 20px;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;background:transparent;color:#6b7280;">
-            قائمة
-        </button>
-    </div>
-
     {{-- Weekly view --}}
     <div id="main-view-weekly">
-    @php
-        $allCalSessions = collect();
-        foreach ($programsSessionData as $pd) {
-            foreach ($pd['sessions'] as $s) {
-                if (!$s->scheduled_at) continue;
-                $att = $pd['attendances'][$s->id] ?? null;
-                $allCalSessions->push([
-                    'id'               => $s->id,
-                    'title'            => $s->title_ar ?: ($s->subject->name_ar ?? $pd['program']->name ?? 'جلسة'),
-                    'subject_name'     => $s->subject->name_ar ?? '',
-                    'scheduled_at'     => \Carbon\Carbon::parse($s->scheduled_at)->toIso8601String(),
-                    'duration_minutes' => $s->duration_minutes ?? 60,
-                    'type'             => $s->type ?? '',
-                    'status'           => (string)($s->status ?? ''),
-                    'session_number'   => $s->session_number,
-                    'zoom_join_url'    => $s->zoom_link ?? $s->zoom_join_url ?? null,
-                    'attended'         => $att ? (bool)$att->attended : null,
-                ]);
-            }
-        }
-    @endphp
+    @php $allCalSessions = $classSessions ?? collect(); @endphp
 
     <div style="background:white;border-radius:18px;border:1px solid #e5e7eb;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.06);">
         <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;padding:16px 20px;border-bottom:1px solid #f1f5f9;background:#fafafa;">
@@ -522,7 +490,18 @@
     <script>
     const CAL_SESSIONS = @json($allCalSessions->values());
     const TODAY_CAL = new Date();
-    let curCal = new Date();
+    // Default to week of next upcoming session if current week has no sessions
+    let curCal = (function(){
+        const now = new Date();
+        const ws = new Date(now); ws.setDate(ws.getDate()-ws.getDay()); ws.setHours(0,0,0,0);
+        const we = new Date(ws); we.setDate(we.getDate()+6); we.setHours(23,59,59,999);
+        const hasThisWeek = CAL_SESSIONS.some(s=>{ const d=new Date(s.scheduled_at); return d>=ws&&d<=we; });
+        if(!hasThisWeek){
+            const future = CAL_SESSIONS.filter(s=>s.scheduled_at&&new Date(s.scheduled_at)>now).sort((a,b)=>new Date(a.scheduled_at)-new Date(b.scheduled_at));
+            if(future.length) return new Date(future[0].scheduled_at);
+        }
+        return now;
+    })();
 
     const DAY_NAMES_CAL   = ['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
     const MONTH_NAMES_CAL = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
@@ -561,6 +540,7 @@
             s.scheduled_at?['📅 الموعد', new Date(s.scheduled_at).toLocaleDateString('ar-SA',{weekday:'long',year:'numeric',month:'long',day:'numeric'})+' — '+fmtTimeCal(s.scheduled_at)]:null,
             s.duration_minutes?['⏱ المدة', s.duration_minutes+' دقيقة']:null,
             s.subject_name?['📚 المادة', s.subject_name]:null,
+            s.teacher_name?['👤 المدرب', s.teacher_name]:null,
             ['🔖 النوع', ts.label],
             ['📊 الحالة', statusLabel],
             s.attended!==null?['✅ الحضور', s.attended?'حضرت':'غائب']:null,
@@ -627,6 +607,7 @@
                     return `<div onclick='openSessionCal(${JSON.stringify(s)})' style="background:#eff6ff;border-right:3px solid #0071AA;border-radius:6px;padding:6px 8px;margin-bottom:4px;line-height:1.35;cursor:pointer;">
                         <div style="font-size:12px;font-weight:700;color:#1e3a8a;">${s.title||s.subject_name||'جلسة'}</div>
                         ${showSub?`<div style="font-size:10px;color:#64748b;">${s.subject_name}</div>`:''}
+                        ${s.teacher_name?`<div style="font-size:10px;color:#64748b;">👤 ${s.teacher_name}</div>`:''}
                         <div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:4px;">
                             <span style="background:${ts.bg};color:${ts.color};font-size:10px;font-weight:600;padding:1px 6px;border-radius:20px;">${ts.label}</span>
                             <span style="background:${statusBg};color:${statusColor};font-size:10px;font-weight:600;padding:1px 6px;border-radius:20px;">${statusLabel}</span>
@@ -655,23 +636,10 @@
 
     renderCal();
 
-    function switchMainView(v){
-        document.getElementById('main-view-weekly').style.display = v==='weekly'?'block':'none';
-        document.getElementById('main-view-list').style.display   = v==='list'  ?'block':'none';
-        const wBtn=document.getElementById('mv-weekly'), lBtn=document.getElementById('mv-list');
-        if(v==='weekly'){
-            wBtn.style.background='linear-gradient(135deg,#0071AA,#005a88)'; wBtn.style.color='white'; wBtn.style.boxShadow='0 2px 8px rgba(0,113,170,.25)';
-            lBtn.style.background='transparent'; lBtn.style.color='#6b7280'; lBtn.style.boxShadow='none';
-        } else {
-            lBtn.style.background='linear-gradient(135deg,#0071AA,#005a88)'; lBtn.style.color='white'; lBtn.style.boxShadow='0 2px 8px rgba(0,113,170,.25)';
-            wBtn.style.background='transparent'; wBtn.style.color='#6b7280'; wBtn.style.boxShadow='none';
-        }
-    }
     </script>
     </div>{{-- /main-view-weekly --}}
 
-    {{-- List view --}}
-    <div id="main-view-list" style="display:none;">
+    <div style="display:none;">{{-- list view hidden --}}
 
     @if(!empty($programsSessionData) && count($programsSessionData) > 0)
 

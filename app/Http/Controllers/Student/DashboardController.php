@@ -68,11 +68,22 @@ class DashboardController extends Controller
 
         $studentProgramIds = $this->studentProgramIds($student);
 
-        // Get upcoming sessions (subjects + programs)
-        $upcomingSessions = Session::where(function($q) use ($studentSubjectIds, $studentProgramIds) {
-                $q->whereIn('subject_id', $studentSubjectIds)
+        // Student's class IDs (one per program)
+        $studentClassIds = $studentProgramIds
+            ->map(fn($pid) => $student->classIdForProgram((int) $pid))
+            ->filter()->unique()->values()->all();
+
+        // Session scope: class-based sessions OR subject/program-based sessions
+        $sessionScope = fn($q) => $q->where(function ($inner) use ($studentSubjectIds, $studentProgramIds, $studentClassIds) {
+            $inner->whereIn('subject_id', $studentSubjectIds)
                   ->orWhereIn('program_id', $studentProgramIds);
-            })
+            if (!empty($studentClassIds)) {
+                $inner->orWhereIn('class_id', $studentClassIds);
+            }
+        });
+
+        // Get upcoming sessions
+        $upcomingSessions = Session::where($sessionScope)
             ->where('scheduled_at', '>', now())
             ->with(['subject', 'program'])
             ->orderBy('scheduled_at', 'asc')
@@ -80,20 +91,14 @@ class DashboardController extends Controller
             ->get();
 
         // Get recent sessions
-        $recentSessions = Session::where(function($q) use ($studentSubjectIds, $studentProgramIds) {
-                $q->whereIn('subject_id', $studentSubjectIds)
-                  ->orWhereIn('program_id', $studentProgramIds);
-            })
+        $recentSessions = Session::where($sessionScope)
             ->with(['subject', 'program'])
             ->orderBy('created_at', 'desc')
             ->take(5)
             ->get();
 
         // Get live sessions
-        $liveSessions = Session::where(function($q) use ($studentSubjectIds, $studentProgramIds) {
-                $q->whereIn('subject_id', $studentSubjectIds)
-                  ->orWhereIn('program_id', $studentProgramIds);
-            })
+        $liveSessions = Session::where($sessionScope)
             ->whereNotNull('started_at')
             ->whereNull('ended_at')
             ->with(['subject', 'program'])
@@ -342,9 +347,34 @@ class DashboardController extends Controller
             ->flatMap(fn($d) => $d['attendances']->all())
             ->keyBy('session_id');
 
+        // Class-based calendar sessions — all sessions in the student's classes with a scheduled_at
+        $classSessions = Session::whereIn('class_id', $studentClassIds)
+            ->whereNotNull('scheduled_at')
+            ->with(['subject:id,name_ar,name_en', 'teacher:id,name'])
+            ->orderBy('scheduled_at')
+            ->get()
+            ->map(function ($s) use ($allAttendances) {
+                $att = $allAttendances[$s->id] ?? null;
+                return [
+                    'id'               => $s->id,
+                    'title'            => $s->title_ar ?: ($s->subject->name_ar ?? 'جلسة'),
+                    'subject_name'     => $s->subject->name_ar ?? '',
+                    'teacher_name'     => $s->teacher->name ?? '',
+                    'scheduled_at'     => \Carbon\Carbon::parse($s->scheduled_at)->toIso8601String(),
+                    'duration_minutes' => $s->duration_minutes ?? 60,
+                    'type'             => $s->type ?? '',
+                    'status'           => (string) ($s->status ?? ''),
+                    'session_number'   => $s->session_number,
+                    'zoom_join_url'    => $s->zoom_link ?? $s->zoom_join_url ?? null,
+                    'attended'         => $att ? (bool) $att->attended : null,
+                ];
+            })
+            ->values();
+
         $firstProg = $allPrograms->first();
 
         return view('student.sessions.index', [
+            'classSessions'       => $classSessions,
             'programsSessionData' => $programsSessionData,
             'totalSessions'       => $totalSessions,
             'completedSessions'   => $completedSessions,

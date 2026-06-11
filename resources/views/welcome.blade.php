@@ -181,9 +181,9 @@
 .partners-grid-wrap::after { content:''; position:absolute; top:0; bottom:0; width:100px; z-index:2; pointer-events:none; }
 .partners-grid-wrap::before { right:0; background:linear-gradient(to left, #fff 40%, transparent); }
 .partners-grid-wrap::after  { left:0;  background:linear-gradient(to right, #fff 40%, transparent); }
-.partners-track { display:flex; gap:1.75rem; width:max-content; animation:marquee-rtl 20s linear infinite; }
+.partners-track { display:flex; gap:1.75rem; width:max-content; animation:marquee-ltr 20s linear infinite; }
 .partners-track:hover { animation-play-state:paused; }
-@keyframes marquee-rtl { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+@keyframes marquee-ltr { 0%{transform:translateX(-50%)} 100%{transform:translateX(0)} }
 .p-logo-card { display:flex; flex-direction:column; align-items:center; justify-content:center; width:220px; min-height:130px; flex-shrink:0; background:transparent; border-radius:0; border:none; box-shadow:none; padding:16px 24px; gap:10px; transition:all .3s ease; cursor:default; }
 .p-logo-card:hover { transform:translateY(-4px); }
 .p-logo-card img { max-width:190px; max-height:100px; object-fit:contain; filter:grayscale(15%) opacity(.8); transition:filter .3s; }

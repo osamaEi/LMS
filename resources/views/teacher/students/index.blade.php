@@ -1,154 +1,147 @@
 @extends('layouts.dashboard')
 
-@section('title', __('Students'))
+@section('title', 'طلابي')
 
 @section('content')
-<div class="container mx-auto px-4 py-6 max-w-7xl">
+<div style="direction:rtl;font-family:'Segoe UI',sans-serif;">
 
-    <div class="mb-6">
-        <h1 class="text-2xl font-bold text-gray-900">{{ __('Students') }}</h1>
-        <p class="text-gray-600 mt-1">{{ __('View all students enrolled in your subjects') }}</p>
-    </div>
-
-    <!-- Statistics -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div class="bg-white rounded-lg shadow p-6">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-gray-600 text-sm">{{ __('Total Students') }}</p>
-                    <p class="text-2xl font-bold text-gray-900 mt-1">{{ $students->count() }}</p>
-                </div>
-                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <svg class="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/>
-                    </svg>
-                </div>
+{{-- Header --}}
+<div style="background:linear-gradient(135deg,#0f172a 0%,#1e3a5f 55%,#0071AA 100%);border-radius:20px;padding:24px 28px;margin-bottom:24px;position:relative;overflow:hidden;">
+    <div style="position:absolute;top:-60px;left:-60px;width:220px;height:220px;background:rgba(255,255,255,.05);border-radius:50%;pointer-events:none;"></div>
+    <div style="position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;">
+        <div style="display:flex;align-items:center;gap:14px;">
+            <div style="width:48px;height:48px;background:rgba(255,255,255,.12);border-radius:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <svg width="22" height="22" fill="white" viewBox="0 0 24 24"><path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            </div>
+            <div>
+                <h1 style="color:white;font-size:20px;font-weight:700;margin:0;">طلابي</h1>
+                <p style="color:rgba(255,255,255,.5);font-size:12px;margin:2px 0 0;">الطلاب المسجلون في مجموعاتك</p>
             </div>
         </div>
-
-        <div class="bg-white rounded-lg shadow p-6">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-gray-600 text-sm">المقررات </p>
-                    <p class="text-2xl font-bold text-gray-900 mt-1">{{ $subjects->count() }}</p>
-                </div>
-                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                    <svg class="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"/>
-                    </svg>
-                </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <div style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:8px 16px;text-align:center;min-width:60px;">
+                <div style="font-size:20px;font-weight:700;color:#fde68a;line-height:1;">{{ $totalStudents }}</div>
+                <div style="font-size:11px;color:rgba(255,255,255,.5);margin-top:2px;">إجمالي الطلاب</div>
             </div>
-        </div>
-
-        <div class="bg-white rounded-lg shadow p-6">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-gray-600 text-sm">{{ __('Total Enrollments') }}</p>
-                    <p class="text-2xl font-bold text-gray-900 mt-1">{{ $students->sum(function($s) { return $s->enrollments->count(); }) }}</p>
-                </div>
-                <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                    <svg class="w-6 h-6 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
-                        <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/>
-                    </svg>
-                </div>
+            <div style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:8px 16px;text-align:center;min-width:60px;">
+                <div style="font-size:20px;font-weight:700;color:#86efac;line-height:1;">{{ $classes->count() }}</div>
+                <div style="font-size:11px;color:rgba(255,255,255,.5);margin-top:2px;">المجموعات</div>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Students List -->
-    <div class="bg-white rounded-lg shadow">
-        <div class="p-6 border-b">
-            <h2 class="text-lg font-bold text-gray-900">قائمة  المتدربون </h2>
+@if($classes->isEmpty())
+<div style="background:white;border-radius:18px;border:1px solid #e5e7eb;padding:60px;text-align:center;box-shadow:0 2px 12px rgba(0,0,0,.06);">
+    <svg style="width:56px;height:56px;color:#d1d5db;margin:0 auto 16px;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+    <p style="font-size:15px;font-weight:600;color:#475569;margin-bottom:4px;">لا توجد مجموعات مسندة إليك</p>
+    <p style="font-size:13px;color:#94a3b8;">سيتم عرض طلابك هنا عند إسناد مجموعة لك</p>
+</div>
+@else
+
+{{-- Class tabs --}}
+@if($classes->count() > 1)
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;">
+    @foreach($classes as $i => $class)
+    <button onclick="switchClass({{ $class->id }})" id="ctab-{{ $class->id }}"
+        style="padding:8px 18px;border:none;border-radius:999px;cursor:pointer;font-size:13px;font-weight:700;font-family:inherit;transition:all .15s;white-space:nowrap;
+        {{ $i === 0 ? 'background:#0071AA;color:white;box-shadow:0 2px 8px rgba(0,113,170,.3);' : 'background:#f1f5f9;color:#64748b;' }}">
+        {{ $class->name }}
+        <span style="font-size:11px;opacity:.8;margin-right:4px;">({{ $class->students->count() }})</span>
+    </button>
+    @endforeach
+</div>
+@endif
+
+{{-- Class panels --}}
+@foreach($classes as $i => $class)
+<div id="cpanel-{{ $class->id }}" class="cpanel" style="{{ $i > 0 ? 'display:none;' : '' }}">
+
+    {{-- Class info bar --}}
+    <div style="background:white;border-radius:14px;border:1px solid #e5e7eb;padding:14px 20px;margin-bottom:16px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;box-shadow:0 1px 4px rgba(0,0,0,.04);">
+        <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;">
+            <div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#0071AA,#004d77);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <svg width="18" height="18" fill="white" viewBox="0 0 24 24"><path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            </div>
+            <div>
+                <div style="font-size:15px;font-weight:700;color:#111827;">{{ $class->name }}</div>
+                <div style="font-size:12px;color:#64748b;">{{ $class->program->name ?? '—' }}
+                    @if($class->start_date) · {{ $class->start_date->format('Y/m/d') }} @endif
+                    @if($class->end_date) ← {{ $class->end_date->format('Y/m/d') }} @endif
+                </div>
+            </div>
         </div>
-        <div class="p-6">
-            @if($students->count() > 0)
-                <div class="overflow-x-auto">
-                    <table class="w-full">
-                        <thead>
-                            <tr class="border-b">
-                                <th class="text-right py-3 px-4 text-sm font-bold text-gray-700">{{ __('Student') }}</th>
-                                <th class="text-right py-3 px-4 text-sm font-bold text-gray-700">{{ __('Email') }}</th>
-                                <th class="text-right py-3 px-4 text-sm font-bold text-gray-700">{{ __('Enrolled Subjects') }}</th>
-                                <th class="text-right py-3 px-4 text-sm font-bold text-gray-700">{{ __('Subjects') }}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($students as $student)
-                            <tr class="border-b hover:bg-gray-50 transition">
-                                <td class="py-4 px-4">
-                                    <div class="flex items-center gap-3">
-                                        <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                                            <span class="text-blue-600 font-bold text-sm">{{ substr($student->name, 0, 1) }}</span>
-                                        </div>
-                                        <div>
-                                            <div class="font-medium text-gray-900">{{ $student->name }}</div>
-                                            <div class="text-xs text-gray-500">ID: {{ $student->id }}</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="py-4 px-4">
-                                    <div class="text-sm text-gray-700">{{ $student->email }}</div>
-                                </td>
-                                <td class="py-4 px-4">
-                                    <div class="flex flex-wrap gap-1">
-                                        @foreach($student->enrollments as $enrollment)
-                                        <span class="inline-block px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">
-                                            {{ $enrollment->subject->name }}
-                                        </span>
-                                        @endforeach
-                                    </div>
-                                </td>
-                                <td class="py-4 px-4">
-                                    <span class="inline-flex items-center justify-center w-8 h-8 bg-green-100 text-green-700 rounded-full text-sm font-bold">
-                                        {{ $student->enrollments->count() }}
-                                    </span>
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            @else
-                <div class="text-center py-12">
-                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
-                    </svg>
-                    <p class="mt-4 text-gray-600">{{ __('No students found') }}</p>
-                </div>
-            @endif
+        <div style="display:flex;gap:8px;align-items:center;">
+            @php
+                $stColors = ['active'=>['#dcfce7','#16a34a','نشطة'],'inactive'=>['#f1f5f9','#64748b','غير نشطة'],'completed'=>['#dbeafe','#2563eb','منتهية']];
+                $sc = $stColors[$class->status] ?? ['#f1f5f9','#64748b',$class->status];
+            @endphp
+            <span style="background:{{ $sc[0] }};color:{{ $sc[1] }};border-radius:9999px;padding:.2rem .75rem;font-size:.72rem;font-weight:700;">{{ $sc[2] }}</span>
+            <span style="background:#eff6ff;color:#2563eb;border-radius:9999px;padding:.2rem .75rem;font-size:.72rem;font-weight:700;">👥 {{ $class->students->count() }} طالب</span>
         </div>
     </div>
 
-    <!-- Subjects Filter (Optional Future Enhancement) -->
-    <div class="bg-white rounded-lg shadow mt-6">
-        <div class="p-6 border-b">
-            <h2 class="text-lg font-bold text-gray-900"> المتدربون  حسب المقرر </h2>
-        </div>
-        <div class="p-6">
-            @if($subjects->count() > 0)
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    @foreach($subjects as $subject)
-                    <div class="border rounded-lg p-4 hover:border-blue-500 transition">
-                        <h3 class="font-bold text-gray-900 mb-2">{{ $subject->name }}</h3>
-                        <div class="flex items-center justify-between">
-                            <span class="text-sm text-gray-600">عدد  المتدربون :</span>
-                            <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-bold">
-                                {{ $subject->enrollments()->count() }}
-                            </span>
-                        </div>
-                        <a href="{{ route('teacher.subjects.show', $subject->id) }}"
-                           class="block mt-3 text-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">
-                            عرض التفاصيل
-                        </a>
-                    </div>
+    {{-- Students table --}}
+    <div style="background:white;border-radius:18px;border:1px solid #e5e7eb;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.06);">
+        @if($class->students->isNotEmpty())
+        <div style="overflow-x:auto;">
+            <table style="width:100%;border-collapse:collapse;font-size:13px;">
+                <thead>
+                    <tr style="border-bottom:2px solid #f1f5f9;background:#fafafa;">
+                        <th style="padding:12px 16px;text-align:right;font-size:11px;font-weight:700;color:#94a3b8;width:40px;">#</th>
+                        <th style="padding:12px 16px;text-align:right;font-size:11px;font-weight:700;color:#94a3b8;">الاسم</th>
+                        <th style="padding:12px 16px;text-align:right;font-size:11px;font-weight:700;color:#94a3b8;">البريد الإلكتروني</th>
+                        <th style="padding:12px 16px;text-align:right;font-size:11px;font-weight:700;color:#94a3b8;">الهوية</th>
+                        <th style="padding:12px 16px;text-align:right;font-size:11px;font-weight:700;color:#94a3b8;">الجوال</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($class->students as $i => $student)
+                    <tr style="border-bottom:1px solid #f8fafc;transition:background .1s;" onmouseover="this.style.background='#f8faff'" onmouseout="this.style.background=''">
+                        <td style="padding:13px 16px;color:#cbd5e1;font-size:11px;">{{ $i + 1 }}</td>
+                        <td style="padding:13px 16px;">
+                            <div style="display:flex;align-items:center;gap:10px;">
+                                <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#0071AA,#004d77);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:white;font-weight:700;font-size:13px;">
+                                    {{ mb_substr($student->name, 0, 1) }}
+                                </div>
+                                <span style="font-weight:600;color:#1e293b;">{{ $student->name }}</span>
+                            </div>
+                        </td>
+                        <td style="padding:13px 16px;color:#475569;" dir="ltr">{{ $student->email }}</td>
+                        <td style="padding:13px 16px;color:#64748b;" dir="ltr">{{ $student->national_id ?? '—' }}</td>
+                        <td style="padding:13px 16px;color:#64748b;" dir="ltr">{{ $student->phone ?? '—' }}</td>
+                    </tr>
                     @endforeach
-                </div>
-            @else
-                <p class="text-gray-600 text-center py-4">لا توجد مقرارت</p>
-            @endif
+                </tbody>
+            </table>
         </div>
+        @else
+        <div style="padding:48px;text-align:center;color:#94a3b8;font-size:13px;">لا يوجد طلاب مسجلون في هذه المجموعة بعد</div>
+        @endif
     </div>
+
+</div>
+@endforeach
+
+@if($classes->count() > 1)
+<script>
+function switchClass(id) {
+    document.querySelectorAll('.cpanel').forEach(p => p.style.display = 'none');
+    document.getElementById('cpanel-' + id).style.display = 'block';
+    document.querySelectorAll('[id^="ctab-"]').forEach(b => {
+        b.style.background = '#f1f5f9';
+        b.style.color = '#64748b';
+        b.style.boxShadow = 'none';
+    });
+    const btn = document.getElementById('ctab-' + id);
+    btn.style.background = '#0071AA';
+    btn.style.color = 'white';
+    btn.style.boxShadow = '0 2px 8px rgba(0,113,170,.3)';
+}
+</script>
+@endif
+
+@endif
 
 </div>
 @endsection

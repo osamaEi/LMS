@@ -381,11 +381,8 @@
                         <th>كود المتدرب </th>
                         <th>المتدرب </th>
                         <th>البريد الإلكتروني</th>
-                        <th>رقم الهوية</th>
-                        <th>رقم الهاتف</th>
-                        <th>البرنامج</th>
+                      
                         <th>الحالة</th>
-                        <th>تاريخ التسجيل</th>
                         <th style="text-align:center">الإجراءات</th>
                     </tr>
                 </thead>
@@ -431,39 +428,14 @@
                                 </div>
                             </div>
                         </td>
-
-                        {{-- Email --}}
-                        <td>
-                            <span style="font-size:0.82rem;color:#6b7280" class="dark:text-gray-400">{{ $student->email }}</span>
-                        </td>
-
-                        {{-- National ID --}}
-                        <td>
-                            <span style="font-size:0.82rem;color:#374151;font-family:monospace;letter-spacing:0.04em" class="dark:text-gray-300">
-                                {{ $student->national_id ?? '—' }}
+   <td>
+                            <span style="display:inline-block;padding:3px 10px;border-radius:999px;background:#eff6ff;color:#1d4ed8;font-size:0.75rem;font-weight:700;font-family:monospace;letter-spacing:.5px;border:1px solid #bfdbfe;">
+                                {{ $student->email ?? '—' }}
                             </span>
                         </td>
+                      
 
-                        {{-- Phone --}}
-                        <td>
-                            <span style="font-size:0.82rem;color:#6b7280" class="dark:text-gray-400">
-                                {{ $student->phone ?? '—' }}
-                            </span>
-                        </td>
-
-                        {{-- Program --}}
-                        <td>
-                            @if($student->program)
-                            <span class="program-badge">
-                                <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3z"/>
-                                </svg>
-                                {{ Str::limit($student->program->name, 20) }}
-                            </span>
-                            @else
-                            <span style="font-size:0.78rem;color:#9ca3af">—</span>
-                            @endif
-                        </td>
+                    
 
                         {{-- Status --}}
                         <td>
@@ -473,12 +445,7 @@
                             </span>
                         </td>
 
-                        {{-- Date --}}
-                        <td>
-                            <span style="font-size:0.8rem;color:#6b7280" class="dark:text-gray-400">
-                                {{ $student->created_at->format('d/m/Y') }}
-                            </span>
-                        </td>
+                     
 
                         {{-- Actions --}}
                         <td>
