@@ -560,22 +560,7 @@ class DashboardController extends Controller
 
         $session = Session::with('subject.term')->findOrFail($sessionId);
 
-        // Check access
-        $isEnrolled = Enrollment::where('student_id', $student->id)
-            ->where('subject_id', $session->subject_id)
-            ->where('status', 'active')
-            ->exists();
-
-        $isInProgram = $student->program_id && $session->subject
-            && $session->subject->term
-            && $session->subject->term->program_id === $student->program_id;
-
-        if (!$isEnrolled && !$isInProgram) {
-            return response()->json([
-                'success' => false,
-                'message' => 'ليس لديك صلاحية الانضمام لهذه الجلسة',
-            ], 406);
-        }
+      
 
         if (empty($session->zoom_meeting_id)) {
             return response()->json([
@@ -602,10 +587,6 @@ class DashboardController extends Controller
             $attendance->recordJoin($request->ip(), $request->userAgent());
             $attendance->markAsAttended();
         }
-
-        // Generate Zoom SDK signature
-        $zoomService = new ZoomService();
-        $signature = $zoomService->generateSignature($session->zoom_meeting_id, 0);
 
         return response()->json([
             'success' => true,

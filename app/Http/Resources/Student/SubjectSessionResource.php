@@ -26,9 +26,7 @@ class SubjectSessionResource extends JsonResource
             'session_number'   => $this->session_number,
             'scheduled_at'     => $this->scheduled_at,
             'status'           => $status,
-            'is_live'          => $status === 'live',
             'join_url'         =>  $this->zoom_join_url ?? '',
-            'zoom_meeting_id'  => $this->zoom_meeting_id ?? '',
     
         
         
