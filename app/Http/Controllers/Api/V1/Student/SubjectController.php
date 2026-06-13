@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1\Student;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Student\SubjectFileResource;
 use App\Http\Resources\Student\SubjectHomeworkResource;
+use App\Http\Resources\Student\SubjectResource;
 use App\Http\Resources\Student\SubjectSessionResource;
 use App\Models\Subject;
 use App\Models\Session;
@@ -129,6 +130,24 @@ class SubjectController extends Controller
             'type'  => $f->file_type,
             'size'  => $f->file_size,
         ];
+    }
+
+    /**
+     * GET /api/v1/student/subjects/{id}/info
+     * Return subject details (name, code, banner, teacher).
+     */
+    public function info($id)
+    {
+        $resolved = $this->resolveSubjectForStudent($id, ['teacher:id,name,profile_photo']);
+        if ($resolved instanceof \Illuminate\Http\JsonResponse) {
+            return $resolved;
+        }
+        [$subject] = $resolved;
+
+        return response()->json([
+            'success' => true,
+            'data'    => (new SubjectResource($subject))->resolve(),
+        ]);
     }
 
     /**

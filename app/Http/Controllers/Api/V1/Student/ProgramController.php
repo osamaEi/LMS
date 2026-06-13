@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1\Student;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Student\MyProgramResource;
 use App\Http\Resources\StudentProgramResource;
 use App\Models\Attendance;
 use App\Models\Enrollment;
@@ -47,23 +48,24 @@ class ProgramController extends Controller
             ]);
         }
 
-        $data = $allPrograms->map(function ($program) {
-            // Pivot fields (from belongsToMany withPivot or synthetic)
-            $pivotStatus      = $program->pivot?->status      ?? $program->pivot_status      ?? 'approved';
-            $pivotTermNumber  = $program->pivot?->current_term_number ?? $program->pivot_current_term_number ?? 1;
-            $pivotEnrolledAt  = $program->pivot?->enrolled_at ?? $program->pivot_enrolled_at ?? null;
+        $student = auth()->user();
 
-            $isDiploma = $program->type === 'diploma';
+        $data = $allPrograms->map(function ($program) use ($student) {
+            $pivotStatus     = $program->pivot?->status               ?? $program->pivot_status              ?? 'approved';
+            $pivotTermNumber = $program->pivot?->current_term_number  ?? $program->pivot_current_term_number ?? 1;
+            $pivotEnrolledAt = $program->pivot?->enrolled_at          ?? $program->pivot_enrolled_at         ?? null;
 
+            $isDiploma       = $program->type === 'diploma';
             $currentTerm     = null;
             $programTeachers = collect();
+            $supervisor      = null;
 
             if ($pivotStatus === 'approved' || $pivotStatus === 'completed') {
                 if ($isDiploma) {
                     $program->loadMissing('supervisor');
-                    $classId = auth()->user()->classIdForProgram($program->id);
+                    $supervisor = $program->supervisor ?? null;
+                    $classId    = $student->classIdForProgram($program->id);
 
-                    // Prefer the student's own class terms; fall back to shared (class_id NULL)
                     $hasClassTerms = $classId
                         ? \App\Models\Term::where('program_id', $program->id)->where('class_id', $classId)->exists()
                         : false;
@@ -82,65 +84,14 @@ class ProgramController extends Controller
                 }
             }
 
-            $result = [
-                'id'              => $program->id,
-                'name_ar'         => $program->name_ar,
-                'name_en'         => $program->name_en,
-                'type'            => $program->type,
-                'course_type'     => $program->course_type ?? null,
-                'description_ar'  => $program->description_ar ?? null,
-                'image'           => $program->image ? asset('storage/' . $program->image) : null,
-                'duration_months' => $program->duration_months ?? null,
-                'duration_hours'  => $program->duration_hours  ?? null,
-                'status'          => $program->status,
-
-                // Enrollment info from pivot
-                'enrollment_status'   => $pivotStatus,
-                'current_term_number' => $pivotTermNumber,
-                'enrolled_at'         => $pivotEnrolledAt,
-            ];
-
-            if ($isDiploma && $currentTerm) {
-                $result['current_term'] = [
-                    'id'          => $currentTerm->id,
-                    'term_number' => $currentTerm->term_number,
-                    'name'        => $currentTerm->name ?? ('الفصل ' . $currentTerm->term_number),
-                    'status'      => $currentTerm->status,
-                    'subjects'    => $currentTerm->subjects->map(fn($s) => [
-                        'id'      => $s->id,
-                        'name_ar' => $s->name_ar,
-                        'name_en' => $s->name_en,
-                        'code'    => $s->code,
-                        'teacher' => $s->teacher ? [
-                            'id'             => $s->teacher->id,
-                            'name'           => $s->teacher->name,
-                            'specialization' => $s->teacher->specialization,
-                            'profile_photo'  => $s->teacher->profile_photo
-                                ? asset('storage/' . $s->teacher->profile_photo)
-                                : null,
-                        ] : null,
-                    ])->values(),
-                ];
-
-                if ($program->supervisor ?? null) {
-                    $result['supervisor'] = [
-                        'id'   => $program->supervisor->id,
-                        'name' => $program->supervisor->name,
-                    ];
-                }
-            }
-
-            if (!$isDiploma && $programTeachers->isNotEmpty()) {
-                $result['teachers'] = $programTeachers->map(fn($t) => [
-                    'id'            => $t->id,
-                    'name'          => $t->name,
-                    'profile_photo' => $t->profile_photo
-                        ? asset('storage/' . $t->profile_photo)
-                        : null,
-                ])->values();
-            }
-
-            return $result;
+            return (new MyProgramResource($program))->additional([
+                'pivot_status'     => $pivotStatus,
+                'pivot_term_number'=> $pivotTermNumber,
+                'pivot_enrolled_at'=> $pivotEnrolledAt,
+                'current_term'     => $currentTerm,
+                'supervisor'       => $supervisor,
+                'teachers'         => $programTeachers,
+            ])->resolve();
         })->values();
 
         return response()->json([

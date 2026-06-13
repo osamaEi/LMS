@@ -99,6 +99,7 @@ Route::prefix('v1')->group(function () {
 
             // Subjects & Units
             Route::get('/subjects/{id}', [App\Http\Controllers\Api\V1\Student\SubjectController::class, 'show']);
+            Route::get('/subjects/{id}/info', [App\Http\Controllers\Api\V1\Student\SubjectController::class, 'info']);
             Route::get('/subjects/{id}/sessions', [App\Http\Controllers\Api\V1\Student\SubjectController::class, 'sessions']);
             Route::get('/subjects/{id}/homework', [App\Http\Controllers\Api\V1\Student\SubjectController::class, 'homework']);
             Route::get('/subjects/{id}/files', [App\Http\Controllers\Api\V1\Student\SubjectController::class, 'files']);
