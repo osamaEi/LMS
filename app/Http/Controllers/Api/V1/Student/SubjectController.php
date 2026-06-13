@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\Api\V1\Student;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Student\SubjectFileResource;
+use App\Http\Resources\Student\SubjectHomeworkResource;
+use App\Http\Resources\Student\SubjectSessionResource;
 use App\Models\Subject;
 use App\Models\Session;
 use App\Models\Attendance;
@@ -67,19 +70,21 @@ class SubjectController extends Controller
     }
 
     /**
-     * GET /api/v1/student/subjects/{id}/sessions
-     * List all sessions for a subject with join links and schedule
+     * Resolve a subject for the authenticated student and verify access.
+     *
+     * Returns [Subject $subject, ?int $classId] on success, or a JsonResponse
+     * (403) when the subject is class-scoped to a class the student isn't in.
      */
-    public function sessions($id)
+    private function resolveSubjectForStudent($id, array $with = [])
     {
-        $student   = auth()->user();
+        $student       = auth()->user();
         $allProgramIds = $student->allProgramIds();
 
         // Find the subject and verify it belongs to one of the student's programs
         $subject = Subject::where(function ($q) use ($allProgramIds) {
             $q->whereHas('term', fn($tq) => $tq->whereIn('program_id', $allProgramIds))
               ->orWhereHas('terms', fn($tq) => $tq->whereIn('program_id', $allProgramIds));
-        })->with(['term.program', 'teacher:id,name,profile_photo', 'files'])
+        })->with($with)
           ->findOrFail($id);
 
         // Resolve the program this subject belongs to, then get the student's class for it
@@ -93,105 +98,123 @@ class SubjectController extends Controller
             return response()->json(['success' => false, 'message' => 'هذا المقرر غير متاح لمجموعتك'], 403);
         }
 
-        // Load sessions filtered by class if the student is assigned to one
-        $sessionQuery = Session::where('subject_id', $id)
-            ->with(['files', 'homework'])
+        return [$subject, $classId];
+    }
+
+    /**
+     * Build the base session query for a subject, scoped to the student's class.
+     */
+    private function subjectSessionQuery($subjectId, ?int $classId, array $with = [])
+    {
+        $query = Session::where('subject_id', $subjectId)
+            ->with($with)
             ->orderBy('session_number', 'asc');
 
         if ($classId) {
-            $sessionQuery->where('class_id', $classId);
+            $query->where('class_id', $classId);
         }
 
-        $sessions = $sessionQuery->get();
+        return $query;
+    }
+
+    /**
+     * Map a file model to its API representation.
+     */
+    private function mapFile($f): array
+    {
+        return [
+            'id'    => $f->id,
+            'title' => $f->title,
+            'url'   => asset('storage/' . $f->file_path),
+            'type'  => $f->file_type,
+            'size'  => $f->file_size,
+        ];
+    }
+
+    /**
+     * GET /api/v1/student/subjects/{id}/sessions
+     * List all sessions for a subject with join links, schedule and attendance.
+     */
+    public function sessions($id)
+    {
+        $resolved = $this->resolveSubjectForStudent($id, ['term.program', 'teacher:id,name,profile_photo']);
+        if ($resolved instanceof \Illuminate\Http\JsonResponse) {
+            return $resolved;
+        }
+        [$subject, $classId] = $resolved;
+
+        $student  = auth()->user();
+        $sessions = $this->subjectSessionQuery($id, $classId, ['files'])->get();
 
         $attendances = Attendance::where('student_id', $student->id)
             ->whereIn('session_id', $sessions->pluck('id'))
             ->get()
             ->keyBy('session_id');
 
-        $data = $sessions->map(function ($session) use ($attendances) {
-            $attendance = $attendances->get($session->id);
+        $totalSessions    = $sessions->count();
+        $attendedSessions = $attendances->where('attended', true)->count();
 
-            $status = match (true) {
-                !is_null($session->ended_at)   => 'ended',
-                !is_null($session->started_at) => 'live',
-                default                        => 'upcoming',
-            };
-
-            return [
-                'id'               => $session->id,
-                'title'            => $session->title_ar ?? $session->title ?? null,
-                'title_en'         => $session->title_en ?? null,
-                'type'             => $session->type,
-                'session_number'   => $session->session_number,
-                'scheduled_at'     => $session->scheduled_at,
-                'duration_minutes' => $session->duration_minutes,
-                'status'           => $status,
-                'is_live'          => $status === 'live',
-                'join_url'         => $session->type === 'live_zoom' ? $session->zoom_join_url : null,
-                'zoom_meeting_id'  => $session->zoom_meeting_id ?? null,
-                'video_url'        => $session->type === 'recorded_video' ? $session->getVideoUrl() : null,
-                'recording_url'    => $session->recording_url ?? null,
-                'files'            => $session->files->map(fn($f) => [
-                    'id'    => $f->id,
-                    'title' => $f->title,
-                    'url'   => asset('storage/' . $f->file_path),
-                    'type'  => $f->file_type,
-                    'size'  => $f->file_size,
-                ])->values(),
-                'homework'         => $session->homework ? [
-                    'id'       => $session->homework->id,
-                    'title'    => $session->homework->title,
-                    'due_date' => $session->homework->due_date?->format('Y-m-d'),
-                ] : null,
-                'attendance' => [
-                    'attended'         => $attendance?->attended ?? false,
-                    'joined_at'        => $attendance?->joined_at,
-                    'left_at'          => $attendance?->left_at,
-                    'duration_minutes' => $attendance?->duration_minutes ?? 0,
-                    'watch_percentage' => $attendance?->watch_percentage ?? 0,
-                ],
-                'links' => [
-                    'join_api'  => url("/api/v1/student/sessions/{$session->id}/join-zoom"),
-                    'leave_api' => url("/api/v1/student/sessions/{$session->id}/leave-zoom"),
-                ],
-            ];
-        });
-
-        $totalSessions   = $data->count();
-        $attendedSessions = $data->where('attendance.attended', true)->count();
+        $resource = SubjectSessionResource::collection($sessions)
+            ->additional(['attendances' => $attendances]);
 
         return response()->json([
             'success' => true,
-            'subject' => [
-                'id'           => $subject->id,
-                'name_ar'      => $subject->name_ar,
-                'name_en'      => $subject->name_en,
-                'code'         => $subject->code,
-                'banner_photo' => $subject->banner_photo ? asset('storage/' . $subject->banner_photo) : null,
-                'teacher'      => $subject->teacher ? [
-                    'id'            => $subject->teacher->id,
-                    'name'          => $subject->teacher->name,
-                    'profile_photo' => $subject->teacher->profile_photo
-                        ? asset('storage/' . $subject->teacher->profile_photo)
-                        : null,
-                ] : null,
-                'files' => $subject->files->map(fn($f) => [
-                    'id'    => $f->id,
-                    'title' => $f->title,
-                    'url'   => asset('storage/' . $f->file_path),
-                    'type'  => $f->file_type,
-                    'size'  => $f->file_size,
-                ])->values(),
-            ],
-            'progress' => [
-                'total_sessions'    => $totalSessions,
-                'attended_sessions' => $attendedSessions,
-                'percentage'        => $totalSessions > 0
-                    ? round(($attendedSessions / $totalSessions) * 100, 1)
-                    : 0,
-            ],
-            'data' => $data->values(),
+            'data' => $resource->resolve(),
+        ]);
+    }
+
+    /**
+     * GET /api/v1/student/subjects/{id}/homework
+     * List homework across the subject's sessions.
+     */
+    public function homework($id)
+    {
+        $resolved = $this->resolveSubjectForStudent($id, ['term', 'terms']);
+        if ($resolved instanceof \Illuminate\Http\JsonResponse) {
+            return $resolved;
+        }
+        [$subject, $classId] = $resolved;
+
+        $sessions = $this->subjectSessionQuery($id, $classId, ['homework'])->get();
+
+        $sessionsWithHomework = $sessions->filter(fn($s) => $s->homework)->values();
+
+        return response()->json([
+            'success' => true,
+
+            'data' => SubjectHomeworkResource::collection($sessionsWithHomework)->resolve(),
+        ]);
+    }
+
+    /**
+     * GET /api/v1/student/subjects/{id}/files
+     * List the subject's own files and files attached to its sessions.
+     */
+    public function files($id)
+    {
+        $resolved = $this->resolveSubjectForStudent($id, ['term', 'terms', 'files']);
+        if ($resolved instanceof \Illuminate\Http\JsonResponse) {
+            return $resolved;
+        }
+        [$subject, $classId] = $resolved;
+
+        $sessions = $this->subjectSessionQuery($id, $classId, ['files'])->get();
+
+        $sessionFiles = $sessions->flatMap(function ($session) {
+            return $session->files->map(function ($file) use ($session) {
+                return (new SubjectFileResource($file))
+                    ->additional(['session' => $session])
+                    ->resolve();
+            });
+        })->values();
+
+        $subjectFiles = SubjectFileResource::collection($subject->files)->resolve();
+
+        return response()->json([
+            'success' => true,
+          'subject_files' => $subjectFiles,
+                
+         
         ]);
     }
 
