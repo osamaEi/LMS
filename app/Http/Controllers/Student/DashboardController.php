@@ -632,7 +632,7 @@ class DashboardController extends Controller
                         fn($q) => $q->where('class_id', $classId),
                         fn($q) => $q->whereNull('class_id'))
                     ->orderBy('term_number', 'asc')
-                    ->with(['subjects' => fn($q) => $subjectScope($q)->with(['teacher', 'sessions'])])
+                    ->with(['subjects' => fn($q) => $q->with(['teacher', 'sessions'])])
                     ->get();
 
                 $currentTerm = $progTerms->first(fn($t) =>
@@ -643,9 +643,7 @@ class DashboardController extends Controller
                     ? $progTerms->search(fn($t) => $t->id === $currentTerm->id) + 1
                     : 1;
 
-                $progSubjects = Subject::whereIn('term_id', $progTerms->pluck('id'))
-                    ->where(fn($sq) => $subjectScope($sq))
-                    ->get();
+                $progSubjects = Subject::whereIn('term_id', $progTerms->pluck('id'))->get();
 
                 $currentTermSubjects = $currentTerm
                     ? $currentTerm->subjects->load(['teacher', 'sessions'])
