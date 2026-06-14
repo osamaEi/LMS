@@ -65,7 +65,7 @@ class StudentController extends Controller
             'status'              => 'nullable|in:active,pending,inactive,suspended',
             'specialization'      => 'nullable|string|max:255',
             'specialization_type' => 'nullable|string|max:255',
-            'date_of_graduation'  => 'nullable|date',
+            'date_of_graduation'  => 'nullable|digits:4|integer|between:1950,2100',
             'bio'                 => 'nullable|string|max:500',
             'profile_photo'       => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'password'            => 'required|string|min:8|confirmed',
@@ -88,13 +88,18 @@ class StudentController extends Controller
             'profile_photo.image'      => 'الصورة يجب أن تكون ملف صورة.',
             'profile_photo.mimes'      => 'الصورة يجب أن تكون JPG أو PNG.',
             'profile_photo.max'        => 'حجم الصورة لا يتجاوز 2 ميجابايت.',
-            'date_of_birth.date'       => 'تاريخ الميلاد غير صحيح.',
-            'date_of_graduation.date'  => 'تاريخ التخرج غير صحيح.',
+            'date_of_birth.date'              => 'تاريخ الميلاد غير صحيح.',
+            'date_of_graduation.digits'       => 'أدخل سنة التخرج بأربعة أرقام.',
+            'date_of_graduation.between'      => 'سنة التخرج يجب أن تكون بين 1950 و2100.',
             'program_ids.*.exists'     => 'أحد البرامج المختارة غير موجود.',
         ]);
 
         $programIds = $validated['program_ids'] ?? [];
         unset($validated['program_ids']);
+
+        if (!empty($validated['date_of_graduation'])) {
+            $validated['date_of_graduation'] = $validated['date_of_graduation'] . '-01-01';
+        }
 
         $validated['role'] = 'student';
         $validated['password'] = Hash::make($validated['password']);

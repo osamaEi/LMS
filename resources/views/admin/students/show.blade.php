@@ -1609,7 +1609,7 @@
                                 </div>
                                 <div class="content">
                                     <div class="label">تاريخ التخرج</div>
-                                    <div class="value">{{ $student->date_of_graduation ? $student->date_of_graduation->format('Y/m/d') : 'غير محدد' }}</div>
+                                    <div class="value">{{ $student->date_of_graduation ? $student->date_of_graduation->format('Y') : 'غير محدد' }}</div>
                                 </div>
                             </div>
                         </div>
