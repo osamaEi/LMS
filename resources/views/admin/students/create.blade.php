@@ -119,8 +119,9 @@
             </div>
 
             <div>
-                <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">تاريخ التخرج</label>
-                <input type="date" name="date_of_graduation" value="{{ old('date_of_graduation') }}"
+                <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">سنة التخرج</label>
+                <input type="number" name="date_of_graduation" value="{{ old('date_of_graduation') }}"
+                       min="1980" max="{{ date('Y') + 10 }}" placeholder="{{ date('Y') }}"
                        class="input-field">
             </div>
 

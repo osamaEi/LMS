@@ -73,23 +73,28 @@
 
     <div class="min-h-screen flex">
 
-        <!-- Left Side: Image Background -->
+        <!-- Left Side: Branded Panel -->
         <div class="hidden lg:flex lg:w-1/2 relative overflow-hidden"
-             style="background-image: url('{{ asset('images/logo/right.png') }}');
-                    background-size: cover;
-                    background-position: center;
-                    background-repeat: no-repeat;">
+             style="background: linear-gradient(135deg, #0A5A86 0%, #0D6FA6 55%, #1283c0 100%);">
 
-            <!-- Dark overlay for better text visibility -->
-            <div class="absolute inset-0 bg-black bg-opacity-30"></div>
+            <!-- Decorative shapes -->
+            <div class="absolute -top-24 -right-24 w-96 h-96 rounded-full" style="background: rgba(255,255,255,0.06);"></div>
+            <div class="absolute -bottom-32 -left-20 w-96 h-96 rounded-full" style="background: rgba(255,255,255,0.05);"></div>
+            <div class="absolute top-1/3 left-10 w-32 h-32 rounded-full" style="background: rgba(255,255,255,0.04);"></div>
 
-            <!-- Content: Logo Only -->
-            <div class="relative z-10 flex flex-col justify-center items-center text-white p-12 w-full">
-                <div class="text-center">
-
-                  
-
+            <!-- Content: Logo + tagline -->
+            <div class="relative z-10 flex flex-col justify-center items-center text-white p-12 w-full text-center">
+                <div class="bg-white rounded-3xl px-8 py-6 shadow-2xl mb-8">
+                    <img src="{{ asset('images/nav.png') }}" alt="ALERTIQA" style="width: 220px; height: auto;">
                 </div>
+                <h1 class="text-3xl font-bold mb-3">
+                    {{ app()->getLocale() === 'ar' ? 'منصة الارتقاء التعليمية' : 'ALERTIQA Learning Platform' }}
+                </h1>
+                <p class="text-base text-white/80 max-w-sm leading-relaxed">
+                    {{ app()->getLocale() === 'ar'
+                        ? 'تابع دوراتك وجلساتك التدريبية وجدولك الدراسي في مكان واحد'
+                        : 'Follow your courses, training sessions and study schedule in one place' }}
+                </p>
             </div>
         </div>
 
@@ -104,10 +109,10 @@
 
                 <!-- Logo at top -->
                 <div class="text-center mb-8">
-                    <img src="{{ asset('images/logo/logo.png') }}"
+                    <img src="{{ asset('images/nav.png') }}"
                          alt="ALERTIQA"
                          class="mx-auto mb-8"
-                         style="width: 80px; height: auto;">
+                         style="width: 160px; height: auto;">
 
                     <h2 class="text-3xl font-bold text-gray-900 mb-3">
                         {{ app()->getLocale() === 'ar' ? 'تسجيل الدخول' : 'Login' }}
@@ -130,7 +135,7 @@
                                 <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
                                 <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
                             </svg>
-                            {{ app()->getLocale() === 'ar' ? 'رقم الهوية' : 'Email / ID' }}
+                            {{ app()->getLocale() === 'ar' ? 'البريد الإلكتروني' : 'Email' }}
                         </label>
                         <input
                             id="email"
@@ -138,8 +143,9 @@
                             type="email"
                             required
                             value="{{ old('email') }}"
-                            class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition @error('email') border-red-500 @enderror"
-                            placeholder=""
+                            dir="ltr"
+                            class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-right @error('email') border-red-500 @enderror"
+                            placeholder="name@example.com"
                         >
                         @error('email')
                             <p class="mt-2 text-sm text-red-600">{{ $message }}</p>

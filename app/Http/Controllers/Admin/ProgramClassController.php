@@ -80,10 +80,8 @@ class ProgramClassController extends Controller
             return $s->code && in_array($s->code . $suffix, $usedCodes, true);
         })->pluck('id')->all();
 
-        // Teachers registered for THIS program (program_teacher pivot)
-        $teachers = $class->program
-            ? $class->program->teachers()->orderBy('name')->get(['users.id', 'users.name'])
-            : collect();
+        // All teachers in the system — so the assign-teacher modal is never empty.
+        $teachers = User::where('role', 'teacher')->orderBy('name')->get(['id', 'name']);
 
         // Subjects belonging to THIS class (used as the session subject picker for diplomas).
         // Attach each subject's term so the form can derive the term end date.

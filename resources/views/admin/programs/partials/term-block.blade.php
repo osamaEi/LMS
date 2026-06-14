@@ -86,9 +86,18 @@
             <tbody>
                 @foreach($term->subjects as $idx => $subject)
                 @php
-                    $allTeachers = $subject->teachers->isNotEmpty()
-                        ? $subject->teachers
-                        : ($subject->teacher ? collect([$subject->teacher]) : collect());
+                    // Teachers assigned to this subject within THIS class:
+                    // pivot + direct teacher + teachers of this subject's sessions (scoped to the class).
+                    $allTeachers = $subject->teachers
+                        ->merge($subject->teacher ? [$subject->teacher] : [])
+                        ->merge(
+                            \App\Models\Session::where('subject_id', $subject->id)
+                                ->when($classId, fn($q) => $q->where('class_id', $classId))
+                                ->whereNotNull('teacher_id')
+                                ->with('teacher:id,name')
+                                ->get()->pluck('teacher')->filter()
+                        )
+                        ->unique('id')->values();
                 @endphp
                 <tr style="border-bottom:1px solid #f8fafc;transition:background .15s;" onmouseover="this.style.background='#fafbff'" onmouseout="this.style.background=''">
                     <td style="padding:12px 16px;color:#cbd5e1;font-size:11px;">{{ $idx + 1 }}</td>
@@ -106,7 +115,12 @@
                     {{-- Teachers cell --}}
                     @if($showTeachers)
                     <td style="padding:12px 16px;">
-                        <button @click="openTeacherModal({{ $subject->id }}, '{{ addslashes($subject->name_ar ?: $subject->name_en) }}', {{ json_encode($allTeachers->pluck('id')->all()) }})"
+                        @php
+                            $allSystemTeachers = isset($teachers)
+                                ? $teachers->map(fn($t) => ['id' => $t->id, 'name' => $t->name])->values()->all()
+                                : $allTeachers->map(fn($t) => ['id' => $t->id, 'name' => $t->name])->all();
+                        @endphp
+                        <button @click="openTeacherModal({{ $subject->id }}, '{{ addslashes($subject->name_ar ?: $subject->name_en) }}', {{ json_encode($allTeachers->pluck('id')->all()) }}, {{ json_encode($allSystemTeachers) }})"
                                 style="display:flex;align-items:center;gap:6px;background:none;border:none;cursor:pointer;padding:0;text-align:right;">
                             @if($allTeachers->isNotEmpty())
                                 <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;">
