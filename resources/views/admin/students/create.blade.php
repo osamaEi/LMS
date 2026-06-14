@@ -88,8 +88,39 @@
 
             <div>
                 <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">تاريخ الميلاد</label>
-                <input type="date" name="date_of_birth" value="{{ old('date_of_birth') }}"
-                       class="input-field">
+                @php
+                    $dobParts = old('date_of_birth') ? explode('-', old('date_of_birth')) : ['', '', ''];
+                @endphp
+                <div class="flex gap-2" dir="rtl">
+                    <select name="dob_day" class="input-field w-1/3">
+                        <option value="">اليوم</option>
+                        @for ($d = 1; $d <= 31; $d++)
+                            <option value="{{ str_pad($d, 2, '0', STR_PAD_LEFT) }}"
+                                {{ ($dobParts[2] ?? '') == str_pad($d, 2, '0', STR_PAD_LEFT) ? 'selected' : '' }}>
+                                {{ $d }}
+                            </option>
+                        @endfor
+                    </select>
+                    <select name="dob_month" class="input-field w-1/3">
+                        <option value="">الشهر</option>
+                        @foreach (['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'] as $i => $month)
+                            <option value="{{ str_pad($i+1, 2, '0', STR_PAD_LEFT) }}"
+                                {{ ($dobParts[1] ?? '') == str_pad($i+1, 2, '0', STR_PAD_LEFT) ? 'selected' : '' }}>
+                                {{ $month }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <select name="dob_year" class="input-field w-1/3">
+                        <option value="">السنة</option>
+                        @for ($y = date('Y'); $y >= 1950; $y--)
+                            <option value="{{ $y }}"
+                                {{ ($dobParts[0] ?? '') == $y ? 'selected' : '' }}>
+                                {{ $y }}
+                            </option>
+                        @endfor
+                    </select>
+                </div>
+                <input type="hidden" name="date_of_birth" id="date_of_birth">
             </div>
 
             <div>
@@ -288,6 +319,15 @@ function previewPhoto(input) {
     reader.onload = e => document.getElementById('photo-preview').src = e.target.result;
     reader.readAsDataURL(input.files[0]);
 }
+
+document.querySelector('form').addEventListener('submit', function () {
+    const y = document.querySelector('[name="dob_year"]').value;
+    const m = document.querySelector('[name="dob_month"]').value;
+    const d = document.querySelector('[name="dob_day"]').value;
+    if (y && m && d) {
+        document.getElementById('date_of_birth').value = y + '-' + m + '-' + d;
+    }
+});
 </script>
 @endpush
 

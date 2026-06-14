@@ -100,14 +100,11 @@
                 }) ?? $terms->firstWhere('term_number', $currentTermNumber)
                   ?? $terms->first();
 
-                if ($terms->isNotEmpty()) {
-                    $studentSubjects = \App\Models\Subject::whereIn('term_id', $terms->pluck('id'))
+                if ($currentTerm) {
+                    $studentSubjects = \App\Models\Subject::where('term_id', $currentTerm->id)
                         ->where(function($q) use ($classId) {
-                            if ($classId) {
-                                $q->where('class_id', $classId)->orWhereNull('class_id');
-                            } else {
-                                $q->whereNull('class_id');
-                            }
+                            $q->whereNull('class_id');
+                            if ($classId) $q->orWhere('class_id', $classId);
                         })
                         ->orderBy('name_ar')
                         ->get();
