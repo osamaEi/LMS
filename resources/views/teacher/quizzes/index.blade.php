@@ -361,7 +361,7 @@
                     </svg>
                 </a>
                 <div>
-                    <h1 class="page-title">{{ $subject->name }}</h1>
+                    <h1 class="page-title">{{ $subject->name }}@if($subject->code) <span class="text-gray-400 font-normal">({{ $subject->code }})</span>@endif</h1>
                     <p class="page-subtitle">إدارة الاختبارات والامتحانات</p>
                 </div>
             </div>

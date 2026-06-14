@@ -31,7 +31,20 @@ class SubjectController extends Controller
     {
         $teacher = auth()->user();
 
-        $subjects = Subject::assignedToTeacher($teacher->id)
+        // Sessions this teacher is assigned to (used as a fallback assignment signal).
+        $sessionSubjectIds = \App\Models\Session::where('teacher_id', $teacher->id)
+            ->whereNotNull('subject_id')->distinct()->pluck('subject_id');
+
+        // Show subjects the teacher actually teaches (direct teacher_id,
+        // teachers pivot, or assigned sessions) AND that belong to a class.
+        $subjects = Subject::where(function ($q) use ($teacher, $sessionSubjectIds) {
+                $q->assignedToTeacher($teacher->id)
+                  ->orWhereIn('id', $sessionSubjectIds);
+            })
+            ->where(function ($q) {
+                $q->whereNotNull('class_id')
+                  ->orWhereHas('term', fn($tq) => $tq->whereNotNull('class_id'));
+            })
             ->where(function ($q) {
                 $q->whereHas('program', fn($pq) => $pq->where('type', 'diploma'))
                   ->orWhereHas('term.program', fn($pq) => $pq->where('type', 'diploma'));
@@ -51,7 +64,13 @@ class SubjectController extends Controller
     {
         $teacher = auth()->user();
 
-        $subject = Subject::assignedToTeacher($teacher->id)
+        $sessionSubjectIds = \App\Models\Session::where('teacher_id', $teacher->id)
+            ->whereNotNull('subject_id')->distinct()->pluck('subject_id');
+
+        $subject = Subject::where(function ($q) use ($teacher, $sessionSubjectIds) {
+                $q->assignedToTeacher($teacher->id)
+                  ->orWhereIn('id', $sessionSubjectIds);
+            })
             ->with(['term.program', 'units', 'files'])
             ->withCount('enrollments')
             ->findOrFail($id);
@@ -542,18 +561,30 @@ class SubjectController extends Controller
               ->orderBy('scheduled_at', 'desc');
         };
 
-        $subjects = Subject::assignedToTeacher($teacher->id)
+        // Classes this teacher is assigned to teach.
+        $classIds = \App\Models\ProgramClass::where('teacher_id', $teacher->id)->pluck('id');
+
+        $subjects = Subject::where(function ($q) use ($teacher, $classIds) {
+                $q->whereIn('class_id', $classIds)
+                  ->orWhereHas('term', fn($tq) => $tq->whereIn('class_id', $classIds))
+                  ->orWhere(fn($aq) => $aq->assignedToTeacher($teacher->id));
+            })
             ->where(fn($q) => $q
                 ->whereHas('program', fn($pq) => $pq->where('type', 'diploma'))
                 ->orWhereHas('term.program', fn($pq) => $pq->where('type', 'diploma'))
             )
-            ->with(['sessions' => $sessionQuery])
+            ->with(['sessions' => $sessionQuery, 'programClass', 'term.programClass'])
             ->withCount('enrollments')
             ->get();
 
-        $programs = $teacher->teachingPrograms()
+        // Programs reachable via assigned classes or direct assignment.
+        $classProgramIds  = \App\Models\ProgramClass::where('teacher_id', $teacher->id)->pluck('program_id');
+        $directProgramIds = $teacher->teachingPrograms()->pluck('programs.id');
+        $programIds       = $classProgramIds->merge($directProgramIds)->unique()->values();
+
+        $programs = \App\Models\Program::whereIn('id', $programIds)
             ->whereIn('type', ['training', 'english', 'course'])
-            ->with(['sessions' => $sessionQuery])
+            ->with(['sessions' => $sessionQuery, 'classes' => fn($q) => $q->where('teacher_id', $teacher->id)])
             ->withCount('enrolledStudents as enrolled_count')
             ->get();
 

@@ -94,7 +94,11 @@
                         {{ mb_substr($subject->name_ar ?? 'م', 0, 1) }}
                     </div>
                     <div>
-                        <h3 style="font-size:.95rem;font-weight:800;color:#111827;margin:0;">{{ $subject->name_ar }}</h3>
+                        @php $className = $subject->programClass->name ?? $subject->term->programClass->name ?? null; @endphp
+                        <h3 style="font-size:.95rem;font-weight:800;color:#111827;margin:0;">
+                            {{ $subject->name_ar }}
+                            @if($className)<span style="font-size:.72rem;font-weight:700;color:#0071AA;background:#e0f2fe;padding:2px 8px;border-radius:20px;margin-right:4px;">{{ $className }}</span>@endif
+                        </h3>
                         <p style="font-size:.75rem;color:#6b7280;margin:2px 0 0;">
                             {{ $totalEnrolled }} طالب مسجّل &nbsp;·&nbsp; {{ $pastSes->count() }} جلسة منعقدة
                             &nbsp;·&nbsp; معدل حضور إجمالي:
@@ -215,6 +219,9 @@
                         <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;">
                             <h3 style="font-size:.95rem;font-weight:800;color:#111827;margin:0;">{{ $program->name_ar }}</h3>
                             <span style="font-size:.7rem;font-weight:700;padding:2px 9px;border-radius:20px;background:linear-gradient(135deg,{{ $pFrom }},{{ $pTo }});color:white;">{{ $pLabel }}</span>
+                            @foreach($program->classes as $cls)
+                            <span style="font-size:.7rem;font-weight:700;padding:2px 9px;border-radius:20px;background:#e0f2fe;color:#0071AA;">{{ $cls->name }}</span>
+                            @endforeach
                         </div>
                         <p style="font-size:.75rem;color:#6b7280;margin:2px 0 0;">
                             {{ $totalEnrolled }} متدرب مسجّل &nbsp;·&nbsp; {{ $pastSes->count() }} جلسة منعقدة

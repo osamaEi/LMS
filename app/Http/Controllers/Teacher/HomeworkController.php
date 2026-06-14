@@ -18,8 +18,19 @@ class HomeworkController extends Controller
     {
         $teacher = auth()->user();
 
-        // All sessions for this teacher's subjects, with homework
-        $sessions = Session::whereHas('subject', fn($q) => $q->assignedToTeacher($teacher->id))
+        // Classes this teacher is assigned to teach.
+        $classIds = \App\Models\ProgramClass::where('teacher_id', $teacher->id)->pluck('id');
+
+        // Sessions whose subject belongs to one of the teacher's classes,
+        // OR that are assigned to this teacher directly,
+        // OR whose subject was directly assigned (legacy).
+        $sessions = Session::where(function ($q) use ($teacher, $classIds) {
+                $q->whereHas('subject', function ($sq) use ($teacher, $classIds) {
+                    $sq->whereIn('class_id', $classIds)
+                       ->orWhereHas('term', fn($tq) => $tq->whereIn('class_id', $classIds))
+                       ->orWhere(fn($aq) => $aq->assignedToTeacher($teacher->id));
+                })->orWhere('teacher_id', $teacher->id);
+            })
             ->with(['subject', 'homework'])
             ->orderByDesc('scheduled_at')
             ->get();

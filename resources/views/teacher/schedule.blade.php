@@ -12,6 +12,7 @@ $calSessions = $sessions->map(fn($s) => [
     'type'             => $s->type ?? '',
     'status'           => (string)($s->status ?? ''),
     'session_number'   => $s->session_number,
+    'class_name'       => $s->programClass->name ?? $s->subject?->programClass?->name ?? $s->subject?->term?->programClass?->name ?? '',
     'zoom_join_url'    => $s->zoom_join_url,
 ])->filter(fn($s) => $s['scheduled_at'])->values();
 @endphp
@@ -99,13 +100,6 @@ const periodIndex = mins => { for(let p=0;p<PERIODS.length;p++) if(mins<PERIODS[
 function sameDay(a,b){ return a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate(); }
 function fmtTime(iso){ const d=new Date(iso); let h=d.getHours(),m=String(d.getMinutes()).padStart(2,'0'); return (h%12||12)+':'+m+(h<12?' ص':' م'); }
 
-function typeStyle(type){
-    if(type==='live_zoom')      return {bg:'#dbeafe',color:'#1d4ed8',label:'Zoom'};
-    if(type==='in_person')      return {bg:'#dcfce7',color:'#15803d',label:'حضوري'};
-    if(type==='recorded_video') return {bg:'#fce7f3',color:'#be185d',label:'مسجّل'};
-    return {bg:'#f3f4f6',color:'#4b5563',label:type||'—'};
-}
-
 function weekStart(d){ const c=new Date(d); c.setDate(c.getDate()-c.getDay()); c.setHours(0,0,0,0); return c; }
 
 function sessionsOnDay(date){
@@ -117,17 +111,14 @@ function openSession(s){
     const dt = s.scheduled_at ? new Date(s.scheduled_at) : null;
     document.getElementById('smTitle').textContent = s.title || ('جلسة #'+s.session_number);
     document.getElementById('sessionModal').style.display='flex';
-    const ts = typeStyle(s.type);
-    const statusBg    = s.status==='completed'?'#dcfce7':s.status==='live'?'#fee2e2':'#dbeafe';
-    const statusColor = s.status==='completed'?'#15803d':s.status==='live'?'#dc2626':'#1d4ed8';
-    const statusLabel = s.status==='completed'?'مكتملة':s.status==='live'?'● مباشر':'مجدولة';
+    const statusLabel = s.status==='completed'?'مكتملة':s.status==='live'?'● مباشر':'';
     const rows = [
         dt?['📅 الموعد', dt.toLocaleDateString('ar-SA',{weekday:'long',year:'numeric',month:'long',day:'numeric'})+' — '+fmtTime(s.scheduled_at)]:null,
         dt?['⏱ المدة', (s.duration_minutes||60)+' دقيقة']:null,
         s.subject_name?['📚 المادة', s.subject_name]:null,
         s.program_name?['🎓 البرنامج', s.program_name]:null,
-        ['🔖 النوع', ts.label],
-        ['📊 الحالة', statusLabel],
+        s.class_name?['👥 الكلاس', s.class_name]:null,
+        statusLabel?['📊 الحالة', statusLabel]:null,
     ].filter(Boolean);
     let html='<div style="display:flex;flex-direction:column;gap:10px;">';
     rows.forEach(([k,v])=>{
@@ -139,7 +130,7 @@ function openSession(s){
     if(s.zoom_join_url && s.status!=='completed'){
         html+=`<a href="${s.zoom_join_url}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:white;border-radius:10px;text-decoration:none;font-size:13px;font-weight:700;margin-top:4px;">
             <svg width="16" height="16" fill="white" viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
-            انضمام عبر Zoom
+            انضمام للجلسة المباشرة
         </a>`;
     }
     html+='</div>';
@@ -180,18 +171,17 @@ function renderCalendar(){
         PERIODS.forEach((p,pi)=>{
             const items=cellMap[i+'|'+pi]||[];
             const inner=items.map(s=>{
-                const ts=typeStyle(s.type);
-                const statusBg    = s.status==='completed'?'#dcfce7':s.status==='live'?'#fee2e2':'#eff6ff';
-                const statusColor = s.status==='completed'?'#15803d':s.status==='live'?'#dc2626':'#1e3a8a';
-                const statusLabel = s.status==='completed'?'مكتملة':s.status==='live'?'● مباشر':'مجدولة';
+                const statusBg    = s.status==='completed'?'#dcfce7':s.status==='live'?'#fee2e2':'';
+                const statusColor = s.status==='completed'?'#15803d':s.status==='live'?'#dc2626':'';
+                const statusLabel = s.status==='completed'?'مكتملة':s.status==='live'?'● مباشر':'';
                 const sub = s.subject_name||s.program_name;
                 const showSub = sub && !(s.title||'').includes(sub);
                 return `<div onclick='openSession(${JSON.stringify(s)})' style="background:#eff6ff;border-right:3px solid #0071AA;border-radius:6px;padding:6px 8px;margin-bottom:4px;line-height:1.35;cursor:pointer;">
                     <div style="font-size:12px;font-weight:700;color:#1e3a8a;">${s.title||sub||'جلسة'}</div>
                     ${showSub?`<div style="font-size:10px;color:#64748b;">${sub}</div>`:''}
                     <div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:4px;">
-                        <span style="background:${ts.bg};color:${ts.color};font-size:10px;font-weight:600;padding:1px 6px;border-radius:20px;">${ts.label}</span>
-                        <span style="background:${statusBg};color:${statusColor};font-size:10px;font-weight:600;padding:1px 6px;border-radius:20px;">${statusLabel}</span>
+                        ${s.class_name?`<span style="background:#e0f2fe;color:#0071AA;font-size:10px;font-weight:600;padding:1px 6px;border-radius:20px;">${s.class_name}</span>`:''}
+                        ${statusLabel?`<span style="background:${statusBg};color:${statusColor};font-size:10px;font-weight:600;padding:1px 6px;border-radius:20px;">${statusLabel}</span>`:''}
                     </div>
                 </div>`;
             }).join('');

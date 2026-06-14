@@ -82,6 +82,11 @@ class Session extends Model
         return $this->belongsTo(\App\Models\Program::class);
     }
 
+    public function programClass(): BelongsTo
+    {
+        return $this->belongsTo(\App\Models\ProgramClass::class, 'class_id');
+    }
+
     public function teacher(): BelongsTo
     {
         return $this->belongsTo(\App\Models\User::class, 'teacher_id');

@@ -28,8 +28,14 @@ class CourseController extends Controller
 
     public function index()
     {
-        $teacher  = auth()->user();
-        $programs = $teacher->teachingPrograms()
+        $teacher = auth()->user();
+
+        // Show ONLY programs that own a class this teacher is assigned to teach.
+        // Programs without a class assigned to this teacher are hidden.
+        $programIds = \App\Models\ProgramClass::where('teacher_id', $teacher->id)
+            ->pluck('program_id')->unique()->values();
+
+        $programs = Program::whereIn('id', $programIds)
             ->whereIn('type', ['training', 'english', 'course'])
             ->withCount(['terms', 'sessions', 'files', 'enrolledStudents'])
             ->get();
@@ -40,7 +46,12 @@ class CourseController extends Controller
     public function show($id)
     {
         $teacher = auth()->user();
-        $program = $teacher->teachingPrograms()
+
+        // Programs accessible via a class assigned to this teacher.
+        $programIds = \App\Models\ProgramClass::where('teacher_id', $teacher->id)
+            ->pluck('program_id')->unique()->values();
+
+        $program = Program::whereIn('id', $programIds)
             ->whereIn('type', ['training', 'english', 'course'])
             ->with(['files'])
             ->withCount(['enrolledStudents'])

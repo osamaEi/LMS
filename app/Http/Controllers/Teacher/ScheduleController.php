@@ -18,7 +18,7 @@ class ScheduleController extends Controller
 
         // Subject-based sessions (diploma)
         $subjectSessions = Session::whereHas('subject', fn($q) => $q->assignedToTeacher($teacher->id))
-            ->with(['subject.program', 'subject.term.program'])
+            ->with(['subject.program', 'subject.term.program', 'programClass', 'subject.programClass', 'subject.term.programClass'])
             ->get();
 
         // Program-based sessions (course / training / english)
@@ -27,7 +27,7 @@ class ScheduleController extends Controller
             ->pluck('id');
 
         $programSessions = Session::whereIn('program_id', $programIds)
-            ->with(['program'])
+            ->with(['program', 'programClass'])
             ->get();
 
         $sessions = $subjectSessions->merge($programSessions)->sortBy('scheduled_at')->values();

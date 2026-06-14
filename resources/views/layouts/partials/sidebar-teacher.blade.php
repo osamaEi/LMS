@@ -18,7 +18,14 @@
 <li style="margin:6px 16px;height:1px;background:rgba(255,255,255,0.1)"></li>
 
 @php
-$_teacherSubjects  = \App\Models\Subject::assignedToTeacher(auth()->user()->id)->with(['program:id,type,name_ar', 'term.program:id,type,name_ar'])->get();
+$_sessionSubjectIds = \App\Models\Session::where('teacher_id', auth()->id())->whereNotNull('subject_id')->distinct()->pluck('subject_id');
+$_teacherSubjects  = \App\Models\Subject::where(function ($q) use ($_sessionSubjectIds) {
+                            $q->assignedToTeacher(auth()->id())->orWhereIn('id', $_sessionSubjectIds);
+                        })
+                        ->where(function ($q) {
+                            $q->whereNotNull('class_id')->orWhereHas('term', fn($tq) => $tq->whereNotNull('class_id'));
+                        })
+                        ->with(['program:id,type,name_ar', 'term.program:id,type,name_ar'])->get();
 $_teachingPrograms = auth()->user()->teachingPrograms()->get(['id', 'type', 'name_ar']);
 
 // Resolve program types using PHP arrays to avoid Eloquent Collection pitfalls
@@ -102,9 +109,9 @@ $_courseTypeConfig = [
         @foreach($_teacherSubjects->sortBy('name') as $subject)
         <li>
             <a href="{{ route('teacher.quizzes.index', $subject->id) }}"
-               class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors {{ request()->is('teacher/subjects/'.$subject->id.'/quizzes*') ? 'bg-white/20 text-white' : 'text-white/70 hover:bg-white/10 hover:text-white' }}">
+               class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-white transition-colors {{ request()->is('teacher/subjects/'.$subject->id.'/quizzes*') ? 'bg-white/20' : 'hover:bg-white/10' }}">
                 <span class="w-2 h-2 rounded-full {{ request()->is('teacher/subjects/'.$subject->id.'/quizzes*') ? 'bg-white' : 'bg-white/50' }}"></span>
-                <span class="truncate">{{ $subject->name }}</span>
+                <span class="truncate">{{ $subject->name }}@if($subject->code) <span class="text-white/60">({{ $subject->code }})</span>@endif</span>
             </a>
         </li>
         @endforeach
