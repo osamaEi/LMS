@@ -93,7 +93,7 @@ class ProgramClassController extends Controller
 
         // Existing sessions for this class
         $sessions = \App\Models\Session::where('class_id', $class->id)
-            ->with('subject:id,name_ar,name_en')
+            ->with('subject:id,name_ar,name_en', 'teacher:id,name')
             ->orderBy('scheduled_at')
             ->get();
 

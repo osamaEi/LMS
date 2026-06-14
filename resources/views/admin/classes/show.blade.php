@@ -147,7 +147,7 @@
 @if($class->program && $class->program->type === 'diploma')
 <div class="space-y-5">
     @forelse($class->terms as $term)
-        @include('admin.programs.partials.term-block', ['term' => $term, 'classId' => $class->id, 'showTeachers' => false])
+        @include('admin.programs.partials.term-block', ['term' => $term, 'classId' => $class->id, 'showTeachers' => true])
 
         {{-- Inline add-subject (dropdown) under each term --}}
         @php $available = $programSubjects->whereNotIn('id', $usedSubjectIds); @endphp
@@ -218,6 +218,7 @@
         'id'       => $s->id,
         'title'    => $s->title_ar ?: 'جلسة',
         'subject'  => $s->subject->name_ar ?? null,
+        'teacher'  => $s->teacher->name ?? null,
         'at'       => $s->scheduled_at ? \Carbon\Carbon::parse($s->scheduled_at)->format('Y-m-d H:i:s') : null,
         'duration' => $s->duration_minutes,
         'status'   => $s->status,
@@ -352,6 +353,7 @@
                 <td style="padding:12px 16px;color:#cbd5e1;font-size:11px;">${s.number ?? i+1}</td>
                 <td style="padding:12px 16px;font-weight:600;color:#1e293b;">${s.title}</td>
                 <td style="padding:12px 16px;color:#475569;" dir="ltr">${date} · ${fmtTime(d)}</td>
+                <td style="padding:12px 16px;color:#6366f1;font-weight:600;">${s.teacher || '—'}</td>
                 <td style="padding:12px 16px;text-align:center;color:#64748b;">${s.duration} د</td>
                 <td style="padding:12px 16px;text-align:center;"><span style="background:${c[0]};color:${c[1]};border-radius:9999px;padding:.18rem .7rem;font-size:.65rem;font-weight:700;">${c[2]}</span></td>
             </tr>`;
@@ -361,6 +363,7 @@
                 <th style="padding:11px 16px;text-align:right;font-size:11px;font-weight:700;color:#94a3b8;width:40px;">#</th>
                 <th style="padding:11px 16px;text-align:right;font-size:11px;font-weight:700;color:#94a3b8;">العنوان</th>
                 <th style="padding:11px 16px;text-align:right;font-size:11px;font-weight:700;color:#94a3b8;">الموعد</th>
+                <th style="padding:11px 16px;text-align:right;font-size:11px;font-weight:700;color:#94a3b8;">المعلم</th>
                 <th style="padding:11px 16px;text-align:center;font-size:11px;font-weight:700;color:#94a3b8;width:70px;">المدة</th>
                 <th style="padding:11px 16px;text-align:center;font-size:11px;font-weight:700;color:#94a3b8;width:100px;">الحالة</th>
             </tr></thead><tbody>${rows}</tbody></table></div>`;
@@ -427,6 +430,7 @@
                     return `<div style="background:#eff6ff;border-right:3px solid #0071AA;border-radius:6px;padding:6px 8px;margin-bottom:4px;line-height:1.35;">
                         <div style="font-size:12px;font-weight:700;color:#1e3a8a;">${s.title}</div>
                         ${showSub?`<div style="font-size:10px;color:#64748b;">${s.subject}</div>`:''}
+                        ${s.teacher?`<div style="font-size:10px;color:#6366f1;font-weight:600;margin-top:2px;">👤 ${s.teacher}</div>`:''}
                         <div style="display:flex;gap:4px;justify-content:flex-start;margin-top:5px;">
                             <button type="button" onclick="rescheduleSession(${s.id}, '${s.at}')" title="تعديل الموعد"
                                     style="width:20px;height:20px;border:none;border-radius:5px;background:#dbeafe;color:#1d4ed8;cursor:pointer;font-size:10px;line-height:1;">✎</button>
