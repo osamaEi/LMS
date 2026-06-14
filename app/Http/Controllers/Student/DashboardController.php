@@ -623,12 +623,9 @@ class DashboardController extends Controller
                     ? Term::where('program_id', $prog->id)->where('class_id', $classId)->exists()
                     : false;
 
-                // Subjects scope: class-specific if class has its own terms, otherwise shared (null class_id)
                 $subjectScope = fn($sq) => $hasClassTerms
                     ? $sq->where('class_id', $classId)
-                    : $sq->where(fn($q) => $classId
-                        ? $q->where('class_id', $classId)->orWhereNull('class_id')
-                        : $q->whereNull('class_id'));
+                    : $sq->whereNull('class_id');
 
                 $progTerms = Term::where('program_id', $prog->id)
                     ->when($hasClassTerms,
