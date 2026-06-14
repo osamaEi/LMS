@@ -11,7 +11,6 @@ use App\Models\Enrollment;
 use App\Models\Setting;
 use App\Models\Ticket;
 use App\Models\TeacherRating;
-use App\Models\SatisfactionSurvey;
 use App\Models\Term;
 use App\Services\ZoomService;
 use Illuminate\Http\Request;
@@ -60,12 +59,6 @@ class DashboardController extends Controller
 
         $studentSubjectIds = $this->studentSubjectIds($student);
 
-        // Get student's subjects with relationships
-        $subjects = Subject::whereIn('id', $studentSubjectIds)
-            ->with(['term.program', 'teacher'])
-            ->withCount('sessions')
-            ->get();
-
         $studentProgramIds = $this->studentProgramIds($student);
 
         // Student's class IDs (one per program)
@@ -73,12 +66,27 @@ class DashboardController extends Controller
             ->map(fn($pid) => $student->classIdForProgram((int) $pid))
             ->filter()->unique()->values()->all();
 
-        // Session scope: class-based sessions OR subject/program-based sessions
-        $sessionScope = fn($q) => $q->where(function ($inner) use ($studentSubjectIds, $studentProgramIds, $studentClassIds) {
-            $inner->whereIn('subject_id', $studentSubjectIds)
-                  ->orWhereIn('program_id', $studentProgramIds);
+        // Get student's subjects scoped to their class (or program if not in a class)
+        $subjects = Subject::whereIn('id', $studentSubjectIds)
+            ->when(
+                !empty($studentClassIds),
+                fn($q) => $q->whereIn('class_id', $studentClassIds),
+                fn($q) => $q->whereIn('program_id', $studentProgramIds)
+            )
+            ->with(['term.program', 'teacher'])
+            ->withCount('sessions')
+            ->get();
+
+        // Subject IDs already filtered (class or program)
+        $classSubjectIds = $subjects->pluck('id');
+
+        // Session scope: scoped to the student's class if assigned, otherwise by program
+        $sessionScope = fn($q) => $q->where(function ($inner) use ($classSubjectIds, $studentProgramIds, $studentClassIds) {
             if (!empty($studentClassIds)) {
-                $inner->orWhereIn('class_id', $studentClassIds);
+                $inner->whereIn('class_id', $studentClassIds);
+            } else {
+                $inner->whereIn('subject_id', $classSubjectIds)
+                      ->orWhereIn('program_id', $studentProgramIds);
             }
         });
 
@@ -104,81 +112,25 @@ class DashboardController extends Controller
             ->with(['subject', 'program'])
             ->get();
 
+        // Attendance rate scoped to the student's sessions
+        $classSessionIds = Session::when(
+                !empty($studentClassIds),
+                fn($q) => $q->whereIn('class_id', $studentClassIds),
+                fn($q) => $q->whereIn('subject_id', $classSubjectIds)->orWhereIn('program_id', $studentProgramIds)
+            )
+            ->pluck('id');
+
+        $totalAtt   = Attendance::where('student_id', $student->id)->whereIn('session_id', $classSessionIds)->count();
+        $presentAtt = Attendance::where('student_id', $student->id)->whereIn('session_id', $classSessionIds)->where('attended', true)->count();
+        $overallAttendance = $totalAtt > 0 ? round(($presentAtt / $totalAtt) * 100, 1) : 0;
+
         // Statistics
         $stats = [
-            'subjects_count'     => $subjects->count(),
-            'total_sessions'     => Session::whereIn('subject_id', $studentSubjectIds)->count(),
-            'completed_sessions' => Session::whereIn('subject_id', $studentSubjectIds)->whereNotNull('ended_at')->count(),
+            'subjects_count'     => $classSubjectIds->count(),
+            'total_sessions'     => Session::whereIn('id', $classSessionIds)->count(),
+            'completed_sessions' => Session::whereIn('id', $classSessionIds)->whereNotNull('ended_at')->count(),
             'live_sessions'      => $liveSessions->count(),
         ];
-
-        // NELC: Progress per subject
-        $subjectsProgress = [];
-        foreach ($subjects as $subject) {
-            $totalSessions = $subject->sessions()->count();
-            $attendedSessions = Attendance::where('student_id', $student->id)
-                ->whereHas('session', function($q) use ($subject) {
-                    $q->where('subject_id', $subject->id);
-                })
-                ->where('attended', true)
-                ->count();
-
-            $subjectsProgress[$subject->id] = [
-                'name' => $subject->name,
-                'total' => $totalSessions,
-                'attended' => $attendedSessions,
-                'percentage' => $totalSessions > 0 ? round(($attendedSessions / $totalSessions) * 100, 1) : 0,
-            ];
-        }
-
-        // Overall attendance
-        $subjectIds = $subjects->pluck('id');
-        $totalAttendances = Attendance::where('student_id', $student->id)
-            ->whereHas('session', function($q) use ($subjectIds) {
-                $q->whereIn('subject_id', $subjectIds);
-            })->count();
-
-        $presentAttendances = Attendance::where('student_id', $student->id)
-            ->whereHas('session', function($q) use ($subjectIds) {
-                $q->whereIn('subject_id', $subjectIds);
-            })
-            ->where('attended', true)
-            ->count();
-
-        $overallAttendance = $totalAttendances > 0
-            ? round(($presentAttendances / $totalAttendances) * 100, 1)
-            : 0;
-
-        // Monthly attendance chart
-        $monthlyAttendance = Attendance::where('student_id', $student->id)
-            ->where('created_at', '>=', now()->subMonths(6))
-            ->select(
-                DB::raw('DATE_FORMAT(created_at, "%Y-%m") as month'),
-                DB::raw('SUM(CASE WHEN attended = 1 THEN 1 ELSE 0 END) as present'),
-                DB::raw('COUNT(*) as total')
-            )
-            ->groupBy('month')
-            ->orderBy('month')
-            ->get()
-            ->map(function($item) {
-                $item->rate = $item->total > 0 ? round(($item->present / $item->total) * 100, 1) : 0;
-                return $item;
-            });
-
-        // NELC: Pending surveys
-        $pendingSurveys = SatisfactionSurvey::where('status', 'active')
-            ->where('type', 'student')
-            ->where(function($q) {
-                $q->whereNull('starts_at')->orWhere('starts_at', '<=', now());
-            })
-            ->where(function($q) {
-                $q->whereNull('ends_at')->orWhere('ends_at', '>=', now());
-            })
-            ->whereDoesntHave('responses', function($q) use ($student) {
-                $q->where('user_id', $student->id);
-            })
-            ->with('subject')
-            ->get();
 
         // NELC: My tickets
         $myTickets = Ticket::where('user_id', $student->id)
@@ -191,7 +143,7 @@ class DashboardController extends Controller
             ->count();
 
         // NELC: Teachers I can rate
-        $ratableTeachers = Subject::whereIn('id', $studentSubjectIds)
+        $ratableTeachers = Subject::whereIn('id', $classSubjectIds)
             ->whereNotNull('teacher_id')
             ->whereDoesntHave('teacherRatings', function($q) use ($student) {
                 $q->where('student_id', $student->id);
@@ -212,10 +164,7 @@ class DashboardController extends Controller
             'recentSessions',
             'liveSessions',
             'stats',
-            'subjectsProgress',
             'overallAttendance',
-            'monthlyAttendance',
-            'pendingSurveys',
             'myTickets',
             'openTicketsCount',
             'ratableTeachers',
