@@ -61,20 +61,6 @@
 </li>
 
 
-
-<!-- دوراتي / تدريباتي (course/training/english only) -->
-@if($studentCourseProgram)
-<li>
-    <a href="{{ route('student.my-program') }}"
-       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('student.my-program') ? 'menu-item-active' : 'menu-item-inactive' }}">
-        <svg class="fill-current" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 14H8v-2h8v2zm0-4H8v-2h8v2zm0-4H8V6h8v2z"/>
-        </svg>
-        <span>{{ $studentCourseProgram->type === 'english' ? 'دورتي الإنجليزية' : 'دورتي التدريبية' }}</span>
-    </a>
-</li>
-@endif
-
 <!-- سجل الحضور -->
 <li>
     <a href="{{ route('student.attendance') }}"
