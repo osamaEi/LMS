@@ -1653,62 +1653,6 @@
                     </div>
                 </div>
 
-                <!-- Enrolled Subjects Card -->
-                <div class="info-card">
-                    <div class="info-card-header">
-                        <div class="icon">
-                            <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-                            </svg>
-                        </div>
-                        <h3>المقررات المسجلة</h3>
-                        <span style="margin-right: auto; background: linear-gradient(135deg, rgba(0, 113, 170, 0.15), rgba(0, 113, 170, 0.1)); color: #0071AA; padding: 0.375rem 1rem; border-radius: 20px; font-size: 0.875rem; font-weight: 600;">
-                            {{ $student->enrollments->count() }} مقرر
-                        </span>
-                    </div>
-                    @if($student->enrollments->count() > 0)
-                    <div class="info-card-body space-y-3">
-                        @foreach($student->enrollments as $enrollment)
-                        <div class="subject-item">
-                            <div class="icon-box">
-                                <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-                                </svg>
-                            </div>
-                            <div class="info">
-                                <div class="name">{{ $enrollment->subject->name ?? 'غير محدد' }}</div>
-                                <div class="code">{{ $enrollment->subject->code ?? '' }}</div>
-                            </div>
-                            <div class="flex items-center gap-4">
-                                @if($enrollment->progress)
-                                <div class="progress-wrapper hidden sm:flex" style="width: 100px;">
-                                    <div class="progress-bar">
-                                        <div class="progress-fill" style="width: {{ $enrollment->progress }}%"></div>
-                                    </div>
-                                    <span class="progress-text">{{ $enrollment->progress }}%</span>
-                                </div>
-                                @endif
-                                <span class="status-pill {{ $enrollment->status }}">
-                                    @if($enrollment->status === 'active') نشط
-                                    @elseif($enrollment->status === 'completed') مكتمل
-                                    @else {{ $enrollment->status }}
-                                    @endif
-                                </span>
-                            </div>
-                        </div>
-                        @endforeach
-                    </div>
-                    @else
-                    <div class="empty-state">
-                        <div class="icon-wrapper">
-                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-                            </svg>
-                        </div>
-                        <p>لا توجد مقررات مسجلة حالياً</p>
-                    </div>
-                    @endif
-                </div>
             </div>
 
             <!-- Right Column - Sidebar -->
@@ -1883,45 +1827,6 @@
                                 </div>
                             </form>
                         @endif
-                    </div>
-                </div>
-
-                <!-- Quick Actions -->
-                <div class="info-card">
-                    <div class="info-card-header">
-                        <div class="icon" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
-                            <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                            </svg>
-                        </div>
-                        <h3>إجراءات سريعة</h3>
-                    </div>
-                    <div class="info-card-body space-y-3">
-                        <a href="{{ route('admin.students.edit', $student) }}"
-                           style="display:flex;align-items:center;gap:12px;width:100%;padding:14px;border-radius:14px;font-size:14px;font-weight:600;text-decoration:none;color:#fff;background:linear-gradient(135deg,#0071AA,#005a88);box-shadow:0 4px 12px rgba(0,113,170,.3);border:none;transition:all .3s;">
-                            <div style="width:38px;height:38px;border-radius:10px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                                <svg style="width:18px;height:18px;color:white;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                                </svg>
-                            </div>
-                            تعديل البيانات
-                        </a>
-                        <button style="display:flex;align-items:center;gap:12px;width:100%;padding:14px;border-radius:14px;font-size:14px;font-weight:600;color:#fff;background:linear-gradient(135deg,#3b82f6,#2563eb);box-shadow:0 4px 12px rgba(37,99,235,.3);border:none;cursor:pointer;transition:all .3s;">
-                            <div style="width:38px;height:38px;border-radius:10px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                                <svg style="width:18px;height:18px;color:white;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                                </svg>
-                            </div>
-                            إرسال رسالة
-                        </button>
-                        <button style="display:flex;align-items:center;gap:12px;width:100%;padding:14px;border-radius:14px;font-size:14px;font-weight:600;color:#fff;background:linear-gradient(135deg,#8b5cf6,#7c3aed);box-shadow:0 4px 12px rgba(124,58,237,.3);border:none;cursor:pointer;transition:all .3s;">
-                            <div style="width:38px;height:38px;border-radius:10px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                                <svg style="width:18px;height:18px;color:white;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                                </svg>
-                            </div>
-                            السجل الأكاديمي
-                        </button>
                     </div>
                 </div>
 
