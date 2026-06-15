@@ -526,6 +526,7 @@ Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')
     Route::delete('/my-courses/{programId}/sessions/{sessionId}/files/{fileId}', [\App\Http\Controllers\Teacher\CourseController::class, 'deleteSessionFile'])->name('my-courses.sessions.files.destroy');
     Route::get('/my-courses/{programId}/sessions/{sessionId}/attendance', [\App\Http\Controllers\Teacher\CourseController::class, 'sessionAttendance'])->name('my-courses.sessions.attendance');
     Route::post('/my-courses/{programId}/sessions/{sessionId}/attendance', [\App\Http\Controllers\Teacher\CourseController::class, 'saveAttendance'])->name('my-courses.sessions.attendance.save');
+    Route::get('/my-courses/{programId}/sessions/{sessionId}/attendance/export', [\App\Http\Controllers\Teacher\CourseController::class, 'exportAttendance'])->name('my-courses.sessions.attendance.export');
     Route::post('/my-courses/{programId}/files', [\App\Http\Controllers\Teacher\CourseController::class, 'storeFile'])->name('my-courses.files.store');
     Route::delete('/my-courses/{programId}/files/{fileId}', [\App\Http\Controllers\Teacher\CourseController::class, 'destroyFile'])->name('my-courses.files.destroy');
 
@@ -539,6 +540,7 @@ Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')
     Route::get('/my-subjects/{subjectId}/sessions/{sessionId}/zoom-embedded', [\App\Http\Controllers\Teacher\SubjectController::class, 'showZoomEmbedded'])->name('my-subjects.sessions.zoom-embedded');
     Route::get('/my-subjects/{subjectId}/sessions/{sessionId}/attendance', [\App\Http\Controllers\Teacher\SubjectController::class, 'sessionAttendance'])->name('my-subjects.sessions.attendance');
     Route::post('/my-subjects/{subjectId}/sessions/{sessionId}/attendance', [\App\Http\Controllers\Teacher\SubjectController::class, 'saveAttendance'])->name('my-subjects.sessions.attendance.save');
+    Route::get('/my-subjects/{subjectId}/sessions/{sessionId}/attendance/export', [\App\Http\Controllers\Teacher\SubjectController::class, 'exportAttendance'])->name('my-subjects.sessions.attendance.export');
     Route::delete('/my-subjects/{subjectId}/sessions/{sessionId}/files/{fileId}', [\App\Http\Controllers\Teacher\SubjectController::class, 'deleteSessionFile'])->name('my-subjects.sessions.files.destroy');
 
     // Simple session show route for teachers (for calendar clicks)

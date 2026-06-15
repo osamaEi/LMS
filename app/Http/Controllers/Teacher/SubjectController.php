@@ -546,6 +546,54 @@ class SubjectController extends Controller
         return view('teacher.subjects.sessions.attendance', compact('subject', 'session', 'attendances', 'absentStudents', 'stats'));
     }
 
+    public function exportAttendance($subjectId, $sessionId)
+    {
+        $teacher = auth()->user();
+        $subject = Subject::assignedToTeacher($teacher->id)->with('term')->findOrFail($subjectId);
+        $session = Session::where('subject_id', $subjectId)->findOrFail($sessionId);
+
+        $classId = $subject->class_id ?? $subject->term?->class_id ?? null;
+        $classStudentIds = $classId
+            ? \Illuminate\Support\Facades\DB::table('student_programs')->where('class_id', $classId)->distinct()->pluck('student_id')
+            : collect();
+
+        $students = \App\Models\User::whereIn('id', $classStudentIds)->where('role', 'student')->orderBy('name')->get();
+        $attendanceMap = \App\Models\Attendance::where('session_id', $sessionId)->get()->keyBy('student_id');
+
+        $filename = 'حضور_' . $session->session_number . '_' . now()->format('Ymd') . '.csv';
+
+        $headers = [
+            'Content-Type'        => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ];
+
+        $callback = function () use ($students, $attendanceMap, $session, $subject) {
+            $f = fopen('php://output', 'w');
+            fprintf($f, chr(0xEF).chr(0xBB).chr(0xBF));
+            fputcsv($f, ['المقرر', 'المحاضرة', 'التاريخ']);
+            fputcsv($f, [
+                $subject->name_ar,
+                'محاضرة ' . $session->session_number,
+                $session->scheduled_at ? \Carbon\Carbon::parse($session->scheduled_at)->format('Y/m/d H:i') : '',
+            ]);
+            fputcsv($f, []);
+            fputcsv($f, ['#', 'اسم المتدرب', 'كود المتدرب', 'الحضور', 'وقت الانضمام']);
+            foreach ($students as $i => $student) {
+                $att = $attendanceMap->get($student->id);
+                fputcsv($f, [
+                    $i + 1,
+                    $student->name,
+                    $student->student_code ?? '',
+                    $att && $att->attended ? 'حاضر' : 'غائب',
+                    $att && $att->joined_at ? \Carbon\Carbon::parse($att->joined_at)->format('H:i') : '',
+                ]);
+            }
+            fclose($f);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
     /**
      * Save/add attendance records manually
      */
