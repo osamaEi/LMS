@@ -157,7 +157,7 @@ $_courseTypeConfig = [
 </li>
 
 <!-- الحضور والغياب -->
-<li>
+<!-- <li>
     <a href="{{ route('teacher.attendance.index') }}"
        class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('teacher.attendance.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
         <svg class="fill-current" style="fill: currentColor;" width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
@@ -165,7 +165,7 @@ $_courseTypeConfig = [
         </svg>
         <span>{{ __('Attendance') }}</span>
     </a>
-</li>
+</li> -->
 
 {{-- ═══ فاصل ═══ --}}
 
