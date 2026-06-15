@@ -575,8 +575,16 @@ class SubjectController extends Controller
                 ->orWhereHas('term.program', fn($pq) => $pq->where('type', 'diploma'))
             )
             ->with(['sessions' => $sessionQuery, 'programClass', 'term.programClass'])
-            ->withCount('enrollments')
             ->get();
+
+        // Attach class-scoped student count to each subject
+        $subjects->each(function ($subject) {
+            $classId = $subject->class_id ?? $subject->term?->class_id ?? null;
+            $subject->class_student_count = $classId
+                ? \Illuminate\Support\Facades\DB::table('student_programs')
+                    ->where('class_id', $classId)->distinct()->count('student_id')
+                : 0;
+        });
 
         // Programs reachable via assigned classes or direct assignment.
         $classProgramIds  = \App\Models\ProgramClass::where('teacher_id', $teacher->id)->pluck('program_id');

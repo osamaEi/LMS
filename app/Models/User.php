@@ -175,6 +175,11 @@ class User extends Authenticatable
             ->withTimestamps();
     }
 
+    public function programClasses()
+    {
+        return $this->belongsToMany(\App\Models\ProgramClass::class, 'student_programs', 'student_id', 'class_id');
+    }
+
     // All programs including primary (unified view)
     public function allPrograms()
     {

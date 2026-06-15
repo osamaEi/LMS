@@ -7,7 +7,7 @@
 
     $totalSessions  = $allSubjectSessions->count() + $allProgramSessions->count();
     $totalAttended  = $allSubjectSessions->sum('attended_count') + $allProgramSessions->sum('attended_count');
-    $totalEnrolled  = $subjects->sum('enrollments_count') + $programs->sum('enrolled_count');
+    $totalEnrolled  = $subjects->sum('class_student_count') + $programs->sum('enrolled_count');
 
     $subjectsPast   = $allSubjectSessions->count();
     $programsPast   = $allProgramSessions->count();
@@ -80,7 +80,7 @@
         @foreach($subjects as $subject)
         @php
             $pastSes       = $subject->sessions;
-            $totalEnrolled = $subject->enrollments_count;
+            $totalEnrolled = $subject->class_student_count;
             $totalAtt      = $pastSes->sum('attended_count');
             $overallRate   = ($totalSes = $pastSes->count()) && $totalEnrolled
                              ? round($totalAtt / ($totalSes * $totalEnrolled) * 100) : 0;

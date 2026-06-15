@@ -382,6 +382,7 @@
                         <th>المتدرب </th>
                         <th>البريد الإلكتروني</th>
                       
+                        <th>الكلاسات</th>
                         <th>الحالة</th>
                         <th style="text-align:center">الإجراءات</th>
                     </tr>
@@ -433,9 +434,16 @@
                                 {{ $student->email ?? '—' }}
                             </span>
                         </td>
-                      
-
-                    
+                        {{-- Classes --}}
+                        <td>
+                            @forelse($student->programClasses as $cls)
+                                <span style="display:inline-block;padding:2px 8px;border-radius:999px;background:#f0fdf4;color:#15803d;font-size:0.72rem;font-weight:600;border:1px solid #bbf7d0;margin:1px 2px;">
+                                    {{ $cls->name }}
+                                </span>
+                            @empty
+                                <span style="color:#9ca3af;font-size:0.75rem">—</span>
+                            @endforelse
+                        </td>
 
                         {{-- Status --}}
                         <td>

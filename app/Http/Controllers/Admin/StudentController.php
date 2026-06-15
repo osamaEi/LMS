@@ -17,7 +17,7 @@ class StudentController extends Controller
         $search = $request->get('search');
         $statusFilter = $request->get('status');
 
-        $query = User::where('role', 'student')->with('program');
+        $query = User::where('role', 'student')->with(['program', 'programClasses:id,name']);
 
         if ($search) {
             $query->where(function ($q) use ($search) {
