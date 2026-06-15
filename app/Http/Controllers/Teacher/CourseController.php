@@ -320,26 +320,51 @@ class CourseController extends Controller
 
         $session = Session::where('program_id', $programId)->findOrFail($sessionId);
 
-        $attendances = Attendance::where('session_id', $sessionId)
-            ->with('student')
-            ->orderBy('joined_at', 'desc')
-            ->get();
+        // Resolve class: from session.class_id or teacher's assigned class for this program
+        $classId = $session->class_id
+            ?? \App\Models\ProgramClass::where('program_id', $programId)
+                ->where('teacher_id', $teacher->id)
+                ->value('id');
 
-        $attendedIds = $attendances->pluck('student_id')->toArray();
+        // Get all students in the class via student_programs pivot
+        $classStudentIds = $classId
+            ? \Illuminate\Support\Facades\DB::table('student_programs')
+                ->where('class_id', $classId)->distinct()->pluck('student_id')
+            : \App\Models\User::where('program_id', $programId)->where('role', 'student')->pluck('id');
 
-        $absentStudents = User::where('program_id', $programId)
+        $classStudents = User::whereIn('id', $classStudentIds)
             ->where('role', 'student')
-            ->whereNotIn('id', $attendedIds)
-            ->get();
+            ->orderBy('name')
+            ->get(['id', 'name', 'student_code']);
 
-        $totalStudents = User::where('program_id', $programId)->where('role', 'student')->count();
+        // Existing attendance records
+        $attendanceMap = Attendance::where('session_id', $sessionId)
+            ->get()->keyBy('student_id');
+
+        // Build unified list (one row per class student)
+        $attendances = $classStudents->map(function ($student) use ($attendanceMap, $sessionId) {
+            $att = $attendanceMap->get($student->id);
+            return (object)[
+                'id'         => $att?->id,
+                'session_id' => $sessionId,
+                'student_id' => $student->id,
+                'student'    => $student,
+                'attended'   => $att?->attended ?? false,
+                'joined_at'  => $att?->joined_at,
+                'notes'      => $att?->notes,
+            ];
+        });
+
+        $totalStudents  = $attendances->count();
+        $attendedCount  = $attendances->where('attended', true)->count();
+        $absentStudents = $attendances->where('attended', false)->pluck('student')->filter()->values();
 
         $stats = [
             'total_enrolled'  => $totalStudents,
-            'attended'        => $attendances->where('attended', true)->count(),
+            'attended'        => $attendedCount,
             'absent'          => $absentStudents->count(),
             'attendance_rate' => $totalStudents > 0
-                ? round(($attendances->where('attended', true)->count() / $totalStudents) * 100, 1)
+                ? round(($attendedCount / $totalStudents) * 100, 1)
                 : 0,
         ];
 
