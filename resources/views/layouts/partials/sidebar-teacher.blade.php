@@ -138,24 +138,7 @@ $_courseTypeConfig = [
 {{-- ═══ فاصل ═══ --}}
 <li style="margin:6px 16px;height:1px;background:rgba(255,255,255,0.1)"></li>
 
-{{-- ═══ إدارة  المتدربون  ═══ --}}
-<li style="padding:8px 16px 4px">
-    <span style="font-size:0.68rem;font-weight:700;letter-spacing:0.1em;color:rgba(255,255,255,0.35);display:block;text-transform:uppercase">{{ __('Student Management') }}</span>
-</li>
 
-<!--  المتدربون  -->
-<li>
-    <a href="{{ route('teacher.students.index') }}"
-       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('teacher.students.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
-        <svg class="fill-current" style="fill: currentColor;" width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-            <path d="M13.3333 10.8333C14.7167 10.8333 15.8333 9.71667 15.8333 8.33334C15.8333 6.95 14.7167 5.83334 13.3333 5.83334C11.95 5.83334 10.8333 6.95 10.8333 8.33334C10.8333 9.71667 11.95 10.8333 13.3333 10.8333ZM6.66667 10.8333C8.05 10.8333 9.16667 9.71667 9.16667 8.33334C9.16667 6.95 8.05 5.83334 6.66667 5.83334C5.28333 5.83334 4.16667 6.95 4.16667 8.33334C4.16667 9.71667 5.28333 10.8333 6.66667 10.8333ZM6.66667 12.5C4.72222 12.5 0.833333 13.4778 0.833333 15.4167V17.5H12.5V15.4167C12.5 13.4778 8.61111 12.5 6.66667 12.5ZM13.3333 12.5C13.0889 12.5 12.8111 12.5111 12.5167 12.5333C13.5278 13.2333 14.1667 14.1833 14.1667 15.4167V17.5H19.1667V15.4167C19.1667 13.4778 15.2778 12.5 13.3333 12.5Z"/>
-        </svg>
-        <span>{{ __('Students') }}</span>
-    </a>
-</li>
-
-{{-- ═══ فاصل ═══ --}}
-<li style="margin:6px 16px;height:1px;background:rgba(255,255,255,0.1)"></li>
 
 {{-- ═══ الدعم ═══ --}}
 <li style="padding:8px 16px 4px">
