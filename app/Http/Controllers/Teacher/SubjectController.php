@@ -566,14 +566,12 @@ class SubjectController extends Controller
         $classIds = \App\Models\ProgramClass::where('teacher_id', $teacher->id)->pluck('id');
 
         $subjects = Subject::where(function ($q) use ($teacher, $classIds) {
-                $q->whereIn('class_id', $classIds)
-                  ->orWhereHas('term', fn($tq) => $tq->whereIn('class_id', $classIds))
-                  ->orWhere(fn($aq) => $aq->assignedToTeacher($teacher->id));
+                $q->assignedToTeacher($teacher->id);
             })
-            ->where(fn($q) => $q
-                ->whereHas('program', fn($pq) => $pq->where('type', 'diploma'))
-                ->orWhereHas('term.program', fn($pq) => $pq->where('type', 'diploma'))
-            )
+            ->where(function ($q) use ($classIds) {
+                $q->whereIn('class_id', $classIds)
+                  ->orWhereHas('term', fn($tq) => $tq->whereIn('class_id', $classIds));
+            })
             ->with(['sessions' => $sessionQuery, 'programClass', 'term.programClass'])
             ->get();
 
