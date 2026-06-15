@@ -71,9 +71,10 @@ class CourseController extends Controller
     {
         $teacher = auth()->user();
 
-        // Programs accessible via a class assigned to this teacher.
-        $programIds = ProgramClass::where('teacher_id', $teacher->id)
-            ->pluck('program_id')->unique()->values();
+        // Programs accessible via class supervisor OR direct program_teacher pivot
+        $classProgramIds  = ProgramClass::where('teacher_id', $teacher->id)->pluck('program_id');
+        $directProgramIds = $teacher->teachingPrograms()->whereIn('type', ['training', 'english', 'course'])->pluck('programs.id');
+        $programIds       = $classProgramIds->merge($directProgramIds)->unique()->values();
 
         $program = Program::whereIn('id', $programIds)
             ->whereIn('type', ['training', 'english', 'course'])

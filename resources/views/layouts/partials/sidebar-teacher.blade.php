@@ -65,19 +65,17 @@ $_courseTypeConfig = [
 @endif
 
 {{-- الدورات التأهيلية / الإنجليزية / التدريبية --}}
-@foreach($_courseTypeConfig as $_type => $_cfg)
-@if($_byType->contains($_type))
+
 <li>
     <a href="{{ route('teacher.my-courses.index') }}"
        class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('teacher.my-courses.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
         <svg class="fill-current" style="fill:none;stroke:currentColor;stroke-width:2;" width="20" height="20" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="{{ $_cfg['icon'] }}"/>
         </svg>
-        <span>{{ $_cfg['label'] }}</span>
+        <span>الدورات</span>
     </a>
 </li>
-@endif
-@endforeach
+
 @endif
 
 <!-- الجدول التدريبي -->
