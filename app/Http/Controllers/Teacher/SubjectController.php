@@ -84,17 +84,16 @@ class SubjectController extends Controller
         }
         $sessions = $sessionsQuery->orderBy('session_number', 'asc')->get();
 
-        // Students scoped to the subject's class only
-        $subjectClassId = $subject->class_id ?? null;
+        // Resolve class from subject.class_id → term.class_id
+        $resolvedClassId = $subject->class_id ?? $subject->term?->class_id ?? null;
 
-        if ($subjectClassId) {
-            // Subject belongs to a specific class — get students in that class
+        if ($resolvedClassId) {
             $students = \App\Models\User::where('role', 'student')
-                ->where('class_id', $subjectClassId)
+                ->where('class_id', $resolvedClassId)
                 ->with('program:id,name_ar,name_en')
                 ->orderBy('name')->get();
         } else {
-            // No class on subject — fall back to enrollments + attendance
+            // No class found — fall back to enrollments + attendance
             $enrolledIds = \App\Models\Enrollment::where('subject_id', $id)->pluck('student_id');
             $attendedIds = \App\Models\Attendance::whereIn('session_id', $sessions->pluck('id'))->distinct()->pluck('student_id');
             $studentIds  = $enrolledIds->merge($attendedIds)->unique()->values();
