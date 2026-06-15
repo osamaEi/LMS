@@ -196,6 +196,13 @@
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
                             الحضور
                         </a>
+                        @elseif($session->program_id)
+                        <a href="{{ route('teacher.my-courses.sessions.attendance', [$session->program_id, $session->id]) }}"
+                           class="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold"
+                           style="background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+                            الحضور
+                        </a>
                         @endif
                     </div>
                 </div>
@@ -283,6 +290,12 @@
                             <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
                             الحضور
                         </a>
+                        @elseif($session->program_id)
+                        <a href="{{ route('teacher.my-courses.sessions.attendance', [$session->program_id, $session->id]) }}"
+                           style="display:inline-flex;align-items:center;gap:4px;padding:5px 10px;border-radius:10px;background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;font-size:.72rem;font-weight:700;text-decoration:none;">
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+                            الحضور
+                        </a>
                         @endif
                     </div>
                 </div>
@@ -360,6 +373,14 @@
                         </a>
                         @if($session->subject_id)
                         <a href="{{ route('teacher.my-subjects.sessions.attendance', [$session->subject_id, $session->id]) }}"
+                           style="display:inline-flex;align-items:center;gap:.3rem;padding:.4rem .8rem;border-radius:10px;background:#f0fdf4;color:#16a34a;font-size:.72rem;font-weight:600;text-decoration:none;border:1px solid #bbf7d0;"
+                           onmouseenter="this.style.background='#16a34a';this.style.color='#fff';this.style.borderColor='#16a34a'"
+                           onmouseleave="this.style.background='#f0fdf4';this.style.color='#16a34a';this.style.borderColor='#bbf7d0'">
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+                            الحضور
+                        </a>
+                        @elseif($session->program_id)
+                        <a href="{{ route('teacher.my-courses.sessions.attendance', [$session->program_id, $session->id]) }}"
                            style="display:inline-flex;align-items:center;gap:.3rem;padding:.4rem .8rem;border-radius:10px;background:#f0fdf4;color:#16a34a;font-size:.72rem;font-weight:600;text-decoration:none;border:1px solid #bbf7d0;"
                            onmouseenter="this.style.background='#16a34a';this.style.color='#fff';this.style.borderColor='#16a34a'"
                            onmouseleave="this.style.background='#f0fdf4';this.style.color='#16a34a';this.style.borderColor='#bbf7d0'">
