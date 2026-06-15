@@ -31,9 +31,16 @@ class CourseController extends Controller
     {
         $teacher = auth()->user(); 
 
+        // Classes where this teacher is supervisor
         $teacherClasses = ProgramClass::where('teacher_id', $teacher->id)->get(['id', 'program_id']);
-        $programIds     = $teacherClasses->pluck('program_id')->unique()->values();
-        $classIds       = $teacherClasses->pluck('id');
+        $classProgramIds = $teacherClasses->pluck('program_id');
+
+        // Programs assigned directly via program_teacher pivot
+        $directProgramIds = $teacher->teachingPrograms()
+            ->whereIn('type', ['training', 'english', 'course'])
+            ->pluck('programs.id');
+
+        $programIds = $classProgramIds->merge($directProgramIds)->unique()->values();
 
         $programs = Program::whereIn('id', $programIds)
             ->whereIn('type', ['training', 'english', 'course'])
@@ -41,16 +48,20 @@ class CourseController extends Controller
             ->get();
 
         // Attach class-scoped counts per program
-        $programs->each(function ($program) use ($teacherClasses, $classIds) {
+        $programs->each(function ($program) use ($teacherClasses) {
             $progClassIds = $teacherClasses->where('program_id', $program->id)->pluck('id');
             $program->sessions_count = \App\Models\Session::where('program_id', $program->id)
                 ->where(function ($q) use ($progClassIds) {
                     $q->whereIn('class_id', $progClassIds)->orWhereNull('class_id');
                 })->count();
-            $program->class_student_count = \Illuminate\Support\Facades\DB::table('student_programs')
-                ->where('program_id', $program->id)
-                ->whereIn('class_id', $progClassIds)
-                ->distinct()->count('student_id');
+            $program->class_student_count = $progClassIds->isNotEmpty()
+                ? \Illuminate\Support\Facades\DB::table('student_programs')
+                    ->where('program_id', $program->id)
+                    ->whereIn('class_id', $progClassIds)
+                    ->distinct()->count('student_id')
+                : \Illuminate\Support\Facades\DB::table('student_programs')
+                    ->where('program_id', $program->id)
+                    ->distinct()->count('student_id');
         });
 
         return view('teacher.courses.index', compact('programs'));
