@@ -100,7 +100,7 @@
                             @if($className)<span style="font-size:.72rem;font-weight:700;color:#0071AA;background:#e0f2fe;padding:2px 8px;border-radius:20px;margin-right:4px;">{{ $className }}</span>@endif
                         </h3>
                         <p style="font-size:.75rem;color:#6b7280;margin:2px 0 0;">
-                            {{ $totalEnrolled }} طالب مسجّل &nbsp;·&nbsp; {{ $pastSes->count() }} جلسة منعقدة
+                            {{ $totalEnrolled }} متدرب مسجّل &nbsp;·&nbsp; {{ $pastSes->count() }} جلسة منعقدة
                             &nbsp;·&nbsp; معدل حضور إجمالي:
                             <strong style="color:{{ $rateColor }}">{{ $overallRate }}%</strong>
                         </p>

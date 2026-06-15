@@ -308,7 +308,7 @@ class StudentController extends Controller
 
         $label = $isPrimary ? 'البرنامج الأساسي' : 'برنامج إضافي';
         return redirect()->route('admin.students.show', $student)
-            ->with('success', "تم إضافة {$label} ({$program->name_ar}) وتسجيل الطالب في {$enrolledCount} مادة");
+            ->with('success', "تم إضافة {$label} ({$program->name_ar}) وتسجيل المتدرب في {$enrolledCount} مادة");
     }
 
     public function removeProgram(Request $request, User $student)

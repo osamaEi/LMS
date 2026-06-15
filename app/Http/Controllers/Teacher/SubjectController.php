@@ -55,6 +55,12 @@ class SubjectController extends Controller
             ->get();
 
         // Count students per subject scoped to the subject's class
+        $allClassIds = $subjects->map(fn($s) => $s->class_id ?? $s->term?->class_id ?? null)->filter()->unique()->values();
+        $totalStudents = $allClassIds->isNotEmpty()
+            ? \Illuminate\Support\Facades\DB::table('student_programs')
+                ->whereIn('class_id', $allClassIds)->distinct()->count('student_id')
+            : 0;
+
         $subjects->each(function ($subject) {
             $classId = $subject->class_id ?? $subject->term?->class_id ?? null;
             $subject->students_count = $classId
@@ -63,7 +69,7 @@ class SubjectController extends Controller
                 : 0;
         });
 
-        return view('teacher.subjects.index', compact('subjects'));
+        return view('teacher.subjects.index', compact('subjects', 'totalStudents'));
     }
 
     /**

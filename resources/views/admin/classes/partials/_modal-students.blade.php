@@ -75,7 +75,7 @@ function loadCurrentStudents() {
         });
 }
 function removeStudent(studentId) {
-    if (!confirm('إزالة الطالب من المجموعة؟')) return;
+    if (!confirm('إزالة المتدرب من المجموعة؟')) return;
     fetch(`/admin/classes/${_classId}/remove-student`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': CSRF },

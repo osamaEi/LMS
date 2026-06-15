@@ -251,7 +251,7 @@ class ScheduleController extends Controller
             $created++;
         }
 
-        $msg = "تم إنشاء {$created} جلسة وإسناد {$students->count()} طالب لكل جلسة";
+        $msg = "تم إنشاء {$created} جلسة وإسناد {$students->count()} متدرب لكل جلسة";
 
         return response()->json([
             'success'  => true,

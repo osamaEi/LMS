@@ -223,7 +223,7 @@ class ProgramClassController extends Controller
         }
 
         return redirect()->to(route('admin.classes.show', $class->id) . '#sessions')
-            ->with('success', "تم إنشاء {$created} جلسة وإسناد {$students->count()} طالب لكل جلسة");
+            ->with('success', "تم إنشاء {$created} جلسة وإسناد {$students->count()} متدرب لكل جلسة");
     }
 
     /**

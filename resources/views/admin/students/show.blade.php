@@ -1648,7 +1648,7 @@
                             @endforeach
                         </div>
                         @else
-                        <p style="text-align:center;padding:24px;color:#94a3b8;font-size:13px;">الطالب غير مسند لأي مجموعة بعد</p>
+                        <p style="text-align:center;padding:24px;color:#94a3b8;font-size:13px;">المتدرب غير مسند لأي مجموعة بعد</p>
                         @endif
                     </div>
                 </div>

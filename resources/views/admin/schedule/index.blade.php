@@ -85,7 +85,7 @@
         <div id="studentList" style="flex:1;overflow-y:auto;padding:12px 24px;display:flex;flex-direction:column;gap:6px;min-height:120px;max-height:340px;"></div>
 
         <div style="padding:16px 24px;border-top:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between;gap:10px;">
-            <span id="selectedCount" style="font-size:13px;color:#6b7280;">0 طالب محدد</span>
+            <span id="selectedCount" style="font-size:13px;color:#6b7280;">0 متدرب محدد</span>
             <div style="display:flex;gap:8px;">
                 <button onclick="closeAssign()" style="padding:10px 18px;border-radius:10px;background:#f3f4f6;color:#374151;border:none;cursor:pointer;font-size:13px;font-weight:600;">إلغاء</button>
                 <button onclick="submitAssign()" style="padding:10px 20px;border-radius:10px;background:linear-gradient(135deg,#0071AA,#005a88);color:white;border:none;cursor:pointer;font-size:13px;font-weight:700;box-shadow:0 3px 10px rgba(0,113,170,.35);">حفظ الإسناد</button>
@@ -262,7 +262,7 @@ function selectAll() {
 
 function updateCount() {
     const n = document.querySelectorAll('#studentList input[type=checkbox]:checked').length;
-    document.getElementById('selectedCount').textContent = n + ' طالب محدد';
+    document.getElementById('selectedCount').textContent = n + ' متدرب محدد';
 }
 
 function closeAssign() {
@@ -287,7 +287,7 @@ function submitAssign() {
         if (s) s.attendance_count = (s.attendance_count || 0) + (data.inserted || 0);
         // Show brief success toast
         const toast = document.createElement('div');
-        toast.textContent = `✓ تم إسناد ${data.inserted} طالب جديد للجلسة`;
+        toast.textContent = `✓ تم إسناد ${data.inserted} متدرب جديد للجلسة`;
         toast.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:99999;background:#15803d;color:white;padding:12px 20px;border-radius:12px;font-size:13px;font-weight:600;box-shadow:0 4px 20px rgba(0,0,0,.2);';
         document.body.appendChild(toast);
         setTimeout(() => toast.remove(), 3500);
