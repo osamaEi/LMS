@@ -14,6 +14,9 @@ $calSessions = $sessions->map(fn($s) => [
     'session_number'   => $s->session_number,
     'class_name'       => $s->programClass->name ?? $s->subject?->programClass?->name ?? $s->subject?->term?->programClass?->name ?? '',
     'zoom_join_url'    => $s->zoom_join_url,
+    'zoom_start_url'   => $s->zoom_start_url,
+    'subject_id'       => $s->subject_id,
+    'program_id'       => $s->program_id,
 ])->filter(fn($s) => $s['scheduled_at'])->values();
 @endphp
 
@@ -127,13 +130,31 @@ function openSession(s){
             <span style="font-size:13px;font-weight:600;color:#1e293b;">${v}</span>
         </div>`;
     });
-    if(s.zoom_join_url && s.status!=='completed'){
-        html+=`<a href="${s.zoom_join_url}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:white;border-radius:10px;text-decoration:none;font-size:13px;font-weight:700;margin-top:4px;">
+    html+='<div style="display:flex;flex-direction:column;gap:8px;margin-top:8px;">';
+    if(s.zoom_start_url && s.status!=='completed'){
+        html+=`<a href="${s.zoom_start_url}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;background:linear-gradient(135deg,#ef4444,#dc2626);color:white;border-radius:10px;text-decoration:none;font-size:13px;font-weight:700;">
             <svg width="16" height="16" fill="white" viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
-            انضمام للجلسة المباشرة
+            ▶ ابدأ الجلسة
         </a>`;
     }
-    html+='</div>';
+    if(s.zoom_join_url && s.status!=='completed'){
+        html+=`<a href="${s.zoom_join_url}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:white;border-radius:10px;text-decoration:none;font-size:13px;font-weight:700;">
+            <svg width="16" height="16" fill="white" viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
+            انضمام للجلسة
+        </a>`;
+    }
+    if(s.subject_id){
+        html+=`<a href="/teacher/my-subjects/${s.subject_id}/sessions/${s.id}/attendance" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;background:#f0fdf4;color:#16a34a;border:1.5px solid #bbf7d0;border-radius:10px;text-decoration:none;font-size:13px;font-weight:700;">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+            الحضور والغياب
+        </a>`;
+    } else if(s.program_id){
+        html+=`<a href="/teacher/my-courses/${s.program_id}/sessions/${s.id}/attendance" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;background:#f0fdf4;color:#16a34a;border:1.5px solid #bbf7d0;border-radius:10px;text-decoration:none;font-size:13px;font-weight:700;">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+            الحضور والغياب
+        </a>`;
+    }
+    html+='</div></div>';
     document.getElementById('smBody').innerHTML=html;
 }
 
