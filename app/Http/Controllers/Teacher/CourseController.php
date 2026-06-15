@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Teacher;
 use App\Http\Controllers\Controller;
 use App\Models\Attendance;
 use App\Models\Program;
+use App\Models\ProgramClass;
 use App\Models\Session;
 use App\Models\SessionFile;
 use App\Models\SubjectFile;
@@ -28,17 +29,29 @@ class CourseController extends Controller
 
     public function index()
     {
-        $teacher = auth()->user();
+        $teacher = auth()->user(); 
 
-        // Show ONLY programs that own a class this teacher is assigned to teach.
-        // Programs without a class assigned to this teacher are hidden.
-        $programIds = \App\Models\ProgramClass::where('teacher_id', $teacher->id)
-            ->pluck('program_id')->unique()->values();
+        $teacherClasses = ProgramClass::where('teacher_id', $teacher->id)->get(['id', 'program_id']);
+        $programIds     = $teacherClasses->pluck('program_id')->unique()->values();
+        $classIds       = $teacherClasses->pluck('id');
 
         $programs = Program::whereIn('id', $programIds)
             ->whereIn('type', ['training', 'english', 'course'])
-            ->withCount(['terms', 'sessions', 'files', 'enrolledStudents'])
+            ->withCount(['terms', 'files'])
             ->get();
+
+        // Attach class-scoped counts per program
+        $programs->each(function ($program) use ($teacherClasses, $classIds) {
+            $progClassIds = $teacherClasses->where('program_id', $program->id)->pluck('id');
+            $program->sessions_count = \App\Models\Session::where('program_id', $program->id)
+                ->where(function ($q) use ($progClassIds) {
+                    $q->whereIn('class_id', $progClassIds)->orWhereNull('class_id');
+                })->count();
+            $program->class_student_count = \Illuminate\Support\Facades\DB::table('student_programs')
+                ->where('program_id', $program->id)
+                ->whereIn('class_id', $progClassIds)
+                ->distinct()->count('student_id');
+        });
 
         return view('teacher.courses.index', compact('programs'));
     }
@@ -48,7 +61,7 @@ class CourseController extends Controller
         $teacher = auth()->user();
 
         // Programs accessible via a class assigned to this teacher.
-        $programIds = \App\Models\ProgramClass::where('teacher_id', $teacher->id)
+        $programIds = ProgramClass::where('teacher_id', $teacher->id)
             ->pluck('program_id')->unique()->values();
 
         $program = Program::whereIn('id', $programIds)
