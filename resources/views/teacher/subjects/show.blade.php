@@ -195,21 +195,7 @@
                     @endif
                 </p>
 
-                {{-- Stats --}}
-                <div class="flex flex-wrap gap-3 mt-4">
-                    <div class="hero-stat">
-                        <div class="hero-stat-val">{{ $subject->enrollments_count }}</div>
-                        <div class="hero-stat-lbl">طالب</div>
-                    </div>
-                    <div class="hero-stat">
-                        <div class="hero-stat-val">{{ $sessions->count() }}</div>
-                        <div class="hero-stat-lbl"> محاضرة </div>
-                    </div>
-                    <div class="hero-stat">
-                        <div class="hero-stat-val">{{ $subject->files->count() }}</div>
-                        <div class="hero-stat-lbl">ملف مقرر</div>
-                    </div>
-                </div>
+            
             </div>
 
             {{-- Action buttons --}}
