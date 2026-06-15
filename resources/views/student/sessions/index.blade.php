@@ -543,7 +543,7 @@
             s.teacher_name?['👤 المدرب', s.teacher_name]:null,
             ts.label?['🔖 النوع', ts.label]:null,
             statusLabel?['📊 الحالة', statusLabel]:null,
-            s.attended!==null?['✅ الحضور', s.attended?'حضرت':'غائب']:null,
+            (s.attended!==null && (s.ended_at || (s.scheduled_at && new Date(s.scheduled_at)<new Date())))?['✅ الحضور', s.attended?'حضرت':'غائب']:null,
         ].filter(Boolean);
         let html='<div style="display:flex;flex-direction:column;gap:10px;">';
         rows.forEach(([k,v])=>{
@@ -603,7 +603,10 @@
                     const statusColor = s.status==='completed'?'#15803d':s.status==='live'?'#dc2626':'#1e3a8a';
                     const statusLabel = s.status==='completed'?'مكتملة':s.status==='live'?'● مباشر':'';
                     const showSub = s.subject_name && !(s.title||'').includes(s.subject_name);
-                    const attendedBadge = s.attended===true?`<span style="background:#dcfce7;color:#15803d;font-size:10px;font-weight:600;padding:1px 6px;border-radius:20px;">حضرت</span>`:s.attended===false?`<span style="background:#fee2e2;color:#dc2626;font-size:10px;font-weight:600;padding:1px 6px;border-radius:20px;">غائب</span>`:'';
+                    const sessionPast = s.ended_at || (s.scheduled_at && new Date(s.scheduled_at) < new Date());
+                    const attendedBadge = sessionPast
+                        ? (s.attended===true?`<span style="background:#dcfce7;color:#15803d;font-size:10px;font-weight:600;padding:1px 6px;border-radius:20px;">حضرت</span>`:s.attended===false?`<span style="background:#fee2e2;color:#dc2626;font-size:10px;font-weight:600;padding:1px 6px;border-radius:20px;">غائب</span>`:'')
+                        : '';
                     return `<div onclick='openSessionCal(${JSON.stringify(s)})' style="background:#eff6ff;border-right:3px solid #0071AA;border-radius:6px;padding:6px 8px;margin-bottom:4px;line-height:1.35;cursor:pointer;">
                         <div style="font-size:12px;font-weight:700;color:#1e3a8a;">${s.title||s.subject_name||'جلسة'}</div>
                         ${showSub?`<div style="font-size:10px;color:#64748b;">${s.subject_name}</div>`:''}
@@ -824,7 +827,7 @@
                                 <span class="badge badge-completed">مكتمل</span>
                             @endif
                             @if($session->type !== 'live_zoom') <span class="badge badge-video">فيديو</span> @endif
-                            @if($att)
+                            @if($att && ($isCompleted || ($session->scheduled_at && \Carbon\Carbon::parse($session->scheduled_at)->isPast())))
                                 @if($att->attended)
                                     <span class="badge badge-attended">حضرت</span>
                                 @else
