@@ -84,27 +84,23 @@ class SubjectController extends Controller
         }
         $sessions = $sessionsQuery->orderBy('session_number', 'asc')->get();
 
-        // Students: via enrollments, attendance, or class membership (subject's class_id or term's program classes)
-        $enrolledIds = \App\Models\Enrollment::where('subject_id', $id)->pluck('student_id');
-        $attendedIds = \App\Models\Attendance::whereIn('session_id', $sessions->pluck('id'))->distinct()->pluck('student_id');
-
-        // Students in the class this subject belongs to (class_id on subject, or via program)
-        $programId   = $subject->term->program_id ?? null;
+        // Students scoped to the subject's class only
         $subjectClassId = $subject->class_id ?? null;
-        $classIds    = collect();
-        if ($subjectClassId) {
-            $classIds = collect([$subjectClassId]);
-        } elseif ($programId) {
-            $classIds = \App\Models\ProgramClass::where('program_id', $programId)->pluck('id');
-        }
-        $classStudentIds = $classIds->isNotEmpty()
-            ? \Illuminate\Support\Facades\DB::table('student_programs')
-                ->whereIn('class_id', $classIds)->distinct()->pluck('student_id')
-            : collect();
 
-        $studentIds = $enrolledIds->merge($attendedIds)->merge($classStudentIds)->unique()->values();
-        $students   = \App\Models\User::whereIn('id', $studentIds)->where('role', 'student')
-                        ->with('program:id,name_ar,name_en')->orderBy('name')->get();
+        if ($subjectClassId) {
+            // Subject belongs to a specific class — get students in that class
+            $students = \App\Models\User::where('role', 'student')
+                ->where('class_id', $subjectClassId)
+                ->with('program:id,name_ar,name_en')
+                ->orderBy('name')->get();
+        } else {
+            // No class on subject — fall back to enrollments + attendance
+            $enrolledIds = \App\Models\Enrollment::where('subject_id', $id)->pluck('student_id');
+            $attendedIds = \App\Models\Attendance::whereIn('session_id', $sessions->pluck('id'))->distinct()->pluck('student_id');
+            $studentIds  = $enrolledIds->merge($attendedIds)->unique()->values();
+            $students    = \App\Models\User::whereIn('id', $studentIds)->where('role', 'student')
+                            ->with('program:id,name_ar,name_en')->orderBy('name')->get();
+        }
 
         return view('teacher.subjects.show', compact('subject', 'sessions', 'students'));
     }
