@@ -50,9 +50,18 @@ class SubjectController extends Controller
                   ->orWhereHas('term.program', fn($pq) => $pq->where('type', 'diploma'));
             })
             ->with(['term.program'])
-            ->withCount(['enrollments', 'sessions'])
+            ->withCount('sessions')
             ->orderBy(app()->getLocale() === 'en' ? 'name_en' : 'name_ar')
             ->get();
+
+        // Count students per subject scoped to the subject's class
+        $subjects->each(function ($subject) {
+            $classId = $subject->class_id ?? $subject->term?->class_id ?? null;
+            $subject->students_count = $classId
+                ? \Illuminate\Support\Facades\DB::table('student_programs')
+                    ->where('class_id', $classId)->distinct()->count('student_id')
+                : 0;
+        });
 
         return view('teacher.subjects.index', compact('subjects'));
     }
