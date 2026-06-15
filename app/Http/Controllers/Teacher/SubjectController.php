@@ -491,19 +491,47 @@ class SubjectController extends Controller
         $teacher = auth()->user();
 
         $subject = Subject::assignedToTeacher($teacher->id)
+            ->with('term')
             ->findOrFail($subjectId);
 
         $session = Session::where('subject_id', $subjectId)
             ->findOrFail($sessionId);
 
-        // All students assigned to this session by admin (via Attendance table)
-        $attendances = Attendance::where('session_id', $sessionId)
-            ->with('student')
-            ->orderBy('joined_at', 'desc')
-            ->get();
+        // Resolve class for this subject
+        $classId = $subject->class_id ?? $subject->term?->class_id ?? null;
 
-        $totalAssigned = $attendances->count();
-        $attendedCount = $attendances->where('attended', true)->count();
+        // Get all students in the class
+        $classStudentIds = $classId
+            ? \Illuminate\Support\Facades\DB::table('student_programs')
+                ->where('class_id', $classId)->distinct()->pluck('student_id')
+            : collect();
+
+        $classStudents = \App\Models\User::whereIn('id', $classStudentIds)
+            ->where('role', 'student')
+            ->orderBy('name')
+            ->get(['id', 'name', 'student_code']);
+
+        // Existing attendance records for this session
+        $attendanceMap = Attendance::where('session_id', $sessionId)
+            ->get()
+            ->keyBy('student_id');
+
+        // Build unified attendances collection (one row per class student)
+        $attendances = $classStudents->map(function ($student) use ($attendanceMap, $sessionId) {
+            $att = $attendanceMap->get($student->id);
+            return (object)[
+                'id'         => $att?->id,
+                'session_id' => $sessionId,
+                'student_id' => $student->id,
+                'student'    => $student,
+                'attended'   => $att?->attended ?? false,
+                'joined_at'  => $att?->joined_at,
+                'notes'      => $att?->notes,
+            ];
+        });
+
+        $totalAssigned  = $attendances->count();
+        $attendedCount  = $attendances->where('attended', true)->count();
         $absentStudents = $attendances->where('attended', false)->pluck('student')->filter()->values();
 
         $stats = [
