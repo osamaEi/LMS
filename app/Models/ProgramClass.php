@@ -42,7 +42,7 @@ class ProgramClass extends Model
 
     public function students()
     {
-        return $this->hasMany(User::class, 'class_id');
+        return $this->belongsToMany(User::class, 'student_programs', 'class_id', 'student_id');
     }
 
     public function terms()
