@@ -14,50 +14,6 @@
 </div>
 @endif
 
-<!-- Statistics Cards -->
-<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-4 mb-6 w-full">
-    <div class="rounded-xl shadow-lg p-5" style="background: linear-gradient(135deg, #0071AA 0%, #005a88 100%);">
-        <div class="flex items-center gap-4">
-            <div class="flex h-12 w-12 items-center justify-center rounded-xl" style="background: rgba(255,255,255,0.2);">
-                <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                </svg>
-            </div>
-            <div>
-                <p class="text-sm" style="color: rgba(255,255,255,0.8);">إجمالي المقررات </p>
-                <p class="text-2xl font-bold text-white">{{ $subjects->count() }}</p>
-            </div>
-        </div>
-    </div>
-
-    <div class="rounded-xl shadow-lg p-5" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
-        <div class="flex items-center gap-4">
-            <div class="flex h-12 w-12 items-center justify-center rounded-xl" style="background: rgba(255,255,255,0.2);">
-                <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
-                </svg>
-            </div>
-            <div>
-                <p class="text-sm" style="color: rgba(255,255,255,0.8);">إجمالي  المتدربون </p>
-                <p class="text-2xl font-bold text-white">{{ $totalStudents }}</p>
-            </div>
-        </div>
-    </div>
-
-    <div class="rounded-xl shadow-lg p-5" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);">
-        <div class="flex items-center gap-4">
-            <div class="flex h-12 w-12 items-center justify-center rounded-xl" style="background: rgba(255,255,255,0.2);">
-                <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                </svg>
-            </div>
-            <div>
-                <p class="text-sm" style="color: rgba(255,255,255,0.8);">إجمالي المحاضرات</p>
-                <p class="text-2xl font-bold text-white">{{ $subjects->sum('sessions_count') }}</p>
-            </div>
-        </div>
-    </div>
-</div>
 
 <!-- Subjects Grid -->
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
@@ -99,12 +55,7 @@
 
             <!-- Stats -->
             <div class="flex items-center gap-4 mb-4 text-sm">
-                <div class="flex items-center gap-1 text-gray-600 dark:text-gray-400">
-                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
-                    </svg>
-                    <span>{{ $subject->students_count }} طالب</span>
-                </div>
+            
                 <div class="flex items-center gap-1 text-gray-600 dark:text-gray-400">
                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
