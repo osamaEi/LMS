@@ -93,7 +93,9 @@
                 <!-- Actions -->
                 <div class="flex items-center gap-4 pt-6 mt-6 border-t border-gray-200 dark:border-gray-700">
                     <button type="submit"
-                            class="px-8 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow transition">
+                            style="background:#2563eb;color:#fff;"
+                            onmouseover="this.style.background='#1d4ed8'" onmouseout="this.style.background='#2563eb'"
+                            class="px-8 py-2.5 text-white font-semibold rounded-lg shadow transition">
                         إنشاء الدور
                     </button>
                     <a href="{{ route('admin.roles.index') }}"
