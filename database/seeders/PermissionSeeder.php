@@ -82,6 +82,10 @@ class PermissionSeeder extends Seeder
         'view-attendance'                => 'عرض سجلات الحضور',
         'manage-attendance'              => 'إدارة الحضور والغياب',
 
+        // ─── أعذار الغياب ──────────────────────────────
+        'view-apologies'                 => 'عرض أعذار الغياب',
+        'review-apologies'               => 'مراجعة أعذار الغياب (قبول/رفض)',
+
         // ─── الاختبارات والأسئلة ───────────────────────
         'view-quizzes'                   => 'عرض الاختبارات',
         'create-quizzes'                 => 'إنشاء اختبارات',
@@ -246,6 +250,8 @@ class PermissionSeeder extends Seeder
             'manage-program-enrollments', 'approve-program-enrollments', 'reject-program-enrollments',
             // Attendance
             'view-attendance', 'manage-attendance',
+            // Absence apologies
+            'view-apologies', 'review-apologies',
             // Quizzes
             'view-quizzes', 'create-quizzes', 'edit-quizzes', 'delete-quizzes',
             'grade-quizzes', 'view-quiz-results',

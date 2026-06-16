@@ -1,6 +1,6 @@
 @extends('layouts.front')
 
-@section('title', $program->name_ar . ' — معهد الارتقاء العالي للتدريب')
+@section('title', $program->name_ar . ' — معهد الإرتقاء العالي للتدريب')
 
 @section('styles')
 <style>

@@ -88,7 +88,7 @@
                     <img src="{{ asset('images/nav.png') }}" alt="ALERTIQA" style="width: 220px; height: auto;">
                 </div>
                 <h1 class="text-3xl font-bold mb-3">
-                    {{ app()->getLocale() === 'ar' ? 'منصة الارتقاء التعليمية' : 'ALERTIQA Learning Platform' }}
+                    {{ app()->getLocale() === 'ar' ? 'منصة الإرتقاء التعليمية' : 'ALERTIQA Learning Platform' }}
                 </h1>
                 <p class="text-base text-white/80 max-w-sm leading-relaxed">
                     {{ app()->getLocale() === 'ar'
@@ -214,7 +214,7 @@
                             <circle cx="12" cy="12" r="10" fill="#1F2937"/>
                             <path d="M12 8v8M8 12h8" stroke="white" stroke-width="2" stroke-linecap="round"/>
                         </svg>
-                        <span class="text-xs text-gray-600">{{ app()->getLocale() === 'ar' ? 'أجابات إستفسارات ؟' : 'Need help?' }}</span>
+                        <span class="text-xs text-gray-600">{{ app()->getLocale() === 'ar' ? 'إجابات إستفسارات ؟' : 'Need help?' }}</span>
                         <a href="#" class="text-sm font-medium text-blue-600 hover:text-blue-700">{{ app()->getLocale() === 'ar' ? 'تواصل معنا' : 'Contact Us' }}</a>
                     </button>
 

@@ -6,7 +6,7 @@
     <div class="hero-content">
         <div class="hero-tag">
             <span class="tag-dot"></span>
-            {{ app()->getLocale()=='ar' ? 'معهد الارتقاء العالي للتدريب — معتمد من المؤسسة العامةً  للتدريب التقني والمهني' : 'Al-Ertiqaa Institute — Officially Accredited' }}
+            {{ app()->getLocale()=='ar' ? 'معهد الإرتقاء العالي للتدريب — معتمد من المؤسسة العامةً  للتدريب التقني والمهني' : 'Al-Ertiqaa Institute — Officially Accredited' }}
         </div>
         <div class="hero-accent-line"></div>
         <h1>

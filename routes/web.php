@@ -267,9 +267,12 @@ Route::middleware(['auth', 'role:admin,super_admin'])->prefix('admin')->name('ad
         ->name('students.documents.reject');
 
     // Absence apologies (أعذار الغياب) — review & approve/reject
-    Route::get('/apologies', [\App\Http\Controllers\Admin\ApologyController::class, 'index'])->name('apologies.index');
-    Route::post('/apologies/{apology}/approve', [\App\Http\Controllers\Admin\ApologyController::class, 'approve'])->name('apologies.approve');
-    Route::post('/apologies/{apology}/reject', [\App\Http\Controllers\Admin\ApologyController::class, 'reject'])->name('apologies.reject');
+    Route::get('/apologies', [\App\Http\Controllers\Admin\ApologyController::class, 'index'])
+        ->middleware('permission:view-apologies')->name('apologies.index');
+    Route::post('/apologies/{apology}/approve', [\App\Http\Controllers\Admin\ApologyController::class, 'approve'])
+        ->middleware('permission:review-apologies')->name('apologies.approve');
+    Route::post('/apologies/{apology}/reject', [\App\Http\Controllers\Admin\ApologyController::class, 'reject'])
+        ->middleware('permission:review-apologies')->name('apologies.reject');
 
     // Program Enrollments (Approval)
     Route::prefix('program-enrollments')->name('program-enrollments.')->group(function () {

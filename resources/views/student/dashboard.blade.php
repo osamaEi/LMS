@@ -302,7 +302,7 @@
                      alt="{{ auth()->user()->name }}"
                      class="hdr-avatar" />
                 <div>
-                    <p class="text-xs font-semibold mb-1" style="opacity:.55;">مرحباً {{ auth()->user()->gender === 'female' ? 'متدربة' : 'متدرب' }} في معهد الارتقاء 👋</p>
+                    <p class="text-xs font-semibold mb-1" style="opacity:.55;">مرحباً {{ auth()->user()->gender === 'female' ? 'متدربة' : 'متدرب' }} في معهد الإرتقاء 👋</p>
                     <h1 class="text-3xl font-black tracking-tight leading-none mb-2">{{ auth()->user()->name }}</h1>
                     <div class="flex items-center gap-2 flex-wrap">
                         @if(auth()->user()->student_code)
