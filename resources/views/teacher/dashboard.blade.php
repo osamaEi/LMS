@@ -219,104 +219,11 @@
         </div>
         @endif
 
-        {{-- UPCOMING --}}
+        {{-- UPCOMING — weekly schedule calendar (same as /teacher/schedule) --}}
         <div x-show="tab==='upcoming'" x-cloak>
-            @if($upcomingSessions->isEmpty())
-            <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3.5rem 1rem;text-align:center;">
-                <div style="width:56px;height:56px;border-radius:16px;background:#f0f9ff;display:flex;align-items:center;justify-content:center;margin-bottom:.75rem;">
-                    <svg width="26" height="26" viewBox="0 0 24 24" fill="#0071AA" style="opacity:.35"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg>
-                </div>
-                <p style="font-size:.875rem;font-weight:600;color:#6b7280;margin:0;">لا توجد محاضرات قادمة</p>
-                <a href="{{ route('teacher.schedule') }}" style="margin-top:.5rem;font-size:.75rem;color:#0071AA;text-decoration:none;font-weight:600;">+ إنشاء محاضرة جديدة</a>
+            <div style="padding:1rem 1.25rem;">
+                @include('teacher.partials.weekly-calendar')
             </div>
-            @else
-            <div style="padding:1rem 1.25rem;display:flex;flex-direction:column;gap:.6rem;">
-                @foreach($upcomingSessions as $session)
-                @php
-                    $dt         = \Carbon\Carbon::parse($session->scheduled_at);
-                    $isToday    = $dt->isToday();
-                    $isTomorrow = $dt->isTomorrow();
-                    $hasJoin    = !empty($session->zoom_join_url);
-                    $typeIcon   = match($session->type ?? '') {
-                        'live_zoom'      => '📹',
-                        'recorded_video' => '🎬',
-                        'in_person'      => '🏫',
-                        default          => '📖',
-                    };
-                    $btnLabel  = $hasJoin ? '✓ رابط الطلاب' : '+ رابط الطلاب';
-                    $cardClass = $isToday ? 'sess-card sess-today' : 'sess-card';
-                    $dateClass = $isToday ? 'sess-date sess-date-today' : 'sess-date';
-                    $btnClass  = $hasJoin ? 'open-link-modal sess-link-btn has-link' : 'open-link-modal sess-link-btn no-link';
-                    // محاضرة مقرر أو دورة؟
-                    $sessSubjectName  = $session->subject->name_ar ?? $session->subject->name ?? null;
-                    $sessProgramName  = $session->subject?->program->name_ar
-                                     ?? $session->subject?->program->name
-                                     ?? $session->program?->name_ar
-                                     ?? $session->program?->name
-                                     ?? null;
-                    // إذا لا subject → الدورة نفسها هي العنوان الرئيسي
-                    $sessLabel = $sessSubjectName ?? $sessProgramName ?? '—';
-                    $sessSub   = $sessSubjectName ? $sessProgramName : null;
-                @endphp
-                <div class="{{ $cardClass }}"
-                     onmouseenter="this.style.boxShadow='0 4px 16px rgba(0,0,0,.08)'"
-                     onmouseleave="this.style.boxShadow='none'">
-
-                    <div class="{{ $dateClass }}">
-                        <div class="sess-date-day">{{ $dt->format('d') }}</div>
-                        <div class="sess-date-month">{{ $dt->translatedFormat('M') }}</div>
-                        <div class="sess-date-time">{{ $dt->format('H:i') }}</div>
-                    </div>
-
-                    <div class="sess-info">
-                        <div class="sess-title-row">
-                            <span class="sess-title">{{ $typeIcon }} {{ $session->title }}</span>
-                            @if($isToday)
-                                <span class="sess-badge badge-today">اليوم</span>
-                            @elseif($isTomorrow)
-                                <span class="sess-badge badge-tomorrow">غداً</span>
-                            @endif
-                        </div>
-                        <div class="sess-subject">{{ $sessLabel }}</div>
-                        @if($sessSub)
-                        <div class="sess-program">{{ $sessSub }}</div>
-                        @endif
-                        <div class="sess-time-rel">
-                            @php
-                                $endDt   = $dt->copy()->addMinutes($session->duration_minutes ?? 60);
-                                $period  = $dt->hour < 12 ? 'صباحية' : 'مسائية';
-                            @endphp
-                            <span style="color:#64748b;">من {{ $dt->format('h:i') }} إلى {{ $endDt->format('h:i') }}</span>
-                            <span style="margin-right:.3rem;font-size:.6rem;font-weight:700;padding:.05rem .35rem;border-radius:20px;background:{{ $dt->hour < 12 ? '#fef9c3' : '#e0e7ff' }};color:{{ $dt->hour < 12 ? '#a16207' : '#4338ca' }};">{{ $period }}</span>
-                        </div>
-                    </div>
-
-                    <div class="sess-actions">
-                        @if($session->zoom_join_url)
-                        <a href="{{ $session->zoom_join_url }}" target="_blank" class="sess-start-btn">▶ ابدأ</a>
-                        @endif
-                        <button class="{{ $btnClass }}"
-                                data-id="{{ $session->id }}" data-title="{{ $session->title }}" data-join="{{ $session->zoom_join_url ?? '' }}">
-                            {{ $btnLabel }}
-                        </button>
-                        @if($session->subject_id)
-                        <a href="{{ route('teacher.my-subjects.sessions.attendance', [$session->subject_id, $session->id]) }}"
-                           style="display:inline-flex;align-items:center;gap:4px;padding:5px 10px;border-radius:10px;background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;font-size:.72rem;font-weight:700;text-decoration:none;">
-                            <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
-                            الحضور
-                        </a>
-                        @elseif($session->program_id)
-                        <a href="{{ route('teacher.my-courses.sessions.attendance', [$session->program_id, $session->id]) }}"
-                           style="display:inline-flex;align-items:center;gap:4px;padding:5px 10px;border-radius:10px;background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;font-size:.72rem;font-weight:700;text-decoration:none;">
-                            <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
-                            الحضور
-                        </a>
-                        @endif
-                    </div>
-                </div>
-                @endforeach
-            </div>
-            @endif
         </div>
 
         {{-- PAST --}}

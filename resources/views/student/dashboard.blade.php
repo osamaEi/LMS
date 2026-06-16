@@ -289,6 +289,13 @@
 
 @section('content')
 <div class="dash-page space-y-6">
+    @if(session('success'))
+        <div style="direction:rtl;background:#dcfce7;border:1px solid #86efac;color:#15803d;padding:12px 16px;border-radius:12px;font-weight:600;">{{ session('success') }}</div>
+    @endif
+    @if(session('error'))
+        <div style="direction:rtl;background:#fee2e2;border:1px solid #fca5a5;color:#b91c1c;padding:12px 16px;border-radius:12px;font-weight:600;">{{ session('error') }}</div>
+    @endif
+
     <!-- Header -->
     <div class="dash-header">
         <div class="hdr-glow"></div>
@@ -385,78 +392,17 @@
         @endforeach
     @endif
 
-    <!-- Upcoming Sessions Panel -->
-    @if($upcomingSessions->count() > 0 || $liveSessions->count() > 0)
-    <div class="d-card" style="margin-bottom:1.25rem;">
-        <div class="d-card-head">
-            <div class="icon-wrap" style="background:linear-gradient(135deg,#0071AA,#004d77);">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
-            </div>
-            <span class="text-sm font-bold text-gray-900 dark:text-white flex-1">محاضراتي القادمة</span>
+    <!-- Weekly Schedule (same view as /student/my-sessions) -->
+    <div style="margin-bottom:1.25rem;direction:rtl;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;">
+            <span class="text-sm font-bold text-gray-900 dark:text-white">جدول محاضراتي</span>
             <a href="{{ route('student.my-sessions') }}"
                style="font-size:.75rem;font-weight:700;color:#0071AA;text-decoration:none;padding:.3rem .75rem;background:#f0f9ff;border:1px solid #bae6fd;border-radius:20px;">
                 عرض الكل
             </a>
         </div>
-        <div style="padding:.5rem 0;">
-            @foreach($upcomingSessions->take(5) as $session)
-            @php
-                $dt = \Carbon\Carbon::parse($session->scheduled_at);
-                $isToday = $dt->isToday();
-                $isTomorrow = $dt->isTomorrow();
-            @endphp
-            <div style="display:flex;align-items:center;gap:.875rem;padding:.75rem 1.25rem;border-bottom:1px solid #f8fafc;transition:background .15s;"
-                 onmouseenter="this.style.background='#f8fafc'" onmouseleave="this.style.background='transparent'">
-
-                {{-- Date pill --}}
-                <div style="flex-shrink:0;width:48px;text-align:center;border-radius:12px;padding:.45rem .2rem;background:{{ $isToday ? 'linear-gradient(135deg,#0071AA,#004d77)' : '#f1f5f9' }};color:{{ $isToday ? '#fff' : '#64748b' }};">
-                    <div style="font-size:1.05rem;font-weight:900;line-height:1;">{{ $dt->format('d') }}</div>
-                    <div style="font-size:.6rem;font-weight:600;text-transform:uppercase;opacity:.8;margin-top:.1rem;">{{ $dt->translatedFormat('M') }}</div>
-                    <div style="font-size:.65rem;font-weight:700;margin-top:.1rem;">{{ $dt->format('H:i') }}</div>
-                </div>
-
-                {{-- Info --}}
-                <div style="flex:1;min-width:0;">
-                    <div style="display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;margin-bottom:.1rem;">
-                        <span style="font-size:.83rem;font-weight:700;color:#1e293b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px;">
-                            📹 {{ $session->title }}
-                        </span>
-                        @if($isToday)
-                            <span style="background:#0071AA;color:#fff;font-size:.62rem;font-weight:700;padding:.1rem .45rem;border-radius:20px;">اليوم</span>
-                        @elseif($isTomorrow)
-                            <span style="background:#e0f2fe;color:#0369a1;font-size:.62rem;font-weight:700;padding:.1rem .45rem;border-radius:20px;">غداً</span>
-                        @endif
-                    </div>
-                    <div style="font-size:.72rem;color:#6b7280;">
-                        {{ $session->subject->name_ar ?? $session->subject->name ?? $session->program->name_ar ?? $session->program->name ?? '—' }}
-                    </div>
-                    @php
-                        $sEnd    = $dt->copy()->addMinutes($session->duration_minutes ?? 60);
-                        $sPeriod = $dt->hour < 12 ? 'صباحية' : 'مسائية';
-                    @endphp
-                    <div style="font-size:.68rem;color:#94a3b8;margin-top:.1rem;">
-                        من {{ $dt->format('h:i') }} إلى {{ $sEnd->format('h:i') }}
-                        <span style="margin-right:.3rem;font-size:.58rem;font-weight:700;padding:.05rem .3rem;border-radius:20px;background:{{ $dt->hour < 12 ? '#fef9c3' : '#e0e7ff' }};color:{{ $dt->hour < 12 ? '#a16207' : '#4338ca' }};">{{ $sPeriod }}</span>
-                    </div>
-                </div>
-
-                {{-- Join link --}}
-                @if($session->zoom_join_url)
-                <a href="{{ route('student.sessions.join-zoom', $session->id) }}" target="_blank"
-                   style="flex-shrink:0;display:inline-flex;align-items:center;gap:.35rem;padding:.45rem .9rem;border-radius:10px;background:linear-gradient(135deg,#0071AA,#004d77);color:#fff;font-size:.72rem;font-weight:700;text-decoration:none;">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
-                    انضم
-                </a>
-                @else
-                <span style="flex-shrink:0;padding:.4rem .75rem;border-radius:10px;background:#f9fafb;border:1px solid #e5e7eb;color:#9ca3af;font-size:.7rem;font-weight:600;">
-                    قريباً
-                </span>
-                @endif
-            </div>
-            @endforeach
-        </div>
+        @include('student.partials.weekly-calendar')
     </div>
-    @endif
 
     <!-- Stats -->
 

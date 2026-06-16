@@ -24,6 +24,67 @@ class DashboardController extends Controller
         return $student->allProgramIds();
     }
 
+    /**
+     * Build the weekly-calendar session payload for a student, shared by the
+     * dashboard and the my-sessions page so both render the same schedule.
+     */
+    private function buildClassSessionsCalendar($student): \Illuminate\Support\Collection
+    {
+        $programIds = $this->studentProgramIds($student);
+
+        $studentClassIds = $programIds
+            ->map(fn($pid) => $student->classIdForProgram((int) $pid))
+            ->filter()->unique()->values();
+
+        // Sessions assigned to this student (via attendance), scoped to their classes + class-agnostic
+        $assignedSessionIds = Attendance::where('student_id', $student->id)->pluck('session_id');
+        if ($studentClassIds->isNotEmpty()) {
+            $assignedSessionIds = Session::whereIn('id', $assignedSessionIds)
+                ->where(fn($q) => $q->whereIn('class_id', $studentClassIds)->orWhereNull('class_id'))
+                ->pluck('id');
+        }
+
+        $allAttendances = Attendance::where('student_id', $student->id)
+            ->whereIn('session_id', $assignedSessionIds)
+            ->get()->keyBy('session_id');
+
+        $apologies = \App\Models\AttendanceApology::where('student_id', $student->id)
+            ->get()->keyBy('session_id');
+
+        $assignedClassIds = Session::whereIn('id', $assignedSessionIds)
+            ->whereNotNull('class_id')->pluck('class_id');
+
+        $calendarClassIds = $studentClassIds->merge($assignedClassIds)->filter()->unique()->values();
+
+        return Session::whereNotNull('scheduled_at')
+            ->where(function ($q) use ($calendarClassIds, $assignedSessionIds) {
+                $q->whereIn('class_id', $calendarClassIds)
+                  ->orWhereIn('id', $assignedSessionIds);
+            })
+            ->with(['subject:id,name_ar,name_en', 'teacher:id,name'])
+            ->orderBy('scheduled_at')
+            ->get()
+            ->map(function ($s) use ($allAttendances, $apologies) {
+                $att = $allAttendances[$s->id] ?? null;
+                $apo = $apologies[$s->id] ?? null;
+                return [
+                    'id'               => $s->id,
+                    'title'            => $s->title_ar ?: ($s->subject->name_ar ?? 'جلسة'),
+                    'subject_name'     => $s->subject->name_ar ?? '',
+                    'teacher_name'     => $s->teacher->name ?? '',
+                    'scheduled_at'     => \Carbon\Carbon::parse($s->scheduled_at)->toIso8601String(),
+                    'duration_minutes' => $s->duration_minutes ?? 60,
+                    'type'             => $s->type ?? '',
+                    'status'           => (string) ($s->status ?? ''),
+                    'session_number'   => $s->session_number,
+                    'zoom_join_url'    => $s->zoom_link ?? $s->zoom_join_url ?? null,
+                    'attended'         => $att ? (bool) $att->attended : null,
+                    'apology_status'   => $apo?->status,
+                ];
+            })
+            ->values();
+    }
+
     private function studentSubjectIds($student): \Illuminate\Support\Collection
     {
         $programIds = $this->studentProgramIds($student);
@@ -158,11 +219,15 @@ class DashboardController extends Controller
             ->limit(5)
             ->get();
 
+        // Weekly-calendar sessions — same schedule shown on /student/my-sessions
+        $classSessions = $this->buildClassSessionsCalendar($student);
+
         return view('student.dashboard', compact(
             'subjects',
             'upcomingSessions',
             'recentSessions',
             'liveSessions',
+            'classSessions',
             'stats',
             'overallAttendance',
             'myTickets',
@@ -309,46 +374,8 @@ class DashboardController extends Controller
         $apologies = \App\Models\AttendanceApology::where('student_id', $student->id)
             ->get()->keyBy('session_id');
 
-        // Calendar sessions — union of:
-        //  (a) all sessions in the student's classes (via student_programs.class_id), and
-        //  (b) sessions actually assigned to the student (attendance records) + every
-        //      session sharing a class_id with those assigned sessions.
-        // This covers students whose class pivot is empty but who have attendance data.
-        $assignedClassIds = Session::whereIn('id', $assignedSessionIds)
-            ->whereNotNull('class_id')
-            ->pluck('class_id');
-
-        $calendarClassIds = $studentClassIds
-            ->merge($assignedClassIds)
-            ->filter()->unique()->values();
-
-        $classSessions = Session::whereNotNull('scheduled_at')
-            ->where(function ($q) use ($calendarClassIds, $assignedSessionIds) {
-                $q->whereIn('class_id', $calendarClassIds)
-                  ->orWhereIn('id', $assignedSessionIds);
-            })
-            ->with(['subject:id,name_ar,name_en', 'teacher:id,name'])
-            ->orderBy('scheduled_at')
-            ->get()
-            ->map(function ($s) use ($allAttendances, $apologies) {
-                $att = $allAttendances[$s->id] ?? null;
-                $apo = $apologies[$s->id] ?? null;
-                return [
-                    'id'               => $s->id,
-                    'title'            => $s->title_ar ?: ($s->subject->name_ar ?? 'جلسة'),
-                    'subject_name'     => $s->subject->name_ar ?? '',
-                    'teacher_name'     => $s->teacher->name ?? '',
-                    'scheduled_at'     => \Carbon\Carbon::parse($s->scheduled_at)->toIso8601String(),
-                    'duration_minutes' => $s->duration_minutes ?? 60,
-                    'type'             => $s->type ?? '',
-                    'status'           => (string) ($s->status ?? ''),
-                    'session_number'   => $s->session_number,
-                    'zoom_join_url'    => $s->zoom_link ?? $s->zoom_join_url ?? null,
-                    'attended'         => $att ? (bool) $att->attended : null,
-                    'apology_status'   => $apo?->status,
-                ];
-            })
-            ->values();
+        // Calendar sessions (weekly schedule) — shared with the dashboard view.
+        $classSessions = $this->buildClassSessionsCalendar($student);
 
         $firstProg = $allPrograms->first();
 

@@ -16,6 +16,46 @@ use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
+    /**
+     * Build the weekly-schedule calendar payload for a teacher — same data and
+     * shape used by /teacher/schedule, so the dashboard renders the same calendar.
+     */
+    private function buildTeacherCalendarSessions($teacher): \Illuminate\Support\Collection
+    {
+        $subjectSessions = Session::whereHas('subject', fn($q) => $q->assignedToTeacher($teacher->id))
+            ->with(['subject.program', 'subject.term.program', 'programClass', 'subject.programClass', 'subject.term.programClass'])
+            ->get();
+
+        $programIds = $teacher->teachingPrograms()
+            ->whereIn('type', ['training', 'english', 'course'])
+            ->pluck('id');
+
+        $programSessions = Session::whereIn('program_id', $programIds)
+            ->with(['program', 'programClass'])
+            ->get();
+
+        return $subjectSessions->merge($programSessions)
+            ->sortBy('scheduled_at')
+            ->map(fn($s) => [
+                'id'               => $s->id,
+                'title'            => $s->title_ar ?: ($s->subject->name_ar ?? $s->program->name_ar ?? 'جلسة'),
+                'subject_name'     => $s->subject->name_ar ?? '',
+                'program_name'     => $s->program->name_ar ?? $s->subject?->program?->name_ar ?? '',
+                'scheduled_at'     => $s->scheduled_at ? \Carbon\Carbon::parse($s->scheduled_at)->toIso8601String() : null,
+                'duration_minutes' => $s->duration_minutes ?? 60,
+                'type'             => $s->type ?? '',
+                'status'           => (string) ($s->status ?? ''),
+                'session_number'   => $s->session_number,
+                'class_name'       => $s->programClass->name ?? $s->subject?->programClass?->name ?? $s->subject?->term?->programClass?->name ?? '',
+                'zoom_join_url'    => $s->zoom_join_url,
+                'zoom_start_url'   => $s->zoom_start_url,
+                'subject_id'       => $s->subject_id,
+                'program_id'       => $s->program_id,
+            ])
+            ->filter(fn($s) => $s['scheduled_at'])
+            ->values();
+    }
+
     public function index()
     {
         $teacher = auth()->user();
@@ -189,9 +229,13 @@ class DashboardController extends Controller
             $dashboardView = 'teacher.dashboard';
         }
 
+        // Weekly-schedule calendar (same as /teacher/schedule) for the dashboard
+        $calSessions = $this->buildTeacherCalendarSessions($teacher);
+
         return view($dashboardView, compact(
             'subjects',
             'calendarSessions',
+            'calSessions',
             'upcomingSessions',
             'liveSessions',
             'pastSessions',
