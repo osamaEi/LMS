@@ -18,7 +18,6 @@ class DatabaseSeeder extends Seeder
 
            PermissionSeeder::class,
            SuperAdminSeeder::class,
-           Student29DemoSeeder::class,
         ]);
     }
 }
