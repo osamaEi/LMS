@@ -321,6 +321,11 @@
                             {{ auth()->user()->level }}
                         </span>
                         @endif
+                        @foreach(auth()->user()->programClasses as $cls)
+                        <span class="text-xs font-bold px-2 py-0.5 rounded-full" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);">
+                            {{ $cls->name }}
+                        </span>
+                        @endforeach
                     </div>
                 </div>
             </div>
@@ -425,12 +430,19 @@
                     <div style="font-size:.72rem;color:#6b7280;">
                         {{ $session->subject->name_ar ?? $session->subject->name ?? $session->program->name_ar ?? $session->program->name ?? '—' }}
                     </div>
-                    <div style="font-size:.68rem;color:#94a3b8;margin-top:.1rem;">{{ $dt->diffForHumans() }}</div>
+                    @php
+                        $sEnd    = $dt->copy()->addMinutes($session->duration_minutes ?? 60);
+                        $sPeriod = $dt->hour < 12 ? 'صباحية' : 'مسائية';
+                    @endphp
+                    <div style="font-size:.68rem;color:#94a3b8;margin-top:.1rem;">
+                        من {{ $dt->format('h:i') }} إلى {{ $sEnd->format('h:i') }}
+                        <span style="margin-right:.3rem;font-size:.58rem;font-weight:700;padding:.05rem .3rem;border-radius:20px;background:{{ $dt->hour < 12 ? '#fef9c3' : '#e0e7ff' }};color:{{ $dt->hour < 12 ? '#a16207' : '#4338ca' }};">{{ $sPeriod }}</span>
+                    </div>
                 </div>
 
                 {{-- Join link --}}
                 @if($session->zoom_join_url)
-                <a href="{{ $session->zoom_join_url }}" target="_blank"
+                <a href="{{ route('student.sessions.join-zoom', $session->id) }}" target="_blank"
                    style="flex-shrink:0;display:inline-flex;align-items:center;gap:.35rem;padding:.45rem .9rem;border-radius:10px;background:linear-gradient(135deg,#0071AA,#004d77);color:#fff;font-size:.72rem;font-weight:700;text-decoration:none;">
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
                     انضم

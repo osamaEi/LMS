@@ -553,7 +553,7 @@
             </div>`;
         });
         if(s.zoom_join_url&&s.status!=='completed'){
-            html+=`<a href="${s.zoom_join_url}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:white;border-radius:10px;text-decoration:none;font-size:13px;font-weight:700;margin-top:4px;">
+            html+=`<a href="/student/sessions/${s.id}/join-zoom" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:white;border-radius:10px;text-decoration:none;font-size:13px;font-weight:700;margin-top:4px;">
                 <svg width="16" height="16" fill="white" viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
                 انضمام للجلسة المباشرة
             </a>`;
@@ -616,7 +616,7 @@
                             ${statusLabel?`<span style="background:${statusBg};color:${statusColor};font-size:10px;font-weight:600;padding:1px 6px;border-radius:20px;">${statusLabel}</span>`:''}
                             ${attendedBadge}
                             ${(s.status==='live'||s.status==='scheduled')&&s.zoom_join_url
-                                ?`<a href="${s.zoom_join_url}" target="_blank" onclick="event.stopPropagation()" style="background:#2563eb;color:white;font-size:10px;font-weight:700;padding:1px 7px;border-radius:20px;text-decoration:none;">📹 انضم</a>`
+                                ?`<a href="/student/sessions/${s.id}/join-zoom" target="_blank" onclick="event.stopPropagation()" style="background:#2563eb;color:white;font-size:10px;font-weight:700;padding:1px 7px;border-radius:20px;text-decoration:none;">📹 انضم</a>`
                                 :''}
                         </div>
                     </div>`;
@@ -844,7 +844,7 @@
                     </div>
                     @php $joinUrl = $session->zoom_link ?? $session->zoom_join_url ?? null; @endphp
                     @if($joinUrl && !$session->ended_at)
-                    <a href="{{ $joinUrl }}" target="_blank" class="btn btn-join" style="white-space:nowrap;flex-shrink:0;{{ !$isLive ? 'background:linear-gradient(135deg,#2563eb,#1d4ed8);' : '' }}">
+                    <a href="{{ route('student.sessions.join-zoom', $session->id) }}" target="_blank" class="btn btn-join" style="white-space:nowrap;flex-shrink:0;{{ !$isLive ? 'background:linear-gradient(135deg,#2563eb,#1d4ed8);' : '' }}">
                         <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
                         انضم للحصة
                     </a>

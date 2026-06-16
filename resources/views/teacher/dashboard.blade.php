@@ -165,7 +165,15 @@
                     <div class="flex-1 min-w-0">
                         <p class="font-bold text-sm text-black dark:text-white truncate">{{ $session->title }}</p>
                         <p class="text-xs text-gray-500 mt-0.5">{{ $session->subject->name_ar ?? $session->subject->name ?? '—' }}</p>
-                        <p class="text-xs text-red-400 mt-0.5 font-medium">بدأت {{ \Carbon\Carbon::parse($session->started_at)->diffForHumans() }}</p>
+                        @php
+                            $ldt    = \Carbon\Carbon::parse($session->scheduled_at);
+                            $lEnd   = $ldt->copy()->addMinutes($session->duration_minutes ?? 60);
+                            $lPer   = $ldt->hour < 12 ? 'صباحية' : 'مسائية';
+                        @endphp
+                        <p class="text-xs text-red-400 mt-0.5 font-medium">
+                            من {{ $ldt->format('h:i') }} إلى {{ $lEnd->format('h:i') }}
+                            <span style="font-size:.6rem;font-weight:700;padding:.05rem .35rem;border-radius:20px;background:{{ $ldt->hour < 12 ? '#fef9c3' : '#e0e7ff' }};color:{{ $ldt->hour < 12 ? '#a16207' : '#4338ca' }};">{{ $lPer }}</span>
+                        </p>
                         @if($session->zoom_join_url)
                         <div class="mt-1.5 flex items-center gap-1.5">
                             <svg class="text-green-500 flex-shrink-0" width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg>
@@ -273,7 +281,14 @@
                         @if($sessSub)
                         <div class="sess-program">{{ $sessSub }}</div>
                         @endif
-                        <div class="sess-time-rel">{{ $dt->diffForHumans() }}</div>
+                        <div class="sess-time-rel">
+                            @php
+                                $endDt   = $dt->copy()->addMinutes($session->duration_minutes ?? 60);
+                                $period  = $dt->hour < 12 ? 'صباحية' : 'مسائية';
+                            @endphp
+                            <span style="color:#64748b;">من {{ $dt->format('h:i') }} إلى {{ $endDt->format('h:i') }}</span>
+                            <span style="margin-right:.3rem;font-size:.6rem;font-weight:700;padding:.05rem .35rem;border-radius:20px;background:{{ $dt->hour < 12 ? '#fef9c3' : '#e0e7ff' }};color:{{ $dt->hour < 12 ? '#a16207' : '#4338ca' }};">{{ $period }}</span>
+                        </div>
                     </div>
 
                     <div class="sess-actions">
@@ -358,7 +373,12 @@
                                 · <span style="color:#0071AA;font-weight:600;">{{ $pSub }}</span>
                             @endif
                             · {{ $dt->format('d/m/Y') }}
-                            @if($ended) · {{ $dt->format('H:i') }}–{{ $ended->format('H:i') }} @endif
+                            @php
+                                $pEnd    = $ended ?? $dt->copy()->addMinutes($session->duration_minutes ?? 60);
+                                $pPeriod = $dt->hour < 12 ? 'صباحية' : 'مسائية';
+                            @endphp
+                            · {{ $dt->format('h:i') }}–{{ $pEnd->format('h:i') }}
+                            <span style="font-size:.58rem;font-weight:700;padding:.05rem .3rem;border-radius:20px;background:{{ $dt->hour < 12 ? '#fef9c3' : '#e0e7ff' }};color:{{ $dt->hour < 12 ? '#a16207' : '#4338ca' }};">{{ $pPeriod }}</span>
                         </div>
                     </div>
 

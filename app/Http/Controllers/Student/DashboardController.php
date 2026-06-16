@@ -508,53 +508,39 @@ class DashboardController extends Controller
     {
         $student = auth()->user();
 
-        // Find the session
         $session = Session::with('subject.term')->findOrFail($sessionId);
 
-        // Check if student has access (enrolled in subject OR session belongs to student's program)
-        $isEnrolled = Enrollment::where('student_id', $student->id)
-            ->where('subject_id', $session->subject_id)
-            ->where('status', 'active')
-            ->exists();
-
-        $isInProgram = $student->program_id && $session->subject
-            && $session->subject->term
-            && $session->subject->term->program_id === $student->program_id;
-
-        if (!$isEnrolled && !$isInProgram) {
-            return back()->with('error', 'ليس لديك صلاحية الانضمام لهذه الجلسة');
-        }
-
-        // Check if session has Zoom meeting
-        if (empty($session->zoom_meeting_id)) {
-            return back()->with('error', 'هذه الجلسة لا تحتوي على اجتماع Zoom');
-        }
-
-        // Create or update attendance record
+        // Record attendance immediately
         $attendance = Attendance::firstOrCreate(
+            ['student_id' => $student->id, 'session_id' => $session->id],
             [
-                'student_id' => $student->id,
-                'session_id' => $session->id,
-            ],
-            [
-                'attended' => true,
-                'joined_at' => now(),
+                'attended'   => true,
+                'joined_at'  => now(),
                 'ip_address' => $request->ip(),
                 'user_agent' => $request->userAgent(),
             ]
         );
 
-        // If attendance exists but not joined, record join
-        if (!$attendance->joined_at) {
-            $attendance->recordJoin($request->ip(), $request->userAgent());
-            $attendance->markAsAttended();
+        if (!$attendance->wasRecentlyCreated) {
+            $attendance->update([
+                'attended'  => true,
+                'joined_at' => $attendance->joined_at ?? now(),
+            ]);
         }
 
-        // Generate Zoom SDK signature
-        $zoomService = new ZoomService();
-        $signature = $zoomService->generateSignature($session->zoom_meeting_id, 0);
+        // Redirect directly to zoom join url
+        if (!empty($session->zoom_join_url)) {
+            return redirect($session->zoom_join_url);
+        }
 
-        return view('student.sessions.zoom', compact('session', 'attendance', 'signature'));
+        // Fallback: embedded zoom view
+        if (!empty($session->zoom_meeting_id)) {
+            $zoomService = new ZoomService();
+            $signature = $zoomService->generateSignature($session->zoom_meeting_id, 0);
+            return view('student.sessions.zoom', compact('session', 'attendance', 'signature'));
+        }
+
+        return back()->with('error', 'هذه الجلسة لا تحتوي على رابط Zoom');
     }
 
     /**
