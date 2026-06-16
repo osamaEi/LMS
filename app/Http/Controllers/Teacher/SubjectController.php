@@ -516,15 +516,22 @@ class SubjectController extends Controller
             ->get()
             ->keyBy('student_id');
 
+        // Approved apologies for this session → "معذور" status
+        $excusedStudentIds = \App\Models\AttendanceApology::where('session_id', $sessionId)
+            ->where('status', 'approved')
+            ->pluck('student_id')->flip();
+
         // Build unified attendances collection (one row per class student)
-        $attendances = $classStudents->map(function ($student) use ($attendanceMap, $sessionId) {
+        $attendances = $classStudents->map(function ($student) use ($attendanceMap, $sessionId, $excusedStudentIds) {
             $att = $attendanceMap->get($student->id);
+            $attended = $att?->attended ?? false;
             return (object)[
                 'id'         => $att?->id,
                 'session_id' => $sessionId,
                 'student_id' => $student->id,
                 'student'    => $student,
-                'attended'   => $att?->attended ?? false,
+                'attended'   => $attended,
+                'excused'    => !$attended && $excusedStudentIds->has($student->id),
                 'joined_at'  => $att?->joined_at,
                 'notes'      => $att?->notes,
             ];
@@ -532,11 +539,13 @@ class SubjectController extends Controller
 
         $totalAssigned  = $attendances->count();
         $attendedCount  = $attendances->where('attended', true)->count();
-        $absentStudents = $attendances->where('attended', false)->pluck('student')->filter()->values();
+        $excusedCount   = $attendances->where('excused', true)->count();
+        $absentStudents = $attendances->where('attended', false)->where('excused', false)->pluck('student')->filter()->values();
 
         $stats = [
             'total_enrolled'  => $totalAssigned,
             'attended'        => $attendedCount,
+            'excused'         => $excusedCount,
             'absent'          => $absentStudents->count(),
             'attendance_rate' => $totalAssigned > 0
                 ? round(($attendedCount / $totalAssigned) * 100, 1)

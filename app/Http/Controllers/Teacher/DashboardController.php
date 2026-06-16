@@ -57,6 +57,13 @@ class DashboardController extends Controller
             ->orderBy('started_at', 'desc')
             ->get();
 
+        // All sessions for the weekly calendar (next 4 weeks + past 2 weeks)
+        $calendarSessions = Session::where($teacherSessionFilter)
+            ->whereBetween('scheduled_at', [now()->subWeeks(2)->startOfDay(), now()->addWeeks(4)->endOfDay()])
+            ->with(['subject.program', 'subject.term', 'program', 'programClass'])
+            ->orderBy('scheduled_at', 'asc')
+            ->get();
+
         // Get past sessions (ended or scheduled_at in past)
         $pastSessions = Session::where($teacherSessionFilter)
             ->where(function($q) {
@@ -184,6 +191,7 @@ class DashboardController extends Controller
 
         return view($dashboardView, compact(
             'subjects',
+            'calendarSessions',
             'upcomingSessions',
             'liveSessions',
             'pastSessions',

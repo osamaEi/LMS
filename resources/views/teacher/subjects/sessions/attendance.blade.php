@@ -7,6 +7,7 @@
     $rate    = $stats['attendance_rate'];
     $attended = $stats['attended'];
     $absent   = $stats['absent'];
+    $excused  = $stats['excused'] ?? 0;
     $total    = $stats['total_enrolled'];
     $rateColor = $rate >= 75 ? '#16a34a' : ($rate >= 50 ? '#d97706' : '#dc2626');
 @endphp
@@ -57,10 +58,11 @@
 </div>
 
 {{-- Stats Row --}}
-<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px">
+<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px">
     @foreach([
         [$total,    'إجمالي المسجلين', '#2563eb', '#dbeafe'],
         [$attended, 'حاضر',            '#16a34a', '#dcfce7'],
+        [$excused,  'معذور',           '#d97706', '#fef3c7'],
         [$absent,   'غائب',            '#dc2626', '#fee2e2'],
         [$rate.'%', 'نسبة الحضور',    $rateColor, '#f9fafb'],
     ] as [$val, $label, $color, $bg])
@@ -106,6 +108,32 @@
     <div style="padding:40px;text-align:center;color:#9ca3af;font-size:.875rem">لا يوجد حضور مسجّل بعد</div>
     @endif
 </div>
+
+{{-- Excused (معذور) Table --}}
+@if($excused > 0)
+<div style="background:#fff;border:1.5px solid #fef3c7;border-radius:14px;overflow:hidden;margin-bottom:20px">
+    <div style="padding:14px 18px;border-bottom:1px solid #fef3c7;display:flex;align-items:center;gap:10px">
+        <div style="width:8px;height:8px;border-radius:50%;background:#d97706"></div>
+        <h2 style="font-size:.9rem;font-weight:700;color:#111827;margin:0">معذورون — عذر مقبول ({{ $excused }})</h2>
+    </div>
+    <table style="width:100%;border-collapse:collapse;font-size:.85rem">
+        <tbody>
+            @foreach($attendances->where('excused', true) as $i => $att)
+            <tr style="border-top:1px solid #fffbeb">
+                <td style="padding:12px 18px;color:#9ca3af;font-weight:700;width:40px">{{ $i + 1 }}</td>
+                <td style="padding:12px 18px">
+                    <p style="font-weight:700;color:#111827;margin:0">{{ $att->student->name ?? 'غير معروف' }}</p>
+                    <p style="font-size:.75rem;color:#9ca3af;margin:2px 0 0">{{ $att->student->email ?? '' }}</p>
+                </td>
+                <td style="padding:12px 18px;text-align:left">
+                    <span style="background:#fef3c7;color:#a16207;font-size:.72rem;font-weight:700;padding:3px 12px;border-radius:20px;">ⓘ معذور</span>
+                </td>
+            </tr>
+            @endforeach
+        </tbody>
+    </table>
+</div>
+@endif
 
 {{-- Add Attendance --}}
 @if($absentStudents->count())

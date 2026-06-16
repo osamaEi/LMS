@@ -165,6 +165,19 @@
 </li>
 @endcanany
 
+{{-- أعذار الغياب --}}
+<li>
+    <a href="{{ route('admin.apologies.index') }}"
+       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('admin.apologies.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
+        <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20"><path d="M15.8333 2.5H4.16667C3.25 2.5 2.5 3.25 2.5 4.16667V15.8333C2.5 16.75 3.25 17.5 4.16667 17.5H15.8333C16.75 17.5 17.5 16.75 17.5 15.8333V4.16667C17.5 3.25 16.75 2.5 15.8333 2.5ZM10 5C11.0833 5 11.9583 5.875 11.9583 6.95833C11.9583 8.04167 11.0833 8.91667 10 8.91667C8.91667 8.91667 8.04167 8.04167 8.04167 6.95833C8.04167 5.875 8.91667 5 10 5ZM14.1667 14.1667H5.83333V13.3333C5.83333 11.9583 8.61667 11.25 10 11.25C11.3833 11.25 14.1667 11.9583 14.1667 13.3333V14.1667Z" fill=""/></svg>
+        <span>أعذار الغياب</span>
+        @php $pendingApologies = \App\Models\AttendanceApology::where('status','pending')->count(); @endphp
+        @if($pendingApologies > 0)
+        <span class="mr-auto px-2 py-0.5 bg-orange-500 text-white text-xs font-bold rounded-full">{{ $pendingApologies }}</span>
+        @endif
+    </a>
+</li>
+
 {{-- إدارة الدفعات --}}
 @can('view-payments')
 <li>

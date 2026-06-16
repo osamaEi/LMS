@@ -305,14 +305,34 @@ class DashboardController extends Controller
             ->flatMap(fn($d) => $d['attendances']->all())
             ->keyBy('session_id');
 
-        // Class-based calendar sessions — all sessions in the student's classes with a scheduled_at
-        $classSessions = Session::whereIn('class_id', $studentClassIds)
-            ->whereNotNull('scheduled_at')
+        // Student's apologies keyed by session_id (for showing status / hiding submit button)
+        $apologies = \App\Models\AttendanceApology::where('student_id', $student->id)
+            ->get()->keyBy('session_id');
+
+        // Calendar sessions — union of:
+        //  (a) all sessions in the student's classes (via student_programs.class_id), and
+        //  (b) sessions actually assigned to the student (attendance records) + every
+        //      session sharing a class_id with those assigned sessions.
+        // This covers students whose class pivot is empty but who have attendance data.
+        $assignedClassIds = Session::whereIn('id', $assignedSessionIds)
+            ->whereNotNull('class_id')
+            ->pluck('class_id');
+
+        $calendarClassIds = $studentClassIds
+            ->merge($assignedClassIds)
+            ->filter()->unique()->values();
+
+        $classSessions = Session::whereNotNull('scheduled_at')
+            ->where(function ($q) use ($calendarClassIds, $assignedSessionIds) {
+                $q->whereIn('class_id', $calendarClassIds)
+                  ->orWhereIn('id', $assignedSessionIds);
+            })
             ->with(['subject:id,name_ar,name_en', 'teacher:id,name'])
             ->orderBy('scheduled_at')
             ->get()
-            ->map(function ($s) use ($allAttendances) {
+            ->map(function ($s) use ($allAttendances, $apologies) {
                 $att = $allAttendances[$s->id] ?? null;
+                $apo = $apologies[$s->id] ?? null;
                 return [
                     'id'               => $s->id,
                     'title'            => $s->title_ar ?: ($s->subject->name_ar ?? 'جلسة'),
@@ -325,6 +345,7 @@ class DashboardController extends Controller
                     'session_number'   => $s->session_number,
                     'zoom_join_url'    => $s->zoom_link ?? $s->zoom_join_url ?? null,
                     'attended'         => $att ? (bool) $att->attended : null,
+                    'apology_status'   => $apo?->status,
                 ];
             })
             ->values();
@@ -333,6 +354,7 @@ class DashboardController extends Controller
 
         return view('student.sessions.index', [
             'classSessions'       => $classSessions,
+            'apologies'           => $apologies,
             'programsSessionData' => $programsSessionData,
             'totalSessions'       => $totalSessions,
             'completedSessions'   => $completedSessions,

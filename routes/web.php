@@ -266,6 +266,11 @@ Route::middleware(['auth', 'role:admin,super_admin'])->prefix('admin')->name('ad
     Route::post('/students/{student}/documents/{document}/reject', [\App\Http\Controllers\Admin\StudentController::class, 'rejectDocument'])
         ->name('students.documents.reject');
 
+    // Absence apologies (أعذار الغياب) — review & approve/reject
+    Route::get('/apologies', [\App\Http\Controllers\Admin\ApologyController::class, 'index'])->name('apologies.index');
+    Route::post('/apologies/{apology}/approve', [\App\Http\Controllers\Admin\ApologyController::class, 'approve'])->name('apologies.approve');
+    Route::post('/apologies/{apology}/reject', [\App\Http\Controllers\Admin\ApologyController::class, 'reject'])->name('apologies.reject');
+
     // Program Enrollments (Approval)
     Route::prefix('program-enrollments')->name('program-enrollments.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Admin\ProgramEnrollmentController::class, 'index'])->name('index');
@@ -644,6 +649,10 @@ Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')
     Route::get('/upcoming-sessions', [\App\Http\Controllers\Student\DashboardController::class, 'upcomingSessions'])->name('upcoming-sessions');
     Route::get('/sessions/{sessionId}/join-zoom', [\App\Http\Controllers\Student\DashboardController::class, 'joinZoom'])->name('sessions.join-zoom');
     Route::post('/sessions/{sessionId}/leave-zoom', [\App\Http\Controllers\Student\DashboardController::class, 'leaveZoom'])->name('sessions.leave-zoom');
+
+    // Absence apology (عذر غياب)
+    Route::get('/apologies', [\App\Http\Controllers\Student\ApologyController::class, 'index'])->name('apologies.index');
+    Route::post('/sessions/{session}/apology', [\App\Http\Controllers\Student\ApologyController::class, 'store'])->name('sessions.apology.store');
 
     // Offers & Discounts
     Route::get('/offers', [\App\Http\Controllers\Student\OfferController::class, 'index'])->name('offers.index');

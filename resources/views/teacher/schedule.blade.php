@@ -21,6 +21,13 @@ $calSessions = $sessions->map(fn($s) => [
 @endphp
 
 @section('content')
+<style>
+@keyframes calLivePulse {
+    0%,100% { box-shadow:0 0 0 2px rgba(220,38,38,.25); }
+    50%     { box-shadow:0 0 0 4px rgba(220,38,38,.45); }
+}
+.cal-live-card { animation: calLivePulse 1.6s ease-in-out infinite; }
+</style>
 <div style="direction:rtl;font-family:'Segoe UI',sans-serif;">
 
 {{-- Hero --}}
@@ -82,6 +89,7 @@ $calSessions = $sessions->map(fn($s) => [
 @push('scripts')
 <script>
 const CAL_SESSIONS = @json($calSessions);
+const CSRF_TOKEN = '{{ csrf_token() }}';
 const TODAY = new Date();
 let cur = new Date();
 
@@ -104,6 +112,17 @@ function sameDay(a,b){ return a.getFullYear()===b.getFullYear()&&a.getMonth()===
 function fmtTime(iso){ const d=new Date(iso); let h=d.getHours(),m=String(d.getMinutes()).padStart(2,'0'); return (h%12||12)+':'+m+(h<12?' ص':' م'); }
 
 function weekStart(d){ const c=new Date(d); c.setDate(c.getDate()-c.getDay()); c.setHours(0,0,0,0); return c; }
+
+// A session is "live" if explicitly flagged, or if now is within its scheduled window
+function isSessionLive(s){
+    if(s.status==='live') return true;
+    if(s.status==='completed') return false;
+    if(!s.scheduled_at) return false;
+    const start = new Date(s.scheduled_at);
+    const end   = new Date(start.getTime() + (s.duration_minutes||60)*60000);
+    const now   = new Date();
+    return now>=start && now<=end;
+}
 
 function sessionsOnDay(date){
     return CAL_SESSIONS.filter(s=>s.scheduled_at&&sameDay(new Date(s.scheduled_at),date))
@@ -142,6 +161,18 @@ function openSession(s){
             <svg width="16" height="16" fill="white" viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
             انضمام للجلسة
         </a>`;
+    }
+    // Add / edit student join link (always available unless completed)
+    if(s.status!=='completed'){
+        const lbl = s.zoom_join_url ? '✓ رابط الطلاب — تعديل' : '+ إضافة رابط الطلاب';
+        const btnBg = s.zoom_join_url ? 'background:#dcfce7;color:#16a34a;border:1px solid #bbf7d0;' : 'background:#fffbeb;color:#d97706;border:1px solid #fde68a;';
+        html+=`<form method="POST" action="/teacher/sessions/${s.id}/join-url" style="display:flex;flex-direction:column;gap:8px;background:#f8fafc;border-radius:10px;padding:10px;margin-top:2px;">
+            <input type="hidden" name="_token" value="${CSRF_TOKEN}">
+            <input type="hidden" name="_method" value="PATCH">
+            <label style="font-size:11px;font-weight:700;color:#475569;">رابط انضمام الطلاب</label>
+            <input type="url" name="zoom_join_url" value="${(s.zoom_join_url||'').replace(/"/g,'&quot;')}" placeholder="https://zoom.us/j/..." style="border:1.5px solid #d1fae5;border-radius:8px;padding:8px 10px;font-size:12px;outline:none;direction:ltr;text-align:left;">
+            <button type="submit" style="${btnBg}border-radius:8px;padding:8px;font-size:12px;font-weight:700;cursor:pointer;">${lbl}</button>
+        </form>`;
     }
     if(s.subject_id){
         html+=`<a href="/teacher/my-subjects/${s.subject_id}/sessions/${s.id}/attendance" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;background:#f0fdf4;color:#16a34a;border:1.5px solid #bbf7d0;border-radius:10px;text-decoration:none;font-size:13px;font-weight:700;">
@@ -192,17 +223,24 @@ function renderCalendar(){
         PERIODS.forEach((p,pi)=>{
             const items=cellMap[i+'|'+pi]||[];
             const inner=items.map(s=>{
-                const statusBg    = s.status==='completed'?'#dcfce7':s.status==='live'?'#fee2e2':'';
-                const statusColor = s.status==='completed'?'#15803d':s.status==='live'?'#dc2626':'';
-                const statusLabel = s.status==='completed'?'مكتملة':s.status==='live'?'● مباشر':'';
+                const isLive = isSessionLive(s);
+                const statusBg    = s.status==='completed'?'#dcfce7':isLive?'#fee2e2':'';
+                const statusColor = s.status==='completed'?'#15803d':isLive?'#dc2626':'';
+                const statusLabel = s.status==='completed'?'مكتملة':isLive?'● مباشر الآن':'';
+                const hasLink = !!s.zoom_join_url;
                 const sub = s.subject_name||s.program_name;
                 const showSub = sub && !(s.title||'').includes(sub);
-                return `<div onclick='openSession(${JSON.stringify(s)})' style="background:#eff6ff;border-right:3px solid #0071AA;border-radius:6px;padding:6px 8px;margin-bottom:4px;line-height:1.35;cursor:pointer;">
-                    <div style="font-size:12px;font-weight:700;color:#1e3a8a;">${s.title||sub||'جلسة'}</div>
+                // Live cards get a red animated highlight; others stay blue
+                const cardStyle = isLive
+                    ? 'background:linear-gradient(135deg,#fef2f2,#fee2e2);border-right:4px solid #dc2626;box-shadow:0 0 0 2px rgba(220,38,38,.25);'
+                    : 'background:#eff6ff;border-right:3px solid #0071AA;';
+                return `<div onclick='openSession(${JSON.stringify(s)})' class="${isLive?'cal-live-card':''}" style="${cardStyle}border-radius:6px;padding:6px 8px;margin-bottom:4px;line-height:1.35;cursor:pointer;position:relative;">
+                    <div style="font-size:12px;font-weight:700;color:${isLive?'#991b1b':'#1e3a8a'};">${s.title||sub||'جلسة'}</div>
                     ${showSub?`<div style="font-size:10px;color:#64748b;">${sub}</div>`:''}
                     <div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:4px;">
                         ${s.class_name?`<span style="background:#e0f2fe;color:#0071AA;font-size:10px;font-weight:600;padding:1px 6px;border-radius:20px;">${s.class_name}</span>`:''}
-                        ${statusLabel?`<span style="background:${statusBg};color:${statusColor};font-size:10px;font-weight:600;padding:1px 6px;border-radius:20px;">${statusLabel}</span>`:''}
+                        ${statusLabel?`<span style="background:${statusBg};color:${statusColor};font-size:10px;font-weight:700;padding:1px 6px;border-radius:20px;">${statusLabel}</span>`:''}
+                        ${!hasLink?`<span style="background:#fffbeb;color:#d97706;font-size:10px;font-weight:600;padding:1px 6px;border-radius:20px;">+ رابط</span>`:''}
                     </div>
                 </div>`;
             }).join('');

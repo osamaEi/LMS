@@ -366,15 +366,22 @@ class CourseController extends Controller
         $attendanceMap = Attendance::where('session_id', $sessionId)
             ->get()->keyBy('student_id');
 
+        // Approved apologies for this session → "معذور" status
+        $excusedStudentIds = \App\Models\AttendanceApology::where('session_id', $sessionId)
+            ->where('status', 'approved')
+            ->pluck('student_id')->flip();
+
         // Build unified list (one row per class student)
-        $attendances = $classStudents->map(function ($student) use ($attendanceMap, $sessionId) {
+        $attendances = $classStudents->map(function ($student) use ($attendanceMap, $sessionId, $excusedStudentIds) {
             $att = $attendanceMap->get($student->id);
+            $attended = $att?->attended ?? false;
             return (object)[
                 'id'         => $att?->id,
                 'session_id' => $sessionId,
                 'student_id' => $student->id,
                 'student'    => $student,
-                'attended'   => $att?->attended ?? false,
+                'attended'   => $attended,
+                'excused'    => !$attended && $excusedStudentIds->has($student->id),
                 'joined_at'  => $att?->joined_at,
                 'notes'      => $att?->notes,
             ];
@@ -382,11 +389,13 @@ class CourseController extends Controller
 
         $totalStudents  = $attendances->count();
         $attendedCount  = $attendances->where('attended', true)->count();
-        $absentStudents = $attendances->where('attended', false)->pluck('student')->filter()->values();
+        $excusedCount   = $attendances->where('excused', true)->count();
+        $absentStudents = $attendances->where('attended', false)->where('excused', false)->pluck('student')->filter()->values();
 
         $stats = [
             'total_enrolled'  => $totalStudents,
             'attended'        => $attendedCount,
+            'excused'         => $excusedCount,
             'absent'          => $absentStudents->count(),
             'attendance_rate' => $totalStudents > 0
                 ? round(($attendedCount / $totalStudents) * 100, 1)

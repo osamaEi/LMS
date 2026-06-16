@@ -417,6 +417,16 @@
 
 @section('content')
 <div class="sessions-page">
+    @if(session('success'))
+        <div style="direction:rtl;background:#dcfce7;border:1px solid #86efac;color:#15803d;padding:12px 16px;border-radius:12px;margin-bottom:16px;font-weight:600;">{{ session('success') }}</div>
+    @endif
+    @if(session('error'))
+        <div style="direction:rtl;background:#fee2e2;border:1px solid #fca5a5;color:#b91c1c;padding:12px 16px;border-radius:12px;margin-bottom:16px;font-weight:600;">{{ session('error') }}</div>
+    @endif
+    @error('reason')
+        <div style="direction:rtl;background:#fee2e2;border:1px solid #fca5a5;color:#b91c1c;padding:12px 16px;border-radius:12px;margin-bottom:16px;font-weight:600;">{{ $message }}</div>
+    @enderror
+
     <!-- Header -->
     <div class="sessions-header">
         <div style="position: relative; z-index: 1;">
@@ -484,6 +494,34 @@
                 <button onclick="document.getElementById('sessionModal').style.display='none'" style="background:rgba(255,255,255,.15);border:none;border-radius:8px;width:28px;height:28px;color:white;cursor:pointer;font-size:16px;">×</button>
             </div>
             <div id="smBody" style="padding:18px;"></div>
+        </div>
+    </div>
+
+    {{-- Apology modal --}}
+    <div id="apologyModal" style="display:none;position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.5);align-items:center;justify-content:center;padding:16px;direction:rtl;">
+        <div style="background:white;border-radius:20px;width:100%;max-width:440px;box-shadow:0 20px 60px rgba(0,0,0,.25);overflow:hidden;">
+            <div style="padding:18px 20px;background:linear-gradient(135deg,#c2410c,#ea580c);display:flex;align-items:center;justify-content:space-between;">
+                <h3 style="color:white;font-size:15px;font-weight:700;margin:0;">📝 تقديم عذر غياب</h3>
+                <button type="button" onclick="closeApology()" style="background:rgba(255,255,255,.15);border:none;border-radius:8px;width:28px;height:28px;color:white;cursor:pointer;font-size:16px;">×</button>
+            </div>
+            <form id="apoForm" method="POST" enctype="multipart/form-data" style="padding:18px 20px;">
+                @csrf
+                <p style="font-size:13px;color:#64748b;margin:0 0 12px;">المحاضرة: <strong id="apoSessionTitle" style="color:#1e293b;"></strong></p>
+
+                <label style="display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:6px;">سبب الغياب <span style="color:#dc2626;">*</span></label>
+                <textarea id="apoReason" name="reason" rows="4" required minlength="5" maxlength="1000"
+                          placeholder="اكتب سبب غيابك عن المحاضرة..."
+                          style="width:100%;border:1.5px solid #e2e8f0;border-radius:10px;padding:10px 12px;font-size:13px;box-sizing:border-box;resize:vertical;outline:none;"></textarea>
+
+                <label style="display:block;font-size:13px;font-weight:600;color:#374151;margin:12px 0 6px;">مرفق (اختياري) <span style="font-weight:400;color:#94a3b8;">— PDF أو صورة</span></label>
+                <input type="file" name="attachment" accept=".pdf,.jpg,.jpeg,.png"
+                       style="width:100%;border:1.5px solid #e2e8f0;border-radius:10px;padding:8px;font-size:12px;box-sizing:border-box;">
+
+                <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:18px;">
+                    <button type="button" onclick="closeApology()" style="padding:9px 16px;border-radius:10px;border:1px solid #e5e7eb;background:#fff;color:#6b7280;font-size:13px;font-weight:600;cursor:pointer;">إلغاء</button>
+                    <button type="submit" style="padding:9px 20px;border-radius:10px;border:none;background:linear-gradient(135deg,#c2410c,#ea580c);color:#fff;font-size:13px;font-weight:700;cursor:pointer;">إرسال العذر</button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -561,9 +599,31 @@
         if(s.status==='completed'){
             html+=`<div style="text-align:center;padding:8px;background:#f0fdf4;border-radius:10px;font-size:13px;font-weight:600;color:#15803d;">✓ انتهت هذه الجلسة</div>`;
         }
+        // Absence apology — only for past sessions where the student was absent
+        const sessPast = s.ended_at || (s.scheduled_at && new Date(s.scheduled_at) < new Date()) || s.status==='completed';
+        if(sessPast && s.attended!==true){
+            if(s.apology_status==='pending'){
+                html+=`<div style="text-align:center;padding:9px;background:#fef9c3;border-radius:10px;font-size:12px;font-weight:700;color:#a16207;margin-top:4px;">⏳ عذرك قيد المراجعة</div>`;
+            } else if(s.apology_status==='approved'){
+                html+=`<div style="text-align:center;padding:9px;background:#dcfce7;border-radius:10px;font-size:12px;font-weight:700;color:#15803d;margin-top:4px;">✓ تم قبول عذر غيابك (معذور)</div>`;
+            } else if(s.apology_status==='rejected'){
+                html+=`<div style="text-align:center;padding:9px;background:#fee2e2;border-radius:10px;font-size:12px;font-weight:700;color:#b91c1c;margin-top:4px;">✗ تم رفض عذر غيابك</div>`;
+            } else {
+                html+=`<button type="button" onclick="openApology(${s.id}, ${JSON.stringify(s.title||'').replace(/"/g,'&quot;')})" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;background:#fff7ed;color:#c2410c;border:1.5px solid #fed7aa;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;margin-top:4px;width:100%;">📝 تقديم عذر غياب</button>`;
+            }
+        }
         html+='</div>';
         document.getElementById('smBody').innerHTML=html;
     }
+
+    function openApology(sessionId, title){
+        document.getElementById('sessionModal').style.display='none';
+        document.getElementById('apoSessionTitle').textContent = title || '';
+        document.getElementById('apoForm').action = '/student/sessions/'+sessionId+'/apology';
+        document.getElementById('apoReason').value='';
+        document.getElementById('apologyModal').style.display='flex';
+    }
+    function closeApology(){ document.getElementById('apologyModal').style.display='none'; }
 
     function renderCal(){
         const ws=weekStartCal(curCal);

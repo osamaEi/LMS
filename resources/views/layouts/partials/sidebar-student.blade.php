@@ -72,6 +72,21 @@
     </a>
 </li>
 
+<!-- أعذار الغياب -->
+<li>
+    <a href="{{ route('student.apologies.index') }}"
+       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('student.apologies.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
+        <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M14 1H6C4.9 1 4 1.9 4 3V17C4 18.1 4.9 19 6 19H14C15.1 19 16 18.1 16 17V3C16 1.9 15.1 1 14 1ZM14 15H6V13H14V15ZM14 11H6V9H14V11ZM12 6V2.5L15.5 6H12Z" fill=""/>
+        </svg>
+        <span>أعذار الغياب</span>
+        @php $myPendingApologies = \App\Models\AttendanceApology::where('student_id', auth()->id())->where('status','pending')->count(); @endphp
+        @if($myPendingApologies > 0)
+        <span class="mr-auto px-2 py-0.5 bg-orange-500 text-white text-xs font-bold rounded-full">{{ $myPendingApologies }}</span>
+        @endif
+    </a>
+</li>
+
 <!-- الواجبات المنزلية -->
 <li>
     <a href="{{ route('student.homework.index') }}"
