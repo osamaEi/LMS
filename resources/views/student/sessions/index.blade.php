@@ -599,9 +599,14 @@
         if(s.status==='completed'){
             html+=`<div style="text-align:center;padding:8px;background:#f0fdf4;border-radius:10px;font-size:13px;font-weight:600;color:#15803d;">✓ انتهت هذه الجلسة</div>`;
         }
-        // Absence apology — only for past sessions where the student was absent
-        const sessPast = s.ended_at || (s.scheduled_at && new Date(s.scheduled_at) < new Date()) || s.status==='completed';
-        if(sessPast && s.attended!==true){
+        // Absence apology — available for any session the student didn't attend
+        // (past absences, or future sessions the student knows they'll miss).
+        // Hidden only when already marked present, or the session is live right now.
+        const isLiveNow = s.status==='live' || (s.scheduled_at && (function(){
+            const st=new Date(s.scheduled_at), en=new Date(st.getTime()+(s.duration_minutes||60)*60000);
+            const n=new Date(); return n>=st && n<=en;
+        })());
+        if(s.attended!==true && !isLiveNow){
             if(s.apology_status==='pending'){
                 html+=`<div style="text-align:center;padding:9px;background:#fef9c3;border-radius:10px;font-size:12px;font-weight:700;color:#a16207;margin-top:4px;">⏳ عذرك قيد المراجعة</div>`;
             } else if(s.apology_status==='approved'){

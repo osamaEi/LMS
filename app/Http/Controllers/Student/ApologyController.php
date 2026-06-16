@@ -49,6 +49,16 @@ class ApologyController extends Controller
             return back()->with('error', 'لقد قمت بتقديم عذر لهذه المحاضرة مسبقاً (الحالة: ' . $existing->statusLabelAr() . ').');
         }
 
+        // Can't apologize for a session the student already attended
+        $alreadyAttended = \App\Models\Attendance::where('student_id', $student->id)
+            ->where('session_id', $session->id)
+            ->where('attended', true)
+            ->exists();
+
+        if ($alreadyAttended) {
+            return back()->with('error', 'لا يمكن تقديم عذر لمحاضرة قمت بحضورها.');
+        }
+
         $attachmentPath = null;
         if ($request->hasFile('attachment')) {
             $attachmentPath = $request->file('attachment')->store('apologies', 'public');
