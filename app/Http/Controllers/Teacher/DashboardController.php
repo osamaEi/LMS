@@ -22,7 +22,18 @@ class DashboardController extends Controller
      */
     private function buildTeacherCalendarSessions($teacher): \Illuminate\Support\Collection
     {
-        $subjectSessions = Session::whereHas('subject', fn($q) => $q->assignedToTeacher($teacher->id))
+        // Subject-based sessions: the session's own teacher_id (the teacher chosen
+        // when the session was scheduled) decides whose calendar it shows on — so a
+        // subject shared between multiple teachers only shows each teacher their own
+        // sessions. Sessions with no teacher_id fall back to the subject assignment.
+        $subjectSessions = Session::whereNotNull('subject_id')
+            ->where(function ($q) use ($teacher) {
+                $q->where('teacher_id', $teacher->id)
+                  ->orWhere(function ($q2) use ($teacher) {
+                      $q2->whereNull('teacher_id')
+                         ->whereHas('subject', fn($sq) => $sq->assignedToTeacher($teacher->id));
+                  });
+            })
             ->with(['subject.program', 'subject.term.program', 'programClass', 'subject.programClass', 'subject.term.programClass'])
             ->get();
 
@@ -30,7 +41,13 @@ class DashboardController extends Controller
             ->whereIn('type', ['training', 'english', 'course'])
             ->pluck('id');
 
+        // Program-based sessions: same rule — prefer the session's teacher_id, but
+        // keep sessions with no teacher_id that belong to programs this teacher teaches.
         $programSessions = Session::whereIn('program_id', $programIds)
+            ->where(function ($q) use ($teacher) {
+                $q->where('teacher_id', $teacher->id)
+                  ->orWhereNull('teacher_id');
+            })
             ->with(['program', 'programClass'])
             ->get();
 

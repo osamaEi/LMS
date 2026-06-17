@@ -178,7 +178,7 @@ class ScheduleController extends Controller
             'entity_type'      => 'required|in:program,subject',
             'entity_id'        => 'required|integer',
             'class_id'         => 'required|exists:program_classes,id',
-            'teacher_id'       => 'nullable|exists:users,id',
+            'teacher_id'       => 'required|exists:users,id',
             'days'             => 'required|array|min:1',
             'days.*'           => 'integer|min:0|max:6',
             'time'             => 'required|date_format:H:i',
@@ -201,7 +201,9 @@ class ScheduleController extends Controller
             $label = Subject::find($fkVal)?->name_ar ?? 'جلسة';
         }
 
-        $teacherId = $data['teacher_id'] ?? $class->teacher_id;
+        // The teacher chosen in the admin schedule form — and only that — is used.
+        // No fallback to subject teacher or class supervisor.
+        $teacherId = $data['teacher_id'];
         [$hh, $mm]  = explode(':', $data['time']);
         $start      = Carbon::parse($data['start_date']);
         $end        = Carbon::parse($data['end_date']);

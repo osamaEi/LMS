@@ -16,8 +16,17 @@ class ScheduleController extends Controller
         $teacher = Auth::user();
         $now     = now();
 
-        // Subject-based sessions (diploma)
-        $subjectSessions = Session::whereHas('subject', fn($q) => $q->assignedToTeacher($teacher->id))
+        // Subject-based sessions (diploma) — show the session only to its own teacher
+        // (teacher_id set at scheduling). Sessions without a teacher_id fall back to
+        // the subject's teacher assignment so nothing disappears.
+        $subjectSessions = Session::whereNotNull('subject_id')
+            ->where(function ($q) use ($teacher) {
+                $q->where('teacher_id', $teacher->id)
+                  ->orWhere(function ($q2) use ($teacher) {
+                      $q2->whereNull('teacher_id')
+                         ->whereHas('subject', fn($sq) => $sq->assignedToTeacher($teacher->id));
+                  });
+            })
             ->with(['subject.program', 'subject.term.program', 'programClass', 'subject.programClass', 'subject.term.programClass'])
             ->get();
 
@@ -27,6 +36,10 @@ class ScheduleController extends Controller
             ->pluck('id');
 
         $programSessions = Session::whereIn('program_id', $programIds)
+            ->where(function ($q) use ($teacher) {
+                $q->where('teacher_id', $teacher->id)
+                  ->orWhereNull('teacher_id');
+            })
             ->with(['program', 'programClass'])
             ->get();
 
