@@ -200,6 +200,17 @@
 
             {{-- Action buttons --}}
             <div class="flex gap-2 flex-wrap">
+                {{-- زرار إضافة اختبار — يظهر فقط لو المقرر مربوط بكلاس --}}
+                @if($resolvedClassId)
+                <a href="{{ route('teacher.quizzes.create', $subject->id) }}"
+                   class="action-btn"
+                   style="background:#fff;color:#0071AA;font-weight:700;">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-3-3v6m9-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    أضف اختبار
+                </a>
+                @endif
                 <button @click="uploadModal = true"
                         class="action-btn"
                         style="background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.25)">

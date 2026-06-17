@@ -93,7 +93,7 @@ class SubjectController extends Controller
         // No sessions for this teacher on this subject → show a clear notice.
         $notScheduled = $sessions->isEmpty();
 
-        return view('teacher.subjects.show', compact('subject', 'sessions', 'students', 'notScheduled'));
+        return view('teacher.subjects.show', compact('subject', 'sessions', 'students', 'notScheduled', 'resolvedClassId'));
     }
 
     /**
