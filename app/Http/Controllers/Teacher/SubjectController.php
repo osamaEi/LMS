@@ -31,43 +31,16 @@ class SubjectController extends Controller
     {
         $teacher = auth()->user();
 
-        // Subjects this teacher is actually scheduled on — only subjects that have
-        // real sessions tied to a class AND assigned to him (session.class_id +
-        // session.teacher_id). المقررات حسب الجدول اللي هو متسجّل فيه فقط.
-        $subjectIds = \App\Models\Session::where('teacher_id', $teacher->id)
-            ->whereNotNull('subject_id')
-            ->whereNotNull('class_id')
-            ->distinct()->pluck('subject_id');
-
-        // Show those subjects, scoped to diploma subjects that belong to a class.
-        $subjects = Subject::whereIn('id', $subjectIds)
-            ->where(function ($q) {
-                $q->whereNotNull('class_id')
-                  ->orWhereHas('term', fn($tq) => $tq->whereNotNull('class_id'));
-            })
-            ->where(function ($q) {
-                $q->whereHas('program', fn($pq) => $pq->where('type', 'diploma'))
-                  ->orWhereHas('term.program', fn($pq) => $pq->where('type', 'diploma'));
-            })
+        // Subjects assigned to this teacher via the subject_teacher pivot only.
+        $subjects = $teacher->assignedSubjects()
             ->with(['term.program'])
             ->withCount(['sessions as sessions_count' => fn($q) => $q->where('teacher_id', $teacher->id)])
             ->orderBy(app()->getLocale() === 'en' ? 'name_en' : 'name_ar')
             ->get();
 
-        // Count students per subject scoped to the subject's class
-        $allUniqueStudentIds = collect();
-        $subjects->each(function ($subject) use (&$allUniqueStudentIds) {
-            $classId = $subject->class_id ?? $subject->term?->class_id ?? null;
-            $ids = $classId
-                ? \Illuminate\Support\Facades\DB::table('student_programs')
-                    ->where('class_id', $classId)->distinct()->pluck('student_id')
-                : collect();
-            $subject->students_count = $ids->count();
-            $allUniqueStudentIds = $allUniqueStudentIds->merge($ids);
-        });
-        $totalStudents = $allUniqueStudentIds->unique()->count();
+     
 
-        return view('teacher.subjects.index', compact('subjects', 'totalStudents'));
+        return view('teacher.subjects.index', compact('subjects'));
     }
 
     /**
