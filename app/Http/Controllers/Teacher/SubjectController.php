@@ -31,19 +31,13 @@ class SubjectController extends Controller
     {
         $teacher = auth()->user();
 
-        // Subjects this teacher is actually scheduled on — i.e. the subjects of the
-        // sessions assigned to him in the admin schedule (session.teacher_id).
-        // This is the primary source: المقررات حسب الجدول اللي هو متسجّل فيه.
-        $scheduledSubjectIds = \App\Models\Session::where('teacher_id', $teacher->id)
-            ->whereNotNull('subject_id')->distinct()->pluck('subject_id');
-
-        // Plus subjects directly assigned to him that have NO sessions yet, so a newly
-        // assigned subject still appears before its schedule is generated.
-        $unscheduledAssignedIds = Subject::assignedToTeacher($teacher->id)
-            ->whereDoesntHave('sessions')
-            ->pluck('id');
-
-        $subjectIds = $scheduledSubjectIds->merge($unscheduledAssignedIds)->unique();
+        // Subjects this teacher is actually scheduled on — only subjects that have
+        // real sessions tied to a class AND assigned to him (session.class_id +
+        // session.teacher_id). المقررات حسب الجدول اللي هو متسجّل فيه فقط.
+        $subjectIds = \App\Models\Session::where('teacher_id', $teacher->id)
+            ->whereNotNull('subject_id')
+            ->whereNotNull('class_id')
+            ->distinct()->pluck('subject_id');
 
         // Show those subjects, scoped to diploma subjects that belong to a class.
         $subjects = Subject::whereIn('id', $subjectIds)
