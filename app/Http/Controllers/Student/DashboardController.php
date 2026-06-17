@@ -78,6 +78,7 @@ class DashboardController extends Controller
                     'status'           => (string) ($s->status ?? ''),
                     'session_number'   => $s->session_number,
                     'zoom_join_url'    => $s->zoom_link ?? $s->zoom_join_url ?? null,
+                    'zoom_start_url'   => $s->zoom_start_url ?? null,
                     'attended'         => $att ? (bool) $att->attended : null,
                     'apology_status'   => $apo?->status,
                 ];
@@ -577,9 +578,21 @@ class DashboardController extends Controller
             ]);
         }
 
+        // Which link to open: ?link=start uses the host/start link, otherwise the
+        // student join link. Attendance is recorded either way (above).
+        $which = $request->query('link');
+        if ($which === 'start' && !empty($session->zoom_start_url)) {
+            return redirect($session->zoom_start_url);
+        }
+
         // Redirect directly to zoom join url
         if (!empty($session->zoom_join_url)) {
             return redirect($session->zoom_join_url);
+        }
+
+        // If only the start link exists, use it
+        if (!empty($session->zoom_start_url)) {
+            return redirect($session->zoom_start_url);
         }
 
         // Fallback: embedded zoom view

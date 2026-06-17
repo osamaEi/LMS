@@ -94,16 +94,18 @@ function openSession(s){
         </div>`;
     });
     html+='<div style="display:flex;flex-direction:column;gap:8px;margin-top:8px;">';
-    if(s.zoom_start_url && s.status!=='completed'){
-        html+=`<a href="${s.zoom_start_url}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;background:linear-gradient(135deg,#ef4444,#dc2626);color:white;border-radius:10px;text-decoration:none;font-size:13px;font-weight:700;">
-            <svg width="16" height="16" fill="white" viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
-            ▶ ابدأ الجلسة
+    const zoomIcon = `<svg width="16" height="16" fill="white" viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>`;
+    // Always show two stacked buttons. Each falls back to the other link if its own is empty.
+    if(s.status!=='completed'){
+        const url1 = s.zoom_start_url || s.zoom_join_url || '';
+        const url2 = s.zoom_join_url || s.zoom_start_url || '';
+        // Start 1 — host start link (falls back to join link)
+        html+=`<a href="${url1||'#'}" target="_blank" ${url1?'':'onclick="alert(\'لا يوجد رابط بعد\');return false;"'} style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;background:linear-gradient(135deg,#ef4444,#dc2626);color:white;border-radius:10px;text-decoration:none;font-size:13px;font-weight:700;${url1?'':'opacity:.55;'}">
+            ${zoomIcon} ▶ ابدأ الجلسة 1
         </a>`;
-    }
-    if(s.zoom_join_url && s.status!=='completed'){
-        html+=`<a href="${s.zoom_join_url}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:white;border-radius:10px;text-decoration:none;font-size:13px;font-weight:700;">
-            <svg width="16" height="16" fill="white" viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
-            انضمام للجلسة
+        // Start 2 — student join link (falls back to start link)
+        html+=`<a href="${url2||'#'}" target="_blank" ${url2?'':'onclick="alert(\'لا يوجد رابط بعد\');return false;"'} style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:white;border-radius:10px;text-decoration:none;font-size:13px;font-weight:700;${url2?'':'opacity:.55;'}">
+            ${zoomIcon} ▶ ابدأ الجلسة 2
         </a>`;
     }
     // Add / edit student join link (always available unless completed)

@@ -132,10 +132,17 @@
                 <span style="font-size:13px;font-weight:600;color:#1e293b;">${v}</span>
             </div>`;
         });
-        if(s.zoom_join_url&&s.status!=='completed'){
-            html+=`<a href="/student/sessions/${s.id}/join-zoom" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:white;border-radius:10px;text-decoration:none;font-size:13px;font-weight:700;margin-top:4px;">
-                <svg width="16" height="16" fill="white" viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
-                انضمام للجلسة المباشرة
+        const zoomIconStu = `<svg width="16" height="16" fill="white" viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>`;
+        // Always show two stacked join buttons. Both record attendance via join-zoom.
+        const hasAnyLink = (s.zoom_start_url||s.zoom_join_url);
+        if(hasAnyLink && s.status!=='completed'){
+            // Join 1 — start link
+            html+=`<a href="/student/sessions/${s.id}/join-zoom?link=start" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;background:linear-gradient(135deg,#ef4444,#dc2626);color:white;border-radius:10px;text-decoration:none;font-size:13px;font-weight:700;margin-top:4px;">
+                ${zoomIconStu} ▶ انضمام للجلسة 1
+            </a>`;
+            // Join 2 — student join link
+            html+=`<a href="/student/sessions/${s.id}/join-zoom?link=join" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:white;border-radius:10px;text-decoration:none;font-size:13px;font-weight:700;margin-top:4px;">
+                ${zoomIconStu} ▶ انضمام للجلسة 2
             </a>`;
         }
         if(s.status==='completed'){
