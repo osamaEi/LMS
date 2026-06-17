@@ -407,117 +407,26 @@ class DashboardController extends Controller
      */
     public function attendance(Request $request)
     {
-        $student    = auth()->user();
-        $allPrograms = $student->allPrograms();
-        $programIds  = $allPrograms->pluck('id');
+        $student = auth()->user();
 
-        $programId  = $request->query('program_id', $allPrograms->first()?->id);
-        $subjectId  = $request->query('subject_id');
-        $termFilter = $request->query('term_filter', 'current'); // 'current' | 'all'
-
-        // Active program
-        $activeProgram = $allPrograms->firstWhere('id', $programId) ?? $allPrograms->first();
-        $isDiploma     = $activeProgram?->type === 'diploma';
-
-        // ── Determine current term for diploma programs ───────────────────────
-        $currentTerm = null;
-        if ($isDiploma && $activeProgram) {
-            $terms = Term::where('program_id', $activeProgram->id)->orderBy('term_number')->get();
-            $currentTermNumber = $student->current_term_number ?? 1;
-            $currentTerm = $terms->first(fn($t) =>
-                $t->start_date && $t->end_date && $t->start_date <= now() && $t->end_date >= now()
-            ) ?? $terms->firstWhere('term_number', $currentTermNumber) ?? $terms->first();
-        }
-
-        // ── Base attendance query for this program ───────────────────────────
-        $attQuery = Attendance::where('student_id', $student->id)->whereHas('session');
-
-        if ($activeProgram) {
-            if ($isDiploma) {
-                // diploma: filter by subjects in this program's terms
-                $attQuery->where(function ($q) use ($activeProgram, $currentTerm, $termFilter) {
-                    $q->whereHas('session.subject.term', fn($tq) => $tq->where('program_id', $activeProgram->id));
-                });
-                // additionally filter by current term if requested
-                if ($termFilter === 'current' && $currentTerm) {
-                    $attQuery->whereHas('session.subject', fn($sq) => $sq->where('term_id', $currentTerm->id));
-                }
-            } else {
-                // non-diploma course: filter by program_id on session
-                $attQuery->whereHas('session', fn($q) => $q->where('program_id', $activeProgram->id));
-            }
-        }
-
-        if ($subjectId) {
-            $attQuery->whereHas('session', fn($q) => $q->where('subject_id', $subjectId));
-        }
-
-        $attendances = (clone $attQuery)
-            ->with(['session.subject.term', 'session.program', 'session.unit'])
-            ->orderBy('created_at', 'desc')
+        // Simplified: attendance is only counted when the student actually joins a
+        // session — so we show ONLY the sessions the student joined (attended = true).
+        $attendances = Attendance::where('student_id', $student->id)
+            ->where('attended', true)
+            ->whereHas('session')
+            ->with(['session.subject', 'session.program', 'session.unit'])
+            ->orderByDesc('joined_at')
             ->paginate(20);
 
-        // ── Aggregate stats ──────────────────────────────────────────────────
-        $totalSessions    = (clone $attQuery)->count();
-        $attendedSessions = (clone $attQuery)->where('attended', true)->count();
-        $attendanceRate   = $totalSessions > 0 ? round(($attendedSessions / $totalSessions) * 100, 1) : 0;
-        $totalMinutes     = (clone $attQuery)->sum('duration_minutes') ?? 0;
-
-        // ── Subject stats (diploma only) ─────────────────────────────────────
-        $subjectStats = collect();
-        $displaySubjects = collect();
-        if ($isDiploma) {
-            $subjectIdQuery = DB::table('attendances')
-                ->join('class_sessions', 'attendances.session_id', '=', 'class_sessions.id')
-                ->join('subjects', 'class_sessions.subject_id', '=', 'subjects.id')
-                ->join('terms', 'subjects.term_id', '=', 'terms.id')
-                ->where('attendances.student_id', $student->id)
-                ->where('terms.program_id', $activeProgram->id)
-                ->whereNotNull('class_sessions.subject_id');
-
-            if ($termFilter === 'current' && $currentTerm) {
-                $subjectIdQuery->where('subjects.term_id', $currentTerm->id);
-            }
-
-            $subjectIdsWithAtt = $subjectIdQuery->pluck('class_sessions.subject_id')->unique();
-
-            $displaySubjects = Subject::whereIn('id', $subjectIdsWithAtt)->with('term')->get();
-
-            $rawStats = DB::table('attendances')
-                ->join('class_sessions', 'attendances.session_id', '=', 'class_sessions.id')
-                ->where('attendances.student_id', $student->id)
-                ->whereIn('class_sessions.subject_id', $displaySubjects->pluck('id')->toArray() ?: [0])
-                ->select('class_sessions.subject_id',
-                    DB::raw('COUNT(*) as total'),
-                    DB::raw('SUM(attendances.attended) as attended_count'))
-                ->groupBy('class_sessions.subject_id')
-                ->get()->keyBy('subject_id');
-
-            $subjectStats = $displaySubjects->map(function ($subject) use ($rawStats) {
-                $row = $rawStats->get($subject->id);
-                $total    = $row ? (int) $row->total : 0;
-                $attended = $row ? (int) $row->attended_count : 0;
-                return ['subject' => $subject, 'total' => $total, 'attended' => $attended,
-                        'rate' => $total > 0 ? round(($attended / $total) * 100, 1) : 0];
-            })->sortByDesc('total')->values();
-        }
+        // Stats based on joined sessions only
+        $base = Attendance::where('student_id', $student->id)->where('attended', true)->whereHas('session');
+        $attendedSessions = (clone $base)->count();
+        $totalMinutes     = (clone $base)->sum('duration_minutes') ?? 0;
 
         return view('student.attendance.index', [
-            'attendances'     => $attendances,
-            'enrolledSubjects'=> $displaySubjects,
-            'filterSubjects'  => $displaySubjects,
-            'subjectStats'    => $subjectStats,
-            'subjectId'       => $subjectId,
-            'termFilter'      => $termFilter,
-            'currentTerm'     => $currentTerm,
-            'allPrograms'     => $allPrograms,
-            'activeProgram'   => $activeProgram,
-            'programId'       => $activeProgram?->id,
-            'totalSessions'   => $totalSessions,
-            'attendedSessions'=> $attendedSessions,
-            'attendanceRate'  => $attendanceRate,
-            'totalMinutes'    => $totalMinutes,
-            'isDiploma'       => $isDiploma,
+            'attendances'      => $attendances,
+            'attendedSessions' => $attendedSessions,
+            'totalMinutes'     => $totalMinutes,
         ]);
     }
 

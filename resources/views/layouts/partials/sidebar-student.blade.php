@@ -33,32 +33,7 @@
     <span style="font-size:0.68rem;font-weight:700;letter-spacing:0.1em;color:rgba(255,255,255,0.35);display:block;text-transform:uppercase">الدراسة</span>
 </li>
 
-<!-- جلساتي - Dropdown -->
-<li x-data="{ open: {{ request()->routeIs('student.my-sessions') || request()->routeIs('student.upcoming-sessions') || request()->routeIs('student.schedule') ? 'true' : 'false' }} }">
-    <button @click="open = !open"
-            class="menu-item group relative flex w-full items-center justify-between gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('student.my-sessions') || request()->routeIs('student.upcoming-sessions') || request()->routeIs('student.schedule') ? 'menu-item-active' : 'menu-item-inactive' }}">
-        <div class="flex items-center gap-3">
-            <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M15 10L19.553 7.724C19.7054 7.64784 19.8748 7.61188 20.0451 7.61955C20.2154 7.62723 20.3812 7.67828 20.5267 7.76816C20.6723 7.85804 20.7928 7.98377 20.8769 8.13286C20.9609 8.28195 21.0059 8.44961 21.0078 8.62L21 11.38C21.0059 11.5504 20.9609 11.7181 20.8769 11.8671C20.7928 12.0162 20.6723 12.142 20.5267 12.2318C20.3812 12.3217 20.2154 12.3728 20.0451 12.3805C19.8748 12.3881 19.7054 12.3522 19.553 12.276L15 10ZM5 18H13C13.5304 18 14.0391 17.7893 14.4142 17.4142C14.7893 17.0391 15 16.5304 15 16V4C15 3.46957 14.7893 2.96086 14.4142 2.58579C14.0391 2.21071 13.5304 2 13 2H5C4.46957 2 3.96086 2.21071 3.58579 2.58579C3.21071 2.96086 3 3.46957 3 4V16C3 16.5304 3.21071 17.0391 3.58579 17.4142C3.96086 17.7893 4.46957 18 5 18Z" fill="" transform="scale(0.9)"/>
-            </svg>
-            <span>الجلسات</span>
-        </div>
-        <svg class="fill-current transition-transform duration-200" :class="{ 'rotate-180': open }" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-    </button>
-    <ul x-show="open" x-collapse class="mt-1 space-y-1 ps-8">
-        <li>
-            <a href="{{ route('student.my-sessions') }}"
-               class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-2 text-sm font-medium {{ request()->routeIs('student.my-sessions') ? 'menu-item-active' : 'menu-item-inactive' }}">
-                <svg class="fill-current" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M2 2.66667V13.3333H14V2.66667H2ZM4 4H12V6H4V4ZM4 7.33333H12V12H4V7.33333Z" fill=""/>
-                </svg>
-                <span>جميع الجلسات</span>
-            </a>
-        </li>
-    </ul>
-</li>
+
 
 
 <!-- سجل الحضور -->
@@ -127,7 +102,6 @@
     <span style="font-size:0.68rem;font-weight:700;letter-spacing:0.1em;color:rgba(255,255,255,0.35);display:block;text-transform:uppercase">التقدم</span>
 </li>
 
-<!-- التقييم والشهادات -->
 <li>
     <a href="{{ route('student.grades.index') }}"
        class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('student.grades.*') || request()->routeIs('student.certificates.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
@@ -158,16 +132,7 @@
     </a>
 </li>
 
-<!-- الروابط المفيدة - Link to hub page -->
-<li>
-    <a href="{{ route('student.links') }}"
-       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('student.links') ? 'menu-item-active' : 'menu-item-inactive' }}">
-        <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M3.9 10c0-1.4 1.1-2.5 2.5-2.5H10V6H6.4C4.1 6 2.2 7.9 2.2 10.1 2.2 12.2 4.1 14 6.4 14H10v-1.5H6.4C5 12.5 3.9 11.4 3.9 10zM7 11h6V9H7v2zm6.6-5H10v1.5h3.6c1.4 0 2.5 1.1 2.5 2.5s-1.1 2.5-2.5 2.5H10V14h3.6c2.3 0 4.2-1.9 4.2-4.2C17.8 7.6 15.9 6 13.6 6z" fill=""/>
-        </svg>
-        <span>روابط مفيدة</span>
-    </a>
-</li>
+
 
 {{-- ═══ فاصل ═══ --}}
 <li style="margin:6px 16px;height:1px;background:rgba(255,255,255,0.1)"></li>

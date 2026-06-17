@@ -22,37 +22,12 @@ class DashboardController extends Controller
      */
     private function buildTeacherCalendarSessions($teacher): \Illuminate\Support\Collection
     {
-        // Subject-based sessions: the session's own teacher_id (the teacher chosen
-        // when the session was scheduled) decides whose calendar it shows on — so a
-        // subject shared between multiple teachers only shows each teacher their own
-        // sessions. Sessions with no teacher_id fall back to the subject assignment.
-        $subjectSessions = Session::whereNotNull('subject_id')
-            ->where(function ($q) use ($teacher) {
-                $q->where('teacher_id', $teacher->id)
-                  ->orWhere(function ($q2) use ($teacher) {
-                      $q2->whereNull('teacher_id')
-                         ->whereHas('subject', fn($sq) => $sq->assignedToTeacher($teacher->id));
-                  });
-            })
-            ->with(['subject.program', 'subject.term.program', 'programClass', 'subject.programClass', 'subject.term.programClass'])
-            ->get();
-
-        $programIds = $teacher->teachingPrograms()
-            ->whereIn('type', ['training', 'english', 'course'])
-            ->pluck('id');
-
-        // Program-based sessions: same rule — prefer the session's teacher_id, but
-        // keep sessions with no teacher_id that belong to programs this teacher teaches.
-        $programSessions = Session::whereIn('program_id', $programIds)
-            ->where(function ($q) use ($teacher) {
-                $q->where('teacher_id', $teacher->id)
-                  ->orWhereNull('teacher_id');
-            })
-            ->with(['program', 'programClass'])
-            ->get();
-
-        return $subjectSessions->merge($programSessions)
-            ->sortBy('scheduled_at')
+        // All sessions assigned to THIS teacher only (session.teacher_id) — both
+        // subject-based (diploma) and program-based (course/training/english).
+        return Session::where('teacher_id', $teacher->id)
+            ->with(['subject.program', 'subject.term.program', 'program', 'programClass', 'subject.programClass', 'subject.term.programClass'])
+            ->orderBy('scheduled_at')
+            ->get()
             ->map(fn($s) => [
                 'id'               => $s->id,
                 'title'            => $s->title_ar ?: ($s->subject->name_ar ?? $s->program->name_ar ?? 'جلسة'),
@@ -84,19 +59,9 @@ class DashboardController extends Controller
             ->get();
 
         // Program IDs for course/training/english sessions (no subject_id)
-        $teacherProgramIds = $teacher->teachingPrograms()
-            ->whereIn('type', ['training', 'english', 'course'])
-            ->pluck('id');
-
-        // Reusable filter: a diploma subject assigned to the teacher, OR a program
-        // session explicitly assigned to this teacher (session.teacher_id).
-        $teacherSessionFilter = function ($q) use ($teacher, $teacherProgramIds) {
-            $q->whereHas('subject', fn($sq) => $sq->assignedToTeacher($teacher->id))
-              ->orWhere(function ($pq) use ($teacherProgramIds, $teacher) {
-                  $pq->whereIn('program_id', $teacherProgramIds)
-                     ->where('teacher_id', $teacher->id);
-              });
-        };
+        // Single source of truth: a session belongs to this teacher when its own
+        // teacher_id is his (the teacher chosen when the session was scheduled).
+        $teacherSessionFilter = fn ($q) => $q->where('teacher_id', $teacher->id);
 
         // Get upcoming sessions
         $upcomingSessions = Session::where($teacherSessionFilter)
@@ -112,13 +77,6 @@ class DashboardController extends Controller
             ->whereNull('ended_at')
             ->with(['subject.program', 'subject.term', 'program'])
             ->orderBy('started_at', 'desc')
-            ->get();
-
-        // All sessions for the weekly calendar (next 4 weeks + past 2 weeks)
-        $calendarSessions = Session::where($teacherSessionFilter)
-            ->whereBetween('scheduled_at', [now()->subWeeks(2)->startOfDay(), now()->addWeeks(4)->endOfDay()])
-            ->with(['subject.program', 'subject.term', 'program', 'programClass'])
-            ->orderBy('scheduled_at', 'asc')
             ->get();
 
         // Get past sessions (ended or scheduled_at in past)
@@ -251,7 +209,6 @@ class DashboardController extends Controller
 
         return view($dashboardView, compact(
             'subjects',
-            'calendarSessions',
             'calSessions',
             'upcomingSessions',
             'liveSessions',

@@ -222,6 +222,8 @@
     }
     .act-view   { background: #ede9fe; color: #6d28d9; }
     .act-view:hover   { background: #ddd6fe; }
+    .act-edit   { background: #dbeafe; color: #1d4ed8; }
+    .act-edit:hover   { background: #bfdbfe; }
     .act-on     { background: #d1fae5; color: #065f46; }
     .act-on:hover     { background: #a7f3d0; }
     .act-off    { background: #fef3c7; color: #92400e; }
@@ -464,6 +466,13 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                                     </svg>
                                     عرض
+                                </a>
+
+                                <a href="{{ route('admin.students.edit', $student) }}" class="act-btn act-edit">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                    </svg>
+                                    تعديل
                                 </a>
 
                                 <form action="{{ route('admin.students.toggle-status', $student) }}" method="POST" style="display:inline">
