@@ -31,16 +31,22 @@ class SubjectController extends Controller
     {
         $teacher = auth()->user();
 
-        // Sessions this teacher is assigned to (used as a fallback assignment signal).
-        $sessionSubjectIds = \App\Models\Session::where('teacher_id', $teacher->id)
+        // Subjects this teacher is actually scheduled on — i.e. the subjects of the
+        // sessions assigned to him in the admin schedule (session.teacher_id).
+        // This is the primary source: المقررات حسب الجدول اللي هو متسجّل فيه.
+        $scheduledSubjectIds = \App\Models\Session::where('teacher_id', $teacher->id)
             ->whereNotNull('subject_id')->distinct()->pluck('subject_id');
 
-        // Show subjects the teacher actually teaches (direct teacher_id,
-        // teachers pivot, or assigned sessions) AND that belong to a class.
-        $subjects = Subject::where(function ($q) use ($teacher, $sessionSubjectIds) {
-                $q->assignedToTeacher($teacher->id)
-                  ->orWhereIn('id', $sessionSubjectIds);
-            })
+        // Plus subjects directly assigned to him that have NO sessions yet, so a newly
+        // assigned subject still appears before its schedule is generated.
+        $unscheduledAssignedIds = Subject::assignedToTeacher($teacher->id)
+            ->whereDoesntHave('sessions')
+            ->pluck('id');
+
+        $subjectIds = $scheduledSubjectIds->merge($unscheduledAssignedIds)->unique();
+
+        // Show those subjects, scoped to diploma subjects that belong to a class.
+        $subjects = Subject::whereIn('id', $subjectIds)
             ->where(function ($q) {
                 $q->whereNotNull('class_id')
                   ->orWhereHas('term', fn($tq) => $tq->whereNotNull('class_id'));
@@ -50,7 +56,7 @@ class SubjectController extends Controller
                   ->orWhereHas('term.program', fn($pq) => $pq->where('type', 'diploma'));
             })
             ->with(['term.program'])
-            ->withCount('sessions')
+            ->withCount(['sessions as sessions_count' => fn($q) => $q->where('teacher_id', $teacher->id)])
             ->orderBy(app()->getLocale() === 'en' ? 'name_en' : 'name_ar')
             ->get();
 
