@@ -249,6 +249,17 @@
     </button>
 </div>
 
+{{-- Notice: subject not scheduled / not linked to a class yet --}}
+@if($notScheduled)
+<div style="direction:rtl;display:flex;align-items:center;gap:12px;background:#fffbeb;border:1px solid #fde68a;border-right:4px solid #f59e0b;border-radius:12px;padding:14px 18px;margin-bottom:18px;">
+    <svg width="22" height="22" fill="none" stroke="#d97706" stroke-width="2" viewBox="0 0 24 24" style="flex-shrink:0;"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+    <div>
+        <p style="margin:0;font-size:14px;font-weight:700;color:#92400e;">هذا المقرر لم يتم إنشاء جدول له بعد</p>
+        <p style="margin:2px 0 0;font-size:12px;color:#b45309;">سيظهر الطلاب والمحاضرات تلقائياً بمجرد ربط المقرر بمجموعة (كلاس) وإنشاء جدول المحاضرات من الإدارة.</p>
+    </div>
+</div>
+@endif
+
 {{-- ═══ Sessions Tab ═══ --}}
 <div x-show="tab==='sessions'">
     <div class="section-card">
