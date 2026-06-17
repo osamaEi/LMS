@@ -57,42 +57,41 @@ class SubjectController extends Controller
                 $q->assignedToTeacher($teacher->id)
                   ->orWhereIn('id', $sessionSubjectIds);
             })
-            ->with(['term.program', 'terms', 'units', 'files'])
+            ->with(['term.program', 'units', 'files'])
             ->withCount('enrollments')
             ->findOrFail($id);
 
         // Only the lectures assigned to THIS teacher for this subject.
-        // Fall back to all the subject's sessions if none carry a teacher_id yet (legacy).
-        $sessionsQuery = Session::where('subject_id', $id)->with(['unit', 'files']);
-        $hasTeacherSessions = (clone $sessionsQuery)->where('teacher_id', $teacher->id)->exists();
-        if ($hasTeacherSessions) {
-            $sessionsQuery->where('teacher_id', $teacher->id);
-        }
-        $sessions = $sessionsQuery->orderBy('session_number', 'asc')->get();
+        // If the teacher has no sessions on this subject, return empty — no fallback.
+        $sessions = Session::where('subject_id', $id)
+            ->where('teacher_id', $teacher->id)
+            ->with(['unit', 'files'])
+            ->orderBy('session_number', 'asc')
+            ->get();
 
-        // Resolve the class this subject belongs to (direct, belongsTo term, any of
-        // its many-to-many terms, or the class_id carried by its sessions) so students
-        // still show whichever way the class link exists.
-        $resolvedClassId = $subject->class_id
-            ?? $subject->term?->class_id
-            ?? optional($subject->terms->firstWhere(fn($t) => $t->class_id))->class_id
-            ?? $sessions->firstWhere(fn($s) => $s->class_id)?->class_id
-            ?? Session::where('subject_id', $id)->whereNotNull('class_id')->value('class_id');
-
+        // Students only when the teacher actually has sessions here; the class is
+        // resolved from the teacher's own sessions (so it matches what he teaches).
         $students = collect();
-        if ($resolvedClassId) {
-            $studentIds = \Illuminate\Support\Facades\DB::table('student_programs')
-                ->where('class_id', $resolvedClassId)
-                ->distinct()->pluck('student_id');
-            $students = \App\Models\User::whereIn('id', $studentIds)
-                ->where('role', 'student')
-                ->with('program:id,name_ar,name_en')
-                ->orderBy('name')->get();
+        $resolvedClassId = null;
+        if ($sessions->isNotEmpty()) {
+            $resolvedClassId = $sessions->firstWhere(fn($s) => $s->class_id)?->class_id
+                ?? $subject->class_id
+                ?? $subject->term?->class_id
+                ?? optional($subject->terms->firstWhere(fn($t) => $t->class_id))->class_id;
+
+            if ($resolvedClassId) {
+                $studentIds = \Illuminate\Support\Facades\DB::table('student_programs')
+                    ->where('class_id', $resolvedClassId)
+                    ->distinct()->pluck('student_id');
+                $students = \App\Models\User::whereIn('id', $studentIds)
+                    ->where('role', 'student')
+                    ->with('program:id,name_ar,name_en')
+                    ->orderBy('name')->get();
+            }
         }
 
-        // Whether this subject has been scheduled / linked to a class yet — used to
-        // show a clear notice instead of a confusing empty page.
-        $notScheduled = $sessions->isEmpty() && !$resolvedClassId;
+        // No sessions for this teacher on this subject → show a clear notice.
+        $notScheduled = $sessions->isEmpty();
 
         return view('teacher.subjects.show', compact('subject', 'sessions', 'students', 'notScheduled'));
     }
