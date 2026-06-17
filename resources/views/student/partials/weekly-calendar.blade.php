@@ -2,8 +2,8 @@
 @php $allCalSessions = $classSessions ?? collect(); @endphp
     <style>
     @keyframes calLivePulseStu {
-        0%,100% { box-shadow:0 0 0 2px rgba(220,38,38,.25); }
-        50%     { box-shadow:0 0 0 4px rgba(220,38,38,.45); }
+        0%,100% { box-shadow:0 0 0 2px rgba(22,163,74,.25); }
+        50%     { box-shadow:0 0 0 4px rgba(22,163,74,.45); }
     }
     .cal-live-card-stu { animation: calLivePulseStu 1.6s ease-in-out infinite; }
     </style>
@@ -214,24 +214,28 @@
                 const inner=items.map(s=>{
                     const ts=typeStyleCal(s.type);
                     const isLive = isSessionLiveCal(s);
-                    const statusBg    = s.status==='completed'?'#dcfce7':isLive?'#fee2e2':'#eff6ff';
-                    const statusColor = s.status==='completed'?'#15803d':isLive?'#dc2626':'#1e3a8a';
-                    const statusLabel = s.status==='completed'?'مكتملة':isLive?'● مباشر الآن':'';
+                    const sessionPast = !isLive && (s.status==='completed' || s.ended_at || (s.scheduled_at && new Date(s.scheduled_at) < new Date()));
+                    // الحالة: حالية (أخضر) / سابقة (أحمر) / قادمة (أزرق)
+                    const state = isLive ? 'live' : (sessionPast ? 'past' : 'upcoming');
+                    const palette = {
+                        live:     { bg:'linear-gradient(135deg,#dcfce7,#bbf7d0)', border:'#16a34a', text:'#15803d', label:'● مباشر الآن', labelBg:'#dcfce7', labelColor:'#15803d' },
+                        upcoming: { bg:'#eff6ff',                                  border:'#2563eb', text:'#1e3a8a', label:'قادمة',       labelBg:'#dbeafe', labelColor:'#1d4ed8' },
+                        past:     { bg:'#fef2f2',                                  border:'#dc2626', text:'#991b1b', label:'منتهية',     labelBg:'#fee2e2', labelColor:'#dc2626' },
+                    }[state];
+                    const statusLabel = palette.label;
                     const showSub = s.subject_name && !(s.title||'').includes(s.subject_name);
-                    const sessionPast = s.ended_at || (s.scheduled_at && new Date(s.scheduled_at) < new Date());
-                    const attendedBadge = (sessionPast && !isLive)
+                    const attendedBadge = sessionPast
                         ? (s.attended===true?`<span style="background:#dcfce7;color:#15803d;font-size:10px;font-weight:600;padding:1px 6px;border-radius:20px;">حضرت</span>`:s.attended===false?`<span style="background:#fee2e2;color:#dc2626;font-size:10px;font-weight:600;padding:1px 6px;border-radius:20px;">غائب</span>`:'')
                         : '';
-                    const cardStyle = isLive
-                        ? 'background:linear-gradient(135deg,#fef2f2,#fee2e2);border-right:4px solid #dc2626;box-shadow:0 0 0 2px rgba(220,38,38,.25);'
-                        : 'background:#eff6ff;border-right:3px solid #0071AA;';
+                    const cardStyle = `background:${palette.bg};border-right:4px solid ${palette.border};`
+                        + (isLive ? 'box-shadow:0 0 0 2px rgba(22,163,74,.25);' : '');
                     return `<div onclick='openSessionCal(${JSON.stringify(s)})' class="${isLive?'cal-live-card-stu':''}" style="${cardStyle}border-radius:6px;padding:6px 8px;margin-bottom:4px;line-height:1.35;cursor:pointer;">
-                        <div style="font-size:12px;font-weight:700;color:${isLive?'#991b1b':'#1e3a8a'};">${s.title||s.subject_name||'جلسة'}</div>
+                        <div style="font-size:12px;font-weight:700;color:${palette.text};">${s.title||s.subject_name||'جلسة'}</div>
                         ${showSub?`<div style="font-size:10px;color:#64748b;">${s.subject_name}</div>`:''}
                         ${s.teacher_name?`<div style="font-size:10px;color:#64748b;">👤 ${s.teacher_name}</div>`:''}
                         <div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:4px;">
                             ${ts.label?`<span style="background:${ts.bg};color:${ts.color};font-size:10px;font-weight:600;padding:1px 6px;border-radius:20px;">${ts.label}</span>`:''}
-                            ${statusLabel?`<span style="background:${statusBg};color:${statusColor};font-size:10px;font-weight:600;padding:1px 6px;border-radius:20px;">${statusLabel}</span>`:''}
+                            ${statusLabel?`<span style="background:${palette.labelBg};color:${palette.labelColor};font-size:10px;font-weight:700;padding:1px 6px;border-radius:20px;">${statusLabel}</span>`:''}
                             ${attendedBadge}
                             ${(s.status==='live'||s.status==='scheduled')&&s.zoom_join_url
                                 ?`<a href="/student/sessions/${s.id}/join-zoom" target="_blank" onclick="event.stopPropagation()" style="background:#2563eb;color:white;font-size:10px;font-weight:700;padding:1px 7px;border-radius:20px;text-decoration:none;">📹 انضم</a>`

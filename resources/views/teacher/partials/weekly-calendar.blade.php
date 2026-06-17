@@ -1,8 +1,8 @@
 {{-- Weekly schedule calendar — shared by teacher dashboard & schedule page. Expects $calSessions. --}}
 <style>
 @keyframes calLivePulse {
-    0%,100% { box-shadow:0 0 0 2px rgba(220,38,38,.25); }
-    50%     { box-shadow:0 0 0 4px rgba(220,38,38,.45); }
+    0%,100% { box-shadow:0 0 0 2px rgba(22,163,74,.25); }
+    50%     { box-shadow:0 0 0 4px rgba(22,163,74,.45); }
 }
 .cal-live-card { animation: calLivePulse 1.6s ease-in-out infinite; }
 </style>
@@ -170,22 +170,26 @@ function renderCalendar(){
             const items=cellMap[i+'|'+pi]||[];
             const inner=items.map(s=>{
                 const isLive = isSessionLive(s);
-                const statusBg    = s.status==='completed'?'#dcfce7':isLive?'#fee2e2':'';
-                const statusColor = s.status==='completed'?'#15803d':isLive?'#dc2626':'';
-                const statusLabel = s.status==='completed'?'مكتملة':isLive?'● مباشر الآن':'';
+                const sessionPast = !isLive && (s.status==='completed' || (s.scheduled_at && new Date(new Date(s.scheduled_at).getTime()+(s.duration_minutes||60)*60000) < new Date()));
+                // الحالة: حالية (أخضر) / سابقة (أحمر) / قادمة (أزرق)
+                const state = isLive ? 'live' : (sessionPast ? 'past' : 'upcoming');
+                const palette = {
+                    live:     { bg:'linear-gradient(135deg,#dcfce7,#bbf7d0)', border:'#16a34a', text:'#15803d', label:'● مباشر الآن', labelBg:'#dcfce7', labelColor:'#15803d' },
+                    upcoming: { bg:'#eff6ff',                                  border:'#2563eb', text:'#1e3a8a', label:'قادمة',       labelBg:'#dbeafe', labelColor:'#1d4ed8' },
+                    past:     { bg:'#fef2f2',                                  border:'#dc2626', text:'#991b1b', label:'منتهية',     labelBg:'#fee2e2', labelColor:'#dc2626' },
+                }[state];
+                const statusLabel = palette.label;
                 const hasLink = !!s.zoom_join_url;
                 const sub = s.subject_name||s.program_name;
                 const showSub = sub && !(s.title||'').includes(sub);
-                // Live cards get a red animated highlight; others stay blue
-                const cardStyle = isLive
-                    ? 'background:linear-gradient(135deg,#fef2f2,#fee2e2);border-right:4px solid #dc2626;box-shadow:0 0 0 2px rgba(220,38,38,.25);'
-                    : 'background:#eff6ff;border-right:3px solid #0071AA;';
+                const cardStyle = `background:${palette.bg};border-right:4px solid ${palette.border};`
+                    + (isLive ? 'box-shadow:0 0 0 2px rgba(22,163,74,.25);' : '');
                 return `<div onclick='openSession(${JSON.stringify(s)})' class="${isLive?'cal-live-card':''}" style="${cardStyle}border-radius:6px;padding:6px 8px;margin-bottom:4px;line-height:1.35;cursor:pointer;position:relative;">
-                    <div style="font-size:12px;font-weight:700;color:${isLive?'#991b1b':'#1e3a8a'};">${s.title||sub||'جلسة'}</div>
+                    <div style="font-size:12px;font-weight:700;color:${palette.text};">${s.title||sub||'جلسة'}</div>
                     ${showSub?`<div style="font-size:10px;color:#64748b;">${sub}</div>`:''}
                     <div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:4px;">
                         ${s.class_name?`<span style="background:#e0f2fe;color:#0071AA;font-size:10px;font-weight:600;padding:1px 6px;border-radius:20px;">${s.class_name}</span>`:''}
-                        ${statusLabel?`<span style="background:${statusBg};color:${statusColor};font-size:10px;font-weight:700;padding:1px 6px;border-radius:20px;">${statusLabel}</span>`:''}
+                        ${statusLabel?`<span style="background:${palette.labelBg};color:${palette.labelColor};font-size:10px;font-weight:700;padding:1px 6px;border-radius:20px;">${statusLabel}</span>`:''}
                         ${!hasLink?`<span style="background:#fffbeb;color:#d97706;font-size:10px;font-weight:600;padding:1px 6px;border-radius:20px;">+ رابط</span>`:''}
                     </div>
                 </div>`;
