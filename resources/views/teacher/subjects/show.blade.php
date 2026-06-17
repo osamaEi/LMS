@@ -285,14 +285,7 @@
                     </svg>
                 </div>
                 <p class="font-semibold text-gray-600 dark:text-gray-400">لا توجد محاضرات بعد</p>
-                <button @click="createModal = true"
-                        class="action-btn mt-3"
-                        style="background:linear-gradient(135deg,#0071AA,#005a88);color:#fff">
-                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                    </svg>
-                    إنشاء أول  محاضرة 
-                </button>
+             
             </div>
         @else
             @foreach($sessions as $session)
