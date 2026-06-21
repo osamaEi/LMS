@@ -98,7 +98,13 @@
                     <p style="font-size:.75rem;color:#9ca3af;margin:2px 0 0">{{ $att->student->email ?? '' }}</p>
                 </td>
                 <td style="padding:12px 18px;color:#374151">
-                    {{ $att->joined_at ? \Carbon\Carbon::parse($att->joined_at)->format('h:i A') : '—' }}
+                    @if($att->joined_at)
+                        @php $j = \Carbon\Carbon::parse($att->joined_at); @endphp
+                        <span style="font-weight:600;">{{ $j->format('h:i A') }}</span>
+                        <span style="font-size:.72rem;color:#9ca3af;display:block;margin-top:1px;">{{ $j->translatedFormat('l، d/m/Y') }}</span>
+                    @else
+                        —
+                    @endif
                 </td>
             </tr>
             @endforeach
