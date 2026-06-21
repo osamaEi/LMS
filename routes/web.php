@@ -556,6 +556,7 @@ Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')
 
     // Teacher updates join URL only
     Route::patch('/sessions/{session}/join-url', [\App\Http\Controllers\Teacher\SessionController::class, 'updateJoinUrl'])->name('sessions.update-join-url');
+    Route::get('/sessions/{session}/start', [\App\Http\Controllers\Teacher\SessionController::class, 'startSession'])->name('sessions.start');
 
     // Zoom signature generation for teachers
     Route::post('/zoom/generate-signature', [\App\Http\Controllers\Api\V1\Admin\ZoomController::class, 'generateSignature'])->name('zoom.generate-signature');

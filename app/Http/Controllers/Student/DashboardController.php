@@ -79,6 +79,8 @@ class DashboardController extends Controller
                     'session_number'   => $s->session_number,
                     'zoom_join_url'    => $s->zoom_link ?? $s->zoom_join_url ?? null,
                     'zoom_start_url'   => $s->zoom_start_url ?? null,
+                    'started_at'       => $s->started_at ? \Carbon\Carbon::parse($s->started_at)->toIso8601String() : null,
+                    'ended_at'         => $s->ended_at ? \Carbon\Carbon::parse($s->ended_at)->toIso8601String() : null,
                     'attended'         => $att ? (bool) $att->attended : null,
                     'apology_status'   => $apo?->status,
                 ];
@@ -468,6 +470,11 @@ class DashboardController extends Controller
         $student = auth()->user();
 
         $session = Session::with('subject.term')->findOrFail($sessionId);
+
+        // Students can't join until the teacher has started the session.
+        if (!$session->started_at && !$session->ended_at) {
+            return back()->with('error', 'لم يبدأ المعلّم المحاضرة بعد. يرجى الانتظار حتى يبدأ المعلّم.');
+        }
 
         // Record attendance immediately
         $attendance = Attendance::firstOrCreate(

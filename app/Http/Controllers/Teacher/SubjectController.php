@@ -477,20 +477,31 @@ class SubjectController extends Controller
         $teacher = auth()->user();
 
         $subject = Subject::assignedToTeacher($teacher->id)
-            ->with('term')
+            ->with('term', 'terms')
             ->findOrFail($subjectId);
 
         $session = Session::where('subject_id', $subjectId)
             ->findOrFail($sessionId);
 
-        // Resolve class for this subject
-        $classId = $subject->class_id ?? $subject->term?->class_id ?? null;
+        // Resolve the class id from every possible source (the session itself is the
+        // most accurate, then the subject, then any of its terms).
+        $classId = $session->class_id
+            ?? $subject->class_id
+            ?? $subject->term?->class_id
+            ?? optional($subject->terms->firstWhere(fn($t) => $t->class_id))->class_id;
 
-        // Get all students in the class
+        // Get all students of that class from the student_programs pivot.
         $classStudentIds = $classId
             ? \Illuminate\Support\Facades\DB::table('student_programs')
                 ->where('class_id', $classId)->distinct()->pluck('student_id')
             : collect();
+
+        // Fallback: if the class link is missing/empty, fall back to whoever already
+        // has an attendance record for this session, so no enrolled student is hidden.
+        if ($classStudentIds->isEmpty()) {
+            $classStudentIds = Attendance::where('session_id', $sessionId)
+                ->distinct()->pluck('student_id');
+        }
 
         $classStudents = \App\Models\User::whereIn('id', $classStudentIds)
             ->where('role', 'student')
