@@ -30,7 +30,17 @@ class SessionController extends Controller
 
         $request->validate(['zoom_join_url' => 'nullable|url|max:500']);
 
-        $session->update(['zoom_join_url' => $request->input('zoom_join_url') ?: null]);
+        $joinUrl = $request->input('zoom_join_url') ?: null;
+
+        $payload = ['zoom_join_url' => $joinUrl];
+
+        // Saving a join link also marks the session as started (once) so students
+        // may join immediately without a separate "start" step.
+        if ($joinUrl && !$session->started_at) {
+            $payload['started_at'] = now();
+        }
+
+        $session->update($payload);
 
         return redirect()->back()->with('success', 'تم حفظ رابط الانضمام بنجاح ✓');
     }
