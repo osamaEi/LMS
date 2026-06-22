@@ -649,6 +649,9 @@ Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')
     // My Sessions (All sessions for enrolled subjects)
     Route::get('/my-sessions', [\App\Http\Controllers\Student\DashboardController::class, 'mySessions'])->name('my-sessions');
 
+    // Weekly calendar realtime feed (polled by the student dashboard/sessions calendar)
+    Route::get('/calendar/sessions', [\App\Http\Controllers\Student\DashboardController::class, 'calendarSessions'])->name('calendar.sessions');
+
     // Upcoming Sessions & Zoom
     Route::get('/upcoming-sessions', [\App\Http\Controllers\Student\DashboardController::class, 'upcomingSessions'])->name('upcoming-sessions');
     Route::get('/sessions/{sessionId}/join-zoom', [\App\Http\Controllers\Student\DashboardController::class, 'joinZoom'])->name('sessions.join-zoom');

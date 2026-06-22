@@ -357,6 +357,11 @@ class CourseController extends Controller
                 ->where('class_id', $classId)->distinct()->pluck('student_id')
             : \App\Models\User::where('program_id', $programId)->where('role', 'student')->pluck('id');
 
+        // Fallback: nobody resolved → use whoever has an attendance record for this session
+        if ($classStudentIds->isEmpty()) {
+            $classStudentIds = Attendance::where('session_id', $sessionId)->distinct()->pluck('student_id');
+        }
+
         $classStudents = User::whereIn('id', $classStudentIds)
             ->where('role', 'student')
             ->orderBy('name')

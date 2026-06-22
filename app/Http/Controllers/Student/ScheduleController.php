@@ -30,6 +30,9 @@ class ScheduleController extends Controller
             'status'           => (string) ($s->status ?? ''),
             'session_number'   => $s->session_number,
             'zoom_join_url'    => $s->zoom_join_url,
+            // Students may only join after the teacher has started the session.
+            'started_at'       => $s->started_at ? \Carbon\Carbon::parse($s->started_at)->toIso8601String() : null,
+            'ended_at'         => $s->ended_at ? \Carbon\Carbon::parse($s->ended_at)->toIso8601String() : null,
         ])->filter(fn($s) => $s['scheduled_at'])->values();
 
         $stats = [

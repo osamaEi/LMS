@@ -94,7 +94,8 @@
 
                             <!-- Actions -->
                             <div class="flex items-center gap-3">
-                                @if($session->scheduled_at->diffInMinutes(now()) <= 15 && $session->scheduled_at >= now())
+                                @if($session->started_at && !$session->ended_at)
+                                    {{-- Teacher has started — students may join --}}
                                     <a href="{{ route('student.sessions.join-zoom', $session->id) }}"
                                        class="inline-flex items-center px-4 py-2 bg-cyan-500 hover:bg-cyan-600 text-white rounded-lg transition">
                                         <svg class="w-4 h-4 me-2" fill="currentColor" viewBox="0 0 20 20">
@@ -102,6 +103,14 @@
                                         </svg>
                                         انضم الآن
                                     </a>
+                                @elseif(!$session->ended_at && $session->scheduled_at->diffInMinutes(now()) <= 15 && $session->scheduled_at >= now())
+                                    {{-- Within join window but teacher hasn't started yet --}}
+                                    <span class="inline-flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 rounded-lg cursor-not-allowed text-sm font-medium">
+                                        <svg class="w-4 h-4 me-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                        </svg>
+                                        بانتظار بدء المعلّم
+                                    </span>
                                 @else
                                     <div class="text-sm text-gray-500 dark:text-gray-400">
                                         @if($session->scheduled_at->isToday())
@@ -114,7 +123,7 @@
                                     </div>
                                 @endif
 
-                                @if($session->zoom_join_url)
+                                @if($session->zoom_join_url && $session->started_at && !$session->ended_at)
                                     <a href="{{ $session->zoom_join_url }}" target="_blank"
                                        class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition">
                                         <svg class="w-4 h-4 me-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">

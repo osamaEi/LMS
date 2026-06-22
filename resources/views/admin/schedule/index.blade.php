@@ -176,20 +176,20 @@ function renderCalendar(){
         PERIODS.forEach((p,pi)=>{
             const items = cellMap[i+'|'+pi]||[];
             const inner = items.map(s=>{
-                const ts = typeStyle(s.type);
                 const statusBg    = s.status==='completed'?'#dcfce7':s.status==='live'?'#fee2e2':'#eff6ff';
                 const statusColor = s.status==='completed'?'#15803d':s.status==='live'?'#dc2626':'#1e3a8a';
-                const statusLabel = s.status==='completed'?'مكتملة':s.status==='live'?'● مباشر':'مجدولة';
+                const statusLabel = s.status==='completed'?'مكتملة':s.status==='live'?'● مباشر':'';
                 const showSub = s.subject_name && !(s.title||'').includes(s.subject_name);
                 return `<div style="background:#eff6ff;border-right:3px solid #0071AA;border-radius:6px;padding:6px 8px;margin-bottom:4px;line-height:1.35;">
                     <div style="font-size:12px;font-weight:700;color:#1e3a8a;">${s.title||s.subject_name||'جلسة'}</div>
                     ${showSub?`<div style="font-size:10px;color:#64748b;">${s.subject_name}</div>`:''}
+                    ${s.class_name?(s.class_id
+                        ?`<a href="/admin/classes/${s.class_id}" onclick="event.stopPropagation()" title="فتح صفحة المجموعة" style="display:inline-block;font-size:10px;color:#0071AA;font-weight:600;text-decoration:none;border-bottom:1px dashed #0071AA;">🏫 ${s.class_name}</a>`
+                        :`<div style="font-size:10px;color:#0071AA;font-weight:600;">🏫 ${s.class_name}</div>`):''}
                     ${s.teacher_name?`<div style="font-size:10px;color:#64748b;">👤 ${s.teacher_name}</div>`:''}
-                    <div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:4px;">
-                        <span style="background:${ts.bg};color:${ts.color};font-size:10px;font-weight:600;padding:1px 6px;border-radius:20px;">${ts.label}</span>
+                    ${statusLabel?`<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:4px;">
                         <span style="background:${statusBg};color:${statusColor};font-size:10px;font-weight:600;padding:1px 6px;border-radius:20px;">${statusLabel}</span>
-                        <span style="background:#f3f4f6;color:#6b7280;font-size:10px;padding:1px 6px;border-radius:20px;">👥 ${s.attendance_count}</span>
-                    </div>
+                    </div>`:''}
                 </div>`;
             }).join('');
             row += `<td style="min-height:80px;padding:5px;vertical-align:top;border:1px solid #d6e4f0;${isToday?'background:#f8fdff;':''}">${inner}</td>`;

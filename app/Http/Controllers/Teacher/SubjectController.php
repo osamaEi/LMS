@@ -555,13 +555,19 @@ class SubjectController extends Controller
     public function exportAttendance($subjectId, $sessionId)
     {
         $teacher = auth()->user();
-        $subject = Subject::assignedToTeacher($teacher->id)->with('term')->findOrFail($subjectId);
+        $subject = Subject::assignedToTeacher($teacher->id)->with('term', 'terms')->findOrFail($subjectId);
         $session = Session::where('subject_id', $subjectId)->findOrFail($sessionId);
 
-        $classId = $subject->class_id ?? $subject->term?->class_id ?? null;
+        $classId = $session->class_id
+            ?? $subject->class_id
+            ?? $subject->term?->class_id
+            ?? optional($subject->terms->firstWhere(fn($t) => $t->class_id))->class_id;
         $classStudentIds = $classId
             ? \Illuminate\Support\Facades\DB::table('student_programs')->where('class_id', $classId)->distinct()->pluck('student_id')
             : collect();
+        if ($classStudentIds->isEmpty()) {
+            $classStudentIds = Attendance::where('session_id', $sessionId)->distinct()->pluck('student_id');
+        }
 
         $students = \App\Models\User::whereIn('id', $classStudentIds)->where('role', 'student')->orderBy('name')->get();
         $attendanceMap = \App\Models\Attendance::where('session_id', $sessionId)->get()->keyBy('student_id');

@@ -156,29 +156,6 @@
     .stat-box .s-lbl { font-size: 0.78rem; color: #6b7280; margin-top: 0.15rem; font-weight: 500; }
     .dark .stat-box .s-lbl { color: #9ca3af; }
 
-    /* Live Banner */
-    .live-banner {
-        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-        border-radius: 18px;
-        padding: 1.25rem 1.5rem;
-        color: #fff;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 1rem;
-        animation: livePulse 2s infinite;
-    }
-    @keyframes livePulse {
-        0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.4); }
-        50% { box-shadow: 0 0 0 8px rgba(239,68,68,0); }
-    }
-    .live-dot {
-        width: 10px;
-        height: 10px;
-        background: #fff;
-        border-radius: 50%;
-        animation: blink 1s infinite;
-    }
     @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 
     /* Session item */
@@ -371,26 +348,6 @@
             </a>
         </div>
     </div>
-
-    <!-- Live Sessions Banner -->
-    @if($liveSessions->count() > 0)
-        @foreach($liveSessions as $session)
-            <div class="live-banner">
-                <div class="flex items-center gap-3">
-                    <div class="live-dot"></div>
-                    <div>
-                        <div class="font-bold text-base">{{ $session->title }}</div>
-                        <div class="text-sm opacity-80">{{ $session->subject->name }} — جلسة مباشرة الآن</div>
-                    </div>
-                </div>
-                <a href="{{ route('student.sessions.join-zoom', $session->id) }}"
-                   class="px-5 py-2.5 bg-white text-red-600 font-bold rounded-xl text-sm flex items-center gap-2 flex-shrink-0 hover:bg-red-50 transition">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-                    انضم الآن
-                </a>
-            </div>
-        @endforeach
-    @endif
 
     <!-- Weekly Schedule (same view as /student/my-sessions) -->
     <div style="margin-bottom:1.25rem;direction:rtl;">

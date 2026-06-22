@@ -124,10 +124,16 @@ function openSession(s){
         </div>`;
     });
     if(s.zoom_join_url && s.status!=='completed'){
-        html+=`<a href="${s.zoom_join_url}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:white;border-radius:10px;text-decoration:none;font-size:13px;font-weight:700;margin-top:4px;">
-            <svg width="16" height="16" fill="white" viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
-            انضمام عبر Zoom
-        </a>`;
+        if(s.started_at){
+            // Teacher has started — route through controller so attendance is recorded
+            html+=`<a href="/student/sessions/${s.id}/join-zoom" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:white;border-radius:10px;text-decoration:none;font-size:13px;font-weight:700;margin-top:4px;">
+                <svg width="16" height="16" fill="white" viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
+                انضمام عبر Zoom
+            </a>`;
+        } else {
+            // Not started yet — student must wait for the teacher
+            html+=`<div style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;background:#fffbeb;border:1.5px solid #fde68a;color:#a16207;border-radius:10px;font-size:13px;font-weight:700;margin-top:4px;">⏳ في انتظار بدء المعلّم للمحاضرة</div>`;
+        }
     }
     if(s.status==='completed'){
         html+=`<div style="text-align:center;padding:8px;background:#f0fdf4;border-radius:10px;font-size:13px;font-weight:600;color:#15803d;">✓ حضرت هذه الجلسة</div>`;
@@ -181,8 +187,8 @@ function renderCalendar(){
                     <div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:4px;">
                         <span style="background:${ts.bg};color:${ts.color};font-size:10px;font-weight:600;padding:1px 6px;border-radius:20px;">${ts.label}</span>
                         <span style="background:${statusBg};color:${statusColor};font-size:10px;font-weight:600;padding:1px 6px;border-radius:20px;">${statusLabel}</span>
-                        ${(s.status==='live'||s.status==='scheduled')&&s.zoom_join_url
-                            ?`<a href="${s.zoom_join_url}" target="_blank" onclick="event.stopPropagation()" style="background:#2563eb;color:white;font-size:10px;font-weight:700;padding:1px 7px;border-radius:20px;text-decoration:none;">📹 انضم</a>`
+                        ${s.started_at && !s.ended_at && s.zoom_join_url
+                            ?`<a href="/student/sessions/${s.id}/join-zoom" onclick="event.stopPropagation()" style="background:#2563eb;color:white;font-size:10px;font-weight:700;padding:1px 7px;border-radius:20px;text-decoration:none;">📹 انضم</a>`
                             :''}
                     </div>
                 </div>`;

@@ -35,11 +35,18 @@
             </div>
         </div>
         @php $joinUrl = $session->zoom_join_url ?? null; @endphp
-        @if($joinUrl && !$isCompleted)
-        <a href="{{ $joinUrl }}" target="_blank" class="btn btn-join" style="white-space:nowrap;flex-shrink:0;{{ !$isLive ? 'background:linear-gradient(135deg,#2563eb,#1d4ed8);' : '' }}">
+        @if($joinUrl && $isLive)
+        {{-- Teacher has started — students may join (routed through controller to record attendance) --}}
+        <a href="{{ route('student.sessions.join-zoom', $session->id) }}" class="btn btn-join" style="white-space:nowrap;flex-shrink:0;">
             <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
             انضم للحصة
         </a>
+        @elseif($joinUrl && !$isCompleted)
+        {{-- Not started yet — student must wait for the teacher --}}
+        <span class="btn" style="white-space:nowrap;flex-shrink:0;background:#f1f5f9;color:#64748b;cursor:not-allowed;">
+            <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            بانتظار بدء المعلّم
+        </span>
         @endif
     </div>
 

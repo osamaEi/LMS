@@ -304,7 +304,8 @@
 
                             {{-- Action buttons --}}
                             <div class="flex flex-col gap-2 flex-shrink-0">
-                                @if($hasZoomJoin)
+                                @if($hasZoomJoin && $isLive)
+                                    {{-- Teacher has started — students may join --}}
                                     <a href="{{ route('student.sessions.join-zoom', $session->id) }}"
                                        class="inline-flex items-center gap-1.5 rounded-xl px-4 py-2 text-xs font-bold text-white transition hover:opacity-90"
                                        style="background: linear-gradient(135deg,#0071AA,#005a88); box-shadow: 0 4px 12px rgba(0,113,170,0.3);">
@@ -313,6 +314,15 @@
                                         </svg>
                                         دخول الزووم
                                     </a>
+                                @elseif($hasZoomJoin && $isPending)
+                                    {{-- Not started yet — student must wait for the teacher --}}
+                                    <span class="inline-flex items-center gap-1.5 rounded-xl px-4 py-2 text-xs font-bold"
+                                          style="background:#fffbeb;color:#a16207;border:1px solid #fde68a;cursor:not-allowed;">
+                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                        </svg>
+                                        بانتظار بدء المعلّم
+                                    </span>
                                 @endif
                                 @if($isRecorded && $hasVideo)
                                     @php $videoHref = $session->video_url ?: asset('storage/'.$session->video_path); @endphp

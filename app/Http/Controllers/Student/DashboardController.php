@@ -88,6 +88,17 @@ class DashboardController extends Controller
             ->values();
     }
 
+    /**
+     * JSON feed for the student's weekly calendar (used for realtime polling so the
+     * "join" button appears as soon as the teacher starts a session).
+     */
+    public function calendarSessions()
+    {
+        return response()->json([
+            'sessions' => $this->buildClassSessionsCalendar(auth()->user()),
+        ]);
+    }
+
     private function studentSubjectIds($student): \Illuminate\Support\Collection
     {
         $programIds = $this->studentProgramIds($student);
@@ -472,7 +483,7 @@ class DashboardController extends Controller
         $session = Session::with('subject.term')->findOrFail($sessionId);
 
         // Students can't join until the teacher has started the session.
-        if (!$session->started_at && !$session->ended_at) {
+        if (!$session->started_at) {
             return back()->with('error', 'لم يبدأ المعلّم المحاضرة بعد. يرجى الانتظار حتى يبدأ المعلّم.');
         }
 

@@ -60,7 +60,7 @@
     </div>
 
     <script>
-    const CAL_SESSIONS = @json($allCalSessions->values());
+    let CAL_SESSIONS = @json($allCalSessions->values());
     const TODAY_CAL = new Date();
     // Default to week of next upcoming session if current week has no sessions
     let curCal = (function(){
@@ -265,5 +265,37 @@
     function calToday(){ curCal=new Date(); renderCal(); }
 
     renderCal();
+
+    // ── Realtime polling ────────────────────────────────────────────────────
+    // Refresh the calendar data periodically so a session's "join" button appears
+    // automatically once the teacher starts it (started_at set) — no page refresh.
+    (function(){
+        const POLL_URL = '{{ route('student.calendar.sessions') }}';
+        const POLL_MS  = 15000;
+        let timer = null;
+
+        async function pollOnce(){
+            try {
+                const res = await fetch(POLL_URL, { headers: { 'Accept': 'application/json' } });
+                if (!res.ok) return;
+                const data = await res.json();
+                const next = data.sessions || [];
+                // Only re-render when something actually changed (avoids flicker/work).
+                if (JSON.stringify(next) !== JSON.stringify(CAL_SESSIONS)) {
+                    CAL_SESSIONS = next;
+                    renderCal();
+                }
+            } catch (e) { /* network hiccup — ignore, try again next tick */ }
+        }
+
+        function start(){ if (!timer) timer = setInterval(pollOnce, POLL_MS); }
+        function stop(){ if (timer) { clearInterval(timer); timer = null; } }
+
+        // Pause polling while the tab is hidden to reduce load.
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) { stop(); } else { pollOnce(); start(); }
+        });
+        start();
+    })();
 
     </script>
