@@ -47,7 +47,7 @@
         <div style="padding:14px 18px;border-bottom:1px solid #f8fafc;">
             <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;">
                 <div style="font-size:13px;color:#1e293b;font-weight:600;">
-                    <span style="color:#94a3b8;">س{{ $i+1 }}.</span> {{ $q->question_ar }}
+                    <span style="color:#94a3b8;">س{{ $i+1 }}.</span> {{ $q->question_ar ?: ($q->question_en ?: 'سؤال بدون نص') }}
                 </div>
                 <div style="display:flex;gap:6px;flex-shrink:0;">
                     <span style="background:#f1f5f9;color:#475569;border-radius:7px;padding:3px 9px;font-size:10px;font-weight:700;">{{ $q->type_label }}</span>
@@ -58,7 +58,7 @@
             <div style="margin-top:8px;display:flex;flex-direction:column;gap:4px;">
                 @foreach($q->options as $opt)
                 <div style="font-size:12px;color:{{ $opt->is_correct ? '#16a34a' : '#64748b' }};">
-                    {{ $opt->is_correct ? '✓' : '•' }} {{ $opt->option_ar }}
+                    {{ $opt->is_correct ? '✓' : '•' }} {{ $opt->option_ar ?: $opt->option_en }}
                 </div>
                 @endforeach
             </div>
