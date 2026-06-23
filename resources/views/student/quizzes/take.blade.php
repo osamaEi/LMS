@@ -423,6 +423,9 @@
                         <!-- Question Text -->
                         <div class="mb-8">
                             <p class="text-xl sm:text-2xl font-medium text-gray-900 dark:text-white leading-relaxed">{{ $question->question_ar }}</p>
+                            @if($question->question_en)
+                            <p class="mt-2 text-lg sm:text-xl font-medium text-gray-700 dark:text-gray-300 leading-relaxed" dir="ltr">{{ $question->question_en }}</p>
+                            @endif
                             @if($question->image)
                             <div class="mt-4 rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700">
                                 <img src="{{ Storage::url($question->image) }}" alt="صورة السؤال" class="w-full h-auto">

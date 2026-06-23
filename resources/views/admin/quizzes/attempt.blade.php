@@ -42,7 +42,10 @@
     <div style="background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:18px 22px;margin-bottom:14px;box-shadow:0 1px 4px rgba(0,0,0,.04);">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:12px;">
             <div style="font-weight:700;color:#1e293b;font-size:14px;">
-                <span style="color:#94a3b8;">س{{ $idx+1 }}.</span> {{ $q->question_ar ?: ($q->question_en ?: 'سؤال بدون نص') }}
+                <span style="color:#94a3b8;">س{{ $idx+1 }}.</span> {{ $q->question_ar ?: 'سؤال' }}
+                @if($q->question_en)
+                <div style="margin-top:4px;color:#0071AA;" dir="ltr">{{ $q->question_en }}</div>
+                @endif
             </div>
             <span style="flex-shrink:0;background:#f1f5f9;color:#475569;border-radius:7px;padding:3px 10px;font-size:11px;font-weight:700;">{{ $q->type_label }}</span>
         </div>

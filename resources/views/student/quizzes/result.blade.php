@@ -101,7 +101,10 @@
                                 {{ $answer->marks_obtained ?? 0 }} / {{ $question->marks }} درجة
                             </span>
                         </div>
-                        <p class="text-gray-900 dark:text-white font-medium">{{ $question->question_text_ar }}</p>
+                        <p class="text-gray-900 dark:text-white font-medium">{{ $question->question_ar }}</p>
+                        @if($question->question_en)
+                        <p class="mt-1 text-gray-700 dark:text-gray-300 font-medium" dir="ltr">{{ $question->question_en }}</p>
+                        @endif
                     </div>
                 </div>
 
