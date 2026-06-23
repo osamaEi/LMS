@@ -64,15 +64,61 @@ class QuizController extends Controller
             ->orderByDesc('started_at')
             ->get();
 
+        // Best/last attempt per student, for the eligible-students table.
+        $attemptByStudent = $attempts->groupBy('student_id')->map(function ($group) {
+            return $group->sortByDesc(fn($a) => $a->submitted_at ?? $a->started_at)->first();
+        });
+
+        // Students who "have" this quiz = students enrolled in its subject
+        // (via program, term's program, direct enrollment, or class).
+        $eligibleStudents = $this->eligibleStudentsFor($quiz)
+            ->map(function ($student) use ($attemptByStudent) {
+                $student->attempt = $attemptByStudent[$student->id] ?? null;
+                return $student;
+            });
+
         $stats = [
             'total_attempts'     => $attempts->count(),
             'completed'          => $attempts->whereNotNull('submitted_at')->count(),
             'in_progress'        => $attempts->whereNull('submitted_at')->count(),
             'passed'             => $attempts->where('passed', true)->count(),
             'avg_percentage'     => round((float) $attempts->whereNotNull('submitted_at')->avg('percentage'), 1),
+            'eligible'           => $eligibleStudents->count(),
+            'not_attempted'      => $eligibleStudents->filter(fn($s) => !$s->attempt)->count(),
         ];
 
-        return view('admin.quizzes.show', compact('quiz', 'attempts', 'stats'));
+        return view('admin.quizzes.show', compact('quiz', 'attempts', 'eligibleStudents', 'stats'));
+    }
+
+    /**
+     * Students enrolled in the quiz's subject (program / term-program / direct
+     * enrollment / class). Mirrors the student-side access rule.
+     */
+    private function eligibleStudentsFor(Quiz $quiz): \Illuminate\Support\Collection
+    {
+        $subject = $quiz->subject;
+        if (!$subject) {
+            return collect();
+        }
+
+        $programIds = collect([$subject->program_id, optional($subject->term)->program_id])
+            ->filter()->unique()->values();
+        $classIds = collect([$subject->class_id, optional($subject->term)->class_id])
+            ->filter()->unique()->values();
+
+        return \App\Models\User::where('role', 'student')
+            ->where(function ($q) use ($subject, $programIds, $classIds) {
+                $q->whereHas('enrollments', fn($eq) => $eq->where('subject_id', $subject->id));
+                if ($programIds->isNotEmpty()) {
+                    $q->orWhereIn('program_id', $programIds)
+                      ->orWhereHas('programs', fn($pq) => $pq->whereIn('programs.id', $programIds));
+                }
+                if ($classIds->isNotEmpty()) {
+                    $q->orWhereIn('class_id', $classIds);
+                }
+            })
+            ->orderBy('name')
+            ->get(['id', 'name', 'email']);
     }
 
     /**
