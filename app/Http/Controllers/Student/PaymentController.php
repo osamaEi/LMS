@@ -7,7 +7,6 @@ use App\Models\Payment;
 use App\Models\PaymentTransaction;
 use App\Services\PaymentService;
 use App\Services\TamaraPaymentService;
-use App\Services\PayTabsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -15,16 +14,13 @@ class PaymentController extends Controller
 {
     protected PaymentService $paymentService;
     protected TamaraPaymentService $tamaraService;
-    protected PayTabsService $payTabsService;
 
     public function __construct(
         PaymentService $paymentService,
-        TamaraPaymentService $tamaraService,
-        PayTabsService $payTabsService
+        TamaraPaymentService $tamaraService
     ) {
         $this->paymentService = $paymentService;
         $this->tamaraService = $tamaraService;
-        $this->payTabsService = $payTabsService;
     }
 
     /**
@@ -213,108 +209,6 @@ class PaymentController extends Controller
 
         return redirect()->route('student.payments.show', $payment)
             ->with('warning', 'تم إلغاء عملية الدفع');
-    }
-
-    /**
-     * Initiate PayTabs payment (Credit Card / Apple Pay)
-     */
-    public function payWithPayTabs(Payment $payment)
-    {
-        // Ensure student can only pay their own payments
-        if ($payment->user_id !== auth()->id()) {
-            abort(403, 'غير مصرح لك بدفع هذه الدفعة');
-        }
-
-        // Check if PayTabs is configured
-        if (!config('services.paytabs.profile_id') || !config('services.paytabs.server_key')) {
-            return redirect()->route('student.payments.show', $payment)
-                ->with('error', 'خدمة الدفع عبر البطاقة غير متاحة حالياً');
-        }
-
-        if ($payment->isFullyPaid()) {
-            return redirect()->route('student.payments.show', $payment)
-                ->with('error', 'الدفعة مكتملة بالفعل');
-        }
-
-        if ($payment->isCancelled()) {
-            return redirect()->route('student.payments.show', $payment)
-                ->with('error', 'الدفعة ملغاة');
-        }
-
-        try {
-            $user = auth()->user();
-
-            // Prepare customer info
-            $customerData = [
-                'name' => $user->name,
-                'email' => $user->email,
-                'phone' => $user->phone ?? '',
-            ];
-
-            // Create PayTabs payment page
-            $result = $this->payTabsService->createPaymentPage($payment, $customerData);
-
-            if ($result['success'] && isset($result['redirect_url'])) {
-                // Update payment method
-                $payment->update(['payment_method' => 'paytabs']);
-
-                return redirect($result['redirect_url']);
-            }
-
-            return redirect()->back()->with('error', $result['message'] ?? 'فشل إنشاء صفحة الدفع');
-
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'حدث خطأ: ' . $e->getMessage());
-        }
-    }
-
-    /**
-     * Handle PayTabs callback (server-to-server)
-     */
-    public function payTabsCallback(Request $request)
-    {
-        $data = $request->all();
-
-        $result = $this->payTabsService->processCallback($data);
-
-        // Return response for PayTabs server
-        return response()->json(['status' => $result['success'] ? 'success' : 'failed']);
-    }
-
-    /**
-     * Handle PayTabs return (redirect back to site)
-     */
-    public function payTabsReturn(Request $request)
-    {
-        $data = $request->all();
-
-        $result = $this->payTabsService->processCallback($data);
-
-        if ($result['success'] && isset($result['payment'])) {
-            return redirect()->route('student.payments.show', $result['payment'])
-                ->with('success', 'تم الدفع بنجاح!');
-        }
-
-        // Try to find the payment from the request data
-        $paymentId = null;
-        $cartId = $data['cartId'] ?? $data['cart_id'] ?? null;
-        if ($cartId) {
-            $parts = explode('-', $cartId);
-            if (count($parts) >= 2) {
-                $paymentId = $parts[1];
-            }
-        }
-
-        if ($paymentId) {
-            $payment = Payment::find($paymentId);
-            if ($payment) {
-                return redirect()->route('student.payments.show', $payment)
-                    ->with('error', $result['message'] ?? 'فشلت عملية الدفع');
-            }
-        }
-
-        return redirect()->route('student.payments.index')
-            ->with('error', $result['message'] ?? 'فشلت عملية الدفع');
     }
 
 }

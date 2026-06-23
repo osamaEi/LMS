@@ -59,13 +59,6 @@ return [
         'webhook_secret' => env('TAMARA_WEBHOOK_SECRET'),
     ],
 
-    'paytabs' => [
-        'profile_id' => env('PAYTABS_PROFILE_ID'),
-        'server_key' => env('PAYTABS_SERVER_KEY'),
-        'currency' => env('PAYTABS_CURRENCY', 'SAR'),
-        'region' => env('PAYTABS_REGION', 'SAU'),
-    ],
-
     'nafath' => [
         'api_url' => env('NAFATH_API_URL', 'https://mock-service.api.elm.sa/nafath'),
         'app_id' => env('NAFATH_APP_ID', 'w9kyh348'),

@@ -330,15 +330,6 @@
                         </button>
                     </form>
                     @endif
-                    @if(config('services.paytabs.profile_id'))
-                    <form action="{{ route('student.payments.pay-paytabs', $payment) }}" method="POST" class="inline">
-                        @csrf
-                        <button type="submit" style="display:inline-flex;align-items:center;gap:.4rem;padding:.5rem 1.1rem;border-radius:10px;font-size:.8rem;font-weight:700;color:#fff;background:linear-gradient(135deg,#0071AA,#004d77);border:none;cursor:pointer;">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
-                            بطاقة / PayTabs
-                        </button>
-                    </form>
-                    @endif
                     <span style="font-size:.75rem;color:#9ca3af;">أو تواصل مع الإدارة للدفع نقداً</span>
                 @endif
             </div>

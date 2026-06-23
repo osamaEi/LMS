@@ -8,23 +8,19 @@ use App\Models\Payment;
 use App\Models\PaymentTransaction;
 use App\Services\PaymentService;
 use App\Services\TamaraPaymentService;
-use App\Services\PayTabsService;
 use Illuminate\Http\Request;
 
 class PaymentController extends Controller
 {
     protected PaymentService $paymentService;
     protected TamaraPaymentService $tamaraService;
-    protected PayTabsService $payTabsService;
 
     public function __construct(
         PaymentService $paymentService,
-        TamaraPaymentService $tamaraService,
-        PayTabsService $payTabsService
+        TamaraPaymentService $tamaraService
     ) {
         $this->paymentService = $paymentService;
         $this->tamaraService = $tamaraService;
-        $this->payTabsService = $payTabsService;
     }
 
     /**
@@ -209,66 +205,4 @@ class PaymentController extends Controller
         }
     }
 
-    /**
-     * POST /api/v1/student/payments/{id}/pay-with-paytabs
-     * Initiate PayTabs payment
-     */
-    public function payWithPayTabs($id)
-    {
-        $user = auth()->user();
-
-        $payment = Payment::where('user_id', $user->id)->findOrFail($id);
-
-        if (!config('services.paytabs.profile_id') || !config('services.paytabs.server_key')) {
-            return response()->json([
-                'success' => false,
-                'message' => 'خدمة الدفع عبر البطاقة غير متاحة حالياً',
-            ], 400);
-        }
-
-        if ($payment->isFullyPaid()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'الدفعة مكتملة بالفعل',
-            ], 422);
-        }
-
-        if ($payment->isCancelled()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'الدفعة ملغاة',
-            ], 422);
-        }
-
-        try {
-            $customerData = [
-                'name' => $user->name,
-                'email' => $user->email,
-                'phone' => $user->phone ?? '',
-            ];
-
-            $result = $this->payTabsService->createPaymentPage($payment, $customerData);
-
-            if ($result['success'] && isset($result['redirect_url'])) {
-                $payment->update(['payment_method' => 'paytabs']);
-
-                return response()->json([
-                    'success' => true,
-                    'data' => [
-                        'redirect_url' => $result['redirect_url'],
-                    ],
-                ]);
-            }
-
-            return response()->json([
-                'success' => false,
-                'message' => $result['message'] ?? 'فشل إنشاء صفحة الدفع',
-            ], 500);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'حدث خطأ: ' . $e->getMessage(),
-            ], 500);
-        }
-    }
 }
