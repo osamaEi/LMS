@@ -245,7 +245,16 @@
                 $hasDetails = !empty($entry['context']) || !empty($entry['extra']);
                 @endphp
 
-                <div class="log-entry" style="border-bottom:1px solid #f1f5f9;">
+                <div class="log-entry" style="border-bottom:1px solid #f1f5f9;"
+                     data-full="{{ json_encode([
+                        'level'       => $lvl,
+                        'icon'        => $cfg['icon'],
+                        'datetime'    => $entry['datetime'],
+                        'environment' => $entry['environment'],
+                        'message'     => $entry['message'],
+                        'context'     => $entry['context'] ?? '',
+                        'extra'       => trim($entry['extra'] ?? ''),
+                     ], JSON_UNESCAPED_UNICODE | JSON_HEX_QUOT | JSON_HEX_APOS) }}">
                     <div onclick="{{ $hasDetails ? 'toggleEntry(this)' : '' }}"
                          style="display:flex;align-items:flex-start;gap:1rem;padding:.875rem 1.5rem;
                                 background:{{ $cfg['bg'] }};border-right:3px solid {{ $cfg['c'] }};
@@ -262,6 +271,10 @@
                         <span style="flex-shrink:0;color:#d1d5db;font-size:.68rem;font-family:monospace;margin-top:.2rem;">
                             {{ $entry['environment'] }}
                         </span>
+                        <button type="button" onclick="event.stopPropagation();showFullLog(this.closest('.log-entry'))"
+                                style="flex-shrink:0;padding:.25rem .7rem;background:#0071AA;color:#fff;border:none;border-radius:6px;font-size:.7rem;font-weight:700;cursor:pointer;margin-top:.05rem;white-space:nowrap;">
+                            عرض كامل
+                        </button>
                         @if($hasDetails)
                         <span class="toggle-icon" style="flex-shrink:0;color:#0071AA;font-size:.75rem;margin-top:.15rem;transition:transform .2s;">▼</span>
                         @endif
@@ -297,12 +310,54 @@
 
         <div style="text-align:center;margin-top:1.25rem;color:#9ca3af;font-size:.8rem;">
             يعرض آخر {{ count($entries) }} مدخل من ملف
-            <code style="background:#f3f4f6;padding:.15rem .4rem;border-radius:4px;color:#6b7280;">storage/logs/laravel.log</code>
+            <code style="background:#f3f4f6;padding:.15rem .4rem;border-radius:4px;color:#6b7280;">storage/logs/{{ $currentFile }}</code>
+        </div>
+    </div>
+</div>
+
+{{-- Full log modal --}}
+<div id="fullLogModal" onclick="if(event.target===this)closeFullLog()"
+     style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:2000;align-items:center;justify-content:center;padding:1.5rem;">
+    <div style="background:#fff;border-radius:16px;width:100%;max-width:900px;max-height:88vh;display:flex;flex-direction:column;box-shadow:0 24px 60px rgba(0,0,0,.3);overflow:hidden;">
+        <div style="padding:1rem 1.5rem;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between;gap:1rem;">
+            <h3 id="flmTitle" style="margin:0;font-size:1rem;font-weight:800;color:#111827;">السجل الكامل</h3>
+            <div style="display:flex;gap:.5rem;">
+                <button type="button" onclick="copyFullLog()" style="padding:.4rem .9rem;background:#e0f2fe;border:1px solid #bae6fd;color:#0071AA;border-radius:8px;font-size:.78rem;font-weight:700;cursor:pointer;">نسخ</button>
+                <button type="button" onclick="closeFullLog()" style="width:32px;height:32px;background:#f3f4f6;border:none;border-radius:8px;color:#6b7280;font-size:18px;cursor:pointer;">×</button>
+            </div>
+        </div>
+        <div style="padding:1.25rem 1.5rem;overflow-y:auto;">
+            <div id="flmMeta" style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem;font-family:monospace;font-size:.75rem;"></div>
+            <pre id="flmBody" style="white-space:pre-wrap;word-break:break-word;margin:0;font-family:'Courier New',monospace;font-size:.8rem;line-height:1.55;color:#111827;background:#f8fafc;border:1px solid #e5e7eb;border-radius:10px;padding:1rem;"></pre>
         </div>
     </div>
 </div>
 
 <script>
+let _fullLogText = '';
+function showFullLog(entryEl) {
+    const d = JSON.parse(entryEl.getAttribute('data-full'));
+    document.getElementById('flmTitle').textContent = `${d.icon} ${d.level} — ${d.datetime}`;
+    document.getElementById('flmMeta').innerHTML =
+        `<span style="background:#dbeafe;color:#1d4ed8;padding:.2rem .6rem;border-radius:6px;font-weight:700;">${d.level}</span>` +
+        `<span style="background:#f3f4f6;color:#6b7280;padding:.2rem .6rem;border-radius:6px;">${d.datetime}</span>` +
+        `<span style="background:#f3f4f6;color:#6b7280;padding:.2rem .6rem;border-radius:6px;">${d.environment}</span>`;
+
+    let parts = [d.message];
+    if (d.context) parts.push('\n── Context ──\n' + d.context);
+    if (d.extra)   parts.push('\n── Stack Trace ──\n' + d.extra);
+    _fullLogText = parts.join('\n');
+    document.getElementById('flmBody').textContent = _fullLogText;
+    document.getElementById('fullLogModal').style.display = 'flex';
+}
+function closeFullLog() {
+    document.getElementById('fullLogModal').style.display = 'none';
+}
+function copyFullLog() {
+    navigator.clipboard?.writeText(_fullLogText);
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeFullLog(); });
+
 function toggleEntry(el) {
     const details = el.nextElementSibling;
     const icon    = el.querySelector('.toggle-icon');
