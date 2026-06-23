@@ -54,6 +54,7 @@
                     <select name="type" id="type" required
                             class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:border-purple-500 focus:ring-purple-500">
                         <option value="quiz" {{ old('type', $quiz->type) === 'quiz' ? 'selected' : '' }}>اختبار قصير</option>
+                        <option value="midterm" {{ old('type', $quiz->type) === 'midterm' ? 'selected' : '' }}>اختبار نصفي</option>
                         <option value="exam" {{ old('type', $quiz->type) === 'exam' ? 'selected' : '' }}>امتحان</option>
                         <option value="homework" {{ old('type', $quiz->type) === 'homework' ? 'selected' : '' }}>واجب</option>
                         <option value="paper" {{ old('type', $quiz->type) === 'paper' ? 'selected' : '' }}>ورقة أعمال</option>

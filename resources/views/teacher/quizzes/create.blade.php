@@ -458,6 +458,7 @@
                         </label>
                         <select name="type" id="type" required class="form-input select">
                             <option value="quiz" {{ old('type') === 'quiz' ? 'selected' : '' }}>اختبار قصير</option>
+                            <option value="midterm" {{ old('type') === 'midterm' ? 'selected' : '' }}>اختبار نصفي</option>
                             <option value="exam" {{ old('type') === 'exam' ? 'selected' : '' }}>امتحان نهائي</option>
                             <option value="homework" {{ old('type') === 'homework' ? 'selected' : '' }}>واجب منزلي</option>
                             <option value="paper" {{ old('type') === 'paper' ? 'selected' : '' }}>ورقة أعمال</option>

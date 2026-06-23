@@ -158,6 +158,7 @@
                         <span class="font-medium text-gray-900 dark:text-white">
                             @switch($quiz->type)
                                 @case('quiz') اختبار قصير @break
+                                @case('midterm') اختبار نصفي @break
                                 @case('exam') امتحان @break
                                 @case('homework') واجب @break
                             @endswitch

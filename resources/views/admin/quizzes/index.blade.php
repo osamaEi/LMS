@@ -35,6 +35,7 @@
         <select name="type" style="padding:8px 12px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13px;">
             <option value="">كل الأنواع</option>
             <option value="quiz"     {{ $type=='quiz'?'selected':'' }}>اختبار قصير</option>
+            <option value="midterm"  {{ $type=='midterm'?'selected':'' }}>اختبار نصفي</option>
             <option value="exam"     {{ $type=='exam'?'selected':'' }}>امتحان</option>
             <option value="homework" {{ $type=='homework'?'selected':'' }}>واجب</option>
             <option value="paper"    {{ $type=='paper'?'selected':'' }}>ورقة أعمال</option>
@@ -69,10 +70,11 @@
                 @forelse($quizzes as $quiz)
                 @php
                 $typeMap = [
-                    'quiz'=>['اختبار قصير','#dcfce7','#16a34a'],
-                    'exam'=>['امتحان','#ede9fe','#7c3aed'],
+                    'quiz'    =>['اختبار قصير','#dcfce7','#16a34a'],
+                    'midterm' =>['اختبار نصفي','#fae8ff','#a21caf'],
+                    'exam'    =>['امتحان','#ede9fe','#7c3aed'],
                     'homework'=>['واجب','#fef3c7','#d97706'],
-                    'paper'=>['ورقة أعمال','#dbeafe','#2563eb'],
+                    'paper'   =>['ورقة أعمال','#dbeafe','#2563eb'],
                 ];
                 $t = $typeMap[$quiz->type] ?? [$quiz->type,'#f1f5f9','#64748b'];
                 @endphp
