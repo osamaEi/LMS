@@ -505,6 +505,117 @@ class QuizController extends Controller
     }
 
     /**
+     * Overview: all quizzes across all subjects this teacher owns.
+     */
+    public function overview(Request $request)
+    {
+        $teacher = auth()->user();
+
+        $subjectIds = Subject::assignedToTeacher($teacher->id)->pluck('id');
+
+        $search  = $request->get('search', '');
+        $type    = $request->get('type', '');
+
+        $quizzes = Quiz::whereIn('subject_id', $subjectIds)
+            ->with(['subject:id,name_ar,name_en', 'creator:id,name'])
+            ->withCount(['questions', 'attempts'])
+            ->withCount(['attempts as completed_count' => fn($q) => $q->whereNotNull('submitted_at')])
+            ->when($search, fn($q) => $q->where(fn($w) =>
+                $w->where('title_ar', 'like', "%{$search}%")
+                  ->orWhere('title_en', 'like', "%{$search}%")
+            ))
+            ->when($type, fn($q) => $q->where('type', $type))
+            ->latest()
+            ->paginate(20)
+            ->withQueryString();
+
+        $stats = [
+            'total'    => Quiz::whereIn('subject_id', $subjectIds)->count(),
+            'exams'    => Quiz::whereIn('subject_id', $subjectIds)->where('type', 'exam')->count(),
+            'quizzes'  => Quiz::whereIn('subject_id', $subjectIds)->where('type', 'quiz')->count(),
+            'attempts' => QuizAttempt::whereHas('quiz', fn($q) => $q->whereIn('subject_id', $subjectIds))->whereNotNull('submitted_at')->count(),
+        ];
+
+        return view('teacher.quizzes.overview', compact('quizzes', 'stats', 'search', 'type'));
+    }
+
+    /**
+     * Overview detail: one quiz — questions + all attempts + eligible students.
+     */
+    public function overviewShow(Quiz $quiz)
+    {
+        $teacher = auth()->user();
+        $subjectIds = Subject::assignedToTeacher($teacher->id)->pluck('id');
+        abort_unless($subjectIds->contains($quiz->subject_id), 403);
+
+        $quiz->load(['subject:id,name_ar,name_en', 'creator:id,name', 'questions.options']);
+
+        $attempts = $quiz->attempts()
+            ->with('student:id,name,email')
+            ->orderByDesc('submitted_at')
+            ->orderByDesc('started_at')
+            ->get();
+
+        $attemptByStudent = $attempts->groupBy('student_id')->map(function ($group) {
+            return $group->sortByDesc(fn($a) => $a->submitted_at ?? $a->started_at)->first();
+        });
+
+        $subject = $quiz->subject;
+        $eligibleStudents = collect();
+        if ($subject) {
+            $programIds = collect([$subject->program_id])->filter()->unique();
+            $classIds   = collect([$subject->class_id])->filter()->unique();
+
+            $eligibleStudents = \App\Models\User::where('role', 'student')
+                ->where(function ($q) use ($subject, $programIds, $classIds) {
+                    $q->whereHas('enrollments', fn($eq) => $eq->where('subject_id', $subject->id));
+                    if ($programIds->isNotEmpty()) {
+                        $q->orWhereIn('program_id', $programIds);
+                    }
+                    if ($classIds->isNotEmpty()) {
+                        $q->orWhereIn('class_id', $classIds);
+                    }
+                })
+                ->orderBy('name')
+                ->get(['id', 'name', 'email'])
+                ->map(function ($student) use ($attemptByStudent) {
+                    $student->attempt = $attemptByStudent[$student->id] ?? null;
+                    return $student;
+                });
+        }
+
+        $stats = [
+            'eligible'       => $eligibleStudents->count(),
+            'not_attempted'  => $eligibleStudents->filter(fn($s) => !$s->attempt)->count(),
+            'completed'      => $attempts->whereNotNull('submitted_at')->count(),
+            'in_progress'    => $attempts->whereNull('submitted_at')->count(),
+            'passed'         => $attempts->where('passed', true)->count(),
+            'avg_percentage' => round((float) $attempts->whereNotNull('submitted_at')->avg('percentage'), 1),
+        ];
+
+        return view('teacher.quizzes.overview-show', compact('quiz', 'attempts', 'eligibleStudents', 'stats'));
+    }
+
+    /**
+     * Overview attempt: one student's full solution.
+     */
+    public function overviewAttempt(Quiz $quiz, QuizAttempt $attempt)
+    {
+        $teacher = auth()->user();
+        $subjectIds = Subject::assignedToTeacher($teacher->id)->pluck('id');
+        abort_unless($subjectIds->contains($quiz->subject_id), 403);
+        abort_unless($attempt->quiz_id === $quiz->id, 404);
+
+        $quiz->load(['subject:id,name_ar,name_en']);
+        $attempt->load(['student:id,name,email', 'answers.question.options', 'answers.selectedOption']);
+
+        $questions         = $quiz->questions()->with('options')->orderBy('order')->get();
+        $answersByQuestion = $attempt->answers->keyBy('question_id');
+
+        return view('teacher.quizzes.overview-attempt', compact('quiz', 'attempt', 'questions', 'answersByQuestion'));
+    }
+
+    /**
      * Grade a manual answer (essay/short answer)
      */
     public function gradeAnswer(Request $request, $subjectId, $quizId, $attemptId, $answerId)

@@ -611,6 +611,11 @@ Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')
     Route::post('/files', [\App\Http\Controllers\Teacher\FileController::class, 'store'])->name('files.store');
     Route::delete('/files/{file}', [\App\Http\Controllers\Teacher\FileController::class, 'destroy'])->name('files.destroy');
 
+    // Quizzes overview (all subjects)
+    Route::get('/quizzes', [\App\Http\Controllers\Teacher\QuizController::class, 'overview'])->name('quizzes.overview');
+    Route::get('/quizzes/{quiz}', [\App\Http\Controllers\Teacher\QuizController::class, 'overviewShow'])->name('quizzes.overview.show');
+    Route::get('/quizzes/{quiz}/attempts/{attempt}', [\App\Http\Controllers\Teacher\QuizController::class, 'overviewAttempt'])->name('quizzes.overview.attempt');
+
     // Quizzes & Exams Management
     Route::prefix('subjects/{subject}/quizzes')->name('quizzes.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Teacher\QuizController::class, 'index'])->name('index');

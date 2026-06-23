@@ -43,7 +43,7 @@ class HomeworkController extends Controller
 
     public function store(Request $request, Session $session)
     {
-        $this->authorizeSession($session);
+        //$this->authorizeSession($session);
 
         $request->validate([
             'title_ar'       => 'nullable|string|max:255',
@@ -83,7 +83,7 @@ class HomeworkController extends Controller
 
     public function update(Request $request, Session $session)
     {
-        $this->authorizeSession($session);
+       // $this->authorizeSession($session);
 
         $homework = $session->homework;
         if (!$homework) {
