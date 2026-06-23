@@ -203,21 +203,73 @@
                     </div>
                 @elseif(!$quiz->isAvailable())
                     <div class="text-center">
-                        <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style="background-color: #fee2e2;">
-                            <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                            </svg>
-                        </div>
-                        <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">الاختبار غير متاح</h3>
-                        <p class="text-gray-600 dark:text-gray-400">
-                            @if($quiz->starts_at && $quiz->starts_at > now())
-                                سيبدأ في {{ $quiz->starts_at->format('Y/m/d H:i') }}
-                            @elseif($quiz->ends_at && $quiz->ends_at < now())
-                                انتهى وقت الاختبار
-                            @else
-                                الاختبار مغلق حالياً
-                            @endif
-                        </p>
+                        @if($quiz->starts_at && $quiz->starts_at > now())
+                            {{-- Countdown until quiz opens --}}
+                            <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style="background-color: #eff6ff;">
+                                <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-1">الاختبار لم يبدأ بعد</h3>
+                            <p class="text-gray-500 dark:text-gray-400 text-sm mb-4">سيُفتح في {{ $quiz->starts_at->format('Y/m/d H:i') }}</p>
+                            <div id="quiz-countdown" class="flex justify-center gap-2 mb-2">
+                                <div class="flex flex-col items-center px-3 py-2 rounded-xl" style="background-color:#dbeafe;min-width:52px;">
+                                    <span id="cd-days" class="text-2xl font-extrabold text-blue-700">--</span>
+                                    <span class="text-xs text-blue-500 mt-0.5">يوم</span>
+                                </div>
+                                <div class="flex flex-col items-center px-3 py-2 rounded-xl" style="background-color:#dbeafe;min-width:52px;">
+                                    <span id="cd-hours" class="text-2xl font-extrabold text-blue-700">--</span>
+                                    <span class="text-xs text-blue-500 mt-0.5">ساعة</span>
+                                </div>
+                                <div class="flex flex-col items-center px-3 py-2 rounded-xl" style="background-color:#dbeafe;min-width:52px;">
+                                    <span id="cd-minutes" class="text-2xl font-extrabold text-blue-700">--</span>
+                                    <span class="text-xs text-blue-500 mt-0.5">دقيقة</span>
+                                </div>
+                                <div class="flex flex-col items-center px-3 py-2 rounded-xl" style="background-color:#dbeafe;min-width:52px;">
+                                    <span id="cd-seconds" class="text-2xl font-extrabold text-blue-700">--</span>
+                                    <span class="text-xs text-blue-500 mt-0.5">ثانية</span>
+                                </div>
+                            </div>
+                            <script>
+                            (function(){
+                                var target = new Date("{{ $quiz->starts_at->toIso8601String() }}").getTime();
+                                function pad(n){ return String(n).padStart(2,'0'); }
+                                function tick(){
+                                    var diff = target - Date.now();
+                                    if(diff <= 0){
+                                        document.getElementById('quiz-countdown').innerHTML = '<span style="color:#16a34a;font-weight:700;">الاختبار بدأ! أعد تحميل الصفحة</span>';
+                                        return;
+                                    }
+                                    var d = Math.floor(diff/86400000);
+                                    var h = Math.floor((diff%86400000)/3600000);
+                                    var m = Math.floor((diff%3600000)/60000);
+                                    var s = Math.floor((diff%60000)/1000);
+                                    document.getElementById('cd-days').textContent    = pad(d);
+                                    document.getElementById('cd-hours').textContent   = pad(h);
+                                    document.getElementById('cd-minutes').textContent = pad(m);
+                                    document.getElementById('cd-seconds').textContent = pad(s);
+                                }
+                                tick();
+                                setInterval(tick, 1000);
+                            })();
+                            </script>
+                        @elseif($quiz->ends_at && $quiz->ends_at < now())
+                            <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style="background-color: #fee2e2;">
+                                <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">الاختبار غير متاح</h3>
+                            <p class="text-gray-600 dark:text-gray-400">انتهى وقت الاختبار</p>
+                        @else
+                            <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style="background-color: #fee2e2;">
+                                <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">الاختبار غير متاح</h3>
+                            <p class="text-gray-600 dark:text-gray-400">الاختبار مغلق حالياً</p>
+                        @endif
                     </div>
                 @elseif($attempts->count() >= $quiz->max_attempts)
                     <div class="text-center">
