@@ -89,13 +89,58 @@ class DashboardController extends Controller
     }
 
     /**
+     * Build quiz cards for the weekly calendar — quizzes that have a starts_at
+     * and belong to subjects accessible to the student.
+     */
+    private function buildQuizzesCalendar($student): \Illuminate\Support\Collection
+    {
+        $subjectIds = $this->studentSubjectIds($student);
+
+        return \App\Models\Quiz::whereIn('subject_id', $subjectIds)
+            ->where('is_active', true)
+            ->whereNotNull('starts_at')
+            ->with(['subject:id,name_ar'])
+            ->get()
+            ->map(function ($q) use ($student) {
+                $attempt = $q->attempts()->where('student_id', $student->id)->latest()->first();
+                $completed = $attempt && $attempt->submitted_at;
+                $inProgress = $attempt && !$attempt->submitted_at;
+                $canStart = $q->isAvailable() && !$completed && ($q->max_attempts > $q->attempts()->where('student_id', $student->id)->whereNotNull('submitted_at')->count());
+                return [
+                    'id'          => $q->id,
+                    'subject_id'  => $q->subject_id,
+                    'title'       => $q->title_ar,
+                    'subject_name'=> $q->subject->name_ar ?? '',
+                    'type'        => $q->type,
+                    'type_label'  => $q->type_label,
+                    'starts_at'   => \Carbon\Carbon::parse($q->starts_at)->toIso8601String(),
+                    'ends_at'     => $q->ends_at ? \Carbon\Carbon::parse($q->ends_at)->toIso8601String() : null,
+                    'total_marks' => $q->total_marks,
+                    'pass_marks'  => $q->pass_marks,
+                    'duration'    => $q->duration_minutes,
+                    'questions'   => $q->questions()->count(),
+                    'can_start'   => $canStart,
+                    'in_progress' => $inProgress,
+                    'completed'   => $completed,
+                    'score'       => $completed ? $attempt->score : null,
+                    'passed'      => $completed ? $attempt->passed : null,
+                    'attempt_id'  => $attempt?->id,
+                    'url'         => route('student.quizzes.show', [$q->subject_id, $q->id]),
+                ];
+            })
+            ->values();
+    }
+
+    /**
      * JSON feed for the student's weekly calendar (used for realtime polling so the
      * "join" button appears as soon as the teacher starts a session).
      */
     public function calendarSessions()
     {
+        $student = auth()->user();
         return response()->json([
-            'sessions' => $this->buildClassSessionsCalendar(auth()->user()),
+            'sessions' => $this->buildClassSessionsCalendar($student),
+            'quizzes'  => $this->buildQuizzesCalendar($student),
         ]);
     }
 
@@ -235,6 +280,7 @@ class DashboardController extends Controller
 
         // Weekly-calendar sessions — same schedule shown on /student/my-sessions
         $classSessions = $this->buildClassSessionsCalendar($student);
+        $calQuizzes    = $this->buildQuizzesCalendar($student);
 
         return view('student.dashboard', compact(
             'subjects',
@@ -242,6 +288,7 @@ class DashboardController extends Controller
             'recentSessions',
             'liveSessions',
             'classSessions',
+            'calQuizzes',
             'stats',
             'overallAttendance',
             'myTickets',
@@ -390,11 +437,13 @@ class DashboardController extends Controller
 
         // Calendar sessions (weekly schedule) — shared with the dashboard view.
         $classSessions = $this->buildClassSessionsCalendar($student);
+        $calQuizzes    = $this->buildQuizzesCalendar($student);
 
         $firstProg = $allPrograms->first();
 
         return view('student.sessions.index', [
             'classSessions'       => $classSessions,
+            'calQuizzes'          => $calQuizzes,
             'apologies'           => $apologies,
             'programsSessionData' => $programsSessionData,
             'totalSessions'       => $totalSessions,

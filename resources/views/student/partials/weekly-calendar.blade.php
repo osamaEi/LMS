@@ -1,5 +1,8 @@
-{{-- Weekly schedule calendar — shared by dashboard & my-sessions. Expects $classSessions. --}}
-@php $allCalSessions = $classSessions ?? collect(); @endphp
+{{-- Weekly schedule calendar — shared by dashboard & my-sessions. Expects $classSessions and $calQuizzes. --}}
+@php
+    $allCalSessions = $classSessions ?? collect();
+    $allCalQuizzes  = $calQuizzes ?? collect();
+@endphp
     <style>
     @keyframes calLivePulseStu {
         0%,100% { box-shadow:0 0 0 2px rgba(22,163,74,.25); }
@@ -61,6 +64,7 @@
 
     <script>
     let CAL_SESSIONS = @json($allCalSessions->values());
+    let CAL_QUIZZES  = @json($allCalQuizzes->values());
     const TODAY_CAL = new Date();
     // Default to week of next upcoming session if current week has no sessions
     let curCal = (function(){
@@ -108,6 +112,52 @@
     }
     function weekStartCal(d){ const c=new Date(d); c.setDate(c.getDate()-c.getDay()); c.setHours(0,0,0,0); return c; }
     function sessionsOnDayCal(date){ return CAL_SESSIONS.filter(s=>s.scheduled_at&&sameDayCal(new Date(s.scheduled_at),date)).sort((a,b)=>new Date(a.scheduled_at)-new Date(b.scheduled_at)); }
+    function quizzesOnDayCal(date){ return CAL_QUIZZES.filter(q=>q.starts_at&&sameDayCal(new Date(q.starts_at),date)); }
+
+    function openQuizCal(q){
+        document.getElementById('smTitle').textContent = '📝 ' + (q.title||'اختبار');
+        document.getElementById('sessionModal').style.display='flex';
+        const typeColors = {quiz:'#0891b2',midterm:'#a21caf',exam:'#7c3aed',homework:'#ca8a04',paper:'#475569'};
+        const tc = typeColors[q.type] || '#475569';
+        let rows = [
+            q.subject_name ? ['📚 المادة', q.subject_name] : null,
+            q.type_label   ? ['🔖 النوع', q.type_label]   : null,
+            q.starts_at    ? ['📅 يبدأ', new Date(q.starts_at).toLocaleDateString('ar-SA',{weekday:'long',year:'numeric',month:'long',day:'numeric'})+' '+fmtTimeCal(q.starts_at)] : null,
+            q.ends_at      ? ['⏰ ينتهي', new Date(q.ends_at).toLocaleDateString('ar-SA',{weekday:'long',year:'numeric',month:'long',day:'numeric'})+' '+fmtTimeCal(q.ends_at)] : null,
+            q.duration     ? ['⏱ المدة', q.duration+' دقيقة'] : null,
+            q.questions    ? ['❓ الأسئلة', q.questions+' سؤال'] : null,
+            ['🎯 الدرجات', q.total_marks+' درجة · نجاح '+q.pass_marks],
+        ].filter(Boolean);
+
+        let html = '<div style="display:flex;flex-direction:column;gap:10px;">';
+        rows.forEach(([k,v])=>{
+            html+=`<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:#f8fafc;border-radius:9px;">
+                <span style="font-size:12px;color:#64748b;min-width:90px;">${k}</span>
+                <span style="font-size:13px;font-weight:600;color:#1e293b;">${v}</span>
+            </div>`;
+        });
+
+        if(q.completed){
+            const badge = q.passed
+                ? '<span style="color:#16a34a;font-weight:700;">ناجح ✓</span>'
+                : '<span style="color:#dc2626;font-weight:700;">راسب</span>';
+            html+=`<div style="background:#f0fdf4;border-radius:10px;padding:10px;text-align:center;font-size:13px;">انتهيت من الاختبار · ${q.score} درجة · ${badge}</div>`;
+            html+=`<a href="${q.url}" style="display:flex;align-items:center;justify-content:center;padding:10px;background:#f1f5f9;color:#475569;border-radius:10px;text-decoration:none;font-size:13px;font-weight:700;">عرض النتيجة</a>`;
+        } else if(q.in_progress){
+            html+=`<a href="${q.url}" style="display:flex;align-items:center;justify-content:center;padding:10px;background:linear-gradient(135deg,#f59e0b,#d97706);color:white;border-radius:10px;text-decoration:none;font-size:13px;font-weight:700;">▶ استكمال الاختبار</a>`;
+        } else if(q.can_start){
+            html+=`<a href="${q.url}" style="display:flex;align-items:center;justify-content:center;padding:11px;background:linear-gradient(135deg,${tc},${tc}cc);color:white;border-radius:10px;text-decoration:none;font-size:13px;font-weight:700;">📝 اذهب للاختبار</a>`;
+        } else {
+            const now = new Date(), st = new Date(q.starts_at);
+            if(now < st){
+                html+=`<div style="text-align:center;padding:10px;background:#eff6ff;border-radius:10px;font-size:13px;font-weight:600;color:#1d4ed8;">⏳ الاختبار لم يبدأ بعد</div>`;
+            } else {
+                html+=`<div style="text-align:center;padding:10px;background:#f1f5f9;border-radius:10px;font-size:13px;color:#64748b;">الاختبار غير متاح حالياً</div>`;
+            }
+        }
+        html+='</div>';
+        document.getElementById('smBody').innerHTML = html;
+    }
 
     function openSessionCal(s){
         document.getElementById('smTitle').textContent = s.title||('جلسة #'+s.session_number);
@@ -214,13 +264,51 @@
             let row=`<td style="padding:10px 6px;text-align:center;font-size:13px;font-weight:700;color:#fff;background:${isToday?'#005a88':'#0071AA'};border:1px solid #fff;line-height:1.4;">
                 ${DAY_NAMES_CAL[i]}<br><span style="font-size:11px;font-weight:500;opacity:.85;">${d.getDate()} ${MONTH_NAMES_CAL[d.getMonth()]}</span>
             </td>`;
+            // Build quiz cards for this day — keyed by period index so each quiz lands once
+            const typeColors = {quiz:'#0891b2',midterm:'#a21caf',exam:'#7c3aed',homework:'#ca8a04',paper:'#475569'};
+            const quizCellMap = {}; // pi -> html
+            quizzesOnDayCal(d).forEach(q=>{
+                const dt = new Date(q.starts_at);
+                const mins = dt.getHours()*60 + dt.getMinutes();
+                const pi = getPeriod(mins);
+                const now = new Date();
+                const tc = typeColors[q.type] || '#7c3aed';
+                const ended = q.ends_at && now > new Date(q.ends_at);
+                const notYet = now < new Date(q.starts_at);
+                let stateBadge, borderColor;
+                if(q.completed){
+                    stateBadge = q.passed
+                        ? `<span style="background:#dcfce7;color:#15803d;font-size:10px;font-weight:600;padding:1px 6px;border-radius:20px;">ناجح ✓</span>`
+                        : `<span style="background:#fee2e2;color:#dc2626;font-size:10px;font-weight:600;padding:1px 6px;border-radius:20px;">راسب</span>`;
+                    borderColor = q.passed ? '#16a34a' : '#dc2626';
+                } else if(q.in_progress){
+                    stateBadge = `<span style="background:#fef3c7;color:#d97706;font-size:10px;font-weight:600;padding:1px 6px;border-radius:20px;">جارٍ</span>`;
+                    borderColor = '#d97706';
+                } else if(ended){
+                    stateBadge = `<span style="background:#f1f5f9;color:#64748b;font-size:10px;font-weight:600;padding:1px 6px;border-radius:20px;">انتهى</span>`;
+                    borderColor = '#94a3b8';
+                } else if(notYet){
+                    stateBadge = `<span style="background:#eff6ff;color:#1d4ed8;font-size:10px;font-weight:600;padding:1px 6px;border-radius:20px;">قادم</span>`;
+                    borderColor = tc;
+                } else {
+                    stateBadge = `<span style="background:#fef3c7;color:#b45309;font-size:10px;font-weight:700;padding:1px 6px;border-radius:20px;">متاح الآن</span>`;
+                    borderColor = tc;
+                }
+                const card = `<div onclick='openQuizCal(${JSON.stringify(q)})' style="background:#fdfaff;border-right:4px solid ${borderColor};border-radius:6px;padding:6px 8px;margin-bottom:4px;line-height:1.35;cursor:pointer;">
+                    <div style="font-size:10px;font-weight:700;color:${tc};margin-bottom:2px;">📝 ${q.type_label||'اختبار'}</div>
+                    <div style="font-size:12px;font-weight:700;color:#1e293b;">${q.title}</div>
+                    ${q.subject_name?`<div style="font-size:10px;color:#64748b;">${q.subject_name}</div>`:''}
+                    <div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:3px;">${stateBadge}</div>
+                </div>`;
+                quizCellMap[pi] = (quizCellMap[pi]||'') + card;
+            });
+
             PERIODS_CAL.forEach((p,pi)=>{
                 const items=cellMap[i+'|'+pi]||[];
                 const inner=items.map(s=>{
                     const ts=typeStyleCal(s.type);
                     const isLive = isSessionLiveCal(s);
                     const sessionPast = !isLive && (s.status==='completed' || s.ended_at || (s.scheduled_at && new Date(s.scheduled_at) < new Date()));
-                    // الحالة: حالية (أخضر) / سابقة (أحمر) / قادمة (أزرق)
                     const state = isLive ? 'live' : (sessionPast ? 'past' : 'upcoming');
                     const palette = {
                         live:     { bg:'linear-gradient(135deg,#dcfce7,#bbf7d0)', border:'#16a34a', text:'#15803d', label:'● مباشر الآن', labelBg:'#dcfce7', labelColor:'#15803d' },
@@ -248,7 +336,8 @@
                         </div>
                     </div>`;
                 }).join('');
-                row+=`<td style="min-height:80px;padding:5px;vertical-align:top;border:1px solid #d6e4f0;${isToday?'background:#f8fdff;':''}">${inner}</td>`;
+
+                row+=`<td style="min-height:80px;padding:5px;vertical-align:top;border:1px solid #d6e4f0;${isToday?'background:#f8fdff;':''}">${inner}${quizCellMap[pi]||''}</td>`;
             });
             body+=`<tr>${row}</tr>`;
         });
@@ -279,10 +368,13 @@
                 const res = await fetch(POLL_URL, { headers: { 'Accept': 'application/json' } });
                 if (!res.ok) return;
                 const data = await res.json();
-                const next = data.sessions || [];
+                const nextSessions = data.sessions || [];
+                const nextQuizzes  = data.quizzes  || [];
                 // Only re-render when something actually changed (avoids flicker/work).
-                if (JSON.stringify(next) !== JSON.stringify(CAL_SESSIONS)) {
-                    CAL_SESSIONS = next;
+                if (JSON.stringify(nextSessions) !== JSON.stringify(CAL_SESSIONS) ||
+                    JSON.stringify(nextQuizzes)  !== JSON.stringify(CAL_QUIZZES)) {
+                    CAL_SESSIONS = nextSessions;
+                    CAL_QUIZZES  = nextQuizzes;
                     renderCal();
                 }
             } catch (e) { /* network hiccup — ignore, try again next tick */ }
