@@ -409,6 +409,18 @@
 </li>
 @endcan
 
+{{-- الاختبارات وحلول الطلاب --}}
+<li>
+    <a href="{{ route('admin.quizzes.index') }}"
+       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('admin.quizzes.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
+        <svg class="fill-current" width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>الاختبارات والحلول</span>
+    </a>
+</li>
+
 {{-- سجلات النظام (Laravel Log) --}}
 @canany(['manage-system','view-settings'])
 <li>

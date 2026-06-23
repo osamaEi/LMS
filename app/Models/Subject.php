@@ -116,6 +116,11 @@ class Subject extends Model
         return $this->hasMany(Session::class);
     }
 
+    public function quizzes(): HasMany
+    {
+        return $this->hasMany(Quiz::class);
+    }
+
     public function evaluations(): HasMany
     {
         return $this->hasMany(Evaluation::class);

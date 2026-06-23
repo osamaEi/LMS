@@ -486,6 +486,13 @@ Route::middleware(['auth', 'role:admin,super_admin'])->prefix('admin')->name('ad
         Route::get('/download', [\App\Http\Controllers\Admin\LogViewerController::class, 'download'])->name('download');
     });
 
+    // Quizzes & Exams — view all quizzes and students' solutions
+    Route::prefix('quizzes')->name('quizzes.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\QuizController::class, 'index'])->name('index');
+        Route::get('/{quiz}', [\App\Http\Controllers\Admin\QuizController::class, 'show'])->name('show');
+        Route::get('/{quiz}/attempts/{attempt}', [\App\Http\Controllers\Admin\QuizController::class, 'attempt'])->name('attempt');
+    });
+
     // WhatsApp AI Chat
     Route::prefix('whatsapp-chat')->name('whatsapp-chat.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Admin\WhatsAppChatController::class, 'index'])->name('index');
