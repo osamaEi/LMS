@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Teacher;
 use App\Http\Controllers\Controller;
 use App\Models\Session;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class SessionController extends Controller
 {
@@ -42,6 +43,19 @@ class SessionController extends Controller
 
         $session->update($payload);
 
+        Log::info('Teacher updated session join link', [
+            'teacher_id'   => $teacher->id,
+            'teacher_name' => $teacher->name,
+            'session_id'   => $session->id,
+            'session_title'=> $session->title_ar,
+            'class_id'     => $session->class_id,
+            'subject_id'   => $session->subject_id,
+            'program_id'   => $session->program_id,
+            'join_url'     => $joinUrl,
+            'auto_started' => isset($payload['started_at']),
+            'ip'           => $request->ip(),
+        ]);
+
         return redirect()->back()->with('success', 'تم حفظ رابط الانضمام بنجاح ✓');
     }
 
@@ -70,9 +84,23 @@ class SessionController extends Controller
         }
 
         // Mark as started (only once) so students are allowed to join.
+        $wasAlreadyStarted = (bool) $session->started_at;
         if (!$session->started_at) {
             $session->update(['started_at' => now()]);
         }
+
+        Log::info('Teacher started session', [
+            'teacher_id'    => $teacher->id,
+            'teacher_name'  => $teacher->name,
+            'session_id'    => $session->id,
+            'session_title' => $session->title_ar,
+            'class_id'      => $session->class_id,
+            'subject_id'    => $session->subject_id,
+            'program_id'    => $session->program_id,
+            'already_started' => $wasAlreadyStarted,
+            'started_at'    => optional($session->started_at)->toDateTimeString(),
+            'ip'            => $request->ip(),
+        ]);
 
         // Open the host start link (fallback to join link).
         $url = $session->zoom_start_url ?: $session->zoom_join_url;

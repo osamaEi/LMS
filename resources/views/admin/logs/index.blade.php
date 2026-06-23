@@ -31,7 +31,7 @@
 
                 {{-- Action buttons --}}
                 <div style="display:flex;gap:.75rem;flex-wrap:wrap;">
-                    <a href="{{ route('admin.logs.download') }}"
+                    <a href="{{ route('admin.logs.download', ['file' => $currentFile]) }}"
                        style="display:flex;align-items:center;gap:.5rem;padding:.6rem 1.25rem;
                               background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);
                               color:#fff;border-radius:10px;text-decoration:none;font-size:.875rem;font-weight:600;">
@@ -45,6 +45,7 @@
                     <form method="POST" action="{{ route('admin.logs.clear') }}"
                           onsubmit="return confirm('هل أنت متأكد من مسح ملف السجل بالكامل؟ لا يمكن التراجع عن هذه العملية.');">
                         @csrf
+                        <input type="hidden" name="file" value="{{ $currentFile }}">
                         <button type="submit"
                                 style="display:flex;align-items:center;gap:.5rem;padding:.6rem 1.25rem;
                                        background:rgba(239,68,68,.25);border:1px solid rgba(239,68,68,.5);
@@ -147,6 +148,18 @@
                             <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                         </svg>
                     </div>
+                </div>
+                <div style="min-width:200px;">
+                    <label style="color:#6b7280;font-size:.8rem;display:block;margin-bottom:.4rem;">ملف السجل</label>
+                    <select name="file" onchange="this.form.submit()" style="width:100%;border:1px solid #d1d5db;border-radius:8px;padding:.6rem 1rem;color:#111827;font-size:.875rem;background:#f9fafb;">
+                        @forelse($logFiles as $f)
+                            <option value="{{ $f['name'] }}" {{ $currentFile === $f['name'] ? 'selected' : '' }}>
+                                {{ $f['name'] }} ({{ $f['size'] > 1048576 ? number_format($f['size']/1048576,1).' MB' : ($f['size'] > 1024 ? number_format($f['size']/1024,0).' KB' : $f['size'].' B') }})
+                            </option>
+                        @empty
+                            <option value="">لا توجد ملفات سجل</option>
+                        @endforelse
+                    </select>
                 </div>
                 <div style="min-width:150px;">
                     <label style="color:#6b7280;font-size:.8rem;display:block;margin-bottom:.4rem;">مستوى السجل</label>

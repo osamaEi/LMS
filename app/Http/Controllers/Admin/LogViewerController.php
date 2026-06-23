@@ -16,12 +16,62 @@ class LogViewerController extends Controller
         $this->logPath = storage_path('logs/laravel.log');
     }
 
+    /**
+     * All log files in storage/logs (newest first), as ['name' => ..., 'size' => ...].
+     */
+    private function logFiles(): array
+    {
+        $dir = storage_path('logs');
+        if (!File::isDirectory($dir)) {
+            return [];
+        }
+
+        $files = collect(File::files($dir))
+            ->filter(fn($f) => str_ends_with($f->getFilename(), '.log'))
+            ->sortByDesc(fn($f) => $f->getMTime())
+            ->map(fn($f) => [
+                'name' => $f->getFilename(),
+                'size' => $f->getSize(),
+            ])
+            ->values()
+            ->all();
+
+        return $files;
+    }
+
+    /**
+     * Resolve a requested file name to a safe absolute path inside storage/logs.
+     * Falls back to the most recent log file (or laravel.log) when invalid/missing.
+     */
+    private function resolveLogPath(?string $requested): string
+    {
+        $files = $this->logFiles();
+        $names = array_column($files, 'name');
+
+        // basename() strips any path-traversal attempt.
+        $requested = $requested ? basename($requested) : null;
+
+        if ($requested && in_array($requested, $names, true)) {
+            return storage_path('logs/' . $requested);
+        }
+
+        if (!empty($names)) {
+            return storage_path('logs/' . $names[0]); // newest
+        }
+
+        return $this->logPath;
+    }
+
     public function index(Request $request)
     {
         $level   = $request->get('level', 'all');
         $search  = $request->get('search', '');
         $lines   = $request->get('lines', 500);
         $lines   = min((int) $lines, $this->maxLines);
+
+        $logFiles    = $this->logFiles();
+        $this->logPath = $this->resolveLogPath($request->get('file'));
+        $currentFile = basename($this->logPath);
 
         $entries    = [];
         $totalLines = 0;
@@ -61,24 +111,29 @@ class LogViewerController extends Controller
             'fileSize',
             'lastModified',
             'totalLines',
-            'levelCounts'
+            'levelCounts',
+            'logFiles',
+            'currentFile'
         ));
     }
 
     public function clear(Request $request)
     {
-        if (File::exists($this->logPath)) {
-            File::put($this->logPath, '');
+        $path = $this->resolveLogPath($request->get('file'));
+        if (File::exists($path)) {
+            File::put($path, '');
         }
-        return redirect()->route('admin.logs.index')->with('success', 'تم مسح ملف السجل بنجاح.');
+        return redirect()->route('admin.logs.index', ['file' => basename($path)])
+            ->with('success', 'تم مسح ملف السجل بنجاح.');
     }
 
-    public function download()
+    public function download(Request $request)
     {
-        if (!File::exists($this->logPath)) {
+        $path = $this->resolveLogPath($request->get('file'));
+        if (!File::exists($path)) {
             return redirect()->route('admin.logs.index')->with('error', 'ملف السجل غير موجود.');
         }
-        return response()->download($this->logPath, 'laravel-' . now()->format('Y-m-d') . '.log');
+        return response()->download($path, basename($path));
     }
 
     // ─── Private Helpers ───────────────────────────────────────────────────────
