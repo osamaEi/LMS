@@ -74,7 +74,7 @@
                     رابط الانضمام
                     <span style="font-weight:400;color:#10b981;">— سيظهر للطلاب مباشرة</span>
                 </label>
-                <input type="url" name="zoom_join_url" id="modalJoinUrl"
+                <input type="text" inputmode="url" name="zoom_join_url" id="modalJoinUrl"
                        placeholder="https://zoom.us/j/123456789"
                        style="width:100%;border:2px solid #d1fae5;border-radius:12px;padding:.75rem 1rem;font-size:.875rem;color:#111827;background:#f0fdf4;box-sizing:border-box;outline:none;transition:border-color .15s;"
                        onfocus="this.style.borderColor='#10b981'" onblur="this.style.borderColor='#d1fae5'">

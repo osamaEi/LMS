@@ -9,25 +9,56 @@ use Illuminate\Support\Facades\Log;
 
 class SessionController extends Controller
 {
+    /**
+     * Returns true when $teacher is allowed to manage $session (owns the subject
+     * or teaches the program). Sessions with neither are never manageable.
+     */
+    private function teacherOwnsSession(Session $session, $teacher): bool
+    {
+        if ($session->subject_id) {
+            $session->loadMissing('subject');
+            return $session->subject && $session->subject->isAssignedToTeacher($teacher->id);
+        }
+
+        if ($session->program_id) {
+            return $teacher->teachingPrograms()
+                ->whereIn('type', ['training', 'english', 'course'])
+                ->where('id', $session->program_id)
+                ->exists();
+        }
+
+        return false;
+    }
+
+    /**
+     * Normalises a pasted Zoom link: trims surrounding whitespace and prepends
+     * https:// when the teacher pasted a link without a scheme (e.g. "zoom.us/j/123").
+     */
+    private function normalizeJoinUrl(?string $url): ?string
+    {
+        $url = trim((string) $url);
+        if ($url === '') {
+            return null;
+        }
+        if (!preg_match('#^https?://#i', $url)) {
+            $url = 'https://' . ltrim($url, '/');
+        }
+        return $url;
+    }
+
     public function updateJoinUrl(Request $request, Session $session)
     {
         $teacher = auth()->user();
 
-        // Authorize
-        if ($session->subject_id) {
-            $session->loadMissing('subject');
-            if (!$session->subject || !$session->subject->isAssignedToTeacher($teacher->id)) {
-                abort(403);
-            }
-        } elseif ($session->program_id) {
-            $allowed = $teacher->teachingPrograms()
-                ->whereIn('type', ['training', 'english', 'course'])
-                ->where('id', $session->program_id)
-                ->exists();
-            if (!$allowed) abort(403);
-        } else {
-            abort(403);
+        if (!$this->teacherOwnsSession($session, $teacher)) {
+            abort(403, 'هذه الجلسة غير مسندة لك، تواصل مع الإدارة.');
         }
+
+        // Normalise BEFORE validating so a scheme-less paste ("zoom.us/j/123")
+        // does not trip the strict `url` rule and surface as "invalid".
+        $request->merge([
+            'zoom_join_url' => $this->normalizeJoinUrl($request->input('zoom_join_url')),
+        ]);
 
         $request->validate(['zoom_join_url' => 'nullable|url|max:500']);
 
@@ -67,20 +98,8 @@ class SessionController extends Controller
     {
         $teacher = auth()->user();
 
-        // Authorize (same rule as updateJoinUrl)
-        if ($session->subject_id) {
-            $session->loadMissing('subject');
-            if (!$session->subject || !$session->subject->isAssignedToTeacher($teacher->id)) {
-                abort(403);
-            }
-        } elseif ($session->program_id) {
-            $allowed = $teacher->teachingPrograms()
-                ->whereIn('type', ['training', 'english', 'course'])
-                ->where('id', $session->program_id)
-                ->exists();
-            if (!$allowed) abort(403);
-        } else {
-            abort(403);
+        if (!$this->teacherOwnsSession($session, $teacher)) {
+            abort(403, 'هذه الجلسة غير مسندة لك، تواصل مع الإدارة.');
         }
 
         // Mark as started (only once) so students are allowed to join.
@@ -115,20 +134,8 @@ class SessionController extends Controller
     {
         $teacher = auth()->user();
 
-        // Authorize: session must belong to this teacher via subject or program
-        if ($session->subject_id) {
-            $session->loadMissing('subject');
-            if (!$session->subject || !$session->subject->isAssignedToTeacher($teacher->id)) {
-                abort(403);
-            }
-        } elseif ($session->program_id) {
-            $allowed = $teacher->teachingPrograms()
-                ->whereIn('type', ['training', 'english', 'course'])
-                ->where('id', $session->program_id)
-                ->exists();
-            if (!$allowed) abort(403);
-        } else {
-            abort(403);
+        if (!$this->teacherOwnsSession($session, $teacher)) {
+            abort(403, 'هذه الجلسة غير مسندة لك، تواصل مع الإدارة.');
         }
 
         $session->load([

@@ -111,7 +111,7 @@ function openSession(s){
             <input type="hidden" name="_token" value="${CSRF_TOKEN}">
             <input type="hidden" name="_method" value="PATCH">
             <label style="font-size:11px;font-weight:700;color:#475569;">رابط انضمام الطلاب</label>
-            <input type="url" name="zoom_join_url" value="${(s.zoom_join_url||'').replace(/"/g,'&quot;')}" placeholder="https://zoom.us/j/..." style="border:1.5px solid #d1fae5;border-radius:8px;padding:8px 10px;font-size:12px;outline:none;direction:ltr;text-align:left;">
+            <input type="text" inputmode="url" name="zoom_join_url" value="${(s.zoom_join_url||'').replace(/"/g,'&quot;')}" placeholder="https://zoom.us/j/..." style="border:1.5px solid #d1fae5;border-radius:8px;padding:8px 10px;font-size:12px;outline:none;direction:ltr;text-align:left;">
             <button type="submit" style="${btnBg}border-radius:8px;padding:8px;font-size:12px;font-weight:700;cursor:pointer;">${lbl}</button>
         </form>`;
     }
