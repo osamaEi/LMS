@@ -31,22 +31,6 @@ class SessionController extends Controller
     }
 
     /**
-     * Normalises a pasted Zoom link: trims surrounding whitespace and prepends
-     * https:// when the teacher pasted a link without a scheme (e.g. "zoom.us/j/123").
-     */
-    private function normalizeJoinUrl(?string $url): ?string
-    {
-        $url = trim((string) $url);
-        if ($url === '') {
-            return null;
-        }
-        if (!preg_match('#^https?://#i', $url)) {
-            $url = 'https://' . ltrim($url, '/');
-        }
-        return $url;
-    }
-
-    /**
      * Teacher saves their single personal Zoom link once. It is stored on the user
      * and used automatically by every session they teach (see Session::zoom_join_url).
      */
@@ -54,11 +38,9 @@ class SessionController extends Controller
     {
         $teacher = auth()->user();
 
-        $request->merge([
-            'zoom_join_url' => $this->normalizeJoinUrl($request->input('zoom_join_url')),
-        ]);
-
-        $request->validate(['zoom_join_url' => 'nullable|url|max:500']);
+        // Store the link exactly as the teacher pasted it — no normalising, no URL
+        // validation — so students and the teacher see the identical link.
+        $request->validate(['zoom_join_url' => 'nullable|string|max:500']);
 
         $teacher->update(['zoom_join_url' => $request->input('zoom_join_url') ?: null]);
 
@@ -85,13 +67,9 @@ class SessionController extends Controller
         //     abort(403, 'هذه الجلسة غير مسندة لك، تواصل مع الإدارة.');
         // }
 
-        // Normalise BEFORE validating so a scheme-less paste ("zoom.us/j/123")
-        // does not trip the strict `url` rule and surface as "invalid".
-        $request->merge([
-            'zoom_join_url' => $this->normalizeJoinUrl($request->input('zoom_join_url')),
-        ]);
-
-        $request->validate(['zoom_join_url' => 'nullable|url|max:500']);
+        // Store the link exactly as the teacher pasted it — no normalising, no URL
+        // validation — so students and the teacher see the identical link.
+        $request->validate(['zoom_join_url' => 'nullable|string|max:500']);
 
         $joinUrl = $request->input('zoom_join_url') ?: null;
 
