@@ -46,6 +46,7 @@ class User extends Authenticatable
         'level',
         'date_of_graduation',
         'student_code',
+        'zoom_join_url',
     ];
 
     protected static function booted(): void

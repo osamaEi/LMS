@@ -50,9 +50,9 @@ class SessionController extends Controller
     {
         $teacher = auth()->user();
 
-        if (!$this->teacherOwnsSession($session, $teacher)) {
-            abort(403, 'هذه الجلسة غير مسندة لك، تواصل مع الإدارة.');
-        }
+        // if (!$this->teacherOwnsSession($session, $teacher)) {
+        //     abort(403, 'هذه الجلسة غير مسندة لك، تواصل مع الإدارة.');
+        // }
 
         // Normalise BEFORE validating so a scheme-less paste ("zoom.us/j/123")
         // does not trip the strict `url` rule and surface as "invalid".
@@ -98,9 +98,9 @@ class SessionController extends Controller
     {
         $teacher = auth()->user();
 
-        if (!$this->teacherOwnsSession($session, $teacher)) {
-            abort(403, 'هذه الجلسة غير مسندة لك، تواصل مع الإدارة.');
-        }
+        // if (!$this->teacherOwnsSession($session, $teacher)) {
+        //     abort(403, 'هذه الجلسة غير مسندة لك، تواصل مع الإدارة.');
+        // }
 
         // Mark as started (only once) so students are allowed to join.
         $wasAlreadyStarted = (bool) $session->started_at;
