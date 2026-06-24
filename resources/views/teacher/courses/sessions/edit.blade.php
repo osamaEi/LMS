@@ -116,7 +116,7 @@
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">رابط الانضمام</label>
-                    <input type="url" name="zoom_join_url" value="{{ old('zoom_join_url', $session->zoom_join_url) }}"
+                    <input type="text" inputmode="url" name="zoom_join_url" value="{{ old('zoom_join_url', $session->zoom_join_url) }}"
                            class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white" dir="ltr">
                 </div>
                 <div>
