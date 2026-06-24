@@ -42,17 +42,21 @@ class Session extends Model
     ];
 
     /**
-     * Zoom join link shown to students. A session may carry its own link (e.g. the
-     * one auto-generated for a real Zoom meeting); otherwise it falls back to the
-     * teacher's single personal link set once on the dashboard, so every session
-     * the teacher runs gets the link automatically.
+     * Zoom link for every session is the teacher's single personal link, set once
+     * on the dashboard (users.zoom_join_url). Any link stored on the session row
+     * itself is intentionally ignored so the teacher manages exactly one link.
      */
     public function getZoomJoinUrlAttribute($value): ?string
     {
-        if (!empty($value)) {
-            return $value;
-        }
+        return $this->teacher?->zoom_join_url ?: null;
+    }
 
+    /**
+     * The host/start link follows the same rule: always the teacher's personal
+     * link. There is no separate per-session start link.
+     */
+    public function getZoomStartUrlAttribute($value): ?string
+    {
         return $this->teacher?->zoom_join_url ?: null;
     }
 

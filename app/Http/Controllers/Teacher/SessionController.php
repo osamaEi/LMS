@@ -143,9 +143,9 @@ class SessionController extends Controller
     {
         $teacher = auth()->user();
 
-        if (!$this->teacherOwnsSession($session, $teacher)) {
-            abort(403, 'هذه الجلسة غير مسندة لك، تواصل مع الإدارة.');
-        }
+        // if (!$this->teacherOwnsSession($session, $teacher)) {
+        //     abort(403, 'هذه الجلسة غير مسندة لك، تواصل مع الإدارة.');
+        // }
 
         $session->load([
             'subject.term.program',
