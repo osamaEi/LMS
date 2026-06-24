@@ -33,6 +33,7 @@
 
 <script>
 const CAL_SESSIONS = @json($calSessions);
+const CAL_QUIZZES  = @json($calQuizzes ?? collect());
 const CSRF_TOKEN = '{{ csrf_token() }}';
 const TODAY = new Date();
 let cur = new Date();
@@ -73,6 +74,39 @@ function sessionsOnDay(date){
         .sort((a,b)=>new Date(a.scheduled_at)-new Date(b.scheduled_at));
 }
 
+function quizzesOnDay(date){
+    return CAL_QUIZZES.filter(q=>q.starts_at&&sameDay(new Date(q.starts_at),date));
+}
+
+function openQuiz(q){
+    document.getElementById('smTitle').textContent = '📝 ' + (q.title || 'اختبار');
+    const rows = [
+        q.type_label   ? ['النوع', q.type_label] : null,
+        q.subject_name ? ['المقرر', q.subject_name] : null,
+        ['عدد الأسئلة', q.questions + ' سؤال'],
+        ['الدرجة الكلية', q.total_marks],
+        q.duration ? ['المدة', q.duration + ' دقيقة'] : null,
+        ['عدد المحاولات المسجّلة', q.attempts],
+        ['يبدأ', fmtTime(q.starts_at) + ' — ' + new Date(q.starts_at).toLocaleDateString('ar-EG')],
+        q.ends_at ? ['ينتهي', fmtTime(q.ends_at) + ' — ' + new Date(q.ends_at).toLocaleDateString('ar-EG')] : null,
+    ].filter(Boolean);
+    let html = '<div style="display:flex;flex-direction:column;gap:10px;">';
+    rows.forEach(([k,v])=>{
+        html += `<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:#f8fafc;border-radius:9px;">
+            <span style="font-size:12px;color:#64748b;min-width:120px;">${k}</span>
+            <span style="font-size:13px;font-weight:600;color:#1e293b;">${v}</span>
+        </div>`;
+    });
+    if(q.url){
+        html += `<a href="${q.url}" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:11px;margin-top:4px;background:linear-gradient(135deg,#7c3aed,#6d28d9);color:white;border-radius:10px;text-decoration:none;font-size:13px;font-weight:700;">
+            ⚙️ إدارة الاختبار والأسئلة
+        </a>`;
+    }
+    html += '</div>';
+    document.getElementById('smBody').innerHTML = html;
+    document.getElementById('sessionModal').style.display='flex';
+}
+
 function openSession(s){
     const dt = s.scheduled_at ? new Date(s.scheduled_at) : null;
     document.getElementById('smTitle').textContent = s.title || ('جلسة #'+s.session_number);
@@ -103,17 +137,20 @@ function openSession(s){
             ${zoomIcon} ▶ ابدأ الجلسة
         </a>`;
     }
-    // Add / edit student join link (always available unless completed)
+    // Student join link is the teacher's single personal link (set once on the
+    // dashboard) — show its status here rather than a per-session editor.
     if(s.status!=='completed'){
-        const lbl = s.zoom_join_url ? '✓ رابط الطلاب — تعديل' : '+ إضافة رابط الطلاب';
-        const btnBg = s.zoom_join_url ? 'background:#dcfce7;color:#16a34a;border:1px solid #bbf7d0;' : 'background:#fffbeb;color:#d97706;border:1px solid #fde68a;';
-        html+=`<form method="POST" action="/teacher/sessions/${s.id}/join-url" style="display:flex;flex-direction:column;gap:8px;background:#f8fafc;border-radius:10px;padding:10px;margin-top:2px;">
-            <input type="hidden" name="_token" value="${CSRF_TOKEN}">
-            <input type="hidden" name="_method" value="PATCH">
-            <label style="font-size:11px;font-weight:700;color:#475569;">رابط انضمام الطلاب</label>
-            <input type="text" inputmode="url" name="zoom_join_url" value="${(s.zoom_join_url||'').replace(/"/g,'&quot;')}" placeholder="https://zoom.us/j/..." style="border:1.5px solid #d1fae5;border-radius:8px;padding:8px 10px;font-size:12px;outline:none;direction:ltr;text-align:left;">
-            <button type="submit" style="${btnBg}border-radius:8px;padding:8px;font-size:12px;font-weight:700;cursor:pointer;">${lbl}</button>
-        </form>`;
+        if(s.zoom_join_url){
+            html+=`<div style="display:flex;align-items:center;gap:8px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:10px;font-size:12px;font-weight:700;color:#16a34a;">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                رابط الطلاب جاهز (رابط محاضراتك)
+            </div>`;
+        } else {
+            html+=`<div style="display:flex;align-items:center;gap:8px;background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:10px;font-size:12px;font-weight:600;color:#d97706;">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
+                أضف "رابط محاضراتي" من أعلى لوحة التحكم
+            </div>`;
+        }
     }
     if(s.subject_id){
         html+=`<a href="/teacher/my-subjects/${s.subject_id}/sessions/${s.id}/attendance" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;background:#f0fdf4;color:#16a34a;border:1.5px solid #bbf7d0;border-radius:10px;text-decoration:none;font-size:13px;font-weight:700;">
@@ -161,6 +198,43 @@ function renderCalendar(){
         let row=`<td style="padding:10px 6px;text-align:center;font-size:13px;font-weight:700;color:#fff;background:${isToday?'#005a88':'#0071AA'};border:1px solid #fff;line-height:1.4;">
             ${DAY_NAMES[i]}<br><span style="font-size:11px;font-weight:500;opacity:.85;">${d.getDate()} ${MONTH_NAMES[d.getMonth()]}</span>
         </td>`;
+
+        // Quizzes the teacher created — placed into period cells like the student calendar.
+        const quizTypeColors = {quiz:'#0891b2',midterm:'#a21caf',exam:'#7c3aed',homework:'#ca8a04',paper:'#475569'};
+        const quizCellMap = {};
+        quizzesOnDay(d).forEach(q=>{
+            const dt = new Date(q.starts_at);
+            const qpi = periodIndex(dt.getHours()*60 + dt.getMinutes());
+            const now = new Date();
+            const tc = quizTypeColors[q.type] || '#7c3aed';
+            const ended  = q.ends_at && now > new Date(q.ends_at);
+            const notYet = now < new Date(q.starts_at);
+            let stateBadge, borderColor;
+            if(!q.is_active){
+                stateBadge = `<span style="background:#f1f5f9;color:#64748b;font-size:10px;font-weight:600;padding:1px 6px;border-radius:20px;">غير نشط</span>`;
+                borderColor = '#94a3b8';
+            } else if(ended){
+                stateBadge = `<span style="background:#fee2e2;color:#dc2626;font-size:10px;font-weight:600;padding:1px 6px;border-radius:20px;">انتهى</span>`;
+                borderColor = '#94a3b8';
+            } else if(notYet){
+                stateBadge = `<span style="background:#eff6ff;color:#1d4ed8;font-size:10px;font-weight:600;padding:1px 6px;border-radius:20px;">قادم</span>`;
+                borderColor = tc;
+            } else {
+                stateBadge = `<span style="background:#fef3c7;color:#b45309;font-size:10px;font-weight:700;padding:1px 6px;border-radius:20px;">متاح الآن</span>`;
+                borderColor = tc;
+            }
+            const card = `<div onclick='openQuiz(${JSON.stringify(q)})' style="background:#fdfaff;border-right:4px solid ${borderColor};border-radius:6px;padding:6px 8px;margin-bottom:4px;line-height:1.35;cursor:pointer;">
+                <div style="font-size:10px;font-weight:700;color:${tc};margin-bottom:2px;">📝 ${q.type_label||'اختبار'}</div>
+                <div style="font-size:12px;font-weight:700;color:#1e293b;">${q.title}</div>
+                ${q.subject_name?`<div style="font-size:10px;color:#64748b;">${q.subject_name}</div>`:''}
+                <div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:3px;">
+                    ${stateBadge}
+                    <span style="background:#ede9fe;color:#6d28d9;font-size:10px;font-weight:600;padding:1px 6px;border-radius:20px;">${q.questions} سؤال</span>
+                </div>
+            </div>`;
+            quizCellMap[qpi] = (quizCellMap[qpi]||'') + card;
+        });
+
         PERIODS.forEach((p,pi)=>{
             const items=cellMap[i+'|'+pi]||[];
             const inner=items.map(s=>{
@@ -189,7 +263,7 @@ function renderCalendar(){
                     </div>
                 </div>`;
             }).join('');
-            row+=`<td style="min-height:80px;padding:5px;vertical-align:top;border:1px solid #d6e4f0;${isToday?'background:#f8fdff;':''}">${inner}</td>`;
+            row+=`<td style="min-height:80px;padding:5px;vertical-align:top;border:1px solid #d6e4f0;${isToday?'background:#f8fdff;':''}">${inner}${quizCellMap[pi]||''}</td>`;
         });
         body+=`<tr>${row}</tr>`;
     });

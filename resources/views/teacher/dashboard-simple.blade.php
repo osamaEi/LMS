@@ -57,8 +57,8 @@
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
                     </div>
                     <div>
-                        <p style="font-size:.88rem;font-weight:700;color:#111827;margin:0;">رابط المحاضرة للطلاب</p>
-                        <p id="modalSessionTitle" style="font-size:.72rem;color:#9ca3af;margin:0;"></p>
+                        <p style="font-size:.88rem;font-weight:700;color:#111827;margin:0;">رابط محاضراتي</p>
+                        <p style="font-size:.72rem;color:#9ca3af;margin:0;">يُطبّق تلقائياً على كل جلساتك</p>
                     </div>
                 </div>
                 <button onclick="closeLinkModal()" style="background:none;border:none;cursor:pointer;color:#9ca3af;padding:.25rem;">
@@ -66,22 +66,23 @@
                 </button>
             </div>
             {{-- Body --}}
-            <form id="linkModalForm" method="POST" style="padding:1.25rem 1.5rem;">
+            <form method="POST" action="{{ route('teacher.zoom-link.update') }}" style="padding:1.25rem 1.5rem;">
                 @csrf
                 @method('PATCH')
 
                 <label style="display:block;font-size:.78rem;font-weight:600;color:#374151;margin-bottom:.6rem;">
-                    رابط الانضمام
-                    <span style="font-weight:400;color:#10b981;">— سيظهر للطلاب مباشرة</span>
+                    رابط Zoom الخاص بك
+                    <span style="font-weight:400;color:#10b981;">— يظهر للطلاب في كل محاضراتك</span>
                 </label>
                 <input type="text" inputmode="url" name="zoom_join_url" id="modalJoinUrl"
+                       value="{{ $myZoomLink ?? '' }}"
                        placeholder="https://zoom.us/j/123456789"
-                       style="width:100%;border:2px solid #d1fae5;border-radius:12px;padding:.75rem 1rem;font-size:.875rem;color:#111827;background:#f0fdf4;box-sizing:border-box;outline:none;transition:border-color .15s;"
+                       style="width:100%;border:2px solid #d1fae5;border-radius:12px;padding:.75rem 1rem;font-size:.875rem;color:#111827;background:#f0fdf4;box-sizing:border-box;outline:none;transition:border-color .15s;direction:ltr;text-align:left;"
                        onfocus="this.style.borderColor='#10b981'" onblur="this.style.borderColor='#d1fae5'">
 
-                <p style="margin:.6rem 0 1.25rem;font-size:.72rem;color:#6b7280;display:flex;align-items:center;gap:.4rem;">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="#10b981"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
-                    الطلاب سيرون هذا الرابط في صفحة المادة تحت المحاضرة
+                <p style="margin:.6rem 0 1.25rem;font-size:.72rem;color:#6b7280;display:flex;align-items:flex-start;gap:.4rem;line-height:1.6;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="#10b981" style="flex-shrink:0;margin-top:.1rem;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
+                    تدخله مرة واحدة فقط، وسيظهر تلقائياً في الجدول وعند الطلاب لكل جلساتك.
                 </p>
 
                 <div style="display:flex;gap:.6rem;justify-content:flex-end;">
@@ -184,11 +185,10 @@
                             متابعة
                         </a>
                         @endif
-                        <button class="open-link-modal inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold"
-                                style="{{ $session->zoom_join_url ? 'background:#dcfce7;color:#16a34a;border:1px solid #bbf7d0;' : 'background:#fffbeb;color:#d97706;border:1px solid #fde68a;' }}"
-                                data-id="{{ $session->id }}" data-title="{{ $session->title }}" data-join="{{ $session->zoom_join_url ?? '' }}">
+                        <button type="button" onclick="openLinkModal()" class="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold"
+                                style="{{ $session->zoom_join_url ? 'background:#dcfce7;color:#16a34a;border:1px solid #bbf7d0;' : 'background:#fffbeb;color:#d97706;border:1px solid #fde68a;' }}">
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
-                            {{ $session->zoom_join_url ? '✓ رابط الطلاب' : '+ رابط الطلاب' }}
+                            {{ $session->zoom_join_url ? '✓ رابط محاضراتي' : '+ رابط محاضراتي' }}
                         </button>
                         @if($session->subject_id)
                         <a href="{{ route('teacher.my-subjects.sessions.attendance', [$session->subject_id, $session->id]) }}"
@@ -318,11 +318,8 @@
 
     @push('scripts')
     <script>
-    function openLinkModal(id, title, joinUrl) {
+    function openLinkModal() {
         var modal = document.getElementById('linkModal');
-        document.getElementById('modalSessionTitle').textContent = title;
-        document.getElementById('modalJoinUrl').value = joinUrl || '';
-        document.getElementById('linkModalForm').action = '/teacher/sessions/' + id + '/join-url';
         modal.style.display = 'flex';
         setTimeout(function(){ document.getElementById('modalJoinUrl').focus(); }, 100);
     }
@@ -330,11 +327,6 @@
         document.getElementById('linkModal').style.display = 'none';
     }
     document.addEventListener('DOMContentLoaded', function () {
-        document.addEventListener('click', function (e) {
-            const btn = e.target.closest('.open-link-modal');
-            if (!btn) return;
-            openLinkModal(btn.dataset.id, btn.dataset.title, btn.dataset.join);
-        });
         document.getElementById('linkModal').addEventListener('click', function(e) {
             if (e.target === this) closeLinkModal();
         });

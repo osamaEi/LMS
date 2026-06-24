@@ -561,6 +561,9 @@ Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')
     // Simple session show route for teachers (for calendar clicks)
     Route::get('/sessions/{session}', [\App\Http\Controllers\Teacher\SessionController::class, 'show'])->name('sessions.show');
 
+    // Teacher's single personal Zoom link — set once, applies to all their sessions
+    Route::patch('/zoom-link', [\App\Http\Controllers\Teacher\SessionController::class, 'updateMyZoomLink'])->name('zoom-link.update');
+
     // Teacher updates join URL only
     Route::patch('/sessions/{session}/join-url', [\App\Http\Controllers\Teacher\SessionController::class, 'updateJoinUrl'])->name('sessions.update-join-url');
     Route::get('/sessions/{session}/start', [\App\Http\Controllers\Teacher\SessionController::class, 'startSession'])->name('sessions.start');

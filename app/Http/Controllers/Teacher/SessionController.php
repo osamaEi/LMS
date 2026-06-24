@@ -46,6 +46,37 @@ class SessionController extends Controller
         return $url;
     }
 
+    /**
+     * Teacher saves their single personal Zoom link once. It is stored on the user
+     * and used automatically by every session they teach (see Session::zoom_join_url).
+     */
+    public function updateMyZoomLink(Request $request)
+    {
+        $teacher = auth()->user();
+
+        $request->merge([
+            'zoom_join_url' => $this->normalizeJoinUrl($request->input('zoom_join_url')),
+        ]);
+
+        $request->validate(['zoom_join_url' => 'nullable|url|max:500']);
+
+        $teacher->update(['zoom_join_url' => $request->input('zoom_join_url') ?: null]);
+
+        Log::info('Teacher updated personal Zoom link', [
+            'teacher_id'    => $teacher->id,
+            'teacher_name'  => $teacher->name,
+            'zoom_join_url' => $teacher->zoom_join_url,
+            'ip'            => $request->ip(),
+        ]);
+
+        return redirect()->back()->with(
+            'success',
+            $teacher->zoom_join_url
+                ? 'تم حفظ رابط محاضراتك ✓ — سيظهر تلقائياً في كل جلساتك وعند الطلاب'
+                : 'تم حذف رابط محاضراتك'
+        );
+    }
+
     public function updateJoinUrl(Request $request, Session $session)
     {
         $teacher = auth()->user();

@@ -25,7 +25,7 @@ class DashboardController extends Controller
         // All sessions assigned to THIS teacher only (session.teacher_id) — both
         // subject-based (diploma) and program-based (course/training/english).
         return Session::where('teacher_id', $teacher->id)
-            ->with(['subject.program', 'subject.term.program', 'program', 'programClass', 'subject.programClass', 'subject.term.programClass'])
+            ->with(['teacher', 'subject.program', 'subject.term.program', 'program', 'programClass', 'subject.programClass', 'subject.term.programClass'])
             ->orderBy('scheduled_at')
             ->get()
             ->map(fn($s) => [
@@ -45,6 +45,37 @@ class DashboardController extends Controller
                 'program_id'       => $s->program_id,
             ])
             ->filter(fn($s) => $s['scheduled_at'])
+            ->values();
+    }
+
+    /**
+     * Quizzes the teacher created (created_by), shaped for the weekly calendar so
+     * they appear alongside sessions — same idea as the student calendar.
+     */
+    private function buildTeacherQuizzesCalendar($teacher): \Illuminate\Support\Collection
+    {
+        return \App\Models\Quiz::where('created_by', $teacher->id)
+            ->whereNotNull('starts_at')
+            ->with(['subject:id,name_ar'])
+            ->withCount(['questions', 'attempts'])
+            ->get()
+            ->map(fn($q) => [
+                'id'           => $q->id,
+                'subject_id'   => $q->subject_id,
+                'title'        => $q->title_ar,
+                'subject_name' => $q->subject->name_ar ?? '',
+                'type'         => $q->type,
+                'type_label'   => $q->type_label,
+                'starts_at'    => \Carbon\Carbon::parse($q->starts_at)->toIso8601String(),
+                'ends_at'      => $q->ends_at ? \Carbon\Carbon::parse($q->ends_at)->toIso8601String() : null,
+                'total_marks'  => $q->total_marks,
+                'duration'     => $q->duration_minutes,
+                'questions'    => $q->questions_count,
+                'attempts'     => $q->attempts_count,
+                'is_active'    => (bool) $q->is_active,
+                'url'          => $q->subject_id ? route('teacher.quizzes.show', [$q->subject_id, $q->id]) : null,
+            ])
+            ->filter(fn($q) => $q['starts_at'])
             ->values();
     }
 
@@ -206,10 +237,16 @@ class DashboardController extends Controller
 
         // Weekly-schedule calendar (same as /teacher/schedule) for the dashboard
         $calSessions = $this->buildTeacherCalendarSessions($teacher);
+        $calQuizzes  = $this->buildTeacherQuizzesCalendar($teacher);
+
+        // Teacher's single personal Zoom link (applies to all their sessions)
+        $myZoomLink = $teacher->zoom_join_url;
 
         return view($dashboardView, compact(
             'subjects',
             'calSessions',
+            'calQuizzes',
+            'myZoomLink',
             'upcomingSessions',
             'liveSessions',
             'pastSessions',

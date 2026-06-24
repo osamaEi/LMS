@@ -42,6 +42,21 @@ class Session extends Model
     ];
 
     /**
+     * Zoom join link shown to students. A session may carry its own link (e.g. the
+     * one auto-generated for a real Zoom meeting); otherwise it falls back to the
+     * teacher's single personal link set once on the dashboard, so every session
+     * the teacher runs gets the link automatically.
+     */
+    public function getZoomJoinUrlAttribute($value): ?string
+    {
+        if (!empty($value)) {
+            return $value;
+        }
+
+        return $this->teacher?->zoom_join_url ?: null;
+    }
+
+    /**
      * Get the localized title
      */
     public function getTitleAttribute(): string

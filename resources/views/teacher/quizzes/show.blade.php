@@ -520,6 +520,113 @@
     .dark .empty-icon {
         background: linear-gradient(135deg, #374151, #4b5563);
     }
+
+    /* ── Inline editing ───────────────────────────────── */
+    .edit-form { display: none; }
+    .edit-form.open { display: block; }
+    .view-mode.hidden-mode { display: none; }
+
+    .inline-form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.875rem;
+        margin-top: 0.5rem;
+    }
+    @media (max-width: 640px) { .inline-form-grid { grid-template-columns: 1fr; } }
+
+    .field label {
+        display: block;
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 0.35rem;
+    }
+    .field input[type="text"],
+    .field input[type="number"],
+    .field input[type="datetime-local"],
+    .field select,
+    .field textarea {
+        width: 100%;
+        border: 1.5px solid #e5e7eb;
+        border-radius: 10px;
+        padding: 0.6rem 0.8rem;
+        font-size: 0.85rem;
+        color: #111827;
+        background: #fff;
+        box-sizing: border-box;
+        outline: none;
+        transition: border-color 0.15s;
+    }
+    .field input:focus, .field select:focus, .field textarea:focus { border-color: #0071AA; }
+    .field.full { grid-column: 1 / -1; }
+    .field textarea { resize: vertical; min-height: 70px; }
+
+    .checkbox-row { display: flex; flex-wrap: wrap; gap: 1.25rem; margin-top: 0.25rem; }
+    .checkbox-row label { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.82rem; color: #374151; font-weight: 500; cursor: pointer; }
+
+    .inline-edit-box {
+        background: linear-gradient(180deg, #f8fbff 0%, #f1f5f9 100%);
+        border: 1.5px solid #cbd5e1;
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-top: 0.5rem;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.6), 0 4px 16px rgba(15,23,42,0.06);
+        animation: inlineEditIn 0.25s cubic-bezier(.34,1.28,.64,1);
+    }
+
+    @keyframes inlineEditIn {
+        from { opacity: 0; transform: translateY(-8px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .inline-edit-title {
+        display: flex;
+        align-items: center;
+        gap: 0.55rem;
+        font-size: 1rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 1rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1.5px dashed #cbd5e1;
+    }
+    .inline-edit-title svg { width: 20px; height: 20px; color: #0071AA; }
+
+    /* The question currently being edited gets a soft highlight */
+    .question-item.editing { background: #f0f9ff; box-shadow: inset 3px 0 0 #0071AA; }
+
+    .btn-save {
+        display: inline-flex; align-items: center; gap: 0.4rem;
+        padding: 0.55rem 1.25rem; border-radius: 10px; border: none;
+        background: linear-gradient(135deg, #0071AA, #005a88); color: #fff;
+        font-size: 0.85rem; font-weight: 700; cursor: pointer;
+    }
+    .btn-cancel {
+        padding: 0.55rem 1.1rem; border-radius: 10px; border: 1px solid #e5e7eb;
+        background: #fff; color: #6b7280; font-size: 0.85rem; font-weight: 600; cursor: pointer;
+    }
+    .form-actions { display: flex; gap: 0.6rem; justify-content: flex-end; margin-top: 1rem; }
+
+    /* Per-option editor row */
+    .opt-row { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.55rem; }
+    .opt-row input[type="text"] { flex: 1; }
+    .opt-row .opt-correct {
+        display: inline-flex; align-items: center; gap: 0.35rem; white-space: nowrap;
+        font-size: 0.75rem; font-weight: 700; color: #64748b; cursor: pointer;
+        padding: 0.4rem 0.7rem; border-radius: 8px; border: 1.5px solid #e2e8f0; background: #fff;
+        transition: all 0.15s;
+    }
+    .opt-row .opt-correct:has(input:checked) { color: #16a34a; border-color: #86efac; background: #f0fdf4; }
+    .opt-row .opt-correct input { accent-color: #16a34a; }
+    .opt-remove { background: #fee2e2; color: #dc2626; border: none; border-radius: 8px; width: 36px; height: 36px; cursor: pointer; font-weight: 700; font-size: 1.1rem; flex-shrink: 0; transition: background 0.15s; }
+    .opt-remove:hover { background: #fecaca; }
+    .btn-add-opt { background: #e6f4fa; color: #0071AA; border: 1.5px dashed #7dd3fc; border-radius: 8px; padding: 0.5rem 1rem; font-size: 0.8rem; font-weight: 700; cursor: pointer; margin-top: 0.4rem; transition: background 0.15s; }
+    .btn-add-opt:hover { background: #cce9f5; }
+
+    .header-btn.as-button { cursor: pointer; font-family: inherit; }
+
+    .dark .field input, .dark .field select, .dark .field textarea { background: #374151; border-color: #4b5563; color: #f9fafb; }
+    .dark .inline-edit-box { background: #1a2332; border-color: #374151; }
 </style>
 @endpush
 
@@ -569,24 +676,18 @@
                     </div>
                 </div>
                 <div class="header-actions">
-                    <a href="{{ route('teacher.quizzes.results', [$subject->id, $quiz->id]) }}" class="header-btn">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                        </svg>
-                        النتائج ({{ $quiz->attempts_count }})
-                    </a>
-                    <a href="{{ route('teacher.quizzes.edit', [$subject->id, $quiz->id]) }}" class="header-btn">
+                    <button type="button" class="header-btn as-button" onclick="toggleQuizEdit()">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                         </svg>
-                        تعديل
-                    </a>
-                    <a href="{{ route('teacher.quizzes.questions.create', [$subject->id, $quiz->id]) }}" class="header-btn header-btn-primary">
+                        تعديل بيانات الاختبار
+                    </button>
+                    <button type="button" class="header-btn header-btn-primary as-button" onclick="openAddQuestion()">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                         </svg>
                         إضافة سؤال
-                    </a>
+                    </button>
                 </div>
             </div>
         </div>
@@ -609,7 +710,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
                 </svg>
             </div>
-            <div class="stat-value" style="color: #10b981;">{{ $quiz->total_marks }}</div>
+            <div class="stat-value" style="color: #10b981;">{{ rtrim(rtrim((string)$quiz->total_marks,'0'),'.') }}</div>
             <div class="stat-label">الدرجة الكلية</div>
         </div>
         <div class="stat-card">
@@ -618,7 +719,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>
             </div>
-            <div class="stat-value" style="color: #f59e0b;">{{ $quiz->pass_marks }}</div>
+            <div class="stat-value" style="color: #f59e0b;">{{ rtrim(rtrim((string)$quiz->pass_marks,'0'),'.') }}</div>
             <div class="stat-label">درجة النجاح</div>
         </div>
         <div class="stat-card">
@@ -641,6 +742,77 @@
         </div>
     </div>
 
+    <!-- Quiz settings — inline edit -->
+    <div id="quizEditBox" class="inline-edit-box" style="display:none;margin-bottom:1.5rem;">
+        <div class="inline-edit-title">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+            تعديل بيانات الاختبار
+        </div>
+        <form method="POST" action="{{ route('teacher.quizzes.update', [$subject->id, $quiz->id]) }}">
+            @csrf
+            @method('PUT')
+            <div class="inline-form-grid">
+                <div class="field full">
+                    <label>عنوان الاختبار (عربي) *</label>
+                    <input type="text" name="title_ar" value="{{ old('title_ar', $quiz->title_ar) }}" required>
+                </div>
+                <div class="field full">
+                    <label>العنوان (إنجليزي)</label>
+                    <input type="text" name="title_en" value="{{ old('title_en', $quiz->title_en) }}" dir="ltr">
+                </div>
+                <div class="field full">
+                    <label>الوصف (عربي)</label>
+                    <textarea name="description_ar">{{ old('description_ar', $quiz->description_ar) }}</textarea>
+                </div>
+                <div class="field">
+                    <label>النوع *</label>
+                    <select name="type" required>
+                        @foreach(['quiz'=>'اختبار قصير','midterm'=>'اختبار نصفي','exam'=>'امتحان','homework'=>'واجب','paper'=>'ورقة أعمال'] as $val=>$lbl)
+                            <option value="{{ $val }}" @selected(old('type',$quiz->type)===$val)>{{ $lbl }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="field">
+                    <label>المدة (دقيقة) — فارغ = بلا حد</label>
+                    <input type="number" name="duration_minutes" min="1" value="{{ old('duration_minutes', $quiz->duration_minutes) }}">
+                </div>
+                <div class="field">
+                    <label>الدرجة الكلية *</label>
+                    <input type="number" name="total_marks" step="0.5" min="1" value="{{ old('total_marks', $quiz->total_marks) }}" required>
+                </div>
+                <div class="field">
+                    <label>درجة النجاح *</label>
+                    <input type="number" name="pass_marks" step="0.5" min="0" value="{{ old('pass_marks', $quiz->pass_marks) }}" required>
+                </div>
+                <div class="field">
+                    <label>المحاولات المسموحة *</label>
+                    <input type="number" name="max_attempts" min="1" value="{{ old('max_attempts', $quiz->max_attempts) }}" required>
+                </div>
+                <div class="field">
+                    <label>يبدأ في</label>
+                    <input type="datetime-local" name="starts_at" value="{{ old('starts_at', optional($quiz->starts_at)->format('Y-m-d\TH:i')) }}">
+                </div>
+                <div class="field">
+                    <label>ينتهي في</label>
+                    <input type="datetime-local" name="ends_at" value="{{ old('ends_at', optional($quiz->ends_at)->format('Y-m-d\TH:i')) }}">
+                </div>
+                <div class="field full">
+                    <div class="checkbox-row">
+                        <label><input type="checkbox" name="is_active" value="1" @checked(old('is_active',$quiz->is_active))> نشط</label>
+                        <label><input type="checkbox" name="shuffle_questions" value="1" @checked(old('shuffle_questions',$quiz->shuffle_questions))> خلط الأسئلة</label>
+                        <label><input type="checkbox" name="shuffle_answers" value="1" @checked(old('shuffle_answers',$quiz->shuffle_answers))> خلط الإجابات</label>
+                        <label><input type="checkbox" name="show_results" value="1" @checked(old('show_results',$quiz->show_results))> إظهار النتائج</label>
+                        <label><input type="checkbox" name="show_correct_answers" value="1" @checked(old('show_correct_answers',$quiz->show_correct_answers))> إظهار الإجابات الصحيحة</label>
+                    </div>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn-cancel" onclick="toggleQuizEdit()">إلغاء</button>
+                <button type="submit" class="btn-save">حفظ التعديلات</button>
+            </div>
+        </form>
+    </div>
+
     <!-- Questions List -->
     <div class="questions-card">
         <div class="questions-header">
@@ -651,20 +823,55 @@
                 الأسئلة
                 <span class="questions-count">{{ $quiz->questions->count() }}</span>
             </div>
-            <div class="total-marks">
-                مجموع الدرجات: <span>{{ $quiz->questions->sum('marks') }}</span>
+            @php
+                $sumMarks = (float) $quiz->questions->sum('marks');
+                $marksMatch = abs($sumMarks - (float) $quiz->total_marks) < 0.001;
+            @endphp
+            <div class="total-marks" style="display:flex;align-items:center;gap:0.75rem;">
+                <span>مجموع درجات الأسئلة: <span style="font-weight:700;color:#0071AA;">{{ rtrim(rtrim((string)$sumMarks,'0'),'.') }}</span> / {{ rtrim(rtrim((string)$quiz->total_marks,'0'),'.') }}</span>
+                @if($quiz->questions->count() && !$marksMatch)
+                    <span title="مجموع درجات الأسئلة لا يساوي الدرجة الكلية للاختبار"
+                          style="display:inline-flex;align-items:center;gap:0.3rem;background:#fef3c7;color:#b45309;border:1px solid #fde68a;border-radius:9999px;padding:0.2rem 0.65rem;font-size:0.72rem;font-weight:700;">
+                        <svg width="13" height="13" fill="currentColor" viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
+                        غير مطابق
+                    </span>
+                @elseif($quiz->questions->count())
+                    <span style="display:inline-flex;align-items:center;gap:0.3rem;background:#dcfce7;color:#16a34a;border:1px solid #bbf7d0;border-radius:9999px;padding:0.2rem 0.65rem;font-size:0.72rem;font-weight:700;">
+                        <svg width="13" height="13" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                        مطابق
+                    </span>
+                @endif
             </div>
+        </div>
+
+        <!-- Add question — inline -->
+        <div id="addQuestionBox" class="inline-edit-box" style="display:none;margin:1rem 2rem;">
+            <div class="inline-edit-title">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                إضافة سؤال جديد
+            </div>
+            <form method="POST" action="{{ route('teacher.quizzes.questions.store', [$subject->id, $quiz->id]) }}" enctype="multipart/form-data"
+                  oninput="syncQuestionType(this)">
+                @csrf
+                <input type="hidden" name="order" value="{{ $quiz->questions->count() + 1 }}">
+                @include('teacher.quizzes.partials.question-fields', ['q' => null, 'useOld' => true])
+                <div class="form-actions">
+                    <button type="button" class="btn-cancel" onclick="closeAddQuestion()">إلغاء</button>
+                    <button type="submit" name="add_another" value="1" class="btn-cancel">حفظ وإضافة آخر</button>
+                    <button type="submit" class="btn-save">حفظ السؤال</button>
+                </div>
+            </form>
         </div>
 
         @if($quiz->questions->count() > 0)
             <div>
                 @foreach($quiz->questions as $index => $question)
-                    <div class="question-item">
+                    <div class="question-item" id="q-item-{{ $question->id }}">
                         <div class="flex items-start gap-4">
                             <div class="question-number">{{ $index + 1 }}</div>
                             <div class="flex-1 min-w-0">
                                 <div class="flex items-start justify-between gap-4">
-                                    <div class="flex-1">
+                                    <div class="flex-1 view-mode" id="q-view-{{ $question->id }}">
                                         <div class="question-meta">
                                             <span class="question-type-badge">
                                                 @if($question->type === 'multiple_choice')
@@ -683,7 +890,7 @@
                                                 {{ $question->type_label }}
                                             </span>
                                             <span class="question-marks">
-                                                <span>{{ $question->marks }}</span> درجة
+                                                <span>{{ rtrim(rtrim((string)$question->marks,'0'),'.') }}</span> درجة
                                             </span>
                                         </div>
                                         <p class="question-text">{!! nl2br(e($question->question_ar)) !!}</p>
@@ -716,13 +923,12 @@
                                             </div>
                                         @endif
                                     </div>
-                                    <div class="question-actions">
-                                        <a href="{{ route('teacher.quizzes.questions.edit', [$subject->id, $quiz->id, $question->id]) }}"
-                                           class="action-btn edit" title="تعديل">
+                                    <div class="question-actions view-mode" id="q-actions-{{ $question->id }}">
+                                        <button type="button" class="action-btn edit" title="تعديل" onclick="toggleQuestionEdit({{ $question->id }})">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                                             </svg>
-                                        </a>
+                                        </button>
                                         <form action="{{ route('teacher.quizzes.questions.destroy', [$subject->id, $quiz->id, $question->id]) }}" method="POST"
                                               onsubmit="return confirm('هل أنت متأكد من حذف هذا السؤال؟')">
                                             @csrf
@@ -732,6 +938,27 @@
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                                                 </svg>
                                             </button>
+                                        </form>
+                                    </div>
+                                </div>
+
+                                {{-- Inline edit form for this question --}}
+                                <div class="edit-form" id="q-edit-{{ $question->id }}">
+                                    <div class="inline-edit-box">
+                                        <div class="inline-edit-title">
+                                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                            تعديل السؤال {{ $index + 1 }}
+                                        </div>
+                                        <form method="POST" action="{{ route('teacher.quizzes.questions.update', [$subject->id, $quiz->id, $question->id]) }}" enctype="multipart/form-data"
+                                              oninput="syncQuestionType(this)">
+                                            @csrf
+                                            @method('PUT')
+                                            <input type="hidden" name="order" value="{{ $question->order ?? $index + 1 }}">
+                                            @include('teacher.quizzes.partials.question-fields', ['q' => $question])
+                                            <div class="form-actions">
+                                                <button type="button" class="btn-cancel" onclick="toggleQuestionEdit({{ $question->id }})">إلغاء</button>
+                                                <button type="submit" class="btn-save">حفظ التعديل</button>
+                                            </div>
                                         </form>
                                     </div>
                                 </div>
@@ -749,14 +976,99 @@
                 </div>
                 <h3 class="empty-title">لا توجد أسئلة بعد</h3>
                 <p class="empty-text">ابدأ بإضافة أسئلة لهذا الاختبار</p>
-                <a href="{{ route('teacher.quizzes.questions.create', [$subject->id, $quiz->id]) }}" class="empty-btn">
+                <button type="button" class="empty-btn" onclick="openAddQuestion()" style="border:none;cursor:pointer;font-family:inherit;">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                     </svg>
                     إضافة سؤال
-                </a>
+                </button>
             </div>
         @endif
     </div>
 </div>
+
+@push('scripts')
+<script>
+// ── Quiz settings toggle ─────────────────────────────
+function toggleQuizEdit() {
+    var box = document.getElementById('quizEditBox');
+    box.style.display = (box.style.display === 'none' || !box.style.display) ? 'block' : 'none';
+    if (box.style.display === 'block') box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+// ── Add question toggle ──────────────────────────────
+function openAddQuestion() {
+    var box = document.getElementById('addQuestionBox');
+    var isOpen = box.style.display === 'block';
+    box.style.display = isOpen ? 'none' : 'block';
+    if (!isOpen) box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+function closeAddQuestion() {
+    document.getElementById('addQuestionBox').style.display = 'none';
+}
+
+// ── Per-question edit toggle ─────────────────────────
+function toggleQuestionEdit(id) {
+    var item    = document.getElementById('q-item-' + id);
+    var view    = document.getElementById('q-view-' + id);
+    var actions = document.getElementById('q-actions-' + id);
+    var form    = document.getElementById('q-edit-' + id);
+    var opening = !form.classList.contains('open');
+    form.classList.toggle('open', opening);
+    view.classList.toggle('hidden-mode', opening);
+    actions.classList.toggle('hidden-mode', opening);
+    item.classList.toggle('editing', opening);
+    if (opening) form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+// ── Show/hide option fields based on the question type ──
+function syncQuestionType(formEl) {
+    var sel = formEl.querySelector('.js-qtype');
+    if (!sel) return;
+    var type = sel.value;
+    var mc = formEl.querySelector('.js-mc-fields');
+    var tf = formEl.querySelector('.js-tf-fields');
+    if (mc) mc.style.display = (type === 'multiple_choice') ? 'block' : 'none';
+    if (tf) tf.style.display = (type === 'true_false') ? 'block' : 'none';
+}
+
+// ── Multiple-choice option add/remove ────────────────
+function addOption(btn) {
+    var wrap = btn.previousElementSibling; // .js-opts
+    var idx = wrap.querySelectorAll('.opt-row').length;
+    var row = document.createElement('div');
+    row.className = 'opt-row';
+    row.innerHTML =
+        '<input type="text" name="options[' + idx + '][text_ar]" placeholder="نص الخيار">' +
+        '<label class="opt-correct"><input type="checkbox" name="options[' + idx + '][is_correct]" value="1"> صحيحة</label>' +
+        '<button type="button" class="opt-remove" onclick="removeOption(this)">×</button>';
+    wrap.appendChild(row);
+}
+function removeOption(btn) {
+    var wrap = btn.closest('.js-opts');
+    if (wrap.querySelectorAll('.opt-row').length <= 2) {
+        alert('يجب أن يحتوي السؤال على خيارين على الأقل');
+        return;
+    }
+    btn.closest('.opt-row').remove();
+    // Re-index option names so they stay sequential after removal
+    wrap.querySelectorAll('.opt-row').forEach(function (r, i) {
+        r.querySelector('input[type="text"]').name = 'options[' + i + '][text_ar]';
+        r.querySelector('input[type="checkbox"]').name = 'options[' + i + '][is_correct]';
+    });
+}
+
+// On load: init each question-type selector, and re-open a section if the
+// server bounced back with validation errors.
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('#addQuestionBox form, .edit-form form').forEach(syncQuestionType);
+
+    @if(($errors ?? null) && $errors->any() && old('title_ar'))
+        toggleQuizEdit();           // quiz settings form had the error
+    @elseif(($errors ?? null) && $errors->any() && old('question_ar'))
+        openAddQuestion();          // a question form had the error
+    @endif
+});
+</script>
+@endpush
 @endsection

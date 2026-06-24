@@ -14,7 +14,7 @@ class ScheduleController extends Controller
         $sessions = Session::whereHas('subject.enrollments', function ($query) use ($student) {
                 $query->where('student_id', $student->id);
             })
-            ->with('subject')
+            ->with(['subject', 'teacher'])
             ->orderBy('scheduled_at')
             ->get();
 

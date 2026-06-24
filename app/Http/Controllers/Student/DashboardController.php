@@ -61,7 +61,7 @@ class DashboardController extends Controller
                 $q->whereIn('class_id', $calendarClassIds)
                   ->orWhereIn('id', $assignedSessionIds);
             })
-            ->with(['subject:id,name_ar,name_en', 'teacher:id,name'])
+            ->with(['subject:id,name_ar,name_en', 'teacher:id,name,zoom_join_url'])
             ->orderBy('scheduled_at')
             ->get()
             ->map(function ($s) use ($allAttendances, $apologies) {
@@ -336,7 +336,7 @@ class DashboardController extends Controller
         }
 
         // Sessions for this subject — class-scoped
-        $sessionsQuery = Session::where('subject_id', $id)->with(['files', 'homework']);
+        $sessionsQuery = Session::where('subject_id', $id)->with(['files', 'homework', 'teacher']);
         if ($classIds->isNotEmpty()) {
             $sessionsQuery->where(fn($q) => $q->whereIn('class_id', $classIds)->orWhereNull('class_id'));
         }
@@ -390,7 +390,7 @@ class DashboardController extends Controller
                 // Diploma: sessions belong to subjects which belong to terms
                 $progSessions = Session::whereIn('id', $assignedSessionIds)
                     ->whereHas('subject.term', fn($q) => $q->where('program_id', $prog->id))
-                    ->with(['subject.term', 'subject.teacher', 'files', 'homework'])
+                    ->with(['subject.term', 'subject.teacher', 'teacher', 'files', 'homework'])
                     ->orderBy('subject_id')->orderBy('session_number')->get();
 
                 $sessionsBySubject = $progSessions->groupBy('subject_id');
@@ -398,7 +398,7 @@ class DashboardController extends Controller
                 // Non-diploma: sessions belong directly to the program
                 $progSessions = Session::whereIn('id', $assignedSessionIds)
                     ->where('program_id', $prog->id)
-                    ->with(['files', 'homework'])
+                    ->with(['teacher', 'files', 'homework'])
                     ->orderBy('session_number')->orderBy('scheduled_at')->get();
 
                 $sessionsBySubject = collect();
@@ -505,7 +505,7 @@ class DashboardController extends Controller
             })
             ->where('type', 'live_zoom')
             ->where('scheduled_at', '>=', now())
-            ->with(['subject', 'unit'])
+            ->with(['subject', 'unit', 'teacher'])
             ->orderBy('scheduled_at', 'asc')
             ->paginate(10);
 
@@ -516,7 +516,7 @@ class DashboardController extends Controller
             ->where('type', 'live_zoom')
             ->whereNotNull('started_at')
             ->whereNull('ended_at')
-            ->with(['subject', 'unit'])
+            ->with(['subject', 'unit', 'teacher'])
             ->get();
 
         return view('student.sessions.upcoming', compact('upcomingSessions', 'liveSessions'));

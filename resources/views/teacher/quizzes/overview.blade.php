@@ -51,6 +51,7 @@
                     <th style="padding:12px 16px;text-align:right;font-weight:700;color:#374151;">الاختبار</th>
                     <th style="padding:12px 16px;text-align:right;font-weight:700;color:#374151;">المقرر</th>
                     <th style="padding:12px 16px;text-align:center;font-weight:700;color:#374151;">النوع</th>
+                    <th style="padding:12px 16px;text-align:center;font-weight:700;color:#374151;">التوقيت</th>
                     <th style="padding:12px 16px;text-align:center;font-weight:700;color:#374151;">الأسئلة</th>
                     <th style="padding:12px 16px;text-align:center;font-weight:700;color:#374151;">المحاولات</th>
                     <th style="padding:12px 16px;text-align:center;font-weight:700;color:#374151;">الحالة</th>
@@ -76,6 +77,27 @@
                             [$tl,$tbg,$tc] = $typeMap[$quiz->type] ?? [$quiz->type,'#f1f5f9','#475569'];
                         @endphp
                         <span style="background:{{ $tbg }};color:{{ $tc }};border-radius:9999px;padding:.2rem .7rem;font-size:.7rem;font-weight:700;">{{ $tl }}</span>
+                    </td>
+                    <td style="padding:12px 16px;text-align:center;font-size:12px;color:#475569;">
+                        @if($quiz->starts_at)
+                            <div style="display:flex;align-items:center;justify-content:center;gap:4px;">
+                                <span style="color:#16a34a;font-weight:700;">يبدأ</span>
+                                <span dir="ltr">{{ $quiz->starts_at->format('Y/m/d') }}</span>
+                                <span dir="ltr" style="color:#94a3b8;">{{ $quiz->starts_at->format('h:i A') }}</span>
+                            </div>
+                            @if($quiz->ends_at)
+                            <div style="display:flex;align-items:center;justify-content:center;gap:4px;margin-top:3px;">
+                                <span style="color:#dc2626;font-weight:700;">ينتهي</span>
+                                <span dir="ltr">{{ $quiz->ends_at->format('Y/m/d') }}</span>
+                                <span dir="ltr" style="color:#94a3b8;">{{ $quiz->ends_at->format('h:i A') }}</span>
+                            </div>
+                            @endif
+                            @if($quiz->duration_minutes)
+                            <div style="color:#6366f1;font-size:11px;margin-top:3px;">⏱ {{ $quiz->duration_minutes }} دقيقة</div>
+                            @endif
+                        @else
+                            <span style="color:#cbd5e1;">— غير محدد —</span>
+                        @endif
                     </td>
                     <td style="padding:12px 16px;text-align:center;color:#1e293b;font-weight:700;">{{ $quiz->questions_count }}</td>
                     <td style="padding:12px 16px;text-align:center;">
@@ -112,7 +134,7 @@
                     </td>
                 </tr>
                 @empty
-                <tr><td colspan="7" style="padding:48px;text-align:center;color:#94a3b8;font-size:13px;">لا توجد اختبارات في مقرراتك</td></tr>
+                <tr><td colspan="8" style="padding:48px;text-align:center;color:#94a3b8;font-size:13px;">لا توجد اختبارات في مقرراتك</td></tr>
                 @endforelse
             </tbody>
         </table>

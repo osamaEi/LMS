@@ -61,7 +61,31 @@ class ScheduleController extends Controller
             ->orderBy('name_ar')
             ->get(['id', 'name_ar', 'type']);
 
-        return view('teacher.schedule', compact('groupedUpcoming', 'past', 'stats', 'subjects', 'programs', 'sessions'));
+        // Quizzes the teacher created — shown on the weekly calendar alongside sessions.
+        $calQuizzes = \App\Models\Quiz::where('created_by', $teacher->id)
+            ->whereNotNull('starts_at')
+            ->with(['subject:id,name_ar'])
+            ->withCount(['questions', 'attempts'])
+            ->get()
+            ->map(fn($q) => [
+                'id'           => $q->id,
+                'subject_id'   => $q->subject_id,
+                'title'        => $q->title_ar,
+                'subject_name' => $q->subject->name_ar ?? '',
+                'type'         => $q->type,
+                'type_label'   => $q->type_label,
+                'starts_at'    => \Carbon\Carbon::parse($q->starts_at)->toIso8601String(),
+                'ends_at'      => $q->ends_at ? \Carbon\Carbon::parse($q->ends_at)->toIso8601String() : null,
+                'total_marks'  => $q->total_marks,
+                'duration'     => $q->duration_minutes,
+                'questions'    => $q->questions_count,
+                'attempts'     => $q->attempts_count,
+                'is_active'    => (bool) $q->is_active,
+                'url'          => $q->subject_id ? route('teacher.quizzes.show', [$q->subject_id, $q->id]) : null,
+            ])
+            ->values();
+
+        return view('teacher.schedule', compact('groupedUpcoming', 'past', 'stats', 'subjects', 'programs', 'sessions', 'calQuizzes'));
     }
 
     /**
