@@ -50,6 +50,12 @@ class HomeworkController extends Controller
     {
         $student = auth()->user();
 
+        // Reject submissions after the deadline (due_date is a date, so the whole
+        // due day is still allowed — only days after it are rejected).
+        if ($homework->due_date && $homework->due_date->endOfDay()->isPast()) {
+            return back()->withErrors(['content' => 'انتهى موعد تسليم هذا الواجب.']);
+        }
+
         $request->validate([
             'content' => 'nullable|string|max:3000',
             'file'    => 'nullable|file|max:20480',
