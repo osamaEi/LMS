@@ -435,22 +435,18 @@ class ProgramController extends Controller
                   ->orWhereHas('terms', fn($tq) => $tq->where('terms.id', $currentTerm->id));
             })->pluck('id');
 
-            // Sessions assigned to this student (via Attendance records) in these subjects
-            $assignedSessionIds = Attendance::where('student_id', $student->id)->pluck('session_id');
+            // Attendance is only counted when the student actually joins a session
+            // (attended = true) — mirrors the /student/attendance web page. We only
+            // count joined sessions; there is no "absent" denominator.
+            $sessionIds = Session::whereIn('subject_id', $termSubjectIds)->pluck('id');
 
-            $sessionIds = Session::whereIn('subject_id', $termSubjectIds)
-                ->whereIn('id', $assignedSessionIds)
-                ->pluck('id');
-
-            $totalSessions    = $sessionIds->count();
             $attendedSessions = Attendance::where('student_id', $student->id)
                 ->whereIn('session_id', $sessionIds)
                 ->where('attended', true)
                 ->count();
 
-            $attendanceRate = $totalSessions > 0
-                ? round(($attendedSessions / $totalSessions) * 100, 1)
-                : 0;
+            $totalSessions  = $attendedSessions;
+            $attendanceRate = $totalSessions > 0 ? 100.0 : 0;
 
             return response()->json([
                 'success' => true,
@@ -470,21 +466,17 @@ class ProgramController extends Controller
 
         } else {
             // ── Course / Training / English: attendance based on program sessions ──
-            $assignedSessionIds = Attendance::where('student_id', $student->id)->pluck('session_id');
+            // Only joined sessions are counted (attended = true) — mirrors the
+            // /student/attendance web page.
+            $sessionIds = Session::where('program_id', $program->id)->pluck('id');
 
-            $sessionIds = Session::where('program_id', $program->id)
-                ->whereIn('id', $assignedSessionIds)
-                ->pluck('id');
-
-            $totalSessions    = $sessionIds->count();
             $attendedSessions = Attendance::where('student_id', $student->id)
                 ->whereIn('session_id', $sessionIds)
                 ->where('attended', true)
                 ->count();
 
-            $attendanceRate = $totalSessions > 0
-                ? round(($attendedSessions / $totalSessions) * 100, 1)
-                : 0;
+            $totalSessions  = $attendedSessions;
+            $attendanceRate = $totalSessions > 0 ? 100.0 : 0;
 
             return response()->json([
                 'success' => true,

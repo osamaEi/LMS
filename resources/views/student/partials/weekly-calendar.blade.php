@@ -304,7 +304,7 @@
             });
 
             PERIODS_CAL.forEach((p,pi)=>{
-                const items=cellMap[i+'|'+pi]||[];
+                const items=cellMap[i+'|'+pi]||[]; 
                 const inner=items.map(s=>{
                     const ts=typeStyleCal(s.type);
                     const isLive = isSessionLiveCal(s);

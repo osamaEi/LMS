@@ -73,10 +73,10 @@ class ApologyController extends Controller
         ]);
 
         // Notify all admins (database + email)
-        $admins = User::whereIn('role', ['admin', 'super_admin'])->get();
-        if ($admins->isNotEmpty()) {
-            Notification::send($admins, new ApologySubmittedNotification($apology));
-        }
+        // $admins = User::whereIn('role', ['admin', 'super_admin'])->get();
+        // if ($admins->isNotEmpty()) {
+        //     Notification::send($admins, new ApologySubmittedNotification($apology));
+        // }
 
         return back()->with('success', 'تم إرسال عذر الغياب بنجاح، وسيتم مراجعته من قبل الإدارة.');
     }
