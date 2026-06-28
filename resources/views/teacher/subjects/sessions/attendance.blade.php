@@ -87,6 +87,7 @@
                 <th style="padding:10px 18px;text-align:right;font-size:.75rem;font-weight:700;color:#6b7280;white-space:nowrap">#</th>
                 <th style="padding:10px 18px;text-align:right;font-size:.75rem;font-weight:700;color:#6b7280">المتدرب </th>
                 <th style="padding:10px 18px;text-align:right;font-size:.75rem;font-weight:700;color:#6b7280">وقت الانضمام</th>
+                <th style="padding:10px 18px;text-align:left;font-size:.75rem;font-weight:700;color:#6b7280"></th>
             </tr>
         </thead>
         <tbody>
@@ -105,6 +106,17 @@
                     @else
                         —
                     @endif
+                </td>
+                <td style="padding:12px 18px;text-align:left">
+                    <form action="{{ route('teacher.my-subjects.sessions.attendance.absent', [$subject->id, $session->id]) }}"
+                          method="POST" onsubmit="return confirm('تحويل {{ $att->student->name ?? 'الطالب' }} إلى غائب؟')" style="margin:0">
+                        @csrf
+                        <input type="hidden" name="student_id" value="{{ $att->student_id }}">
+                        <button type="submit"
+                                style="padding:6px 14px;border-radius:8px;border:1.5px solid #fecaca;font-size:.75rem;font-weight:700;color:#dc2626;background:#fef2f2;cursor:pointer;white-space:nowrap">
+                            تحويل لغائب
+                        </button>
+                    </form>
                 </td>
             </tr>
             @endforeach

@@ -638,6 +638,28 @@ class SubjectController extends Controller
     }
 
     /**
+     * Switch a present student back to absent for a session.
+     */
+    public function markAbsent(Request $request, $subjectId, $sessionId)
+    {
+        $teacher = auth()->user();
+
+        $subject = Subject::assignedToTeacher($teacher->id)->findOrFail($subjectId);
+        $session = Session::where('subject_id', $subjectId)->findOrFail($sessionId);
+
+        $validated = $request->validate([
+            'student_id' => 'required|exists:users,id',
+        ]);
+
+        Attendance::updateOrCreate(
+            ['student_id' => $validated['student_id'], 'session_id' => $session->id],
+            ['attended' => false, 'joined_at' => null]
+        );
+
+        return back()->with('success', 'تم تحويل الطالب إلى غائب');
+    }
+
+    /**
      * Attendance overview for all teacher's sessions (subjects + programs)
      */
     public function attendanceOverview()

@@ -555,6 +555,7 @@ Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')
     Route::get('/my-subjects/{subjectId}/sessions/{sessionId}/zoom-embedded', [\App\Http\Controllers\Teacher\SubjectController::class, 'showZoomEmbedded'])->name('my-subjects.sessions.zoom-embedded');
     Route::get('/my-subjects/{subjectId}/sessions/{sessionId}/attendance', [\App\Http\Controllers\Teacher\SubjectController::class, 'sessionAttendance'])->name('my-subjects.sessions.attendance');
     Route::post('/my-subjects/{subjectId}/sessions/{sessionId}/attendance', [\App\Http\Controllers\Teacher\SubjectController::class, 'saveAttendance'])->name('my-subjects.sessions.attendance.save');
+    Route::post('/my-subjects/{subjectId}/sessions/{sessionId}/attendance/absent', [\App\Http\Controllers\Teacher\SubjectController::class, 'markAbsent'])->name('my-subjects.sessions.attendance.absent');
     Route::get('/my-subjects/{subjectId}/sessions/{sessionId}/attendance/export', [\App\Http\Controllers\Teacher\SubjectController::class, 'exportAttendance'])->name('my-subjects.sessions.attendance.export');
     Route::delete('/my-subjects/{subjectId}/sessions/{sessionId}/files/{fileId}', [\App\Http\Controllers\Teacher\SubjectController::class, 'deleteSessionFile'])->name('my-subjects.sessions.files.destroy');
 
