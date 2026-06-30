@@ -109,14 +109,23 @@ class ProgramController extends Controller
     public function subjects(Request $request)
     {
         $student = auth()->user();
-        $program = $student->program;
-
-   
 
         $filter = $request->query('filter', 'current'); // current | past | all
 
+        // The class is the anchor — a student may belong to a class without being
+        // enrolled in its program. Resolve the class from the student_programs pivot
+        // first, then the legacy users.class_id column.
+        $classId = $student->programs()->wherePivotNotNull('class_id')->first()?->pivot?->class_id
+            ?? $student->class_id;
+
+        $class   = $classId ? \App\Models\ProgramClass::find($classId) : null;
+        $program = $class?->program ?? $student->program;
+
+        if (!$program) {
+            return response()->json(['success' => false, 'message' => 'غير مسجل في برنامج أو فصل'], 403);
+        }
+
         // Prefer the student's own class terms; fall back to shared (class_id NULL)
-        $classId = $student->classIdForProgram($program->id);
         $hasClassTerms = $classId
             ? \App\Models\Term::where('program_id', $program->id)->where('class_id', $classId)->exists()
             : false;
