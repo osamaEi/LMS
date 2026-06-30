@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1\Student;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Student\MyProgramResource;
+use App\Http\Resources\Student\ProgramSubjectResource;
 use App\Http\Resources\StudentProgramResource;
 use App\Models\Attendance;
 use App\Models\Enrollment;
@@ -110,9 +111,7 @@ class ProgramController extends Controller
         $student = auth()->user();
         $program = $student->program;
 
-        if (!$program || $student->program_status === 'pending') {
-            return response()->json(['success' => false, 'message' => 'غير مسجل في برنامج'], 403);
-        }
+   
 
         $filter = $request->query('filter', 'current'); // current | past | all
 
@@ -144,7 +143,8 @@ class ProgramController extends Controller
 
         $termIds = $terms->pluck('id');
 
-        // Load subjects via BOTH relationships: direct term_id and pivot term_subject
+        // Load subjects via BOTH relationships: direct term_id and pivot term_subject,
+        // restricted to the student's own class (class-less shared subjects included).
         $subjectQuery = Subject::with(['teacher:id,name,profile_photo'])
             ->withCount([
                 'sessions',
@@ -155,7 +155,10 @@ class ProgramController extends Controller
             ->where(function ($q) use ($termIds) {
                 $q->whereIn('term_id', $termIds)
                   ->orWhereHas('terms', fn($tq) => $tq->whereIn('terms.id', $termIds));
-            });
+            })
+            ->when($classId, fn($q) => $q->where(
+                fn($w) => $w->where('class_id', $classId)->orWhereNull('class_id')
+            ));
 
         $subjects = $subjectQuery->get();
 
@@ -163,29 +166,10 @@ class ProgramController extends Controller
             ->pluck('subject_id')
             ->flip();
 
-        $data = $subjects->map(fn($subject) => [
-            'id'               => $subject->id,
-            'name_ar'          => $subject->name_ar,
-            'name_en'          => $subject->name_en,
-            'code'             => $subject->code,
-            'description_ar'   => $subject->description_ar ?? null,
-            'description_en'   => $subject->description_en ?? null,
-            'credits'          => $subject->credits,
-            'status'           => $subject->status,
-            'banner_photo'     => $subject->banner_photo
-                ? asset('storage/' . $subject->banner_photo)
-                : null,
-            'teacher'          => $subject->teacher ? [
-                'id'            => $subject->teacher->id,
-                'name'          => $subject->teacher->name,
-                'profile_photo' => $subject->teacher->profile_photo
-                    ? asset('storage/' . $subject->teacher->profile_photo)
-                    : null,
-            ] : null,
-            'sessions_count'   => $subject->sessions_count,
-            'recordings_count' => $subject->recordings_count,
-            'is_enrolled'      => isset($enrolledSubjectIds[$subject->id]),
-        ])->values();
+        // Flag enrollment for the resource to expose without an extra lookup.
+        $subjects->each(fn($subject) => $subject->is_enrolled = isset($enrolledSubjectIds[$subject->id]));
+
+        $data = ProgramSubjectResource::collection($subjects);
 
         // Group by term for context
         $termData = $terms->map(fn($term) => [
