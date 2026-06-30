@@ -123,14 +123,6 @@ class ProgramController extends Controller
             : false;
         $termScope = fn($q) => $hasClassTerms ? $q->where('class_id', $classId) : $q->whereNull('class_id');
 
-        // Subjects are scoped directly to the student's class: when the student
-        // belongs to a class, only that class's subjects (plus any class-less
-        // shared subjects) are returned; subjects assigned to other classes are
-        // excluded. With no class, only shared (class_id NULL) subjects show.
-        $subjectClassScope = fn($q) => $classId
-            ? $q->where(fn($w) => $w->where('class_id', $classId)->orWhereNull('class_id'))
-            : $q->whereNull('class_id');
-
         $termsQuery = $program->terms()->orderBy('term_number')->where(fn($q) => $termScope($q));
 
         if ($filter === 'current') {
@@ -163,8 +155,7 @@ class ProgramController extends Controller
             ->where(function ($q) use ($termIds) {
                 $q->whereIn('term_id', $termIds)
                   ->orWhereHas('terms', fn($tq) => $tq->whereIn('terms.id', $termIds));
-            })
-            ->where(fn($q) => $subjectClassScope($q));
+            });
 
         $subjects = $subjectQuery->get();
 
