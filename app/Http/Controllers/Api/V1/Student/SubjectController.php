@@ -88,11 +88,17 @@ class SubjectController extends Controller
         })->with($with)
           ->findOrFail($id);
 
-        // Resolve the program this subject belongs to, then get the student's class for it
+        // Resolve the program this subject belongs to.
         $subjectProgramId = $subject->term?->program_id
             ?? $subject->terms()->pluck('program_id')->first();
 
-        $classId = $subjectProgramId ? $student->classIdForProgram((int) $subjectProgramId) : null;
+        // Resolve the student's class. The class is the anchor: prefer the class
+        // tied to this subject's program, then any pivot class, then the legacy
+        // users.class_id — so the filter works even if the student isn't formally
+        // enrolled in the program.
+        $classId = ($subjectProgramId ? $student->classIdForProgram((int) $subjectProgramId) : null)
+            ?? $student->programs()->wherePivotNotNull('class_id')->first()?->pivot?->class_id
+            ?? $student->class_id;
 
         // Guard: a class-scoped subject must match the student's class
         if ($subject->class_id !== null && $subject->class_id != $classId) {
@@ -111,8 +117,12 @@ class SubjectController extends Controller
             ->with($with)
             ->orderBy('session_number', 'asc');
 
+        // Always scope to the student's class. With no class, only show class-less
+        // sessions so other classes' sessions never leak.
         if ($classId) {
             $query->where('class_id', $classId);
+        } else {
+            $query->whereNull('class_id');
         }
 
         return $query;
@@ -151,18 +161,35 @@ class SubjectController extends Controller
     }
 
     /**
-     * GET /api/v1/student/subjects/{id}/sessions
-     * List all sessions for a subject with join links, schedule and attendance.
+     * GET /api/v1/student/subjects/{id}/sessions/{classId}
+     * List a subject's sessions for a specific class. classId is mandatory and
+     * must be a class the student belongs to.
      */
-    public function sessions($id)
+    public function sessions($id, $classId)
     {
         $resolved = $this->resolveSubjectForStudent($id, ['term.program', 'teacher:id,name,profile_photo']);
         if ($resolved instanceof \Illuminate\Http\JsonResponse) {
             return $resolved;
         }
-        [$subject, $classId] = $resolved;
+        [$subject] = $resolved;
 
-        $student  = auth()->user();
+        $student = auth()->user();
+        $classId = (int) $classId;
+
+        // The class in the URL must be one the student actually belongs to.
+        $studentClassIds = $student->programs()->pluck('student_programs.class_id')
+            ->push($student->class_id)
+            ->filter()->map(fn($c) => (int) $c)->unique();
+
+        if (!$studentClassIds->contains($classId)) {
+            return response()->json(['success' => false, 'message' => 'هذا الفصل غير متاح لك'], 403);
+        }
+
+        // The subject, if class-scoped, must match the requested class.
+        if ($subject->class_id !== null && (int) $subject->class_id !== $classId) {
+            return response()->json(['success' => false, 'message' => 'هذا المقرر غير متاح لهذا الفصل'], 403);
+        }
+
         $sessions = $this->subjectSessionQuery($id, $classId, ['files'])->get();
 
         $attendances = Attendance::where('student_id', $student->id)

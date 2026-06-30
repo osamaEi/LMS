@@ -191,11 +191,13 @@ class ProgramController extends Controller
         ])->values();
 
         return response()->json([
-            'success'  => true,
-            'filter'   => $filter,
-            'terms'    => $termData,
-            'data'     => $data,
-            'total'    => $data->count(),
+            'success'    => true,
+            'filter'     => $filter,
+            'class_id'   => $classId,
+            'class_name' => $class?->name,
+            'terms'      => $termData,
+            'data'       => $data,
+            'total'      => $data->count(),
         ]);
     }
 
