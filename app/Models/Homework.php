@@ -2,15 +2,19 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\HomeworkSubmission;
 
 class Homework extends Model
 {
+    use HasFactory;
+
     protected $table = 'homeworks';
 
     protected $fillable = [
         'session_id',
+        'subject_id',
+        'program_id',
         'title_ar',
         'title_en',
         'description_ar',
@@ -27,6 +31,16 @@ class Homework extends Model
     public function session()
     {
         return $this->belongsTo(Session::class);
+    }
+
+    public function subject()
+    {
+        return $this->belongsTo(Subject::class);
+    }
+
+    public function program()
+    {
+        return $this->belongsTo(Program::class);
     }
 
     public function submissions()

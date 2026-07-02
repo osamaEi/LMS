@@ -12,6 +12,14 @@
 </div>
 @endif
 
+@if($errors->any())
+<div style="background:#fef2f2;border:1px solid #fecaca;border-right:4px solid #ef4444;border-radius:12px;padding:14px 18px;margin-bottom:20px;">
+    @foreach($errors->all() as $error)
+        <div style="color:#b91c1c;font-size:13px;font-weight:600;">{{ $error }}</div>
+    @endforeach
+</div>
+@endif
+
 {{-- Hero --}}
 <div style="background:linear-gradient(135deg,#0f172a 0%,#1e3a5f 55%,#0071AA 100%);border-radius:20px;padding:28px 32px;margin-bottom:24px;position:relative;overflow:hidden;">
     <div style="position:absolute;top:-50px;left:-50px;width:200px;height:200px;background:rgba(255,255,255,.04);border-radius:50%;pointer-events:none;"></div>
@@ -22,149 +30,141 @@
             </div>
             <div>
                 <h1 style="color:white;font-size:20px;font-weight:800;margin:0;">الواجبات المنزلية</h1>
-                <p style="color:rgba(255,255,255,.6);font-size:12px;margin:4px 0 0;">إدارة الواجبات لكل جلسة</p>
+                <p style="color:rgba(255,255,255,.6);font-size:12px;margin:4px 0 0;">إضافة وإدارة الواجبات حسب المقرر</p>
             </div>
         </div>
-        <div style="display:flex;gap:10px;flex-wrap:wrap;">
-            @foreach([
-                [$withHomework->count() + $withoutHomework->count(), 'إجمالي الجلسات', 'rgba(255,255,255,.75)'],
-                [$withHomework->count(),                             'بها واجب',        '#86efac'],
-                [$withoutHomework->count(),                          'بدون واجب',       '#fde68a'],
-            ] as [$v,$l,$c])
-            <div style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:8px 18px;text-align:center;min-width:72px;">
-                <div style="font-size:20px;font-weight:800;color:{{ $c }};line-height:1.1;">{{ $v }}</div>
-                <div style="font-size:11px;color:rgba(255,255,255,.55);margin-top:2px;">{{ $l }}</div>
-            </div>
-            @endforeach
+        <div style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:8px 18px;text-align:center;min-width:72px;">
+            <div style="font-size:20px;font-weight:800;color:#86efac;line-height:1.1;">{{ $homeworks->count() }}</div>
+            <div style="font-size:11px;color:rgba(255,255,255,.55);margin-top:2px;">إجمالي الواجبات</div>
         </div>
     </div>
 </div>
 
-{{-- Two-column grid --}}
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
-
-    {{-- ══ Sessions WITH homework ══ --}}
-    <div>
-        <div style="display:flex;align-items:center;gap:9px;margin-bottom:14px;">
-            <div style="width:32px;height:32px;background:linear-gradient(135deg,#16a34a,#15803d);border-radius:9px;display:flex;align-items:center;justify-content:center;">
-                <svg width="15" height="15" fill="white" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-            </div>
-            <h2 style="font-size:.95rem;font-weight:800;color:#111827;margin:0;">جلسات بها واجب</h2>
-            <span style="background:#16a34a;color:white;font-size:.72rem;font-weight:700;padding:2px 9px;border-radius:20px;">{{ $withHomework->count() }}</span>
+{{-- ══ Add homework form ══ --}}
+<div style="background:white;border:1.5px solid #e5e7eb;border-radius:16px;padding:22px 24px;margin-bottom:24px;">
+    <div style="display:flex;align-items:center;gap:9px;margin-bottom:18px;">
+        <div style="width:32px;height:32px;background:linear-gradient(135deg,#16a34a,#15803d);border-radius:9px;display:flex;align-items:center;justify-content:center;">
+            <svg width="15" height="15" fill="white" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
         </div>
-
-        @if($withHomework->isEmpty())
-        <div style="background:white;border:1.5px dashed #d1d5db;border-radius:14px;padding:36px;text-align:center;">
-            <p style="font-size:.85rem;color:#9ca3af;margin:0;">لا توجد جلسات بها واجب بعد</p>
-        </div>
-        @else
-        <div style="display:flex;flex-direction:column;gap:10px;">
-            @foreach($withHomework as $session)
-            @php
-                $subCount = $session->homework->submissions()->count() ?? 0;
-            @endphp
-            <div style="background:white;border:1.5px solid #bbf7d0;border-radius:13px;overflow:hidden;transition:box-shadow .15s;">
-                <div style="display:flex;align-items:stretch;">
-                    <div style="width:4px;flex-shrink:0;background:linear-gradient(180deg,#16a34a,#15803d);"></div>
-                    <div style="flex:1;padding:13px 15px;">
-                        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;">
-                            <div style="min-width:0;flex:1;">
-                                <p style="font-size:.72rem;color:#6b7280;margin:0 0 3px;">{{ $session->subject->name_ar ?? ($session->program->name_ar ?? '—') }}</p>
-                                <h4 style="font-size:.875rem;font-weight:700;color:#111827;margin:0 0 4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
-                                    {{ $session->title_ar ?: $session->title_en ?: ('جلسة #'.$session->session_number) }}
-                                </h4>
-                                <p style="font-size:.78rem;font-weight:600;color:#d97706;margin:0 0 2px;">
-                                    📋 {{ $session->homework->title_ar ?: $session->homework->title_en ?: 'واجب بدون عنوان' }}
-                                </p>
-                                <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-                                    @if($session->homework->due_date)
-                                    <span style="font-size:.72rem;color:#9ca3af;">
-                                        التسليم: {{ $session->homework->due_date->format('Y/m/d') }}
-                                    </span>
-                                    @endif
-                                    <span style="font-size:.72rem;color:#0071AA;font-weight:600;background:#eff6ff;padding:1px 7px;border-radius:20px;">
-                                        {{ $subCount }} تسليم
-                                    </span>
-                                </div>
-                            </div>
-                            <div style="display:flex;flex-direction:column;gap:5px;flex-shrink:0;">
-                                <a href="{{ route('teacher.sessions.show', $session) }}"
-                                   style="display:inline-flex;align-items:center;gap:4px;padding:5px 11px;background:linear-gradient(135deg,#0071AA,#005a88);color:white;border-radius:7px;font-size:.72rem;font-weight:700;text-decoration:none;">
-                                    <svg width="10" height="10" fill="currentColor" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
-                                    تعديل
-                                </a>
-                                <form action="{{ route('teacher.sessions.homework.destroy', $session) }}" method="POST"
-                                      onsubmit="return confirm('حذف الواجب؟')">
-                                    @csrf @method('DELETE')
-                                    <button type="submit"
-                                            style="display:inline-flex;align-items:center;gap:4px;padding:5px 11px;background:linear-gradient(135deg,#ef4444,#dc2626);color:white;border:none;border-radius:7px;font-size:.72rem;font-weight:700;cursor:pointer;width:100%;">
-                                        <svg width="10" height="10" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
-                                        حذف
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            @endforeach
-        </div>
-        @endif
+        <h2 style="font-size:.95rem;font-weight:800;color:#111827;margin:0;">إضافة واجب جديد</h2>
     </div>
 
-    {{-- ══ Sessions WITHOUT homework ══ --}}
-    <div>
-        <div style="display:flex;align-items:center;gap:9px;margin-bottom:14px;">
-            <div style="width:32px;height:32px;background:linear-gradient(135deg,#f59e0b,#d97706);border-radius:9px;display:flex;align-items:center;justify-content:center;">
-                <svg width="15" height="15" fill="white" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-            </div>
-            <h2 style="font-size:.95rem;font-weight:800;color:#111827;margin:0;">جلسات بدون واجب</h2>
-            <span style="background:#d97706;color:white;font-size:.72rem;font-weight:700;padding:2px 9px;border-radius:20px;">{{ $withoutHomework->count() }}</span>
+    @if($subjects->isEmpty())
+    <p style="font-size:.85rem;color:#9ca3af;margin:0;">لا توجد مقررات مسندة إليك لإضافة واجب.</p>
+    @else
+    <form action="{{ route('teacher.homework.store') }}" method="POST" enctype="multipart/form-data"
+          style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+        @csrf
+
+        <div style="grid-column:1 / -1;">
+            <label style="display:block;font-size:.78rem;font-weight:700;color:#374151;margin-bottom:5px;">المقرر <span style="color:#ef4444;">*</span></label>
+            <select name="subject_id" required
+                    style="width:100%;padding:9px 12px;border:1.5px solid #d1d5db;border-radius:9px;font-size:.85rem;background:white;">
+                <option value="">— اختر المقرر —</option>
+                @foreach($subjects as $subject)
+                <option value="{{ $subject->id }}" @selected(old('subject_id') == $subject->id)>
+                    {{ $subject->name_ar ?: $subject->name_en }}@if($subject->code) ({{ $subject->code }})@endif
+                </option>
+                @endforeach
+            </select>
         </div>
 
-        @if($withoutHomework->isEmpty())
-        <div style="background:white;border:1.5px dashed #d1d5db;border-radius:14px;padding:36px;text-align:center;">
-            <p style="font-size:.85rem;color:#9ca3af;margin:0;">جميع الجلسات لديها واجب 🎉</p>
+        <div>
+            <label style="display:block;font-size:.78rem;font-weight:700;color:#374151;margin-bottom:5px;">عنوان الواجب (عربي)</label>
+            <input type="text" name="title_ar" value="{{ old('title_ar') }}"
+                   style="width:100%;padding:9px 12px;border:1.5px solid #d1d5db;border-radius:9px;font-size:.85rem;">
         </div>
-        @else
-        <div style="display:flex;flex-direction:column;gap:10px;">
-            @foreach($withoutHomework as $session)
-            <div style="background:white;border:1.5px solid #f1f5f9;border-radius:13px;overflow:hidden;">
-                <div style="display:flex;align-items:stretch;">
-                    <div style="width:4px;flex-shrink:0;background:#d1d5db;"></div>
-                    <div style="flex:1;padding:13px 15px;display:flex;align-items:center;justify-content:space-between;gap:10px;">
+        <div>
+            <label style="display:block;font-size:.78rem;font-weight:700;color:#374151;margin-bottom:5px;">عنوان الواجب (إنجليزي)</label>
+            <input type="text" name="title_en" value="{{ old('title_en') }}"
+                   style="width:100%;padding:9px 12px;border:1.5px solid #d1d5db;border-radius:9px;font-size:.85rem;">
+        </div>
+
+        <div style="grid-column:1 / -1;">
+            <label style="display:block;font-size:.78rem;font-weight:700;color:#374151;margin-bottom:5px;">وصف الواجب</label>
+            <textarea name="description_ar" rows="3"
+                      style="width:100%;padding:9px 12px;border:1.5px solid #d1d5db;border-radius:9px;font-size:.85rem;resize:vertical;">{{ old('description_ar') }}</textarea>
+        </div>
+
+        <div>
+            <label style="display:block;font-size:.78rem;font-weight:700;color:#374151;margin-bottom:5px;">تاريخ التسليم</label>
+            <input type="date" name="due_date" value="{{ old('due_date') }}"
+                   style="width:100%;padding:9px 12px;border:1.5px solid #d1d5db;border-radius:9px;font-size:.85rem;">
+        </div>
+        <div>
+            <label style="display:block;font-size:.78rem;font-weight:700;color:#374151;margin-bottom:5px;">ملف مرفق (اختياري)</label>
+            <input type="file" name="file"
+                   style="width:100%;padding:7px 12px;border:1.5px solid #d1d5db;border-radius:9px;font-size:.8rem;background:white;">
+        </div>
+
+        <div style="grid-column:1 / -1;">
+            <button type="submit"
+                    style="display:inline-flex;align-items:center;gap:6px;padding:9px 20px;background:linear-gradient(135deg,#16a34a,#15803d);color:white;border:none;border-radius:9px;font-size:.85rem;font-weight:700;cursor:pointer;box-shadow:0 2px 8px rgba(22,163,74,.3);">
+                <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                إضافة الواجب
+            </button>
+        </div>
+    </form>
+    @endif
+</div>
+
+{{-- ══ Existing homework ══ --}}
+<div>
+    <div style="display:flex;align-items:center;gap:9px;margin-bottom:14px;">
+        <div style="width:32px;height:32px;background:linear-gradient(135deg,#0071AA,#005a88);border-radius:9px;display:flex;align-items:center;justify-content:center;">
+            <svg width="15" height="15" fill="white" viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+        </div>
+        <h2 style="font-size:.95rem;font-weight:800;color:#111827;margin:0;">الواجبات الحالية</h2>
+        <span style="background:#0071AA;color:white;font-size:.72rem;font-weight:700;padding:2px 9px;border-radius:20px;">{{ $homeworks->count() }}</span>
+    </div>
+
+    @if($homeworks->isEmpty())
+    <div style="background:white;border:1.5px dashed #d1d5db;border-radius:14px;padding:36px;text-align:center;">
+        <p style="font-size:.85rem;color:#9ca3af;margin:0;">لا توجد واجبات بعد</p>
+    </div>
+    @else
+    <div style="display:flex;flex-direction:column;gap:10px;">
+        @foreach($homeworks as $homework)
+        @php $subCount = $homework->submissions()->count(); @endphp
+        <div style="background:white;border:1.5px solid #bbf7d0;border-radius:13px;overflow:hidden;">
+            <div style="display:flex;align-items:stretch;">
+                <div style="width:4px;flex-shrink:0;background:linear-gradient(180deg,#16a34a,#15803d);"></div>
+                <div style="flex:1;padding:13px 15px;">
+                    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;">
                         <div style="min-width:0;flex:1;">
-                            <p style="font-size:.72rem;color:#6b7280;margin:0 0 3px;">{{ $session->subject->name_ar ?? ($session->program->name_ar ?? '—') }}</p>
-                            <h4 style="font-size:.875rem;font-weight:700;color:#111827;margin:0 0 3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
-                                {{ $session->title_ar ?: $session->title_en ?: ('جلسة #'.$session->session_number) }}
-                            </h4>
-                            @if($session->scheduled_at)
-                            <p style="font-size:.72rem;color:#9ca3af;margin:0;">
-                                {{ \Carbon\Carbon::parse($session->scheduled_at)->format('Y/m/d · H:i') }}
+                            <p style="font-size:.72rem;color:#6b7280;margin:0 0 3px;">{{ $homework->subject->name_ar ?? $homework->program->name_ar ?? '—' }}</p>
+                            <p style="font-size:.86rem;font-weight:700;color:#111827;margin:0 0 2px;">
+                                📋 {{ $homework->title_ar ?: $homework->title_en ?: 'واجب بدون عنوان' }}
                             </p>
-                            @endif
+                            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+                                @if($homework->due_date)
+                                <span style="font-size:.72rem;color:#9ca3af;">التسليم: {{ $homework->due_date->format('Y/m/d') }}</span>
+                                @endif
+                                <span style="font-size:.72rem;color:#0071AA;font-weight:600;background:#eff6ff;padding:1px 7px;border-radius:20px;">{{ $subCount }} تسليم</span>
+                            </div>
                         </div>
-                        <a href="{{ route('teacher.sessions.show', $session) }}"
-                           style="flex-shrink:0;display:inline-flex;align-items:center;gap:5px;padding:7px 13px;background:linear-gradient(135deg,#f59e0b,#d97706);color:white;border-radius:9px;font-size:.78rem;font-weight:700;text-decoration:none;white-space:nowrap;box-shadow:0 2px 8px rgba(245,158,11,.3);">
-                            <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-                            إضافة واجب
-                        </a>
+                        <form action="{{ route('teacher.homework.destroy', $homework) }}" method="POST"
+                              onsubmit="return confirm('حذف الواجب؟')" style="flex-shrink:0;">
+                            @csrf @method('DELETE')
+                            <button type="submit"
+                                    style="display:inline-flex;align-items:center;gap:4px;padding:5px 11px;background:linear-gradient(135deg,#ef4444,#dc2626);color:white;border:none;border-radius:7px;font-size:.72rem;font-weight:700;cursor:pointer;">
+                                <svg width="10" height="10" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+                                حذف
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>
-            @endforeach
         </div>
-        @endif
+        @endforeach
     </div>
-
+    @endif
 </div>
 </div>
 
 <style>
 @media (max-width: 640px) {
-    div[style*="grid-template-columns:1fr 1fr"] {
-        grid-template-columns: 1fr !important;
-    }
+    form[action*="homework"] { grid-template-columns: 1fr !important; }
 }
 </style>
 @endsection

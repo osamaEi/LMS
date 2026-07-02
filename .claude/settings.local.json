@@ -6,7 +6,15 @@
       "Bash(php artisan make:model:*)",
       "Bash(php artisan:*)",
       "PowerShell(Get-ChildItem -Path \"e:\\\\mostaql\\\\Lms\\\\resources\\\\views\\\\admin\\\\english\" -File | ForEach-Object { $_.Name })",
-      "PowerShell(Get-ChildItem -Path \"e:\\\\mostaql\\\\Lms\\\\resources\\\\views\\\\admin\\\\courses\" -File | ForEach-Object { $_.Name })"
+      "PowerShell(Get-ChildItem -Path \"e:\\\\mostaql\\\\Lms\\\\resources\\\\views\\\\admin\\\\courses\" -File | ForEach-Object { $_.Name })",
+      "Bash(php -r '$c=require '\\\\''config/database.php'\\\\''; print_r\\($c['\\\\''connections'\\\\'']['\\\\''mysql'\\\\'']\\);')",
+      "Bash(mysql -uroot -h127.0.0.1 -P3306 -e \"SELECT VERSION\\(\\); SHOW DATABASES LIKE 'alertiqa%'; SHOW DATABASES LIKE '%test%';\")",
+      "Bash(php -r ' *)",
+      "Bash(php -l app/Models/Homework.php)",
+      "Bash(php -l app/Models/HomeworkSubmission.php)",
+      "Bash(php -l app/Models/Subject.php)",
+      "Bash(php -l app/Models/Session.php)",
+      "Bash(php -l app/Models/Program.php)"
     ],
     "deny": [],
     "ask": []

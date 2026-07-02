@@ -130,21 +130,54 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
-        // Get recent past sessions with attendance counts for dashboard attendance section
+        // Get recent past sessions with attendance counts for dashboard attendance section.
+        // The count must mirror the session attendance page: it is scoped to the
+        // session's CLASS ROSTER (student_programs.class_id), not the raw enrollment
+        // count nor unfiltered attendance rows.
         $recentSessionsWithAttendance = Session::whereHas('subject', function($query) use ($teacher) {
                 $query->assignedToTeacher($teacher->id);
             })
             ->where('scheduled_at', '<', now())
-            ->with(['subject', 'attendances' => function($q) {
-                $q->where('attended', true)->with('student:id,name');
-            }])
+            ->with([
+                'subject.term',
+                'subject.terms',
+                'attendances' => function($q) {
+                    $q->where('attended', true)->with('student:id,name');
+                },
+            ])
             ->orderBy('scheduled_at', 'desc')
             ->take(8)
             ->get()
             ->map(function($session) {
-                $session->enrolled_count = $session->subject
-                    ? $session->subject->enrollments()->count()
-                    : 0;
+                $subject = $session->subject;
+
+                // Resolve the class id the same way the attendance page does.
+                $classId = $session->class_id
+                    ?? $subject?->class_id
+                    ?? $subject?->term?->class_id
+                    ?? optional($subject?->terms?->firstWhere(fn($t) => $t->class_id))->class_id;
+
+                $classStudentIds = $classId
+                    ? DB::table('student_programs')->where('class_id', $classId)
+                        ->distinct()->pluck('student_id')
+                    : collect();
+
+                // Fallback: no class link → use whoever has an attendance record.
+                if ($classStudentIds->isEmpty()) {
+                    $classStudentIds = $session->attendances->pluck('student_id');
+                }
+
+                $classStudentIds = $classStudentIds->flip();
+
+                // Attended = class-roster students marked attended for this session.
+                $rosterAttendances = $session->attendances
+                    ->filter(fn($a) => $classStudentIds->has($a->student_id))
+                    ->values();
+
+                $session->setRelation('attendances', $rosterAttendances);
+                $session->attended_count = $rosterAttendances->count();
+                $session->enrolled_count = $classStudentIds->count();
+
                 return $session;
             });
 

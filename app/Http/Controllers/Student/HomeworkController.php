@@ -3,84 +3,43 @@
 namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Homework\SubmitHomeworkRequest;
 use App\Models\Homework;
 use App\Models\HomeworkSubmission;
-use App\Models\Subject;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
+use App\Services\HomeworkService;
 
 class HomeworkController extends Controller
 {
+    public function __construct(protected HomeworkService $homeworkService)
+    {
+    }
+
     public function index()
     {
         $student = auth()->user();
 
-        $programIds = $student->allProgramIds();
+        $homeworks = $this->homeworkService->homeworksForStudentWeb($student);
 
-        $subjectIds = Subject::where(function ($q) use ($student, $programIds) {
-                $q->whereIn('program_id', $programIds)
-                  ->orWhereHas('term', fn($tq) => $tq->whereIn('program_id', $programIds))
-                  ->orWhereHas('enrollments', fn($eq) => $eq->where('student_id', $student->id));
-            })->pluck('id');
-
-        // Homeworks from subjects
-        $subjectHomeworks = Homework::whereHas('session', fn($q) => $q->whereIn('subject_id', $subjectIds))
-            ->with(['session.subject'])
-            ->orderByDesc('created_at')
-            ->get();
-
-        // Homeworks from programs (course/training/english) — all student programs
-        $programHomeworks = Homework::whereHas('session', fn($q) => $q->whereIn('program_id', $programIds))
-            ->with(['session.program'])
-            ->orderByDesc('created_at')
-            ->get();
-
-        $homeworks = $subjectHomeworks->merge($programHomeworks)->sortByDesc('created_at')->values();
-
-        // Load student's own submissions
-        $mySubmissions = HomeworkSubmission::where('student_id', $student->id)
-            ->whereIn('homework_id', $homeworks->pluck('id'))
-            ->get()
-            ->keyBy('homework_id');
+        $mySubmissions = $this->homeworkService->submissionsFor($student, $homeworks->pluck('id'));
 
         return view('student.homework.index', compact('homeworks', 'mySubmissions'));
     }
 
-    public function submit(Request $request, Homework $homework)
+    public function submit(SubmitHomeworkRequest $request, Homework $homework)
     {
         $student = auth()->user();
 
         // Reject submissions after the deadline (due_date is a date, so the whole
         // due day is still allowed — only days after it are rejected).
-        if ($homework->due_date && $homework->due_date->endOfDay()->isPast()) {
+        if ($this->homeworkService->isPastDeadline($homework)) {
             return back()->withErrors(['content' => 'انتهى موعد تسليم هذا الواجب.']);
         }
 
-        $request->validate([
-            'content' => 'nullable|string|max:3000',
-            'file'    => 'nullable|file|max:20480',
-        ]);
-
-        if (!$request->filled('content') && !$request->hasFile('file')) {
-            return back()->withErrors(['content' => 'يرجى كتابة نص الإجابة أو رفع ملف.']);
-        }
-
-        $data = [
-            'homework_id'  => $homework->id,
-            'student_id'   => $student->id,
-            'content'      => $request->content,
-            'submitted_at' => now(),
-        ];
-
-        if ($request->hasFile('file')) {
-            $path = $request->file('file')->store('homework-submissions', 'public');
-            $data['file_path'] = $path;
-            $data['file_name'] = $request->file('file')->getClientOriginalName();
-        }
-
-        HomeworkSubmission::updateOrCreate(
-            ['homework_id' => $homework->id, 'student_id' => $student->id],
-            $data
+        $this->homeworkService->submit(
+            $homework,
+            $student,
+            ['content' => $request->input('content')],
+            $request->file('file')
         );
 
         return back()->with('success', 'تم تسليم الواجب بنجاح ✓');
@@ -90,10 +49,7 @@ class HomeworkController extends Controller
     {
         if ($submission->student_id !== auth()->id()) abort(403);
 
-        if ($submission->file_path) {
-            Storage::disk('public')->delete($submission->file_path);
-        }
-        $submission->delete();
+        $this->homeworkService->deleteSubmission($submission);
 
         return back()->with('success', 'تم حذف التسليم');
     }

@@ -224,7 +224,7 @@
                 <div class="divide-y divide-stroke dark:divide-strokedark">
                     @foreach($recentSessionsWithAttendance as $session)
                     @php
-                        $attendedCount = $session->attendances->count();
+                        $attendedCount = $session->attended_count;
                         $totalEnrolled = $session->enrolled_count;
                         $rate = $totalEnrolled > 0 ? round(($attendedCount / $totalEnrolled) * 100) : 0;
                         $rateColor = $rate >= 75 ? '#10b981' : ($rate >= 50 ? '#f59e0b' : '#ef4444');

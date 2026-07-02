@@ -211,7 +211,7 @@ class SubjectController extends Controller
 
     /**
      * GET /api/v1/student/subjects/{id}/homework
-     * List homework across the subject's sessions.
+     * List the subject's homework.
      */
     public function homework($id)
     {
@@ -221,14 +221,13 @@ class SubjectController extends Controller
         }
         [$subject, $classId] = $resolved;
 
-        $sessions = $this->subjectSessionQuery($id, $classId, ['homework'])->get();
-
-        $sessionsWithHomework = $sessions->filter(fn($s) => $s->homework)->values();
+        $homeworks = \App\Models\Homework::where('subject_id', $subject->id)
+            ->orderByDesc('created_at')
+            ->get();
 
         return response()->json([
             'success' => true,
-
-            'data' => SubjectHomeworkResource::collection($sessionsWithHomework)->resolve(),
+            'data' => SubjectHomeworkResource::collection($homeworks)->resolve(),
         ]);
     }
 

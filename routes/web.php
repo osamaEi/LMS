@@ -583,12 +583,12 @@ Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')
     // Attendance
     Route::get('/attendance', [\App\Http\Controllers\Teacher\SubjectController::class, 'attendanceOverview'])->name('attendance.index');
 
-    // Homework
+    // Homework (tied to subject/program, not sessions)
     Route::get('/homework', [\App\Http\Controllers\Teacher\HomeworkController::class, 'index'])->name('homework.index');
-    Route::post('/sessions/{session}/homework', [\App\Http\Controllers\Teacher\HomeworkController::class, 'store'])->name('sessions.homework.store');
-    Route::put('/sessions/{session}/homework', [\App\Http\Controllers\Teacher\HomeworkController::class, 'update'])->name('sessions.homework.update');
-    Route::delete('/sessions/{session}/homework', [\App\Http\Controllers\Teacher\HomeworkController::class, 'destroy'])->name('sessions.homework.destroy');
-    Route::put('/sessions/{session}/homework/submissions/{submission}/grade', [\App\Http\Controllers\Teacher\HomeworkController::class, 'gradeSubmission'])->name('sessions.homework.grade');
+    Route::post('/homework', [\App\Http\Controllers\Teacher\HomeworkController::class, 'store'])->name('homework.store');
+    Route::put('/homework/{homework}', [\App\Http\Controllers\Teacher\HomeworkController::class, 'update'])->name('homework.update');
+    Route::delete('/homework/{homework}', [\App\Http\Controllers\Teacher\HomeworkController::class, 'destroy'])->name('homework.destroy');
+    Route::put('/homework/{homework}/submissions/{submission}/grade', [\App\Http\Controllers\Teacher\HomeworkController::class, 'gradeSubmission'])->name('homework.grade');
 
     // Grades
     Route::get('/grades', function () {

@@ -64,7 +64,7 @@
         $isOverdue  = $hw->due_date && $hw->due_date->isPast();
         $isDueSoon  = $hw->due_date && !$isOverdue && $hw->due_date->diffInDays(now()) <= 3;
         $borderColor = $sub ? '#86efac' : ($isOverdue ? '#fca5a5' : ($isDueSoon ? '#fde68a' : '#e5e7eb'));
-        $entityName  = $hw->session->subject->name_ar ?? $hw->session->program->name_ar ?? '—';
+        $entityName  = $hw->subject->name_ar ?? $hw->program->name_ar ?? '—';
     @endphp
     <div style="background:white;border:1.5px solid {{ $borderColor }};border-radius:16px;overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,.05);">
 
@@ -77,8 +77,6 @@
                 <div>
                     <div style="display:flex;align-items:center;gap:6px;font-size:.75rem;color:#6b7280;margin-bottom:5px;flex-wrap:wrap;">
                         <span>{{ $entityName }}</span>
-                        <span>·</span>
-                        <span>{{ $hw->session->title ?? ('جلسة #'.$hw->session->session_number) }}</span>
                         @if($hw->due_date)
                         <span style="font-weight:700;color:{{ $isOverdue ? '#dc2626' : ($isDueSoon ? '#d97706' : '#6b7280') }};">
                             · التسليم: {{ $hw->due_date->format('Y/m/d') }}

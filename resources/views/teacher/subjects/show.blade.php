@@ -161,7 +161,7 @@
 @endpush
 
 @section('content')
-<div x-data="{ tab: 'sessions', uploadModal: false, createModal: false }">
+<div x-data="{ tab: 'sessions', uploadModal: false, createModal: false, homeworkModal: false }">
 
 {{-- ─── Hero Header ─── --}}
 <div class="subject-hero">
@@ -211,6 +211,14 @@
                     أضف اختبار
                 </a>
                 @endif
+                <button @click="homeworkModal = true"
+                        class="action-btn"
+                        style="background:#fff;color:#16a34a;font-weight:700;">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
+                    </svg>
+                    أضف واجب
+                </button>
                 <button @click="uploadModal = true"
                         class="action-btn"
                         style="background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.25)">
@@ -494,6 +502,62 @@
                     رفع الملف
                 </button>
                 <button type="button" @click="uploadModal = false"
+                        class="rounded-lg border border-gray-300 dark:border-gray-700 px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition">
+                    إلغاء
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{{-- Add Homework Modal --}}
+<div x-show="homeworkModal" x-cloak
+     style="position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.55);"
+     @keydown.escape.window="homeworkModal = false">
+    <div class="rounded-2xl bg-white dark:bg-gray-900 shadow-2xl w-full max-w-md mx-4 p-6">
+        <div class="flex items-center justify-between mb-5">
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white">إضافة واجب للمقرر</h3>
+            <button @click="homeworkModal = false" class="text-gray-400 hover:text-gray-600 transition">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+        <form action="{{ route('teacher.homework.store') }}" method="POST" enctype="multipart/form-data">
+            @csrf
+            <input type="hidden" name="subject_id" value="{{ $subject->id }}">
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">عنوان الواجب <span class="text-red-500">*</span></label>
+                    <input type="text" name="title_ar" required
+                           class="w-full rounded-lg border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                           placeholder="مثال: واجب الوحدة الأولى">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">وصف الواجب (اختياري)</label>
+                    <textarea name="description_ar" rows="3"
+                              class="w-full rounded-lg border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              placeholder="تفاصيل الواجب"></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">تاريخ التسليم (اختياري)</label>
+                    <input type="date" name="due_date"
+                           class="w-full rounded-lg border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">ملف مرفق (اختياري)</label>
+                    <input type="file" name="file"
+                           class="w-full rounded-lg border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white px-3 py-2 text-sm">
+                    <p class="mt-1 text-xs text-gray-400">حد أقصى 20MB</p>
+                </div>
+            </div>
+            <div class="mt-5 flex gap-3">
+                <button type="submit"
+                        class="flex-1 rounded-lg py-2.5 text-sm font-semibold text-white transition"
+                        style="background:linear-gradient(135deg,#16a34a,#15803d)">
+                    إضافة الواجب
+                </button>
+                <button type="button" @click="homeworkModal = false"
                         class="rounded-lg border border-gray-300 dark:border-gray-700 px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition">
                     إلغاء
                 </button>

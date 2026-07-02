@@ -46,6 +46,11 @@ class RepositoryServiceProvider extends ServiceProvider
             \App\Repositories\Contracts\EvaluationRepositoryInterface::class,
             \App\Repositories\Eloquent\EvaluationRepository::class
         );
+
+        $this->app->bind(
+            \App\Repositories\Contracts\HomeworkRepositoryInterface::class,
+            \App\Repositories\Eloquent\HomeworkRepository::class
+        );
     }
 
     /**

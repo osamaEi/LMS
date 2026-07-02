@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class HomeworkSubmission extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'homework_id', 'student_id', 'content',
         'file_path', 'file_name', 'submitted_at',
