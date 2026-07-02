@@ -101,6 +101,10 @@ class SessionController extends Controller
             $attendance->markAsAttended();
         }
 
+        // Flag late arrivals (تأخير) based on the actual join time.
+        $attendance->is_late = Attendance::isLateJoin($session, $attendance->joined_at ?? now());
+        $attendance->save();
+
         // ── Live Zoom ──────────────────────────────────────────────────────────
         if ($session->type === 'live_zoom') {
             if (empty($session->zoom_meeting_id)) {

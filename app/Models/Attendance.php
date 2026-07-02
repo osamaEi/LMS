@@ -11,6 +11,7 @@ class Attendance extends Model
         'student_id',
         'session_id',
         'attended',
+        'is_late',
         'joined_at',
         'left_at',
         'duration_minutes',
@@ -26,6 +27,7 @@ class Attendance extends Model
     {
         return [
             'attended' => 'boolean',
+            'is_late' => 'boolean',
             'joined_at' => 'datetime',
             'left_at' => 'datetime',
             'duration_minutes' => 'integer',
@@ -44,6 +46,27 @@ class Attendance extends Model
     public function session(): BelongsTo
     {
         return $this->belongsTo(Session::class);
+    }
+
+    /** Minutes after session start beyond which a join counts as late (تأخير). */
+    public const LATE_THRESHOLD_MINUTES = 10;
+
+    /**
+     * Whether a join at $joinedAt counts as late for the given session:
+     * more than LATE_THRESHOLD_MINUTES after the session's actual start
+     * (started_at), falling back to its scheduled time.
+     */
+    public static function isLateJoin(Session $session, \DateTimeInterface $joinedAt): bool
+    {
+        $start = $session->started_at ?? $session->scheduled_at;
+
+        if (!$start) {
+            return false;
+        }
+
+        return \Carbon\Carbon::instance($joinedAt)->greaterThan(
+            \Carbon\Carbon::parse($start)->addMinutes(self::LATE_THRESHOLD_MINUTES)
+        );
     }
 
     // Helper Methods

@@ -528,6 +528,7 @@ class SubjectController extends Controller
                 'student_id' => $student->id,
                 'student'    => $student,
                 'attended'   => $attended,
+                'is_late'    => $attended && ($att?->is_late ?? false),
                 'excused'    => !$attended && $excusedStudentIds->has($student->id),
                 'joined_at'  => $att?->joined_at,
                 'notes'      => $att?->notes,
@@ -536,12 +537,14 @@ class SubjectController extends Controller
 
         $totalAssigned  = $attendances->count();
         $attendedCount  = $attendances->where('attended', true)->count();
+        $lateCount      = $attendances->where('is_late', true)->count();
         $excusedCount   = $attendances->where('excused', true)->count();
         $absentStudents = $attendances->where('attended', false)->where('excused', false)->pluck('student')->filter()->values();
 
         $stats = [
             'total_enrolled'  => $totalAssigned,
             'attended'        => $attendedCount,
+            'late'            => $lateCount,
             'excused'         => $excusedCount,
             'absent'          => $absentStudents->count(),
             'attendance_rate' => $totalAssigned > 0
@@ -592,11 +595,14 @@ class SubjectController extends Controller
             fputcsv($f, ['#', 'اسم المتدرب', 'كود المتدرب', 'الحضور', 'وقت الانضمام']);
             foreach ($students as $i => $student) {
                 $att = $attendanceMap->get($student->id);
+                $status = $att && $att->attended
+                    ? ($att->is_late ? 'متأخر' : 'حاضر')
+                    : 'غائب';
                 fputcsv($f, [
                     $i + 1,
                     $student->name,
                     $student->student_code ?? '',
-                    $att && $att->attended ? 'حاضر' : 'غائب',
+                    $status,
                     $att && $att->joined_at ? \Carbon\Carbon::parse($att->joined_at)->format('H:i') : '',
                 ]);
             }
@@ -624,12 +630,19 @@ class SubjectController extends Controller
             'student_ids.*' => 'exists:users,id',
         ]);
 
+        $joinedAt = now();
+
+        // A student is "late" (تأخير) if they joined more than the threshold
+        // after the session started (see Attendance::isLateJoin).
+        $isLate = Attendance::isLateJoin($session, $joinedAt);
+
         foreach ($validated['student_ids'] as $studentId) {
             Attendance::updateOrCreate(
                 ['student_id' => $studentId, 'session_id' => $session->id],
                 [
                     'attended'    => true,
-                    'joined_at'   => now(),
+                    'is_late'     => $isLate,
+                    'joined_at'   => $joinedAt,
                 ]
             );
         }
@@ -653,7 +666,7 @@ class SubjectController extends Controller
 
         Attendance::updateOrCreate(
             ['student_id' => $validated['student_id'], 'session_id' => $session->id],
-            ['attended' => false, 'joined_at' => null]
+            ['attended' => false, 'is_late' => false, 'joined_at' => null]
         );
 
         return back()->with('success', 'تم تحويل الطالب إلى غائب');

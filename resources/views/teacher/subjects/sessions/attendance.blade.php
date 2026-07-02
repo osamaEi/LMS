@@ -6,6 +6,7 @@
 @php
     $rate    = $stats['attendance_rate'];
     $attended = $stats['attended'];
+    $late     = $stats['late'] ?? 0;
     $absent   = $stats['absent'];
     $excused  = $stats['excused'] ?? 0;
     $total    = $stats['total_enrolled'];
@@ -58,10 +59,11 @@
 </div>
 
 {{-- Stats Row --}}
-<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px">
+<div style="display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:20px">
     @foreach([
         [$total,    'إجمالي المسجلين', '#2563eb', '#dbeafe'],
         [$attended, 'حاضر',            '#16a34a', '#dcfce7'],
+        [$late,     'متأخر',           '#ea580c', '#ffedd5'],
         [$excused,  'معذور',           '#d97706', '#fef3c7'],
         [$absent,   'غائب',            '#dc2626', '#fee2e2'],
         [$rate.'%', 'نسبة الحضور',    $rateColor, '#f9fafb'],
@@ -102,6 +104,9 @@
                     @if($att->joined_at)
                         @php $j = \Carbon\Carbon::parse($att->joined_at); @endphp
                         <span style="font-weight:600;">{{ $j->format('h:i A') }}</span>
+                        @if($att->is_late)
+                        <span style="display:inline-block;background:#ffedd5;color:#c2410c;font-size:.68rem;font-weight:800;padding:2px 8px;border-radius:20px;margin-right:6px;">⏱ تأخير</span>
+                        @endif
                         <span style="font-size:.72rem;color:#9ca3af;display:block;margin-top:1px;">{{ $j->translatedFormat('l، d/m/Y') }}</span>
                     @else
                         —
