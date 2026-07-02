@@ -143,15 +143,22 @@
                                 <span style="font-size:.72rem;color:#0071AA;font-weight:600;background:#eff6ff;padding:1px 7px;border-radius:20px;">{{ $subCount }} تسليم</span>
                             </div>
                         </div>
-                        <form action="{{ route('teacher.homework.destroy', $homework) }}" method="POST"
-                              onsubmit="return confirm('حذف الواجب؟')" style="flex-shrink:0;">
-                            @csrf @method('DELETE')
-                            <button type="submit"
-                                    style="display:inline-flex;align-items:center;gap:4px;padding:5px 11px;background:linear-gradient(135deg,#ef4444,#dc2626);color:white;border:none;border-radius:7px;font-size:.72rem;font-weight:700;cursor:pointer;">
-                                <svg width="10" height="10" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
-                                حذف
-                            </button>
-                        </form>
+                        <div style="display:flex;gap:6px;flex-shrink:0;align-items:flex-start;">
+                            <a href="{{ route('teacher.homework.show', $homework) }}"
+                               style="display:inline-flex;align-items:center;gap:4px;padding:5px 11px;background:linear-gradient(135deg,#0071AA,#005a88);color:white;border-radius:7px;font-size:.72rem;font-weight:700;text-decoration:none;">
+                                <svg width="10" height="10" fill="currentColor" viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zm0 12a5 5 0 110-10 5 5 0 010 10zm0-8a3 3 0 100 6 3 3 0 000-6z"/></svg>
+                                عرض التسليمات
+                            </a>
+                            <form action="{{ route('teacher.homework.destroy', $homework) }}" method="POST"
+                                  onsubmit="return confirm('حذف الواجب؟')">
+                                @csrf @method('DELETE')
+                                <button type="submit"
+                                        style="display:inline-flex;align-items:center;gap:4px;padding:5px 11px;background:linear-gradient(135deg,#ef4444,#dc2626);color:white;border:none;border-radius:7px;font-size:.72rem;font-weight:700;cursor:pointer;">
+                                    <svg width="10" height="10" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+                                    حذف
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>

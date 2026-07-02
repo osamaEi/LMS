@@ -585,6 +585,7 @@ Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')
 
     // Homework (tied to subject/program, not sessions)
     Route::get('/homework', [\App\Http\Controllers\Teacher\HomeworkController::class, 'index'])->name('homework.index');
+    Route::get('/homework/{homework}', [\App\Http\Controllers\Teacher\HomeworkController::class, 'show'])->name('homework.show');
     Route::post('/homework', [\App\Http\Controllers\Teacher\HomeworkController::class, 'store'])->name('homework.store');
     Route::put('/homework/{homework}', [\App\Http\Controllers\Teacher\HomeworkController::class, 'update'])->name('homework.update');
     Route::delete('/homework/{homework}', [\App\Http\Controllers\Teacher\HomeworkController::class, 'destroy'])->name('homework.destroy');

@@ -26,6 +26,18 @@ class HomeworkController extends Controller
         return view('teacher.homework.index', compact('subjects', 'homeworks'));
     }
 
+    public function show(Homework $homework)
+    {
+        $homework->load(['subject', 'program', 'session.subject', 'session.program']);
+
+        $submissions = $homework->submissions()
+            ->with('student:id,name,student_code')
+            ->orderByDesc('submitted_at')
+            ->get();
+
+        return view('teacher.homework.show', compact('homework', 'submissions'));
+    }
+
     public function store(StoreHomeworkRequest $request)
     {
         $data = $request->only([
