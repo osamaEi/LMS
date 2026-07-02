@@ -12,11 +12,13 @@ class HomeworkSubmission extends Model
     protected $fillable = [
         'homework_id', 'student_id', 'content',
         'file_path', 'file_name', 'submitted_at',
-        'grade', 'feedback',
+        'grade', 'max_grade', 'feedback',
     ];
 
     protected $casts = [
         'submitted_at' => 'datetime',
+        'grade'        => 'integer',
+        'max_grade'    => 'integer',
     ];
 
     public function homework()

@@ -20,6 +20,7 @@ class HomeworkSubmissionResource extends JsonResource
             'file_name'    => $this->file_name,
             'submitted_at' => $this->submitted_at?->toIso8601String(),
             'grade'        => $this->grade,
+            'max_grade'    => $this->max_grade ?? 100,
             'feedback'     => $this->feedback,
         ];
     }

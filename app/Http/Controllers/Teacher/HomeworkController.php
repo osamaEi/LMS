@@ -68,7 +68,7 @@ class HomeworkController extends Controller
 
     public function gradeSubmission(GradeSubmissionRequest $request, Homework $homework, HomeworkSubmission $submission)
     {
-        $this->homeworkService->gradeSubmission($submission, $request->only(['grade', 'feedback']));
+        $this->homeworkService->gradeSubmission($submission, $request->only(['grade', 'max_grade', 'feedback']));
 
         return back()->with('success', 'تم حفظ التقييم بنجاح');
     }

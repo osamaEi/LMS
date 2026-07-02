@@ -14,8 +14,17 @@ class GradeSubmissionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'grade'    => 'nullable|integer|min:0|max:100',
-            'feedback' => 'nullable|string|max:500',
+            'max_grade' => 'required|integer|min:1|max:1000',
+            'grade'     => 'nullable|integer|min:0|lte:max_grade',
+            'feedback'  => 'nullable|string|max:500',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'grade.lte'       => 'الدرجة لا يمكن أن تكون أكبر من الدرجة القصوى.',
+            'max_grade.min'   => 'الدرجة القصوى يجب أن تكون 1 على الأقل.',
         ];
     }
 }

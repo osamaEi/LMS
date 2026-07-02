@@ -96,7 +96,7 @@
                     <svg width="11" height="11" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
                     تم التسليم
                     @if($sub->grade !== null)
-                    <span style="background:#16a34a;color:white;border-radius:20px;padding:1px 8px;">{{ $sub->grade }}/100</span>
+                    <span style="background:#16a34a;color:white;border-radius:20px;padding:1px 8px;">{{ $sub->grade }}/{{ $sub->max_grade ?? 100 }}</span>
                     @endif
                 </span>
                 @endif

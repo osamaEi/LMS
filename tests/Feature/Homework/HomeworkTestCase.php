@@ -182,6 +182,7 @@ abstract class HomeworkTestCase extends TestCase
             $table->string('file_name')->nullable();
             $table->timestamp('submitted_at')->nullable();
             $table->integer('grade')->nullable();
+            $table->unsignedSmallInteger('max_grade')->default(100);
             $table->text('feedback')->nullable();
             $table->timestamps();
             $table->unique(['homework_id', 'student_id']);

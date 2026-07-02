@@ -91,7 +91,7 @@
                         </div>
                     </div>
                     @if($sub->grade !== null)
-                    <span style="font-size:.78rem;font-weight:800;color:#16a34a;background:#f0fdf4;padding:4px 12px;border-radius:20px;">{{ $sub->grade }}/100</span>
+                    <span style="font-size:.78rem;font-weight:800;color:#16a34a;background:#f0fdf4;padding:4px 12px;border-radius:20px;">{{ $sub->grade }}/{{ $sub->max_grade ?? 100 }}</span>
                     @else
                     <span style="font-size:.72rem;font-weight:600;color:#d97706;background:#fffbeb;padding:4px 12px;border-radius:20px;">لم يُقيّم</span>
                     @endif
@@ -116,9 +116,15 @@
                 <form action="{{ route('teacher.homework.grade', [$homework, $sub->id]) }}" method="POST"
                       style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;border-top:1px solid #f3f4f6;padding-top:10px;">
                     @csrf @method('PUT')
-                    <div style="width:90px;">
+                    <div style="width:75px;">
                         <label style="display:block;font-size:.7rem;font-weight:700;color:#374151;margin-bottom:3px;">الدرجة</label>
-                        <input type="number" name="grade" min="0" max="100" value="{{ $sub->grade }}" placeholder="0-100"
+                        <input type="number" name="grade" min="0" value="{{ $sub->grade }}" placeholder="مثال 4"
+                               style="width:100%;padding:7px 10px;border:1.5px solid #d1d5db;border-radius:8px;font-size:.82rem;">
+                    </div>
+                    <div style="font-size:1.1rem;font-weight:700;color:#9ca3af;padding-bottom:6px;">/</div>
+                    <div style="width:75px;">
+                        <label style="display:block;font-size:.7rem;font-weight:700;color:#374151;margin-bottom:3px;">من</label>
+                        <input type="number" name="max_grade" min="1" required value="{{ $sub->max_grade ?? 100 }}" placeholder="مثال 5"
                                style="width:100%;padding:7px 10px;border:1.5px solid #d1d5db;border-radius:8px;font-size:.82rem;">
                     </div>
                     <div style="flex:1;min-width:180px;">

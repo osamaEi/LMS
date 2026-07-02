@@ -146,20 +146,22 @@ class TeacherHomeworkTest extends HomeworkTestCase
         $this->actingAs($teacher)
             ->from('/teacher/homework')
             ->put("/teacher/homework/{$homework->id}/submissions/{$submission->id}/grade", [
-                'grade'    => 88,
-                'feedback' => 'عمل جيد',
+                'grade'     => 4,
+                'max_grade' => 5,
+                'feedback'  => 'عمل جيد',
             ])
             ->assertRedirect('/teacher/homework')
             ->assertSessionHas('success');
 
         $this->assertDatabaseHas('homework_submissions', [
-            'id'       => $submission->id,
-            'grade'    => 88,
-            'feedback' => 'عمل جيد',
+            'id'        => $submission->id,
+            'grade'     => 4,
+            'max_grade' => 5,
+            'feedback'  => 'عمل جيد',
         ]);
     }
 
-    public function test_grade_submission_rejects_out_of_range_grade(): void
+    public function test_grade_submission_rejects_grade_above_max(): void
     {
         $teacher = $this->teacher();
         $subject = $this->subjectForTeacher($teacher);
@@ -170,10 +172,12 @@ class TeacherHomeworkTest extends HomeworkTestCase
             'student_id'  => $student->id,
         ]);
 
+        // 6 out of 5 is invalid — grade must not exceed max_grade.
         $this->actingAs($teacher)
             ->from('/teacher/homework')
             ->put("/teacher/homework/{$homework->id}/submissions/{$submission->id}/grade", [
-                'grade' => 150,
+                'grade'     => 6,
+                'max_grade' => 5,
             ])
             ->assertSessionHasErrors('grade');
     }

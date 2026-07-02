@@ -78,8 +78,9 @@ class HomeworkService
     public function gradeSubmission(HomeworkSubmission $submission, array $data): HomeworkSubmission
     {
         $submission->update([
-            'grade'    => $data['grade'] ?? null,
-            'feedback' => $data['feedback'] ?? null,
+            'grade'     => $data['grade'] ?? null,
+            'max_grade' => $data['max_grade'] ?? 100,
+            'feedback'  => $data['feedback'] ?? null,
         ]);
 
         return $submission;
