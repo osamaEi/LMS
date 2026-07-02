@@ -583,11 +583,15 @@ class SessionController extends Controller
     public function reschedule(Request $request, Session $session)
     {
         $validated = $request->validate([
-            'scheduled_at' => 'required|date'
+            'scheduled_at' => 'required|date',
+            'teacher_id'   => 'nullable|exists:users,id',
         ]);
 
         try {
             $session->scheduled_at = $validated['scheduled_at'];
+            if (array_key_exists('teacher_id', $validated) && $validated['teacher_id']) {
+                $session->teacher_id = $validated['teacher_id'];
+            }
             $session->save();
 
             // Optionally update Zoom meeting if exists

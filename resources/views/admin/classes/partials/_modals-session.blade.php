@@ -24,6 +24,15 @@
                     <option value="16:00">الفترة المسائية (4) — 4:00</option>
                 </select>
             </div>
+            <div>
+                <label style="display:block;font-size:11px;font-weight:700;color:#475569;margin-bottom:6px;">المدرب</label>
+                <select id="editSessTeacher" style="width:100%;padding:9px 12px;font-size:13px;border:1.5px solid #e2e8f0;border-radius:10px;outline:none;font-family:inherit;background:white;">
+                    <option value="">— بدون تغيير المدرب —</option>
+                    @foreach($teachers as $t)
+                        <option value="{{ $t->id }}">{{ $t->name }}</option>
+                    @endforeach
+                </select>
+            </div>
         </div>
         <div style="display:flex;justify-content:flex-end;gap:8px;padding:14px 20px;border-top:1px solid #f1f5f9;">
             <button onclick="closeEditSession()" style="padding:9px 18px;font-size:13px;font-weight:600;color:#475569;background:#f1f5f9;border:none;border-radius:10px;cursor:pointer;">إلغاء</button>

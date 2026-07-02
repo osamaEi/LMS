@@ -6,6 +6,7 @@
         'title'    => $s->title_ar ?: 'جلسة',
         'subject'  => $s->subject->name_ar ?? null,
         'teacher'  => $s->teacher->name ?? null,
+        'teacher_id' => $s->teacher_id,
         'at'       => $s->scheduled_at ? \Carbon\Carbon::parse($s->scheduled_at)->format('Y-m-d H:i:s') : null,
         'duration' => $s->duration_minutes,
         'status'   => $s->status,
@@ -192,7 +193,7 @@
                         ${showSub?`<div style="font-size:10px;color:#64748b;">${s.subject}</div>`:''}
                         ${s.teacher?`<div style="font-size:10px;color:#6366f1;font-weight:600;margin-top:2px;">👤 ${s.teacher}</div>`:''}
                         <div style="display:flex;gap:4px;justify-content:flex-start;margin-top:5px;">
-                            <button type="button" onclick="rescheduleSession(${s.id},'${s.at}')" title="تعديل الموعد" style="width:20px;height:20px;border:none;border-radius:5px;background:#dbeafe;color:#1d4ed8;cursor:pointer;font-size:10px;line-height:1;">✎</button>
+                            <button type="button" onclick="rescheduleSession(${s.id},'${s.at}',${s.teacher_id||'null'})" title="تعديل الموعد" style="width:20px;height:20px;border:none;border-radius:5px;background:#dbeafe;color:#1d4ed8;cursor:pointer;font-size:10px;line-height:1;">✎</button>
                             <button type="button" onclick="deleteSession(${s.id})" title="حذف" style="width:20px;height:20px;border:none;border-radius:5px;background:#fee2e2;color:#dc2626;cursor:pointer;font-size:11px;line-height:1;">🗑</button>
                         </div>
                     </div>`;
@@ -237,18 +238,21 @@
 })();
 
 const _SESS_CSRF = '{{ csrf_token() }}';
-window.rescheduleSession = function(id, currentAt){
+window.rescheduleSession = function(id, currentAt, teacherId){
     document.getElementById('editSessId').value   = id;
     document.getElementById('editSessDate').value = (currentAt||'').slice(0,10);
     const timeSel=document.getElementById('editSessTime'), timePart=(currentAt||'').slice(11,16);
     timeSel.value=timePart; if(timeSel.value!==timePart) timeSel.value='';
+    const teachSel=document.getElementById('editSessTeacher');
+    if(teachSel) teachSel.value = (teacherId!=null) ? String(teacherId) : '';
     document.getElementById('editSessModal').style.display='flex';
 };
 window.closeEditSession = function(){ document.getElementById('editSessModal').style.display='none'; };
 window.submitEditSession = function(){
     const id=document.getElementById('editSessId').value, date=document.getElementById('editSessDate').value, time=document.getElementById('editSessTime').value;
+    const teacherId=(document.getElementById('editSessTeacher')||{}).value||'';
     if(!date||!time){ alert('اختر التاريخ والفترة'); return; }
-    fetch(`/admin/sessions/${id}/reschedule`,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json','X-CSRF-TOKEN':_SESS_CSRF},body:JSON.stringify({scheduled_at:date+' '+time+':00'})})
+    fetch(`/admin/sessions/${id}/reschedule`,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json','X-CSRF-TOKEN':_SESS_CSRF},body:JSON.stringify({scheduled_at:date+' '+time+':00',teacher_id:teacherId||null})})
         .then(r=>r.json()).then(d=>{ if(d.success){ location.hash='#sessions'; location.reload(); } else alert(d.message||'تعذّر التعديل'); });
 };
 window.clearAllSessions = function(){
