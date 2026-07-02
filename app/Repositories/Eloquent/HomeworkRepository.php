@@ -91,11 +91,18 @@ class HomeworkRepository extends BaseRepository implements HomeworkRepositoryInt
 
     /**
      * Homework the teacher created for any of the given subjects, newest first.
+     *
+     * Includes legacy homework still tied to a session (session_id, no
+     * subject_id) whose session belongs to one of the teacher's subjects, so
+     * old homework keeps showing after the subject/program migration.
      */
     public function teacherHomeworks(SupportCollection $subjectIds, array $relations = []): Collection
     {
         return $this->model
-            ->whereIn('subject_id', $subjectIds)
+            ->where(function ($q) use ($subjectIds) {
+                $q->whereIn('subject_id', $subjectIds)
+                  ->orWhereHas('session', fn($sq) => $sq->whereIn('subject_id', $subjectIds));
+            })
             ->with($relations)
             ->orderByDesc('created_at')
             ->get();

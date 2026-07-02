@@ -239,7 +239,7 @@ class HomeworkService
 
         $homeworks = $this->homeworkRepository->teacherHomeworks(
             $subjects->pluck('id'),
-            ['subject', 'program']
+            ['subject', 'program', 'session.subject', 'session.program']
         );
 
         return [

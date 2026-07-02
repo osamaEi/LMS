@@ -132,7 +132,7 @@
                 <div style="flex:1;padding:13px 15px;">
                     <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;">
                         <div style="min-width:0;flex:1;">
-                            <p style="font-size:.72rem;color:#6b7280;margin:0 0 3px;">{{ $homework->subject->name_ar ?? $homework->program->name_ar ?? '—' }}</p>
+                            <p style="font-size:.72rem;color:#6b7280;margin:0 0 3px;">{{ $homework->subject->name_ar ?? $homework->program->name_ar ?? $homework->session->subject->name_ar ?? $homework->session->program->name_ar ?? '—' }}</p>
                             <p style="font-size:.86rem;font-weight:700;color:#111827;margin:0 0 2px;">
                                 📋 {{ $homework->title_ar ?: $homework->title_en ?: 'واجب بدون عنوان' }}
                             </p>
