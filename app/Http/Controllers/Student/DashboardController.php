@@ -554,6 +554,10 @@ class DashboardController extends Controller
             ]);
         }
 
+        // Flag late arrivals (تأخير): joined 10+ minutes after the teacher started.
+        $attendance->is_late = Attendance::isLateJoin($session, $attendance->joined_at ?? now());
+        $attendance->save();
+
         // Which link to open: ?link=start uses the host/start link, otherwise the
         // student join link. Attendance is recorded either way (above).
         $which = $request->query('link');
