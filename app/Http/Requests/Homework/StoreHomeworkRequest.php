@@ -18,6 +18,7 @@ class StoreHomeworkRequest extends FormRequest
         return [
             'subject_id'     => 'nullable|required_without:program_id|exists:subjects,id',
             'program_id'     => 'nullable|required_without:subject_id|exists:programs,id',
+            'class_id'       => 'nullable|exists:program_classes,id',
             'title_ar'       => 'nullable|string|max:255',
             'title_en'       => 'nullable|string|max:255',
             'description_ar' => 'nullable|string',

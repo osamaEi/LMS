@@ -20,10 +20,10 @@ class HomeworkController extends Controller
     {
         $teacher = auth()->user();
 
-        ['subjects' => $subjects, 'homeworks' => $homeworks] =
+        ['subjects' => $subjects, 'classes' => $classes, 'homeworks' => $homeworks] =
             $this->homeworkService->teacherHomeworkDashboard($teacher);
 
-        return view('teacher.homework.index', compact('subjects', 'homeworks'));
+        return view('teacher.homework.index', compact('subjects', 'classes', 'homeworks'));
     }
 
     public function show(Homework $homework)
@@ -41,7 +41,7 @@ class HomeworkController extends Controller
     public function store(StoreHomeworkRequest $request)
     {
         $data = $request->only([
-            'subject_id', 'program_id',
+            'subject_id', 'program_id', 'class_id',
             'title_ar', 'title_en', 'description_ar', 'description_en', 'due_date',
         ]);
 

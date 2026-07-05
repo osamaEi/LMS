@@ -15,6 +15,7 @@ class Homework extends Model
         'session_id',
         'subject_id',
         'program_id',
+        'class_id',
         'title_ar',
         'title_en',
         'description_ar',
@@ -41,6 +42,11 @@ class Homework extends Model
     public function program()
     {
         return $this->belongsTo(Program::class);
+    }
+
+    public function programClass()
+    {
+        return $this->belongsTo(ProgramClass::class, 'class_id');
     }
 
     public function submissions()

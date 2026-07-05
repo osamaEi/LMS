@@ -55,6 +55,11 @@ class ProgramClass extends Model
         return $this->hasMany(Subject::class, 'class_id');
     }
 
+    public function sessions()
+    {
+        return $this->hasMany(Session::class, 'class_id');
+    }
+
     public function getStudentsCountAttribute(): int
     {
         return $this->students()->count();

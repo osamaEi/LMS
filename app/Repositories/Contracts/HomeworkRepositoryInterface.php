@@ -48,6 +48,11 @@ interface HomeworkRepositoryInterface extends BaseRepositoryInterface
     public function teacherSubjects(User $teacher): Collection;
 
     /**
+     * Classes (groups) the teacher is registered on via their sessions.
+     */
+    public function teacherClasses(User $teacher): Collection;
+
+    /**
      * Homework the teacher created for any of the given subjects, newest first.
      */
     public function teacherHomeworks(SupportCollection $subjectIds, array $relations = []): Collection;

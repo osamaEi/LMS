@@ -76,6 +76,23 @@ class HomeworkRepository extends BaseRepository implements HomeworkRepositoryInt
      * Subjects the given teacher may assign homework to (via class, term class,
      * or direct assignment).
      */
+    /**
+     * Classes (groups) the teacher is registered on through their sessions,
+     * i.e. classes that have at least one session whose teacher_id is this
+     * teacher. Falls back to classes the teacher owns directly.
+     */
+    public function teacherClasses(User $teacher): Collection
+    {
+        return ProgramClass::where(function ($q) use ($teacher) {
+                $q->where('teacher_id', $teacher->id)
+                  ->orWhereHas('sessions', fn($sq) => $sq->where('teacher_id', $teacher->id));
+            })
+            ->where('status', 'active')
+            ->with('program:id,name_ar')
+            ->orderBy('name')
+            ->get();
+    }
+
     public function teacherSubjects(User $teacher): Collection
     {
         $classIds = ProgramClass::where('teacher_id', $teacher->id)->pluck('id');

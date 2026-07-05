@@ -90,6 +90,18 @@ class HomeworkService
     {
         $students = collect();
 
+        // When scoped to a class (group), notify only that class's students.
+        if ($homework->class_id) {
+            $students = \App\Models\ProgramClass::find($homework->class_id)
+                ?->students()->get() ?? collect();
+
+            foreach ($students as $student) {
+                $student->notify(new HomeworkCreatedNotification($homework));
+            }
+
+            return;
+        }
+
         if ($homework->subject_id) {
             $students = Enrollment::where('subject_id', $homework->subject_id)
                 ->where('status', 'active')
@@ -237,14 +249,16 @@ class HomeworkService
     public function teacherHomeworkDashboard(User $teacher): array
     {
         $subjects = $this->homeworkRepository->teacherSubjects($teacher);
+        $classes  = $this->homeworkRepository->teacherClasses($teacher);
 
         $homeworks = $this->homeworkRepository->teacherHomeworks(
             $subjects->pluck('id'),
-            ['subject', 'program', 'session.subject', 'session.program']
+            ['subject', 'program', 'programClass', 'session.subject', 'session.program']
         );
 
         return [
             'subjects'  => $subjects,
+            'classes'   => $classes,
             'homeworks' => $homeworks,
         ];
     }

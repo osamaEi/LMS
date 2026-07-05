@@ -56,7 +56,7 @@
           style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
         @csrf
 
-        <div style="grid-column:1 / -1;">
+        <div>
             <label style="display:block;font-size:.78rem;font-weight:700;color:#374151;margin-bottom:5px;">المقرر <span style="color:#ef4444;">*</span></label>
             <select name="subject_id" required
                     style="width:100%;padding:9px 12px;border:1.5px solid #d1d5db;border-radius:9px;font-size:.85rem;background:white;">
@@ -64,6 +64,19 @@
                 @foreach($subjects as $subject)
                 <option value="{{ $subject->id }}" @selected(old('subject_id') == $subject->id)>
                     {{ $subject->name_ar ?: $subject->name_en }}@if($subject->code) ({{ $subject->code }})@endif
+                </option>
+                @endforeach
+            </select>
+        </div>
+
+        <div>
+            <label style="display:block;font-size:.78rem;font-weight:700;color:#374151;margin-bottom:5px;">المجموعة (الكلاس)</label>
+            <select name="class_id"
+                    style="width:100%;padding:9px 12px;border:1.5px solid #d1d5db;border-radius:9px;font-size:.85rem;background:white;">
+                <option value="">— كل المسجّلين بالمقرر —</option>
+                @foreach($classes as $class)
+                <option value="{{ $class->id }}" @selected(old('class_id') == $class->id)>
+                    {{ $class->name }}@if($class->program) — {{ $class->program->name_ar }}@endif
                 </option>
                 @endforeach
             </select>
@@ -132,7 +145,12 @@
                 <div style="flex:1;padding:13px 15px;">
                     <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;">
                         <div style="min-width:0;flex:1;">
-                            <p style="font-size:.72rem;color:#6b7280;margin:0 0 3px;">{{ $homework->subject->name_ar ?? $homework->program->name_ar ?? $homework->session->subject->name_ar ?? $homework->session->program->name_ar ?? '—' }}</p>
+                            <p style="font-size:.72rem;color:#6b7280;margin:0 0 3px;">
+                                {{ $homework->subject->name_ar ?? $homework->program->name_ar ?? $homework->session->subject->name_ar ?? $homework->session->program->name_ar ?? '—' }}
+                                @if($homework->programClass)
+                                <span style="display:inline-block;background:#eff6ff;color:#0071AA;font-size:.66rem;font-weight:700;padding:1px 8px;border-radius:20px;margin-right:4px;">🏫 {{ $homework->programClass->name }}</span>
+                                @endif
+                            </p>
                             <p style="font-size:.86rem;font-weight:700;color:#111827;margin:0 0 2px;">
                                 📋 {{ $homework->title_ar ?: $homework->title_en ?: 'واجب بدون عنوان' }}
                             </p>
