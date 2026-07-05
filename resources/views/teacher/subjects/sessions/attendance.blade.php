@@ -79,10 +79,14 @@
 <div style="background:#fff;border:1.5px solid #f1f5f9;border-radius:14px;overflow:hidden;margin-bottom:20px">
     <div style="padding:14px 18px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;gap:10px">
         <div style="width:8px;height:8px;border-radius:50%;background:#16a34a"></div>
-        <h2 style="font-size:.9rem;font-weight:700;color:#111827;margin:0"> المتدربون  الحاضرون ({{ $attended }})</h2>
+        @php
+            $onTime   = $attendances->where('attended', true)->where('is_late', false)->values();
+            $lateAtt  = $attendances->where('attended', true)->where('is_late', true)->values();
+        @endphp
+        <h2 style="font-size:.9rem;font-weight:700;color:#111827;margin:0"> المتدربون الحاضرون في الوقت ({{ $onTime->count() }})</h2>
     </div>
 
-    @if($attendances->where('attended', true)->count())
+    @if($onTime->count())
     <table style="width:100%;border-collapse:collapse;font-size:.85rem">
         <thead>
             <tr style="background:#f9fafb">
@@ -93,7 +97,7 @@
             </tr>
         </thead>
         <tbody>
-            @foreach($attendances->where('attended', true) as $i => $att)
+            @foreach($onTime as $i => $att)
             <tr style="border-top:1px solid #f9fafb">
                 <td style="padding:12px 18px;color:#9ca3af;font-weight:700">{{ $i + 1 }}</td>
                 <td style="padding:12px 18px">
@@ -104,9 +108,6 @@
                     @if($att->joined_at)
                         @php $j = \Carbon\Carbon::parse($att->joined_at); @endphp
                         <span style="font-weight:600;">{{ $j->format('h:i A') }}</span>
-                        @if($att->is_late)
-                        <span style="display:inline-block;background:#ffedd5;color:#c2410c;font-size:.68rem;font-weight:800;padding:2px 8px;border-radius:20px;margin-right:6px;">⏱ تأخير</span>
-                        @endif
                         <span style="font-size:.72rem;color:#9ca3af;display:block;margin-top:1px;">{{ $j->translatedFormat('l، d/m/Y') }}</span>
                     @else
                         —
@@ -128,9 +129,70 @@
         </tbody>
     </table>
     @else
-    <div style="padding:40px;text-align:center;color:#9ca3af;font-size:.875rem">لا يوجد حضور مسجّل بعد</div>
+    <div style="padding:40px;text-align:center;color:#9ca3af;font-size:.875rem">لا يوجد حضور في الوقت مسجّل بعد</div>
     @endif
 </div>
+
+{{-- Late (متأخر) Table — joined more than 10 min after the teacher started --}}
+@if($lateAtt->count())
+<div style="background:#fff;border:1.5px solid #ffedd5;border-radius:14px;overflow:hidden;margin-bottom:20px">
+    <div style="padding:14px 18px;border-bottom:1px solid #ffedd5;display:flex;align-items:center;gap:10px">
+        <div style="width:8px;height:8px;border-radius:50%;background:#ea580c"></div>
+        <h2 style="font-size:.9rem;font-weight:700;color:#111827;margin:0">المتأخرون — أكثر من {{ \App\Models\Attendance::LATE_THRESHOLD_MINUTES }} دقائق ({{ $lateAtt->count() }})</h2>
+    </div>
+    <table style="width:100%;border-collapse:collapse;font-size:.85rem">
+        <thead>
+            <tr style="background:#fff7ed">
+                <th style="padding:10px 18px;text-align:right;font-size:.75rem;font-weight:700;color:#9a3412;white-space:nowrap">#</th>
+                <th style="padding:10px 18px;text-align:right;font-size:.75rem;font-weight:700;color:#9a3412">المتدرب</th>
+                <th style="padding:10px 18px;text-align:right;font-size:.75rem;font-weight:700;color:#9a3412">وقت الانضمام</th>
+                <th style="padding:10px 18px;text-align:right;font-size:.75rem;font-weight:700;color:#9a3412">مدة التأخير</th>
+                <th style="padding:10px 18px;text-align:left;font-size:.75rem;font-weight:700;color:#9a3412"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @php $sessionStart = $session->started_at ?? $session->scheduled_at; @endphp
+            @foreach($lateAtt as $i => $att)
+            <tr style="border-top:1px solid #fff7ed">
+                <td style="padding:12px 18px;color:#9ca3af;font-weight:700">{{ $i + 1 }}</td>
+                <td style="padding:12px 18px">
+                    <p style="font-weight:700;color:#111827;margin:0">{{ $att->student->name ?? 'غير معروف' }}</p>
+                    <p style="font-size:.75rem;color:#9ca3af;margin:2px 0 0">{{ $att->student->email ?? '' }}</p>
+                </td>
+                <td style="padding:12px 18px;color:#374151">
+                    @if($att->joined_at)
+                        @php $j = \Carbon\Carbon::parse($att->joined_at); @endphp
+                        <span style="font-weight:600;">{{ $j->format('h:i A') }}</span>
+                        <span style="display:inline-block;background:#ffedd5;color:#c2410c;font-size:.68rem;font-weight:800;padding:2px 8px;border-radius:20px;margin-right:6px;">⏱ تأخير</span>
+                        <span style="font-size:.72rem;color:#9ca3af;display:block;margin-top:1px;">{{ $j->translatedFormat('l، d/m/Y') }}</span>
+                    @else
+                        —
+                    @endif
+                </td>
+                <td style="padding:12px 18px;color:#c2410c;font-weight:700">
+                    @if($att->joined_at && $sessionStart)
+                        {{ \Carbon\Carbon::parse($sessionStart)->diffInMinutes(\Carbon\Carbon::parse($att->joined_at)) }} دقيقة
+                    @else
+                        —
+                    @endif
+                </td>
+                <td style="padding:12px 18px;text-align:left">
+                    <form action="{{ route('teacher.my-subjects.sessions.attendance.absent', [$subject->id, $session->id]) }}"
+                          method="POST" onsubmit="return confirm('تحويل {{ $att->student->name ?? 'الطالب' }} إلى غائب؟')" style="margin:0">
+                        @csrf
+                        <input type="hidden" name="student_id" value="{{ $att->student_id }}">
+                        <button type="submit"
+                                style="padding:6px 14px;border-radius:8px;border:1.5px solid #fecaca;font-size:.75rem;font-weight:700;color:#dc2626;background:#fef2f2;cursor:pointer;white-space:nowrap">
+                            تحويل لغائب
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            @endforeach
+        </tbody>
+    </table>
+</div>
+@endif
 
 {{-- Excused (معذور) Table --}}
 @if($excused > 0)
