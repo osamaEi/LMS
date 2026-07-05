@@ -27,6 +27,11 @@
                 إنشاء جلسات
             </button>
             @if($sessions->isNotEmpty())
+            <button type="button" onclick="openTeacherSessionsModal()"
+                    style="display:flex;align-items:center;gap:6px;padding:8px 16px;border-radius:10px;background:#eef2ff;color:#4338ca;border:1px solid #c7d2fe;font-size:12px;font-weight:700;cursor:pointer;">
+                <svg style="width:14px;height:14px;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                معلمو الجلسات
+            </button>
             <button type="button" onclick="clearAllSessions()"
                     style="display:flex;align-items:center;gap:6px;padding:8px 16px;border-radius:10px;background:#fff1f2;color:#dc2626;border:1px solid #fecaca;font-size:12px;font-weight:700;cursor:pointer;">
                 <svg style="width:14px;height:14px;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
@@ -264,6 +269,81 @@ window.deleteSession = function(id){
     if(!confirm('حذف هذه الجلسة؟')) return;
     fetch(`/admin/sessions/${id}`,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json','X-CSRF-TOKEN':_SESS_CSRF},body:JSON.stringify({_method:'DELETE'})})
         .then(r=>r.json().catch(()=>({success:r.ok}))).then(d=>{ if(d.success!==false){ location.hash='#sessions'; location.reload(); } else alert('تعذّر الحذف'); });
+};
+
+// ── Manage session teachers (bulk reassign) ──
+const TS_SESSIONS = {!! $sessionsJs->toJson() !!};
+const TS_STATUS = { scheduled:['#dbeafe','#1d4ed8','مجدولة'], live:['#fee2e2','#dc2626','مباشر'], completed:['#dcfce7','#15803d','مكتملة'], cancelled:['#fee2e2','#dc2626','ملغاة'] };
+
+window.openTeacherSessionsModal = function(){
+    renderTeacherSessions();
+    document.getElementById('teacherSessModal').style.display = 'flex';
+};
+window.closeTeacherSessionsModal = function(){ document.getElementById('teacherSessModal').style.display = 'none'; };
+
+function renderTeacherSessions(){
+    // Group sessions by current teacher
+    const groups = {};
+    TS_SESSIONS.forEach(s => {
+        const key = s.teacher_id ?? 'none';
+        (groups[key] = groups[key] || { name: s.teacher || 'بدون معلم', items: [] }).items.push(s);
+    });
+
+    const fmt = at => {
+        const d = new Date(at.replace(' ','T'));
+        let h=d.getHours(), m=String(d.getMinutes()).padStart(2,'0'), ap=h>=12?'م':'ص', hh=h%12||12;
+        return d.toLocaleDateString('ar-EG',{month:'2-digit',day:'2-digit'})+' · '+hh+':'+m+' '+ap;
+    };
+
+    const html = Object.keys(groups).map(key => {
+        const g = groups[key];
+        const rows = g.items.sort((a,b)=>new Date(a.at.replace(' ','T'))-new Date(b.at.replace(' ','T'))).map(s => {
+            const c = TS_STATUS[s.status] || ['#f1f5f9','#64748b',s.status||'—'];
+            return `<label style="display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid #f1f5f9;border-radius:9px;cursor:pointer;">
+                <input type="checkbox" class="ts-cb" value="${s.id}" style="width:15px;height:15px;accent-color:#4338ca;flex-shrink:0;">
+                <span style="flex:1;min-width:0;font-size:12px;font-weight:600;color:#1e293b;">${s.title} <span style="color:#94a3b8;font-weight:500;">#${s.number??''}</span></span>
+                <span style="font-size:11px;color:#64748b;white-space:nowrap;" dir="ltr">${fmt(s.at)}</span>
+                <span style="background:${c[0]};color:${c[1]};border-radius:9999px;padding:.1rem .5rem;font-size:.6rem;font-weight:700;white-space:nowrap;">${c[2]}</span>
+            </label>`;
+        }).join('');
+        return `<div style="margin-bottom:14px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+                <div style="font-size:12px;font-weight:800;color:#4338ca;">👤 ${g.name} <span style="color:#94a3b8;font-weight:600;">(${g.items.length})</span></div>
+                <button type="button" onclick="tsToggleGroup(this)" style="font-size:11px;color:#4338ca;background:#eef2ff;border:none;border-radius:6px;padding:3px 9px;cursor:pointer;font-weight:700;">تحديد الكل</button>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:5px;">${rows}</div>
+        </div>`;
+    }).join('');
+
+    document.getElementById('tsGroups').innerHTML = html || '<div style="text-align:center;color:#94a3b8;padding:24px;font-size:13px;">لا توجد جلسات</div>';
+    updateTsCount();
+    document.querySelectorAll('.ts-cb').forEach(cb => cb.addEventListener('change', updateTsCount));
+}
+
+window.tsToggleGroup = function(btn){
+    const boxes = btn.closest('div').parentElement.querySelectorAll('.ts-cb');
+    const allChecked = [...boxes].every(b => b.checked);
+    boxes.forEach(b => b.checked = !allChecked);
+    updateTsCount();
+};
+
+function updateTsCount(){
+    const n = document.querySelectorAll('.ts-cb:checked').length;
+    document.getElementById('tsCount').textContent = n + ' جلسة محددة';
+}
+
+window.submitTeacherReassign = function(){
+    const teacherId = document.getElementById('tsNewTeacher').value;
+    const ids = [...document.querySelectorAll('.ts-cb:checked')].map(cb => parseInt(cb.value));
+    if(!teacherId){ alert('اختر المعلم الجديد'); return; }
+    if(!ids.length){ alert('حدّد جلسة واحدة على الأقل'); return; }
+    fetch(`/admin/classes/{{ $class->id }}/reassign-session-teacher`,{
+        method:'POST',
+        headers:{'Content-Type':'application/json','Accept':'application/json','X-CSRF-TOKEN':_SESS_CSRF},
+        body:JSON.stringify({ teacher_id: teacherId, session_ids: ids })
+    })
+    .then(r=>r.json())
+    .then(d=>{ if(d.success){ location.hash='#sessions'; location.reload(); } else alert(d.message||'تعذّر التحديث'); });
 };
 </script>
 </div>{{-- /ctab-sessions --}}

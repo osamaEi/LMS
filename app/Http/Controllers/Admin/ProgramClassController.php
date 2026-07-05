@@ -227,6 +227,31 @@ class ProgramClassController extends Controller
     }
 
     /**
+     * Bulk-reassign the teacher on selected sessions of this class.
+     * Only the checked session ids are changed; the rest are left as-is.
+     */
+    public function reassignSessionTeacher(Request $request, ProgramClass $class)
+    {
+        $data = $request->validate([
+            'teacher_id'   => 'required|exists:users,id',
+            'session_ids'  => 'required|array|min:1',
+            'session_ids.*'=> 'integer',
+        ]);
+
+        // Guard: only teachers, and only sessions that belong to this class.
+        $isTeacher = User::where('id', $data['teacher_id'])->where('role', 'teacher')->exists();
+        if (!$isTeacher) {
+            return response()->json(['success' => false, 'message' => 'المستخدم المختار ليس معلمًا'], 422);
+        }
+
+        $updated = \App\Models\Session::where('class_id', $class->id)
+            ->whereIn('id', $data['session_ids'])
+            ->update(['teacher_id' => $data['teacher_id']]);
+
+        return response()->json(['success' => true, 'updated' => $updated]);
+    }
+
+    /**
      * Delete all sessions of this class (and their attendance).
      */
     public function clearSessions(ProgramClass $class)

@@ -41,6 +41,39 @@
     </div>
 </div>
 
+{{-- MODAL: Manage session teachers (bulk reassign) --}}
+<div id="teacherSessModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.5);backdrop-filter:blur(2px);align-items:center;justify-content:center;padding:1rem;">
+    <div style="background:white;border-radius:18px;width:100%;max-width:560px;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 30px 60px rgba(0,0,0,.2);overflow:hidden;">
+        <div style="background:linear-gradient(135deg,#4338ca,#3730a3);padding:18px 22px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+            <div>
+                <h3 style="font-size:15px;font-weight:700;color:white;margin:0;">معلمو الجلسات</h3>
+                <p style="font-size:11px;color:rgba(255,255,255,.7);margin:3px 0 0;">اختر المعلم الجديد وحدّد الجلسات التي تريد تغييرها</p>
+            </div>
+            <button onclick="closeTeacherSessionsModal()" style="background:rgba(255,255,255,.15);border:none;border-radius:8px;width:30px;height:30px;color:white;cursor:pointer;font-size:16px;">×</button>
+        </div>
+
+        <div style="padding:16px 20px;border-bottom:1px solid #f1f5f9;flex-shrink:0;">
+            <label style="display:block;font-size:11px;font-weight:700;color:#475569;margin-bottom:6px;">المعلم الجديد *</label>
+            <select id="tsNewTeacher" style="width:100%;padding:9px 12px;font-size:13px;border:1.5px solid #e2e8f0;border-radius:10px;outline:none;font-family:inherit;background:white;">
+                <option value="">— اختر المعلم —</option>
+                @foreach($teachers as $t)
+                    <option value="{{ $t->id }}">{{ $t->name }}</option>
+                @endforeach
+            </select>
+        </div>
+
+        <div id="tsGroups" style="padding:16px 20px;overflow-y:auto;flex:1;"></div>
+
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:14px 20px;border-top:1px solid #f1f5f9;flex-shrink:0;">
+            <span id="tsCount" style="font-size:12px;color:#64748b;font-weight:600;">0 جلسة محددة</span>
+            <div style="display:flex;gap:8px;">
+                <button onclick="closeTeacherSessionsModal()" style="padding:9px 18px;font-size:13px;font-weight:600;color:#475569;background:#f1f5f9;border:none;border-radius:10px;cursor:pointer;">إلغاء</button>
+                <button onclick="submitTeacherReassign()" style="padding:9px 18px;font-size:13px;font-weight:700;color:white;background:linear-gradient(135deg,#4338ca,#3730a3);border:none;border-radius:10px;cursor:pointer;">تغيير المعلم للمحدد</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 {{-- MODAL: Generate Sessions --}}
 <template x-teleport="body">
 <div x-show="sessionModal" x-cloak style="position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem;">
