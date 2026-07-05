@@ -14,7 +14,9 @@
       "Bash(php -l app/Models/HomeworkSubmission.php)",
       "Bash(php -l app/Models/Subject.php)",
       "Bash(php -l app/Models/Session.php)",
-      "Bash(php -l app/Models/Program.php)"
+      "Bash(php -l app/Models/Program.php)",
+      "Bash(php -r \"echo \\(new Illuminate\\\\View\\\\Compilers\\\\BladeCompiler\\(new Illuminate\\\\Filesystem\\\\Filesystem, sys_get_temp_dir\\(\\)\\)\\)->compileString\\(file_get_contents\\('resources/views/teacher/homework/index.blade.php'\\)\\) ? 'compiled ok'.PHP_EOL : 'fail';\")",
+      "Bash(php -r 'require '\\\\''vendor/autoload.php'\\\\''; $app=require '\\\\''bootstrap/app.php'\\\\''; $app->make\\(Illuminate\\\\Contracts\\\\Console\\\\Kernel::class\\)->bootstrap\\(\\); try { $c = app\\('\\\\''view'\\\\''\\)->getEngineResolver\\(\\)->resolve\\('\\\\''blade'\\\\''\\); $path = app\\('\\\\''view'\\\\''\\)->getFinder\\(\\)->find\\('\\\\''teacher.homework.index'\\\\''\\); app\\('\\\\''blade.compiler'\\\\''\\)->compile\\($path\\); echo '\\\\''compiled ok'\\\\''.PHP_EOL; } catch \\(\\\\Throwable $e\\) { echo '\\\\''ERR: '\\\\''.$e->getMessage\\(\\).PHP_EOL; }')"
     ],
     "deny": [],
     "ask": []

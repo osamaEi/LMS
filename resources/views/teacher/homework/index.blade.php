@@ -33,27 +33,38 @@
                 <p style="color:rgba(255,255,255,.6);font-size:12px;margin:4px 0 0;">إضافة وإدارة الواجبات حسب المقرر</p>
             </div>
         </div>
-        <div style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:8px 18px;text-align:center;min-width:72px;">
-            <div style="font-size:20px;font-weight:800;color:#86efac;line-height:1.1;">{{ $homeworks->count() }}</div>
-            <div style="font-size:11px;color:rgba(255,255,255,.55);margin-top:2px;">إجمالي الواجبات</div>
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+            <div style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:8px 18px;text-align:center;min-width:72px;">
+                <div style="font-size:20px;font-weight:800;color:#86efac;line-height:1.1;">{{ $homeworks->count() }}</div>
+                <div style="font-size:11px;color:rgba(255,255,255,.55);margin-top:2px;">إجمالي الواجبات</div>
+            </div>
+            @unless($subjects->isEmpty())
+            <button type="button" onclick="openHwModal()"
+                    style="display:inline-flex;align-items:center;gap:7px;padding:11px 20px;background:linear-gradient(135deg,#16a34a,#15803d);color:white;border:none;border-radius:12px;font-size:.85rem;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(22,163,74,.4);">
+                <svg width="15" height="15" fill="currentColor" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                إضافة واجب جديد
+            </button>
+            @endunless
         </div>
     </div>
 </div>
 
-{{-- ══ Add homework form ══ --}}
-<div style="background:white;border:1.5px solid #e5e7eb;border-radius:16px;padding:22px 24px;margin-bottom:24px;">
-    <div style="display:flex;align-items:center;gap:9px;margin-bottom:18px;">
-        <div style="width:32px;height:32px;background:linear-gradient(135deg,#16a34a,#15803d);border-radius:9px;display:flex;align-items:center;justify-content:center;">
-            <svg width="15" height="15" fill="white" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+{{-- ══ Add homework MODAL ══ --}}
+@unless($subjects->isEmpty())
+<div id="hwModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(15,23,42,.55);align-items:flex-start;justify-content:center;padding:24px 12px;overflow-y:auto;">
+  <div style="background:white;border-radius:18px;width:100%;max-width:640px;box-shadow:0 24px 60px rgba(0,0,0,.3);margin:auto;">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:9px;padding:18px 24px;border-bottom:1px solid #f1f5f9;">
+        <div style="display:flex;align-items:center;gap:9px;">
+            <div style="width:32px;height:32px;background:linear-gradient(135deg,#16a34a,#15803d);border-radius:9px;display:flex;align-items:center;justify-content:center;">
+                <svg width="15" height="15" fill="white" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+            </div>
+            <h2 style="font-size:.95rem;font-weight:800;color:#111827;margin:0;">إضافة واجب جديد</h2>
         </div>
-        <h2 style="font-size:.95rem;font-weight:800;color:#111827;margin:0;">إضافة واجب جديد</h2>
+        <button type="button" onclick="closeHwModal()" style="width:32px;height:32px;background:#f3f4f6;border:none;border-radius:8px;cursor:pointer;color:#374151;font-size:18px;">×</button>
     </div>
 
-    @if($subjects->isEmpty())
-    <p style="font-size:.85rem;color:#9ca3af;margin:0;">لا توجد مقررات مسندة إليك لإضافة واجب.</p>
-    @else
     <form action="{{ route('teacher.homework.store') }}" method="POST" enctype="multipart/form-data"
-          style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+          style="display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:22px 24px;">
         @csrf
 
         <div>
@@ -110,7 +121,11 @@
                    style="width:100%;padding:7px 12px;border:1.5px solid #d1d5db;border-radius:9px;font-size:.8rem;background:white;">
         </div>
 
-        <div style="grid-column:1 / -1;">
+        <div style="grid-column:1 / -1;display:flex;justify-content:flex-end;gap:8px;padding-top:4px;">
+            <button type="button" onclick="closeHwModal()"
+                    style="padding:9px 20px;background:#f3f4f6;color:#374151;border:none;border-radius:9px;font-size:.85rem;font-weight:700;cursor:pointer;">
+                إلغاء
+            </button>
             <button type="submit"
                     style="display:inline-flex;align-items:center;gap:6px;padding:9px 20px;background:linear-gradient(135deg,#16a34a,#15803d);color:white;border:none;border-radius:9px;font-size:.85rem;font-weight:700;cursor:pointer;box-shadow:0 2px 8px rgba(22,163,74,.3);">
                 <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
@@ -118,8 +133,9 @@
             </button>
         </div>
     </form>
-    @endif
+  </div>
 </div>
+@endunless
 
 {{-- ══ Existing homework ══ --}}
 <div>
@@ -192,4 +208,17 @@
     form[action*="homework"] { grid-template-columns: 1fr !important; }
 }
 </style>
+
+<script>
+function openHwModal() { document.getElementById('hwModal').style.display = 'flex'; document.body.style.overflow = 'hidden'; }
+function closeHwModal() { document.getElementById('hwModal').style.display = 'none'; document.body.style.overflow = ''; }
+// Close on backdrop click
+document.getElementById('hwModal')?.addEventListener('click', e => { if (e.target.id === 'hwModal') closeHwModal(); });
+// Close on Escape
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeHwModal(); });
+// Re-open automatically if the form had validation errors
+@if($errors->any())
+openHwModal();
+@endif
+</script>
 @endsection
