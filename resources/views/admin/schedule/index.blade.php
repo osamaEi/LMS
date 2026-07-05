@@ -94,6 +94,23 @@
     </div>
 </div>
 
+{{-- Attendance modal --}}
+<div id="attModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.5);align-items:center;justify-content:center;padding:12px;">
+    <div style="background:white;border-radius:20px;width:100%;max-width:560px;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 24px 60px rgba(0,0,0,.25);">
+        <div style="padding:20px 24px;background:linear-gradient(135deg,#0f172a,#1e3a5f);display:flex;align-items:center;justify-content:space-between;">
+            <div>
+                <h3 style="color:white;font-size:15px;font-weight:700;margin:0;">الحضور والغياب</h3>
+                <p id="attSessionTitle" style="color:rgba(255,255,255,.7);font-size:12px;margin:3px 0 0;"></p>
+            </div>
+            <button onclick="closeAttendance()" style="width:32px;height:32px;background:rgba(255,255,255,.2);border:none;border-radius:8px;cursor:pointer;color:white;font-size:18px;">×</button>
+        </div>
+
+        <div id="attStats" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:16px 24px;border-bottom:1px solid #f1f5f9;"></div>
+
+        <div id="attList" style="flex:1;overflow-y:auto;padding:12px 24px;display:flex;flex-direction:column;gap:6px;min-height:120px;max-height:360px;"></div>
+    </div>
+</div>
+
 <style>
 .student-row:hover { background:#f0f9ff !important; }
 </style>
@@ -180,7 +197,7 @@ function renderCalendar(){
                 const statusColor = s.status==='completed'?'#15803d':s.status==='live'?'#dc2626':'#1e3a8a';
                 const statusLabel = s.status==='completed'?'مكتملة':s.status==='live'?'● مباشر':'';
                 const showSub = s.subject_name && !(s.title||'').includes(s.subject_name);
-                return `<div style="background:#eff6ff;border-right:3px solid #0071AA;border-radius:6px;padding:6px 8px;margin-bottom:4px;line-height:1.35;">
+                return `<div onclick="openAttendance(${s.id})" title="عرض الحضور والغياب" style="background:#eff6ff;border-right:3px solid #0071AA;border-radius:6px;padding:6px 8px;margin-bottom:4px;line-height:1.35;cursor:pointer;">
                     <div style="font-size:12px;font-weight:700;color:#1e3a8a;">${s.title||s.subject_name||'جلسة'}</div>
                     ${showSub?`<div style="font-size:10px;color:#64748b;">${s.subject_name}</div>`:''}
                     ${s.class_name?(s.class_id
@@ -295,6 +312,65 @@ function submitAssign() {
 }
 
 renderCalendar();
+
+// ── Attendance modal ──
+const ATT_STATUS = {
+    present: { bg:'#dcfce7', color:'#15803d', dot:'#16a34a' },
+    late:    { bg:'#ffedd5', color:'#c2410c', dot:'#ea580c' },
+    excused: { bg:'#fef3c7', color:'#a16207', dot:'#d97706' },
+    absent:  { bg:'#fee2e2', color:'#b91c1c', dot:'#dc2626' },
+};
+
+function openAttendance(sessionId) {
+    document.getElementById('attModal').style.display = 'flex';
+    document.getElementById('attSessionTitle').textContent = '';
+    document.getElementById('attStats').innerHTML = '';
+    document.getElementById('attList').innerHTML = '<div style="text-align:center;padding:24px;color:#9ca3af;">جاري التحميل...</div>';
+
+    fetch(`/admin/schedule/sessions/${sessionId}/attendance`, {
+        headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': CSRF }
+    })
+    .then(r => r.json())
+    .then(data => {
+        document.getElementById('attSessionTitle').textContent = data.session.title;
+
+        const st = data.stats;
+        document.getElementById('attStats').innerHTML = [
+            [st.present, 'حاضر',  '#16a34a'],
+            [st.late,    'متأخر', '#ea580c'],
+            [st.excused, 'معذور', '#d97706'],
+            [st.absent,  'غائب',  '#dc2626'],
+        ].map(([v,l,c]) => `
+            <div style="text-align:center;background:#f9fafb;border-radius:10px;padding:8px 4px;">
+                <div style="font-size:18px;font-weight:800;color:${c};">${v}</div>
+                <div style="font-size:11px;color:#6b7280;">${l}</div>
+            </div>`).join('');
+
+        const list = data.students || [];
+        if (!list.length) {
+            document.getElementById('attList').innerHTML = '<div style="text-align:center;padding:24px;color:#9ca3af;">لا يوجد طلاب مسندون لهذه الجلسة</div>';
+            return;
+        }
+        document.getElementById('attList').innerHTML = list.map(s => {
+            const c = ATT_STATUS[s.status] || ATT_STATUS.absent;
+            return `<div style="display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;border:1px solid #f1f5f9;">
+                <span style="width:8px;height:8px;border-radius:50%;background:${c.dot};flex-shrink:0;"></span>
+                <div style="flex:1;min-width:0;">
+                    <div style="font-size:13px;font-weight:600;color:#111827;">${s.name}</div>
+                    <div style="font-size:11px;color:#9ca3af;">${s.email}${s.joined_at ? ' · انضم '+s.joined_at : ''}</div>
+                </div>
+                <span style="font-size:11px;font-weight:700;background:${c.bg};color:${c.color};padding:3px 10px;border-radius:20px;white-space:nowrap;">${s.label}</span>
+            </div>`;
+        }).join('');
+    })
+    .catch(() => {
+        document.getElementById('attList').innerHTML = '<div style="text-align:center;padding:24px;color:#dc2626;">تعذّر تحميل البيانات</div>';
+    });
+}
+
+function closeAttendance() {
+    document.getElementById('attModal').style.display = 'none';
+}
 
 // ════════════════════════════════════
 // Generate Schedule Modal

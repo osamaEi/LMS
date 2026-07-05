@@ -105,6 +105,59 @@ class ScheduleController extends Controller
         ]);
     }
 
+    /** Attendance / absence roster for a session (admin view). */
+    public function sessionAttendance(Session $session)
+    {
+        $session->load('subject');
+
+        $records = Attendance::where('session_id', $session->id)
+            ->with('student:id,name,email')
+            ->get();
+
+        // Approved apologies → "معذور"
+        $excusedIds = \App\Models\AttendanceApology::where('session_id', $session->id)
+            ->where('status', 'approved')
+            ->pluck('student_id')->flip();
+
+        $present = 0; $late = 0; $absent = 0; $excused = 0;
+
+        $students = $records->map(function ($a) use (&$present, &$late, &$absent, &$excused, $excusedIds) {
+            if (!$a->attended && $excusedIds->has($a->student_id)) {
+                $status = 'excused'; $label = 'معذور'; $excused++;
+            } elseif ($a->attended) {
+                if ($a->is_late) { $status = 'late'; $label = 'متأخر'; $late++; }
+                else            { $status = 'present'; $label = 'حاضر'; $present++; }
+            } else {
+                $status = 'absent'; $label = 'غائب'; $absent++;
+            }
+
+            return [
+                'id'        => $a->student->id ?? null,
+                'name'      => $a->student->name ?? 'غير معروف',
+                'email'     => $a->student->email ?? '',
+                'status'    => $status,
+                'label'     => $label,
+                'joined_at' => $a->joined_at ? \Carbon\Carbon::parse($a->joined_at)->format('h:i A') : null,
+            ];
+        })->sortBy(fn($s) => ['present' => 0, 'late' => 1, 'excused' => 2, 'absent' => 3][$s['status']])
+          ->values();
+
+        return response()->json([
+            'session' => [
+                'id'    => $session->id,
+                'title' => $session->title_ar ?: (($session->subject->name_ar ?? 'جلسة') . ' #' . $session->session_number),
+            ],
+            'stats' => [
+                'total'   => $records->count(),
+                'present' => $present,
+                'late'    => $late,
+                'excused' => $excused,
+                'absent'  => $absent,
+            ],
+            'students' => $students,
+        ]);
+    }
+
     public function assignStudents(Request $request, Session $session)
     {
         $request->validate([

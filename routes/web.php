@@ -241,6 +241,7 @@ Route::middleware(['auth', 'role:admin,super_admin'])->prefix('admin')->name('ad
     Route::get('/schedule', [\App\Http\Controllers\Admin\ScheduleController::class, 'index'])->name('schedule');
     Route::get('/schedule/sessions/{session}/students', [\App\Http\Controllers\Admin\ScheduleController::class, 'sessionStudents'])->name('schedule.session-students');
     Route::post('/schedule/sessions/{session}/assign', [\App\Http\Controllers\Admin\ScheduleController::class, 'assignStudents'])->name('schedule.assign-students');
+    Route::get('/schedule/sessions/{session}/attendance', [\App\Http\Controllers\Admin\ScheduleController::class, 'sessionAttendance'])->name('schedule.session-attendance');
     Route::post('/schedule/generate', [\App\Http\Controllers\Admin\ScheduleController::class, 'generate'])->name('schedule.generate');
     Route::get('/schedule/classes', [\App\Http\Controllers\Admin\ScheduleController::class, 'getClasses'])->name('schedule.classes');
     Route::get('/schedule/programs', [\App\Http\Controllers\Admin\ScheduleController::class, 'getPrograms'])->name('schedule.programs');
