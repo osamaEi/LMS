@@ -252,6 +252,31 @@ class ProgramClassController extends Controller
     }
 
     /**
+     * Delete selected sessions of this class (and their attendance).
+     * Only the given session ids that belong to this class are removed.
+     */
+    public function deleteSessions(Request $request, ProgramClass $class)
+    {
+        $data = $request->validate([
+            'session_ids'   => 'required|array|min:1',
+            'session_ids.*' => 'integer',
+        ]);
+
+        $sessions = \App\Models\Session::where('class_id', $class->id)
+            ->whereIn('id', $data['session_ids'])
+            ->get();
+
+        $deleted = 0;
+        foreach ($sessions as $session) {
+            \App\Models\Attendance::where('session_id', $session->id)->delete();
+            $session->delete();
+            $deleted++;
+        }
+
+        return response()->json(['success' => true, 'deleted' => $deleted]);
+    }
+
+    /**
      * Delete all sessions of this class (and their attendance).
      */
     public function clearSessions(ProgramClass $class)

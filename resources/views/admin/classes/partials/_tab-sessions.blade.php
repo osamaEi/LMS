@@ -5,6 +5,7 @@
         'id'       => $s->id,
         'title'    => $s->title_ar ?: 'جلسة',
         'subject'  => $s->subject->name_ar ?? null,
+        'subject_id' => $s->subject_id,
         'teacher'  => $s->teacher->name ?? null,
         'teacher_id' => $s->teacher_id,
         'at'       => $s->scheduled_at ? \Carbon\Carbon::parse($s->scheduled_at)->format('Y-m-d H:i:s') : null,
@@ -31,6 +32,11 @@
                     style="display:flex;align-items:center;gap:6px;padding:8px 16px;border-radius:10px;background:#eef2ff;color:#4338ca;border:1px solid #c7d2fe;font-size:12px;font-weight:700;cursor:pointer;">
                 <svg style="width:14px;height:14px;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
                 معلمو الجلسات
+            </button>
+            <button type="button" onclick="openDeleteSessionsModal()"
+                    style="display:flex;align-items:center;gap:6px;padding:8px 16px;border-radius:10px;background:#fff7ed;color:#c2410c;border:1px solid #fed7aa;font-size:12px;font-weight:700;cursor:pointer;">
+                <svg style="width:14px;height:14px;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                حذف جلسات محددة
             </button>
             <button type="button" onclick="clearAllSessions()"
                     style="display:flex;align-items:center;gap:6px;padding:8px 16px;border-radius:10px;background:#fff1f2;color:#dc2626;border:1px solid #fecaca;font-size:12px;font-weight:700;cursor:pointer;">
@@ -344,6 +350,76 @@ window.submitTeacherReassign = function(){
     })
     .then(r=>r.json())
     .then(d=>{ if(d.success){ location.hash='#sessions'; location.reload(); } else alert(d.message||'تعذّر التحديث'); });
+};
+
+// ── Delete selected sessions (grouped by subject) ──
+window.openDeleteSessionsModal = function(){
+    renderDeleteSessions();
+    document.getElementById('delSessModal').style.display = 'flex';
+};
+window.closeDeleteSessionsModal = function(){ document.getElementById('delSessModal').style.display = 'none'; };
+
+function renderDeleteSessions(){
+    const groups = {};
+    TS_SESSIONS.forEach(s => {
+        const key = s.subject_id ?? 'none';
+        (groups[key] = groups[key] || { name: s.subject || 'بدون مقرر', items: [] }).items.push(s);
+    });
+
+    const fmt = at => {
+        const d = new Date(at.replace(' ','T'));
+        let h=d.getHours(), m=String(d.getMinutes()).padStart(2,'0'), ap=h>=12?'م':'ص', hh=h%12||12;
+        return d.toLocaleDateString('ar-EG',{month:'2-digit',day:'2-digit'})+' · '+hh+':'+m+' '+ap;
+    };
+
+    const html = Object.keys(groups).map(key => {
+        const g = groups[key];
+        const rows = g.items.sort((a,b)=>new Date(a.at.replace(' ','T'))-new Date(b.at.replace(' ','T'))).map(s => {
+            const c = TS_STATUS[s.status] || ['#f1f5f9','#64748b',s.status||'—'];
+            return `<label style="display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid #f1f5f9;border-radius:9px;cursor:pointer;">
+                <input type="checkbox" class="del-cb" value="${s.id}" style="width:15px;height:15px;accent-color:#dc2626;flex-shrink:0;">
+                <span style="flex:1;min-width:0;font-size:12px;font-weight:600;color:#1e293b;">${s.title} <span style="color:#94a3b8;font-weight:500;">#${s.number??''}</span></span>
+                <span style="font-size:11px;color:#64748b;white-space:nowrap;" dir="ltr">${fmt(s.at)}</span>
+                <span style="background:${c[0]};color:${c[1]};border-radius:9999px;padding:.1rem .5rem;font-size:.6rem;font-weight:700;white-space:nowrap;">${c[2]}</span>
+            </label>`;
+        }).join('');
+        return `<div style="margin-bottom:14px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+                <div style="font-size:12px;font-weight:800;color:#0f172a;">📘 ${g.name} <span style="color:#94a3b8;font-weight:600;">(${g.items.length})</span></div>
+                <button type="button" onclick="delToggleGroup(this)" style="font-size:11px;color:#dc2626;background:#fef2f2;border:none;border-radius:6px;padding:3px 9px;cursor:pointer;font-weight:700;">تحديد كل المقرر</button>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:5px;">${rows}</div>
+        </div>`;
+    }).join('');
+
+    document.getElementById('delGroups').innerHTML = html || '<div style="text-align:center;color:#94a3b8;padding:24px;font-size:13px;">لا توجد جلسات</div>';
+    updateDelCount();
+    document.querySelectorAll('.del-cb').forEach(cb => cb.addEventListener('change', updateDelCount));
+}
+
+window.delToggleGroup = function(btn){
+    const boxes = btn.closest('div').parentElement.querySelectorAll('.del-cb');
+    const allChecked = [...boxes].every(b => b.checked);
+    boxes.forEach(b => b.checked = !allChecked);
+    updateDelCount();
+};
+
+function updateDelCount(){
+    const n = document.querySelectorAll('.del-cb:checked').length;
+    document.getElementById('delCount').textContent = n + ' جلسة محددة';
+}
+
+window.submitDeleteSessions = function(){
+    const ids = [...document.querySelectorAll('.del-cb:checked')].map(cb => parseInt(cb.value));
+    if(!ids.length){ alert('حدّد جلسة واحدة على الأقل'); return; }
+    if(!confirm(`سيتم حذف ${ids.length} جلسة وسجلات حضورها نهائيًا. متابعة؟`)) return;
+    fetch(`/admin/classes/{{ $class->id }}/delete-sessions`,{
+        method:'POST',
+        headers:{'Content-Type':'application/json','Accept':'application/json','X-CSRF-TOKEN':_SESS_CSRF},
+        body:JSON.stringify({ session_ids: ids })
+    })
+    .then(r=>r.json())
+    .then(d=>{ if(d.success){ location.hash='#sessions'; location.reload(); } else alert(d.message||'تعذّر الحذف'); });
 };
 </script>
 </div>{{-- /ctab-sessions --}}
