@@ -217,6 +217,25 @@ class QuizController extends Controller
     /**
      * Store a new question
      */
+    /**
+     * Remove option rows whose Arabic text is blank, then re-index, so a
+     * multiple-choice question submitted with only 2 of 4 boxes filled
+     * validates against the remaining (non-empty) options.
+     */
+    private function pruneEmptyOptions(Request $request): void
+    {
+        $options = $request->input('options');
+        if (!is_array($options)) {
+            return;
+        }
+
+        $cleaned = array_values(array_filter($options, fn($opt) =>
+            is_array($opt) && trim((string) ($opt['text_ar'] ?? '')) !== ''
+        ));
+
+        $request->merge(['options' => $cleaned]);
+    }
+
     public function storeQuestion(Request $request, $subjectId, $quizId)
     {
         $teacher = auth()->user();
@@ -224,6 +243,9 @@ class QuizController extends Controller
         Subject::assignedToTeacher($teacher->id)->findOrFail($subjectId);
 
         $quiz = Quiz::where('subject_id', $subjectId)->findOrFail($quizId);
+
+        // Drop option rows with no Arabic text so half-filled choice lists validate.
+        $this->pruneEmptyOptions($request);
 
         $validated = $request->validate([
             'type' => 'required|in:multiple_choice,true_false,short_answer,essay',
@@ -343,6 +365,9 @@ class QuizController extends Controller
         Quiz::where('subject_id', $subjectId)->findOrFail($quizId);
 
         $question = Question::where('quiz_id', $quizId)->findOrFail($questionId);
+
+        // Drop option rows with no Arabic text so half-filled choice lists validate.
+        $this->pruneEmptyOptions($request);
 
         $validated = $request->validate([
             'type' => 'required|in:multiple_choice,true_false,short_answer,essay',
@@ -511,12 +536,11 @@ class QuizController extends Controller
     {
         $teacher = auth()->user();
 
-        $subjectIds = Subject::assignedToTeacher($teacher->id)->pluck('id');
-
+        // Only quizzes this teacher created (not every quiz on their subjects).
         $search  = $request->get('search', '');
         $type    = $request->get('type', '');
 
-        $quizzes = Quiz::whereIn('subject_id', $subjectIds)
+        $quizzes = Quiz::where('created_by', $teacher->id)
             ->with(['subject:id,name_ar,name_en', 'creator:id,name'])
             ->withCount(['questions', 'attempts'])
             ->withCount(['attempts as completed_count' => fn($q) => $q->whereNotNull('submitted_at')])
@@ -530,10 +554,10 @@ class QuizController extends Controller
             ->withQueryString();
 
         $stats = [
-            'total'    => Quiz::whereIn('subject_id', $subjectIds)->count(),
-            'exams'    => Quiz::whereIn('subject_id', $subjectIds)->where('type', 'exam')->count(),
-            'quizzes'  => Quiz::whereIn('subject_id', $subjectIds)->where('type', 'quiz')->count(),
-            'attempts' => QuizAttempt::whereHas('quiz', fn($q) => $q->whereIn('subject_id', $subjectIds))->whereNotNull('submitted_at')->count(),
+            'total'    => Quiz::where('created_by', $teacher->id)->count(),
+            'exams'    => Quiz::where('created_by', $teacher->id)->where('type', 'exam')->count(),
+            'quizzes'  => Quiz::where('created_by', $teacher->id)->where('type', 'quiz')->count(),
+            'attempts' => QuizAttempt::whereHas('quiz', fn($q) => $q->where('created_by', $teacher->id))->whereNotNull('submitted_at')->count(),
         ];
 
         return view('teacher.quizzes.overview', compact('quizzes', 'stats', 'search', 'type'));
@@ -545,8 +569,7 @@ class QuizController extends Controller
     public function overviewShow(Quiz $quiz)
     {
         $teacher = auth()->user();
-        $subjectIds = Subject::assignedToTeacher($teacher->id)->pluck('id');
-        abort_unless($subjectIds->contains($quiz->subject_id), 403);
+        abort_unless($quiz->created_by == $teacher->id, 403);
 
         $quiz->load(['subject:id,name_ar,name_en', 'creator:id,name', 'questions.options']);
 
@@ -602,8 +625,7 @@ class QuizController extends Controller
     public function overviewAttempt(Quiz $quiz, QuizAttempt $attempt)
     {
         $teacher = auth()->user();
-        $subjectIds = Subject::assignedToTeacher($teacher->id)->pluck('id');
-        abort_unless($subjectIds->contains($quiz->subject_id), 403);
+        abort_unless($quiz->created_by == $teacher->id, 403);
         abort_unless($attempt->quiz_id === $quiz->id, 404);
 
         $quiz->load(['subject:id,name_ar,name_en']);
