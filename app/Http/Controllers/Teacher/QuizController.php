@@ -224,6 +224,13 @@ class QuizController extends Controller
      */
     private function pruneEmptyOptions(Request $request): void
     {
+        // Options only apply to multiple-choice questions — drop them entirely
+        // for other types so the array rules (min:2) don't fire on empty input.
+        if ($request->input('type') !== 'multiple_choice') {
+            $request->request->remove('options');
+            return;
+        }
+
         $options = $request->input('options');
         if (!is_array($options)) {
             return;
