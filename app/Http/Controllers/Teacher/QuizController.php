@@ -197,15 +197,36 @@ class QuizController extends Controller
 
         $withAnswers = $request->boolean('answers');
 
-        // mPDF renders Arabic with proper letter shaping + RTL bidi (DomPDF cannot).
+        return $this->renderQuizPdf($subject, $quiz, $withAnswers);
+    }
+
+    /**
+     * Export the question paper (questions only, no answer key) straight from the
+     * quiz overview page, which is keyed on the quiz alone.
+     */
+    public function overviewPdf(Quiz $quiz)
+    {
+        abort_unless($quiz->created_by == auth()->id(), 403);
+
+        $quiz->load(['questions' => fn($q) => $q->orderBy('order'), 'questions.options', 'subject']);
+
+        return $this->renderQuizPdf($quiz->subject, $quiz, withAnswers: false);
+    }
+
+    /**
+     * Build the Arabic-shaped PDF for a quiz. mPDF handles letter shaping + RTL
+     * bidi, which DomPDF cannot.
+     */
+    private function renderQuizPdf(?Subject $subject, Quiz $quiz, bool $withAnswers)
+    {
         $pdf = \Mccarlosen\LaravelMpdf\Facades\LaravelMpdf::loadView(
             'teacher.quizzes.pdf',
             compact('subject', 'quiz', 'withAnswers'),
             [],
             [
-                'format'      => 'A4',
-                'orientation' => 'P',
-                'mode'        => 'utf-8',
+                'format'         => 'A4',
+                'orientation'    => 'P',
+                'mode'           => 'utf-8',
                 'directionality' => 'rtl',
                 'default_font'   => 'dejavusans',
                 'autoScriptToLang' => true,

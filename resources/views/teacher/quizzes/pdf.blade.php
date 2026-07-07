@@ -27,8 +27,8 @@
 <div class="header">
     <h1>{{ $quiz->title_ar ?: $quiz->title_en }}</h1>
     <div class="meta">
-        <span>{{ $subject->name_ar ?? $subject->name_en }}</span>
-        @if($subject->code)<span>({{ $subject->code }})</span>@endif
+        <span>{{ $subject->name_ar ?? $subject->name_en ?? '—' }}</span>
+        @if($subject?->code)<span>({{ $subject->code }})</span>@endif
         <span>|</span>
         <span>{{ ['quiz'=>'اختبار قصير','midterm'=>'نصفي','exam'=>'نهائي','homework'=>'واجب','paper'=>'ورقة'][$quiz->type] ?? $quiz->type }}</span>
     </div>

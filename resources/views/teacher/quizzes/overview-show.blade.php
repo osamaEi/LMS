@@ -8,14 +8,23 @@
     <a href="{{ route('teacher.quizzes.overview') }}" style="display:inline-flex;align-items:center;gap:6px;color:#64748b;font-size:13px;text-decoration:none;margin-bottom:14px;">→ رجوع لكل الاختبارات</a>
 
     {{-- Header --}}
-    <div style="background:linear-gradient(135deg,#0071AA,#004d77);border-radius:18px;padding:22px 26px;color:#fff;margin-bottom:20px;">
-        <div style="font-size:19px;font-weight:800;">{{ $quiz->title_ar }}</div>
-        <div style="font-size:13px;opacity:.85;margin-top:6px;">
-            {{ $quiz->subject->name_ar ?? '—' }} · {{ $quiz->type_label }}
-            · {{ $quiz->questions->count() }} سؤال
-            · الدرجة الكلية {{ rtrim(rtrim((string)$quiz->total_marks,'0'),'.') }}
-            · النجاح {{ rtrim(rtrim((string)$quiz->pass_marks,'0'),'.') }}
+    <div style="background:linear-gradient(135deg,#0071AA,#004d77);border-radius:18px;padding:22px 26px;color:#fff;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+        <div>
+            <div style="font-size:19px;font-weight:800;">{{ $quiz->title_ar }}</div>
+            <div style="font-size:13px;opacity:.85;margin-top:6px;">
+                {{ $quiz->subject->name_ar ?? '—' }} · {{ $quiz->type_label }}
+                · {{ $quiz->questions->count() }} سؤال
+                · الدرجة الكلية {{ rtrim(rtrim((string)$quiz->total_marks,'0'),'.') }}
+                · النجاح {{ rtrim(rtrim((string)$quiz->pass_marks,'0'),'.') }}
+            </div>
         </div>
+        @if($quiz->questions->count())
+        <a href="{{ route('teacher.quizzes.overview.pdf', $quiz->id) }}"
+           style="display:inline-flex;align-items:center;gap:7px;background:#fff;color:#0071AA;border-radius:10px;padding:10px 18px;font-size:13px;font-weight:800;text-decoration:none;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.12);">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+            تحميل الأسئلة PDF
+        </a>
+        @endif
     </div>
 
     {{-- Stats --}}
