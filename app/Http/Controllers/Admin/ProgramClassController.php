@@ -244,6 +244,30 @@ class ProgramClassController extends Controller
             return response()->json(['success' => false, 'message' => 'المستخدم المختار ليس معلمًا'], 422);
         }
 
+        // Sessions of this class that were actually selected.
+        $sessions = \App\Models\Session::where('class_id', $class->id)
+            ->whereIn('id', $data['session_ids'])
+            ->get();
+
+        // Guard: the new teacher must be assigned to the subject of every selected
+        // session. Otherwise the teacher would see the session but get a 404 when
+        // opening its attendance (subject.assignedToTeacher fails).
+        $subjectIds = $sessions->pluck('subject_id')->filter()->unique();
+        if ($subjectIds->isNotEmpty()) {
+            $teacherId = (int) $data['teacher_id'];
+            $unassigned = \App\Models\Subject::with('teachers')
+                ->whereIn('id', $subjectIds)
+                ->get()
+                ->reject(fn($subject) => (int) $subject->teacher_id === $teacherId
+                    || $subject->teachers->contains('id', $teacherId));
+            if ($unassigned->isNotEmpty()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'المعلم المختار غير معيّن لمقرر بعض الجلسات المحددة. عيّنه للمقرر أولًا.',
+                ], 422);
+            }
+        }
+
         $updated = \App\Models\Session::where('class_id', $class->id)
             ->whereIn('id', $data['session_ids'])
             ->update(['teacher_id' => $data['teacher_id']]);

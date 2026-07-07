@@ -478,10 +478,34 @@ class SubjectController extends Controller
 
         $subject = Subject::assignedToTeacher($teacher->id)
             ->with('term', 'terms')
-            ->findOrFail($subjectId);
+            ->find($subjectId);
 
-        $session = Session::where('subject_id', $subjectId)
-            ->findOrFail($sessionId);
+        if ($subject) {
+            $session = Session::where('subject_id', $subjectId)
+                ->findOrFail($sessionId);
+        } else {
+            // The subject is not assigned to this teacher through the usual path.
+            // Still allow access when the teacher owns the session itself — e.g. the
+            // admin re-assigned the session's teacher, or the subject was deleted
+            // (orphaned session). Otherwise the teacher would see the session on the
+            // dashboard but hit a 404 opening its attendance.
+            $session = Session::findOrFail($sessionId);
+            abort_unless((int) $session->teacher_id === (int) $teacher->id, 404);
+
+            // Prefer the real subject (unfiltered); fall back to a placeholder when
+            // the subject row no longer exists.
+            $subject = Subject::with('term', 'terms')->find($subjectId);
+            if (!$subject) {
+                $subject = new Subject([
+                    'id'       => $subjectId,
+                    'name_ar'  => 'مقرر محذوف',
+                    'name_en'  => 'Deleted subject',
+                    'class_id' => $session->class_id,
+                ]);
+                $subject->setRelation('terms', collect());
+                $subject->setRelation('term', null);
+            }
+        }
 
         // Resolve the class id from every possible source (the session itself is the
         // most accurate, then the subject, then any of its terms).
@@ -558,8 +582,27 @@ class SubjectController extends Controller
     public function exportAttendance($subjectId, $sessionId)
     {
         $teacher = auth()->user();
-        $subject = Subject::assignedToTeacher($teacher->id)->with('term', 'terms')->findOrFail($subjectId);
-        $session = Session::where('subject_id', $subjectId)->findOrFail($sessionId);
+        $subject = Subject::assignedToTeacher($teacher->id)->with('term', 'terms')->find($subjectId);
+
+        if ($subject) {
+            $session = Session::where('subject_id', $subjectId)->findOrFail($sessionId);
+        } else {
+            // Mirror sessionAttendance(): allow the session's own teacher through.
+            $session = Session::findOrFail($sessionId);
+            abort_unless((int) $session->teacher_id === (int) $teacher->id, 404);
+
+            $subject = Subject::with('term', 'terms')->find($subjectId);
+            if (!$subject) {
+                $subject = new Subject([
+                    'id'       => $subjectId,
+                    'name_ar'  => 'مقرر محذوف',
+                    'name_en'  => 'Deleted subject',
+                    'class_id' => $session->class_id,
+                ]);
+                $subject->setRelation('terms', collect());
+                $subject->setRelation('term', null);
+            }
+        }
 
         $classId = $session->class_id
             ?? $subject->class_id

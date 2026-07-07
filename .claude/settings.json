@@ -1,7 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(php -r ' *)"
+      "Bash(php -r ' *)",
+      "Bash(php -l app/Http/Controllers/Teacher/SubjectController.php)",
+      "Bash(php -l app/Http/Controllers/Admin/ProgramClassController.php)"
     ]
   }
 }
