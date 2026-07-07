@@ -6,9 +6,15 @@
 <div style="direction:rtl;max-width:1200px;margin:0 auto;">
 
     {{-- Header --}}
-    <div style="background:linear-gradient(135deg,#0071AA,#004d77);border-radius:18px;padding:22px 26px;color:#fff;margin-bottom:20px;">
-        <div style="font-size:19px;font-weight:800;">الاختبارات </div>
-        <div style="font-size:13px;opacity:.85;margin-top:4px;">جميع اختبارات مقرراتك ونتائج الطلاب</div>
+    <div style="background:linear-gradient(135deg,#0071AA,#004d77);border-radius:18px;padding:22px 26px;color:#fff;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+        <div>
+            <div style="font-size:19px;font-weight:800;">الاختبارات </div>
+            <div style="font-size:13px;opacity:.85;margin-top:4px;">جميع اختبارات مقرراتك ونتائج الطلاب</div>
+        </div>
+        <a href="{{ route('teacher.quizzes.create-global') }}"
+           style="background:#fff;color:#0071AA;border-radius:10px;padding:10px 20px;font-size:14px;font-weight:800;text-decoration:none;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.12);">
+            + إنشاء اختبار
+        </a>
     </div>
 
     {{-- Stats --}}

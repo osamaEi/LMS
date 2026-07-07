@@ -638,6 +638,9 @@ Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')
 
     // Quizzes overview (all subjects)
     Route::get('/quizzes', [\App\Http\Controllers\Teacher\QuizController::class, 'overview'])->name('quizzes.overview');
+    // Global create flow: pick subject → target class (registered before /{quiz}).
+    Route::get('/quizzes/create', [\App\Http\Controllers\Teacher\QuizController::class, 'createGlobal'])->name('quizzes.create-global');
+    Route::post('/quizzes', [\App\Http\Controllers\Teacher\QuizController::class, 'storeGlobal'])->name('quizzes.store-global');
     Route::get('/quizzes/{quiz}', [\App\Http\Controllers\Teacher\QuizController::class, 'overviewShow'])->name('quizzes.overview.show');
     Route::get('/quizzes/{quiz}/attempts/{attempt}', [\App\Http\Controllers\Teacher\QuizController::class, 'overviewAttempt'])->name('quizzes.overview.attempt');
 

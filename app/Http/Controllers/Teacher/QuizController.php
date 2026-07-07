@@ -9,13 +9,76 @@ use App\Models\QuestionOption;
 use App\Models\QuizAttempt;
 use App\Models\Subject;
 use App\Services\NotificationService;
+use App\Services\QuizService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class QuizController extends Controller
 {
-    public function __construct(protected NotificationService $notificationService) {}
+    public function __construct(
+        protected NotificationService $notificationService,
+        protected QuizService $quizService,
+    ) {}
+
+    /**
+     * Show the global create form: pick a subject, then its target class.
+     */
+    public function createGlobal()
+    {
+        $subjects = $this->quizService->selectableSubjects(auth()->id());
+
+        return view('teacher.quizzes.create-global', compact('subjects'));
+    }
+
+    /**
+     * Store a quiz created from the global form and redirect to add questions.
+     */
+    public function storeGlobal(Request $request)
+    {
+        $teacher = auth()->user();
+
+        $validated = $request->validate([
+            'subject_id'       => 'required|exists:subjects,id',
+            'class_id'         => 'nullable|exists:program_classes,id',
+            'title_ar'         => 'required|string|max:255',
+            'title_en'         => 'nullable|string|max:255',
+            'description_ar'   => 'nullable|string',
+            'type'             => 'required|in:quiz,midterm,exam,homework,paper',
+            'duration_minutes' => 'nullable|integer|min:1',
+            'total_marks'      => 'required|numeric|min:1',
+            'pass_marks'       => 'required|numeric|min:0',
+            'max_attempts'     => 'required|integer|min:1',
+            'starts_at'        => 'nullable|date',
+            'ends_at'          => 'nullable|date|after_or_equal:starts_at',
+        ]);
+
+        // Authorize the subject against the teacher's assignments.
+        $subject = Subject::assignedToTeacher($teacher->id)->findOrFail($validated['subject_id']);
+
+        $quiz = $this->quizService->createForSubject(
+            $subject,
+            $validated['class_id'] ?? null,
+            $teacher->id,
+            [
+                'title_ar'         => $validated['title_ar'],
+                'title_en'         => $validated['title_en'] ?? null,
+                'description_ar'   => $validated['description_ar'] ?? null,
+                'type'             => $validated['type'],
+                'duration_minutes' => $validated['duration_minutes'] ?? null,
+                'total_marks'      => $validated['total_marks'],
+                'pass_marks'       => $validated['pass_marks'],
+                'max_attempts'     => $validated['max_attempts'],
+                'show_results'     => $request->boolean('show_results', true),
+                'starts_at'        => $validated['starts_at'] ?? null,
+                'ends_at'          => $validated['ends_at'] ?? null,
+                'is_active'        => true,
+            ],
+        );
+
+        return redirect()->route('teacher.quizzes.show', [$subject->id, $quiz->id])
+            ->with('success', 'تم إنشاء الاختبار بنجاح. يمكنك الآن إضافة الأسئلة.');
+    }
 
     /**
      * Display a listing of quizzes for a subject

@@ -11,6 +11,7 @@ class Quiz extends Model
 
     protected $fillable = [
         'subject_id',
+        'class_id',
         'created_by',
         'title_ar',
         'title_en',
@@ -116,6 +117,30 @@ class Quiz extends Model
     public function subject()
     {
         return $this->belongsTo(Subject::class);
+    }
+
+    /**
+     * The class this quiz is targeted at (nullable — null means subject-wide).
+     */
+    public function programClass()
+    {
+        return $this->belongsTo(ProgramClass::class, 'class_id');
+    }
+
+    /**
+     * Scope: quizzes visible to a given class. A quiz is visible when it targets
+     * that class specifically, or when it has no target class at all (subject-wide).
+     */
+    public function scopeVisibleToClasses($query, $classIds)
+    {
+        $classIds = collect($classIds)->filter()->values();
+
+        return $query->where(function ($q) use ($classIds) {
+            $q->whereNull('class_id');
+            if ($classIds->isNotEmpty()) {
+                $q->orWhereIn('class_id', $classIds);
+            }
+        });
     }
 
     public function creator()

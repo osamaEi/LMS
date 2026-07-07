@@ -12,14 +12,32 @@ use Illuminate\Support\Facades\DB;
 
 class QuizController extends Controller
 {
+    /**
+     * The class ids this student belongs to (across all their programs).
+     */
+    private function studentClassIds($student)
+    {
+        return $student->allProgramIds()
+            ->map(fn($pid) => $student->classIdForProgram((int) $pid))
+            ->filter()->unique()->values();
+    }
+
+    /**
+     * Fetch a quiz within a subject, enforcing this student's class visibility.
+     * A quiz targeting another class is treated as not found (404).
+     */
+    private function findVisibleQuiz($student, $subjectId, $quizId, $query = null)
+    {
+        $query ??= Quiz::query();
+
+        return $query->where('subject_id', $subjectId)
+            ->visibleToClasses($this->studentClassIds($student))
+            ->findOrFail($quizId);
+    }
+
     private function canAccessSubject($student, $subjectId): bool
     {
-        // Class-scoped: a student only sees a subject's quizzes when the subject
-        // belongs to their own class (directly or via its term), or when they are
-        // directly enrolled in the subject. Program-wide membership alone is NOT
-        // enough — students in other classes of the same program are excluded.
-        $programIds = $student->allProgramIds();
-        $classIds   = $programIds->map(fn($pid) => $student->classIdForProgram((int) $pid))->filter()->unique()->values();
+        $classIds = $this->studentClassIds($student);
 
         return Subject::where('id', $subjectId)
             ->where(function ($q) use ($student, $classIds) {
@@ -43,9 +61,11 @@ class QuizController extends Controller
             abort(403, 'أنت غير مسجل في هذه المقرر ');
         }
 
-        // Get quizzes for this subject
+        // A quiz may target one specific class; students of other classes on the
+        // same subject must not see it. Scope by this student's class ids.
         $quizzes = Quiz::where('subject_id', $subjectId)
             ->where('is_active', true)
+            ->visibleToClasses($this->studentClassIds($student))
             ->with('subject')
             ->withCount('questions')
             ->orderBy('created_at', 'desc')
@@ -74,14 +94,14 @@ class QuizController extends Controller
         $student = auth()->user();
         $subject = Subject::findOrFail($subjectId);
 
-        $quiz = Quiz::where('subject_id', $subjectId)
-            ->with('subject')
-            ->withCount('questions')
-            ->findOrFail($quizId);
-
         if (!$this->canAccessSubject($student, $subjectId)) {
             abort(403, 'أنت غير مسجل في هذه المقرر ');
         }
+
+        $quiz = $this->findVisibleQuiz(
+            $student, $subjectId, $quizId,
+            Quiz::with('subject')->withCount('questions')
+        );
 
         $attempts = $quiz->attemptsForStudent($student->id)
             ->whereNotNull('submitted_at')
@@ -100,11 +120,12 @@ class QuizController extends Controller
     {
         $student = auth()->user();
         $subject = Subject::findOrFail($subjectId);
-        $quiz = Quiz::where('subject_id', $subjectId)->findOrFail($quizId);
 
         if (!$this->canAccessSubject($student, $subjectId)) {
             abort(403, 'أنت غير مسجل في هذه المقرر ');
         }
+
+        $quiz = $this->findVisibleQuiz($student, $subjectId, $quizId);
 
         // Check if quiz is available
         if (!$quiz->isAvailable()) {
@@ -142,9 +163,10 @@ class QuizController extends Controller
     {
         $student = auth()->user();
         $subject = Subject::findOrFail($subjectId);
-        $quiz = Quiz::where('subject_id', $subjectId)
-            ->with('questions.options')
-            ->findOrFail($quizId);
+        $quiz = $this->findVisibleQuiz(
+            $student, $subjectId, $quizId,
+            Quiz::with('questions.options')
+        );
 
         // Get attempt
         $attempt = QuizAttempt::where('quiz_id', $quizId)
@@ -180,7 +202,7 @@ class QuizController extends Controller
     {
         $student = auth()->user();
         $subject = Subject::findOrFail($subjectId);
-        $quiz = Quiz::where('subject_id', $subjectId)->findOrFail($quizId);
+        $quiz = $this->findVisibleQuiz($student, $subjectId, $quizId);
 
         $attempt = QuizAttempt::where('quiz_id', $quizId)
             ->where('student_id', $student->id)
