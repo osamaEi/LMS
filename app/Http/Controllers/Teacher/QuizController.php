@@ -197,13 +197,21 @@ class QuizController extends Controller
 
         $withAnswers = $request->boolean('answers');
 
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('teacher.quizzes.pdf', compact('subject', 'quiz', 'withAnswers'))
-            ->setPaper('a4', 'portrait')
-            ->setOptions([
-                'isHtml5ParserEnabled' => true,
-                'isRemoteEnabled'      => true,
-                'defaultFont'          => 'DejaVu Sans',
-            ]);
+        // mPDF renders Arabic with proper letter shaping + RTL bidi (DomPDF cannot).
+        $pdf = \Mccarlosen\LaravelMpdf\Facades\LaravelMpdf::loadView(
+            'teacher.quizzes.pdf',
+            compact('subject', 'quiz', 'withAnswers'),
+            [],
+            [
+                'format'      => 'A4',
+                'orientation' => 'P',
+                'mode'        => 'utf-8',
+                'directionality' => 'rtl',
+                'default_font'   => 'dejavusans',
+                'autoScriptToLang' => true,
+                'autoLangToFont'   => true,
+            ]
+        );
 
         $slug = 'quiz-' . $quiz->id . ($withAnswers ? '-answers' : '');
 
