@@ -14,15 +14,17 @@ class QuizController extends Controller
 {
     private function canAccessSubject($student, $subjectId): bool
     {
+        // Class-scoped: a student only sees a subject's quizzes when the subject
+        // belongs to their own class (directly or via its term), or when they are
+        // directly enrolled in the subject. Program-wide membership alone is NOT
+        // enough — students in other classes of the same program are excluded.
         $programIds = $student->allProgramIds();
         $classIds   = $programIds->map(fn($pid) => $student->classIdForProgram((int) $pid))->filter()->unique()->values();
 
         return Subject::where('id', $subjectId)
-            ->where(function ($q) use ($student, $programIds, $classIds) {
-                $q->whereIn('program_id', $programIds)
-                  ->orWhereHas('term', fn($tq) => $tq->whereIn('program_id', $programIds))
-                  ->orWhereHas('enrollments', fn($eq) => $eq->where('student_id', $student->id));
-                if ($classIds->isNotEmpty()) {
+            ->where(function ($q) use ($student, $classIds) {
+                $q->whereHas('enrollments', fn($eq) => $eq->where('student_id', $student->id));
+                 if ($classIds->isNotEmpty()) {
                     $q->orWhereIn('class_id', $classIds)
                       ->orWhereHas('term', fn($tq) => $tq->whereIn('class_id', $classIds));
                 }

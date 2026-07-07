@@ -119,6 +119,35 @@ class QuizController extends Controller
     }
 
     /**
+     * Export the quiz as a printable PDF (question paper).
+     * ?answers=1 includes the correct answers (answer key).
+     */
+    public function exportPdf(Request $request, $subjectId, $quizId)
+    {
+        $teacher = auth()->user();
+
+        $subject = Subject::assignedToTeacher($teacher->id)->findOrFail($subjectId);
+
+        $quiz = Quiz::where('subject_id', $subjectId)
+            ->with(['questions' => fn($q) => $q->orderBy('order'), 'questions.options'])
+            ->findOrFail($quizId);
+
+        $withAnswers = $request->boolean('answers');
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('teacher.quizzes.pdf', compact('subject', 'quiz', 'withAnswers'))
+            ->setPaper('a4', 'portrait')
+            ->setOptions([
+                'isHtml5ParserEnabled' => true,
+                'isRemoteEnabled'      => true,
+                'defaultFont'          => 'DejaVu Sans',
+            ]);
+
+        $slug = 'quiz-' . $quiz->id . ($withAnswers ? '-answers' : '');
+
+        return $pdf->download($slug . '.pdf');
+    }
+
+    /**
      * Show the form for editing the specified quiz
      */
     public function edit($subjectId, $quizId)
@@ -593,17 +622,23 @@ class QuizController extends Controller
         $subject = $quiz->subject;
         $eligibleStudents = collect();
         if ($subject) {
-            $programIds = collect([$subject->program_id])->filter()->unique();
-            $classIds   = collect([$subject->class_id])->filter()->unique();
+            // Mirror the student's own class-scoped visibility (canAccessSubject):
+            // the class is resolved via the student_programs pivot (the source of
+            // truth), the legacy users.class_id column, or a direct enrollment.
+            $classId   = $subject->class_id;
+            $programId = $subject->program_id;
 
             $eligibleStudents = \App\Models\User::where('role', 'student')
-                ->where(function ($q) use ($subject, $programIds, $classIds) {
+                ->where(function ($q) use ($subject, $classId, $programId) {
+                    // Direct enrollment in the subject
                     $q->whereHas('enrollments', fn($eq) => $eq->where('subject_id', $subject->id));
-                    if ($programIds->isNotEmpty()) {
-                        $q->orWhereIn('program_id', $programIds);
-                    }
-                    if ($classIds->isNotEmpty()) {
-                        $q->orWhereIn('class_id', $classIds);
+
+                    if ($classId) {
+                        // Assigned to this subject's class via the pivot
+                        $q->orWhereHas('programs', fn($pq) => $pq
+                            ->where('student_programs.class_id', $classId));
+                        // Legacy column fallback
+                        $q->orWhere('class_id', $classId);
                     }
                 })
                 ->orderBy('name')

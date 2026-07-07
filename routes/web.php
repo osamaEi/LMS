@@ -15,6 +15,23 @@ Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/logout', [LogoutController::class, 'logout'])->name('logout');
 
+// TEMP: diagnose attendance 404 — احذفه بعد التشخيص
+Route::get('/diag/attendance/{subjectId}/{sessionId}', function ($subjectId, $sessionId) {
+    $user = auth()->user();
+    $subject = \App\Models\Subject::find($subjectId);
+    $session = \App\Models\Session::find($sessionId);
+    return response()->json([
+        'logged_in_user'          => $user ? ['id' => $user->id, 'name' => $user->name, 'role' => $user->role] : null,
+        'subject_exists'          => (bool) $subject,
+        'subject_teacher_id'      => $subject->teacher_id ?? null,
+        'subject_assigned_ids'    => $subject ? $subject->teachers->pluck('id')->values() : [],
+        'subject_assigned_to_me'  => $subject && $user ? (bool) \App\Models\Subject::assignedToTeacher($user->id)->find($subjectId) : false,
+        'session_exists'          => (bool) $session,
+        'session_subject_id'      => $session->subject_id ?? null,
+        'session_belongs_to_subject' => $session && (string) $session->subject_id === (string) $subjectId,
+    ], 200, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+})->middleware('auth');
+
 // My IP (for Nafath whitelist)
 Route::get('/my-ip', function () {
     return response()->json(['ip' => request()->ip()]);
@@ -630,6 +647,7 @@ Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')
         Route::get('/create', [\App\Http\Controllers\Teacher\QuizController::class, 'create'])->name('create');
         Route::post('/', [\App\Http\Controllers\Teacher\QuizController::class, 'store'])->name('store');
         Route::get('/{quiz}', [\App\Http\Controllers\Teacher\QuizController::class, 'show'])->name('show');
+        Route::get('/{quiz}/pdf', [\App\Http\Controllers\Teacher\QuizController::class, 'exportPdf'])->name('pdf');
         Route::get('/{quiz}/edit', [\App\Http\Controllers\Teacher\QuizController::class, 'edit'])->name('edit');
         Route::put('/{quiz}', [\App\Http\Controllers\Teacher\QuizController::class, 'update'])->name('update');
         Route::delete('/{quiz}', [\App\Http\Controllers\Teacher\QuizController::class, 'destroy'])->name('destroy');
