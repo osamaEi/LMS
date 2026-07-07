@@ -472,6 +472,27 @@ class SubjectController extends Controller
     /**
      * Show session attendance
      */
+    /**
+     * Resolve a session the teacher is allowed to act on for attendance.
+     *
+     * Access is granted if the subject is assigned to the teacher, OR the teacher
+     * owns the session directly (e.g. admin re-assigned the session's teacher, or
+     * the subject was deleted). Aborts 404 otherwise. Returns the Session.
+     */
+    private function resolveTeacherSession($teacher, $subjectId, $sessionId): Session
+    {
+        $assigned = Subject::assignedToTeacher($teacher->id)->find($subjectId);
+
+        if ($assigned) {
+            return Session::where('subject_id', $subjectId)->findOrFail($sessionId);
+        }
+
+        $session = Session::findOrFail($sessionId);
+        abort_unless((int) $session->teacher_id === (int) $teacher->id, 404);
+
+        return $session;
+    }
+
     public function sessionAttendance($subjectId, $sessionId)
     {
         $teacher = auth()->user();
@@ -662,11 +683,7 @@ class SubjectController extends Controller
     {
         $teacher = auth()->user();
 
-        $subject = Subject::assignedToTeacher($teacher->id)
-            ->findOrFail($subjectId);
-
-        $session = Session::where('subject_id', $subjectId)
-            ->findOrFail($sessionId);
+        $session = $this->resolveTeacherSession($teacher, $subjectId, $sessionId);
 
         $validated = $request->validate([
             'student_ids'   => 'required|array',
@@ -700,8 +717,7 @@ class SubjectController extends Controller
     {
         $teacher = auth()->user();
 
-        $subject = Subject::assignedToTeacher($teacher->id)->findOrFail($subjectId);
-        $session = Session::where('subject_id', $subjectId)->findOrFail($sessionId);
+        $session = $this->resolveTeacherSession($teacher, $subjectId, $sessionId);
 
         $validated = $request->validate([
             'student_id' => 'required|exists:users,id',
