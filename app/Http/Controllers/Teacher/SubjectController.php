@@ -497,11 +497,11 @@ class SubjectController extends Controller
             $subject = Subject::with('term', 'terms')->find($subjectId);
             if (!$subject) {
                 $subject = new Subject([
-                    'id'       => $subjectId,
                     'name_ar'  => 'مقرر محذوف',
                     'name_en'  => 'Deleted subject',
                     'class_id' => $session->class_id,
                 ]);
+                $subject->id = $subjectId; // id is guarded — set it directly
                 $subject->setRelation('terms', collect());
                 $subject->setRelation('term', null);
             }
@@ -594,11 +594,11 @@ class SubjectController extends Controller
             $subject = Subject::with('term', 'terms')->find($subjectId);
             if (!$subject) {
                 $subject = new Subject([
-                    'id'       => $subjectId,
                     'name_ar'  => 'مقرر محذوف',
                     'name_en'  => 'Deleted subject',
                     'class_id' => $session->class_id,
                 ]);
+                $subject->id = $subjectId; // id is guarded — set it directly
                 $subject->setRelation('terms', collect());
                 $subject->setRelation('term', null);
             }
