@@ -10,6 +10,7 @@ use App\Notifications\PaymentCreatedNotification;
 use App\Notifications\QuizCreatedNotification;
 use App\Notifications\SessionCreatedNotification;
 use App\Notifications\SessionUpdatedNotification;
+use App\Repositories\QuizRepository;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Collection;
 
@@ -122,31 +123,32 @@ class NotificationService
     public function notifyQuizCreated(Quiz $quiz): void
     {
         try {
-            $subject = $quiz->subject()->with('enrollments.student')->first();
+            $subject = $quiz->subject;
 
             if (!$subject) {
                 Log::warning("Subject not found for quiz {$quiz->id}");
                 return;
             }
 
+            // Recipients must mirror who can actually see the quiz: when it
+            // targets a class, only that class's students; otherwise subject-wide.
+            $students = app(QuizRepository::class)
+                ->studentsForSubject($subject, $quiz->class_id);
+
             $notification = new QuizCreatedNotification($quiz);
             $count = 0;
 
-            $subject->enrollments()
-                ->where('status', 'active')
-                ->with('student')
-                ->get()
-                ->each(function ($enrollment) use ($notification, &$count) {
-                    $student = $enrollment->student;
-                    if ($student && $this->isUserActive($student)) {
-                        try {
-                            $student->notify($notification);
-                            $count++;
-                        } catch (\Exception $e) {
-                            Log::error("Failed to send quiz notification to student {$student->id}: {$e->getMessage()}");
-                        }
-                    }
-                });
+            foreach ($students as $student) {
+                if (!$this->isUserActive($student)) {
+                    continue;
+                }
+                try {
+                    $student->notify($notification);
+                    $count++;
+                } catch (\Exception $e) {
+                    Log::error("Failed to send quiz notification to student {$student->id}: {$e->getMessage()}");
+                }
+            }
 
             Log::info("Sent quiz created notifications for quiz {$quiz->id} to {$count} students");
         } catch (\Exception $e) {

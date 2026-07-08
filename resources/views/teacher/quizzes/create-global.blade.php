@@ -4,15 +4,15 @@
 
 @section('content')
 @php
-    // Map each subject to its selectable classes for the dependent dropdown.
-    $subjectClasses = $subjects->mapWithKeys(fn($s) => [$s['id'] => $s['classes']->values()]);
+    // Map each class to the subjects reaching it, for the dependent dropdown.
+    $classSubjects = $classes->mapWithKeys(fn($c) => [$c['id'] => $c['subjects']->values()]);
 @endphp
 <div style="direction:rtl;max-width:820px;margin:0 auto;">
 
     {{-- Header --}}
     <div style="background:linear-gradient(135deg,#0071AA,#004d77);border-radius:18px;padding:22px 26px;color:#fff;margin-bottom:20px;">
         <div style="font-size:19px;font-weight:800;">إنشاء اختبار جديد</div>
-        <div style="font-size:13px;opacity:.85;margin-top:4px;">اختر المقرر ثم الفصل المستهدف — سيظهر الاختبار لطلاب هذا الفصل.</div>
+        <div style="font-size:13px;opacity:.85;margin-top:4px;">اختر الفصل ثم المقرر المستهدف — سيظهر الاختبار لطلاب هذا الفصل.</div>
     </div>
 
     @if($errors->any())
@@ -23,43 +23,45 @@
     </div>
     @endif
 
-    @if($subjects->isEmpty())
+    @if($classes->isEmpty())
     <div style="background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:30px;text-align:center;color:#64748b;">
-        لا توجد مقررات مُسندة إليك لإنشاء اختبار.
+        لا توجد فصول مُسندة إليك لإنشاء اختبار.
     </div>
     @else
     <form method="POST" action="{{ route('teacher.quizzes.store-global') }}"
           x-data="{
-              subjectClasses: {{ $subjectClasses->toJson() }},
+              classSubjects: {{ $classSubjects->toJson() }},
+              classId: '{{ old('class_id') }}',
               subjectId: '{{ old('subject_id') }}',
-              get classes() { return this.subjectClasses[this.subjectId] || []; }
+              get subjects() { return this.classSubjects[this.classId] || []; },
+              onClassChange() { if (!this.subjects.some(s => String(s.id) === String(this.subjectId))) this.subjectId = ''; }
           }"
           style="background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:18px;box-shadow:0 2px 12px rgba(0,0,0,.04);">
         @csrf
 
-        {{-- Subject --}}
+        {{-- Class (chosen first) --}}
         <div>
-            <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:6px;">المقرر *</label>
-            <select name="subject_id" x-model="subjectId" required
+            <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:6px;">الفصل المستهدف *</label>
+            <select name="class_id" x-model="classId" @change="onClassChange()" required
                     style="width:100%;padding:10px 12px;font-size:13px;border:1.5px solid #e2e8f0;border-radius:10px;outline:none;background:#fff;">
-                <option value="">— اختر المقرر —</option>
-                @foreach($subjects as $subject)
-                    <option value="{{ $subject['id'] }}">{{ $subject['name'] }}</option>
+                <option value="">— اختر الفصل —</option>
+                @foreach($classes as $class)
+                    <option value="{{ $class['id'] }}">{{ $class['name'] }}</option>
                 @endforeach
             </select>
+            <p style="font-size:11px;color:#94a3b8;margin-top:5px;">سيظهر الاختبار لطلاب هذا الفصل فقط.</p>
         </div>
 
-        {{-- Target class (depends on subject) --}}
+        {{-- Subject (depends on class) --}}
         <div>
-            <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:6px;">الفصل المستهدف</label>
-            <select name="class_id"
+            <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:6px;">المقرر *</label>
+            <select name="subject_id" x-model="subjectId" required :disabled="!classId"
                     style="width:100%;padding:10px 12px;font-size:13px;border:1.5px solid #e2e8f0;border-radius:10px;outline:none;background:#fff;">
-                <option value="">كل فصول المقرر</option>
-                <template x-for="c in classes" :key="c.id">
-                    <option :value="c.id" x-text="c.name"></option>
+                <option value="">— اختر المقرر —</option>
+                <template x-for="s in subjects" :key="s.id">
+                    <option :value="s.id" x-text="s.name"></option>
                 </template>
             </select>
-            <p style="font-size:11px;color:#94a3b8;margin-top:5px;">اتركه فارغًا ليظهر الاختبار لكل طلاب المقرر، أو اختر فصلًا لحصره على طلابه فقط.</p>
         </div>
 
         {{-- Title --}}

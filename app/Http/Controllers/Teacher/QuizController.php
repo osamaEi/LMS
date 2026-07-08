@@ -4,21 +4,17 @@ namespace App\Http\Controllers\Teacher;
 
 use App\Http\Controllers\Controller;
 use App\Models\Quiz;
-use App\Models\Question;
-use App\Models\QuestionOption;
 use App\Models\QuizAttempt;
 use App\Models\Subject;
-use App\Services\NotificationService;
+use App\Repositories\QuizRepository;
 use App\Services\QuizService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 
 class QuizController extends Controller
 {
     public function __construct(
-        protected NotificationService $notificationService,
         protected QuizService $quizService,
+        protected QuizRepository $quizzes,
     ) {}
 
     /**
@@ -26,9 +22,9 @@ class QuizController extends Controller
      */
     public function createGlobal()
     {
-        $subjects = $this->quizService->selectableSubjects(auth()->id());
+        $classes = $this->quizService->selectableClasses(auth()->id());
 
-        return view('teacher.quizzes.create-global', compact('subjects'));
+        return view('teacher.quizzes.create-global', compact('classes'));
     }
 
     /**
@@ -40,7 +36,7 @@ class QuizController extends Controller
 
         $validated = $request->validate([
             'subject_id'       => 'required|exists:subjects,id',
-            'class_id'         => 'nullable|exists:program_classes,id',
+            'class_id'         => 'required|exists:program_classes,id',
             'title_ar'         => 'required|string|max:255',
             'title_en'         => 'nullable|string|max:255',
             'description_ar'   => 'nullable|string',
@@ -89,10 +85,7 @@ class QuizController extends Controller
 
         $subject = Subject::assignedToTeacher($teacher->id)->findOrFail($subjectId);
 
-        $quizzes = Quiz::where('subject_id', $subjectId)
-            ->withCount(['questions', 'attempts'])
-            ->orderBy('created_at', 'desc')
-            ->get();
+        $quizzes = $this->quizzes->forSubject($subjectId);
 
         return view('teacher.quizzes.index', compact('subject', 'quizzes'));
     }
@@ -133,9 +126,7 @@ class QuizController extends Controller
         ]);
 
         try {
-            $quiz = Quiz::create([
-                'subject_id' => $subjectId,
-                'created_by' => $teacher->id,
+            $quiz = $this->quizService->create($subjectId, $teacher->id, [
                 'title_ar' => $validated['title_ar'],
                 'title_en' => $validated['title_en'] ?? null,
                 'description_ar' => $validated['description_ar'] ?? null,
@@ -154,9 +145,6 @@ class QuizController extends Controller
                 'is_active' => $request->boolean('is_active', true),
             ]);
 
-            // Notify enrolled students
-            $this->notificationService->notifyQuizCreated($quiz);
-
             return redirect()->route('teacher.quizzes.show', [$subjectId, $quiz->id])
                 ->with('success', 'تم إنشاء الاختبار بنجاح. يمكنك الآن إضافة الأسئلة.');
         } catch (\Exception $e) {
@@ -173,10 +161,7 @@ class QuizController extends Controller
 
         $subject = Subject::assignedToTeacher($teacher->id)->findOrFail($subjectId);
 
-        $quiz = Quiz::where('subject_id', $subjectId)
-            ->with(['questions.options'])
-            ->withCount('attempts')
-            ->findOrFail($quizId);
+        $quiz = $this->quizzes->findForSubject($subjectId, $quizId, ['questions.options'], ['attempts']);
 
         return view('teacher.quizzes.show', compact('subject', 'quiz'));
     }
@@ -191,9 +176,10 @@ class QuizController extends Controller
 
         $subject = Subject::assignedToTeacher($teacher->id)->findOrFail($subjectId);
 
-        $quiz = Quiz::where('subject_id', $subjectId)
-            ->with(['questions' => fn($q) => $q->orderBy('order'), 'questions.options'])
-            ->findOrFail($quizId);
+        $quiz = $this->quizzes->findForSubject($subjectId, $quizId, [
+            'questions' => fn($q) => $q->orderBy('order'),
+            'questions.options',
+        ]);
 
         $withAnswers = $request->boolean('answers');
 
@@ -248,7 +234,7 @@ class QuizController extends Controller
 
         $subject = Subject::assignedToTeacher($teacher->id)->findOrFail($subjectId);
 
-        $quiz = Quiz::where('subject_id', $subjectId)->findOrFail($quizId);
+        $quiz = $this->quizzes->findForSubject($subjectId, $quizId);
 
         return view('teacher.quizzes.edit', compact('subject', 'quiz'));
     }
@@ -262,7 +248,7 @@ class QuizController extends Controller
 
         Subject::assignedToTeacher($teacher->id)->findOrFail($subjectId);
 
-        $quiz = Quiz::where('subject_id', $subjectId)->findOrFail($quizId);
+        $quiz = $this->quizzes->findForSubject($subjectId, $quizId);
 
         $validated = $request->validate([
             'title_ar' => 'required|string|max:255',
@@ -289,7 +275,7 @@ class QuizController extends Controller
         $validated['show_correct_answers'] = $request->boolean('show_correct_answers');
         $validated['is_active'] = $request->boolean('is_active', true);
 
-        $quiz->update($validated);
+        $this->quizService->update($quiz, $validated);
 
         return redirect()->route('teacher.quizzes.show', [$subjectId, $quiz->id])
             ->with('success', 'تم تحديث الاختبار بنجاح');
@@ -304,16 +290,9 @@ class QuizController extends Controller
 
         Subject::assignedToTeacher($teacher->id)->findOrFail($subjectId);
 
-        $quiz = Quiz::where('subject_id', $subjectId)->findOrFail($quizId);
+        $quiz = $this->quizzes->findForSubject($subjectId, $quizId);
 
-        // Delete question images
-        foreach ($quiz->questions as $question) {
-            if ($question->image) {
-                Storage::disk('public')->delete($question->image);
-            }
-        }
-
-        $quiz->delete();
+        $this->quizService->delete($quiz);
 
         return redirect()->route('teacher.quizzes.index', $subjectId)
             ->with('success', 'تم حذف الاختبار بنجاح');
@@ -328,16 +307,13 @@ class QuizController extends Controller
 
         $subject = Subject::assignedToTeacher($teacher->id)->findOrFail($subjectId);
 
-        $quiz = Quiz::where('subject_id', $subjectId)->findOrFail($quizId);
+        $quiz = $this->quizzes->findForSubject($subjectId, $quizId);
 
-        $nextOrder = $quiz->questions()->max('order') + 1;
+        $nextOrder = $this->quizzes->nextQuestionOrder($quiz);
 
         return view('teacher.quizzes.questions.create', compact('subject', 'quiz', 'nextOrder'));
     }
 
-    /**
-     * Store a new question
-     */
     /**
      * Remove option rows whose Arabic text is blank, then re-index, so a
      * multiple-choice question submitted with only 2 of 4 boxes filled
@@ -364,13 +340,16 @@ class QuizController extends Controller
         $request->merge(['options' => $cleaned]);
     }
 
+    /**
+     * Store a new question
+     */
     public function storeQuestion(Request $request, $subjectId, $quizId)
     {
         $teacher = auth()->user();
 
         Subject::assignedToTeacher($teacher->id)->findOrFail($subjectId);
 
-        $quiz = Quiz::where('subject_id', $subjectId)->findOrFail($quizId);
+        $quiz = $this->quizzes->findForSubject($subjectId, $quizId);
 
         // Drop option rows with no Arabic text so half-filled choice lists validate.
         $this->pruneEmptyOptions($request);
@@ -391,58 +370,8 @@ class QuizController extends Controller
             'correct_answer' => 'required_if:type,true_false|in:true,false',
         ]);
 
-        DB::beginTransaction();
-
         try {
-            // Handle image upload
-            $imagePath = null;
-            if ($request->hasFile('image')) {
-                $imagePath = $request->file('image')->store('uploads/images', 'public');
-            }
-
-            $question = Question::create([
-                'quiz_id' => $quiz->id,
-                'type' => $validated['type'],
-                'question_ar' => $validated['question_ar'],
-                'question_en' => $validated['question_en'] ?? null,
-                'explanation_ar' => $validated['explanation_ar'] ?? null,
-                'explanation_en' => $validated['explanation_en'] ?? null,
-                'marks' => $validated['marks'],
-                'order' => $validated['order'],
-                'image' => $imagePath,
-            ]);
-
-            // Create options based on question type
-            if ($validated['type'] === 'multiple_choice' && isset($validated['options'])) {
-                foreach ($validated['options'] as $index => $option) {
-                    QuestionOption::create([
-                        'question_id' => $question->id,
-                        'option_ar' => $option['text_ar'],
-                        'option_en' => $option['text_en'] ?? null,
-                        'is_correct' => isset($option['is_correct']) && $option['is_correct'],
-                        'order' => $index + 1,
-                    ]);
-                }
-            } elseif ($validated['type'] === 'true_false') {
-                // Create True option
-                QuestionOption::create([
-                    'question_id' => $question->id,
-                    'option_ar' => 'صح',
-                    'option_en' => 'True',
-                    'is_correct' => $validated['correct_answer'] === 'true',
-                    'order' => 1,
-                ]);
-                // Create False option
-                QuestionOption::create([
-                    'question_id' => $question->id,
-                    'option_ar' => 'خطأ',
-                    'option_en' => 'False',
-                    'is_correct' => $validated['correct_answer'] === 'false',
-                    'order' => 2,
-                ]);
-            }
-
-            DB::commit();
+            $this->quizService->createQuestion($quiz, $validated, $request->file('image'));
 
             if ($request->has('add_another')) {
                 return redirect()->route('teacher.quizzes.questions.create', [$subjectId, $quizId])
@@ -453,12 +382,6 @@ class QuizController extends Controller
                 ->with('success', 'تم إضافة السؤال بنجاح');
 
         } catch (\Exception $e) {
-            DB::rollBack();
-
-            if ($imagePath) {
-                Storage::disk('public')->delete($imagePath);
-            }
-
             return back()->withInput()->withErrors(['error' => 'حدث خطأ أثناء إضافة السؤال: ' . $e->getMessage()]);
         }
     }
@@ -472,11 +395,9 @@ class QuizController extends Controller
 
         $subject = Subject::assignedToTeacher($teacher->id)->findOrFail($subjectId);
 
-        $quiz = Quiz::where('subject_id', $subjectId)->findOrFail($quizId);
+        $quiz = $this->quizzes->findForSubject($subjectId, $quizId);
 
-        $question = Question::where('quiz_id', $quizId)
-            ->with('options')
-            ->findOrFail($questionId);
+        $question = $this->quizzes->findQuestion($quizId, $questionId, ['options']);
 
         return view('teacher.quizzes.questions.edit', compact('subject', 'quiz', 'question'));
     }
@@ -490,9 +411,9 @@ class QuizController extends Controller
 
         Subject::assignedToTeacher($teacher->id)->findOrFail($subjectId);
 
-        Quiz::where('subject_id', $subjectId)->findOrFail($quizId);
+        $this->quizzes->findForSubject($subjectId, $quizId);
 
-        $question = Question::where('quiz_id', $quizId)->findOrFail($questionId);
+        $question = $this->quizzes->findQuestion($quizId, $questionId);
 
         // Drop option rows with no Arabic text so half-filled choice lists validate.
         $this->pruneEmptyOptions($request);
@@ -514,73 +435,18 @@ class QuizController extends Controller
             'correct_answer' => 'required_if:type,true_false|in:true,false',
         ]);
 
-        DB::beginTransaction();
-
         try {
-            // Handle image
-            $imagePath = $question->image;
-
-            if ($request->boolean('remove_image') && $question->image) {
-                Storage::disk('public')->delete($question->image);
-                $imagePath = null;
-            }
-
-            if ($request->hasFile('image')) {
-                if ($question->image) {
-                    Storage::disk('public')->delete($question->image);
-                }
-                $imagePath = $request->file('image')->store('uploads/images', 'public');
-            }
-
-            $question->update([
-                'type' => $validated['type'],
-                'question_ar' => $validated['question_ar'],
-                'question_en' => $validated['question_en'] ?? null,
-                'explanation_ar' => $validated['explanation_ar'] ?? null,
-                'explanation_en' => $validated['explanation_en'] ?? null,
-                'marks' => $validated['marks'],
-                'order' => $validated['order'],
-                'image' => $imagePath,
-            ]);
-
-            // Delete existing options
-            $question->options()->delete();
-
-            // Create new options based on question type
-            if ($validated['type'] === 'multiple_choice' && isset($validated['options'])) {
-                foreach ($validated['options'] as $index => $option) {
-                    QuestionOption::create([
-                        'question_id' => $question->id,
-                        'option_ar' => $option['text_ar'],
-                        'option_en' => $option['text_en'] ?? null,
-                        'is_correct' => isset($option['is_correct']) && $option['is_correct'],
-                        'order' => $index + 1,
-                    ]);
-                }
-            } elseif ($validated['type'] === 'true_false') {
-                QuestionOption::create([
-                    'question_id' => $question->id,
-                    'option_ar' => 'صح',
-                    'option_en' => 'True',
-                    'is_correct' => $validated['correct_answer'] === 'true',
-                    'order' => 1,
-                ]);
-                QuestionOption::create([
-                    'question_id' => $question->id,
-                    'option_ar' => 'خطأ',
-                    'option_en' => 'False',
-                    'is_correct' => $validated['correct_answer'] === 'false',
-                    'order' => 2,
-                ]);
-            }
-
-            DB::commit();
+            $this->quizService->updateQuestion(
+                $question,
+                $validated,
+                $request->file('image'),
+                $request->boolean('remove_image'),
+            );
 
             return redirect()->route('teacher.quizzes.show', [$subjectId, $quizId])
                 ->with('success', 'تم تحديث السؤال بنجاح');
 
         } catch (\Exception $e) {
-            DB::rollBack();
             return back()->withInput()->withErrors(['error' => 'حدث خطأ أثناء تحديث السؤال: ' . $e->getMessage()]);
         }
     }
@@ -594,15 +460,11 @@ class QuizController extends Controller
 
         Subject::assignedToTeacher($teacher->id)->findOrFail($subjectId);
 
-        Quiz::where('subject_id', $subjectId)->findOrFail($quizId);
+        $this->quizzes->findForSubject($subjectId, $quizId);
 
-        $question = Question::where('quiz_id', $quizId)->findOrFail($questionId);
+        $question = $this->quizzes->findQuestion($quizId, $questionId);
 
-        if ($question->image) {
-            Storage::disk('public')->delete($question->image);
-        }
-
-        $question->delete();
+        $this->quizService->deleteQuestion($question);
 
         return back()->with('success', 'تم حذف السؤال بنجاح');
     }
@@ -616,25 +478,11 @@ class QuizController extends Controller
 
         $subject = Subject::assignedToTeacher($teacher->id)->findOrFail($subjectId);
 
-        $quiz = Quiz::where('subject_id', $subjectId)
-            ->withCount('questions')
-            ->findOrFail($quizId);
+        $quiz = $this->quizzes->findForSubject($subjectId, $quizId, [], ['questions']);
 
-        $attempts = QuizAttempt::where('quiz_id', $quizId)
-            ->whereNotNull('submitted_at')
-            ->with('student')
-            ->orderBy('submitted_at', 'desc')
-            ->paginate(20);
+        $attempts = $this->quizzes->submittedAttempts($quizId);
 
-        // Calculate statistics
-        $stats = [
-            'total_attempts' => $attempts->total(),
-            'passed' => QuizAttempt::where('quiz_id', $quizId)->whereNotNull('submitted_at')->where('passed', true)->count(),
-            'failed' => QuizAttempt::where('quiz_id', $quizId)->whereNotNull('submitted_at')->where('passed', false)->count(),
-            'average_score' => QuizAttempt::where('quiz_id', $quizId)->whereNotNull('submitted_at')->avg('percentage') ?? 0,
-            'highest_score' => QuizAttempt::where('quiz_id', $quizId)->whereNotNull('submitted_at')->max('percentage') ?? 0,
-            'lowest_score' => QuizAttempt::where('quiz_id', $quizId)->whereNotNull('submitted_at')->min('percentage') ?? 0,
-        ];
+        $stats = $this->quizzes->attemptStats($quizId);
 
         return view('teacher.quizzes.results', compact('subject', 'quiz', 'attempts', 'stats'));
     }
@@ -648,11 +496,11 @@ class QuizController extends Controller
 
         $subject = Subject::assignedToTeacher($teacher->id)->findOrFail($subjectId);
 
-        $quiz = Quiz::where('subject_id', $subjectId)->findOrFail($quizId);
+        $quiz = $this->quizzes->findForSubject($subjectId, $quizId);
 
-        $attempt = QuizAttempt::where('quiz_id', $quizId)
-            ->with(['student', 'answers.question.options', 'answers.selectedOption'])
-            ->findOrFail($attemptId);
+        $attempt = $this->quizzes->findAttempt($quizId, $attemptId, [
+            'student', 'answers.question.options', 'answers.selectedOption',
+        ]);
 
         return view('teacher.quizzes.review', compact('subject', 'quiz', 'attempt'));
     }
@@ -664,29 +512,11 @@ class QuizController extends Controller
     {
         $teacher = auth()->user();
 
-        // Only quizzes this teacher created (not every quiz on their subjects).
-        $search  = $request->get('search', '');
-        $type    = $request->get('type', '');
+        $search = $request->get('search', '');
+        $type   = $request->get('type', '');
 
-        $quizzes = Quiz::where('created_by', $teacher->id)
-            ->with(['subject:id,name_ar,name_en', 'creator:id,name'])
-            ->withCount(['questions', 'attempts'])
-            ->withCount(['attempts as completed_count' => fn($q) => $q->whereNotNull('submitted_at')])
-            ->when($search, fn($q) => $q->where(fn($w) =>
-                $w->where('title_ar', 'like', "%{$search}%")
-                  ->orWhere('title_en', 'like', "%{$search}%")
-            ))
-            ->when($type, fn($q) => $q->where('type', $type))
-            ->latest()
-            ->paginate(20)
-            ->withQueryString();
-
-        $stats = [
-            'total'    => Quiz::where('created_by', $teacher->id)->count(),
-            'exams'    => Quiz::where('created_by', $teacher->id)->where('type', 'exam')->count(),
-            'quizzes'  => Quiz::where('created_by', $teacher->id)->where('type', 'quiz')->count(),
-            'attempts' => QuizAttempt::whereHas('quiz', fn($q) => $q->where('created_by', $teacher->id))->whereNotNull('submitted_at')->count(),
-        ];
+        $quizzes = $this->quizzes->overviewForTeacher($teacher->id, $search, $type);
+        $stats   = $this->quizzes->overviewStats($teacher->id);
 
         return view('teacher.quizzes.overview', compact('quizzes', 'stats', 'search', 'type'));
     }
@@ -712,34 +542,9 @@ class QuizController extends Controller
         });
 
         $subject = $quiz->subject;
-        $eligibleStudents = collect();
-        if ($subject) {
-            // Mirror the student's own class-scoped visibility (canAccessSubject):
-            // the class is resolved via the student_programs pivot (the source of
-            // truth), the legacy users.class_id column, or a direct enrollment.
-            $classId   = $subject->class_id;
-            $programId = $subject->program_id;
-
-            $eligibleStudents = \App\Models\User::where('role', 'student')
-                ->where(function ($q) use ($subject, $classId, $programId) {
-                    // Direct enrollment in the subject
-                    $q->whereHas('enrollments', fn($eq) => $eq->where('subject_id', $subject->id));
-
-                    if ($classId) {
-                        // Assigned to this subject's class via the pivot
-                        $q->orWhereHas('programs', fn($pq) => $pq
-                            ->where('student_programs.class_id', $classId));
-                        // Legacy column fallback
-                        $q->orWhere('class_id', $classId);
-                    }
-                })
-                ->orderBy('name')
-                ->get(['id', 'name', 'email'])
-                ->map(function ($student) use ($attemptByStudent) {
-                    $student->attempt = $attemptByStudent[$student->id] ?? null;
-                    return $student;
-                });
-        }
+        $eligibleStudents = $subject
+            ? $this->quizzes->eligibleStudentsFor($subject, $attemptByStudent)
+            : collect();
 
         $stats = [
             'eligible'       => $eligibleStudents->count(),
@@ -780,9 +585,9 @@ class QuizController extends Controller
 
         Subject::assignedToTeacher($teacher->id)->findOrFail($subjectId);
 
-        Quiz::where('subject_id', $subjectId)->findOrFail($quizId);
+        $this->quizzes->findForSubject($subjectId, $quizId);
 
-        $attempt = QuizAttempt::where('quiz_id', $quizId)->findOrFail($attemptId);
+        $attempt = $this->quizzes->findAttempt($quizId, $attemptId);
 
         $answer = $attempt->answers()->findOrFail($answerId);
 
