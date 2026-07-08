@@ -22,9 +22,56 @@
     </div>
 
     <!-- Form -->
+    @php
+        $classTargets = ($classes ?? collect())->mapWithKeys(function ($c) {
+            $targets = collect();
+            foreach ($c['subjects'] as $s) {
+                $targets->push(['value' => 'subject:' . $s['id'], 'label' => $s['name']]);
+            }
+            if (!empty($c['program'])) {
+                $targets->push(['value' => 'program:' . $c['program']['id'], 'label' => $c['program']['name'] . ' (برنامج)']);
+            }
+            return [$c['id'] => $targets->values()];
+        });
+    @endphp
     <form action="{{ route('teacher.quizzes.update', [$subject->id, $quiz->id]) }}" method="POST">
         @csrf
         @method('PUT')
+
+        {{-- Target: class + subject/course (optional — leave as is to keep current) --}}
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-6 mb-6"
+             x-data="{
+                 classTargets: {{ $classTargets->toJson() }},
+                 classId: '{{ old('class_id', $quiz->class_id) }}',
+                 target: '{{ old('target', $currentTarget ?? '') }}',
+                 get targets() { return this.classTargets[this.classId] || []; },
+                 onClassChange() { if (!this.targets.some(t => t.value === this.target)) this.target = ''; }
+             }">
+            <h3 class="text-sm font-bold text-gray-700 dark:text-gray-300 mb-4">الفصل والمقرر / البرنامج المستهدف</h3>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">الفصل المستهدف</label>
+                    <select name="class_id" x-model="classId" @change="onClassChange()"
+                            class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:border-purple-500 focus:ring-purple-500">
+                        <option value="">— اختر الفصل —</option>
+                        @foreach(($classes ?? []) as $class)
+                            <option value="{{ $class['id'] }}">{{ $class['name'] }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">المقرر / البرنامج</label>
+                    <select name="target" x-model="target" :disabled="!classId"
+                            class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:border-purple-500 focus:ring-purple-500">
+                        <option value="">— اختر —</option>
+                        <template x-for="t in targets" :key="t.value">
+                            <option :value="t.value" x-text="t.label" :selected="t.value === target"></option>
+                        </template>
+                    </select>
+                </div>
+            </div>
+            <p class="mt-3 text-xs text-gray-400">اترك الاختيار كما هو للإبقاء على الفصل الحالي، أو غيّره لنقل الاختبار لفصل/مقرر آخر.</p>
+        </div>
 
         <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-6">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">

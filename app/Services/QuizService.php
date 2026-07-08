@@ -201,6 +201,48 @@ class QuizService
     }
 
     /**
+     * Re-point a quiz at a new target (subject or program) + class, validating
+     * that the teacher reaches it and the class belongs to it. Sets the correct
+     * subject_id/program_id/class_id (clearing the other side).
+     *
+     * @param  string  $target  "subject:{id}" or "program:{id}"
+     */
+    public function retarget(Quiz $quiz, string $target, int $classId, int $teacherId): Quiz
+    {
+        [$kind, $id] = explode(':', $target);
+        $id = (int) $id;
+
+        if ($kind === 'program') {
+            $program = $this->quizzes->programsForTeacher($teacherId)->firstWhere('id', $id);
+            if (!$program) {
+                throw ValidationException::withMessages(['target' => 'البرنامج المختار غير متاح لك.']);
+            }
+            if (!$program->targetClasses->contains('id', $classId)) {
+                throw ValidationException::withMessages(['class_id' => 'الفصل المختار لا يخص هذا البرنامج.']);
+            }
+            return $this->quizzes->update($quiz, [
+                'program_id' => $id,
+                'subject_id' => null,
+                'class_id'   => $classId,
+            ]);
+        }
+
+        // Subject target.
+        $subject = Subject::assignedToTeacher($teacherId)->find($id);
+        if (!$subject) {
+            throw ValidationException::withMessages(['target' => 'المقرر المختار غير متاح لك.']);
+        }
+        if (!$this->classesForSubject($subject)->pluck('id')->contains($classId)) {
+            throw ValidationException::withMessages(['class_id' => 'الفصل المختار لا يخص هذا المقرر.']);
+        }
+        return $this->quizzes->update($quiz, [
+            'subject_id' => $id,
+            'program_id' => null,
+            'class_id'   => $classId,
+        ]);
+    }
+
+    /**
      * Delete a quiz along with any images attached to its questions.
      */
     public function delete(Quiz $quiz): void

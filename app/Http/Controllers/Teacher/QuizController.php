@@ -246,7 +246,12 @@ class QuizController extends Controller
 
         $quiz = $this->quizzes->findForSubject($subjectId, $quizId);
 
-        return view('teacher.quizzes.edit', compact('subject', 'quiz'));
+        // Class-first target options so the teacher can move the quiz to another
+        // class/subject/course, plus the quiz's current target for preselection.
+        $classes = $this->quizService->selectableClasses($teacher->id);
+        $currentTarget = 'subject:' . $quiz->subject_id;
+
+        return view('teacher.quizzes.edit', compact('subject', 'quiz', 'classes', 'currentTarget'));
     }
 
     /**
@@ -261,6 +266,8 @@ class QuizController extends Controller
         $quiz = $this->quizzes->findForSubject($subjectId, $quizId);
 
         $validated = $request->validate([
+            'target' => ['nullable', 'string', 'regex:/^(subject|program):\d+$/'],
+            'class_id' => 'nullable|exists:program_classes,id',
             'title_ar' => 'required|string|max:255',
             'title_en' => 'nullable|string|max:255',
             'description_ar' => 'nullable|string',
@@ -279,6 +286,13 @@ class QuizController extends Controller
             'is_active' => 'boolean',
         ]);
 
+        // Re-target (class + subject/course) if provided and actually changed.
+        if (!empty($validated['target']) && !empty($validated['class_id'])) {
+            $this->quizService->retarget($quiz, $validated['target'], (int) $validated['class_id'], $teacher->id);
+            $quiz->refresh();
+        }
+        unset($validated['target'], $validated['class_id']);
+
         $validated['shuffle_questions'] = $request->boolean('shuffle_questions');
         $validated['shuffle_answers'] = $request->boolean('shuffle_answers');
         $validated['show_results'] = $request->boolean('show_results', true);
@@ -287,7 +301,10 @@ class QuizController extends Controller
 
         $this->quizService->update($quiz, $validated);
 
-        return redirect()->route('teacher.quizzes.show', [$subjectId, $quiz->id])
+        // Redirect to the correct show page — the quiz may have become a program quiz.
+        return ($quiz->isProgramQuiz()
+                ? redirect()->route('teacher.quizzes.program.show', [$quiz->program_id, $quiz->id])
+                : redirect()->route('teacher.quizzes.show', [$quiz->subject_id, $quiz->id]))
             ->with('success', 'تم تحديث الاختبار بنجاح');
     }
 
@@ -712,7 +729,10 @@ class QuizController extends Controller
         $program = $this->authorizeProgram($programId);
         $quiz = $this->quizzes->findForProgram($programId, $quizId);
 
-        return view('teacher.quizzes.program.edit', compact('program', 'quiz'));
+        $classes = $this->quizService->selectableClasses(auth()->id());
+        $currentTarget = 'program:' . $quiz->program_id;
+
+        return view('teacher.quizzes.program.edit', compact('program', 'quiz', 'classes', 'currentTarget'));
     }
 
     public function programUpdate(Request $request, $programId, $quizId)
@@ -721,6 +741,8 @@ class QuizController extends Controller
         $quiz = $this->quizzes->findForProgram($programId, $quizId);
 
         $validated = $request->validate([
+            'target' => ['nullable', 'string', 'regex:/^(subject|program):\d+$/'],
+            'class_id' => 'nullable|exists:program_classes,id',
             'title_ar' => 'required|string|max:255',
             'title_en' => 'nullable|string|max:255',
             'description_ar' => 'nullable|string',
@@ -734,6 +756,12 @@ class QuizController extends Controller
             'ends_at' => 'nullable|date|after_or_equal:starts_at',
         ]);
 
+        if (!empty($validated['target']) && !empty($validated['class_id'])) {
+            $this->quizService->retarget($quiz, $validated['target'], (int) $validated['class_id'], auth()->id());
+            $quiz->refresh();
+        }
+        unset($validated['target'], $validated['class_id']);
+
         $validated['shuffle_questions'] = $request->boolean('shuffle_questions');
         $validated['shuffle_answers'] = $request->boolean('shuffle_answers');
         $validated['show_results'] = $request->boolean('show_results', true);
@@ -742,7 +770,9 @@ class QuizController extends Controller
 
         $this->quizService->update($quiz, $validated);
 
-        return redirect()->route('teacher.quizzes.program.show', [$programId, $quiz->id])
+        return ($quiz->isProgramQuiz()
+                ? redirect()->route('teacher.quizzes.program.show', [$quiz->program_id, $quiz->id])
+                : redirect()->route('teacher.quizzes.show', [$quiz->subject_id, $quiz->id]))
             ->with('success', 'تم تحديث الاختبار بنجاح');
     }
 
