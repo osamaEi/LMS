@@ -3,241 +3,178 @@
 @section('title', 'تعديل الاختبار')
 
 @section('content')
-<div class="space-y-6">
-    <!-- Header -->
-    <div class="rounded-2xl p-6 text-white" style="background: linear-gradient(135deg, #0071AA, #005a88);">
-        <div class="flex items-center gap-4">
-            <a href="{{ route('teacher.quizzes.program.show', [$program->id, $quiz->id]) }}"
-               class="w-10 h-10 rounded-xl flex items-center justify-center transition-colors"
-               style="background-color: rgba(255,255,255,0.2);">
-                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                </svg>
-            </a>
-            <div>
-                <p class="text-white/80 text-sm">{{ $program->name }}</p>
-                <h1 class="text-2xl font-bold">تعديل الاختبار</h1>
-            </div>
-        </div>
+@php
+    // Map each class to its selectable targets (subjects + program), like create.
+    $classTargets = ($classes ?? collect())->mapWithKeys(function ($c) {
+        $targets = collect();
+        foreach ($c['subjects'] as $s) {
+            $targets->push(['value' => 'subject:' . $s['id'], 'label' => $s['name']]);
+        }
+        if (!empty($c['program'])) {
+            $targets->push(['value' => 'program:' . $c['program']['id'], 'label' => $c['program']['name'] . ' (برنامج)']);
+        }
+        return [$c['id'] => $targets->values()];
+    });
+@endphp
+<div style="direction:rtl;max-width:820px;margin:0 auto;">
+
+    {{-- Header --}}
+    <div style="background:linear-gradient(135deg,#0071AA,#004d77);border-radius:18px;padding:22px 26px;color:#fff;margin-bottom:20px;">
+        <div style="font-size:19px;font-weight:800;">تعديل الاختبار</div>
+        <div style="font-size:13px;opacity:.85;margin-top:4px;">{{ $program->name ?? '' }} — يمكنك تعديل بيانات الاختبار وفصله المستهدف.</div>
     </div>
 
-    <!-- Form -->
-    @php
-        $classTargets = ($classes ?? collect())->mapWithKeys(function ($c) {
-            $targets = collect();
-            foreach ($c['subjects'] as $s) {
-                $targets->push(['value' => 'subject:' . $s['id'], 'label' => $s['name']]);
-            }
-            if (!empty($c['program'])) {
-                $targets->push(['value' => 'program:' . $c['program']['id'], 'label' => $c['program']['name'] . ' (برنامج)']);
-            }
-            return [$c['id'] => $targets->values()];
-        });
-    @endphp
-    <form action="{{ route('teacher.quizzes.program.update', [$program->id, $quiz->id]) }}" method="POST">
+    @if($errors->any())
+    <div style="background:#fef2f2;border:1px solid #fecaca;color:#b91c1c;border-radius:12px;padding:14px 18px;margin-bottom:16px;font-size:13px;">
+        @foreach($errors->all() as $error)
+            <div>• {{ $error }}</div>
+        @endforeach
+    </div>
+    @endif
+
+    <form method="POST" action="{{ route('teacher.quizzes.program.update', [$program->id, $quiz->id]) }}"
+          x-data="{
+              classTargets: {{ $classTargets->toJson() }},
+              classId: '{{ old('class_id', $quiz->class_id) }}',
+              target: '{{ old('target', $currentTarget ?? '') }}',
+              get targets() { return this.classTargets[this.classId] || []; },
+              onClassChange() { if (!this.targets.some(t => t.value === this.target)) this.target = ''; }
+          }"
+          style="background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:18px;box-shadow:0 2px 12px rgba(0,0,0,.04);">
         @csrf
         @method('PUT')
 
-        {{-- Target: class + subject/course (optional — leave as is to keep current) --}}
-        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-6 mb-6"
-             x-data="{
-                 classTargets: {{ $classTargets->toJson() }},
-                 classId: '{{ old('class_id', $quiz->class_id) }}',
-                 target: '{{ old('target', $currentTarget ?? '') }}',
-                 get targets() { return this.classTargets[this.classId] || []; },
-                 onClassChange() { if (!this.targets.some(t => t.value === this.target)) this.target = ''; }
-             }">
-            <h3 class="text-sm font-bold text-gray-700 dark:text-gray-300 mb-4">الفصل والمقرر / البرنامج المستهدف</h3>
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">الفصل المستهدف</label>
-                    <select name="class_id" x-model="classId" @change="onClassChange()"
-                            class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:border-purple-500 focus:ring-purple-500">
-                        <option value="">— اختر الفصل —</option>
-                        @foreach(($classes ?? []) as $class)
-                            <option value="{{ $class['id'] }}">{{ $class['name'] }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">المقرر / البرنامج</label>
-                    <select name="target" x-model="target" :disabled="!classId"
-                            class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:border-purple-500 focus:ring-purple-500">
-                        <option value="">— اختر —</option>
-                        <template x-for="t in targets" :key="t.value">
-                            <option :value="t.value" x-text="t.label" :selected="t.value === target"></option>
-                        </template>
-                    </select>
-                </div>
-            </div>
-            <p class="mt-3 text-xs text-gray-400">اترك الاختيار كما هو للإبقاء على الفصل الحالي، أو غيّره لنقل الاختبار لفصل/مقرر آخر.</p>
+        {{-- Class (chosen first) --}}
+        <div>
+            <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:6px;">الفصل المستهدف</label>
+            <select name="class_id" x-model="classId" @change="onClassChange()"
+                    style="width:100%;padding:10px 12px;font-size:13px;border:1.5px solid #e2e8f0;border-radius:10px;outline:none;background:#fff;">
+                <option value="">— اختر الفصل —</option>
+                @foreach(($classes ?? []) as $class)
+                    <option value="{{ $class['id'] }}">{{ $class['name'] }}</option>
+                @endforeach
+            </select>
+            <p style="font-size:11px;color:#94a3b8;margin-top:5px;">اتركه كما هو للإبقاء على الفصل الحالي، أو غيّره لنقل الاختبار لفصل آخر.</p>
         </div>
 
-        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-6">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <!-- Title Arabic -->
-                <div>
-                    <label for="title_ar" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        عنوان الاختبار (عربي) <span class="text-red-500">*</span>
-                    </label>
-                    <input type="text" name="title_ar" id="title_ar" value="{{ old('title_ar', $quiz->title_ar) }}" required
-                           class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:border-purple-500 focus:ring-purple-500">
-                </div>
+        {{-- Target: subject or program --}}
+        <div>
+            <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:6px;">المقرر / البرنامج</label>
+            <select name="target" x-model="target" :disabled="!classId"
+                    style="width:100%;padding:10px 12px;font-size:13px;border:1.5px solid #e2e8f0;border-radius:10px;outline:none;background:#fff;">
+                <option value="">— اختر المقرر أو البرنامج —</option>
+                <template x-for="t in targets" :key="t.value">
+                    <option :value="t.value" x-text="t.label" :selected="t.value === target"></option>
+                </template>
+            </select>
+        </div>
 
-                <!-- Title English -->
-                <div>
-                    <label for="title_en" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        عنوان الاختبار (إنجليزي)
-                    </label>
-                    <input type="text" name="title_en" id="title_en" value="{{ old('title_en', $quiz->title_en) }}"
-                           class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:border-purple-500 focus:ring-purple-500">
-                </div>
-
-                <!-- Type -->
-                <div>
-                    <label for="type" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        نوع الاختبار <span class="text-red-500">*</span>
-                    </label>
-                    <select name="type" id="type" required
-                            class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:border-purple-500 focus:ring-purple-500">
-                        <option value="quiz" {{ old('type', $quiz->type) === 'quiz' ? 'selected' : '' }}>اختبار قصير</option>
-                        <option value="midterm" {{ old('type', $quiz->type) === 'midterm' ? 'selected' : '' }}>اختبار نصفي</option>
-                        <option value="exam" {{ old('type', $quiz->type) === 'exam' ? 'selected' : '' }}>امتحان</option>
-                        <option value="homework" {{ old('type', $quiz->type) === 'homework' ? 'selected' : '' }}>واجب</option>
-                        <option value="paper" {{ old('type', $quiz->type) === 'paper' ? 'selected' : '' }}>ورقة أعمال</option>
-                    </select>
-                </div>
-
-                <!-- Duration -->
-                <div>
-                    <label for="duration_minutes" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        المدة (بالدقائق)
-                    </label>
-                    <input type="number" name="duration_minutes" id="duration_minutes" value="{{ old('duration_minutes', $quiz->duration_minutes) }}" min="1"
-                           class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:border-purple-500 focus:ring-purple-500"
-                           placeholder="اتركه فارغاً لوقت غير محدود">
-                </div>
-
-                <!-- Total Marks -->
-                <div>
-                    <label for="total_marks" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        الدرجة الكلية <span class="text-red-500">*</span>
-                    </label>
-                    <input type="number" name="total_marks" id="total_marks" value="{{ old('total_marks', $quiz->total_marks) }}" min="1" step="0.5" required
-                           class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:border-purple-500 focus:ring-purple-500">
-                </div>
-
-                <!-- Pass Marks -->
-                <div>
-                    <label for="pass_marks" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        درجة النجاح <span class="text-red-500">*</span>
-                    </label>
-                    <input type="number" name="pass_marks" id="pass_marks" value="{{ old('pass_marks', $quiz->pass_marks) }}" min="0" step="0.5" required
-                           class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:border-purple-500 focus:ring-purple-500">
-                </div>
-
-                <!-- Max Attempts -->
-                <div>
-                    <label for="max_attempts" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        عدد المحاولات المسموحة <span class="text-red-500">*</span>
-                    </label>
-                    <input type="number" name="max_attempts" id="max_attempts" value="{{ old('max_attempts', $quiz->max_attempts) }}" min="1" required
-                           class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:border-purple-500 focus:ring-purple-500">
-                </div>
-
-                <!-- Starts At -->
-                <div>
-                    <label for="starts_at" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        تاريخ البداية
-                    </label>
-                    <input type="datetime-local" name="starts_at" id="starts_at"
-                           value="{{ old('starts_at', $quiz->starts_at ? $quiz->starts_at->format('Y-m-d\TH:i') : '') }}"
-                           class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:border-purple-500 focus:ring-purple-500">
-                </div>
-
-                <!-- Ends At -->
-                <div>
-                    <label for="ends_at" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        تاريخ النهاية
-                    </label>
-                    <input type="datetime-local" name="ends_at" id="ends_at"
-                           value="{{ old('ends_at', $quiz->ends_at ? $quiz->ends_at->format('Y-m-d\TH:i') : '') }}"
-                           class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:border-purple-500 focus:ring-purple-500">
-                </div>
-
-                <!-- Description Arabic -->
-                <div class="lg:col-span-2">
-                    <label for="description_ar" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        وصف الاختبار (عربي)
-                    </label>
-                    <textarea name="description_ar" id="description_ar" rows="3"
-                              class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:border-purple-500 focus:ring-purple-500">{{ old('description_ar', $quiz->description_ar) }}</textarea>
-                </div>
+        {{-- Title --}}
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div>
+                <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:6px;">عنوان الاختبار (عربي) *</label>
+                <input type="text" name="title_ar" value="{{ old('title_ar', $quiz->title_ar) }}" required
+                       style="width:100%;padding:10px 12px;font-size:13px;border:1.5px solid #e2e8f0;border-radius:10px;outline:none;">
             </div>
-
-            <!-- Options -->
-            <div class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">خيارات الاختبار</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <label class="flex items-center gap-3 p-4 rounded-xl border border-gray-200 dark:border-gray-700 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                        <input type="checkbox" name="shuffle_questions" value="1" {{ old('shuffle_questions', $quiz->shuffle_questions) ? 'checked' : '' }}
-                               class="rounded border-gray-300 text-purple-600 focus:ring-purple-500">
-                        <div>
-                            <span class="block font-medium text-gray-900 dark:text-white">ترتيب عشوائي للأسئلة</span>
-                            <span class="text-xs text-gray-500">تغيير ترتيب الأسئلة لكل طالب</span>
-                        </div>
-                    </label>
-
-                    <label class="flex items-center gap-3 p-4 rounded-xl border border-gray-200 dark:border-gray-700 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                        <input type="checkbox" name="shuffle_answers" value="1" {{ old('shuffle_answers', $quiz->shuffle_answers) ? 'checked' : '' }}
-                               class="rounded border-gray-300 text-purple-600 focus:ring-purple-500">
-                        <div>
-                            <span class="block font-medium text-gray-900 dark:text-white">ترتيب عشوائي للإجابات</span>
-                            <span class="text-xs text-gray-500">تغيير ترتيب الخيارات</span>
-                        </div>
-                    </label>
-
-                    <label class="flex items-center gap-3 p-4 rounded-xl border border-gray-200 dark:border-gray-700 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                        <input type="checkbox" name="show_results" value="1" {{ old('show_results', $quiz->show_results) ? 'checked' : '' }}
-                               class="rounded border-gray-300 text-purple-600 focus:ring-purple-500">
-                        <div>
-                            <span class="block font-medium text-gray-900 dark:text-white">عرض النتيجة</span>
-                            <span class="text-xs text-gray-500">عرض الدرجة بعد التسليم</span>
-                        </div>
-                    </label>
-
-                    <label class="flex items-center gap-3 p-4 rounded-xl border border-gray-200 dark:border-gray-700 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                        <input type="checkbox" name="show_correct_answers" value="1" {{ old('show_correct_answers', $quiz->show_correct_answers) ? 'checked' : '' }}
-                               class="rounded border-gray-300 text-purple-600 focus:ring-purple-500">
-                        <div>
-                            <span class="block font-medium text-gray-900 dark:text-white">عرض الإجابات الصحيحة</span>
-                            <span class="text-xs text-gray-500">عرض التصحيح للطالب</span>
-                        </div>
-                    </label>
-                </div>
+            <div>
+                <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:6px;">العنوان (إنجليزي)</label>
+                <input type="text" name="title_en" value="{{ old('title_en', $quiz->title_en) }}" dir="ltr"
+                       style="width:100%;padding:10px 12px;font-size:13px;border:1.5px solid #e2e8f0;border-radius:10px;outline:none;">
             </div>
+        </div>
 
-            <!-- Active Status -->
-            <div class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-                <label class="flex items-center gap-3">
-                    <input type="checkbox" name="is_active" value="1" {{ old('is_active', $quiz->is_active) ? 'checked' : '' }}
-                           class="rounded border-gray-300 text-purple-600 focus:ring-purple-500">
-                    <span class="font-medium text-gray-900 dark:text-white">تفعيل الاختبار</span>
+        {{-- Description --}}
+        <div>
+            <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:6px;">الوصف</label>
+            <textarea name="description_ar" rows="2"
+                      style="width:100%;padding:10px 12px;font-size:13px;border:1.5px solid #e2e8f0;border-radius:10px;outline:none;resize:vertical;">{{ old('description_ar', $quiz->description_ar) }}</textarea>
+        </div>
+
+        {{-- Type + duration --}}
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div>
+                <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:6px;">النوع *</label>
+                <select name="type" required
+                        style="width:100%;padding:10px 12px;font-size:13px;border:1.5px solid #e2e8f0;border-radius:10px;outline:none;background:#fff;">
+                    @php $t = old('type', $quiz->type); @endphp
+                    <option value="exam" {{ $t==='exam'?'selected':'' }}>امتحان</option>
+                    <option value="quiz" {{ $t==='quiz'?'selected':'' }}>اختبار قصير</option>
+                    <option value="midterm" {{ $t==='midterm'?'selected':'' }}>اختبار نصفي</option>
+                    <option value="homework" {{ $t==='homework'?'selected':'' }}>واجب</option>
+                    <option value="paper" {{ $t==='paper'?'selected':'' }}>ورقة أعمال</option>
+                </select>
+            </div>
+            <div>
+                <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:6px;">المدة (دقيقة)</label>
+                <input type="number" name="duration_minutes" value="{{ old('duration_minutes', $quiz->duration_minutes) }}" min="1"
+                       style="width:100%;padding:10px 12px;font-size:13px;border:1.5px solid #e2e8f0;border-radius:10px;outline:none;">
+            </div>
+        </div>
+
+        {{-- Marks --}}
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+            <div>
+                <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:6px;">الدرجة الكلية *</label>
+                <input type="number" step="0.5" name="total_marks" value="{{ old('total_marks', $quiz->total_marks) }}" min="1" required
+                       style="width:100%;padding:10px 12px;font-size:13px;border:1.5px solid #e2e8f0;border-radius:10px;outline:none;">
+            </div>
+            <div>
+                <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:6px;">درجة النجاح *</label>
+                <input type="number" step="0.5" name="pass_marks" value="{{ old('pass_marks', $quiz->pass_marks) }}" min="0" required
+                       style="width:100%;padding:10px 12px;font-size:13px;border:1.5px solid #e2e8f0;border-radius:10px;outline:none;">
+            </div>
+            <div>
+                <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:6px;">عدد المحاولات *</label>
+                <input type="number" name="max_attempts" value="{{ old('max_attempts', $quiz->max_attempts) }}" min="1" required
+                       style="width:100%;padding:10px 12px;font-size:13px;border:1.5px solid #e2e8f0;border-radius:10px;outline:none;">
+            </div>
+        </div>
+
+        {{-- Schedule --}}
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div>
+                <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:6px;">يبدأ في</label>
+                <input type="datetime-local" name="starts_at" value="{{ old('starts_at', $quiz->starts_at ? $quiz->starts_at->format('Y-m-d\TH:i') : '') }}"
+                       style="width:100%;padding:10px 12px;font-size:13px;border:1.5px solid #e2e8f0;border-radius:10px;outline:none;">
+            </div>
+            <div>
+                <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:6px;">ينتهي في</label>
+                <input type="datetime-local" name="ends_at" value="{{ old('ends_at', $quiz->ends_at ? $quiz->ends_at->format('Y-m-d\TH:i') : '') }}"
+                       style="width:100%;padding:10px 12px;font-size:13px;border:1.5px solid #e2e8f0;border-radius:10px;outline:none;">
+            </div>
+        </div>
+
+        {{-- Options (checkboxes) --}}
+        <div style="border-top:1px solid #f1f5f9;padding-top:16px;">
+            <div style="font-size:13px;font-weight:800;color:#334155;margin-bottom:12px;">خيارات الاختبار</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                @php
+                    $opts = [
+                        ['shuffle_questions', 'ترتيب عشوائي للأسئلة', $quiz->shuffle_questions],
+                        ['shuffle_answers', 'ترتيب عشوائي للإجابات', $quiz->shuffle_answers],
+                        ['show_results', 'عرض النتيجة بعد التسليم', $quiz->show_results],
+                        ['show_correct_answers', 'عرض الإجابات الصحيحة', $quiz->show_correct_answers],
+                        ['is_active', 'تفعيل الاختبار', $quiz->is_active],
+                    ];
+                @endphp
+                @foreach($opts as [$name, $label, $current])
+                <label style="display:flex;align-items:center;gap:9px;padding:10px 12px;border:1.5px solid #e2e8f0;border-radius:10px;cursor:pointer;font-size:13px;color:#475569;">
+                    <input type="checkbox" name="{{ $name }}" value="1" {{ old($name, $current) ? 'checked' : '' }}
+                           style="width:16px;height:16px;accent-color:#0071AA;">
+                    {{ $label }}
                 </label>
+                @endforeach
             </div>
+        </div>
 
-            <!-- Submit -->
-            <div class="mt-6 flex items-center justify-end gap-3">
-                <a href="{{ route('teacher.quizzes.program.show', [$program->id, $quiz->id]) }}"
-                   class="px-6 py-2.5 rounded-xl font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
-                    إلغاء
-                </a>
-                <button type="submit"
-                        class="px-6 py-2.5 rounded-xl font-bold text-white transition-all"
-                        style="background-color: #0071AA;">
-                    حفظ التغييرات
-                </button>
-            </div>
+        {{-- Actions --}}
+        <div style="display:flex;justify-content:flex-end;gap:10px;border-top:1px solid #f1f5f9;padding-top:16px;">
+            <a href="{{ route('teacher.quizzes.program.show', [$program->id, $quiz->id]) }}"
+               style="padding:10px 20px;font-size:13px;font-weight:600;color:#475569;background:#f1f5f9;border-radius:10px;text-decoration:none;">إلغاء</a>
+            <button type="submit"
+                    style="padding:10px 24px;font-size:13px;font-weight:800;color:#fff;background:linear-gradient(135deg,#0071AA,#004d77);border:none;border-radius:10px;cursor:pointer;">
+                حفظ التغييرات
+            </button>
         </div>
     </form>
 </div>
