@@ -244,7 +244,7 @@ class QuizRepository
     public function overviewForTeacher(int $teacherId, string $search = '', string $type = '', int $perPage = 20): LengthAwarePaginator
     {
         return Quiz::where('created_by', $teacherId)
-            ->with(['subject:id,name_ar,name_en', 'creator:id,name'])
+            ->with(['subject:id,name_ar,name_en', 'program:id,name_ar,name_en', 'programClass:id,name', 'creator:id,name'])
             ->withCount(['questions', 'attempts'])
             ->withCount(['attempts as completed_count' => fn($q) => $q->whereNotNull('submitted_at')])
             ->when($search, fn($q) => $q->where(fn($w) =>

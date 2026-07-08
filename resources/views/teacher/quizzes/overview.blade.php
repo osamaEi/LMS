@@ -55,7 +55,8 @@
             <thead>
                 <tr style="background:#f8fafc;border-bottom:1px solid #e2e8f0;">
                     <th style="padding:12px 16px;text-align:right;font-weight:700;color:#374151;">الاختبار</th>
-                    <th style="padding:12px 16px;text-align:right;font-weight:700;color:#374151;">المقرر</th>
+                    <th style="padding:12px 16px;text-align:right;font-weight:700;color:#374151;">المقرر / البرنامج</th>
+                    <th style="padding:12px 16px;text-align:center;font-weight:700;color:#374151;">الفصل المستهدف</th>
                     <th style="padding:12px 16px;text-align:center;font-weight:700;color:#374151;">النوع</th>
                     <th style="padding:12px 16px;text-align:center;font-weight:700;color:#374151;">التوقيت</th>
                     <th style="padding:12px 16px;text-align:center;font-weight:700;color:#374151;">الأسئلة</th>
@@ -76,13 +77,20 @@
                             {{ $quiz->total_marks }} درجة · نجاح {{ $quiz->pass_marks }}
                         </div>
                     </td>
-                    <td style="padding:12px 16px;color:#475569;font-size:12px;">{{ $quiz->subject->name_ar ?? '—' }}</td>
+                    <td style="padding:12px 16px;color:#475569;font-size:12px;">{{ $quiz->subject->name_ar ?? $quiz->program->name_ar ?? '—' }}</td>
+                    <td style="padding:12px 16px;text-align:center;">
+                        @if($quiz->programClass)
+                            <span style="background:#eef2ff;color:#4338ca;border-radius:9999px;padding:.2rem .7rem;font-size:.7rem;font-weight:700;white-space:nowrap;">{{ $quiz->programClass->name }}</span>
+                        @else
+                            <span style="color:#cbd5e1;font-size:12px;">كل الفصول</span>
+                        @endif
+                    </td>
                     <td style="padding:12px 16px;text-align:center;">
                         @php
                             $typeMap = ['quiz'=>['اختبار قصير','#e0f2fe','#0891b2'],'midterm'=>['اختبار نصفي','#fae8ff','#a21caf'],'exam'=>['امتحان','#f3e8ff','#7c3aed'],'homework'=>['واجب','#fef9c3','#ca8a04'],'paper'=>['ورقة','#f1f5f9','#475569']];
                             [$tl,$tbg,$tc] = $typeMap[$quiz->type] ?? [$quiz->type,'#f1f5f9','#475569'];
                         @endphp
-                        <span style="background:{{ $tbg }};color:{{ $tc }};border-radius:9999px;padding:.2rem .7rem;font-size:.7rem;font-weight:700;">{{ $tl }}</span>
+                        <span style="background:{{ $tbg }};color:{{ $tc }};border-radius:9999px;padding:.2rem .7rem;font-size:.7rem;font-weight:700;white-space:nowrap;">{{ $tl }}</span>
                     </td>
                     <td style="padding:12px 16px;text-align:center;font-size:12px;color:#475569;">
                         @if($quiz->starts_at)
@@ -145,7 +153,7 @@
                     </td>
                 </tr>
                 @empty
-                <tr><td colspan="8" style="padding:48px;text-align:center;color:#94a3b8;font-size:13px;">لا توجد اختبارات في مقرراتك</td></tr>
+                <tr><td colspan="9" style="padding:48px;text-align:center;color:#94a3b8;font-size:13px;">لا توجد اختبارات في مقرراتك</td></tr>
                 @endforelse
             </tbody>
         </table>
