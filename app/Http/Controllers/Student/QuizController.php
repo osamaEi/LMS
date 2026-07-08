@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
+use App\Models\Program;
 use App\Models\Quiz;
 use App\Models\Subject;
 use App\Models\QuizAttempt;
@@ -304,5 +305,212 @@ class QuizController extends Controller
         $showCorrectAnswers = $quiz->show_correct_answers;
 
         return view('student.quizzes.result', compact('subject', 'attempt', 'quiz', 'showResults', 'showCorrectAnswers'));
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Course/English PROGRAM quizzes. Visibility: the student must be enrolled
+    // in the program AND in the quiz's target class.
+    // ─────────────────────────────────────────────────────────────────────────
+
+    /** The class id this student holds in the given program, or null. */
+    private function classIdInProgram($student, int $programId): ?int
+    {
+        return $student->classIdForProgram($programId);
+    }
+
+    private function canAccessProgram($student, int $programId): bool
+    {
+        return $student->allProgramIds()->contains($programId);
+    }
+
+    /**
+     * Fetch a program quiz enforcing the student's class. A quiz targeting
+     * another class is treated as not found (404).
+     */
+    private function findVisibleProgramQuiz($student, int $programId, $quizId, $query = null): Quiz
+    {
+        $query ??= Quiz::query();
+        $classId = $this->classIdInProgram($student, $programId);
+
+        return $query->where('program_id', $programId)
+            ->visibleToClasses($classId ? [$classId] : [])
+            ->findOrFail($quizId);
+    }
+
+    public function programIndex($programId)
+    {
+        $student = auth()->user();
+        $program = Program::findOrFail($programId);
+
+        if (!$this->canAccessProgram($student, (int) $programId)) {
+            abort(403, 'أنت غير مسجل في هذا البرنامج');
+        }
+
+        $classId = $this->classIdInProgram($student, (int) $programId);
+
+        $quizzes = Quiz::where('program_id', $programId)
+            ->where('is_active', true)
+            ->visibleToClasses($classId ? [$classId] : [])
+            ->withCount('questions')
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($quiz) use ($student) {
+                $quiz->student_attempts = $quiz->attemptsForStudent($student->id)->whereNotNull('submitted_at')->count();
+                $quiz->can_attempt = $quiz->canStudentAttempt($student->id);
+                $quiz->best_score = $quiz->bestScoreForStudent($student->id);
+                $quiz->in_progress_attempt = $quiz->attemptsForStudent($student->id)->whereNull('submitted_at')->first();
+                return $quiz;
+            });
+
+        $availableQuizzes = $quizzes->filter(fn($q) => $q->isAvailable());
+        $upcomingQuizzes  = $quizzes->filter(fn($q) => !$q->hasStarted());
+        $pastQuizzes      = $quizzes->filter(fn($q) => $q->hasEnded());
+
+        return view('student.quizzes.program.index', compact('program', 'availableQuizzes', 'upcomingQuizzes', 'pastQuizzes'));
+    }
+
+    public function programShow($programId, $quizId)
+    {
+        $student = auth()->user();
+        $program = Program::findOrFail($programId);
+
+        if (!$this->canAccessProgram($student, (int) $programId)) {
+            abort(403, 'أنت غير مسجل في هذا البرنامج');
+        }
+
+        $quiz = $this->findVisibleProgramQuiz(
+            $student, (int) $programId, $quizId,
+            Quiz::withCount('questions')
+        );
+
+        $attempts = $quiz->attemptsForStudent($student->id)
+            ->whereNotNull('submitted_at')
+            ->orderBy('submitted_at', 'desc')
+            ->get();
+
+        $activeAttempt = $quiz->attemptsForStudent($student->id)->whereNull('submitted_at')->first();
+
+        return view('student.quizzes.program.show', compact('program', 'quiz', 'attempts', 'activeAttempt'));
+    }
+
+    public function programStart($programId, $quizId)
+    {
+        $student = auth()->user();
+
+        if (!$this->canAccessProgram($student, (int) $programId)) {
+            abort(403, 'أنت غير مسجل في هذا البرنامج');
+        }
+
+        $quiz = $this->findVisibleProgramQuiz($student, (int) $programId, $quizId);
+
+        if (!$quiz->isAvailable()) {
+            return back()->with('error', 'الاختبار غير متاح حالياً');
+        }
+        if (!$quiz->canStudentAttempt($student->id)) {
+            return back()->with('error', 'لقد استنفدت جميع المحاولات المتاحة');
+        }
+
+        $existingAttempt = $quiz->attemptsForStudent($student->id)->whereNull('submitted_at')->first();
+        if ($existingAttempt) {
+            return redirect()->route('student.quizzes.program.take', [$programId, $quizId]);
+        }
+
+        QuizAttempt::create([
+            'quiz_id'    => $quiz->id,
+            'student_id' => $student->id,
+            'started_at' => now(),
+            'ends_at'    => $quiz->duration_minutes ? now()->addMinutes($quiz->duration_minutes) : null,
+            'ip_address' => request()->ip(),
+        ]);
+
+        return redirect()->route('student.quizzes.program.take', [$programId, $quizId]);
+    }
+
+    public function programTake($programId, $quizId)
+    {
+        $student = auth()->user();
+        $program = Program::findOrFail($programId);
+        $quiz = $this->findVisibleProgramQuiz(
+            $student, (int) $programId, $quizId,
+            Quiz::with('questions.options')
+        );
+
+        $attempt = QuizAttempt::where('quiz_id', $quizId)
+            ->where('student_id', $student->id)
+            ->whereNull('submitted_at')
+            ->first();
+
+        if (!$attempt) {
+            return redirect()->route('student.quizzes.program.show', [$programId, $quizId])
+                ->with('error', 'لا توجد محاولة جارية');
+        }
+
+        if ($attempt->ends_at && now() > $attempt->ends_at) {
+            $this->submitAttempt($attempt);
+            return redirect()->route('student.quizzes.program.result', [$programId, $quizId, $attempt->id])
+                ->with('warning', 'انتهى وقت الاختبار وتم تسليمه تلقائياً');
+        }
+
+        $questions = $quiz->questions;
+        if ($quiz->shuffle_questions) {
+            $questions = $questions->shuffle();
+        }
+
+        return view('student.quizzes.program.take', compact('program', 'quiz', 'attempt', 'questions'));
+    }
+
+    public function programSubmit(Request $request, $programId, $quizId)
+    {
+        $student = auth()->user();
+
+        if (!$this->canAccessProgram($student, (int) $programId)) {
+            abort(403, 'أنت غير مسجل في هذا البرنامج');
+        }
+
+        $quiz = $this->findVisibleProgramQuiz($student, (int) $programId, $quizId);
+
+        $attempt = QuizAttempt::where('quiz_id', $quizId)
+            ->where('student_id', $student->id)
+            ->whereNull('submitted_at')
+            ->firstOrFail();
+
+        if ($request->has('answers')) {
+            foreach ($request->answers as $questionId => $answerData) {
+                StudentAnswer::updateOrCreate(
+                    ['attempt_id' => $attempt->id, 'question_id' => $questionId],
+                    [
+                        'selected_option_id' => $answerData['option_id'] ?? null,
+                        'answer_text'        => $answerData['text'] ?? null,
+                    ]
+                );
+            }
+        }
+
+        $this->submitAttempt($attempt);
+
+        return redirect()->route('student.quizzes.program.result', [$programId, $quizId, $attempt->id])
+            ->with('success', 'تم تسليم الاختبار بنجاح');
+    }
+
+    public function programResult($programId, $quizId, $attemptId)
+    {
+        $student = auth()->user();
+        $program = Program::findOrFail($programId);
+
+        $attempt = QuizAttempt::where('student_id', $student->id)
+            ->whereNotNull('submitted_at')
+            ->with(['quiz.program', 'answers.question.options', 'answers.selectedOption'])
+            ->findOrFail($attemptId);
+
+        $quiz = $attempt->quiz;
+
+        if ($quiz->id != $quizId || $quiz->program_id != $programId) {
+            abort(404);
+        }
+
+        $showResults = $quiz->show_results;
+        $showCorrectAnswers = $quiz->show_correct_answers;
+
+        return view('student.quizzes.program.result', compact('program', 'attempt', 'quiz', 'showResults', 'showCorrectAnswers'));
     }
 }

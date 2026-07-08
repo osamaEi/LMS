@@ -36,6 +36,23 @@
         </div>
     </div>
 
+    @if(session('success'))
+    <div style="background:#dcfce7;border:1px solid #86efac;color:#166534;border-radius:12px;padding:12px 16px;margin-bottom:14px;font-size:13px;">{{ session('success') }}</div>
+    @endif
+
+    @if($attempt->results_released_at)
+    <div style="background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;border-radius:12px;padding:12px 16px;margin-bottom:14px;font-size:13px;">
+        ✅ تم اعتماد هذه النتيجة وإرسالها للطالب بتاريخ {{ $attempt->results_released_at->format('Y/m/d H:i') }}. يمكنك تعديل الدرجات وإعادة الاعتماد.
+    </div>
+    @else
+    <div style="background:#fffbeb;border:1px solid #fde68a;color:#92400e;border-radius:12px;padding:12px 16px;margin-bottom:14px;font-size:13px;">
+        ⏳ لم يتم اعتماد النتيجة بعد — الطالب لا يرى درجته أو إجاباته حتى تعتمدها.
+    </div>
+    @endif
+
+    <form method="POST" action="{{ route('teacher.quizzes.overview.attempt.release', [$quiz->id, $attempt->id]) }}">
+        @csrf
+
     {{-- Questions & answers --}}
     @foreach($questions as $idx => $q)
     @php $ans = $answersByQuestion[$q->id] ?? null; @endphp
@@ -69,8 +86,21 @@
                 <div style="font-size:11px;color:#94a3b8;font-weight:600;margin-bottom:4px;">إجابة الطالب</div>
                 <div style="background:#f8fafc;border:1px solid #e5e7eb;border-radius:9px;padding:10px 12px;font-size:13px;color:#1e293b;white-space:pre-wrap;">{{ $ans->answer_text ?? '— لم يُجب —' }}</div>
             </div>
-            @if($ans && $ans->teacher_feedback)
-            <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:9px;padding:8px 12px;font-size:12px;color:#1d4ed8;">ملاحظة المعلّم: {{ $ans->teacher_feedback }}</div>
+            {{-- Manual grading inputs (essay / short answer) --}}
+            @if($ans)
+            <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;margin-top:8px;">
+                <div>
+                    <label style="display:block;font-size:11px;color:#94a3b8;font-weight:600;margin-bottom:4px;">الدرجة (من {{ rtrim(rtrim((string)$q->marks,'0'),'.') }})</label>
+                    <input type="number" name="marks[{{ $ans->id }}]" min="0" max="{{ $q->marks }}" step="0.5"
+                           value="{{ $ans->marks_obtained !== null ? rtrim(rtrim((string)$ans->marks_obtained,'0'),'.') : '' }}"
+                           style="width:120px;padding:8px 10px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13px;outline:none;">
+                </div>
+                <div style="flex:1;min-width:200px;">
+                    <label style="display:block;font-size:11px;color:#94a3b8;font-weight:600;margin-bottom:4px;">ملاحظة للطالب (اختياري)</label>
+                    <input type="text" name="feedback[{{ $ans->id }}]" value="{{ $ans->teacher_feedback }}"
+                           style="width:100%;padding:8px 10px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13px;outline:none;">
+                </div>
+            </div>
             @endif
         @endif
 
@@ -87,6 +117,14 @@
         @endif
     </div>
     @endforeach
+
+        <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:6px;">
+            <button type="submit"
+                    style="background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;border-radius:11px;padding:12px 26px;font-size:14px;font-weight:800;cursor:pointer;box-shadow:0 4px 12px rgba(16,185,129,.3);">
+                {{ $attempt->results_released_at ? 'حفظ الدرجات وإعادة الاعتماد' : 'حفظ الدرجات واعتماد النتيجة للطالب' }}
+            </button>
+        </div>
+    </form>
 
 </div>
 @endsection

@@ -125,11 +125,16 @@
                     </td>
                     <td style="padding:12px 16px;text-align:center;">
                         <div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap;">
+                            @php $isProgramQuiz = $quiz->program_id !== null; @endphp
                             <a href="{{ route('teacher.quizzes.overview.show', $quiz->id) }}"
                                style="padding:5px 14px;font-size:11px;color:#0071AA;background:#e0f2fe;border:1px solid #bae6fd;border-radius:7px;font-weight:600;text-decoration:none;">عرض الحلول</a>
-                            <a href="{{ route('teacher.quizzes.show', [$quiz->subject_id, $quiz->id]) }}"
+                            <a href="{{ $isProgramQuiz
+                                    ? route('teacher.quizzes.program.edit', [$quiz->program_id, $quiz->id])
+                                    : route('teacher.quizzes.edit', [$quiz->subject_id, $quiz->id]) }}"
                                style="padding:5px 14px;font-size:11px;color:#475569;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:7px;font-weight:600;text-decoration:none;">تعديل</a>
-                            <form method="POST" action="{{ route('teacher.quizzes.destroy', [$quiz->subject_id, $quiz->id]) }}"
+                            <form method="POST" action="{{ $isProgramQuiz
+                                    ? route('teacher.quizzes.program.destroy', [$quiz->program_id, $quiz->id])
+                                    : route('teacher.quizzes.destroy', [$quiz->subject_id, $quiz->id]) }}"
                                   onsubmit="return confirm('هل أنت متأكد من حذف الاختبار «{{ addslashes($quiz->title_ar) }}»؟ سيتم حذف جميع الأسئلة والمحاولات.')">
                                 @csrf
                                 @method('DELETE')

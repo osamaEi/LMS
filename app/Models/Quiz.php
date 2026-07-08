@@ -11,6 +11,7 @@ class Quiz extends Model
 
     protected $fillable = [
         'subject_id',
+        'program_id',
         'class_id',
         'created_by',
         'title_ar',
@@ -117,6 +118,23 @@ class Quiz extends Model
     public function subject()
     {
         return $this->belongsTo(Subject::class);
+    }
+
+    /**
+     * The program this quiz targets (course/english quizzes). Null for
+     * subject-based (diploma) quizzes.
+     */
+    public function program()
+    {
+        return $this->belongsTo(Program::class);
+    }
+
+    /**
+     * True when the quiz targets a course/english program rather than a subject.
+     */
+    public function isProgramQuiz(): bool
+    {
+        return $this->program_id !== null;
     }
 
     /**

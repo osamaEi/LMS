@@ -594,6 +594,20 @@
 </div>
 @endif
 
+{{-- Quizzes entry (course/english programs) --}}
+<div style="background:white;border-radius:16px;box-shadow:0 1px 3px rgba(0,0,0,.06);margin-top:18px;padding:18px 22px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+    <div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:36px;height:36px;background:linear-gradient(135deg,#0071AA,#005a88);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <svg width="18" height="18" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        </div>
+        <h2 style="font-size:1rem;font-weight:800;color:#111827;margin:0;">اختبارات البرنامج</h2>
+    </div>
+    <a href="{{ route('student.quizzes.program.index', $progId) }}" class="sec-link" style="background:#0071AA;color:#fff;padding:.5rem 1rem;border-radius:10px;text-decoration:none;font-weight:700;font-size:.8rem;">
+        عرض الاختبارات
+        <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+    </a>
+</div>
+
 </div>{{-- end panel --}}
 @endforeach{{-- end programsData loop --}}
 

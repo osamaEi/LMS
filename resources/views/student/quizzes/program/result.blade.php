@@ -28,14 +28,14 @@
     {{-- Awaiting teacher review: hide grade and answers entirely. --}}
     <div class="rounded-2xl p-6 text-white" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
         <div class="flex items-center gap-4">
-            <a href="{{ route('student.quizzes.show', [$subject->id, $quiz->id]) }}"
+            <a href="{{ route('student.quizzes.program.show', [$program->id, $quiz->id]) }}"
                class="w-10 h-10 rounded-xl flex items-center justify-center" style="background-color: rgba(255,255,255,0.2);">
                 <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                 </svg>
             </a>
             <div class="flex-1">
-                <p class="text-white/80 text-sm">{{ $subject->name }} • {{ $quiz->title_ar }}</p>
+                <p class="text-white/80 text-sm">{{ $program->name }} • {{ $quiz->title_ar }}</p>
                 <h1 class="text-2xl font-bold">تم تسليم إجابتك</h1>
             </div>
         </div>
@@ -49,7 +49,7 @@
         </div>
         <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-2">نتيجتك قيد المراجعة</h2>
         <p class="text-gray-600 dark:text-gray-400 max-w-md mx-auto">تم استلام إجاباتك بنجاح. ستظهر لك الدرجة والإجابات الصحيحة بعد أن يعتمدها المدرب.</p>
-        <a href="{{ route('student.quizzes.index', $subject->id) }}"
+        <a href="{{ route('student.quizzes.program.index', $program->id) }}"
            class="inline-block mt-6 px-6 py-2.5 rounded-xl font-bold text-white" style="background-color: #0071AA;">
             جميع الاختبارات
         </a>
@@ -59,7 +59,7 @@
     <!-- Header -->
     <div class="rounded-2xl p-6 text-white" style="background: linear-gradient(135deg, {{ $pendingGrading ? '#f59e0b, #d97706' : ($attempt->passed ? '#10b981, #059669' : '#ef4444, #dc2626') }});">
         <div class="flex items-center gap-4">
-            <a href="{{ route('student.quizzes.show', [$subject->id, $quiz->id]) }}"
+            <a href="{{ route('student.quizzes.program.show', [$program->id, $quiz->id]) }}"
                class="w-10 h-10 rounded-xl flex items-center justify-center transition-colors"
                style="background-color: rgba(255,255,255,0.2);">
                 <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -67,7 +67,7 @@
                 </svg>
             </a>
             <div class="flex-1">
-                <p class="text-white/80 text-sm">{{ $subject->name }} • {{ $quiz->title_ar }}</p>
+                <p class="text-white/80 text-sm">{{ $program->name }} • {{ $quiz->title_ar }}</p>
                 <h1 class="text-2xl font-bold">نتيجة الاختبار</h1>
             </div>
             <div class="text-left">
@@ -228,12 +228,12 @@
 
     <!-- Actions -->
     <div class="flex items-center justify-center gap-4">
-        <a href="{{ route('student.quizzes.show', [$subject->id, $quiz->id]) }}"
+        <a href="{{ route('student.quizzes.program.show', [$program->id, $quiz->id]) }}"
            class="px-6 py-2.5 rounded-xl font-medium text-gray-700 dark:text-gray-300 transition-colors"
            style="background-color: #f3f4f6;">
             العودة للاختبار
         </a>
-        <a href="{{ route('student.quizzes.index', $subject->id) }}"
+        <a href="{{ route('student.quizzes.program.index', $program->id) }}"
            class="px-6 py-2.5 rounded-xl font-bold text-white transition-all"
            style="background-color: #0071AA;">
             جميع الاختبارات

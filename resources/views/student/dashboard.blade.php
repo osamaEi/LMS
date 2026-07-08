@@ -361,6 +361,68 @@
         @include('student.partials.weekly-calendar')
     </div>
 
+    {{-- ─── Quizzes & Exams table ─── --}}
+    <div class="d-card" style="margin-top:1.25rem;">
+        <div class="d-card-head" style="display:flex;align-items:center;justify-content:space-between;">
+            <div style="display:flex;align-items:center;gap:8px;">
+                <svg width="18" height="18" fill="none" stroke="#0071AA" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                <span style="font-weight:800;color:#111827;">الاختبارات والامتحانات</span>
+            </div>
+            <span style="background:#e0f2fe;color:#0369a1;font-size:.72rem;font-weight:700;padding:.2rem .7rem;border-radius:999px;">{{ $quizzesList->count() }}</span>
+        </div>
+
+        @if($quizzesList->isEmpty())
+        <div style="padding:36px;text-align:center;color:#94a3b8;font-size:13px;">لا توجد اختبارات متاحة حالياً</div>
+        @else
+        <div style="overflow-x:auto;">
+            <table style="width:100%;border-collapse:collapse;font-size:13px;min-width:640px;">
+                <thead>
+                    <tr style="border-bottom:2px solid #f1f5f9;background:#fafafa;text-align:right;">
+                        <th style="padding:10px 14px;font-size:11px;font-weight:700;color:#94a3b8;">الاختبار</th>
+                        <th style="padding:10px 14px;font-size:11px;font-weight:700;color:#94a3b8;">المقرر / البرنامج</th>
+                        <th style="padding:10px 14px;font-size:11px;font-weight:700;color:#94a3b8;">النوع</th>
+                        <th style="padding:10px 14px;font-size:11px;font-weight:700;color:#94a3b8;">يبدأ</th>
+                        <th style="padding:10px 14px;font-size:11px;font-weight:700;color:#94a3b8;">ينتهي</th>
+                        <th style="padding:10px 14px;font-size:11px;font-weight:700;color:#94a3b8;">المدة</th>
+                        <th style="padding:10px 14px;font-size:11px;font-weight:700;color:#94a3b8;">الحالة</th>
+                        <th style="padding:10px 14px;font-size:11px;font-weight:700;color:#94a3b8;"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($quizzesList as $qz)
+                    <tr style="border-bottom:1px solid #f8fafc;" onmouseover="this.style.background='#f8faff'" onmouseout="this.style.background=''">
+                        <td style="padding:11px 14px;font-weight:700;color:#1e293b;">{{ $qz->title }}
+                            <span style="display:block;font-weight:400;color:#94a3b8;font-size:11px;">{{ $qz->questions }} سؤال · {{ rtrim(rtrim((string)$qz->total_marks,'0'),'.') }} درجة</span>
+                        </td>
+                        <td style="padding:11px 14px;color:#475569;">{{ $qz->container }}</td>
+                        <td style="padding:11px 14px;color:#64748b;">{{ $qz->type_label }}</td>
+                        <td style="padding:11px 14px;color:#475569;white-space:nowrap;">{{ $qz->starts_at ? $qz->starts_at->format('Y/m/d · H:i') : '—' }}</td>
+                        <td style="padding:11px 14px;color:#475569;white-space:nowrap;">{{ $qz->ends_at ? $qz->ends_at->format('Y/m/d · H:i') : '—' }}</td>
+                        <td style="padding:11px 14px;color:#475569;white-space:nowrap;">{{ $qz->duration ? $qz->duration . ' دقيقة' : '—' }}</td>
+                        <td style="padding:11px 14px;">
+                            @if($qz->in_progress)
+                                <span style="background:#fef3c7;color:#92400e;border-radius:999px;padding:.18rem .65rem;font-size:.68rem;font-weight:700;">جارٍ الحل</span>
+                            @elseif($qz->completed && $qz->released)
+                                <span style="background:#dcfce7;color:#166534;border-radius:999px;padding:.18rem .65rem;font-size:.68rem;font-weight:700;">النتيجة: {{ rtrim(rtrim((string)$qz->score,'0'),'.') }}</span>
+                            @elseif($qz->completed)
+                                <span style="background:#f1f5f9;color:#475569;border-radius:999px;padding:.18rem .65rem;font-size:.68rem;font-weight:700;">قيد المراجعة</span>
+                            @elseif($qz->available)
+                                <span style="background:#e0f2fe;color:#0369a1;border-radius:999px;padding:.18rem .65rem;font-size:.68rem;font-weight:700;">متاح</span>
+                            @else
+                                <span style="background:#f8fafc;color:#94a3b8;border-radius:999px;padding:.18rem .65rem;font-size:.68rem;font-weight:700;">غير متاح</span>
+                            @endif
+                        </td>
+                        <td style="padding:11px 14px;text-align:left;">
+                            <a href="{{ $qz->url }}" style="color:#0071AA;background:#e0f2fe;border:1px solid #bae6fd;border-radius:7px;padding:5px 12px;font-size:11px;font-weight:700;text-decoration:none;white-space:nowrap;">عرض</a>
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+        @endif
+    </div>
+
     <!-- Stats -->
 
 

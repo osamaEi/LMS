@@ -132,6 +132,81 @@ class DashboardController extends Controller
     }
 
     /**
+     * Flat list of the student's quizzes (subject + course/english program),
+     * class-scoped, for the dashboard table. Newest schedule first, with time.
+     */
+    private function buildQuizzesList($student): \Illuminate\Support\Collection
+    {
+        $programIds = $this->studentProgramIds($student);
+        $classIds   = $programIds->map(fn($pid) => $student->classIdForProgram((int) $pid))
+            ->filter()->unique()->values();
+        $subjectIds = $this->studentSubjectIds($student);
+
+        $quizzes = \App\Models\Quiz::where('is_active', true)
+            ->where(function ($q) use ($subjectIds, $programIds, $classIds) {
+                // Subject quizzes for accessible subjects…
+                $q->whereIn('subject_id', $subjectIds);
+                // …or program quizzes for the student's programs, class-scoped.
+                if ($programIds->isNotEmpty()) {
+                    $q->orWhere(function ($pq) use ($programIds, $classIds) {
+                        $pq->whereIn('program_id', $programIds)
+                           ->visibleToClasses($classIds);
+                    });
+                }
+            })
+            ->with(['subject:id,name_ar', 'program:id,name_ar'])
+            ->withCount('questions')
+            ->orderByRaw('starts_at IS NULL, starts_at DESC')
+            ->orderByDesc('created_at')
+            ->get();
+
+        return $quizzes->map(function ($q) use ($student) {
+            $attempt    = $q->attempts()->where('student_id', $student->id)->latest()->first();
+            $completed  = $attempt && $attempt->submitted_at;
+            $inProgress = $attempt && !$attempt->submitted_at;
+            $released   = $completed && $attempt->isReleased();
+
+            $url = $q->isProgramQuiz()
+                ? route('student.quizzes.program.show', [$q->program_id, $q->id])
+                : route('student.quizzes.show', [$q->subject_id, $q->id]);
+
+            return (object) [
+                'title'        => $q->title_ar,
+                'container'    => $q->subject->name_ar ?? $q->program->name_ar ?? '—',
+                'type_label'   => $q->type_label,
+                'starts_at'    => $q->starts_at,
+                'ends_at'      => $q->ends_at,
+                'duration'     => $q->duration_minutes,
+                'questions'    => $q->questions_count,
+                'total_marks'  => $q->total_marks,
+                'available'    => $q->isAvailable(),
+                'completed'    => $completed,
+                'in_progress'  => $inProgress,
+                'released'     => $released,
+                'score'        => $released ? $attempt->score : null,
+                'url'          => $url,
+            ];
+        })->values();
+    }
+
+    /**
+     * Dedicated page: all of the student's quizzes split into available,
+     * upcoming (not started yet) and past (ended), with full detail.
+     */
+    public function quizzes()
+    {
+        $student = auth()->user();
+        $list = $this->buildQuizzesList($student);
+
+        $now = now();
+        $available = $list->filter(fn($q) => $q->available);
+        $upcoming  = $list->filter(fn($q) => $q->starts_at && $q->starts_at->gt($now));
+        $past      = $list->filter(fn($q) => $q->ends_at && $q->ends_at->lt($now));
+
+        return view('student.quizzes.all', compact('available', 'upcoming', 'past', 'list'));
+    }
+
+    /**
      * JSON feed for the student's weekly calendar (used for realtime polling so the
      * "join" button appears as soon as the teacher starts a session).
      */
@@ -281,6 +356,7 @@ class DashboardController extends Controller
         // Weekly-calendar sessions — same schedule shown on /student/my-sessions
         $classSessions = $this->buildClassSessionsCalendar($student);
         $calQuizzes    = $this->buildQuizzesCalendar($student);
+        $quizzesList   = $this->buildQuizzesList($student);
 
         return view('student.dashboard', compact(
             'subjects',
@@ -289,6 +365,7 @@ class DashboardController extends Controller
             'liveSessions',
             'classSessions',
             'calQuizzes',
+            'quizzesList',
             'stats',
             'overallAttendance',
             'myTickets',

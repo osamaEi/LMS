@@ -2,11 +2,14 @@
 
 namespace App\Repositories;
 
+use App\Models\Program;
+use App\Models\ProgramClass;
 use App\Models\Question;
 use App\Models\Quiz;
 use App\Models\QuizAttempt;
 use App\Models\Subject;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Collection as SupportCollection;
@@ -27,11 +30,99 @@ class QuizRepository
     }
 
     /**
+     * Course/English programs the teacher reaches — either as a class supervisor
+     * (program_classes.teacher_id) or via the program_teacher pivot — each with
+     * the classes that teacher is responsible for.
+     *
+     * @return Collection<int, Program>
+     */
+    public function programsForTeacher(int $teacherId): Collection
+    {
+        $types = ['course', 'english', 'training'];
+
+        // Classes this teacher supervises, grouped per program.
+        $supervisedClasses = ProgramClass::where('teacher_id', $teacherId)
+            ->whereHas('program', fn($q) => $q->whereIn('type', $types))
+            ->get(['id', 'program_id', 'name']);
+
+        $classProgramIds = $supervisedClasses->pluck('program_id');
+        $directProgramIds = DB::table('program_teacher')
+            ->where('teacher_id', $teacherId)->pluck('program_id');
+
+        $programIds = $classProgramIds->merge($directProgramIds)->unique()->values();
+
+        $programs = Program::whereIn('id', $programIds)
+            ->whereIn('type', $types)
+            ->orderBy('name_ar')
+            ->get();
+
+        // Attach the classes the teacher may target for each program. A direct
+        // (pivot) assignment can target any of the program's classes; a
+        // supervisor targets the classes they own.
+        $programs->each(function (Program $program) use ($supervisedClasses, $directProgramIds) {
+            if ($directProgramIds->contains($program->id)) {
+                $classes = ProgramClass::where('program_id', $program->id)->get(['id', 'name']);
+            } else {
+                $classes = $supervisedClasses->where('program_id', $program->id)
+                    ->map(fn($c) => (object) ['id' => $c->id, 'name' => $c->name])->values();
+            }
+            $program->setRelation('targetClasses', $classes);
+        });
+
+        return $programs;
+    }
+
+    /**
      * Persist a new quiz from an attributes array.
      */
     public function create(array $attributes): Quiz
     {
         return Quiz::create($attributes);
+    }
+
+    /**
+     * Quizzes for a program, with question/attempt counts, newest first.
+     */
+    public function forProgram(int $programId): Collection
+    {
+        return Quiz::where('program_id', $programId)
+            ->withCount(['questions', 'attempts'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+    }
+
+    /**
+     * A single quiz scoped to a program, or 404.
+     */
+    public function findForProgram(int $programId, int $quizId, array $with = [], array $withCount = []): Quiz
+    {
+        $query = Quiz::where('program_id', $programId);
+
+        if ($with) {
+            $query->with($with);
+        }
+        if ($withCount) {
+            $query->withCount($withCount);
+        }
+
+        return $query->findOrFail($quizId);
+    }
+
+    /**
+     * Students of a program's class — the recipients/eligible set for a
+     * program-targeted quiz. When $classId is null, all students of the program.
+     */
+    public function studentsForProgram(int $programId, ?int $classId = null): SupportCollection
+    {
+        return User::where('role', 'student')
+            ->whereHas('programs', function ($pq) use ($programId, $classId) {
+                $pq->where('programs.id', $programId);
+                if ($classId) {
+                    $pq->where('student_programs.class_id', $classId);
+                }
+            })
+            ->orderBy('name')
+            ->get(['id', 'name', 'email']);
     }
 
     /**

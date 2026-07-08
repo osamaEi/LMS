@@ -53,17 +53,32 @@ class QuizService
     {
         $classes = collect();
 
-        $this->quizzes->subjectsForTeacher($teacherId)->each(function (Subject $subject) use ($classes) {
+        $ensureBucket = function ($id, $name) use ($classes) {
+            return $classes->get($id) ?? [
+                'id'       => $id,
+                'name'     => $name,
+                'subjects' => collect(),
+                'program'  => null,
+            ];
+        };
+
+        // Diploma path: classes reached through the teacher's subjects.
+        $this->quizzes->subjectsForTeacher($teacherId)->each(function (Subject $subject) use ($classes, $ensureBucket) {
             $subjectEntry = ['id' => $subject->id, 'name' => $subject->name_ar ?? $subject->name];
 
             foreach ($this->classesForSubject($subject) as $class) {
-                $bucket = $classes->get($class['id']) ?? [
-                    'id'       => $class['id'],
-                    'name'     => $class['name'],
-                    'subjects' => collect(),
-                ];
+                $bucket = $ensureBucket($class['id'], $class['name']);
                 $bucket['subjects']->push($subjectEntry);
                 $classes->put($class['id'], $bucket);
+            }
+        });
+
+        // Course/English path: each program class carries its program directly.
+        $this->quizzes->programsForTeacher($teacherId)->each(function ($program) use ($classes, $ensureBucket) {
+            foreach ($program->targetClasses as $class) {
+                $bucket = $ensureBucket($class->id, $class->name);
+                $bucket['program'] = ['id' => $program->id, 'name' => $program->name_ar ?? $program->name];
+                $classes->put($class->id, $bucket);
             }
         });
 
@@ -71,6 +86,7 @@ class QuizService
             'id'       => $c['id'],
             'name'     => $c['name'],
             'subjects' => $c['subjects']->unique('id')->values(),
+            'program'  => $c['program'],
         ]);
     }
 
@@ -118,6 +134,39 @@ class QuizService
 
         $quiz = $this->quizzes->create(array_merge($data, [
             'subject_id' => $subject->id,
+            'class_id'   => $classId,
+            'created_by' => $teacherId,
+        ]));
+
+        $this->notifications->notifyQuizCreated($quiz);
+
+        return $quiz;
+    }
+
+    /**
+     * Create a quiz for a course/English program, targeting one of its classes.
+     *
+     * @throws ValidationException when the class does not belong to the program,
+     *         or the teacher does not reach that program.
+     */
+    public function createForProgram(int $programId, int $classId, int $teacherId, array $data): Quiz
+    {
+        $program = $this->quizzes->programsForTeacher($teacherId)->firstWhere('id', $programId);
+
+        if (!$program) {
+            throw ValidationException::withMessages([
+                'program_id' => 'البرنامج المختار غير متاح لك.',
+            ]);
+        }
+
+        if (!$program->targetClasses->contains('id', $classId)) {
+            throw ValidationException::withMessages([
+                'class_id' => 'الفصل المختار لا يخص هذا البرنامج.',
+            ]);
+        }
+
+        $quiz = $this->quizzes->create(array_merge($data, [
+            'program_id' => $programId,
             'class_id'   => $classId,
             'created_by' => $teacherId,
         ]));

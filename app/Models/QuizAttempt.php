@@ -17,6 +17,7 @@ class QuizAttempt extends Model
         'score',
         'percentage',
         'passed',
+        'results_released_at',
         'time_spent_seconds',
         'ip_address',
     ];
@@ -24,10 +25,20 @@ class QuizAttempt extends Model
     protected $casts = [
         'started_at' => 'datetime',
         'submitted_at' => 'datetime',
+        'results_released_at' => 'datetime',
         'score' => 'decimal:2',
         'percentage' => 'decimal:2',
         'passed' => 'boolean',
     ];
+
+    /**
+     * Whether the teacher has released this attempt's grade/answers to the
+     * student. Until released, the student only sees "awaiting review".
+     */
+    public function isReleased(): bool
+    {
+        return $this->results_released_at !== null;
+    }
 
     /**
      * Check if attempt is completed

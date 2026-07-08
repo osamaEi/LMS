@@ -304,7 +304,7 @@
                         </svg>
                     </div>
                     <div>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">{{ $subject->name_ar ?? $subject->name }}</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">{{ $program->name_ar ?? $program->name }}</p>
                         <h1 class="text-lg font-bold text-gray-900 dark:text-white">{{ $quiz->title_ar }}</h1>
                     </div>
                 </div>
@@ -347,7 +347,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
         <!-- Main Content -->
         <div class="lg:col-span-8 xl:col-span-9">
-            <form id="quizForm" action="{{ route('student.quizzes.submit', [$subject->id, $quiz->id]) }}" method="POST">
+            <form id="quizForm" action="{{ route('student.quizzes.program.submit', [$program->id, $quiz->id]) }}" method="POST">
                 @csrf
 
                 @foreach($questions as $index => $question)

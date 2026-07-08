@@ -123,17 +123,21 @@ class NotificationService
     public function notifyQuizCreated(Quiz $quiz): void
     {
         try {
-            $subject = $quiz->subject;
+            $repo = app(QuizRepository::class);
 
-            if (!$subject) {
-                Log::warning("Subject not found for quiz {$quiz->id}");
-                return;
+            // Recipients mirror who can actually see the quiz. A program quiz
+            // (course/english) reaches the target class of that program; a
+            // subject quiz reaches the subject's class (or is subject-wide).
+            if ($quiz->isProgramQuiz()) {
+                $students = $repo->studentsForProgram($quiz->program_id, $quiz->class_id);
+            } else {
+                $subject = $quiz->subject;
+                if (!$subject) {
+                    Log::warning("Subject not found for quiz {$quiz->id}");
+                    return;
+                }
+                $students = $repo->studentsForSubject($subject, $quiz->class_id);
             }
-
-            // Recipients must mirror who can actually see the quiz: when it
-            // targets a class, only that class's students; otherwise subject-wide.
-            $students = app(QuizRepository::class)
-                ->studentsForSubject($subject, $quiz->class_id);
 
             $notification = new QuizCreatedNotification($quiz);
             $count = 0;

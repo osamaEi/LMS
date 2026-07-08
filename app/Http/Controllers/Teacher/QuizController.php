@@ -35,7 +35,10 @@ class QuizController extends Controller
         $teacher = auth()->user();
 
         $validated = $request->validate([
-            'subject_id'       => 'required|exists:subjects,id',
+            // The target encodes what the quiz attaches to: "subject:{id}" for a
+            // diploma subject, or "program:{id}" for a course/english program.
+            // Array form so the regex's "|" isn't parsed as a rule separator.
+            'target'           => ['required', 'string', 'regex:/^(subject|program):\d+$/'],
             'class_id'         => 'required|exists:program_classes,id',
             'title_ar'         => 'required|string|max:255',
             'title_en'         => 'nullable|string|max:255',
@@ -49,28 +52,35 @@ class QuizController extends Controller
             'ends_at'          => 'nullable|date|after_or_equal:starts_at',
         ]);
 
-        // Authorize the subject against the teacher's assignments.
-        $subject = Subject::assignedToTeacher($teacher->id)->findOrFail($validated['subject_id']);
+        [$kind, $targetId] = explode(':', $validated['target']);
+        $targetId = (int) $targetId;
+        $classId  = (int) $validated['class_id'];
 
-        $quiz = $this->quizService->createForSubject(
-            $subject,
-            $validated['class_id'] ?? null,
-            $teacher->id,
-            [
-                'title_ar'         => $validated['title_ar'],
-                'title_en'         => $validated['title_en'] ?? null,
-                'description_ar'   => $validated['description_ar'] ?? null,
-                'type'             => $validated['type'],
-                'duration_minutes' => $validated['duration_minutes'] ?? null,
-                'total_marks'      => $validated['total_marks'],
-                'pass_marks'       => $validated['pass_marks'],
-                'max_attempts'     => $validated['max_attempts'],
-                'show_results'     => $request->boolean('show_results', true),
-                'starts_at'        => $validated['starts_at'] ?? null,
-                'ends_at'          => $validated['ends_at'] ?? null,
-                'is_active'        => true,
-            ],
-        );
+        $attributes = [
+            'title_ar'         => $validated['title_ar'],
+            'title_en'         => $validated['title_en'] ?? null,
+            'description_ar'   => $validated['description_ar'] ?? null,
+            'type'             => $validated['type'],
+            'duration_minutes' => $validated['duration_minutes'] ?? null,
+            'total_marks'      => $validated['total_marks'],
+            'pass_marks'       => $validated['pass_marks'],
+            'max_attempts'     => $validated['max_attempts'],
+            'show_results'     => $request->boolean('show_results', true),
+            'starts_at'        => $validated['starts_at'] ?? null,
+            'ends_at'          => $validated['ends_at'] ?? null,
+            'is_active'        => true,
+        ];
+
+        if ($kind === 'program') {
+            $quiz = $this->quizService->createForProgram($targetId, $classId, $teacher->id, $attributes);
+
+            return redirect()->route('teacher.quizzes.program.show', [$targetId, $quiz->id])
+                ->with('success', 'تم إنشاء الاختبار بنجاح. يمكنك الآن إضافة الأسئلة.');
+        }
+
+        // Subject target — authorize against the teacher's assignments.
+        $subject = Subject::assignedToTeacher($teacher->id)->findOrFail($targetId);
+        $quiz = $this->quizService->createForSubject($subject, $classId, $teacher->id, $attributes);
 
         return redirect()->route('teacher.quizzes.show', [$subject->id, $quiz->id])
             ->with('success', 'تم إنشاء الاختبار بنجاح. يمكنك الآن إضافة الأسئلة.');
@@ -529,7 +539,7 @@ class QuizController extends Controller
         $teacher = auth()->user();
         abort_unless($quiz->created_by == $teacher->id, 403);
 
-        $quiz->load(['subject:id,name_ar,name_en', 'creator:id,name', 'questions.options']);
+        $quiz->load(['subject:id,name_ar,name_en', 'program:id,name_ar,name_en', 'creator:id,name', 'questions.options']);
 
         $attempts = $quiz->attempts()
             ->with('student:id,name,email')
@@ -541,10 +551,21 @@ class QuizController extends Controller
             return $group->sortByDesc(fn($a) => $a->submitted_at ?? $a->started_at)->first();
         });
 
-        $subject = $quiz->subject;
-        $eligibleStudents = $subject
-            ? $this->quizzes->eligibleStudentsFor($subject, $attemptByStudent)
-            : collect();
+        // Eligible students: for a program quiz, the target class of the program;
+        // otherwise the subject's class-scoped students.
+        if ($quiz->isProgramQuiz()) {
+            $eligibleStudents = $this->quizzes
+                ->studentsForProgram($quiz->program_id, $quiz->class_id)
+                ->map(function ($student) use ($attemptByStudent) {
+                    $student->attempt = $attemptByStudent[$student->id] ?? null;
+                    return $student;
+                });
+        } else {
+            $subject = $quiz->subject;
+            $eligibleStudents = $subject
+                ? $this->quizzes->eligibleStudentsFor($subject, $attemptByStudent)
+                : collect();
+        }
 
         $stats = [
             'eligible'       => $eligibleStudents->count(),
@@ -577,6 +598,39 @@ class QuizController extends Controller
     }
 
     /**
+     * Save the teacher's manual grades for an attempt and release the result to
+     * the student (grade + answers become visible), notifying them.
+     */
+    public function releaseAttempt(Request $request, Quiz $quiz, QuizAttempt $attempt)
+    {
+        abort_unless($quiz->created_by == auth()->id(), 403);
+        abort_unless($attempt->quiz_id === $quiz->id, 404);
+
+        // Apply any manual grades: marks[answerId] / feedback[answerId].
+        foreach ((array) $request->input('marks', []) as $answerId => $marks) {
+            if ($marks === null || $marks === '') {
+                continue;
+            }
+            $answer = $attempt->answers()->find($answerId);
+            if (!$answer) {
+                continue;
+            }
+            $max = (float) $answer->question->marks;
+            $answer->manualGrade(min((float) $marks, $max), $request->input("feedback.$answerId"));
+        }
+
+        // manualGrade() recalculates the score; refresh, then release.
+        $attempt->refresh();
+        $attempt->update(['results_released_at' => now()]);
+
+        if ($attempt->student) {
+            $attempt->student->notify(new \App\Notifications\QuizResultReleasedNotification($attempt));
+        }
+
+        return back()->with('success', 'تم اعتماد النتيجة وإرسالها للطالب.');
+    }
+
+    /**
      * Grade a manual answer (essay/short answer)
      */
     public function gradeAnswer(Request $request, $subjectId, $quizId, $attemptId, $answerId)
@@ -599,5 +653,246 @@ class QuizController extends Controller
         $answer->manualGrade($validated['marks'], $validated['feedback']);
 
         return back()->with('success', 'تم تصحيح الإجابة بنجاح');
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Course/English PROGRAM quizzes. These mirror the subject actions above but
+    // scope by program_id and authorize the teacher against the program.
+    // ─────────────────────────────────────────────────────────────────────────
+
+    /**
+     * Ensure the current teacher may manage quizzes for this program, or 403.
+     */
+    private function authorizeProgram(int $programId): \App\Models\Program
+    {
+        $program = $this->quizzes->programsForTeacher(auth()->id())->firstWhere('id', $programId);
+        abort_unless($program, 403, 'هذا البرنامج غير متاح لك.');
+
+        return $program;
+    }
+
+    /** Validation rules shared by the store/update question actions. */
+    private function questionRules(bool $withRemoveImage = false): array
+    {
+        return array_merge([
+            'type' => 'required|in:multiple_choice,true_false,short_answer,essay',
+            'question_ar' => 'required|string',
+            'question_en' => 'nullable|string',
+            'explanation_ar' => 'nullable|string',
+            'explanation_en' => 'nullable|string',
+            'marks' => 'required|numeric|min:0',
+            'order' => 'required|integer|min:1',
+            'image' => 'nullable|image|max:2048',
+            'options' => 'required_if:type,multiple_choice|array|min:2',
+            'options.*.text_ar' => 'required_if:type,multiple_choice|string',
+            'options.*.text_en' => 'nullable|string',
+            'options.*.is_correct' => 'nullable|boolean',
+            'correct_answer' => 'required_if:type,true_false|in:true,false',
+        ], $withRemoveImage ? ['remove_image' => 'nullable|boolean'] : []);
+    }
+
+    public function programIndex($programId)
+    {
+        $program = $this->authorizeProgram($programId);
+        $quizzes = $this->quizzes->forProgram($programId);
+
+        return view('teacher.quizzes.program.index', compact('program', 'quizzes'));
+    }
+
+    public function programShow($programId, $quizId)
+    {
+        $program = $this->authorizeProgram($programId);
+        $quiz = $this->quizzes->findForProgram($programId, $quizId, ['questions.options'], ['attempts']);
+
+        return view('teacher.quizzes.program.show', compact('program', 'quiz'));
+    }
+
+    public function programEdit($programId, $quizId)
+    {
+        $program = $this->authorizeProgram($programId);
+        $quiz = $this->quizzes->findForProgram($programId, $quizId);
+
+        return view('teacher.quizzes.program.edit', compact('program', 'quiz'));
+    }
+
+    public function programUpdate(Request $request, $programId, $quizId)
+    {
+        $this->authorizeProgram($programId);
+        $quiz = $this->quizzes->findForProgram($programId, $quizId);
+
+        $validated = $request->validate([
+            'title_ar' => 'required|string|max:255',
+            'title_en' => 'nullable|string|max:255',
+            'description_ar' => 'nullable|string',
+            'description_en' => 'nullable|string',
+            'type' => 'required|in:quiz,midterm,exam,homework,paper',
+            'duration_minutes' => 'nullable|integer|min:1',
+            'total_marks' => 'required|numeric|min:1',
+            'pass_marks' => 'required|numeric|min:0',
+            'max_attempts' => 'required|integer|min:1',
+            'starts_at' => 'nullable|date',
+            'ends_at' => 'nullable|date|after_or_equal:starts_at',
+        ]);
+
+        $validated['shuffle_questions'] = $request->boolean('shuffle_questions');
+        $validated['shuffle_answers'] = $request->boolean('shuffle_answers');
+        $validated['show_results'] = $request->boolean('show_results', true);
+        $validated['show_correct_answers'] = $request->boolean('show_correct_answers');
+        $validated['is_active'] = $request->boolean('is_active', true);
+
+        $this->quizService->update($quiz, $validated);
+
+        return redirect()->route('teacher.quizzes.program.show', [$programId, $quiz->id])
+            ->with('success', 'تم تحديث الاختبار بنجاح');
+    }
+
+    public function programExportPdf(Request $request, $programId, $quizId)
+    {
+        $this->authorizeProgram($programId);
+        $quiz = $this->quizzes->findForProgram($programId, $quizId, [
+            'questions' => fn($q) => $q->orderBy('order'),
+            'questions.options',
+        ]);
+
+        return $this->renderQuizPdf(null, $quiz, $request->boolean('answers'));
+    }
+
+    public function programGradeAttempt($programId, $quizId, $attemptId)
+    {
+        $program = $this->authorizeProgram($programId);
+        $quiz = $this->quizzes->findForProgram($programId, $quizId);
+        $attempt = $this->quizzes->findAttempt($quizId, $attemptId, [
+            'student', 'answers.question.options', 'answers.selectedOption',
+        ]);
+
+        return view('teacher.quizzes.program.review', compact('program', 'quiz', 'attempt'));
+    }
+
+    public function programSubmitGrade(Request $request, $programId, $quizId, $attemptId)
+    {
+        $this->authorizeProgram($programId);
+        $this->quizzes->findForProgram($programId, $quizId);
+        $attempt = $this->quizzes->findAttempt($quizId, $attemptId);
+
+        // Grade each manual answer keyed by answer id: marks[answerId], feedback[answerId].
+        foreach ((array) $request->input('marks', []) as $answerId => $marks) {
+            $answer = $attempt->answers()->find($answerId);
+            if (!$answer) {
+                continue;
+            }
+            $max = $answer->question->marks;
+            $answer->manualGrade(min((float) $marks, (float) $max), $request->input("feedback.$answerId"));
+        }
+
+        return redirect()->route('teacher.quizzes.program.review', [$programId, $quizId, $attemptId])
+            ->with('success', 'تم حفظ الدرجات بنجاح');
+    }
+
+    public function programDestroy($programId, $quizId)
+    {
+        $this->authorizeProgram($programId);
+        $quiz = $this->quizzes->findForProgram($programId, $quizId);
+
+        $this->quizService->delete($quiz);
+
+        return redirect()->route('teacher.quizzes.program.index', $programId)
+            ->with('success', 'تم حذف الاختبار بنجاح');
+    }
+
+    public function programResults($programId, $quizId)
+    {
+        $program = $this->authorizeProgram($programId);
+        $quiz = $this->quizzes->findForProgram($programId, $quizId, [], ['questions']);
+        $attempts = $this->quizzes->submittedAttempts($quizId);
+        $stats = $this->quizzes->attemptStats($quizId);
+
+        return view('teacher.quizzes.program.results', compact('program', 'quiz', 'attempts', 'stats'));
+    }
+
+    public function programReviewAttempt($programId, $quizId, $attemptId)
+    {
+        $program = $this->authorizeProgram($programId);
+        $quiz = $this->quizzes->findForProgram($programId, $quizId);
+        $attempt = $this->quizzes->findAttempt($quizId, $attemptId, [
+            'student', 'answers.question.options', 'answers.selectedOption',
+        ]);
+
+        return view('teacher.quizzes.program.review', compact('program', 'quiz', 'attempt'));
+    }
+
+    public function programCreateQuestion($programId, $quizId)
+    {
+        $program = $this->authorizeProgram($programId);
+        $quiz = $this->quizzes->findForProgram($programId, $quizId);
+        $nextOrder = $this->quizzes->nextQuestionOrder($quiz);
+
+        return view('teacher.quizzes.program.questions.create', compact('program', 'quiz', 'nextOrder'));
+    }
+
+    public function programStoreQuestion(Request $request, $programId, $quizId)
+    {
+        $this->authorizeProgram($programId);
+        $quiz = $this->quizzes->findForProgram($programId, $quizId);
+
+        $this->pruneEmptyOptions($request);
+        $validated = $request->validate($this->questionRules());
+
+        try {
+            $this->quizService->createQuestion($quiz, $validated, $request->file('image'));
+
+            if ($request->has('add_another')) {
+                return redirect()->route('teacher.quizzes.program.questions.create', [$programId, $quizId])
+                    ->with('success', 'تم إضافة السؤال بنجاح. يمكنك إضافة سؤال آخر.');
+            }
+
+            return redirect()->route('teacher.quizzes.program.show', [$programId, $quizId])
+                ->with('success', 'تم إضافة السؤال بنجاح');
+        } catch (\Exception $e) {
+            return back()->withInput()->withErrors(['error' => 'حدث خطأ أثناء إضافة السؤال: ' . $e->getMessage()]);
+        }
+    }
+
+    public function programEditQuestion($programId, $quizId, $questionId)
+    {
+        $program = $this->authorizeProgram($programId);
+        $quiz = $this->quizzes->findForProgram($programId, $quizId);
+        $question = $this->quizzes->findQuestion($quizId, $questionId, ['options']);
+
+        return view('teacher.quizzes.program.questions.edit', compact('program', 'quiz', 'question'));
+    }
+
+    public function programUpdateQuestion(Request $request, $programId, $quizId, $questionId)
+    {
+        $this->authorizeProgram($programId);
+        $this->quizzes->findForProgram($programId, $quizId);
+        $question = $this->quizzes->findQuestion($quizId, $questionId);
+
+        $this->pruneEmptyOptions($request);
+        $validated = $request->validate($this->questionRules(withRemoveImage: true));
+
+        try {
+            $this->quizService->updateQuestion(
+                $question,
+                $validated,
+                $request->file('image'),
+                $request->boolean('remove_image'),
+            );
+
+            return redirect()->route('teacher.quizzes.program.show', [$programId, $quizId])
+                ->with('success', 'تم تحديث السؤال بنجاح');
+        } catch (\Exception $e) {
+            return back()->withInput()->withErrors(['error' => 'حدث خطأ أثناء تحديث السؤال: ' . $e->getMessage()]);
+        }
+    }
+
+    public function programDestroyQuestion($programId, $quizId, $questionId)
+    {
+        $this->authorizeProgram($programId);
+        $this->quizzes->findForProgram($programId, $quizId);
+        $question = $this->quizzes->findQuestion($quizId, $questionId);
+
+        $this->quizService->deleteQuestion($question);
+
+        return back()->with('success', 'تم حذف السؤال بنجاح');
     }
 }

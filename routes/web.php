@@ -644,6 +644,8 @@ Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')
     Route::get('/quizzes/{quiz}', [\App\Http\Controllers\Teacher\QuizController::class, 'overviewShow'])->name('quizzes.overview.show');
     Route::get('/quizzes/{quiz}/pdf', [\App\Http\Controllers\Teacher\QuizController::class, 'overviewPdf'])->name('quizzes.overview.pdf');
     Route::get('/quizzes/{quiz}/attempts/{attempt}', [\App\Http\Controllers\Teacher\QuizController::class, 'overviewAttempt'])->name('quizzes.overview.attempt');
+    // Save manual grades and release the result to the student (with notification).
+    Route::post('/quizzes/{quiz}/attempts/{attempt}/release', [\App\Http\Controllers\Teacher\QuizController::class, 'releaseAttempt'])->name('quizzes.overview.attempt.release');
 
     // Quizzes & Exams Management
     Route::prefix('subjects/{subject}/quizzes')->name('quizzes.')->group(function () {
@@ -666,6 +668,26 @@ Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')
         Route::get('/{quiz}/questions/{question}/edit', [\App\Http\Controllers\Teacher\QuizController::class, 'editQuestion'])->name('questions.edit');
         Route::put('/{quiz}/questions/{question}', [\App\Http\Controllers\Teacher\QuizController::class, 'updateQuestion'])->name('questions.update');
         Route::delete('/{quiz}/questions/{question}', [\App\Http\Controllers\Teacher\QuizController::class, 'destroyQuestion'])->name('questions.destroy');
+    });
+
+    // Course/English program quizzes — parallel to the subject group above.
+    Route::prefix('programs/{program}/quizzes')->name('quizzes.program.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Teacher\QuizController::class, 'programIndex'])->name('index');
+        Route::get('/{quiz}', [\App\Http\Controllers\Teacher\QuizController::class, 'programShow'])->name('show');
+        Route::get('/{quiz}/edit', [\App\Http\Controllers\Teacher\QuizController::class, 'programEdit'])->name('edit');
+        Route::put('/{quiz}', [\App\Http\Controllers\Teacher\QuizController::class, 'programUpdate'])->name('update');
+        Route::delete('/{quiz}', [\App\Http\Controllers\Teacher\QuizController::class, 'programDestroy'])->name('destroy');
+        Route::get('/{quiz}/pdf', [\App\Http\Controllers\Teacher\QuizController::class, 'programExportPdf'])->name('pdf');
+        Route::get('/{quiz}/results', [\App\Http\Controllers\Teacher\QuizController::class, 'programResults'])->name('results');
+        Route::get('/{quiz}/results/{attempt}', [\App\Http\Controllers\Teacher\QuizController::class, 'programGradeAttempt'])->name('grade-attempt');
+        Route::post('/{quiz}/results/{attempt}/grade', [\App\Http\Controllers\Teacher\QuizController::class, 'programSubmitGrade'])->name('submit-grade');
+        Route::get('/{quiz}/review/{attempt}', [\App\Http\Controllers\Teacher\QuizController::class, 'programReviewAttempt'])->name('review');
+
+        Route::get('/{quiz}/questions/create', [\App\Http\Controllers\Teacher\QuizController::class, 'programCreateQuestion'])->name('questions.create');
+        Route::post('/{quiz}/questions', [\App\Http\Controllers\Teacher\QuizController::class, 'programStoreQuestion'])->name('questions.store');
+        Route::get('/{quiz}/questions/{question}/edit', [\App\Http\Controllers\Teacher\QuizController::class, 'programEditQuestion'])->name('questions.edit');
+        Route::put('/{quiz}/questions/{question}', [\App\Http\Controllers\Teacher\QuizController::class, 'programUpdateQuestion'])->name('questions.update');
+        Route::delete('/{quiz}/questions/{question}', [\App\Http\Controllers\Teacher\QuizController::class, 'programDestroyQuestion'])->name('questions.destroy');
     });
 });
 
@@ -763,6 +785,19 @@ Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')
         Route::get('/{quiz}/take', [\App\Http\Controllers\Student\QuizController::class, 'take'])->name('take');
         Route::post('/{quiz}/submit', [\App\Http\Controllers\Student\QuizController::class, 'submit'])->name('submit');
         Route::get('/{quiz}/result/{attempt}', [\App\Http\Controllers\Student\QuizController::class, 'result'])->name('result');
+    });
+
+    // All quizzes overview (available / upcoming / past) across subjects & programs.
+    Route::get('/quizzes', [\App\Http\Controllers\Student\DashboardController::class, 'quizzes'])->name('quizzes.all');
+
+    // Course/English program quizzes — parallel to the subject group above.
+    Route::prefix('programs/{program}/quizzes')->name('quizzes.program.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Student\QuizController::class, 'programIndex'])->name('index');
+        Route::get('/{quiz}', [\App\Http\Controllers\Student\QuizController::class, 'programShow'])->name('show');
+        Route::post('/{quiz}/start', [\App\Http\Controllers\Student\QuizController::class, 'programStart'])->name('start');
+        Route::get('/{quiz}/take', [\App\Http\Controllers\Student\QuizController::class, 'programTake'])->name('take');
+        Route::post('/{quiz}/submit', [\App\Http\Controllers\Student\QuizController::class, 'programSubmit'])->name('submit');
+        Route::get('/{quiz}/result/{attempt}', [\App\Http\Controllers\Student\QuizController::class, 'programResult'])->name('result');
     });
 
     // Payments

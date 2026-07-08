@@ -4,8 +4,19 @@
 
 @section('content')
 @php
-    // Map each class to the subjects reaching it, for the dependent dropdown.
-    $classSubjects = $classes->mapWithKeys(fn($c) => [$c['id'] => $c['subjects']->values()]);
+    // Map each class to its selectable targets — the subjects reaching it and,
+    // for course/english classes, the program itself. Each option carries a
+    // "value" of "subject:{id}" or "program:{id}" plus a display label.
+    $classTargets = $classes->mapWithKeys(function ($c) {
+        $targets = collect();
+        foreach ($c['subjects'] as $s) {
+            $targets->push(['value' => 'subject:' . $s['id'], 'label' => $s['name']]);
+        }
+        if (!empty($c['program'])) {
+            $targets->push(['value' => 'program:' . $c['program']['id'], 'label' => $c['program']['name'] . ' (برنامج)']);
+        }
+        return [$c['id'] => $targets->values()];
+    });
 @endphp
 <div style="direction:rtl;max-width:820px;margin:0 auto;">
 
@@ -30,11 +41,11 @@
     @else
     <form method="POST" action="{{ route('teacher.quizzes.store-global') }}"
           x-data="{
-              classSubjects: {{ $classSubjects->toJson() }},
+              classTargets: {{ $classTargets->toJson() }},
               classId: '{{ old('class_id') }}',
-              subjectId: '{{ old('subject_id') }}',
-              get subjects() { return this.classSubjects[this.classId] || []; },
-              onClassChange() { if (!this.subjects.some(s => String(s.id) === String(this.subjectId))) this.subjectId = ''; }
+              target: '{{ old('target') }}',
+              get targets() { return this.classTargets[this.classId] || []; },
+              onClassChange() { if (!this.targets.some(t => t.value === this.target)) this.target = ''; }
           }"
           style="background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:18px;box-shadow:0 2px 12px rgba(0,0,0,.04);">
         @csrf
@@ -52,14 +63,14 @@
             <p style="font-size:11px;color:#94a3b8;margin-top:5px;">سيظهر الاختبار لطلاب هذا الفصل فقط.</p>
         </div>
 
-        {{-- Subject (depends on class) --}}
+        {{-- Target: subject (diploma) or program (course/english), depends on class --}}
         <div>
-            <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:6px;">المقرر *</label>
-            <select name="subject_id" x-model="subjectId" required :disabled="!classId"
+            <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:6px;">المقرر / البرنامج *</label>
+            <select name="target" x-model="target" required :disabled="!classId"
                     style="width:100%;padding:10px 12px;font-size:13px;border:1.5px solid #e2e8f0;border-radius:10px;outline:none;background:#fff;">
-                <option value="">— اختر المقرر —</option>
-                <template x-for="s in subjects" :key="s.id">
-                    <option :value="s.id" x-text="s.name"></option>
+                <option value="">— اختر المقرر أو البرنامج —</option>
+                <template x-for="t in targets" :key="t.value">
+                    <option :value="t.value" x-text="t.label"></option>
                 </template>
             </select>
         </div>

@@ -12,7 +12,7 @@
         <div>
             <div style="font-size:19px;font-weight:800;">{{ $quiz->title_ar }}</div>
             <div style="font-size:13px;opacity:.85;margin-top:6px;">
-                {{ $quiz->subject->name_ar ?? '—' }} · {{ $quiz->type_label }}
+                {{ $quiz->subject->name_ar ?? $quiz->program->name_ar ?? '—' }} · {{ $quiz->type_label }}
                 · {{ $quiz->questions->count() }} سؤال
                 · الدرجة الكلية {{ rtrim(rtrim((string)$quiz->total_marks,'0'),'.') }}
                 · النجاح {{ rtrim(rtrim((string)$quiz->pass_marks,'0'),'.') }}
