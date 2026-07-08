@@ -114,7 +114,7 @@ class ProgramClassController extends Controller
             'days.*'           => 'integer|min:0|max:6',
             'time'             => 'required|date_format:H:i',
             'start_date'       => 'required|date',
-            'end_date'         => 'nullable|date|after:start_date',
+            'end_date'         => 'nullable|date|after_or_equal:start_date',
         ]);
 
         $class->loadMissing('students');
@@ -156,17 +156,17 @@ class ProgramClassController extends Controller
         }
         $programId = $class->program_id;
 
-        // No auto end date — use the one the admin entered, and persist it for next time
-        if (!$end) {
-            if (empty($data['end_date'])) {
-                return $err('حدّد تاريخ نهاية الجلسات');
-            }
+        // The end date is pre-filled but editable, so the entered value wins.
+        // Fall back to the term/class end only if it's left blank, then persist.
+        if (!empty($data['end_date'])) {
             $end = \Carbon\Carbon::parse($data['end_date']);
             if ($isDiploma && $term) {
                 $term->update(['end_date' => $end->toDateString()]);
             } elseif (!$isDiploma) {
                 $class->update(['end_date' => $end->toDateString()]);
             }
+        } elseif (!$end) {
+            return $err('حدّد تاريخ نهاية الجلسات');
         }
 
         $teacherId = $data['teacher_id'];

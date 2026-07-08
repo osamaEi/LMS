@@ -28,11 +28,6 @@
                 إنشاء جلسات
             </button>
             @if($sessions->isNotEmpty())
-            <button type="button" onclick="openTeacherSessionsModal()"
-                    style="display:flex;align-items:center;gap:6px;padding:8px 16px;border-radius:10px;background:#eef2ff;color:#4338ca;border:1px solid #c7d2fe;font-size:12px;font-weight:700;cursor:pointer;">
-                <svg style="width:14px;height:14px;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-                معلمو الجلسات
-            </button>
             <button type="button" onclick="openDeleteSessionsModal()"
                     style="display:flex;align-items:center;gap:6px;padding:8px 16px;border-radius:10px;background:#fff7ed;color:#c2410c;border:1px solid #fed7aa;font-size:12px;font-weight:700;cursor:pointer;">
                 <svg style="width:14px;height:14px;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>

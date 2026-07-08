@@ -191,15 +191,14 @@
                     </div>
                 </div>
 
-                <div x-show="endDate" style="display:flex;align-items:center;gap:8px;background:#eff6ff;border:1px solid #dbeafe;border-radius:10px;padding:9px 12px;font-size:12px;color:#1e40af;">
-                    <svg style="width:14px;height:14px;flex-shrink:0;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                    <span>الجلسات أسبوعية وتنتهي تلقائيًا بنهاية {{ $class->program && $class->program->type === 'diploma' ? 'الربع' : 'المجموعة' }}: <strong x-text="endDate"></strong></span>
-                </div>
-
-                <div x-show="!endDate" x-cloak>
+                {{-- تاريخ النهاية: يُملأ تلقائيًا بنهاية الربع/المجموعة ويبقى قابلاً للتعديل --}}
+                <div x-data="{ endEdited: false }"
+                     x-effect="if (!endEdited && endDate) $refs.endInput.value = endDate">
                     <label style="display:block;font-size:11px;font-weight:700;color:#475569;margin-bottom:6px;">تنتهي في *</label>
-                    <input type="date" name="end_date" :required="!endDate" style="width:100%;padding:9px 12px;font-size:13px;border:1.5px solid #e2e8f0;border-radius:10px;outline:none;font-family:inherit;">
-                    <p style="font-size:11px;color:#b45309;margin-top:6px;">@if($class->program && $class->program->type === 'diploma')لا يوجد تاريخ نهاية للربع — حدّد تاريخ نهاية الجلسات.@else لا يوجد تاريخ نهاية للمجموعة — حدّد تاريخ نهاية الجلسات.@endif</p>
+                    <input type="date" name="end_date" required x-ref="endInput" @input="endEdited = true"
+                           style="width:100%;padding:9px 12px;font-size:13px;border:1.5px solid #e2e8f0;border-radius:10px;outline:none;font-family:inherit;">
+                    <p x-show="endDate" style="font-size:11px;color:#1e40af;margin-top:6px;">تم تعبئة تاريخ نهاية {{ $class->program && $class->program->type === 'diploma' ? 'الربع' : 'المجموعة' }} تلقائيًا — يمكنك تعديله.</p>
+                    <p x-show="!endDate" x-cloak style="font-size:11px;color:#b45309;margin-top:6px;">@if($class->program && $class->program->type === 'diploma')لا يوجد تاريخ نهاية للربع — حدّد تاريخ نهاية الجلسات.@else لا يوجد تاريخ نهاية للمجموعة — حدّد تاريخ نهاية الجلسات.@endif</p>
                 </div>
             </div>
             <div style="display:flex;justify-content:flex-end;gap:8px;padding:14px 20px;border-top:1px solid #f1f5f9;flex-shrink:0;">
