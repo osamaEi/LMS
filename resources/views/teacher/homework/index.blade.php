@@ -68,26 +68,28 @@
         @csrf
 
         <div>
-            <label style="display:block;font-size:.78rem;font-weight:700;color:#374151;margin-bottom:5px;">المقرر <span style="color:#ef4444;">*</span></label>
-            <select name="subject_id" required
+            <label style="display:block;font-size:.78rem;font-weight:700;color:#374151;margin-bottom:5px;">المجموعة (الكلاس) <span style="color:#ef4444;">*</span></label>
+            <select name="class_id" id="hw_class_id" required onchange="filterHwSubjects()"
                     style="width:100%;padding:9px 12px;border:1.5px solid #d1d5db;border-radius:9px;font-size:.85rem;background:white;">
-                <option value="">— اختر المقرر —</option>
-                @foreach($subjects as $subject)
-                <option value="{{ $subject->id }}" @selected(old('subject_id') == $subject->id)>
-                    {{ $subject->name_ar ?: $subject->name_en }}@if($subject->code) ({{ $subject->code }})@endif
+                <option value="">— اختر المجموعة —</option>
+                @foreach($classes as $class)
+                <option value="{{ $class->id }}" @selected(old('class_id') == $class->id)>
+                    {{ $class->name }}@if($class->program) — {{ $class->program->name_ar }}@endif
                 </option>
                 @endforeach
             </select>
         </div>
 
         <div>
-            <label style="display:block;font-size:.78rem;font-weight:700;color:#374151;margin-bottom:5px;">المجموعة (الكلاس)</label>
-            <select name="class_id"
+            <label style="display:block;font-size:.78rem;font-weight:700;color:#374151;margin-bottom:5px;">المقرر <span style="color:#ef4444;">*</span></label>
+            <select name="subject_id" id="hw_subject_id" required disabled
                     style="width:100%;padding:9px 12px;border:1.5px solid #d1d5db;border-radius:9px;font-size:.85rem;background:white;">
-                <option value="">— كل المسجّلين بالمقرر —</option>
-                @foreach($classes as $class)
-                <option value="{{ $class->id }}" @selected(old('class_id') == $class->id)>
-                    {{ $class->name }}@if($class->program) — {{ $class->program->name_ar }}@endif
+                <option value="">— اختر المجموعة أولاً —</option>
+                @foreach($subjects as $subject)
+                <option value="{{ $subject->id }}"
+                        data-classes="{{ $subject->classIds()->implode(',') }}"
+                        @selected(old('subject_id') == $subject->id)>
+                    {{ $subject->name_ar ?: $subject->name_en }}@if($subject->code) ({{ $subject->code }})@endif
                 </option>
                 @endforeach
             </select>
@@ -137,6 +139,65 @@
 </div>
 @endunless
 
+{{-- ══ Edit homework modal ══ --}}
+<div id="editHwModal" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:60;padding:20px;overflow-y:auto;">
+  <div style="background:white;border-radius:18px;width:100%;max-width:640px;box-shadow:0 24px 60px rgba(0,0,0,.3);margin:auto;">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:9px;padding:18px 24px;border-bottom:1px solid #f1f5f9;">
+        <div style="display:flex;align-items:center;gap:9px;">
+            <div style="width:32px;height:32px;background:linear-gradient(135deg,#f59e0b,#d97706);border-radius:9px;display:flex;align-items:center;justify-content:center;">
+                <svg width="15" height="15" fill="white" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 000-1.41l-2.34-2.34a1 1 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+            </div>
+            <h2 style="font-size:.95rem;font-weight:800;color:#111827;margin:0;">تعديل الواجب</h2>
+        </div>
+        <button type="button" onclick="closeEditHwModal()" style="width:32px;height:32px;background:#f3f4f6;border:none;border-radius:8px;cursor:pointer;color:#374151;font-size:18px;">×</button>
+    </div>
+
+    <form id="editHwForm" method="POST" enctype="multipart/form-data"
+          style="display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:22px 24px;">
+        @csrf @method('PUT')
+
+        <div>
+            <label style="display:block;font-size:.78rem;font-weight:700;color:#374151;margin-bottom:5px;">عنوان الواجب (عربي)</label>
+            <input type="text" name="title_ar" id="edit_title_ar"
+                   style="width:100%;padding:9px 12px;border:1.5px solid #d1d5db;border-radius:9px;font-size:.85rem;">
+        </div>
+        <div>
+            <label style="display:block;font-size:.78rem;font-weight:700;color:#374151;margin-bottom:5px;">عنوان الواجب (إنجليزي)</label>
+            <input type="text" name="title_en" id="edit_title_en"
+                   style="width:100%;padding:9px 12px;border:1.5px solid #d1d5db;border-radius:9px;font-size:.85rem;">
+        </div>
+
+        <div style="grid-column:1 / -1;">
+            <label style="display:block;font-size:.78rem;font-weight:700;color:#374151;margin-bottom:5px;">وصف الواجب</label>
+            <textarea name="description_ar" id="edit_description_ar" rows="3"
+                      style="width:100%;padding:9px 12px;border:1.5px solid #d1d5db;border-radius:9px;font-size:.85rem;resize:vertical;"></textarea>
+        </div>
+
+        <div>
+            <label style="display:block;font-size:.78rem;font-weight:700;color:#374151;margin-bottom:5px;">تاريخ التسليم</label>
+            <input type="date" name="due_date" id="edit_due_date"
+                   style="width:100%;padding:9px 12px;border:1.5px solid #d1d5db;border-radius:9px;font-size:.85rem;">
+        </div>
+        <div>
+            <label style="display:block;font-size:.78rem;font-weight:700;color:#374151;margin-bottom:5px;">استبدال المرفق (اختياري)</label>
+            <input type="file" name="file"
+                   style="width:100%;padding:7px 12px;border:1.5px solid #d1d5db;border-radius:9px;font-size:.8rem;background:white;">
+        </div>
+
+        <div style="grid-column:1 / -1;display:flex;justify-content:flex-end;gap:8px;padding-top:4px;">
+            <button type="button" onclick="closeEditHwModal()"
+                    style="padding:9px 20px;background:#f3f4f6;color:#374151;border:none;border-radius:9px;font-size:.85rem;font-weight:700;cursor:pointer;">
+                إلغاء
+            </button>
+            <button type="submit"
+                    style="display:inline-flex;align-items:center;gap:6px;padding:9px 20px;background:linear-gradient(135deg,#f59e0b,#d97706);color:white;border:none;border-radius:9px;font-size:.85rem;font-weight:700;cursor:pointer;box-shadow:0 2px 8px rgba(245,158,11,.3);">
+                حفظ التعديلات
+            </button>
+        </div>
+    </form>
+  </div>
+</div>
+
 {{-- ══ Existing homework ══ --}}
 <div>
     <div style="display:flex;align-items:center;gap:9px;margin-bottom:14px;">
@@ -183,6 +244,17 @@
                                 <svg width="10" height="10" fill="currentColor" viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zm0 12a5 5 0 110-10 5 5 0 010 10zm0-8a3 3 0 100 6 3 3 0 000-6z"/></svg>
                                 عرض التسليمات
                             </a>
+                            <button type="button"
+                                    onclick="openEditHwModal(this)"
+                                    data-id="{{ $homework->id }}"
+                                    data-title-ar="{{ $homework->title_ar }}"
+                                    data-title-en="{{ $homework->title_en }}"
+                                    data-desc-ar="{{ $homework->description_ar }}"
+                                    data-due="{{ $homework->due_date?->format('Y-m-d') }}"
+                                    style="display:inline-flex;align-items:center;gap:4px;padding:5px 11px;background:linear-gradient(135deg,#f59e0b,#d97706);color:white;border:none;border-radius:7px;font-size:.72rem;font-weight:700;cursor:pointer;">
+                                <svg width="10" height="10" fill="currentColor" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 000-1.41l-2.34-2.34a1 1 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+                                تعديل
+                            </button>
                             <form action="{{ route('teacher.homework.destroy', $homework) }}" method="POST"
                                   onsubmit="return confirm('حذف الواجب؟')">
                                 @csrf @method('DELETE')
@@ -216,6 +288,52 @@ function closeHwModal() { document.getElementById('hwModal').style.display = 'no
 document.getElementById('hwModal')?.addEventListener('click', e => { if (e.target.id === 'hwModal') closeHwModal(); });
 // Close on Escape
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeHwModal(); });
+// ── Edit modal ──
+function openEditHwModal(btn) {
+    var d = btn.dataset;
+    var form = document.getElementById('editHwForm');
+    form.action = '{{ url('teacher/homework') }}/' + d.id;
+    document.getElementById('edit_title_ar').value = d.titleAr || '';
+    document.getElementById('edit_title_en').value = d.titleEn || '';
+    document.getElementById('edit_description_ar').value = d.descAr || '';
+    document.getElementById('edit_due_date').value = d.due || '';
+    document.getElementById('editHwModal').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+function closeEditHwModal() {
+    document.getElementById('editHwModal').style.display = 'none';
+    document.body.style.overflow = '';
+}
+document.getElementById('editHwModal')?.addEventListener('click', e => { if (e.target.id === 'editHwModal') closeEditHwModal(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeEditHwModal(); });
+
+// Filter the subject dropdown to only subjects belonging to the chosen class.
+// Subjects with no class (data-classes empty) are shown for any class.
+function filterHwSubjects() {
+    var classSel = document.getElementById('hw_class_id');
+    var subjSel  = document.getElementById('hw_subject_id');
+    var classId  = classSel.value;
+
+    subjSel.disabled = !classId;
+    var current = subjSel.value;
+    var currentStillVisible = false;
+
+    Array.prototype.forEach.call(subjSel.options, function (opt) {
+        if (!opt.value) return; // placeholder
+        var classes = (opt.getAttribute('data-classes') || '').split(',').filter(Boolean);
+        var show = !classId || classes.length === 0 || classes.indexOf(classId) !== -1;
+        opt.hidden = !show;
+        opt.disabled = !show;
+        if (show && opt.value === current) currentStillVisible = true;
+    });
+
+    if (!currentStillVisible) subjSel.value = '';
+    subjSel.options[0].textContent = classId ? '— اختر المقرر —' : '— اختر المجموعة أولاً —';
+}
+
+// Apply on load (e.g. after validation errors repopulate the fields)
+filterHwSubjects();
+
 // Re-open automatically if the form had validation errors
 @if($errors->any())
 openHwModal();

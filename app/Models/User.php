@@ -206,6 +206,15 @@ class User extends Authenticatable
         return $this->belongsTo(\App\Models\ProgramClass::class, 'class_id');
     }
 
+    // All class (group) IDs this student belongs to: from the student_programs
+    // pivot plus the legacy users.class_id. Use this to scope class-specific content.
+    public function allClassIds(): \Illuminate\Support\Collection
+    {
+        $ids = $this->programs()->pluck('student_programs.class_id');
+        if ($this->class_id) $ids->push($this->class_id);
+        return $ids->filter()->unique()->values();
+    }
+
     // Resolve the class this student belongs to within a given program.
     // Prefers the student_programs pivot; falls back to the legacy users.class_id
     // ONLY if that class actually belongs to the given program.

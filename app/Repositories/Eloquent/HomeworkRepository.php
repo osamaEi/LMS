@@ -30,7 +30,7 @@ class HomeworkRepository extends BaseRepository implements HomeworkRepositoryInt
     public function accessibleSubjectIdsForAllPrograms(User $student): SupportCollection
     {
         $programIds = $student->allProgramIds();
-
+ 
         return Subject::where(function ($q) use ($student, $programIds) {
             $q->whereIn('program_id', $programIds)
               ->orWhereHas('term', fn($tq) => $tq->whereIn('program_id', $programIds))
@@ -38,10 +38,18 @@ class HomeworkRepository extends BaseRepository implements HomeworkRepositoryInt
         })->pluck('id');
     }
 
-    public function subjectHomeworks(SupportCollection $subjectIds, array $relations = []): Collection
+    public function subjectHomeworks(SupportCollection $subjectIds, array $relations = [], ?SupportCollection $classIds = null): Collection
     {
         return $this->model
             ->whereIn('subject_id', $subjectIds)
+            // Class-scoped homework is only visible to students in that class;
+            // homework with a null class_id is visible to all classes.
+            ->when($classIds !== null, function ($q) use ($classIds) {
+                $q->where(function ($cq) use ($classIds) {
+                    $cq->whereNull('class_id')
+                       ->orWhereIn('class_id', $classIds);
+                });
+            })
             ->with($relations)
             ->orderByDesc('created_at')
             ->get();
@@ -62,11 +70,19 @@ class HomeworkRepository extends BaseRepository implements HomeworkRepositoryInt
 
     public function findAccessibleForStudent(int $id, SupportCollection $subjectIds, User $student): Homework
     {
+        $classIds = $student->allClassIds();
+
         return $this->model
             ->where('id', $id)
-            ->where(function ($q) use ($subjectIds, $student) {
-                $q->whereIn('subject_id', $subjectIds)
-                  ->orWhere('program_id', $student->program_id);
+            ->where(function ($q) use ($subjectIds, $student, $classIds) {
+                // Subject homework: class-scoped ones must match the student's classes.
+                $q->where(function ($sq) use ($subjectIds, $classIds) {
+                    $sq->whereIn('subject_id', $subjectIds)
+                       ->where(function ($cq) use ($classIds) {
+                           $cq->whereNull('class_id')
+                              ->orWhereIn('class_id', $classIds);
+                       });
+                })->orWhere('program_id', $student->program_id);
             })
             ->with(['subject:id,name_ar,name_en,code', 'program:id,name_ar,name_en'])
             ->firstOrFail();
@@ -102,6 +118,7 @@ class HomeworkRepository extends BaseRepository implements HomeworkRepositoryInt
                   ->orWhereHas('term', fn($tq) => $tq->whereIn('class_id', $classIds))
                   ->orWhere(fn($aq) => $aq->assignedToTeacher($teacher->id));
             })
+            ->with(['term:id,class_id', 'terms:id,class_id'])
             ->orderBy('name_ar')
             ->get();
     }

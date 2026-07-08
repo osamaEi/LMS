@@ -74,6 +74,23 @@ class Subject extends Model
         return $this->belongsToMany(Term::class, 'term_subject')->withTimestamps();
     }
 
+    // All class (group) IDs this subject belongs to: its own class_id, its term's
+    // class_id, and any of its many-to-many terms' class_id. Empty means the
+    // subject is not tied to a specific class (visible to any class).
+    public function classIds(): \Illuminate\Support\Collection
+    {
+        $ids = collect([$this->class_id]);
+
+        if ($this->relationLoaded('term') ? $this->term : $this->term()->first()) {
+            $ids->push(($this->term)->class_id);
+        }
+
+        $terms = $this->relationLoaded('terms') ? $this->terms : $this->terms()->get();
+        $ids = $ids->merge($terms->pluck('class_id'));
+
+        return $ids->filter()->unique()->values();
+    }
+
     public function files(): HasMany
     {
         return $this->hasMany(SubjectFile::class)->orderBy('order', 'asc');

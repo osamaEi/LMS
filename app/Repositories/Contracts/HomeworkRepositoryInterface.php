@@ -26,7 +26,7 @@ interface HomeworkRepositoryInterface extends BaseRepositoryInterface
     /**
      * Homework belonging to sessions in the given subjects, newest first.
      */
-    public function subjectHomeworks(SupportCollection $subjectIds, array $relations = []): Collection;
+    public function subjectHomeworks(SupportCollection $subjectIds, array $relations = [], ?SupportCollection $classIds = null): Collection;
 
     /**
      * Homework belonging to sessions in the given program(s), newest first.
