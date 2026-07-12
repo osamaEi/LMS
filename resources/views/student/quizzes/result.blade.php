@@ -118,107 +118,61 @@
         </div>
     </div>
 
-    <!-- Detailed Results -->
-    @if($quiz->show_correct_answers)
-    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm">
-        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
-            <h2 class="text-lg font-bold text-gray-900 dark:text-white">مراجعة الإجابات</h2>
-        </div>
+    {{-- Answer review — teacher-style read-only cards (result is released) --}}
+    <div style="margin-top:4px;">
+        <h2 style="font-size:16px;font-weight:800;color:#1e293b;margin-bottom:12px;">مراجعة إجاباتي</h2>
 
-        <div class="divide-y divide-gray-200 dark:divide-gray-700">
-            @foreach($attempt->answers as $index => $answer)
-            @php
-                $question = $answer->question;
-                $isCorrect = $answer->is_correct;
-            @endphp
-            <div class="p-6">
-                <!-- Question Header -->
-                <div class="flex items-start gap-4 mb-4">
-                    <span class="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-white flex-shrink-0"
-                          style="background-color: {{ $isCorrect ? '#10b981' : ($answer->is_correct === null ? '#f59e0b' : '#ef4444') }};">
-                        {{ $index + 1 }}
-                    </span>
-                    <div class="flex-1">
-                        <div class="flex items-center gap-2 mb-2">
-                            <span class="text-sm px-2 py-0.5 rounded-full"
-                                  style="background-color: {{ $isCorrect ? '#d1fae5' : ($answer->is_correct === null ? '#fef3c7' : '#fee2e2') }}; color: {{ $isCorrect ? '#065f46' : ($answer->is_correct === null ? '#92400e' : '#991b1b') }};">
-                                @if($isCorrect)
-                                    إجابة صحيحة
-                                @elseif($answer->is_correct === null)
-                                    قيد التقييم
-                                @else
-                                    إجابة خاطئة
-                                @endif
-                            </span>
-                            <span class="text-sm text-gray-500">
-                                {{ $answer->marks_obtained ?? 0 }} / {{ $question->marks }} درجة
-                            </span>
-                        </div>
-                        <p class="text-gray-900 dark:text-white font-medium">{{ $question->question_ar }}</p>
-                        @if($question->question_en)
-                        <p class="mt-1 text-gray-700 dark:text-gray-300 font-medium" dir="ltr">{{ $question->question_en }}</p>
-                        @endif
-                    </div>
+        @foreach($attempt->answers as $index => $answer)
+        @php $q = $answer->question; @endphp
+        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:18px 22px;margin-bottom:14px;box-shadow:0 1px 4px rgba(0,0,0,.04);">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:12px;">
+                <div style="font-weight:700;color:#1e293b;font-size:14px;">
+                    <span style="color:#94a3b8;">س{{ $index+1 }}.</span> {{ $q->question_ar ?: 'سؤال' }}
+                    @if($q->question_en)
+                    <div style="margin-top:4px;color:#0071AA;" dir="ltr">{{ $q->question_en }}</div>
+                    @endif
                 </div>
-
-                <!-- Answer Details -->
-                @if(in_array($question->type, ['multiple_choice', 'true_false']))
-                    <div class="mr-14 space-y-2">
-                        @foreach($question->options as $option)
-                        <div class="flex items-center gap-3 p-3 rounded-xl {{ $option->is_correct ? 'border-2' : '' }}"
-                             style="{{ $option->is_correct ? 'border-color: #10b981; background-color: #ecfdf5;' : ($answer->selected_option_id === $option->id && !$option->is_correct ? 'background-color: #fef2f2;' : 'background-color: #f9fafb;') }}">
-                            @if($option->is_correct)
-                                <svg class="w-5 h-5 text-emerald-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                                </svg>
-                            @elseif($answer->selected_option_id === $option->id)
-                                <svg class="w-5 h-5 text-red-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                                </svg>
-                            @else
-                                <span class="w-5 h-5 rounded-full border-2 border-gray-300 flex-shrink-0"></span>
-                            @endif
-                            <span class="{{ $option->is_correct ? 'text-emerald-700 font-medium' : ($answer->selected_option_id === $option->id ? 'text-red-700' : 'text-gray-700 dark:text-gray-300') }}">
-                                {{ $option->option }}
-                            </span>
-                            @if($answer->selected_option_id === $option->id)
-                                <span class="text-xs px-2 py-0.5 rounded-full mr-auto"
-                                      style="background-color: {{ $option->is_correct ? '#d1fae5' : '#fee2e2' }}; color: {{ $option->is_correct ? '#065f46' : '#991b1b' }};">
-                                    إجابتك
-                                </span>
-                            @endif
-                        </div>
-                        @endforeach
-                    </div>
-                @else
-                    <div class="mr-14">
-                        <div class="p-4 rounded-xl" style="background-color: #f9fafb;">
-                            <p class="text-sm text-gray-500 mb-1">إجابتك:</p>
-                            <p class="text-gray-900 dark:text-white">{{ $answer->answer_text ?: 'لم يتم الإجابة' }}</p>
-                        </div>
-                        @if($answer->teacher_feedback)
-                        <div class="mt-3 p-4 rounded-xl" style="background-color: #eff6ff;">
-                            <p class="text-sm text-blue-600 mb-1">ملاحظات المدرس:</p>
-                            <p class="text-blue-900">{{ $answer->teacher_feedback }}</p>
-                        </div>
-                        @endif
-                    </div>
-                @endif
+                <span style="flex-shrink:0;background:#f1f5f9;color:#475569;border-radius:7px;padding:3px 10px;font-size:11px;font-weight:700;">{{ $q->type_label }}</span>
             </div>
-            @endforeach
+
+            @if(in_array($q->type, ['multiple_choice','true_false']))
+                @foreach($q->options as $opt)
+                @php
+                    $isCorrect  = $opt->is_correct;
+                    $isSelected = $answer->selected_option_id == $opt->id;
+                    $bg = $isCorrect ? '#f0fdf4' : ($isSelected ? '#fef2f2' : '#fff');
+                    $bd = $isCorrect ? '#86efac' : ($isSelected ? '#fecaca' : '#e5e7eb');
+                @endphp
+                <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid {{ $bd }};background:{{ $bg }};border-radius:9px;margin-bottom:6px;">
+                    <span style="font-size:13px;color:#1e293b;flex:1;">{{ $opt->option }}</span>
+                    @if($isCorrect)<span style="font-size:11px;color:#16a34a;font-weight:700;">✓ الإجابة الصحيحة</span>@endif
+                    @if($isSelected)<span style="font-size:11px;color:{{ $isCorrect ? '#16a34a' : '#dc2626' }};font-weight:700;">{{ $isCorrect ? '(إجابتك)' : '✗ إجابتك' }}</span>@endif
+                </div>
+                @endforeach
+            @else
+                <div style="margin-bottom:8px;">
+                    <div style="font-size:11px;color:#94a3b8;font-weight:600;margin-bottom:4px;">إجابتك</div>
+                    <div style="background:#f8fafc;border:1px solid #e5e7eb;border-radius:9px;padding:10px 12px;font-size:13px;color:#1e293b;white-space:pre-wrap;">{{ $answer->answer_text ?: '— لم تُجب —' }}</div>
+                </div>
+                @if($answer->teacher_feedback)
+                <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:9px;padding:8px 12px;font-size:12px;color:#1d4ed8;">💬 ملاحظة المدرب: {{ $answer->teacher_feedback }}</div>
+                @endif
+            @endif
+
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:10px;border-top:1px solid #f1f5f9;">
+                <span style="font-size:12px;color:#94a3b8;">الدرجة: {{ rtrim(rtrim((string)$q->marks,'0'),'.') }}</span>
+                @php $obtained = $answer->marks_obtained; @endphp
+                <span style="font-size:13px;font-weight:700;color:{{ $obtained !== null && $obtained > 0 ? '#16a34a' : '#dc2626' }};">
+                    حصلت على: {{ $obtained !== null ? rtrim(rtrim((string)$obtained,'0'),'.') : '—' }}
+                </span>
+            </div>
+
+            @if($q->explanation_ar)
+            <div style="margin-top:10px;background:#fffbeb;border:1px solid #fde68a;border-radius:9px;padding:8px 12px;font-size:12px;color:#92400e;">📘 الشرح: {{ $q->explanation_ar }}</div>
+            @endif
         </div>
+        @endforeach
     </div>
-    @else
-    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-8 text-center">
-        <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style="background-color: #f3f4f6;">
-            <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
-        </div>
-        <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">مراجعة الإجابات غير متاحة</h3>
-        <p class="text-gray-600 dark:text-gray-400">المدرس لم يسمح بعرض الإجابات الصحيحة لهذا الاختبار</p>
-    </div>
-    @endif
 
     <!-- Actions -->
     <div class="flex items-center justify-center gap-4">
