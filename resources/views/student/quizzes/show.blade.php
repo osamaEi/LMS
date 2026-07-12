@@ -107,31 +107,33 @@
                                 <td class="py-3 px-4 text-gray-900 dark:text-white">{{ $index + 1 }}</td>
                                 <td class="py-3 px-4 text-gray-600 dark:text-gray-400">{{ $attempt->started_at->format('Y/m/d H:i') }}</td>
                                 <td class="py-3 px-4">
-                                    @if($attempt->isCompleted())
-                                        <span class="font-bold {{ $attempt->passed ? 'text-emerald-600' : 'text-red-600' }}">
+                                    @if($attempt->isCompleted() && $attempt->isReleased())
+                                        <span class="font-bold text-emerald-600">
                                             {{ $attempt->score ?? '-' }} / {{ $quiz->total_marks }}
                                         </span>
                                     @else
-                                        <span class="text-amber-600">قيد التقييم</span>
+                                        <span class="text-gray-400">—</span>
                                     @endif
                                 </td>
                                 <td class="py-3 px-4">
-                                    @if($attempt->isCompleted())
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" style="background-color: #d1fae5; color: #065f46;">
-                                            مكتمل
-                                        </span>
+                                    @if(!$attempt->isCompleted())
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" style="background-color: #fef3c7; color: #92400e;">قيد التنفيذ</span>
+                                    @elseif($attempt->isReleased())
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" style="background-color: #d1fae5; color: #065f46;">تم اعتماد النتيجة</span>
                                     @else
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" style="background-color: #fef3c7; color: #92400e;">
-                                            قيد التقييم
-                                        </span>
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" style="background-color: #e0f2fe; color: #075985;">بانتظار اعتماد المدرب</span>
                                     @endif
                                 </td>
                                 <td class="py-3 px-4">
-                                    @if($attempt->isCompleted() && $quiz->show_results)
+                                    @if($attempt->isCompleted() && $attempt->isReleased())
                                         <a href="{{ route('student.quizzes.result', [$subject->id, $quiz->id, $attempt->id]) }}"
-                                           class="text-emerald-600 hover:text-emerald-700 text-sm font-medium">
-                                            عرض النتيجة
+                                           class="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-sm font-bold text-white"
+                                           style="background-color: #0071AA;">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                            عرض إجاباتي
                                         </a>
+                                    @elseif($attempt->isCompleted())
+                                        <span class="text-xs text-gray-400">لم يتم إرسال النتيجة بعد</span>
                                     @endif
                                 </td>
                             </tr>
