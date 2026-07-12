@@ -81,7 +81,7 @@
     </div>
 
     <!-- Score Summary -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-6 text-center">
             <div class="text-3xl font-bold mb-2" style="color: #0071AA;">
                 {{ number_format($attempt->score, 1) }}
