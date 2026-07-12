@@ -28,14 +28,13 @@
     </div>
 
     {{-- Stats --}}
-    <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:20px;">
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px;">
         @php
         $cards = [
             ['الطلاب المستهدفون', $stats['eligible'], '#0071AA'],
             ['لم يدخلوا', $stats['not_attempted'], '#dc2626'],
             ['مكتملة', $stats['completed'], '#16a34a'],
             ['قيد التنفيذ', $stats['in_progress'], '#d97706'],
-            ['ناجحون', $stats['passed'], '#7c3aed'],
             ['متوسط النسبة', $stats['avg_percentage'].'%', '#0891b2'],
         ];
         @endphp
@@ -115,10 +114,8 @@
                     <td style="padding:11px 16px;text-align:center;">
                         @if(!$a->submitted_at)
                         <span style="background:#fef3c7;color:#d97706;border-radius:9999px;padding:.18rem .7rem;font-size:.65rem;font-weight:700;">قيد التنفيذ</span>
-                        @elseif($a->passed)
-                        <span style="background:#dcfce7;color:#16a34a;border-radius:9999px;padding:.18rem .7rem;font-size:.65rem;font-weight:700;">ناجح</span>
                         @else
-                        <span style="background:#fee2e2;color:#dc2626;border-radius:9999px;padding:.18rem .7rem;font-size:.65rem;font-weight:700;">راسب</span>
+                        <span style="background:#dcfce7;color:#16a34a;border-radius:9999px;padding:.18rem .7rem;font-size:.65rem;font-weight:700;">تم التصحيح</span>
                         @endif
                     </td>
                     <td style="padding:11px 16px;text-align:center;color:#64748b;font-family:monospace;">{{ $a->formatted_time_spent }}</td>

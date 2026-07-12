@@ -57,7 +57,7 @@
 </div>
 @else
     <!-- Header -->
-    <div class="rounded-2xl p-6 text-white" style="background: linear-gradient(135deg, {{ $pendingGrading ? '#f59e0b, #d97706' : ($attempt->passed ? '#10b981, #059669' : '#ef4444, #dc2626') }});">
+    <div class="rounded-2xl p-6 text-white" style="background: linear-gradient(135deg, {{ $pendingGrading ? '#f59e0b, #d97706' : '#10b981, #059669' }});">
         <div class="flex items-center gap-4">
             <a href="{{ route('student.quizzes.show', [$subject->id, $quiz->id]) }}"
                class="w-10 h-10 rounded-xl flex items-center justify-center transition-colors"
@@ -72,15 +72,9 @@
             </div>
             <div class="text-left">
                 <div class="w-20 h-20 rounded-full flex items-center justify-center" style="background-color: rgba(255,255,255,0.2);">
-                    @if($attempt->passed)
-                        <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                    @else
-                        <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                    @endif
+                    <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
                 </div>
             </div>
         </div>
@@ -89,7 +83,7 @@
     <!-- Score Summary -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-6 text-center">
-            <div class="text-3xl font-bold mb-2" style="color: {{ $attempt->passed ? '#10b981' : '#ef4444' }};">
+            <div class="text-3xl font-bold mb-2" style="color: #0071AA;">
                 {{ number_format($attempt->score, 1) }}
             </div>
             <p class="text-gray-500 dark:text-gray-400">الدرجة من {{ number_format($maxMarks, 1) }}</p>
@@ -109,10 +103,10 @@
             </div>
             <p class="text-gray-500 dark:text-gray-400">بانتظار تصحيح المدرس للأسئلة المقالية</p>
             @else
-            <div class="text-3xl font-bold mb-2" style="color: {{ $attempt->passed ? '#10b981' : '#ef4444' }};">
-                {{ $attempt->passed ? 'ناجح' : 'راسب' }}
+            <div class="text-3xl font-bold mb-2" style="color: #10b981;">
+                تم التصحيح
             </div>
-            <p class="text-gray-500 dark:text-gray-400">الحالة (النجاح: {{ number_format($quiz->pass_marks, 1) }})</p>
+            <p class="text-gray-500 dark:text-gray-400">تم اعتماد نتيجتك</p>
             @endif
         </div>
 
