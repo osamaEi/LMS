@@ -58,9 +58,9 @@ class QuizController extends Controller
         $student = auth()->user();
         $subject = Subject::findOrFail($subjectId);
 
-        if (!$this->canAccessSubject($student, $subjectId)) {
-            abort(403, 'أنت غير مسجل في هذه المقرر ');
-        }
+        // if (!$this->canAccessSubject($student, $subjectId)) {
+        //     abort(403, 'أنت غير مسجل في هذه المقرر ');
+        // }
 
         // A quiz may target one specific class; students of other classes on the
         // same subject must not see it. Scope by this student's class ids.
@@ -95,9 +95,9 @@ class QuizController extends Controller
         $student = auth()->user();
         $subject = Subject::findOrFail($subjectId);
 
-        if (!$this->canAccessSubject($student, $subjectId)) {
-            abort(403, 'أنت غير مسجل في هذه المقرر ');
-        }
+        // if (!$this->canAccessSubject($student, $subjectId)) {
+        //     abort(403, 'أنت غير مسجل في هذه المقرر ');
+        // }
 
         $quiz = $this->findVisibleQuiz(
             $student, $subjectId, $quizId,
@@ -122,9 +122,9 @@ class QuizController extends Controller
         $student = auth()->user();
         $subject = Subject::findOrFail($subjectId);
 
-        if (!$this->canAccessSubject($student, $subjectId)) {
-            abort(403, 'أنت غير مسجل في هذه المقرر ');
-        }
+        // if (!$this->canAccessSubject($student, $subjectId)) {
+        //     abort(403, 'أنت غير مسجل في هذه المقرر ');
+        // }
 
         $quiz = $this->findVisibleQuiz($student, $subjectId, $quizId);
 
