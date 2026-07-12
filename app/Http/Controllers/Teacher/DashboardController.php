@@ -73,7 +73,7 @@ class DashboardController extends Controller
                 'questions'    => $q->questions_count,
                 'attempts'     => $q->attempts_count,
                 'is_active'    => (bool) $q->is_active,
-                'url'          => $q->subject_id ? route('teacher.quizzes.show', [$q->subject_id, $q->id]) : null,
+                'url'          => route('teacher.quizzes.overview.show', $q->id),
             ])
             ->filter(fn($q) => $q['starts_at'])
             ->values();

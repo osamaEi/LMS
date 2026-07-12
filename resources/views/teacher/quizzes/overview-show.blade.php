@@ -7,6 +7,10 @@
 
     <a href="{{ route('teacher.quizzes.overview') }}" style="display:inline-flex;align-items:center;gap:6px;color:#64748b;font-size:13px;text-decoration:none;margin-bottom:14px;">→ رجوع لكل الاختبارات</a>
 
+    @if(session('success'))
+    <div style="background:#dcfce7;border:1px solid #86efac;color:#166534;border-radius:12px;padding:12px 16px;margin-bottom:14px;font-size:13px;">{{ session('success') }}</div>
+    @endif
+
     {{-- Header --}}
     <div style="background:linear-gradient(135deg,#0071AA,#004d77);border-radius:18px;padding:22px 26px;color:#fff;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
         <div>
@@ -85,7 +89,22 @@
 
     {{-- All attempts --}}
     <div style="background:#fff;border-radius:16px;border:1px solid #e2e8f0;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.04);">
-        <div style="padding:14px 18px;border-bottom:1px solid #f1f5f9;font-weight:700;color:#111827;">حلول الطلاب ({{ $attempts->count() }})</div>
+        @php
+            $pendingRelease = $attempts->filter(fn($a) => $a->submitted_at && !$a->results_released_at)->count();
+        @endphp
+        <div style="padding:14px 18px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+            <span style="font-weight:700;color:#111827;">حلول الطلاب ({{ $attempts->count() }})</span>
+            @if($pendingRelease > 0)
+            <form method="POST" action="{{ route('teacher.quizzes.overview.release-all', $quiz->id) }}"
+                  onsubmit="return confirm('إرسال النتائج والإجابات لجميع الطلاب الذين سلّموا ({{ $pendingRelease }})؟')">
+                @csrf
+                <button type="submit"
+                        style="background:linear-gradient(135deg,#0071AA,#004d77);color:#fff;border:none;border-radius:9px;padding:8px 18px;font-size:12.5px;font-weight:800;cursor:pointer;">
+                    إرسال الإجابات للجميع ({{ $pendingRelease }})
+                </button>
+            </form>
+            @endif
+        </div>
         <table style="width:100%;border-collapse:collapse;font-size:13px;">
             <thead>
                 <tr style="background:#f8fafc;border-bottom:1px solid #e2e8f0;">
@@ -121,8 +140,22 @@
                     <td style="padding:11px 16px;text-align:center;color:#64748b;font-family:monospace;">{{ $a->formatted_time_spent }}</td>
                     <td style="padding:11px 16px;text-align:center;color:#64748b;font-size:12px;">{{ $a->submitted_at?->format('Y/m/d H:i') ?? '—' }}</td>
                     <td style="padding:11px 16px;text-align:center;">
-                        <a href="{{ route('teacher.quizzes.overview.attempt', [$quiz->id, $a->id]) }}"
-                           style="padding:5px 14px;font-size:11px;color:#7c3aed;background:#f5f3ff;border:1px solid #e9d5ff;border-radius:7px;font-weight:600;text-decoration:none;">عرض الحل</a>
+                        <div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap;">
+                            <a href="{{ route('teacher.quizzes.overview.attempt', [$quiz->id, $a->id]) }}"
+                               style="padding:5px 14px;font-size:11px;color:#7c3aed;background:#f5f3ff;border:1px solid #e9d5ff;border-radius:7px;font-weight:600;text-decoration:none;">عرض الحل</a>
+                            @if($a->submitted_at)
+                                @if($a->results_released_at)
+                                <span style="padding:5px 14px;font-size:11px;color:#16a34a;background:#dcfce7;border:1px solid #86efac;border-radius:7px;font-weight:600;">تم الإرسال ✓</span>
+                                @else
+                                <form method="POST" action="{{ route('teacher.quizzes.overview.attempt.release', [$quiz->id, $a->id]) }}"
+                                      onsubmit="return confirm('إرسال النتيجة والإجابات للطالب «{{ addslashes($a->student->name ?? '') }}»؟')" style="display:inline;">
+                                    @csrf
+                                    <button type="submit"
+                                            style="padding:5px 14px;font-size:11px;color:#fff;background:#0071AA;border:none;border-radius:7px;font-weight:700;cursor:pointer;">إرسال الإجابات</button>
+                                </form>
+                                @endif
+                            @endif
+                        </div>
                     </td>
                 </tr>
                 @empty

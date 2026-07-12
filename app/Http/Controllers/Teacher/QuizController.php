@@ -648,6 +648,30 @@ class QuizController extends Controller
     }
 
     /**
+     * Release every submitted-but-unreleased attempt of a quiz to its student,
+     * notifying each. Manual answers keep whatever grade they already have.
+     */
+    public function releaseAllAttempts(Quiz $quiz)
+    {
+        abort_unless($quiz->created_by == auth()->id(), 403);
+
+        $attempts = $quiz->attempts()
+            ->whereNotNull('submitted_at')
+            ->whereNull('results_released_at')
+            ->with('student')
+            ->get();
+
+        foreach ($attempts as $attempt) {
+            $attempt->update(['results_released_at' => now()]);
+            if ($attempt->student) {
+                $attempt->student->notify(new \App\Notifications\QuizResultReleasedNotification($attempt));
+            }
+        }
+
+        return back()->with('success', "تم إرسال النتائج إلى {$attempts->count()} طالب.");
+    }
+
+    /**
      * Grade a manual answer (essay/short answer)
      */
     public function gradeAnswer(Request $request, $subjectId, $quizId, $attemptId, $answerId)

@@ -5,7 +5,9 @@
       "Bash(php -l app/Http/Controllers/Teacher/SubjectController.php)",
       "Bash(php -l app/Http/Controllers/Admin/ProgramClassController.php)",
       "Bash(php -l app/Services/NotificationService.php)",
-      "Bash(php -l app/Services/QuizService.php)"
+      "Bash(php -l app/Services/QuizService.php)",
+      "Bash(php -l app/Http/Controllers/Teacher/DashboardController.php)",
+      "Bash(php -l app/Http/Controllers/Teacher/ScheduleController.php)"
     ]
   }
 }

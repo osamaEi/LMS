@@ -646,6 +646,8 @@ Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')
     Route::get('/quizzes/{quiz}/attempts/{attempt}', [\App\Http\Controllers\Teacher\QuizController::class, 'overviewAttempt'])->name('quizzes.overview.attempt');
     // Save manual grades and release the result to the student (with notification).
     Route::post('/quizzes/{quiz}/attempts/{attempt}/release', [\App\Http\Controllers\Teacher\QuizController::class, 'releaseAttempt'])->name('quizzes.overview.attempt.release');
+    // Release ALL submitted-but-unreleased attempts of a quiz at once.
+    Route::post('/quizzes/{quiz}/release-all', [\App\Http\Controllers\Teacher\QuizController::class, 'releaseAllAttempts'])->name('quizzes.overview.release-all');
 
     // Quizzes & Exams Management
     Route::prefix('subjects/{subject}/quizzes')->name('quizzes.')->group(function () {
