@@ -40,13 +40,16 @@ class QuizController extends Controller
     {
         $classIds = $this->studentClassIds($student);
 
+        // Access is class-based only: the subject (or its term) must belong to one
+        // of the student's classes. Direct enrollment alone does not grant access.
+        if ($classIds->isEmpty()) {
+            return false;
+        }
+
         return Subject::where('id', $subjectId)
-            ->where(function ($q) use ($student, $classIds) {
-                $q->whereHas('enrollments', fn($eq) => $eq->where('student_id', $student->id));
-                 if ($classIds->isNotEmpty()) {
-                    $q->orWhereIn('class_id', $classIds)
-                      ->orWhereHas('term', fn($tq) => $tq->whereIn('class_id', $classIds));
-                }
+            ->where(function ($q) use ($classIds) {
+                $q->whereIn('class_id', $classIds)
+                  ->orWhereHas('term', fn($tq) => $tq->whereIn('class_id', $classIds));
             })->exists();
     }
 
@@ -58,9 +61,9 @@ class QuizController extends Controller
         $student = auth()->user();
         $subject = Subject::findOrFail($subjectId);
 
-        // if (!$this->canAccessSubject($student, $subjectId)) {
-        //     abort(403, 'أنت غير مسجل في هذه المقرر ');
-        // }
+        if (!$this->canAccessSubject($student, $subjectId)) {
+            abort(403, 'أنت غير مسجل في هذه المقرر ');
+        }
 
         // A quiz may target one specific class; students of other classes on the
         // same subject must not see it. Scope by this student's class ids.
@@ -95,9 +98,9 @@ class QuizController extends Controller
         $student = auth()->user();
         $subject = Subject::findOrFail($subjectId);
 
-        // if (!$this->canAccessSubject($student, $subjectId)) {
-        //     abort(403, 'أنت غير مسجل في هذه المقرر ');
-        // }
+        if (!$this->canAccessSubject($student, $subjectId)) {
+            abort(403, 'أنت غير مسجل في هذه المقرر ');
+        }
 
         $quiz = $this->findVisibleQuiz(
             $student, $subjectId, $quizId,
@@ -122,9 +125,9 @@ class QuizController extends Controller
         $student = auth()->user();
         $subject = Subject::findOrFail($subjectId);
 
-        // if (!$this->canAccessSubject($student, $subjectId)) {
-        //     abort(403, 'أنت غير مسجل في هذه المقرر ');
-        // }
+        if (!$this->canAccessSubject($student, $subjectId)) {
+            abort(403, 'أنت غير مسجل في هذه المقرر ');
+        }
 
         $quiz = $this->findVisibleQuiz($student, $subjectId, $quizId);
 

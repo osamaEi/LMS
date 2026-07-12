@@ -114,7 +114,11 @@ class QuizAttempt extends Model
 
         $this->score = $obtainedMarks;
         $this->percentage = $totalMarks > 0 ? ($obtainedMarks / $totalMarks) * 100 : 0;
-        $this->passed = $this->score >= $this->quiz->pass_marks;
+
+        // Pass is percentage-based: anyone at or above 50% passes. Using the real
+        // percentage avoids false fails when the quiz's stored pass_marks/
+        // total_marks drift from the actual sum of question marks.
+        $this->passed = $this->percentage >= 50;
         $this->save();
 
         return $this;

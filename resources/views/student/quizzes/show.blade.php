@@ -116,13 +116,9 @@
                                     @endif
                                 </td>
                                 <td class="py-3 px-4">
-                                    @if($attempt->isCompleted() && $attempt->passed)
+                                    @if($attempt->isCompleted())
                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" style="background-color: #d1fae5; color: #065f46;">
-                                            ناجح
-                                        </span>
-                                    @elseif($attempt->isCompleted())
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" style="background-color: #fee2e2; color: #991b1b;">
-                                            راسب
+                                            مكتمل
                                         </span>
                                     @else
                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" style="background-color: #fef3c7; color: #92400e;">

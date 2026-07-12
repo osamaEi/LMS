@@ -138,10 +138,7 @@
         });
 
         if(q.completed){
-            const badge = q.passed
-                ? '<span style="color:#16a34a;font-weight:700;">ناجح ✓</span>'
-                : '<span style="color:#dc2626;font-weight:700;">راسب</span>';
-            html+=`<div style="background:#f0fdf4;border-radius:10px;padding:10px;text-align:center;font-size:13px;">انتهيت من الاختبار · ${q.score} درجة · ${badge}</div>`;
+            html+=`<div style="background:#f0fdf4;border-radius:10px;padding:10px;text-align:center;font-size:13px;">انتهيت من الاختبار · <span style="color:#16a34a;font-weight:700;">مكتمل ✓</span></div>`;
             html+=`<a href="${q.url}" style="display:flex;align-items:center;justify-content:center;padding:10px;background:#f1f5f9;color:#475569;border-radius:10px;text-decoration:none;font-size:13px;font-weight:700;">عرض النتيجة</a>`;
         } else if(q.in_progress){
             html+=`<a href="${q.url}" style="display:flex;align-items:center;justify-content:center;padding:10px;background:linear-gradient(135deg,#f59e0b,#d97706);color:white;border-radius:10px;text-decoration:none;font-size:13px;font-weight:700;">▶ استكمال الاختبار</a>`;
@@ -277,10 +274,8 @@
                 const notYet = now < new Date(q.starts_at);
                 let stateBadge, borderColor;
                 if(q.completed){
-                    stateBadge = q.passed
-                        ? `<span style="background:#dcfce7;color:#15803d;font-size:10px;font-weight:600;padding:1px 6px;border-radius:20px;">ناجح ✓</span>`
-                        : `<span style="background:#fee2e2;color:#dc2626;font-size:10px;font-weight:600;padding:1px 6px;border-radius:20px;">راسب</span>`;
-                    borderColor = q.passed ? '#16a34a' : '#dc2626';
+                    stateBadge = `<span style="background:#dcfce7;color:#15803d;font-size:10px;font-weight:600;padding:1px 6px;border-radius:20px;">مكتمل ✓</span>`;
+                    borderColor = '#16a34a';
                 } else if(q.in_progress){
                     stateBadge = `<span style="background:#fef3c7;color:#d97706;font-size:10px;font-weight:600;padding:1px 6px;border-radius:20px;">جارٍ</span>`;
                     borderColor = '#d97706';

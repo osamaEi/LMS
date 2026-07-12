@@ -84,66 +84,6 @@
         @endforelse
     </div>
 
-    {{-- Eligible Students --}}
-    <div style="background:#fff;border-radius:16px;border:1px solid #e2e8f0;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.04);margin-bottom:20px;">
-        <div style="padding:14px 18px;border-bottom:1px solid #f1f5f9;font-weight:700;color:#111827;">الطلاب المستهدفون ({{ $eligibleStudents->count() }})</div>
-        <table style="width:100%;border-collapse:collapse;font-size:13px;">
-            <thead>
-                <tr style="background:#f8fafc;border-bottom:1px solid #e2e8f0;">
-                    <th style="padding:11px 16px;text-align:right;font-weight:700;color:#374151;">الطالب</th>
-                    <th style="padding:11px 16px;text-align:center;font-weight:700;color:#374151;">الحالة</th>
-                    <th style="padding:11px 16px;text-align:center;font-weight:700;color:#374151;">الدرجة</th>
-                    <th style="padding:11px 16px;text-align:center;font-weight:700;color:#374151;">النتيجة</th>
-                    <th style="padding:11px 16px;text-align:center;font-weight:700;color:#374151;">إجراءات</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($eligibleStudents as $st)
-                @php $at = $st->attempt; @endphp
-                <tr style="border-bottom:1px solid #f1f5f9;">
-                    <td style="padding:11px 16px;">
-                        <div style="font-weight:600;color:#1e293b;">{{ $st->name }}</div>
-                        <div style="font-size:11px;color:#94a3b8;" dir="ltr">{{ $st->email }}</div>
-                    </td>
-                    <td style="padding:11px 16px;text-align:center;">
-                        @if(!$at)
-                        <span style="background:#fee2e2;color:#dc2626;border-radius:9999px;padding:.18rem .7rem;font-size:.65rem;font-weight:700;">لم يدخل</span>
-                        @elseif(!$at->submitted_at)
-                        <span style="background:#fef3c7;color:#d97706;border-radius:9999px;padding:.18rem .7rem;font-size:.65rem;font-weight:700;">قيد التنفيذ</span>
-                        @else
-                        <span style="background:#dcfce7;color:#16a34a;border-radius:9999px;padding:.18rem .7rem;font-size:.65rem;font-weight:700;">سلّم</span>
-                        @endif
-                    </td>
-                    <td style="padding:11px 16px;text-align:center;color:#1e293b;font-weight:700;">
-                        {{ $at && $at->submitted_at ? rtrim(rtrim((string)$at->score,'0'),'.') : '—' }}
-                    </td>
-                    <td style="padding:11px 16px;text-align:center;">
-                        @if($at && $at->submitted_at)
-                            @if($at->passed)
-                            <span style="color:#16a34a;font-weight:700;font-size:12px;">ناجح ({{ rtrim(rtrim((string)$at->percentage,'0'),'.') }}%)</span>
-                            @else
-                            <span style="color:#dc2626;font-weight:700;font-size:12px;">راسب ({{ rtrim(rtrim((string)$at->percentage,'0'),'.') }}%)</span>
-                            @endif
-                        @else
-                        <span style="color:#cbd5e1;">—</span>
-                        @endif
-                    </td>
-                    <td style="padding:11px 16px;text-align:center;">
-                        @if($at)
-                        <a href="{{ route('teacher.quizzes.overview.attempt', [$quiz->id, $at->id]) }}"
-                           style="padding:5px 14px;font-size:11px;color:#7c3aed;background:#f5f3ff;border:1px solid #e9d5ff;border-radius:7px;font-weight:600;text-decoration:none;">عرض الحل</a>
-                        @else
-                        <span style="color:#cbd5e1;font-size:11px;">—</span>
-                        @endif
-                    </td>
-                </tr>
-                @empty
-                <tr><td colspan="5" style="padding:32px;text-align:center;color:#94a3b8;font-size:13px;">لا يوجد طلاب مستهدفون</td></tr>
-                @endforelse
-            </tbody>
-        </table>
-    </div>
-
     {{-- All attempts --}}
     <div style="background:#fff;border-radius:16px;border:1px solid #e2e8f0;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.04);">
         <div style="padding:14px 18px;border-bottom:1px solid #f1f5f9;font-weight:700;color:#111827;">حلول الطلاب ({{ $attempts->count() }})</div>
