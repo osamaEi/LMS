@@ -123,6 +123,57 @@ class ScheduleController extends Controller
     }
 
     /**
+     * GET /api/v1/student/schedule/weekly-calendar
+     * The weekly calendar grid — same payload the web weekly-calendar renders
+     * (sessions + quizzes), so a mobile client can draw the identical schedule.
+     *
+     * Query params:
+     *   ?week=2026-07-13   any date inside the desired week (default: this week)
+     *   ?all=1             ignore the week window and return every session/quiz
+     *                      (matches the web page, which loads all and filters client-side)
+     */
+    public function weeklyCalendar(Request $request, \App\Services\StudentCalendarService $calendar)
+    {
+        $student = auth()->user();
+
+        $anchor    = $request->query('week') ? Carbon::parse($request->query('week')) : now();
+        $weekStart = $anchor->copy()->startOfWeek(Carbon::SUNDAY);
+        $weekEnd   = $weekStart->copy()->addDays(6)->endOfDay();
+
+        // ?all=1 → no date window, client filters by week itself (like the web calendar)
+        $all  = $request->boolean('all');
+        $from = $all ? null : $weekStart;
+        $to   = $all ? null : $weekEnd;
+
+        $sessions = $calendar->sessions($student, $from, $to);
+        $quizzes  = $calendar->quizzes($student, $from, $to, withUrls: false);
+
+        // The grid's 7 teaching periods — same boundaries as the web calendar,
+        // so the client can bucket a session by comparing scheduled_at's time.
+        $periods = [
+            ['name' => 'الفترة الصباحية (1)', 'start' => '08:10', 'end' => '09:20'],
+            ['name' => 'الفترة الصباحية (2)', 'start' => '09:30', 'end' => '10:40'],
+            ['name' => 'الفترة الصباحية (3)', 'start' => '10:50', 'end' => '12:00'],
+            ['name' => 'الفترة المسائية (1)', 'start' => '12:20', 'end' => '13:25'],
+            ['name' => 'الفترة المسائية (2)', 'start' => '13:35', 'end' => '14:40'],
+            ['name' => 'الفترة المسائية (3)', 'start' => '14:50', 'end' => '15:55'],
+            ['name' => 'الفترة المسائية (4)', 'start' => '16:00', 'end' => '17:15'],
+        ];
+
+        return response()->json([
+            'success' => true,
+            'data'    => [
+                'week_start' => $weekStart->toDateString(),
+                'week_end'   => $weekEnd->toDateString(),
+                'today'      => now()->toDateString(),
+                'periods'    => $periods,
+                'sessions'   => $sessions,
+                'quizzes'    => $quizzes,
+            ],
+        ]);
+    }
+
+    /**
      * GET /api/v1/student/schedule/calendar
      * Monthly calendar — each day shows attendance status.
      *
