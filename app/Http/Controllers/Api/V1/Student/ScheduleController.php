@@ -310,6 +310,6 @@ class ScheduleController extends Controller
             'completed' => '#10B981',
             'scheduled' => '#3B82F6',
             default     => '#6B7280',
-        ];
+        };
     }
 }
