@@ -103,6 +103,142 @@ class ProgramController extends Controller
     }
 
     /**
+     * GET /api/v1/student/my-program/{id}
+     * Show one enrolled program. Diploma → subjects grouped by term.
+     * Course/training/english → the program's sessions.
+     */
+    public function showOne($id)
+    {
+        $student   = auth()->user();
+        $programId = (int) $id;
+
+        // Resolve the program from the pivot, falling back to the legacy primary column.
+        $program     = $student->programs()->where('programs.id', $programId)->first();
+        $pivotStatus = $program?->pivot?->status;
+
+        if (!$program && $student->program_id === $programId) {
+            $program     = $student->program;
+            $pivotStatus = $student->program_status ?? 'approved';
+        }
+
+        if (!$program) {
+            return response()->json(['success' => false, 'message' => 'غير مسجل في هذا البرنامج'], 403);
+        }
+
+        if ($pivotStatus === 'pending') {
+            return response()->json(['success' => false, 'message' => 'طلب التسجيل قيد المراجعة'], 403);
+        }
+
+        $classId = $student->classIdForProgram($program->id);
+
+        $payload = [
+            'id'              => $program->id,
+            'name_ar'         => $program->name_ar,
+            'name_en'         => $program->name_en,
+            'type'            => $program->type,
+            'description_ar'  => $program->description_ar ?? null,
+            'description_en'  => $program->description_en ?? null,
+            'image'           => $program->image ? asset('storage/' . $program->image) : null,
+            'duration_months' => $program->duration_months ?? null,
+            'duration_hours'  => $program->duration_hours ?? null,
+            'status'          => $program->status,
+            'enrollment_status' => $pivotStatus,
+            'class_id'          => $classId,
+        ];
+
+        if ($program->type === 'diploma') {
+            // Prefer the student's own class terms; fall back to shared (class_id NULL)
+            $hasClassTerms = $classId
+                ? \App\Models\Term::where('program_id', $program->id)->where('class_id', $classId)->exists()
+                : false;
+            $termScope = fn($q) => $hasClassTerms ? $q->where('class_id', $classId) : $q->whereNull('class_id');
+
+            $terms = $program->terms()
+                ->where(fn($q) => $termScope($q))
+                ->orderBy('term_number')
+                ->get();
+
+            $enrolledSubjectIds = Enrollment::where('student_id', $student->id)
+                ->pluck('subject_id')
+                ->flip();
+
+            $payload['terms'] = $terms->map(function ($term) use ($classId, $enrolledSubjectIds) {
+                $subjects = Subject::with(['teacher:id,name,profile_photo'])
+                    ->withCount([
+                        'sessions',
+                        'sessions as recordings_count' => fn($q) => $q->where(
+                            fn($w) => $w->whereNotNull('video_path')->orWhereNotNull('video_url')
+                        ),
+                    ])
+                    ->where(function ($q) use ($term) {
+                        $q->where('term_id', $term->id)
+                          ->orWhereHas('terms', fn($tq) => $tq->where('terms.id', $term->id));
+                    })
+                    ->when($classId, fn($q) => $q->where(
+                        fn($w) => $w->where('class_id', $classId)->orWhereNull('class_id')
+                    ))
+                    ->get();
+
+                $subjects->each(fn($s) => $s->is_enrolled = isset($enrolledSubjectIds[$s->id]));
+
+                return [
+                    'id'          => $term->id,
+                    'term_number' => $term->term_number,
+                    'name'        => $term->name ?? ('الفصل ' . $term->term_number),
+                    'status'      => $term->status,
+                    'start_date'  => $term->start_date?->format('Y-m-d'),
+                    'end_date'    => $term->end_date?->format('Y-m-d'),
+                    'subjects'    => ProgramSubjectResource::collection($subjects)->resolve(),
+                ];
+            })->values();
+
+            return response()->json(['success' => true, 'data' => $payload]);
+        }
+
+        // ── Course / training / english: program sessions ───────────────────
+        $sessions = Session::where('program_id', $program->id)
+            ->when($classId, fn($q) => $q->where('class_id', $classId))
+            ->orderBy('session_number')
+            ->get();
+
+        $attendances = Attendance::where('student_id', $student->id)
+            ->whereIn('session_id', $sessions->pluck('id'))
+            ->get()
+            ->keyBy('session_id');
+
+        $payload['sessions'] = $sessions->map(function ($session) use ($attendances) {
+            $attendance = $attendances->get($session->id);
+
+            $status = match (true) {
+                !is_null($session->ended_at)   => 'ended',
+                !is_null($session->started_at) => 'live',
+                default                        => 'upcoming',
+            };
+
+            return [
+                'id'               => $session->id,
+                'title'            => $session->title_ar ?? $session->title ?? null,
+                'session_number'   => $session->session_number,
+                'type'             => $session->type,
+                'status'           => $status,
+                'scheduled_at'     => $session->scheduled_at,
+                'duration_minutes' => $session->duration_minutes,
+                'join_url'         => $session->type === 'live_zoom' ? $session->zoom_join_url : null,
+                'zoom_meeting_id'  => $session->zoom_meeting_id ?? null,
+                'video_url'        => $session->type === 'recorded_video' ? $session->getVideoUrl() : null,
+                'recording_url'    => $session->recording_url ?? null,
+                'attendance'       => [
+                    'attended'         => $attendance?->attended ?? false,
+                    'joined_at'        => $attendance?->joined_at,
+                    'duration_minutes' => $attendance?->duration_minutes ?? 0,
+                ],
+            ];
+        })->values();
+
+        return response()->json(['success' => true, 'data' => $payload]);
+    }
+
+    /**
      * GET /api/v1/student/program-subjects?filter=current|upcoming|past
      * Get all subjects in student's program grouped by term, with optional filter
      */

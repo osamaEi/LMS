@@ -19,7 +19,6 @@ class MyProgramResource extends JsonResource
             'name_ar'         => $this->name_ar,
             'name_en'         => $this->name_en,
             'type'            => $this->type,
-            'course_type'     => $this->course_type ?? null,
             'description_ar'  => $this->description_ar ?? null,
             'description_en'  => $this->description_en ?? null,
             'image'           => $this->image ? asset('storage/' . $this->image) : null,

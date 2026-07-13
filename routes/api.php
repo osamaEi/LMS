@@ -108,6 +108,8 @@ Route::prefix('v1')->group(function () {
 
             // Program
             Route::get('/my-program', [App\Http\Controllers\Api\V1\Student\ProgramController::class, 'show']);
+            Route::get('/my-program/{id}', [App\Http\Controllers\Api\V1\Student\ProgramController::class, 'showOne'])
+                ->whereNumber('id');
             Route::get('/program-subjects', [App\Http\Controllers\Api\V1\Student\ProgramController::class, 'subjects']);
             Route::get('/my-course', [App\Http\Controllers\Api\V1\Student\ProgramController::class, 'myCourse']);
             Route::get('/term-attendance', [App\Http\Controllers\Api\V1\Student\ProgramController::class, 'termAttendance']);
