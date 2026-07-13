@@ -9,7 +9,8 @@
       "Bash(php -l app/Http/Controllers/Teacher/DashboardController.php)",
       "Bash(php -l app/Http/Controllers/Teacher/ScheduleController.php)",
       "Bash(php -l app/Http/Controllers/Api/V1/Student/ScheduleController.php)",
-      "Bash(php -v)"
+      "Bash(php -v)",
+      "Bash(php -l app/Http/Resources/UserResource.php)"
     ]
   }
 }
