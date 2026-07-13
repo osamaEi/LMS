@@ -44,7 +44,6 @@ class UserResource extends JsonResource
 
 
 
-            'date_of_register'      => $this->date_of_register?->format('Y-m-d'),
             'created_at'            => $this->created_at->toIso8601String(),
         ];
     }
