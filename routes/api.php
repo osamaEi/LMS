@@ -96,6 +96,7 @@ Route::prefix('v1')->group(function () {
             Route::get('/schedule', [App\Http\Controllers\Api\V1\Student\ScheduleController::class, 'index']);
             Route::get('/schedule/weekly', [App\Http\Controllers\Api\V1\Student\ScheduleController::class, 'weekly']);
             Route::get('/schedule/calendar', [App\Http\Controllers\Api\V1\Student\ScheduleController::class, 'calendar']);
+            Route::get('/schedule/weekly-calendar', [App\Http\Controllers\Api\V1\Student\ScheduleController::class, 'weeklyCalendar']);
 
             // Subjects & Units
             Route::get('/subjects/{id}', [App\Http\Controllers\Api\V1\Student\SubjectController::class, 'show']);
