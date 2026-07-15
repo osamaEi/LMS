@@ -113,6 +113,9 @@ Route::prefix('v1')->group(function () {
                 ->whereNumber('id');
             Route::get('/program-subjects', [App\Http\Controllers\Api\V1\Student\ProgramController::class, 'subjects']);
             Route::get('/my-course', [App\Http\Controllers\Api\V1\Student\ProgramController::class, 'myCourse']);
+            Route::get('/sessions-by', [App\Http\Controllers\Api\V1\Student\ProgramController::class, 'sessionsBy']);
+            Route::get('/files-by', [App\Http\Controllers\Api\V1\Student\ProgramController::class, 'filesBy']);
+            Route::get('/homework-by', [App\Http\Controllers\Api\V1\Student\ProgramController::class, 'homeworkBy']);
             Route::get('/term-attendance', [App\Http\Controllers\Api\V1\Student\ProgramController::class, 'termAttendance']);
             Route::post('/enroll-program', [App\Http\Controllers\Api\V1\Student\ProgramController::class, 'enroll']);
 

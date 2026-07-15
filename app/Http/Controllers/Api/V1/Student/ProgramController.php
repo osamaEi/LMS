@@ -136,6 +136,7 @@ class ProgramController extends Controller
             'name_ar'         => $program->name_ar,
             'name_en'         => $program->name_en,
             'type'            => $program->type,
+            'is_diploma'      => $program->type === 'diploma',
             'description_ar'  => $program->description_ar ?? null,
             'description_en'  => $program->description_en ?? null,
             'image'           => $program->image ? asset('storage/' . $program->image) : null,
@@ -236,6 +237,261 @@ class ProgramController extends Controller
         })->values();
 
         return response()->json(['success' => true, 'data' => $payload]);
+    }
+
+    /**
+     * GET /api/v1/student/sessions-by?program_id={id}   or   ?subject_id={id}
+     * Return the sessions of a program or a subject, scoped to the student's class.
+     *
+     * Exactly one of program_id / subject_id is required. Sessions are limited to
+     * the student's class for that program (class_id NULL sessions are shared and
+     * always included).
+     */
+    public function sessionsBy(Request $request)
+    {
+        $request->validate([
+            // Exactly one of the two — required if the other is missing, and
+            // prohibited if the other is present (no silent tie-breaking).
+            // Each id is checked against its OWN table via `exists`, so passing a
+            // subject id in the program_id slot (or vice-versa) fails with a 422
+            // instead of silently returning an empty list.
+            'program_id' => 'required_without:subject_id|prohibits:subject_id|integer|exists:programs,id',
+            'subject_id' => 'required_without:program_id|integer|exists:subjects,id',
+        ]);
+
+        $student = auth()->user();
+
+        // Resolve the anchor program so we can find the student's class for it.
+        if ($request->filled('subject_id')) {
+            $subject = Subject::find($request->integer('subject_id'));
+            if (!$subject) {
+                return response()->json(['success' => false, 'message' => 'المادة غير موجودة'], 404);
+            }
+            // A subject's program comes from its own program_id, or its term's program.
+            $programId = $subject->program_id ?? $subject->term?->program_id;
+        } else {
+            $programId = $request->integer('program_id');
+        }
+
+        // The student must be enrolled in (or belong to a class of) this program.
+        if (!$programId || !$student->allProgramIds()->contains($programId)) {
+            return response()->json(['success' => false, 'message' => 'غير مسجل في هذا البرنامج'], 403);
+        }
+
+        $classId = $student->classIdForProgram((int) $programId);
+
+        // Build the session query for either a single subject or the whole program.
+        $query = Session::query()
+            ->when($request->filled('subject_id'),
+                fn($q) => $q->where('subject_id', $request->integer('subject_id')),
+                fn($q) => $q->where('program_id', $programId))
+            // Class scoping: the student's class + class-agnostic (NULL) sessions.
+            ->when($classId, fn($q) => $q->where(
+                fn($w) => $w->where('class_id', $classId)->orWhereNull('class_id')
+            ))
+            ->orderBy('session_number');
+
+        $sessions = $query->get();
+
+        $attendances = Attendance::where('student_id', $student->id)
+            ->whereIn('session_id', $sessions->pluck('id'))
+            ->get()
+            ->keyBy('session_id');
+
+        $data = $sessions->map(function ($session) use ($attendances) {
+            $attendance = $attendances->get($session->id);
+
+            $status = match (true) {
+                !is_null($session->ended_at)   => 'ended',
+                !is_null($session->started_at) => 'live',
+                default                        => 'upcoming',
+            };
+
+            return [
+                'id'               => $session->id,
+                'title'            => $session->title_ar ?? $session->title ?? null,
+                'session_number'   => $session->session_number,
+                'subject_id'       => $session->subject_id,
+                'type'             => $session->type,
+                'status'           => $status,
+                'scheduled_at'     => $session->scheduled_at,
+                'duration_minutes' => $session->duration_minutes,
+                'join_url'         => $session->type === 'live_zoom' ? $session->zoom_join_url : null,
+                'zoom_meeting_id'  => $session->zoom_meeting_id ?? null,
+                'started_at'       => $session->started_at,
+                'video_url'        => $session->type === 'recorded_video' ? $session->getVideoUrl() : null,
+                'recording_url'    => $session->recording_url ?? null,
+                'attendance'       => [
+                    'attended'         => $attendance?->attended ?? false,
+                    'joined_at'        => $attendance?->joined_at,
+                    'duration_minutes' => $attendance?->duration_minutes ?? 0,
+                ],
+            ];
+        })->values();
+
+        return response()->json([
+            'success'    => true,
+            'program_id' => (int) $programId,
+            'subject_id' => $request->filled('subject_id') ? $request->integer('subject_id') : null,
+            'class_id'   => $classId,
+            'total'      => $data->count(),
+            'data'       => $data,
+        ]);
+    }
+
+    /**
+     * GET /api/v1/student/files-by?program_id={id}   or   ?subject_id={id}
+     * Return the files of a program or a subject the student has access to.
+     *
+     * Exactly one of program_id / subject_id is required. SubjectFile rows are not
+     * class-scoped (no class_id column) — access is gated by program enrollment.
+     */
+    public function filesBy(Request $request)
+    {
+        $request->validate([
+            // Exactly one of the two — required if the other is missing, and
+            // prohibited if the other is present (no silent tie-breaking).
+            // Each id is checked against its OWN table via `exists`, so passing a
+            // subject id in the program_id slot (or vice-versa) fails with a 422
+            // instead of silently returning an empty list.
+            'program_id' => 'required_without:subject_id|prohibits:subject_id|integer|exists:programs,id',
+            'subject_id' => 'required_without:program_id|integer|exists:subjects,id',
+        ]);
+
+        $student = auth()->user();
+
+        // Resolve the anchor program to authorize access.
+        if ($request->filled('subject_id')) {
+            $subject = Subject::find($request->integer('subject_id'));
+            if (!$subject) {
+                return response()->json(['success' => false, 'message' => 'المادة غير موجودة'], 404);
+            }
+            $programId = $subject->program_id ?? $subject->term?->program_id;
+        } else {
+            $programId = $request->integer('program_id');
+        }
+
+        if (!$programId || !$student->allProgramIds()->contains($programId)) {
+            return response()->json(['success' => false, 'message' => 'غير مسجل في هذا البرنامج'], 403);
+        }
+
+        $files = SubjectFile::query()
+            ->when($request->filled('subject_id'),
+                fn($q) => $q->where('subject_id', $request->integer('subject_id')),
+                fn($q) => $q->where('program_id', $programId))
+            ->orderBy('order')
+            ->get();
+
+        $data = $files->map(fn($f) => [
+            'id'    => $f->id,
+            'title' => $f->title,
+            'url'   => filter_var($f->file_path, FILTER_VALIDATE_URL)
+                ? $f->file_path
+                : asset('storage/' . $f->file_path),
+            'type'  => $f->file_type,
+            'size'  => $f->file_size,
+            'name'  => $f->file_original_name,
+            'order' => $f->order,
+        ])->values();
+
+        return response()->json([
+            'success'    => true,
+            'program_id' => (int) $programId,
+            'subject_id' => $request->filled('subject_id') ? $request->integer('subject_id') : null,
+            'total'      => $data->count(),
+            'data'       => $data,
+        ]);
+    }
+
+    /**
+     * GET /api/v1/student/homework-by?program_id={id}   or   ?subject_id={id}
+     * Return the homework of a program or a subject, scoped to the student's class,
+     * each with the student's own submission if any.
+     *
+     * Exactly one of program_id / subject_id is required.
+     */
+    public function homeworkBy(Request $request)
+    {
+        $request->validate([
+            // Exactly one of the two — required if the other is missing, and
+            // prohibited if the other is present (no silent tie-breaking).
+            // Each id is checked against its OWN table via `exists`, so passing a
+            // subject id in the program_id slot (or vice-versa) fails with a 422
+            // instead of silently returning an empty list.
+            'program_id' => 'required_without:subject_id|prohibits:subject_id|integer|exists:programs,id',
+            'subject_id' => 'required_without:program_id|integer|exists:subjects,id',
+        ]);
+
+        $student = auth()->user();
+
+        // Resolve the anchor program to authorize access and find the student's class.
+        if ($request->filled('subject_id')) {
+            $subject = Subject::find($request->integer('subject_id'));
+            if (!$subject) {
+                return response()->json(['success' => false, 'message' => 'المادة غير موجودة'], 404);
+            }
+            $programId = $subject->program_id ?? $subject->term?->program_id;
+        } else {
+            $programId = $request->integer('program_id');
+        }
+
+        if (!$programId || !$student->allProgramIds()->contains($programId)) {
+            return response()->json(['success' => false, 'message' => 'غير مسجل في هذا البرنامج'], 403);
+        }
+
+        $classId = $student->classIdForProgram((int) $programId);
+
+        $homeworks = Homework::query()
+            ->when($request->filled('subject_id'),
+                fn($q) => $q->where('subject_id', $request->integer('subject_id')),
+                fn($q) => $q->where('program_id', $programId))
+            // Class scoping: the student's class + class-agnostic (NULL) homework.
+            ->when($classId, fn($q) => $q->where(
+                fn($w) => $w->where('class_id', $classId)->orWhereNull('class_id')
+            ))
+            ->orderByDesc('due_date')
+            ->get();
+
+        $submissions = HomeworkSubmission::where('student_id', $student->id)
+            ->whereIn('homework_id', $homeworks->pluck('id'))
+            ->get()
+            ->keyBy('homework_id');
+
+        $data = $homeworks->map(function ($hw) use ($submissions) {
+            $submission = $submissions->get($hw->id);
+
+            return [
+                'id'             => $hw->id,
+                'title_ar'       => $hw->title_ar,
+                'title_en'       => $hw->title_en,
+                'description_ar' => $hw->description_ar,
+                'description_en' => $hw->description_en,
+                'subject_id'     => $hw->subject_id,
+                'due_date'       => $hw->due_date?->format('Y-m-d'),
+                'attachment_url' => $hw->file_url,
+                'submission'     => $submission ? [
+                    'id'           => $submission->id,
+                    'content'      => $submission->content,
+                    'file_url'     => $submission->file_path
+                        ? (filter_var($submission->file_path, FILTER_VALIDATE_URL)
+                            ? $submission->file_path
+                            : asset('storage/' . $submission->file_path))
+                        : null,
+                    'submitted_at' => $submission->submitted_at?->toIso8601String(),
+                    'grade'        => $submission->grade,
+                    'feedback'     => $submission->feedback,
+                ] : null,
+            ];
+        })->values();
+
+        return response()->json([
+            'success'    => true,
+            'program_id' => (int) $programId,
+            'subject_id' => $request->filled('subject_id') ? $request->integer('subject_id') : null,
+            'class_id'   => $classId,
+            'total'      => $data->count(),
+            'data'       => $data,
+        ]);
     }
 
     /**

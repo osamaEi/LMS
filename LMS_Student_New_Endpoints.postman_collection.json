@@ -1,0 +1,168 @@
+{
+	"info": {
+		"_postman_id": "lms-student-new-endpoints-2026",
+		"name": "LMS Student API - New Endpoints",
+		"description": "Newly added student endpoints: single program (with is_diploma), weekly calendar, and program/subject-scoped sessions, files, and homework.\n\nAuth: Bearer token via Laravel Sanctum. Set {{base_url}} and {{token}}.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8000/api/v1",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "program_id",
+			"value": "32",
+			"type": "string"
+		},
+		{
+			"key": "subject_id",
+			"value": "7",
+			"type": "string"
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{token}}",
+				"type": "string"
+			}
+		]
+	},
+	"item": [
+		{
+			"name": "Show One Program",
+			"request": {
+				"method": "GET",
+				"header": [{ "key": "Accept", "value": "application/json" }],
+				"url": {
+					"raw": "{{base_url}}/student/my-program/{{program_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["student", "my-program", "{{program_id}}"]
+				},
+				"description": "One enrolled program by id. Includes `is_diploma` (true/false). Diploma → `terms[]` with subjects; course/training/english → `sessions[]`. 403 if not enrolled or enrollment pending."
+			}
+		},
+		{
+			"name": "Weekly Calendar",
+			"request": {
+				"method": "GET",
+				"header": [{ "key": "Accept", "value": "application/json" }],
+				"url": {
+					"raw": "{{base_url}}/student/schedule/weekly-calendar?week=2026-07-13&all=0",
+					"host": ["{{base_url}}"],
+					"path": ["student", "schedule", "weekly-calendar"],
+					"query": [
+						{ "key": "week", "value": "2026-07-13", "description": "Any date inside the desired week. Default: current week." },
+						{ "key": "all", "value": "0", "description": "1 = ignore the week window and return every session/quiz (client filters). Default: 0." }
+					]
+				},
+				"description": "The weekly grid payload the web calendar renders: `periods[]`, `sessions[]`, `quizzes[]`, plus week_start/week_end/today."
+			}
+		},
+		{
+			"name": "Sessions By Program",
+			"request": {
+				"method": "GET",
+				"header": [{ "key": "Accept", "value": "application/json" }],
+				"url": {
+					"raw": "{{base_url}}/student/sessions-by?program_id={{program_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["student", "sessions-by"],
+					"query": [
+						{ "key": "program_id", "value": "{{program_id}}" }
+					]
+				},
+				"description": "Sessions of a program, scoped to the student's class (class_id = student's class OR NULL/shared). Pass exactly one of program_id / subject_id."
+			}
+		},
+		{
+			"name": "Sessions By Subject",
+			"request": {
+				"method": "GET",
+				"header": [{ "key": "Accept", "value": "application/json" }],
+				"url": {
+					"raw": "{{base_url}}/student/sessions-by?subject_id={{subject_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["student", "sessions-by"],
+					"query": [
+						{ "key": "subject_id", "value": "{{subject_id}}" }
+					]
+				},
+				"description": "Sessions of a single subject, class-scoped. Program is derived from the subject for authorization. 404 if subject not found, 403 if not enrolled."
+			}
+		},
+		{
+			"name": "Files By Program",
+			"request": {
+				"method": "GET",
+				"header": [{ "key": "Accept", "value": "application/json" }],
+				"url": {
+					"raw": "{{base_url}}/student/files-by?program_id={{program_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["student", "files-by"],
+					"query": [
+						{ "key": "program_id", "value": "{{program_id}}" }
+					]
+				},
+				"description": "Files of a program. Not class-scoped (SubjectFile has no class_id); access gated by program enrollment. Pass exactly one of program_id / subject_id."
+			}
+		},
+		{
+			"name": "Files By Subject",
+			"request": {
+				"method": "GET",
+				"header": [{ "key": "Accept", "value": "application/json" }],
+				"url": {
+					"raw": "{{base_url}}/student/files-by?subject_id={{subject_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["student", "files-by"],
+					"query": [
+						{ "key": "subject_id", "value": "{{subject_id}}" }
+					]
+				},
+				"description": "Files of a single subject. 404 if subject not found, 403 if not enrolled in its program."
+			}
+		},
+		{
+			"name": "Homework By Program",
+			"request": {
+				"method": "GET",
+				"header": [{ "key": "Accept", "value": "application/json" }],
+				"url": {
+					"raw": "{{base_url}}/student/homework-by?program_id={{program_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["student", "homework-by"],
+					"query": [
+						{ "key": "program_id", "value": "{{program_id}}" }
+					]
+				},
+				"description": "Homework of a program, class-scoped, each with the student's own submission (grade/feedback) if any. Pass exactly one of program_id / subject_id."
+			}
+		},
+		{
+			"name": "Homework By Subject",
+			"request": {
+				"method": "GET",
+				"header": [{ "key": "Accept", "value": "application/json" }],
+				"url": {
+					"raw": "{{base_url}}/student/homework-by?subject_id={{subject_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["student", "homework-by"],
+					"query": [
+						{ "key": "subject_id", "value": "{{subject_id}}" }
+					]
+				},
+				"description": "Homework of a single subject, class-scoped, with the student's submission. 404 if subject not found, 403 if not enrolled."
+			}
+		}
+	]
+}
