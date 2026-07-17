@@ -253,14 +253,51 @@ class ProgramController extends Controller
      */
     public function sessionsByKey(Request $request, string $key)
     {
-        $student = auth()->user();
+        return $this->resolveKey($request, $key) ?? $this->sessionsBy($request);
+    }
 
-        // Numeric key → program id. Hand straight over to the query-param action.
+    /**
+     * GET /api/v1/student/files-by/{key}
+     * Path-param twin of filesBy() — see sessionsByKey() for the key rules.
+     */
+    public function filesByKey(Request $request, string $key)
+    {
+        return $this->resolveKey($request, $key) ?? $this->filesBy($request);
+    }
+
+    /**
+     * GET /api/v1/student/homework-by/{key}
+     * Path-param twin of homeworkBy() — see sessionsByKey() for the key rules.
+     */
+    public function homeworkByKey(Request $request, string $key)
+    {
+        return $this->resolveKey($request, $key) ?? $this->homeworkBy($request);
+    }
+
+    /**
+     * Rewrite a `{key}` path segment into the program_id / subject_id query
+     * params the *By() actions already validate, so all three share one rule:
+     *
+     *   numeric      → program_id
+     *   non-numeric  → subject code → subject_id (within the student's programs)
+     *
+     * Returns an error JsonResponse to short-circuit on, or null once the
+     * request has been rewritten and the caller should proceed.
+     */
+    private function resolveKey(Request $request, string $key): ?\Illuminate\Http\JsonResponse
+    {
+        // Clear the opposite slot in both bags before delegating — the *By()
+        // actions use `prohibits`, which trips if a stale value survives.
         if (ctype_digit($key)) {
             $request->query->set('program_id', (int) $key);
+            $request->query->remove('subject_id');
             $request->request->remove('subject_id');
-            return $this->sessionsBy($request);
+            return null;
         }
+
+        // Non-numeric key → subject code, resolved within the student's own
+        // programs (so a code can't reach a program they aren't enrolled in).
+        $student = auth()->user();
 
         $matches = Subject::where('code', $key)
             ->whereIn('program_id', $student->allProgramIds())
@@ -273,7 +310,9 @@ class ProgramController extends Controller
             ], 404);
         }
 
-        // Same code in more than one of the student's programs → ask, don't guess.
+        // Codes are unique per program, not globally (subjects_program_code_unique),
+        // so the same code in two of the student's programs is genuinely
+        // ambiguous — ask for program_id rather than silently picking one.
         if ($matches->count() > 1) {
             $scoped = $request->filled('program_id')
                 ? $matches->where('program_id', $request->integer('program_id'))
@@ -296,8 +335,9 @@ class ProgramController extends Controller
 
         $request->query->set('subject_id', $matches->first()->id);
         $request->query->remove('program_id');
+        $request->request->remove('program_id');
 
-        return $this->sessionsBy($request);
+        return null;
     }
 
     /**
