@@ -114,6 +114,10 @@ Route::prefix('v1')->group(function () {
             Route::get('/program-subjects', [App\Http\Controllers\Api\V1\Student\ProgramController::class, 'subjects']);
             Route::get('/my-course', [App\Http\Controllers\Api\V1\Student\ProgramController::class, 'myCourse']);
             Route::get('/sessions-by', [App\Http\Controllers\Api\V1\Student\ProgramController::class, 'sessionsBy']);
+            // Same as sessions-by, but the program id / subject code rides in the path:
+            //   /sessions-by/5          → program 5
+            //   /sessions-by/MATH101    → subject with that code
+            Route::get('/sessions-by/{key}', [App\Http\Controllers\Api\V1\Student\ProgramController::class, 'sessionsByKey']);
             Route::get('/files-by', [App\Http\Controllers\Api\V1\Student\ProgramController::class, 'filesBy']);
             Route::get('/homework-by', [App\Http\Controllers\Api\V1\Student\ProgramController::class, 'homeworkBy']);
             Route::get('/term-attendance', [App\Http\Controllers\Api\V1\Student\ProgramController::class, 'termAttendance']);

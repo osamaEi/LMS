@@ -240,6 +240,69 @@ class ProgramController extends Controller
     }
 
     /**
+     * GET /api/v1/student/sessions-by/{key}
+     *
+     * Same payload as sessionsBy(), but with a single value in the path:
+     *   /sessions-by/5         → numeric  → program id 5
+     *   /sessions-by/MATH101   → non-numeric → subject with that code
+     *
+     * Subject codes are only unique per program (see the
+     * subjects_program_code_unique index), so a code the student holds in two
+     * different programs is ambiguous — that returns 409 with the candidates
+     * rather than silently picking one. Use ?program_id= to disambiguate.
+     */
+    public function sessionsByKey(Request $request, string $key)
+    {
+        $student = auth()->user();
+
+        // Numeric key → program id. Hand straight over to the query-param action.
+        if (ctype_digit($key)) {
+            $request->query->set('program_id', (int) $key);
+            $request->request->remove('subject_id');
+            return $this->sessionsBy($request);
+        }
+
+        // Non-numeric key → subject code, resolved within the student's programs
+        // only (so one student's code can't leak another program's subject).
+        $matches = Subject::where('code', $key)
+            ->whereIn('program_id', $student->allProgramIds())
+            ->get();
+
+        if ($matches->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'المادة غير موجودة أو غير مسجّل في برنامجها',
+            ], 404);
+        }
+
+        // Same code in more than one of the student's programs → ask, don't guess.
+        if ($matches->count() > 1) {
+            $scoped = $request->filled('program_id')
+                ? $matches->where('program_id', $request->integer('program_id'))
+                : $matches;
+
+            if ($scoped->count() !== 1) {
+                return response()->json([
+                    'success'    => false,
+                    'message'    => 'الكود مكرر في أكثر من برنامج — حدّد program_id',
+                    'candidates' => $scoped->map(fn($s) => [
+                        'subject_id' => $s->id,
+                        'program_id' => $s->program_id,
+                        'name'       => $s->name_ar,
+                    ])->values(),
+                ], 409);
+            }
+
+            $matches = $scoped;
+        }
+
+        $request->query->set('subject_id', $matches->first()->id);
+        $request->query->remove('program_id');
+
+        return $this->sessionsBy($request);
+    }
+
+    /**
      * GET /api/v1/student/sessions-by?program_id={id}   or   ?subject_id={id}
      * Return the sessions of a program or a subject, scoped to the student's class.
      *
