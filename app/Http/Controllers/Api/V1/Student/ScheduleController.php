@@ -148,17 +148,9 @@ class ScheduleController extends Controller
         $sessions = $calendar->sessions($student, $from, $to);
         $quizzes  = $calendar->quizzes($student, $from, $to, withUrls: false);
 
-        // The grid's 7 teaching periods — same boundaries as the web calendar,
-        // so the client can bucket a session by comparing scheduled_at's time.
-        $periods = [
-            ['name' => 'الفترة الصباحية (1)', 'start' => '08:10', 'end' => '09:20'],
-            ['name' => 'الفترة الصباحية (2)', 'start' => '09:30', 'end' => '10:40'],
-            ['name' => 'الفترة الصباحية (3)', 'start' => '10:50', 'end' => '12:00'],
-            ['name' => 'الفترة المسائية (1)', 'start' => '12:20', 'end' => '13:25'],
-            ['name' => 'الفترة المسائية (2)', 'start' => '13:35', 'end' => '14:40'],
-            ['name' => 'الفترة المسائية (3)', 'start' => '14:50', 'end' => '15:55'],
-            ['name' => 'الفترة المسائية (4)', 'start' => '16:00', 'end' => '17:15'],
-        ];
+        // The grid's 7 teaching periods — same boundaries as the web calendar.
+        // Each session also carries its own period_* fields (see the service).
+        $periods = \App\Services\StudentCalendarService::PERIODS;
 
         return response()->json([
             'success' => true,

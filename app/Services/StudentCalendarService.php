@@ -19,6 +19,55 @@ use Illuminate\Support\Collection;
  */
 class StudentCalendarService
 {
+    /**
+     * The grid's 7 teaching periods — same boundaries the API/web calendar use.
+     */
+    public const PERIODS = [
+        ['name' => 'الفترة الصباحية (1)', 'start' => '08:10', 'end' => '09:20'],
+        ['name' => 'الفترة الصباحية (2)', 'start' => '09:30', 'end' => '10:40'],
+        ['name' => 'الفترة الصباحية (3)', 'start' => '10:50', 'end' => '12:00'],
+        ['name' => 'الفترة المسائية (1)', 'start' => '12:20', 'end' => '13:25'],
+        ['name' => 'الفترة المسائية (2)', 'start' => '13:35', 'end' => '14:40'],
+        ['name' => 'الفترة المسائية (3)', 'start' => '14:50', 'end' => '15:55'],
+        ['name' => 'الفترة المسائية (4)', 'start' => '16:00', 'end' => '17:15'],
+    ];
+
+    /**
+     * Bucket a session's start time into one of the teaching periods.
+     *
+     * Falls back to the نصف اليوم (morning/evening) split at 12:00 when the
+     * time doesn't land inside a period's window (e.g. sits in a break).
+     *
+     * @return array{period_index:int|null, period_name:string|null, period:string, period_label:string}
+     */
+    public function periodFor(Carbon $at): array
+    {
+        $minutes = $at->hour * 60 + $at->minute;
+
+        foreach (self::PERIODS as $i => $p) {
+            [$sh, $sm] = array_map('intval', explode(':', $p['start']));
+            [$eh, $em] = array_map('intval', explode(':', $p['end']));
+
+            if ($minutes >= $sh * 60 + $sm && $minutes <= $eh * 60 + $em) {
+                $isMorning = str_contains($p['name'], 'صباحية');
+                return [
+                    'period_index' => $i,
+                    'period_name'  => $p['name'],
+                    'period'       => $isMorning ? 'morning' : 'evening',
+                    'period_label' => $isMorning ? 'فترة صباحية' : 'فترة مسائية',
+                ];
+            }
+        }
+
+        $isMorning = $minutes < 12 * 60;
+        return [
+            'period_index' => null,
+            'period_name'  => null,
+            'period'       => $isMorning ? 'morning' : 'evening',
+            'period_label' => $isMorning ? 'فترة صباحية' : 'فترة مسائية',
+        ];
+    }
+
     /** Program IDs the student is enrolled in (pivot + legacy primary). */
     public function programIds($student): Collection
     {
@@ -94,7 +143,8 @@ class StudentCalendarService
             ->map(function ($s) use ($allAttendances, $apologies) {
                 $att = $allAttendances[$s->id] ?? null;
                 $apo = $apologies[$s->id] ?? null;
-                return [
+                $at  = Carbon::parse($s->scheduled_at);
+                return $this->periodFor($at) + [
                     'id'               => $s->id,
                     'title'            => $s->title_ar ?: ($s->subject->name_ar ?? 'جلسة'),
                     'subject_name'     => $s->subject->name_ar ?? '',
