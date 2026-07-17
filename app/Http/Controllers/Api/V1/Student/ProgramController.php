@@ -262,8 +262,6 @@ class ProgramController extends Controller
             return $this->sessionsBy($request);
         }
 
-        // Non-numeric key → subject code, resolved within the student's programs
-        // only (so one student's code can't leak another program's subject).
         $matches = Subject::where('code', $key)
             ->whereIn('program_id', $student->allProgramIds())
             ->get();
