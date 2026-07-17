@@ -19,6 +19,9 @@ class MyProgramResource extends JsonResource
             'name_ar'         => $this->name_ar,
             'name_en'         => $this->name_en,
             'type'            => $this->type,
+            // Drives the client's branch: diploma → terms/supervisor,
+            // everything else → a flat teachers list.
+            'is_diploma'      => $this->type === 'diploma',
             'description_ar'  => $this->description_ar ?? null,
             'description_en'  => $this->description_en ?? null,
             'image'           => $this->image ? asset('storage/' . $this->image) : null,
