@@ -18,7 +18,6 @@ class ProgramResource extends JsonResource
             'description_ar'  => $this->description_ar,
             'description_en'  => $this->description_en,
             'code'            => $this->code,
-            'duration_months' => $this->duration_months,
             'price'           => $this->price,
             'status'          => $this->status,
             'total_terms'     => $this->whenLoaded('terms', fn() => $this->terms->count()),

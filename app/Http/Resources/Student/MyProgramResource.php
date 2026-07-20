@@ -13,6 +13,7 @@ class MyProgramResource extends JsonResource
     public function toArray(Request $request): array
     {
         $additional = $this->additional;
+        $isDiploma  = $this->type === 'diploma';
 
         $result = [
             'id'              => $this->id,
@@ -21,17 +22,20 @@ class MyProgramResource extends JsonResource
             'type'            => $this->type,
             // Drives the client's branch: diploma → terms/supervisor,
             // everything else → a flat teachers list.
-            'is_diploma'      => $this->type === 'diploma',
+            'is_diploma'      => $isDiploma,
             'description_ar'  => $this->description_ar ?? null,
             'description_en'  => $this->description_en ?? null,
             'image'           => $this->image ? asset('storage/' . $this->image) : null,
-            'duration_months' => $this->duration_months ?? null,
-            'duration_hours'  => $this->duration_hours ?? null,
-            // Credits live on subjects, not programs — summed via withSum() in the
-            // controller. Null when the relation wasn't loaded.
-            'total_credits'   => $this->subjects_sum_credits !== null
-                ? (int) $this->subjects_sum_credits
-                : null,
+            // Programs are measured in the unit that fits their type: diplomas in
+            // credits (summed from their subjects via withSum() in the controller,
+            // since credits live on subjects), everything else in hours.
+            'total_credits'   => $this->when(
+                $isDiploma,
+                fn() => $this->subjects_sum_credits !== null
+                    ? (int) $this->subjects_sum_credits
+                    : null
+            ),
+            'duration_hours'  => $this->when(!$isDiploma, fn() => $this->duration_hours ?? null),
             'status'          => $this->status,
 
             'enrollment_status'   => $additional['pivot_status'],
