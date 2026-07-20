@@ -26,16 +26,14 @@ class MyProgramResource extends JsonResource
             'description_ar'  => $this->description_ar ?? null,
             'description_en'  => $this->description_en ?? null,
             'image'           => $this->image ? asset('storage/' . $this->image) : null,
-            // Programs are measured in the unit that fits their type: diplomas in
-            // credits (summed from their subjects via withSum() in the controller,
-            // since credits live on subjects), everything else in hours.
-            'total_credits'   => $this->when(
-                $isDiploma,
-                fn() => $this->subjects_sum_credits !== null
-                    ? (int) $this->subjects_sum_credits
-                    : null
-            ),
-            'duration_hours'  => $this->when(!$isDiploma, fn() => $this->duration_hours ?? null),
+            // One duration field for every program type, with the unit named
+            // alongside it. Diplomas are measured in credits (summed from their
+            // subjects via withSum() in the controller, since credits live on
+            // subjects); everything else in training hours.
+            'duration_value'  => $isDiploma
+                ? ($this->subjects_sum_credits !== null ? (int) $this->subjects_sum_credits : null)
+                : ($this->duration_hours !== null ? (int) $this->duration_hours : null),
+            'duration_unit'   => $isDiploma ? 'credits' : 'hours',
             'status'          => $this->status,
 
             'enrollment_status'   => $additional['pivot_status'],
