@@ -41,6 +41,10 @@ class ProgramController extends Controller
             }
         }
 
+        // Credits are stored per-subject; sum them onto each program in one query
+        // so the resource can expose total_credits without an N+1.
+        $allPrograms->loadSum('subjects', 'credits');
+
         if ($allPrograms->isEmpty()) {
             return response()->json([
                 'success' => true,

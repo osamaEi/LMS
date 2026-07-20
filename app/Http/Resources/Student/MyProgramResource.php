@@ -27,6 +27,11 @@ class MyProgramResource extends JsonResource
             'image'           => $this->image ? asset('storage/' . $this->image) : null,
             'duration_months' => $this->duration_months ?? null,
             'duration_hours'  => $this->duration_hours ?? null,
+            // Credits live on subjects, not programs — summed via withSum() in the
+            // controller. Null when the relation wasn't loaded.
+            'total_credits'   => $this->subjects_sum_credits !== null
+                ? (int) $this->subjects_sum_credits
+                : null,
             'status'          => $this->status,
 
             'enrollment_status'   => $additional['pivot_status'],
