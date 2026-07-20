@@ -30,10 +30,10 @@ class MyProgramResource extends JsonResource
             // alongside it. Diplomas are measured in credits (summed from their
             // subjects via withSum() in the controller, since credits live on
             // subjects); everything else in training hours.
-            'duration_value'  => $isDiploma
+            'duration_hours'  => $isDiploma
                 ? ($this->subjects_sum_credits !== null ? (int) $this->subjects_sum_credits : null)
                 : ($this->duration_hours !== null ? (int) $this->duration_hours : null),
-            'duration_unit'   => $isDiploma ? 'credits' : 'hours',
+           
             'status'          => $this->status,
 
             'enrollment_status'   => $additional['pivot_status'],
