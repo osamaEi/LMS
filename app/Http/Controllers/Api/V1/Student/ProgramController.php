@@ -275,9 +275,10 @@ class ProgramController extends Controller
             ->pluck('subject_id')
             ->flip();
 
-        $total = 0;
-
-        $data = $terms->map(function ($term) use ($classId, $enrolledSubjectIds, &$total) {
+        // Flat subject list: one row per subject, tagged with its term so the
+        // client can group without a nested payload. A subject reachable from two
+        // terms is de-duplicated by id (first term wins, terms are ordered).
+        $data = $terms->flatMap(function ($term) use ($classId, $enrolledSubjectIds) {
             $subjects = $this->termSubjectsQuery($term->id, $classId)
                 ->with(['teacher:id,name,profile_photo'])
                 ->withCount([
@@ -289,21 +290,22 @@ class ProgramController extends Controller
                 ->get();
 
             $subjects->each(fn($s) => $s->is_enrolled = isset($enrolledSubjectIds[$s->id]));
-            $total += $subjects->count();
 
-            return [
-              
-                'subjects'    => ProgramSubjectResource::collection($subjects)->resolve(),
-            ];
-        })->values();
+            return collect(ProgramSubjectResource::collection($subjects)->resolve())
+                ->map(fn($row) => $row + [
+                    'term_id'     => $term->id,
+                    'term_number' => $term->term_number,
+                    'term_name'   => $term->name ?? ('الفصل ' . $term->term_number),
+                ]);
+        })->unique('id');
 
         return response()->json([
             'success'    => true,
             'program_id' => $program->id,
             'class_id'   => $classId,
             'term_id'    => $request->filled('term_id') ? $request->integer('term_id') : null,
-            'total'      => $total,
-            'data'       => $data,
+            'total'      => $data->count(),
+            'data'       => $data->values(),
         ]);
     }
 
