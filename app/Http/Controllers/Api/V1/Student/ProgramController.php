@@ -303,7 +303,6 @@ class ProgramController extends Controller
             'success'    => true,
             'program_id' => $program->id,
             'class_id'   => $classId,
-            'term_id'    => $request->filled('term_id') ? $request->integer('term_id') : null,
             'total'      => $data->count(),
             'subjects'   => $data->values(),
         ]);
