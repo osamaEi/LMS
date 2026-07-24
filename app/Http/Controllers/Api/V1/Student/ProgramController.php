@@ -292,12 +292,7 @@ class ProgramController extends Controller
             $total += $subjects->count();
 
             return [
-                'id'          => $term->id,
-                'term_number' => $term->term_number,
-                'name'        => $term->name ?? ('الفصل ' . $term->term_number),
-                'status'      => $term->status,
-                'start_date'  => $term->start_date?->format('Y-m-d'),
-                'end_date'    => $term->end_date?->format('Y-m-d'),
+              
                 'subjects'    => ProgramSubjectResource::collection($subjects)->resolve(),
             ];
         })->values();
