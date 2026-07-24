@@ -304,7 +304,7 @@ class ProgramController extends Controller
             'program_id' => $program->id,
             'class_id'   => $classId,
             'total'      => $data->count(),
-            'subjects'   => $data->values(),
+            'data'   => $data->values(),
         ]);
     }
 
