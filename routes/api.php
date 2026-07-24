@@ -111,7 +111,7 @@ Route::prefix('v1')->group(function () {
             Route::get('/my-program', [App\Http\Controllers\Api\V1\Student\ProgramController::class, 'show']);
             Route::get('/my-program/{id}', [App\Http\Controllers\Api\V1\Student\ProgramController::class, 'showOne'])
                 ->whereNumber('id');
-            // Subjects of a diploma program, grouped by term. Optional ?term_id=
+            // Subjects of a diploma program, flat list. Optional ?term_id=
             Route::get('/my-program/{id}/subjects', [App\Http\Controllers\Api\V1\Student\ProgramController::class, 'showOneSubjects'])
                 ->whereNumber('id');
             Route::get('/program-subjects', [App\Http\Controllers\Api\V1\Student\ProgramController::class, 'subjects']);

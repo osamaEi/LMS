@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1\Student;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Student\ProgramSubjectResource;
 use App\Http\Resources\Student\SubjectFileResource;
 use App\Http\Resources\Student\SubjectHomeworkResource;
 use App\Http\Resources\Student\SubjectResource;
@@ -21,52 +22,62 @@ class SubjectController extends Controller
      */
     public function show($id)
     {
+        // Access is gated by program membership (same rule as the other subject
+        // endpoints) rather than an enrollments row, so a subject listed by
+        // /my-program/{id}/subjects can always be opened.
+        $resolved = $this->resolveSubjectForStudent($id, [
+            'term',
+            'teacher:id,name,profile_photo',
+        ]);
+        if ($resolved instanceof \Illuminate\Http\JsonResponse) {
+            return $resolved;
+        }
+        [$subject, $classId] = $resolved;
+
         $student = auth()->user();
 
-        $subject = Subject::whereHas('enrollments', function ($query) use ($student) {
-            $query->where('student_id', $student->id);
-        })
-            ->with(['term.program', 'teacher:id,name,email,profile_photo'])
-            ->findOrFail($id);
+        $subject->loadCount([
+            'sessions',
+            'sessions as recordings_count' => fn($q) => $q->where(
+                fn($w) => $w->whereNotNull('video_path')->orWhereNotNull('video_url')
+            ),
+        ]);
 
-        // Guard: a class-scoped subject must match the student's class
-        if ($subject->class_id !== null && $subject->class_id != $student->class_id) {
-            return response()->json(['success' => false, 'message' => 'هذا المقرر غير متاح لمجموعتك'], 403);
-        }
+        $subject->is_enrolled = \App\Models\Enrollment::where('student_id', $student->id)
+            ->where('subject_id', $subject->id)
+            ->exists();
 
-        $assignedIds = Attendance::where('student_id', $student->id)->pluck('session_id');
-        if ($student->class_id) {
-            $assignedIds = Session::whereIn('id', $assignedIds)
-                ->where('class_id', $student->class_id)->pluck('id');
-        }
+        // The term this subject sits in — direct term_id, else the pivot.
+        $term = $subject->term ?? $subject->terms()->orderBy('term_number')->first();
 
-        $sessions = Session::where('subject_id', $id)
-            ->whereIn('id', $assignedIds)
-            ->with('files')
-            ->orderBy('session_number', 'asc')
-            ->get();
+        $sessions = $this->subjectSessionQuery($id, $classId)->get();
 
         $attendances = Attendance::where('student_id', $student->id)
             ->whereIn('session_id', $sessions->pluck('id'))
             ->get()
             ->keyBy('session_id');
 
-        // Progress
-        $totalSessions = $sessions->count();
+        $totalSessions    = $sessions->count();
         $attendedSessions = $attendances->where('attended', true)->count();
+
+        $data = (new ProgramSubjectResource($subject))->resolve() + [
+            'term_id'     => $term?->id,
+            'term_number' => $term?->term_number,
+            'term_name'   => $term ? ($term->name ?? ('الفصل ' . $term->term_number)) : null,
+            'program_id'  => $term?->program_id,
+            'class_id'    => $classId,
+            'progress'    => [
+                'total_sessions'    => $totalSessions,
+                'attended_sessions' => $attendedSessions,
+                'percentage'        => $totalSessions > 0
+                    ? round(($attendedSessions / $totalSessions) * 100, 1)
+                    : 0,
+            ],
+        ];
 
         return response()->json([
             'success' => true,
-            'data' => [
-                'subject' => $subject,
-                'sessions' => $sessions,
-                'attendances' => $attendances,
-                'progress' => [
-                    'total_sessions' => $totalSessions,
-                    'attended_sessions' => $attendedSessions,
-                    'percentage' => $totalSessions > 0 ? round(($attendedSessions / $totalSessions) * 100, 1) : 0,
-                ],
-            ],
+            'subject' => $data,
         ]);
     }
 
