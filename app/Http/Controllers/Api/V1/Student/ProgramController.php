@@ -163,39 +163,18 @@ class ProgramController extends Controller
                 ->orderBy('term_number')
                 ->get();
 
-            $enrolledSubjectIds = Enrollment::where('student_id', $student->id)
-                ->pluck('subject_id')
-                ->flip();
-
-            $payload['terms'] = $terms->map(function ($term) use ($classId, $enrolledSubjectIds) {
-                $subjects = Subject::with(['teacher:id,name,profile_photo'])
-                    ->withCount([
-                        'sessions',
-                        'sessions as recordings_count' => fn($q) => $q->where(
-                            fn($w) => $w->whereNotNull('video_path')->orWhereNotNull('video_url')
-                        ),
-                    ])
-                    ->where(function ($q) use ($term) {
-                        $q->where('term_id', $term->id)
-                          ->orWhereHas('terms', fn($tq) => $tq->where('terms.id', $term->id));
-                    })
-                    ->when($classId, fn($q) => $q->where(
-                        fn($w) => $w->where('class_id', $classId)->orWhereNull('class_id')
-                    ))
-                    ->get();
-
-                $subjects->each(fn($s) => $s->is_enrolled = isset($enrolledSubjectIds[$s->id]));
-
-                return [
-                    'id'          => $term->id,
-                    'term_number' => $term->term_number,
-                    'name'        => $term->name ?? ('الفصل ' . $term->term_number),
-                    'status'      => $term->status,
-                    'start_date'  => $term->start_date?->format('Y-m-d'),
-                    'end_date'    => $term->end_date?->format('Y-m-d'),
-                    'subjects'    => ProgramSubjectResource::collection($subjects)->resolve(),
-                ];
-            })->values();
+            // Subjects are served separately by GET /my-program/{id}/subjects —
+            // terms here carry only their own metadata plus a count.
+            $payload['terms'] = $terms->map(fn($term) => [
+                'id'             => $term->id,
+                'term_number'    => $term->term_number,
+                'name'           => $term->name ?? ('الفصل ' . $term->term_number),
+                'status'         => $term->status,
+                'start_date'     => $term->start_date?->format('Y-m-d'),
+                'end_date'       => $term->end_date?->format('Y-m-d'),
+                'subjects_count' => $this->termSubjectsQuery($term->id, $classId)->count(),
+                'subjects_url'   => url("/api/v1/student/my-program/{$program->id}/subjects?term_id={$term->id}"),
+            ])->values();
 
             return response()->json(['success' => true, 'data' => $payload]);
         }
@@ -241,6 +220,111 @@ class ProgramController extends Controller
         })->values();
 
         return response()->json(['success' => true, 'data' => $payload]);
+    }
+
+    /**
+     * GET /api/v1/student/my-program/{id}/subjects[?term_id={termId}]
+     * Subjects of an enrolled diploma program, grouped by term.
+     * Split out of showOne() so the program payload stays light.
+     */
+    public function showOneSubjects(Request $request, $id)
+    {
+        $request->validate(['term_id' => 'nullable|integer|exists:terms,id']);
+
+        $student   = auth()->user();
+        $programId = (int) $id;
+
+        $program     = $student->programs()->where('programs.id', $programId)->first();
+        $pivotStatus = $program?->pivot?->status;
+
+        if (!$program && $student->program_id === $programId) {
+            $program     = $student->program;
+            $pivotStatus = $student->program_status ?? 'approved';
+        }
+
+        if (!$program) {
+            return response()->json(['success' => false, 'message' => 'غير مسجل في هذا البرنامج'], 403);
+        }
+
+        if ($pivotStatus === 'pending') {
+            return response()->json(['success' => false, 'message' => 'طلب التسجيل قيد المراجعة'], 403);
+        }
+
+        if ($program->type !== 'diploma') {
+            return response()->json([
+                'success' => false,
+                'message' => 'هذا البرنامج ليس دبلوم — استخدم /my-program/{id} للجلسات',
+            ], 422);
+        }
+
+        $classId = $student->classIdForProgram($program->id);
+
+        // Prefer the student's own class terms; fall back to shared (class_id NULL)
+        $hasClassTerms = $classId
+            ? \App\Models\Term::where('program_id', $program->id)->where('class_id', $classId)->exists()
+            : false;
+        $termScope = fn($q) => $hasClassTerms ? $q->where('class_id', $classId) : $q->whereNull('class_id');
+
+        $terms = $program->terms()
+            ->where(fn($q) => $termScope($q))
+            ->when($request->filled('term_id'), fn($q) => $q->where('terms.id', $request->integer('term_id')))
+            ->orderBy('term_number')
+            ->get();
+
+        $enrolledSubjectIds = Enrollment::where('student_id', $student->id)
+            ->pluck('subject_id')
+            ->flip();
+
+        $total = 0;
+
+        $data = $terms->map(function ($term) use ($classId, $enrolledSubjectIds, &$total) {
+            $subjects = $this->termSubjectsQuery($term->id, $classId)
+                ->with(['teacher:id,name,profile_photo'])
+                ->withCount([
+                    'sessions',
+                    'sessions as recordings_count' => fn($q) => $q->where(
+                        fn($w) => $w->whereNotNull('video_path')->orWhereNotNull('video_url')
+                    ),
+                ])
+                ->get();
+
+            $subjects->each(fn($s) => $s->is_enrolled = isset($enrolledSubjectIds[$s->id]));
+            $total += $subjects->count();
+
+            return [
+                'id'          => $term->id,
+                'term_number' => $term->term_number,
+                'name'        => $term->name ?? ('الفصل ' . $term->term_number),
+                'status'      => $term->status,
+                'start_date'  => $term->start_date?->format('Y-m-d'),
+                'end_date'    => $term->end_date?->format('Y-m-d'),
+                'subjects'    => ProgramSubjectResource::collection($subjects)->resolve(),
+            ];
+        })->values();
+
+        return response()->json([
+            'success'    => true,
+            'program_id' => $program->id,
+            'class_id'   => $classId,
+            'term_id'    => $request->filled('term_id') ? $request->integer('term_id') : null,
+            'total'      => $total,
+            'data'       => $data,
+        ]);
+    }
+
+    /**
+     * Subjects belonging to a term, via either the direct term_id column or the
+     * term_subject pivot, scoped to the student's class (class-less = shared).
+     */
+    private function termSubjectsQuery(int $termId, ?int $classId)
+    {
+        return Subject::where(function ($q) use ($termId) {
+                $q->where('term_id', $termId)
+                  ->orWhereHas('terms', fn($tq) => $tq->where('terms.id', $termId));
+            })
+            ->when($classId, fn($q) => $q->where(
+                fn($w) => $w->where('class_id', $classId)->orWhereNull('class_id')
+            ));
     }
 
     /**

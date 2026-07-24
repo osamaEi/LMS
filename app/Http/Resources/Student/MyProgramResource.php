@@ -7,9 +7,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class MyProgramResource extends JsonResource
 {
-    // Pass pivot + computed data via ->additional([...])
-    // Required keys: pivot_status, pivot_term_number, pivot_enrolled_at
-    // Optional keys: current_term (Term model), supervisor (User model), teachers (Collection)
+  
     public function toArray(Request $request): array
     {
         $additional = $this->additional;
@@ -26,10 +24,7 @@ class MyProgramResource extends JsonResource
             'description_ar'  => $this->description_ar ?? null,
             'description_en'  => $this->description_en ?? null,
             'image'           => $this->image ? asset('storage/' . $this->image) : null,
-            // One duration field for every program type, with the unit named
-            // alongside it. Diplomas are measured in credits (summed from their
-            // subjects via withSum() in the controller, since credits live on
-            // subjects); everything else in training hours.
+  
             'duration_hours'  => $isDiploma
                 ? ($this->subjects_sum_credits !== null ? (int) $this->subjects_sum_credits : null)
                 : ($this->duration_hours !== null ? (int) $this->duration_hours : null),
