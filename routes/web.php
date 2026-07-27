@@ -273,6 +273,13 @@ Route::middleware(['auth', 'role:admin,super_admin'])->prefix('admin')->name('ad
     // Students Management
     Route::get('/students/export', [\App\Http\Controllers\Admin\StudentController::class, 'export'])->name('students.export');
     Route::resource('students', \App\Http\Controllers\Admin\StudentController::class);
+
+    // Student academic report — exams, homework, attendance; editable + sendable
+    Route::get('/students/{student}/report', [\App\Http\Controllers\Admin\StudentReportController::class, 'show'])->name('students.report.show');
+    Route::patch('/students/{student}/report', [\App\Http\Controllers\Admin\StudentReportController::class, 'update'])->name('students.report.update');
+    Route::get('/students/{student}/report/pdf', [\App\Http\Controllers\Admin\StudentReportController::class, 'pdf'])->name('students.report.pdf');
+    Route::post('/students/{student}/report/send', [\App\Http\Controllers\Admin\StudentReportController::class, 'send'])->name('students.report.send');
+
     Route::post('/students/{student}/assign-program', [\App\Http\Controllers\Admin\StudentController::class, 'assignProgram'])
         ->name('students.assign-program');
     Route::delete('/students/{student}/remove-program', [\App\Http\Controllers\Admin\StudentController::class, 'removeProgram'])
