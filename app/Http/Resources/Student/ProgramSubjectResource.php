@@ -10,10 +10,10 @@ class ProgramSubjectResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id'               => $this->id,
+            'id'               => (string) $this->id,
             'name_ar'          => $this->name_ar,
             'name_en'          => $this->name_en,
-            'code'             => $this->code,
+            'code'             => $this->code !== null ? (string) $this->code : null,
             'description_ar'   => $this->description_ar ?? null,
             'description_en'   => $this->description_en ?? null,
             'credits'          => $this->credits,

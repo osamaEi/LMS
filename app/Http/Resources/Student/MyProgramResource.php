@@ -14,7 +14,7 @@ class MyProgramResource extends JsonResource
         $isDiploma  = $this->type === 'diploma';
 
         $result = [
-            'id'              => $this->id,
+            'id'              => (string) $this->id,
             'name_ar'         => $this->name_ar,
             'name_en'         => $this->name_en,
             'type'            => $this->type,
