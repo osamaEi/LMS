@@ -603,6 +603,11 @@ Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')
     // Attendance
     Route::get('/attendance', [\App\Http\Controllers\Teacher\SubjectController::class, 'attendanceOverview'])->name('attendance.index');
 
+    // Absence apologies (أعذار الغياب) — scoped to the teacher's own sessions
+    Route::get('/apologies', [\App\Http\Controllers\Teacher\ApologyController::class, 'index'])->name('apologies.index');
+    Route::post('/apologies/{apology}/approve', [\App\Http\Controllers\Teacher\ApologyController::class, 'approve'])->name('apologies.approve');
+    Route::post('/apologies/{apology}/reject', [\App\Http\Controllers\Teacher\ApologyController::class, 'reject'])->name('apologies.reject');
+
     // Homework (tied to subject/program, not sessions)
     Route::get('/homework', [\App\Http\Controllers\Teacher\HomeworkController::class, 'index'])->name('homework.index');
     Route::get('/homework/{homework}', [\App\Http\Controllers\Teacher\HomeworkController::class, 'show'])->name('homework.show');
