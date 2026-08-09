@@ -15,7 +15,7 @@
             </div>
             <div>
                 <h1 style="color:white;font-size:20px;font-weight:700;margin:0;">المتدربون </h1>
-                <p style="color:rgba(255,255,255,.5);font-size:12px;margin:2px 0 0;">الطلاب الذين حضروا جلساتك</p>
+                <p style="color:rgba(255,255,255,.5);font-size:12px;margin:2px 0 0;">طلاب مجموعاتك — اضغط "التقرير" لتعديل الدرجات والواجبات</p>
             </div>
         </div>
         <div style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:8px 16px;text-align:center;min-width:60px;">
@@ -25,14 +25,25 @@
     </div>
 </div>
 
-@if($students->isEmpty())
+@if($totalStudents === 0)
 <div style="background:white;border-radius:18px;border:1px solid #e5e7eb;padding:60px;text-align:center;box-shadow:0 2px 12px rgba(0,0,0,.06);">
     <svg style="width:56px;height:56px;color:#d1d5db;margin:0 auto 16px;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
     <p style="font-size:15px;font-weight:600;color:#475569;margin-bottom:4px;">لا يوجد طلاب بعد</p>
-    <p style="font-size:13px;color:#94a3b8;">سيظهر الطلاب هنا بعد حضورهم جلساتك</p>
+    <p style="font-size:13px;color:#94a3b8;">سيظهر الطلاب هنا بعد إسنادهم لمجموعاتك أو حضورهم جلساتك</p>
 </div>
 @else
-<div style="background:white;border-radius:18px;border:1px solid #e5e7eb;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.06);">
+
+@foreach($grouped as $group)
+<div style="background:white;border-radius:18px;border:1px solid #e5e7eb;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:20px;">
+    {{-- Class header --}}
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 18px;background:#f8fafc;border-bottom:1px solid #eef2f7;">
+        <div style="display:flex;align-items:center;gap:10px;">
+            <span style="width:30px;height:30px;border-radius:9px;background:#e0f2fe;color:#0071AA;display:flex;align-items:center;justify-content:center;font-size:14px;">🏫</span>
+            <span style="font-weight:700;color:#1e293b;font-size:14px;">{{ $group['name'] }}</span>
+        </div>
+        <span style="background:#eff6ff;color:#1d4ed8;border-radius:999px;padding:3px 12px;font-size:11px;font-weight:700;">{{ count($group['students']) }} طالب</span>
+    </div>
+
     <div style="overflow-x:auto;">
         <table style="width:100%;border-collapse:collapse;font-size:13px;">
             <thead>
@@ -43,10 +54,11 @@
                     <th style="padding:12px 16px;text-align:right;font-size:11px;font-weight:700;color:#94a3b8;">البرنامج</th>
                     <th style="padding:12px 16px;text-align:right;font-size:11px;font-weight:700;color:#94a3b8;">الهوية</th>
                     <th style="padding:12px 16px;text-align:right;font-size:11px;font-weight:700;color:#94a3b8;">الجوال</th>
+                    <th style="padding:12px 16px;text-align:right;font-size:11px;font-weight:700;color:#94a3b8;">التقرير</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach($students as $i => $student)
+                @foreach($group['students'] as $i => $student)
                 <tr style="border-bottom:1px solid #f8fafc;transition:background .1s;" onmouseover="this.style.background='#f8faff'" onmouseout="this.style.background=''">
                     <td style="padding:13px 16px;color:#cbd5e1;font-size:11px;">{{ $i + 1 }}</td>
                     <td style="padding:13px 16px;">
@@ -61,12 +73,18 @@
                     <td style="padding:13px 16px;color:#64748b;">{{ $student->program->name ?? '—' }}</td>
                     <td style="padding:13px 16px;color:#64748b;" dir="ltr">{{ $student->national_id ?? '—' }}</td>
                     <td style="padding:13px 16px;color:#64748b;" dir="ltr">{{ $student->phone ?? '—' }}</td>
+                    <td style="padding:13px 16px;">
+                        <a href="{{ route('teacher.students.report.show', $student) }}"
+                           style="display:inline-block;background:#0071AA;color:#fff;padding:6px 14px;border-radius:9px;text-decoration:none;font-size:12px;font-weight:700;">📊 التقرير</a>
+                    </td>
                 </tr>
                 @endforeach
             </tbody>
         </table>
     </div>
 </div>
+@endforeach
+
 @endif
 
 </div>

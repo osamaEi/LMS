@@ -48,6 +48,20 @@
 {{-- ═══ فاصل ═══ --}}
 <li style="margin:6px 16px;height:1px;background:rgba(255,255,255,0.1)"></li>
 
+<!-- المتدربون -->
+<li>
+    <a href="{{ route('teacher.students.index') }}"
+       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('teacher.students.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
+        <svg class="fill-current" style="fill:none;stroke:currentColor;stroke-width:2;" width="20" height="20" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+        </svg>
+        <span>المتدربون</span>
+    </a>
+</li>
+
+{{-- ═══ فاصل ═══ --}}
+<li style="margin:6px 16px;height:1px;background:rgba(255,255,255,0.1)"></li>
+
 <!-- الاختبارات  -->
 <li>
     <a href="{{ route('teacher.quizzes.overview') }}"

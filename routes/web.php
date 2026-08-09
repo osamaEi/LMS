@@ -606,6 +606,8 @@ Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')
 
     // Students
     Route::get('/students', [\App\Http\Controllers\Teacher\StudentsController::class, 'index'])->name('students.index');
+    Route::get('/students/{student}/report', [\App\Http\Controllers\Teacher\StudentReportController::class, 'show'])->name('students.report.show');
+    Route::patch('/students/{student}/report', [\App\Http\Controllers\Teacher\StudentReportController::class, 'update'])->name('students.report.update');
 
     // Attendance
     Route::get('/attendance', [\App\Http\Controllers\Teacher\SubjectController::class, 'attendanceOverview'])->name('attendance.index');
