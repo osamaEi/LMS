@@ -31,7 +31,7 @@ class TicketResource extends JsonResource
             'satisfaction_rating' => $this->satisfaction_rating,
 
             'attachment_url' => $this->attachment
-                ? (str_starts_with($this->attachment, 'http') ? $this->attachment : asset('storage/' . $this->attachment))
+                ? basename(parse_url($this->attachment, PHP_URL_PATH) ?: $this->attachment)
                 : null,
 
             'replies_count'  => $this->when(

@@ -13,7 +13,7 @@ class TicketReplyResource extends JsonResource
             'id'             => $this->id,
             'message'        => $this->message,
             'attachment_url' => $this->attachment
-                ? asset('storage/' . $this->attachment)
+                ? basename(parse_url($this->attachment, PHP_URL_PATH) ?: $this->attachment)
                 : null,
             'is_from_staff'  => $this->isFromStaff(),
             'is_from_me'     => $this->whenLoaded('user',
