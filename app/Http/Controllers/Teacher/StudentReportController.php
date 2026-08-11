@@ -51,9 +51,9 @@ class StudentReportController extends Controller
         $this->authorizeStudent($student, $scope);
 
         $data = $request->validate([
+            // Grades only — the percentage is always derived, never submitted.
             'quizzes'                => ['array'],
             'quizzes.*.score'        => ['nullable', 'numeric', 'min:0'],
-            'quizzes.*.percentage'   => ['nullable', 'numeric', 'min:0', 'max:100'],
 
             'homework'               => ['array'],
             'homework.*.grade'       => ['nullable', 'integer', 'min:0'],
@@ -108,10 +108,6 @@ class StudentReportController extends Controller
                         $attempt->percentage = round(min(100, $row['score'] / $total * 100), 2);
                         $attempt->passed     = $attempt->percentage >= 50;
                     }
-                }
-                if (array_key_exists('percentage', $row) && $row['percentage'] !== null) {
-                    $attempt->percentage = $row['percentage'];
-                    $attempt->passed     = $row['percentage'] >= 50;
                 }
                 $attempt->save();
             }
@@ -201,6 +197,7 @@ class StudentReportController extends Controller
             ->unique()->values();
 
         return [
+            'teacher_id'  => $teacher->id,
             'session_ids' => $sessions->pluck('id'),
             'subject_ids' => $subjectIds,
         ];
@@ -279,10 +276,14 @@ class StudentReportController extends Controller
 
     private function scopedAttempts(User $student, array $scope)
     {
+        // Only quizzes this teacher created — a teacher never sees or edits
+        // another teacher's exam, even on a subject they share.
         return QuizAttempt::where('student_id', $student->id)
             ->whereNotNull('submitted_at')
-            ->whereHas('quiz', fn($q) => $q->whereIn('subject_id', $scope['subject_ids']))
-            ->with(['quiz:id,title_ar,subject_id,program_id,type,total_marks'])
+            ->whereHas('quiz', fn($q) => $q
+                ->whereIn('subject_id', $scope['subject_ids'])
+                ->where('created_by', $scope['teacher_id']))
+            ->with(['quiz:id,title_ar,subject_id,program_id,type,total_marks,created_by'])
             ->latest('submitted_at')
             ->get();
     }
