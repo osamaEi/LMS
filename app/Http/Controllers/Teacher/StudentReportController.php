@@ -159,6 +159,56 @@ class StudentReportController extends Controller
             ->get();
     }
 
+    /** The classes (groups) this student belongs to, via student_programs. */
+    private function studentClassIds(User $student)
+    {
+        return DB::table('student_programs')
+            ->where('student_id', $student->id)
+            ->whereNotNull('class_id')
+            ->pluck('class_id')
+            ->unique()
+            ->values();
+    }
+
+    /**
+     * Subjects to report on: the teacher's subjects that belong to one of the
+     * student's classes, unioned with any subject the student has an explicit
+     * enrollment in. Class membership is the primary source — most students are
+     * attached to a class via student_programs and have no enrollment rows.
+     *
+     * @return \Illuminate\Support\Collection<int, array>
+     */
+    private function reportSubjects(User $student, array $scope)
+    {
+        $classIds    = $this->studentClassIds($student);
+        $enrollments = $this->scopedEnrollments($student, $scope)->keyBy('subject_id');
+
+        $subjects = \App\Models\Subject::whereIn('id', $scope['subject_ids'])
+            ->with(['term:id,class_id', 'terms:id,class_id'])
+            ->get(['id', 'name_ar', 'name_en', 'code', 'class_id', 'term_id']);
+
+        return $subjects->filter(function ($subject) use ($classIds, $enrollments) {
+                if ($enrollments->has($subject->id)) return true;      // explicit enrollment
+                $subjectClasses = $subject->classIds();
+                if ($subjectClasses->isEmpty()) return true;           // open to any class
+                return $subjectClasses->intersect($classIds)->isNotEmpty();
+            })
+            ->map(function ($subject) use ($enrollments) {
+                $e = $enrollments->get($subject->id);
+
+                return [
+                    'enrollment_id' => $e->id ?? null,
+                    'subject_id'    => $subject->id,
+                    'name'          => $subject->name_ar ?? $subject->name_en ?? '—',
+                    'code'          => $subject->code ?? null,
+                    'status'        => $e->status ?? 'active',
+                    'final_grade'   => $e->final_grade ?? null,
+                    'grade_letter'  => $e->grade_letter ?? null,
+                ];
+            })
+            ->values();
+    }
+
     private function scopedAttempts(User $student, array $scope)
     {
         return QuizAttempt::where('student_id', $student->id)
@@ -263,15 +313,7 @@ class StudentReportController extends Controller
      */
     private function buildReport(User $student, array $scope): array
     {
-        $subjects = $this->scopedEnrollments($student, $scope)->map(fn($e) => [
-            'enrollment_id' => $e->id,
-            'subject_id'    => $e->subject_id,
-            'name'          => $e->subject->name_ar ?? $e->subject->name_en ?? '—',
-            'code'          => $e->subject->code ?? null,
-            'status'        => $e->status,
-            'final_grade'   => $e->final_grade,
-            'grade_letter'  => $e->grade_letter,
-        ])->values();
+        $subjects = $this->reportSubjects($student, $scope);
 
         $quizzes = $this->scopedAttempts($student, $scope)->map(fn($a) => [
             'attempt_id'   => $a->id,
