@@ -50,47 +50,89 @@
         @if($m['rows']->isEmpty())
             <x-report-empty>لا توجد مواد لحساب توزيع الدرجات.</x-report-empty>
         @else
-            @php
-                $th  = 'border:1px solid #e2e8f0;padding:8px 10px;font-size:12px;font-weight:700;color:#334155;background:#f8fafc;text-align:center;';
-                $td  = 'border:1px solid #e2e8f0;padding:8px 10px;font-size:13px;text-align:center;color:#0f172a;';
-            @endphp
-            <div style="overflow-x:auto;">
-                <table style="width:100%;border-collapse:collapse;min-width:640px;">
+            <div style="overflow-x:auto;border:1px solid #e2e8f0;border-radius:14px;">
+                <table class="marks-table" style="width:100%;border-collapse:collapse;min-width:720px;">
                     <thead>
                         <tr>
-                            <th rowspan="2" style="{{ $th }}">المادة</th>
-                            <th rowspan="2" style="{{ $th }}">الحضور<br><span style="font-weight:500;color:#64748b;">({{ $w['attendance'] }})</span></th>
-                            <th colspan="2" style="{{ $th }}">المشاركة <span style="font-weight:500;color:#64748b;">({{ $w['quizzes'] + $w['homework'] }})</span></th>
-                            <th rowspan="2" style="{{ $th }}">اختبار نصفي<br><span style="font-weight:500;color:#64748b;">({{ $w['midterm'] }})</span></th>
-                            <th rowspan="2" style="{{ $th }}">اختبار نهائي<br><span style="font-weight:500;color:#64748b;">({{ $w['final'] }})</span></th>
-                            <th rowspan="2" style="{{ $th }}">المجموع<br><span style="font-weight:500;color:#64748b;">(100)</span></th>
+                            <th rowspan="2" class="mk-h mk-h-name">المادة</th>
+                            <th rowspan="2" class="mk-h">الحضور<span class="mk-w">{{ $w['attendance'] }}</span></th>
+                            <th colspan="2" class="mk-h mk-h-group">المشاركة<span class="mk-w">{{ $w['quizzes'] + $w['homework'] }}</span></th>
+                            <th rowspan="2" class="mk-h">اختبار نصفي<span class="mk-w">{{ $w['midterm'] }}</span></th>
+                            <th rowspan="2" class="mk-h">اختبار نهائي<span class="mk-w">{{ $w['final'] }}</span></th>
+                            <th rowspan="2" class="mk-h mk-h-total">المجموع<span class="mk-w">100</span></th>
                         </tr>
                         <tr>
-                            <th style="{{ $th }}">الاختبارات القصيرة <span style="font-weight:500;color:#64748b;">({{ $w['quizzes'] }})</span></th>
-                            <th style="{{ $th }}">الواجبات <span style="font-weight:500;color:#64748b;">({{ $w['homework'] }})</span></th>
+                            <th class="mk-h mk-h-sub">الاختبارات القصيرة<span class="mk-w">{{ $w['quizzes'] }}</span></th>
+                            <th class="mk-h mk-h-sub">الواجبات<span class="mk-w">{{ $w['homework'] }}</span></th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($m['rows'] as $row)
+                            @php
+                                $cells = [
+                                    ['attendance', $w['attendance'], '#0071AA'],
+                                    ['quizzes',    $w['quizzes'],    '#7c3aed'],
+                                    ['homework',   $w['homework'],   '#ca8a04'],
+                                    ['midterm',    $w['midterm'],    '#0f766e'],
+                                    ['final',      $w['final'],      '#dc2626'],
+                                ];
+                                $totalPct = max(0, min(100, $row['total']));
+                                $totalCol = $totalPct >= 85 ? '#15803d' : ($totalPct >= 60 ? '#0071AA' : '#b91c1c');
+                            @endphp
                             <tr>
-                                <td style="{{ $td }}text-align:right;font-weight:600;">{{ $row['name'] }}@if($row['code']) <span style="color:#94a3b8;font-size:11px;">({{ $row['code'] }})</span>@endif</td>
-                                <td style="{{ $td }}">{{ $row['attendance'] }}</td>
-                                <td style="{{ $td }}">{{ $row['quizzes'] }}</td>
-                                <td style="{{ $td }}">{{ $row['homework'] }}</td>
-                                <td style="{{ $td }}">{{ $row['midterm'] }}</td>
-                                <td style="{{ $td }}">{{ $row['final'] }}</td>
-                                <td style="{{ $td }}font-weight:800;color:#0071AA;">{{ $row['total'] }}</td>
+                                <td class="mk-c mk-c-name">
+                                    <span style="font-weight:600;">{{ $row['name'] }}</span>
+                                    @if($row['code'])<span class="mk-code">{{ $row['code'] }}</span>@endif
+                                </td>
+                                @foreach($cells as [$key, $max, $color])
+                                    @php $pct = $max > 0 ? max(0, min(100, $row[$key] / $max * 100)) : 0; @endphp
+                                    <td class="mk-c">
+                                        <span class="mk-val" style="color:{{ $color }};">{{ $row[$key] }}</span><span class="mk-max">/{{ $max }}</span>
+                                        <span class="mk-bar"><i style="width:{{ $pct }}%;background:{{ $color }};"></i></span>
+                                    </td>
+                                @endforeach
+                                <td class="mk-c mk-c-total">
+                                    <span class="mk-total" style="color:{{ $totalCol }};">{{ $row['total'] }}</span>
+                                    <span class="mk-bar"><i style="width:{{ $totalPct }}%;background:{{ $totalCol }};"></i></span>
+                                </td>
                             </tr>
                         @endforeach
                         @if($m['rows']->count() > 1)
-                            <tr>
-                                <td colspan="6" style="{{ $td }}text-align:left;font-weight:700;background:#f8fafc;">المعدل العام</td>
-                                <td style="{{ $td }}font-weight:800;background:#f8fafc;color:#0071AA;">{{ $m['total'] }}</td>
+                            <tr class="mk-foot">
+                                <td colspan="6" class="mk-c" style="text-align:left;font-weight:700;">المعدل العام</td>
+                                <td class="mk-c mk-c-total"><span class="mk-total" style="color:#0071AA;">{{ $m['total'] }}</span></td>
                             </tr>
                         @endif
                     </tbody>
                 </table>
             </div>
+            <style>
+                .marks-table th, .marks-table td { border:1px solid #e8edf3; }
+                .marks-table thead tr:first-child th { border-top:none; }
+                .marks-table th:first-child, .marks-table td:first-child { border-right:none; }
+                .marks-table th:last-child,  .marks-table td:last-child  { border-left:none; }
+                .mk-h { background:#f1f5f9; color:#334155; font-size:12px; font-weight:700;
+                        padding:10px 8px; text-align:center; line-height:1.5; white-space:nowrap; }
+                .mk-h-group { background:#e8eef6; }
+                .mk-h-sub   { background:#f6f9fc; font-weight:600; }
+                .mk-h-name  { text-align:right; padding-right:14px; }
+                .mk-h-total { background:#0071AA; color:#fff; }
+                .mk-h-total .mk-w { background:rgba(255,255,255,.2); color:#fff; }
+                .mk-w  { display:block; margin-top:3px; font-weight:600; font-size:10px;
+                         color:#64748b; background:#fff; border-radius:6px; padding:1px 0; }
+                .mk-c  { padding:10px 8px; text-align:center; vertical-align:middle; }
+                .marks-table tbody tr:nth-child(even) td { background:#fcfdfe; }
+                .marks-table tbody tr:hover td { background:#f4f9fd; }
+                .mk-c-name { text-align:right; padding-right:14px; font-size:13px; color:#0f172a; }
+                .mk-code { display:inline-block; margin-right:6px; font-size:10px; color:#64748b;
+                           background:#f1f5f9; border-radius:5px; padding:1px 6px; }
+                .mk-val   { font-size:15px; font-weight:800; }
+                .mk-max   { font-size:11px; color:#94a3b8; margin-right:1px; }
+                .mk-total { font-size:17px; font-weight:800; }
+                .mk-bar   { display:block; height:4px; border-radius:99px; background:#eef2f7; margin-top:5px; overflow:hidden; }
+                .mk-bar i { display:block; height:100%; border-radius:99px; }
+                .mk-foot td { background:#f1f5f9 !important; }
+            </style>
         @endif
     </x-report-card>
 
