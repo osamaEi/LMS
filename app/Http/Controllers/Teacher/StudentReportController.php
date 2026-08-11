@@ -305,6 +305,51 @@ class StudentReportController extends Controller
             'weights' => self::WEIGHTS,
             'rows'    => $rows,
             'total'   => $rows->count() > 0 ? round($rows->avg('total'), 1) : null,
+            'details' => $this->buildDetails($quizzes, $homework, $attendances),
+        ];
+    }
+
+    /**
+     * The individual records behind each column, for the drill-down modal.
+     * Keyed by column so the view can hand one bucket to the modal on click.
+     */
+    private function buildDetails($quizzes, $homework, $attendances): array
+    {
+        $quizRows = fn(array $types) => $quizzes
+            ->filter(fn($q) => in_array($q['type'], $types, true))
+            ->map(fn($q) => [
+                'id'    => $q['attempt_id'],
+                'kind'  => 'quiz',
+                'title' => $q['title'],
+                'date'  => $q['submitted_at'],
+                'score' => $q['score'],
+                'pct'   => $q['percentage'],
+            ])->values();
+
+        return [
+            'attendance' => $attendances->map(fn($a) => [
+                'id'       => $a->id,
+                'kind'     => 'attendance',
+                'title'    => $a->session->title_ar ?? $a->session->title_en ?? ('محاضرة #' . $a->session_id),
+                'date'     => $a->session?->scheduled_at
+                    ? \Carbon\Carbon::parse($a->session->scheduled_at)->format('Y/m/d')
+                    : null,
+                'attended' => (bool) $a->attended,
+            ])->values(),
+
+            'quizzes'  => $quizRows(['quiz', 'paper']),
+            'midterm'  => $quizRows(['midterm']),
+            'final'    => $quizRows(['exam']),
+
+            'homework' => $homework->map(fn($h) => [
+                'id'        => $h['submission_id'],
+                'kind'      => 'homework',
+                'title'     => $h['title'],
+                'date'      => $h['submitted_at'],
+                'grade'     => $h['grade'],
+                'max_grade' => $h['max_grade'],
+                'feedback'  => $h['feedback'],
+            ])->values(),
         ];
     }
 
