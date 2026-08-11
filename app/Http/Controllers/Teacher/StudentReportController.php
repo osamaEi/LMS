@@ -77,6 +77,12 @@ class StudentReportController extends Controller
             'new_participation.*.grade'     => ['nullable', 'numeric', 'min:0'],
             'new_participation.*.max_grade' => ['nullable', 'integer', 'min:1', 'max:1000'],
             'new_participation.*.subject_id'=> ['nullable', 'integer'],
+            'new_participation.*.kind'      => ['nullable', 'in:participation,final'],
+
+            // Manual override of the computed total, per subject.
+            'totals'                  => ['array'],
+            'totals.*.final_grade'    => ['nullable', 'numeric', 'min:0', 'max:100'],
+            'totals.*.clear'          => ['nullable', 'boolean'],
         ]);
 
         // Allow-lists: owned by the student *and* inside the teacher's scope.
@@ -167,11 +173,33 @@ class StudentReportController extends Controller
                 ParticipationMark::create([
                     'student_id' => $studentId,
                     'subject_id' => $subjectId,
+                    'kind'       => $row['kind'] ?? 'participation',
                     'teacher_id' => $teacherId,
                     'title'      => $title,
                     'grade'      => $row['grade'] ?? 0,
                     'max_grade'  => $row['max_grade'] ?? 10,
                 ]);
+            }
+
+            // Manual total override, keyed by subject id. Needs an enrollment row
+            // to live on; class-only students get one created on demand.
+            foreach ($data['totals'] ?? [] as $subjectId => $row) {
+                if (!isset($allowedSubjects[$subjectId])) continue;
+
+                $enr = Enrollment::firstOrCreate(
+                    ['student_id' => $studentId, 'subject_id' => $subjectId],
+                    ['status' => 'active', 'enrolled_at' => now()],
+                );
+
+                if (!empty($row['clear'])) {
+                    $enr->final_grade  = null;
+                    $enr->grade_letter = null;
+                    $enr->save();
+                    continue;
+                }
+                if (array_key_exists('final_grade', $row) && $row['final_grade'] !== null) {
+                    $enr->updateFinalGrade((float) $row['final_grade']);
+                }
             }
         });
 
@@ -297,10 +325,12 @@ class StudentReportController extends Controller
             ->get();
     }
 
-    private function scopedParticipation(User $student, array $scope)
+    /** Manual marks, optionally narrowed to one column ('participation' | 'final'). */
+    private function scopedParticipation(User $student, array $scope, ?string $kind = null)
     {
         return ParticipationMark::where('student_id', $student->id)
             ->whereIn('subject_id', $scope['subject_ids'])
+            ->when($kind, fn($q) => $q->where('kind', $kind))
             ->orderBy('id')
             ->get();
     }
@@ -362,9 +392,21 @@ class StudentReportController extends Controller
             $hwPct   = $hwMax > 0 ? $subHw->sum('grade') / $hwMax : 0;
 
             // Manual participation items: sum of grades over sum of max grades.
-            $subPart  = $participation->where('subject_id', $sid);
+            $subPart  = $participation->where('subject_id', $sid)
+                ->where('kind', 'participation');
             $partMax  = $subPart->sum('max_grade');
             $partPct  = $partMax > 0 ? $subPart->sum('grade') / $partMax : 0;
+
+            // Manual final-exam marks, for when the final was graded on paper and
+            // there is no attempt in the system. Averaged with any real attempts.
+            $subFinal = $participation->where('subject_id', $sid)->where('kind', 'final');
+            $finalMax = $subFinal->sum('max_grade');
+            if ($finalMax > 0) {
+                $manualFinalPct = $subFinal->sum('grade') / $finalMax;
+                $finalPct = $ofType(['exam'])->isNotEmpty()
+                    ? ($finalPct + $manualFinalPct) / 2
+                    : $manualFinalPct;
+            }
 
             $marks = [
                 'attendance' => round($attPct    * self::WEIGHTS['attendance'], 1),
@@ -391,12 +433,20 @@ class StudentReportController extends Controller
             $totals['quizzes']  = $participationMark;   // المشاركة as one figure
             unset($totals['homework']);
 
+            // A saved final_grade overrides the computed total outright.
+            $computed = round(array_sum($totals), 1);
+            $override = $sub['final_grade'] !== null ? round((float) $sub['final_grade'], 1) : null;
+
             return $marks + [
                 'subject_id'    => $sid,
+                'enrollment_id' => $sub['enrollment_id'],
                 'name'          => $sub['name'],
                 'code'          => $sub['code'],
                 'participation' => $participationMark,
-                'total'         => round(array_sum($totals), 1),
+                'computed'      => $computed,
+                'override'      => $override,
+                'grade_letter'  => $sub['grade_letter'],
+                'total'         => $override ?? $computed,
             ];
         })->values();
 
@@ -451,7 +501,16 @@ class StudentReportController extends Controller
                 'feedback'  => $h['feedback'],
             ])->values(),
 
-            'manual' => $participation->map(fn($p) => [
+            'manual' => $participation->where('kind', 'participation')->map(fn($p) => [
+                'id'         => $p->id,
+                'kind'       => 'manual',
+                'subject_id' => $p->subject_id,
+                'title'      => $p->title,
+                'grade'      => $p->grade,
+                'max_grade'  => $p->max_grade,
+            ])->values(),
+
+            'manual_final' => $participation->where('kind', 'final')->map(fn($p) => [
                 'id'         => $p->id,
                 'kind'       => 'manual',
                 'subject_id' => $p->subject_id,

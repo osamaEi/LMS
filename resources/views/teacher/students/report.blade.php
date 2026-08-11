@@ -68,8 +68,11 @@
                             </td>
                         @endforeach
                         <td class="mk-total-c">
-                            <span class="mk-total" style="color:{{ $totalCol }};">{{ $total }}</span>
-                            <span class="mk-bar"><i style="width:{{ max(0, min(100, $total)) }}%;background:{{ $totalCol }};"></i></span>
+                            <button type="button" class="mk-cell" data-detail="total" data-title="المجموع">
+                                <span class="mk-total" style="color:{{ $totalCol }};">{{ $total }}</span>
+                                <span class="mk-bar"><i style="width:{{ max(0, min(100, $total)) }}%;background:{{ $totalCol }};"></i></span>
+                                <span class="mk-hint">تعديل الدرجة النهائية</span>
+                            </button>
                         </td>
                     </tr>
                 </tbody>
@@ -111,7 +114,22 @@
             'subjects' => $rows->map(fn($r) => ['id' => $r['subject_id'], 'name' => $r['name']])->values(),
         ],
         'midterm'    => ['sections' => [['title' => 'الاختبار النصفي', 'rows' => $d['midterm']]]],
-        'final'      => ['sections' => [['title' => 'الاختبار النهائي', 'rows' => $d['final']]]],
+        'final'      => [
+            'sections' => [
+                ['title' => 'محاولات الاختبار', 'rows' => $d['final']],
+                ['title' => 'درجة يدوية',       'rows' => $d['manual_final'], 'addable' => true, 'kind' => 'final'],
+            ],
+            'subjects' => $rows->map(fn($r) => ['id' => $r['subject_id'], 'name' => $r['name']])->values(),
+        ],
+        'total'      => [
+            'totals' => $rows->map(fn($r) => [
+                'subject_id'   => $r['subject_id'],
+                'name'         => $r['name'],
+                'computed'     => $r['computed'],
+                'override'     => $r['override'],
+                'grade_letter' => $r['grade_letter'],
+            ])->values(),
+        ],
     ];
 @endphp
 
@@ -181,12 +199,14 @@
 
     // Blank row for a brand-new manual item. Index only needs to be unique.
     let newIdx = 0;
-    function newManualHtml(subjects) {
+    function newManualHtml(subjects, kind) {
         const i = newIdx++;
         const opts = subjects.map(s => `<option value="${s.id}">${esc(s.name)}</option>`).join('');
         return `<div class="dr" data-new>
             <span class="dr-main">
-                <input type="text" name="new_participation[${i}][title]" placeholder="اسم البند" class="dr-key">
+                <input type="text" name="new_participation[${i}][title]"
+                       placeholder="${kind === 'final' ? 'اسم الاختبار' : 'اسم البند'}" class="dr-key">
+                <input type="hidden" name="new_participation[${i}][kind]" value="${kind || 'participation'}">
                 ${subjects.length > 1
                     ? `<select name="new_participation[${i}][subject_id]" class="dr-sel">${opts}</select>`
                     : `<input type="hidden" name="new_participation[${i}][subject_id]" value="${subjects[0]?.id ?? ''}">`}
@@ -196,7 +216,7 @@
                        placeholder="الدرجة" class="dr-num">
                 <span class="dr-lbl">من</span>
                 <input type="number" min="1" step="1" name="new_participation[${i}][max_grade]"
-                       value="10" class="dr-num dr-num-sm">
+                       value="${kind === 'final' ? 40 : 10}" class="dr-num dr-num-sm">
                 <button type="button" class="dr-rm" title="إزالة">✕</button>
             </span>
         </div>`;
@@ -209,14 +229,41 @@
 
         const subjects = conf.subjects || [];
 
-        body.innerHTML = conf.sections.map(sec => {
+        // المجموع: override the computed total per subject instead of listing records.
+        if (conf.totals) {
+            body.innerHTML = `<section class="dsec">
+                <h3>الدرجة النهائية <em>(من 100)</em></h3>
+                <p class="dr-note">اترك الخانة فارغة ليُحتسب المجموع تلقائيًا من توزيع الدرجات.</p>
+                ${conf.totals.map(t => `<div class="dr">
+                    <span class="dr-main">
+                        <b>${esc(t.name)}</b>
+                        <i>المحسوب تلقائيًا: ${t.computed}${t.grade_letter ? ' — التقدير ' + esc(t.grade_letter) : ''}</i>
+                    </span>
+                    <span class="dr-edit">
+                        <input type="number" min="0" max="100" step="0.01"
+                               name="totals[${t.subject_id}][final_grade]"
+                               value="${t.override ?? ''}" placeholder="يدوي" class="dr-num">
+                        <span class="dr-lbl">من 100</span>
+                        ${t.override !== null ? `<label class="dr-del">
+                            <input type="checkbox" name="totals[${t.subject_id}][clear]" value="1">
+                            <span>إلغاء</span>
+                        </label>` : ''}
+                    </span>
+                </div>`).join('')}
+            </section>`;
+            modal.hidden = false;
+            document.body.style.overflow = 'hidden';
+            return;
+        }
+
+        body.innerHTML = conf.sections.map((sec, i) => {
             const rows = (sec.rows || []);
             const inner = rows.length
                 ? rows.map(rowHtml).join('')
                 : `<p class="dr-empty">لا توجد سجلات.</p>`;
             const add = sec.addable && subjects.length
                 ? `<div class="dr-slot"></div>
-                   <button type="button" class="dr-add">+ إضافة بند</button>`
+                   <button type="button" class="dr-add" data-kind="${sec.kind || 'participation'}">+ إضافة بند</button>`
                 : '';
             return `<section class="dsec"><h3>${esc(sec.title)} <em>(${rows.length})</em></h3>${inner}${add}</section>`;
         }).join('');
@@ -224,7 +271,7 @@
         body.querySelectorAll('.dr-add').forEach(btn => {
             btn.addEventListener('click', () => {
                 const slot = btn.previousElementSibling;
-                slot.insertAdjacentHTML('beforeend', newManualHtml(subjects));
+                slot.insertAdjacentHTML('beforeend', newManualHtml(subjects, btn.dataset.kind));
                 slot.lastElementChild.querySelector('.dr-key').focus();
             });
         });
@@ -315,6 +362,7 @@
     .dr-num { width:78px; border:1px solid #e2e8f0; border-radius:9px; padding:7px 9px; font-size:13px; font-family:inherit; }
     .dr-txt { width:150px; border:1px solid #e2e8f0; border-radius:9px; padding:7px 9px; font-size:13px; font-family:inherit; }
     .dr-empty { font-size:12px; color:#94a3b8; padding:8px 2px; margin:0; }
+    .dr-note { font-size:11px; color:#94a3b8; margin:0 0 10px; }
     .dr-key { width:100%; min-width:130px; border:1px solid #e2e8f0; border-radius:9px;
               padding:7px 9px; font-size:13px; font-weight:700; font-family:inherit; color:#0f172a; }
     .dr-sel { margin-top:6px; width:100%; border:1px solid #e2e8f0; border-radius:9px;

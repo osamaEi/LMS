@@ -16,6 +16,7 @@ class ParticipationMark extends Model
     protected $fillable = [
         'student_id',
         'subject_id',
+        'kind',
         'teacher_id',
         'title',
         'grade',
