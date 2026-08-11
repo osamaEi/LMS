@@ -102,10 +102,14 @@
     // المشاركة merges two buckets; everything else maps 1:1.
     $modalData = [
         'attendance' => ['sections' => [['title' => 'الحضور', 'rows' => $d['attendance']]]],
-        'quizzes'    => ['sections' => [
-            ['title' => 'الاختبارات القصيرة', 'rows' => $d['quizzes']],
-            ['title' => 'الواجبات',           'rows' => $d['homework']],
-        ]],
+        'quizzes'    => [
+            'sections' => [
+                ['title' => 'الاختبارات القصيرة', 'rows' => $d['quizzes']],
+                ['title' => 'الواجبات',           'rows' => $d['homework']],
+                ['title' => 'بنود إضافية',        'rows' => $d['manual'], 'addable' => true],
+            ],
+            'subjects' => $rows->map(fn($r) => ['id' => $r['subject_id'], 'name' => $r['name']])->values(),
+        ],
         'midterm'    => ['sections' => [['title' => 'الاختبار النصفي', 'rows' => $d['midterm']]]],
         'final'      => ['sections' => [['title' => 'الاختبار النهائي', 'rows' => $d['final']]]],
     ];
@@ -145,14 +149,55 @@
                 </span>
             </div>`;
         }
+        if (r.kind === 'manual') {
+            return `<div class="dr" data-manual>
+                <span class="dr-main">
+                    <input type="text" name="participation[${r.id}][title]" value="${esc(r.title)}"
+                           placeholder="اسم البند" class="dr-key">
+                </span>
+                <span class="dr-edit">
+                    <input type="number" min="0" step="0.01" name="participation[${r.id}][grade]"
+                           value="${r.grade ?? ''}" placeholder="الدرجة" class="dr-num">
+                    <span class="dr-lbl">من</span>
+                    <input type="number" min="1" step="1" name="participation[${r.id}][max_grade]"
+                           value="${r.max_grade ?? 10}" class="dr-num dr-num-sm">
+                    <label class="dr-del">
+                        <input type="checkbox" name="participation[${r.id}][delete]" value="1">
+                        <span>حذف</span>
+                    </label>
+                </span>
+            </div>`;
+        }
+        // Quiz-type rows: grade only — the percentage is derived, not entered.
         return `<div class="dr">
             <span class="dr-main"><b>${esc(r.title)}</b><i>${esc(r.date || '—')}</i></span>
             <span class="dr-edit">
                 <input type="number" min="0" step="0.01" name="quizzes[${r.id}][score]"
                        value="${r.score ?? ''}" placeholder="الدرجة" class="dr-num">
-                <input type="number" min="0" max="100" step="0.01" name="quizzes[${r.id}][percentage]"
-                       value="${r.pct ?? ''}" placeholder="%" class="dr-num">
-                <span class="dr-lbl">%</span>
+                <span class="dr-lbl">من ${esc(r.total ?? '—')}</span>
+            </span>
+        </div>`;
+    }
+
+    // Blank row for a brand-new manual item. Index only needs to be unique.
+    let newIdx = 0;
+    function newManualHtml(subjects) {
+        const i = newIdx++;
+        const opts = subjects.map(s => `<option value="${s.id}">${esc(s.name)}</option>`).join('');
+        return `<div class="dr" data-new>
+            <span class="dr-main">
+                <input type="text" name="new_participation[${i}][title]" placeholder="اسم البند" class="dr-key">
+                ${subjects.length > 1
+                    ? `<select name="new_participation[${i}][subject_id]" class="dr-sel">${opts}</select>`
+                    : `<input type="hidden" name="new_participation[${i}][subject_id]" value="${subjects[0]?.id ?? ''}">`}
+            </span>
+            <span class="dr-edit">
+                <input type="number" min="0" step="0.01" name="new_participation[${i}][grade]"
+                       placeholder="الدرجة" class="dr-num">
+                <span class="dr-lbl">من</span>
+                <input type="number" min="1" step="1" name="new_participation[${i}][max_grade]"
+                       value="10" class="dr-num dr-num-sm">
+                <button type="button" class="dr-rm" title="إزالة">✕</button>
             </span>
         </div>`;
     }
@@ -162,13 +207,31 @@
         if (!conf) return;
         title.textContent = label;
 
+        const subjects = conf.subjects || [];
+
         body.innerHTML = conf.sections.map(sec => {
             const rows = (sec.rows || []);
             const inner = rows.length
                 ? rows.map(rowHtml).join('')
                 : `<p class="dr-empty">لا توجد سجلات.</p>`;
-            return `<section class="dsec"><h3>${esc(sec.title)} <em>(${rows.length})</em></h3>${inner}</section>`;
+            const add = sec.addable && subjects.length
+                ? `<div class="dr-slot"></div>
+                   <button type="button" class="dr-add">+ إضافة بند</button>`
+                : '';
+            return `<section class="dsec"><h3>${esc(sec.title)} <em>(${rows.length})</em></h3>${inner}${add}</section>`;
         }).join('');
+
+        body.querySelectorAll('.dr-add').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const slot = btn.previousElementSibling;
+                slot.insertAdjacentHTML('beforeend', newManualHtml(subjects));
+                slot.lastElementChild.querySelector('.dr-key').focus();
+            });
+        });
+        body.addEventListener('click', e => {
+            const rm = e.target.closest('.dr-rm');
+            if (rm) rm.closest('[data-new]').remove();
+        });
 
         modal.hidden = false;
         document.body.style.overflow = 'hidden';
@@ -252,6 +315,18 @@
     .dr-num { width:78px; border:1px solid #e2e8f0; border-radius:9px; padding:7px 9px; font-size:13px; font-family:inherit; }
     .dr-txt { width:150px; border:1px solid #e2e8f0; border-radius:9px; padding:7px 9px; font-size:13px; font-family:inherit; }
     .dr-empty { font-size:12px; color:#94a3b8; padding:8px 2px; margin:0; }
+    .dr-key { width:100%; min-width:130px; border:1px solid #e2e8f0; border-radius:9px;
+              padding:7px 9px; font-size:13px; font-weight:700; font-family:inherit; color:#0f172a; }
+    .dr-sel { margin-top:6px; width:100%; border:1px solid #e2e8f0; border-radius:9px;
+              padding:6px 8px; font-size:12px; font-family:inherit; color:#475569; background:#fff; }
+    .dr-num-sm { width:60px; }
+    .dr-del { display:inline-flex; align-items:center; gap:4px; font-size:11px; color:#b91c1c; font-weight:700; cursor:pointer; }
+    .dr-rm { border:0; background:#fee2e2; color:#b91c1c; width:28px; height:28px;
+             border-radius:8px; cursor:pointer; font-size:12px; font-weight:700; }
+    .dr-add { margin-top:4px; width:100%; border:1px dashed #cbd5e1; background:#fafcfe; color:#0071AA;
+              border-radius:11px; padding:9px; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit; }
+    .dr-add:hover { background:#f1f7fc; border-color:#0071AA; }
+    [data-new] { background:#fafcfe; border-style:dashed; }
 
     @media (max-width:640px) {
         .marks th { font-size:11px; padding:10px 4px; }

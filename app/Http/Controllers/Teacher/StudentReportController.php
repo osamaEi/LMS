@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Attendance;
 use App\Models\Enrollment;
 use App\Models\HomeworkSubmission;
+use App\Models\ParticipationMark;
 use App\Models\QuizAttempt;
 use App\Models\Session;
 use App\Models\User;
@@ -63,6 +64,19 @@ class StudentReportController extends Controller
 
             'attendance'             => ['array'],
             'attendance.*.attended'  => ['nullable', 'boolean'],
+
+            // Manual participation items — existing rows, then newly added ones.
+            'participation'                => ['array'],
+            'participation.*.title'        => ['nullable', 'string', 'max:255'],
+            'participation.*.grade'        => ['nullable', 'numeric', 'min:0'],
+            'participation.*.max_grade'    => ['nullable', 'integer', 'min:1', 'max:1000'],
+            'participation.*.delete'       => ['nullable', 'boolean'],
+
+            'new_participation'             => ['array'],
+            'new_participation.*.title'     => ['nullable', 'string', 'max:255'],
+            'new_participation.*.grade'     => ['nullable', 'numeric', 'min:0'],
+            'new_participation.*.max_grade' => ['nullable', 'integer', 'min:1', 'max:1000'],
+            'new_participation.*.subject_id'=> ['nullable', 'integer'],
         ]);
 
         // Allow-lists: owned by the student *and* inside the teacher's scope.
@@ -70,14 +84,30 @@ class StudentReportController extends Controller
         $allowedSubs     = $this->scopedSubmissions($student, $scope)->pluck('id')->flip();
         $allowedEnrolls  = $this->scopedEnrollments($student, $scope)->pluck('id')->flip();
         $allowedAtts     = $this->scopedAttendances($student, $scope)->pluck('id')->flip();
+        $allowedParts    = $this->scopedParticipation($student, $scope)->pluck('id')->flip();
+        $allowedSubjects = $scope['subject_ids']->flip();
+        $teacherId       = $teacher->id;
+        $studentId       = $student->id;
 
-        DB::transaction(function () use ($data, $allowedAttempts, $allowedSubs, $allowedEnrolls, $allowedAtts) {
+        DB::transaction(function () use (
+            $data, $allowedAttempts, $allowedSubs, $allowedEnrolls, $allowedAtts,
+            $allowedParts, $allowedSubjects, $teacherId, $studentId
+        ) {
             foreach ($data['quizzes'] ?? [] as $id => $row) {
                 if (!isset($allowedAttempts[$id])) continue;
                 $attempt = QuizAttempt::find($id);
                 if (!$attempt) continue;
+
                 if (array_key_exists('score', $row) && $row['score'] !== null) {
                     $attempt->score = $row['score'];
+
+                    // The grade is the only field the teacher types, so derive the
+                    // percentage from it against the quiz total.
+                    $total = (float) ($attempt->quiz->total_marks ?? 0);
+                    if ($total > 0) {
+                        $attempt->percentage = round(min(100, $row['score'] / $total * 100), 2);
+                        $attempt->passed     = $attempt->percentage >= 50;
+                    }
                 }
                 if (array_key_exists('percentage', $row) && $row['percentage'] !== null) {
                     $attempt->percentage = $row['percentage'];
@@ -108,6 +138,44 @@ class StudentReportController extends Controller
                 if (!$att) continue;
                 $att->attended = (bool) ($row['attended'] ?? false);
                 $att->save();
+            }
+
+            // Existing manual participation items: update or delete.
+            foreach ($data['participation'] ?? [] as $id => $row) {
+                if (!isset($allowedParts[$id])) continue;
+                $mark = ParticipationMark::find($id);
+                if (!$mark) continue;
+
+                if (!empty($row['delete'])) {
+                    $mark->delete();
+                    continue;
+                }
+                if (array_key_exists('title', $row) && $row['title'] !== null) {
+                    $mark->title = $row['title'];
+                }
+                if (array_key_exists('grade', $row) && $row['grade'] !== null) {
+                    $mark->grade = $row['grade'];
+                }
+                if (!empty($row['max_grade'])) {
+                    $mark->max_grade = $row['max_grade'];
+                }
+                $mark->save();
+            }
+
+            // Newly added items — need a title and a subject inside the teacher's scope.
+            foreach ($data['new_participation'] ?? [] as $row) {
+                $title     = trim((string) ($row['title'] ?? ''));
+                $subjectId = $row['subject_id'] ?? null;
+                if ($title === '' || !$subjectId || !isset($allowedSubjects[$subjectId])) continue;
+
+                ParticipationMark::create([
+                    'student_id' => $studentId,
+                    'subject_id' => $subjectId,
+                    'teacher_id' => $teacherId,
+                    'title'      => $title,
+                    'grade'      => $row['grade'] ?? 0,
+                    'max_grade'  => $row['max_grade'] ?? 10,
+                ]);
             }
         });
 
@@ -214,7 +282,7 @@ class StudentReportController extends Controller
         return QuizAttempt::where('student_id', $student->id)
             ->whereNotNull('submitted_at')
             ->whereHas('quiz', fn($q) => $q->whereIn('subject_id', $scope['subject_ids']))
-            ->with(['quiz:id,title_ar,subject_id,program_id,type'])
+            ->with(['quiz:id,title_ar,subject_id,program_id,type,total_marks'])
             ->latest('submitted_at')
             ->get();
     }
@@ -225,6 +293,14 @@ class StudentReportController extends Controller
             ->whereHas('homework', fn($q) => $q->whereIn('subject_id', $scope['subject_ids']))
             ->with(['homework:id,title_ar,title_en,subject_id,program_id'])
             ->latest('submitted_at')
+            ->get();
+    }
+
+    private function scopedParticipation(User $student, array $scope)
+    {
+        return ParticipationMark::where('student_id', $student->id)
+            ->whereIn('subject_id', $scope['subject_ids'])
+            ->orderBy('id')
             ->get();
     }
 
@@ -255,9 +331,9 @@ class StudentReportController extends Controller
      * Every component is a percentage of what the student earned in that bucket
      * scaled onto its weight; a bucket with nothing recorded scores 0.
      */
-    private function buildMarks($subjects, $quizzes, $homework, $attendances)
+    private function buildMarks($subjects, $quizzes, $homework, $attendances, $participation)
     {
-        $rows = $subjects->map(function ($sub) use ($quizzes, $homework, $attendances) {
+        $rows = $subjects->map(function ($sub) use ($quizzes, $homework, $attendances, $participation) {
             $sid = $sub['subject_id'];
 
             // Attendance: attended / total sessions of this subject.
@@ -284,6 +360,11 @@ class StudentReportController extends Controller
             $hwMax   = $subHw->sum(fn($h) => $h['max_grade'] ?: 0);
             $hwPct   = $hwMax > 0 ? $subHw->sum('grade') / $hwMax : 0;
 
+            // Manual participation items: sum of grades over sum of max grades.
+            $subPart  = $participation->where('subject_id', $sid);
+            $partMax  = $subPart->sum('max_grade');
+            $partPct  = $partMax > 0 ? $subPart->sum('grade') / $partMax : 0;
+
             $marks = [
                 'attendance' => round($attPct    * self::WEIGHTS['attendance'], 1),
                 'quizzes'    => round($quizPct   * self::WEIGHTS['quizzes'], 1),
@@ -292,12 +373,29 @@ class StudentReportController extends Controller
                 'final'      => round($finalPct  * self::WEIGHTS['final'], 1),
             ];
 
+            // المشاركة = quizzes + homework + manual items. The manual items take
+            // a proportional share of the same 30 marks rather than adding a new
+            // weight, so the column can never exceed its cap.
+            $partWeight = self::WEIGHTS['quizzes'] + self::WEIGHTS['homework'];
+            $buckets    = [];
+            if ($quizPct !== 0 || $ofType(['quiz', 'paper'])->isNotEmpty()) $buckets[] = $quizPct;
+            if ($hwMax > 0)   $buckets[] = $hwPct;
+            if ($partMax > 0) $buckets[] = $partPct;
+
+            $participationMark = count($buckets) > 0
+                ? round(array_sum($buckets) / count($buckets) * $partWeight, 1)
+                : 0;
+
+            $totals = $marks;
+            $totals['quizzes']  = $participationMark;   // المشاركة as one figure
+            unset($totals['homework']);
+
             return $marks + [
-                'subject_id'   => $sid,
-                'name'         => $sub['name'],
-                'code'         => $sub['code'],
-                'participation'=> round($marks['quizzes'] + $marks['homework'], 1),
-                'total'        => round(array_sum($marks), 1),
+                'subject_id'    => $sid,
+                'name'          => $sub['name'],
+                'code'          => $sub['code'],
+                'participation' => $participationMark,
+                'total'         => round(array_sum($totals), 1),
             ];
         })->values();
 
@@ -305,7 +403,7 @@ class StudentReportController extends Controller
             'weights' => self::WEIGHTS,
             'rows'    => $rows,
             'total'   => $rows->count() > 0 ? round($rows->avg('total'), 1) : null,
-            'details' => $this->buildDetails($quizzes, $homework, $attendances),
+            'details' => $this->buildDetails($quizzes, $homework, $attendances, $participation),
         ];
     }
 
@@ -313,7 +411,7 @@ class StudentReportController extends Controller
      * The individual records behind each column, for the drill-down modal.
      * Keyed by column so the view can hand one bucket to the modal on click.
      */
-    private function buildDetails($quizzes, $homework, $attendances): array
+    private function buildDetails($quizzes, $homework, $attendances, $participation): array
     {
         $quizRows = fn(array $types) => $quizzes
             ->filter(fn($q) => in_array($q['type'], $types, true))
@@ -323,6 +421,7 @@ class StudentReportController extends Controller
                 'title' => $q['title'],
                 'date'  => $q['submitted_at'],
                 'score' => $q['score'],
+                'total' => $q['total_marks'],
                 'pct'   => $q['percentage'],
             ])->values();
 
@@ -350,6 +449,15 @@ class StudentReportController extends Controller
                 'max_grade' => $h['max_grade'],
                 'feedback'  => $h['feedback'],
             ])->values(),
+
+            'manual' => $participation->map(fn($p) => [
+                'id'         => $p->id,
+                'kind'       => 'manual',
+                'subject_id' => $p->subject_id,
+                'title'      => $p->title,
+                'grade'      => $p->grade,
+                'max_grade'  => $p->max_grade,
+            ])->values(),
         ];
     }
 
@@ -365,6 +473,7 @@ class StudentReportController extends Controller
             'quiz_id'      => $a->quiz_id,
             'subject_id'   => $a->quiz->subject_id ?? null,
             'type'         => $a->quiz->type ?? 'quiz',
+            'total_marks'  => $a->quiz->total_marks ?? null,
             'title'        => $a->quiz->title_ar ?? '—',
             'score'        => $a->score,
             'percentage'   => $a->percentage,
@@ -384,6 +493,7 @@ class StudentReportController extends Controller
             'submitted_at'  => $s->submitted_at?->format('Y/m/d'),
         ])->values();
 
+        $participation    = $this->scopedParticipation($student, $scope);
         $attendances      = $this->scopedAttendances($student, $scope);
         $totalSessions    = $attendances->count();
         $attendedSessions = $attendances->where('attended', true)->count();
@@ -417,7 +527,7 @@ class StudentReportController extends Controller
 
         return [
             'summary'    => $summary,
-            'marks'      => $this->buildMarks($subjects, $quizzes, $homework, $attendances),
+            'marks'      => $this->buildMarks($subjects, $quizzes, $homework, $attendances, $participation),
             'subjects'   => $subjects,
             'quizzes'    => $quizzes,
             'homework'   => $homework,
