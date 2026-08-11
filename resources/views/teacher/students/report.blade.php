@@ -44,6 +44,56 @@
         @endforeach
     </div>
 
+    {{-- Marks distribution --}}
+    @php $m = $report['marks']; $w = $m['weights']; @endphp
+    <x-report-card title="توزيع الدرجات" icon="🧮">
+        @if($m['rows']->isEmpty())
+            <x-report-empty>لا توجد مواد لحساب توزيع الدرجات.</x-report-empty>
+        @else
+            @php
+                $th  = 'border:1px solid #e2e8f0;padding:8px 10px;font-size:12px;font-weight:700;color:#334155;background:#f8fafc;text-align:center;';
+                $td  = 'border:1px solid #e2e8f0;padding:8px 10px;font-size:13px;text-align:center;color:#0f172a;';
+            @endphp
+            <div style="overflow-x:auto;">
+                <table style="width:100%;border-collapse:collapse;min-width:640px;">
+                    <thead>
+                        <tr>
+                            <th rowspan="2" style="{{ $th }}">المادة</th>
+                            <th rowspan="2" style="{{ $th }}">الحضور<br><span style="font-weight:500;color:#64748b;">({{ $w['attendance'] }})</span></th>
+                            <th colspan="2" style="{{ $th }}">المشاركة <span style="font-weight:500;color:#64748b;">({{ $w['quizzes'] + $w['homework'] }})</span></th>
+                            <th rowspan="2" style="{{ $th }}">اختبار نصفي<br><span style="font-weight:500;color:#64748b;">({{ $w['midterm'] }})</span></th>
+                            <th rowspan="2" style="{{ $th }}">اختبار نهائي<br><span style="font-weight:500;color:#64748b;">({{ $w['final'] }})</span></th>
+                            <th rowspan="2" style="{{ $th }}">المجموع<br><span style="font-weight:500;color:#64748b;">(100)</span></th>
+                        </tr>
+                        <tr>
+                            <th style="{{ $th }}">الاختبارات القصيرة <span style="font-weight:500;color:#64748b;">({{ $w['quizzes'] }})</span></th>
+                            <th style="{{ $th }}">الواجبات <span style="font-weight:500;color:#64748b;">({{ $w['homework'] }})</span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($m['rows'] as $row)
+                            <tr>
+                                <td style="{{ $td }}text-align:right;font-weight:600;">{{ $row['name'] }}@if($row['code']) <span style="color:#94a3b8;font-size:11px;">({{ $row['code'] }})</span>@endif</td>
+                                <td style="{{ $td }}">{{ $row['attendance'] }}</td>
+                                <td style="{{ $td }}">{{ $row['quizzes'] }}</td>
+                                <td style="{{ $td }}">{{ $row['homework'] }}</td>
+                                <td style="{{ $td }}">{{ $row['midterm'] }}</td>
+                                <td style="{{ $td }}">{{ $row['final'] }}</td>
+                                <td style="{{ $td }}font-weight:800;color:#0071AA;">{{ $row['total'] }}</td>
+                            </tr>
+                        @endforeach
+                        @if($m['rows']->count() > 1)
+                            <tr>
+                                <td colspan="6" style="{{ $td }}text-align:left;font-weight:700;background:#f8fafc;">المعدل العام</td>
+                                <td style="{{ $td }}font-weight:800;background:#f8fafc;color:#0071AA;">{{ $m['total'] }}</td>
+                            </tr>
+                        @endif
+                    </tbody>
+                </table>
+            </div>
+        @endif
+    </x-report-card>
+
     <form method="POST" action="{{ route('teacher.students.report.update', $student) }}">
         @csrf
         @method('PATCH')

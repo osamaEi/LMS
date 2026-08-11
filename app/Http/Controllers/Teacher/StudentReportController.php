@@ -164,7 +164,7 @@ class StudentReportController extends Controller
         return QuizAttempt::where('student_id', $student->id)
             ->whereNotNull('submitted_at')
             ->whereHas('quiz', fn($q) => $q->whereIn('subject_id', $scope['subject_ids']))
-            ->with(['quiz:id,title_ar,subject_id,program_id'])
+            ->with(['quiz:id,title_ar,subject_id,program_id,type'])
             ->latest('submitted_at')
             ->get();
     }
@@ -182,8 +182,80 @@ class StudentReportController extends Controller
     {
         return Attendance::where('student_id', $student->id)
             ->whereIn('session_id', $scope['session_ids'])
-            ->with(['session:id,title_ar,title_en,scheduled_at'])
+            ->with(['session:id,title_ar,title_en,scheduled_at,subject_id'])
             ->get();
+    }
+
+    /**
+     * Weight of each component of the 100-mark distribution.
+     * الحضور 10 — المشاركة 30 (قصيرة 15 + واجبات 15) — نصفي 20 — نهائي 40
+     */
+    private const WEIGHTS = [
+        'attendance' => 10,
+        'quizzes'    => 15,
+        'homework'   => 15,
+        'midterm'    => 20,
+        'final'      => 40,
+    ];
+
+    /**
+     * Mark distribution per subject: attendance, participation (short quizzes +
+     * homework), midterm, final, and the resulting total out of 100.
+     *
+     * Every component is a percentage of what the student earned in that bucket
+     * scaled onto its weight; a bucket with nothing recorded scores 0.
+     */
+    private function buildMarks($subjects, $quizzes, $homework, $attendances)
+    {
+        $rows = $subjects->map(function ($sub) use ($quizzes, $homework, $attendances) {
+            $sid = $sub['subject_id'];
+
+            // Attendance: attended / total sessions of this subject.
+            $subAtt   = $attendances->filter(fn($a) => ($a->session->subject_id ?? null) === $sid);
+            $attTotal = $subAtt->count();
+            $attPct   = $attTotal > 0 ? $subAtt->where('attended', true)->count() / $attTotal : 0;
+
+            // Short quizzes / midterm / final: average percentage per type.
+            $ofType = fn(array $types) => $quizzes
+                ->filter(fn($q) => $q['subject_id'] === $sid
+                    && in_array($q['type'], $types, true)
+                    && $q['percentage'] !== null);
+
+            $avg = function ($set) {
+                return $set->count() > 0 ? $set->avg('percentage') / 100 : 0;
+            };
+
+            $quizPct    = $avg($ofType(['quiz', 'paper']));
+            $midtermPct = $avg($ofType(['midterm']));
+            $finalPct   = $avg($ofType(['exam']));
+
+            // Homework: sum of grades over sum of max grades.
+            $subHw   = $homework->filter(fn($h) => $h['subject_id'] === $sid && $h['grade'] !== null);
+            $hwMax   = $subHw->sum(fn($h) => $h['max_grade'] ?: 0);
+            $hwPct   = $hwMax > 0 ? $subHw->sum('grade') / $hwMax : 0;
+
+            $marks = [
+                'attendance' => round($attPct    * self::WEIGHTS['attendance'], 1),
+                'quizzes'    => round($quizPct   * self::WEIGHTS['quizzes'], 1),
+                'homework'   => round($hwPct     * self::WEIGHTS['homework'], 1),
+                'midterm'    => round($midtermPct * self::WEIGHTS['midterm'], 1),
+                'final'      => round($finalPct  * self::WEIGHTS['final'], 1),
+            ];
+
+            return $marks + [
+                'subject_id'   => $sid,
+                'name'         => $sub['name'],
+                'code'         => $sub['code'],
+                'participation'=> round($marks['quizzes'] + $marks['homework'], 1),
+                'total'        => round(array_sum($marks), 1),
+            ];
+        })->values();
+
+        return [
+            'weights' => self::WEIGHTS,
+            'rows'    => $rows,
+            'total'   => $rows->count() > 0 ? round($rows->avg('total'), 1) : null,
+        ];
     }
 
     /**
@@ -204,6 +276,8 @@ class StudentReportController extends Controller
         $quizzes = $this->scopedAttempts($student, $scope)->map(fn($a) => [
             'attempt_id'   => $a->id,
             'quiz_id'      => $a->quiz_id,
+            'subject_id'   => $a->quiz->subject_id ?? null,
+            'type'         => $a->quiz->type ?? 'quiz',
             'title'        => $a->quiz->title_ar ?? '—',
             'score'        => $a->score,
             'percentage'   => $a->percentage,
@@ -215,6 +289,7 @@ class StudentReportController extends Controller
         $homework = $this->scopedSubmissions($student, $scope)->map(fn($s) => [
             'submission_id' => $s->id,
             'homework_id'   => $s->homework_id,
+            'subject_id'    => $s->homework->subject_id ?? null,
             'title'         => $s->homework->title_ar ?? $s->homework->title_en ?? '—',
             'grade'         => $s->grade,
             'max_grade'     => $s->max_grade,
@@ -255,6 +330,7 @@ class StudentReportController extends Controller
 
         return [
             'summary'    => $summary,
+            'marks'      => $this->buildMarks($subjects, $quizzes, $homework, $attendances),
             'subjects'   => $subjects,
             'quizzes'    => $quizzes,
             'homework'   => $homework,
