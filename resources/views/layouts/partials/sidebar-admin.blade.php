@@ -181,7 +181,6 @@
 @endcan
 
 {{-- حد الغياب المسموح --}}
-@can('edit-settings')
 <li>
     <a href="{{ route('admin.attendance-limit.index') }}"
        class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('admin.attendance-limit.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
@@ -189,7 +188,6 @@
         <span>حد الغياب المسموح</span>
     </a>
 </li>
-@endcan
 
 {{-- إدارة الدفعات --}}
 @can('view-payments')
