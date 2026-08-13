@@ -562,6 +562,12 @@ class DashboardController extends Controller
 
       
 
+        // Barred from this subject for exceeding the allowed absence percentage.
+        $blocked = \App\Services\AttendanceLimitService::blockReason($student->id, $session->subject_id);
+        if ($blocked) {
+            return response()->json(['success' => false, 'message' => $blocked], 403);
+        }
+
         if (empty($session->zoom_meeting_id)) {
             return response()->json([
                 'success' => false,

@@ -89,6 +89,11 @@ class StudentReportController extends Controller
             'final_score.*.grade'        => ['nullable', 'numeric', 'min:0'],
             'final_score.*.max_grade'    => ['nullable', 'integer', 'min:1', 'max:1000'],
 
+            // The built-in اختبار نصفي mark, keyed by subject id.
+            'midterm_score'              => ['array'],
+            'midterm_score.*.grade'      => ['nullable', 'numeric', 'min:0'],
+            'midterm_score.*.max_grade'  => ['nullable', 'integer', 'min:1', 'max:1000'],
+
             // Manual override of the computed total, per subject.
             'totals'                  => ['array'],
             'totals.*.final_grade'    => ['nullable', 'numeric', 'min:0', 'max:100'],
@@ -196,6 +201,7 @@ class StudentReportController extends Controller
             $pinned = [
                 ['participation_score', 'participation', self::PARTICIPATION_TITLE, 10],
                 ['final_score',         'final',         self::FINAL_TITLE,         40],
+                ['midterm_score',       'midterm',       self::MIDTERM_TITLE,       20],
             ];
 
             foreach ($pinned as [$field, $kind, $title, $defaultMax]) {
@@ -395,8 +401,9 @@ class StudentReportController extends Controller
      */
     public const PARTICIPATION_TITLE = 'مشاركة';
 
-    /** Same idea for the final exam: a single pinned manual grade per subject. */
-    public const FINAL_TITLE = 'اختبار نهائي';
+    /** Same idea for the exams: a single pinned manual grade per subject. */
+    public const FINAL_TITLE   = 'اختبار نهائي';
+    public const MIDTERM_TITLE = 'اختبار نصفي';
 
     private const WEIGHTS = [
         'attendance' => 10,
@@ -448,16 +455,20 @@ class StudentReportController extends Controller
             $partMax  = $subPart->sum('max_grade');
             $partPct  = $partMax > 0 ? $subPart->sum('grade') / $partMax : 0;
 
-            // Manual final-exam marks, for when the final was graded on paper and
-            // there is no attempt in the system. Averaged with any real attempts.
-            $subFinal = $participation->where('subject_id', $sid)->where('kind', 'final');
-            $finalMax = $subFinal->sum('max_grade');
-            if ($finalMax > 0) {
-                $manualFinalPct = $subFinal->sum('grade') / $finalMax;
-                $finalPct = $ofType(['exam'])->isNotEmpty()
-                    ? ($finalPct + $manualFinalPct) / 2
-                    : $manualFinalPct;
-            }
+            // Manual exam marks, for when the exam was graded on paper and there
+            // is no attempt in the system. Averaged with any real attempts.
+            $blendManual = function (string $kind, array $types, float $pct) use ($participation, $sid, $ofType) {
+                $manual = $participation->where('subject_id', $sid)->where('kind', $kind);
+                $max    = $manual->sum('max_grade');
+                if ($max <= 0) return $pct;
+
+                $manualPct = $manual->sum('grade') / $max;
+
+                return $ofType($types)->isNotEmpty() ? ($pct + $manualPct) / 2 : $manualPct;
+            };
+
+            $finalPct   = $blendManual('final',   ['exam'],    $finalPct);
+            $midtermPct = $blendManual('midterm', ['midterm'], $midtermPct);
 
             $marks = [
                 'attendance' => round($attPct    * self::WEIGHTS['attendance'], 1),
@@ -578,10 +589,20 @@ class StudentReportController extends Controller
                 'max_grade'  => $p->max_grade,
             ])->values(),
 
-            // The reserved "اختبار نهائي" row — pinned at the top of the نهائي modal.
+            // The reserved exam rows — pinned at the top of their modals.
             'final_score' => $participation
                 ->where('kind', 'final')
                 ->where('title', self::FINAL_TITLE)
+                ->map(fn($p) => [
+                    'id'         => $p->id,
+                    'subject_id' => $p->subject_id,
+                    'grade'      => $p->grade,
+                    'max_grade'  => $p->max_grade,
+                ])->values(),
+
+            'midterm_score' => $participation
+                ->where('kind', 'midterm')
+                ->where('title', self::MIDTERM_TITLE)
                 ->map(fn($p) => [
                     'id'         => $p->id,
                     'subject_id' => $p->subject_id,

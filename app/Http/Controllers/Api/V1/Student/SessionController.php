@@ -90,6 +90,12 @@ class SessionController extends Controller
             ], 403);
         }
 
+        // Barred from this subject for exceeding the allowed absence percentage.
+        $blocked = \App\Services\AttendanceLimitService::blockReason($student->id, $session->subject_id);
+        if ($blocked) {
+            return response()->json(['success' => false, 'message' => $blocked], 403);
+        }
+
         // Record attendance
         $attendance = Attendance::firstOrCreate(
             ['student_id' => $student->id, 'session_id' => $session->id],

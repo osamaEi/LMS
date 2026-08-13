@@ -162,7 +162,15 @@
             ],
             'subjects' => $rows->map(fn($r) => ['id' => $r['subject_id'], 'name' => $r['name']])->values(),
         ],
-        'midterm'    => ['sections' => [['title' => 'الاختبار النصفي', 'rows' => $d['midterm']]]],
+        'midterm'    => [
+            'pinned' => [
+                'title' => 'اختبار نصفي',
+                'field' => 'midterm_score',
+                'note'  => 'الدرجة المرصودة يدويًا',
+                'rows'  => $pinnedRows($d['midterm_score'], 20),
+            ],
+            'sections' => [['title' => 'محاولات الاختبار', 'rows' => $d['midterm']]],
+        ],
         'final'      => [
             'pinned' => [
                 'title' => 'اختبار نهائي',

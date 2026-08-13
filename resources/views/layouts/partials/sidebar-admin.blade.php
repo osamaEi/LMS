@@ -180,6 +180,17 @@
 </li>
 @endcan
 
+{{-- حد الغياب المسموح --}}
+@can('edit-settings')
+<li>
+    <a href="{{ route('admin.attendance-limit.index') }}"
+       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('admin.attendance-limit.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
+        <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20"><path d="M10 1.667A8.333 8.333 0 1 0 10 18.333 8.333 8.333 0 0 0 10 1.667Zm0 15A6.667 6.667 0 1 1 10 3.333a6.667 6.667 0 0 1 0 13.334Zm.417-10.834H9.167v5l4.375 2.625.625-1.025-3.75-2.225V5.833Z" fill=""/></svg>
+        <span>حد الغياب المسموح</span>
+    </a>
+</li>
+@endcan
+
 {{-- إدارة الدفعات --}}
 @can('view-payments')
 <li>

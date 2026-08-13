@@ -608,10 +608,8 @@ class DashboardController extends Controller
 
         $session = Session::with('subject.term')->findOrFail($sessionId);
 
-        // Students can't join until the teacher has started the session.
-        if (!$session->started_at) {
-            return back()->with('error', 'لم يبدأ المعلّم المحاضرة بعد. يرجى الانتظار حتى يبدأ المعلّم.');
-        }
+
+        
 
         // Record attendance immediately
         $attendance = Attendance::firstOrCreate(

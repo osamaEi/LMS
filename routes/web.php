@@ -402,6 +402,12 @@ Route::middleware(['auth', 'role:admin,super_admin'])->prefix('admin')->name('ad
         Route::get('/export', [\App\Http\Controllers\Admin\ReportController::class, 'export'])->name('export');
     });
 
+    // Absence limit: allowed percentage + who exceeded it + exemptions
+    Route::get('/attendance-limit', [\App\Http\Controllers\Admin\AttendanceLimitController::class, 'index'])->name('attendance-limit.index');
+    Route::put('/attendance-limit', [\App\Http\Controllers\Admin\AttendanceLimitController::class, 'update'])->name('attendance-limit.update');
+    Route::post('/attendance-limit/exempt', [\App\Http\Controllers\Admin\AttendanceLimitController::class, 'exempt'])->name('attendance-limit.exempt');
+    Route::post('/attendance-limit/revoke', [\App\Http\Controllers\Admin\AttendanceLimitController::class, 'revoke'])->name('attendance-limit.revoke');
+
     // Settings
     Route::get('/settings', [\App\Http\Controllers\Admin\SettingController::class, 'index'])->name('settings');
     Route::put('/settings', [\App\Http\Controllers\Admin\SettingController::class, 'update'])->name('settings.update');
