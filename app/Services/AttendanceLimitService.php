@@ -28,12 +28,25 @@ class AttendanceLimitService
         return (bool) Setting::get(self::SETTING_ENABLED, false);
     }
 
-    /** The allowed unexcused-absence percentage, out of a subject's sessions. */
+    /** The global allowed unexcused-absence percentage. */
     public static function allowedPercent(): float
     {
         $value = Setting::get(self::SETTING_PERCENT, self::DEFAULT_PERCENT);
 
         return max(0, min(100, (float) $value));
+    }
+
+    /**
+     * The limit that actually applies to one subject: its own override when set,
+     * otherwise the global limit.
+     */
+    public static function limitForSubject(int $subjectId): float
+    {
+        $own = DB::table('subjects')->where('id', $subjectId)->value('absence_limit_percent');
+
+        return $own !== null
+            ? max(0, min(100, (float) $own))
+            : self::allowedPercent();
     }
 
     /**
@@ -62,7 +75,7 @@ class AttendanceLimitService
         $excused    = $absentRows->whereIn('session_id', $excusedIds)->count();
         $absent     = $absentRows->count() - $excused;
 
-        $limit    = self::allowedPercent();
+        $limit    = self::limitForSubject($subjectId);
         $percent  = $total > 0 ? round($absent / $total * 100, 1) : 0.0;
         $exceeded = self::isEnabled() && $total > 0 && $percent > $limit;
         $exempt   = self::isExempt($studentId, $subjectId);

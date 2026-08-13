@@ -26,6 +26,8 @@ class Subject extends Model
         'credits',
         'status',
         'color',
+        // NULL = follow the global absence limit.
+        'absence_limit_percent',
     ];
 
     /**

@@ -23,7 +23,9 @@ class AttendanceLimitController extends Controller
 
         $subjectId = $request->integer('subject_id') ?: null;
 
-        $subjects = Subject::orderBy('name_ar')->get(['id', 'name_ar', 'name_en']);
+        $subjects = Subject::orderBy('name_ar')
+            ->get(['id', 'name_ar', 'name_en', 'code', 'absence_limit_percent']);
+
         $offenders = $this->offenders($percent, $subjectId);
 
         return view('admin.attendance-limit.index', compact(
@@ -52,6 +54,26 @@ class AttendanceLimitController extends Controller
         Setting::clearCache();
 
         return back()->with('success', 'تم حفظ إعدادات حد الغياب.');
+    }
+
+    /**
+     * Per-subject overrides. A blank field clears the override so the subject
+     * falls back to the global limit.
+     */
+    public function updateSubjects(Request $request)
+    {
+        $data = $request->validate([
+            'limits'   => ['array'],
+            'limits.*' => ['nullable', 'numeric', 'min:0', 'max:100'],
+        ]);
+
+        foreach ($data['limits'] ?? [] as $subjectId => $value) {
+            $percent = ($value === null || $value === '') ? null : (float) $value;
+
+            Subject::where('id', $subjectId)->update(['absence_limit_percent' => $percent]);
+        }
+
+        return back()->with('success', 'تم حفظ حدود الغياب لكل مادة.');
     }
 
     /** Let one student back into one subject's sessions. */
@@ -93,12 +115,13 @@ class AttendanceLimitController extends Controller
     }
 
     /**
-     * Every student/subject pair whose unexcused absence rate is over the limit.
+     * Every student/subject pair whose unexcused absence rate is over the limit
+     * that applies to *that* subject — its own override, or the global default.
      *
      * Counting is done in SQL so this stays cheap: one row per student+subject
      * with totals, minus the sessions covered by an approved apology.
      */
-    private function offenders(float $percent, ?int $subjectId)
+    private function offenders(float $globalPercent, ?int $subjectId)
     {
         $excused = DB::table('attendance_apologies')
             ->select('student_id', 'session_id')
@@ -114,7 +137,8 @@ class AttendanceLimitController extends Controller
             })
             ->when($subjectId, fn($q) => $q->where('s.subject_id', $subjectId))
             ->whereNotNull('s.subject_id')
-            ->groupBy('a.student_id', 's.subject_id', 'u.name', 'u.email', 'sub.name_ar', 'sub.name_en')
+            ->groupBy('a.student_id', 's.subject_id', 'u.name', 'u.email',
+                      'sub.name_ar', 'sub.name_en', 'sub.absence_limit_percent')
             ->select([
                 'a.student_id',
                 's.subject_id',
@@ -122,6 +146,7 @@ class AttendanceLimitController extends Controller
                 'u.email as student_email',
                 'sub.name_ar as subject_ar',
                 'sub.name_en as subject_en',
+                'sub.absence_limit_percent as subject_limit',
                 DB::raw('COUNT(*) as total'),
                 // Absent, excluding sessions with an approved apology.
                 DB::raw('SUM(CASE WHEN a.attended = 0 AND ex.session_id IS NULL THEN 1 ELSE 0 END) as absent'),
@@ -134,16 +159,20 @@ class AttendanceLimitController extends Controller
             ->keyBy(fn($e) => $e->student_id . '-' . $e->subject_id);
 
         return $rows
-            ->map(function ($r) use ($exempt) {
+            ->map(function ($r) use ($exempt, $globalPercent) {
                 $r->percent = $r->total > 0 ? round($r->absent / $r->total * 100, 1) : 0;
                 $key        = $r->student_id . '-' . $r->subject_id;
                 $r->exempt  = $exempt->has($key);
                 $r->reason  = $exempt->get($key)->reason ?? null;
                 $r->subject = $r->subject_ar ?: $r->subject_en;
 
+                // The subject's own limit wins; NULL falls back to the global one.
+                $r->limit    = $r->subject_limit !== null ? (float) $r->subject_limit : $globalPercent;
+                $r->custom   = $r->subject_limit !== null;
+
                 return $r;
             })
-            ->filter(fn($r) => $r->percent > $percent)
+            ->filter(fn($r) => $r->percent > $r->limit)
             ->sortByDesc('percent')
             ->values();
     }

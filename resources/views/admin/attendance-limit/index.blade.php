@@ -49,6 +49,60 @@
         <button type="submit" class="al-btn">💾 حفظ الإعدادات</button>
     </form>
 
+    {{-- حد لكل مادة --}}
+    <form method="POST" action="{{ route('admin.attendance-limit.update-subjects') }}" class="al-card">
+        @csrf
+        @method('PUT')
+
+        <h2 class="al-h2">حد الغياب لكل مادة</h2>
+        <p class="al-note al-note-top">
+            اترك الخانة فارغة لتتبع المادة الحد العام ({{ $percent }}%).
+            القيمة هنا تتجاوز الحد العام لهذه المادة فقط.
+        </p>
+
+        @if($subjects->isEmpty())
+            <p class="al-empty">لا توجد مواد.</p>
+        @else
+            <div class="al-scroll">
+            <table class="al-table">
+                <thead>
+                    <tr>
+                        <th>المادة</th>
+                        <th>الرمز</th>
+                        <th>الحد المخصص</th>
+                        <th>المطبَّق فعليًا</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($subjects as $s)
+                        <tr>
+                            <td class="al-subj">{{ $s->name_ar ?: $s->name_en }}</td>
+                            <td class="al-code">{{ $s->code ?: '—' }}</td>
+                            <td>
+                                <div class="al-inline">
+                                    <input type="number" name="limits[{{ $s->id }}]" min="0" max="100" step="0.5"
+                                           value="{{ $s->absence_limit_percent !== null ? (float) $s->absence_limit_percent : '' }}"
+                                           placeholder="عام" class="al-mini-input">
+                                    <span class="al-suffix">%</span>
+                                </div>
+                            </td>
+                            <td>
+                                @if($s->absence_limit_percent !== null)
+                                    <span class="al-badge al-badge-custom">{{ (float) $s->absence_limit_percent }}% مخصص</span>
+                                @else
+                                    <span class="al-badge al-badge-idle">{{ $percent }}% عام</span>
+                                @endif
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+            </div>
+
+            <button type="submit" class="al-btn">💾 حفظ حدود المواد</button>
+        @endif
+    </form>
+
     {{-- المتجاوزون --}}
     <div class="al-card">
         <div class="al-card-head">
@@ -82,6 +136,7 @@
                         <th>الغياب</th>
                         <th>بعذر</th>
                         <th>النسبة</th>
+                        <th>الحد</th>
                         <th>الحالة</th>
                         <th>إجراء</th>
                     </tr>
@@ -97,6 +152,11 @@
                             <td class="al-num">{{ $o->absent }} / {{ $o->total }}</td>
                             <td class="al-num al-excused">{{ $o->excused }}</td>
                             <td><span class="al-pct">{{ $o->percent }}%</span></td>
+                            <td>
+                                <span class="al-badge {{ $o->custom ? 'al-badge-custom' : 'al-badge-idle' }}">
+                                    {{ $o->limit }}%{{ $o->custom ? ' مخصص' : '' }}
+                                </span>
+                            </td>
                             <td>
                                 @if($o->exempt)
                                     <span class="al-badge al-badge-ok" @if($o->reason) title="{{ $o->reason }}" @endif>مستثنى</span>
@@ -236,7 +296,12 @@
               font-weight:800; border-radius:8px; padding:4px 10px; }
 
     .al-badge { display:inline-block; font-size:11px; font-weight:800; border-radius:99px; padding:4px 10px; white-space:nowrap; }
-    .al-badge-ok   { background:#dcfce7; color:#15803d; }
+    .al-badge-ok     { background:#dcfce7; color:#15803d; }
+    .al-badge-custom { background:#eef4fa; color:#0071AA; }
+    .al-code { font-size:12px; color:#94a3b8; font-family:monospace; }
+    .al-mini-input { width:82px; border:1px solid #e2e8f0; border-radius:9px;
+                     padding:7px 9px; font-size:13px; font-weight:700; font-family:inherit; }
+    .al-note-top { margin:0 0 14px; }
     .al-badge-no   { background:#fee2e2; color:#b91c1c; }
     .al-badge-idle { background:#f1f5f9; color:#64748b; }
 
