@@ -78,6 +78,30 @@
                 </tbody>
             </table>
         </div>
+
+        {{-- التقدير لكل مادة، محسوب من مجموع المادة نفسها. --}}
+        <div class="rep-card grades-card">
+            <h2 class="grades-h">التقدير حسب المادة</h2>
+            <table class="grades">
+                <thead>
+                    <tr><th>المادة</th><th>الدرجة</th><th>الرمز</th><th>التقدير</th></tr>
+                </thead>
+                <tbody>
+                    @foreach($rows as $r)
+                        @php
+                            [$letter, $label] = \App\Models\Enrollment::gradeBand((float) $r['total']);
+                            $col = $r['total'] >= 85 ? '#15803d' : ($r['total'] >= 60 ? '#0071AA' : '#b91c1c');
+                        @endphp
+                        <tr>
+                            <td class="g-name">{{ $r['name'] }}</td>
+                            <td class="g-num" style="color:{{ $col }};">{{ $r['total'] }}</td>
+                            <td><span class="g-letter" style="background:{{ $col }};">{{ $letter }}</span></td>
+                            <td class="g-label">{{ $label }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
     @endif
 </div>
 
@@ -102,10 +126,35 @@
 </div>
 
 @php
+    // One pinned input per subject, seeded with the saved mark if there is one.
+    $pinnedRows = fn($saved, $defaultMax) => $rows->map(function ($r) use ($saved, $defaultMax) {
+        $existing = collect($saved)->firstWhere('subject_id', $r['subject_id']);
+        return [
+            'subject_id' => $r['subject_id'],
+            'name'       => $r['name'],
+            'grade'      => $existing['grade'] ?? null,
+            'max_grade'  => $existing['max_grade'] ?? $defaultMax,
+        ];
+    })->values();
+
     // المشاركة merges two buckets; everything else maps 1:1.
     $modalData = [
-        'attendance' => ['sections' => [['title' => 'الحضور', 'rows' => $d['attendance']]]],
+        'attendance' => [
+            'stats' => [
+                ['label' => 'حضور',      'val' => $report['attendance']['attended'], 'color' => '#15803d'],
+                ['label' => 'غياب',      'val' => $report['attendance']['absent'],   'color' => '#b91c1c'],
+                ['label' => 'غياب بعذر', 'val' => $report['attendance']['excused'],  'color' => '#b45309'],
+            ],
+            'sections' => [['title' => 'الحضور', 'rows' => $d['attendance']]],
+        ],
         'quizzes'    => [
+            // The built-in مشاركة grade, one row per subject, pinned first.
+            'pinned' => [
+                'title'  => 'مشاركة',
+                'field'  => 'participation_score',
+                'note'   => 'درجة المشاركة داخل المحاضرات',
+                'rows'   => $pinnedRows($d['participation_score'], 10),
+            ],
             'sections' => [
                 ['title' => 'الاختبارات القصيرة', 'rows' => $d['quizzes']],
                 ['title' => 'الواجبات',           'rows' => $d['homework']],
@@ -115,20 +164,34 @@
         ],
         'midterm'    => ['sections' => [['title' => 'الاختبار النصفي', 'rows' => $d['midterm']]]],
         'final'      => [
+            'pinned' => [
+                'title' => 'اختبار نهائي',
+                'field' => 'final_score',
+                'note'  => 'الدرجة المرصودة يدويًا',
+                'rows'  => $pinnedRows($d['final_score'], 40),
+            ],
             'sections' => [
                 ['title' => 'محاولات الاختبار', 'rows' => $d['final']],
-                ['title' => 'درجة يدوية',       'rows' => $d['manual_final'], 'addable' => true, 'kind' => 'final'],
+                // Older free-form manual rows stay editable, but no new ones are added.
+                ['title' => 'درجات يدوية سابقة', 'rows' => $d['manual_final'], 'legacy' => true],
             ],
             'subjects' => $rows->map(fn($r) => ['id' => $r['subject_id'], 'name' => $r['name']])->values(),
         ],
         'total'      => [
-            'totals' => $rows->map(fn($r) => [
-                'subject_id'   => $r['subject_id'],
-                'name'         => $r['name'],
-                'computed'     => $r['computed'],
-                'override'     => $r['override'],
-                'grade_letter' => $r['grade_letter'],
-            ])->values(),
+            'totals' => $rows->map(function ($r) {
+                // التقدير محسوب من مجموع المادة نفسها، لا من المعدل العام.
+                [$letter, $label] = \App\Models\Enrollment::gradeBand((float) $r['total']);
+
+                return [
+                    'subject_id'   => $r['subject_id'],
+                    'name'         => $r['name'],
+                    'computed'     => $r['computed'],
+                    'override'     => $r['override'],
+                    'total'        => $r['total'],
+                    'letter'       => $letter,
+                    'label'        => $label,
+                ];
+            })->values(),
         ],
     ];
 @endphp
@@ -147,7 +210,10 @@
     function rowHtml(r) {
         if (r.kind === 'attendance') {
             return `<label class="dr">
-                <span class="dr-main"><b>${esc(r.title)}</b><i>${esc(r.date || '—')}</i></span>
+                <span class="dr-main">
+                    <b>${esc(r.title)}${r.excused ? ' <em class="dr-badge">بعذر</em>' : ''}</b>
+                    <i>${esc(r.date || '—')}</i>
+                </span>
                 <span class="dr-edit">
                     <input type="hidden" name="attendance[${r.id}][attended]" value="0">
                     <input type="checkbox" name="attendance[${r.id}][attended]" value="1" ${r.attended ? 'checked' : ''}>
@@ -236,8 +302,10 @@
                 <p class="dr-note">اترك الخانة فارغة ليُحتسب المجموع تلقائيًا من توزيع الدرجات.</p>
                 ${conf.totals.map(t => `<div class="dr">
                     <span class="dr-main">
-                        <b>${esc(t.name)}</b>
-                        <i>المحسوب تلقائيًا: ${t.computed}${t.grade_letter ? ' — التقدير ' + esc(t.grade_letter) : ''}</i>
+                        <b>${esc(t.name)}
+                            <em class="dr-grade">${esc(t.letter)} — ${esc(t.label)}</em>
+                        </b>
+                        <i>الدرجة: ${t.total} من 100 · المحسوب تلقائيًا: ${t.computed}</i>
                     </span>
                     <span class="dr-edit">
                         <input type="number" min="0" max="100" step="0.01"
@@ -256,8 +324,37 @@
             return;
         }
 
-        body.innerHTML = conf.sections.map((sec, i) => {
+        const stats = (conf.stats || []).length
+            ? `<div class="dstats">${conf.stats.map(s => `<div class="dstat">
+                    <b style="color:${s.color};">${s.val}</b><span>${esc(s.label)}</span>
+                </div>`).join('')}</div>`
+            : '';
+
+        // Pinned grade box — always first, one input per subject.
+        const pin = conf.pinned;
+        const pinned = (pin && pin.rows.length)
+            ? `<section class="dsec dsec-pin">
+                <h3>${esc(pin.title)}</h3>
+                ${pin.rows.map(p => `<div class="dr">
+                    <span class="dr-main"><b>${esc(p.name)}</b><i>${esc(pin.note)}</i></span>
+                    <span class="dr-edit">
+                        <input type="number" min="0" step="0.01"
+                               name="${pin.field}[${p.subject_id}][grade]"
+                               value="${p.grade ?? ''}" placeholder="الدرجة" class="dr-num">
+                        <span class="dr-lbl">من</span>
+                        <input type="number" min="1" step="1"
+                               name="${pin.field}[${p.subject_id}][max_grade]"
+                               value="${p.max_grade}" class="dr-num dr-num-sm">
+                    </span>
+                </div>`).join('')}
+            </section>`
+            : '';
+
+        body.innerHTML = stats + pinned + conf.sections.map((sec, i) => {
             const rows = (sec.rows || []);
+            // Legacy sections only exist to keep old records editable — drop them
+            // entirely once there is nothing left in them.
+            if (sec.legacy && !rows.length) return '';
             const inner = rows.length
                 ? rows.map(rowHtml).join('')
                 : `<p class="dr-empty">لا توجد سجلات.</p>`;
@@ -332,6 +429,21 @@
     .mk-hint { display:block; margin-top:8px; font-size:10px; font-weight:700; color:#b6c2d1; }
     .mk-cell:hover .mk-hint { color:#0071AA; }
 
+    .grades-card { margin-top:18px; padding:16px 18px 6px; }
+    .grades-h { font-size:15px; font-weight:800; color:#0f172a; margin:0 0 12px; }
+    .grades { width:100%; border-collapse:collapse; }
+    .grades th { text-align:right; font-size:12px; font-weight:700; color:#64748b;
+                 padding:0 8px 10px; border-bottom:1px solid #eef2f7; }
+    .grades td { padding:12px 8px; border-bottom:1px solid #f4f7fa; text-align:right; }
+    .grades tr:last-child td { border-bottom:0; }
+    .g-name { font-size:13px; font-weight:700; color:#0f172a; }
+    .g-num { font-size:17px; font-weight:800; width:80px; }
+    .g-letter { display:inline-block; min-width:34px; text-align:center; color:#fff;
+                font-size:12px; font-weight:800; border-radius:8px; padding:4px 8px; }
+    .g-label { font-size:12px; font-weight:600; color:#475569; }
+    .dr-grade { font-style:normal; font-size:11px; font-weight:700; color:#0071AA;
+                background:#eef4fa; border-radius:99px; padding:2px 8px; margin-right:6px; }
+
     .rep-modal[hidden] { display:none; }
     .rep-modal { position:fixed; inset:0; z-index:9999; display:flex; align-items:center; justify-content:center; padding:18px; }
     .rep-modal-backdrop { position:absolute; inset:0; background:rgba(15,23,42,.55); }
@@ -349,7 +461,17 @@
     .rep-btn { background:#0071AA; color:#fff; border:0; border-radius:11px; padding:10px 20px; font-size:14px; font-weight:700; cursor:pointer; }
     .rep-btn-ghost { background:#f1f5f9; color:#475569; border:0; border-radius:11px; padding:10px 18px; font-size:14px; font-weight:700; cursor:pointer; }
 
+    .dstats { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:16px; }
+    .dstat { border:1px solid #eef2f7; border-radius:12px; padding:12px 8px; text-align:center; background:#fafcfe; }
+    .dstat b { display:block; font-size:24px; font-weight:800; line-height:1.1; }
+    .dstat span { display:block; margin-top:4px; font-size:11px; font-weight:700; color:#64748b; }
+    .dr-badge { font-style:normal; font-size:10px; font-weight:700; color:#b45309;
+                background:#fef3c7; border-radius:99px; padding:2px 7px; margin-right:6px; }
+
     .dsec { margin-top:16px; }
+    .dsec-pin { background:#f6faff; border:1px solid #dbeafe; border-radius:14px; padding:12px 12px 4px; }
+    .dsec-pin h3 { color:#0071AA; }
+    .dsec-pin .dr { background:#fff; }
     .dsec h3 { font-size:13px; font-weight:800; color:#334155; margin:0 0 8px; }
     .dsec h3 em { font-style:normal; color:#94a3b8; font-weight:600; }
     .dr { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;

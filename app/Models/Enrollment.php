@@ -68,24 +68,57 @@ class Enrollment extends Model
         return $this->isCompleted() && $this->final_grade >= 60;
     }
 
+    /**
+     * The official grading scale, shared by every program. Keyed by the minimum
+     * score out of 100 that earns the band, highest first.
+     */
+    public const GRADE_SCALE = [
+        95 => ['A+', 'ممتاز مرتفع'],
+        90 => ['A',  'ممتاز'],
+        85 => ['B+', 'جيد جدًا مرتفع'],
+        80 => ['B',  'جيد جدًا'],
+        75 => ['C+', 'جيد مرتفع'],
+        70 => ['C',  'جيد'],
+        65 => ['D+', 'مقبول مرتفع'],
+        60 => ['D',  'مقبول'],
+    ];
+
+    /**
+     * Letter symbol and Arabic تقدير for any score out of 100 — usable for a
+     * computed total, not only a saved enrollment.
+     *
+     * @return array{0: string, 1: string}
+     */
+    public static function gradeBand(?float $grade): array
+    {
+        if ($grade === null) {
+            return ['—', '—'];
+        }
+
+        foreach (self::GRADE_SCALE as $min => $band) {
+            if ($grade >= $min) return $band;
+        }
+
+        return ['F', 'راسب'];
+    }
+
+    public static function letterFor(?float $grade): string
+    {
+        return self::gradeBand($grade)[0];
+    }
+
+    public static function labelFor(?float $grade): string
+    {
+        return self::gradeBand($grade)[1];
+    }
+
     public function calculateGradeLetter(): string
     {
         if (!$this->final_grade) {
             return 'N/A';
         }
 
-        $grade = $this->final_grade;
-
-        if ($grade >= 95) return 'A+';
-        if ($grade >= 90) return 'A';
-        if ($grade >= 85) return 'B+';
-        if ($grade >= 80) return 'B';
-        if ($grade >= 75) return 'C+';
-        if ($grade >= 70) return 'C';
-        if ($grade >= 65) return 'D+';
-        if ($grade >= 60) return 'D';
-
-        return 'F';
+        return self::letterFor((float) $this->final_grade);
     }
 
     public function updateFinalGrade(float $grade): void

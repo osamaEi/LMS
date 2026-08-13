@@ -79,6 +79,16 @@ class StudentReportController extends Controller
             'new_participation.*.subject_id'=> ['nullable', 'integer'],
             'new_participation.*.kind'      => ['nullable', 'in:participation,final'],
 
+            // The built-in مشاركة mark, keyed by subject id.
+            'participation_score'                => ['array'],
+            'participation_score.*.grade'        => ['nullable', 'numeric', 'min:0'],
+            'participation_score.*.max_grade'    => ['nullable', 'integer', 'min:1', 'max:1000'],
+
+            // The built-in اختبار نهائي mark, keyed by subject id.
+            'final_score'                => ['array'],
+            'final_score.*.grade'        => ['nullable', 'numeric', 'min:0'],
+            'final_score.*.max_grade'    => ['nullable', 'integer', 'min:1', 'max:1000'],
+
             // Manual override of the computed total, per subject.
             'totals'                  => ['array'],
             'totals.*.final_grade'    => ['nullable', 'numeric', 'min:0', 'max:100'],
@@ -179,6 +189,38 @@ class StudentReportController extends Controller
                     'grade'      => $row['grade'] ?? 0,
                     'max_grade'  => $row['max_grade'] ?? 10,
                 ]);
+            }
+
+            // The built-in مشاركة / اختبار نهائي marks: upsert one row per subject.
+            // A blank grade clears the mark entirely so the bucket stops counting.
+            $pinned = [
+                ['participation_score', 'participation', self::PARTICIPATION_TITLE, 10],
+                ['final_score',         'final',         self::FINAL_TITLE,         40],
+            ];
+
+            foreach ($pinned as [$field, $kind, $title, $defaultMax]) {
+                foreach ($data[$field] ?? [] as $subjectId => $row) {
+                    if (!isset($allowedSubjects[$subjectId])) continue;
+
+                    $grade = $row['grade'] ?? null;
+                    $key   = [
+                        'student_id' => $studentId,
+                        'subject_id' => $subjectId,
+                        'kind'       => $kind,
+                        'title'      => $title,
+                    ];
+
+                    if ($grade === null || $grade === '') {
+                        ParticipationMark::where($key)->delete();
+                        continue;
+                    }
+
+                    $mark = ParticipationMark::firstOrNew($key);
+                    $mark->teacher_id = $mark->teacher_id ?? $teacherId;
+                    $mark->grade      = $grade;
+                    $mark->max_grade  = $row['max_grade'] ?? $mark->max_grade ?? $defaultMax;
+                    $mark->save();
+                }
             }
 
             // Manual total override, keyed by subject id. Needs an enrollment row
@@ -347,6 +389,15 @@ class StudentReportController extends Controller
      * Weight of each component of the 100-mark distribution.
      * الحضور 10 — المشاركة 30 (قصيرة 15 + واجبات 15) — نصفي 20 — نهائي 40
      */
+    /**
+     * Title reserved for the built-in "مشاركة" mark. One row per subject, pinned
+     * to the top of the المشاركة modal and upserted rather than added by hand.
+     */
+    public const PARTICIPATION_TITLE = 'مشاركة';
+
+    /** Same idea for the final exam: a single pinned manual grade per subject. */
+    public const FINAL_TITLE = 'اختبار نهائي';
+
     private const WEIGHTS = [
         'attendance' => 10,
         'quizzes'    => 15,
@@ -362,7 +413,7 @@ class StudentReportController extends Controller
      * Every component is a percentage of what the student earned in that bucket
      * scaled onto its weight; a bucket with nothing recorded scores 0.
      */
-    private function buildMarks($subjects, $quizzes, $homework, $attendances, $participation)
+    private function buildMarks($subjects, $quizzes, $homework, $attendances, $participation, $excusedSessionIds = null)
     {
         $rows = $subjects->map(function ($sub) use ($quizzes, $homework, $attendances, $participation) {
             $sid = $sub['subject_id'];
@@ -454,7 +505,7 @@ class StudentReportController extends Controller
             'weights' => self::WEIGHTS,
             'rows'    => $rows,
             'total'   => $rows->count() > 0 ? round($rows->avg('total'), 1) : null,
-            'details' => $this->buildDetails($quizzes, $homework, $attendances, $participation),
+            'details' => $this->buildDetails($quizzes, $homework, $attendances, $participation, $excusedSessionIds),
         ];
     }
 
@@ -462,8 +513,9 @@ class StudentReportController extends Controller
      * The individual records behind each column, for the drill-down modal.
      * Keyed by column so the view can hand one bucket to the modal on click.
      */
-    private function buildDetails($quizzes, $homework, $attendances, $participation): array
+    private function buildDetails($quizzes, $homework, $attendances, $participation, $excusedSessionIds = null): array
     {
+        $excused = $excusedSessionIds ?? collect();
         $quizRows = fn(array $types) => $quizzes
             ->filter(fn($q) => in_array($q['type'], $types, true))
             ->map(fn($q) => [
@@ -485,9 +537,10 @@ class StudentReportController extends Controller
                     ? \Carbon\Carbon::parse($a->session->scheduled_at)->format('Y/m/d')
                     : null,
                 'attended' => (bool) $a->attended,
+                'excused'  => !$a->attended && $excused->contains($a->session_id),
             ])->values(),
 
-            'quizzes'  => $quizRows(['quiz', 'paper']),
+            'quizzes' => $quizRows(['quiz', 'paper']),
             'midterm'  => $quizRows(['midterm']),
             'final'    => $quizRows(['exam']),
 
@@ -501,7 +554,22 @@ class StudentReportController extends Controller
                 'feedback'  => $h['feedback'],
             ])->values(),
 
-            'manual' => $participation->where('kind', 'participation')->map(fn($p) => [
+            // The reserved "مشاركة" row — one per subject, shown pinned at the top
+            // of the المشاركة modal so the teacher always has a single grade to fill.
+            'participation_score' => $participation
+                ->where('kind', 'participation')
+                ->where('title', self::PARTICIPATION_TITLE)
+                ->map(fn($p) => [
+                    'id'         => $p->id,
+                    'subject_id' => $p->subject_id,
+                    'grade'      => $p->grade,
+                    'max_grade'  => $p->max_grade,
+                ])->values(),
+
+            'manual' => $participation
+                ->where('kind', 'participation')
+                ->where('title', '!=', self::PARTICIPATION_TITLE)
+                ->map(fn($p) => [
                 'id'         => $p->id,
                 'kind'       => 'manual',
                 'subject_id' => $p->subject_id,
@@ -510,7 +578,21 @@ class StudentReportController extends Controller
                 'max_grade'  => $p->max_grade,
             ])->values(),
 
-            'manual_final' => $participation->where('kind', 'final')->map(fn($p) => [
+            // The reserved "اختبار نهائي" row — pinned at the top of the نهائي modal.
+            'final_score' => $participation
+                ->where('kind', 'final')
+                ->where('title', self::FINAL_TITLE)
+                ->map(fn($p) => [
+                    'id'         => $p->id,
+                    'subject_id' => $p->subject_id,
+                    'grade'      => $p->grade,
+                    'max_grade'  => $p->max_grade,
+                ])->values(),
+
+            'manual_final' => $participation
+                ->where('kind', 'final')
+                ->where('title', '!=', self::FINAL_TITLE)
+                ->map(fn($p) => [
                 'id'         => $p->id,
                 'kind'       => 'manual',
                 'subject_id' => $p->subject_id,
@@ -561,6 +643,18 @@ class StudentReportController extends Controller
             ? round(($attendedSessions / $totalSessions) * 100, 1)
             : 0;
 
+        // Sessions this student had an *approved* apology for — an absence there
+        // is غياب بعذر rather than a plain غياب.
+        $excusedSessionIds = DB::table('attendance_apologies')
+            ->where('student_id', $student->id)
+            ->where('status', 'approved')
+            ->whereIn('session_id', $attendances->pluck('session_id'))
+            ->pluck('session_id');
+
+        $absentRows  = $attendances->where('attended', false);
+        $excusedAbs  = $absentRows->filter(fn($a) => $excusedSessionIds->contains($a->session_id))->count();
+        $unexcusedAbs = $absentRows->count() - $excusedAbs;
+
         $attendanceRows = $attendances->map(fn($a) => [
             'attendance_id' => $a->id,
             'session'       => $a->session->title_ar ?? $a->session->title_en ?? ('محاضرة #' . $a->session_id),
@@ -568,6 +662,7 @@ class StudentReportController extends Controller
                 ? \Carbon\Carbon::parse($a->session->scheduled_at)->format('Y/m/d')
                 : null,
             'attended'      => (bool) $a->attended,
+            'excused'       => !$a->attended && $excusedSessionIds->contains($a->session_id),
         ])->values();
 
         $gradedQuizzes = $quizzes->whereNotNull('percentage');
@@ -583,17 +678,21 @@ class StudentReportController extends Controller
             'attendance_rate'   => $attendanceRate,
             'attended_sessions' => $attendedSessions,
             'total_sessions'    => $totalSessions,
+            'absent_sessions'   => $unexcusedAbs,
+            'excused_sessions'  => $excusedAbs,
         ];
 
         return [
             'summary'    => $summary,
-            'marks'      => $this->buildMarks($subjects, $quizzes, $homework, $attendances, $participation),
+            'marks'      => $this->buildMarks($subjects, $quizzes, $homework, $attendances, $participation, $excusedSessionIds),
             'subjects'   => $subjects,
             'quizzes'    => $quizzes,
             'homework'   => $homework,
             'attendance' => [
                 'rate'     => $attendanceRate,
                 'attended' => $attendedSessions,
+                'absent'   => $unexcusedAbs,
+                'excused'  => $excusedAbs,
                 'total'    => $totalSessions,
                 'rows'     => $attendanceRows,
             ],

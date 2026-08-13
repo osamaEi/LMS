@@ -15,7 +15,7 @@ return new class extends Migration
         Schema::table('participation_marks', function (Blueprint $table) {
             $table->string('kind', 20)->default('participation')->after('subject_id');
             $table->index(['student_id', 'subject_id', 'kind'], 'pm_student_subject_kind_idx');
-        });
+        }); 
     }
 
     public function down(): void
