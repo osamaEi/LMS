@@ -23,14 +23,49 @@ class AttendanceLimitController extends Controller
 
         $subjectId = $request->integer('subject_id') ?: null;
 
-        $subjects = Subject::orderBy('name_ar')
-            ->get(['id', 'name_ar', 'name_en', 'code', 'absence_limit_percent']);
+        // Programs split the way the rest of the admin does it: anything typed
+        // course/english/training is a دورة, the rest are دبلومات.
+        $kind = in_array($request->get('kind'), ['course', 'diploma'], true)
+            ? $request->get('kind')
+            : 'diploma';
 
-        $offenders = $this->offenders($percent, $subjectId);
+        $programs = $this->programsOfKind($kind);
+
+        // Which program's subjects to show. Defaults to the first one.
+        $programId = $request->integer('program_id') ?: null;
+        if (!$programId || !$programs->contains('id', $programId)) {
+            $programId = $programs->first()->id ?? null;
+        }
+
+        $subjects = $programId
+            ? Subject::where('program_id', $programId)
+                ->orderBy('name_ar')
+                ->get(['id', 'name_ar', 'name_en', 'code', 'absence_limit_percent'])
+            : collect();
+
+        $allSubjects = Subject::orderBy('name_ar')->get(['id', 'name_ar', 'name_en']);
+        $offenders   = $this->offenders($percent, $subjectId);
 
         return view('admin.attendance-limit.index', compact(
-            'enabled', 'percent', 'subjects', 'offenders', 'subjectId'
+            'enabled', 'percent', 'subjects', 'allSubjects', 'offenders', 'subjectId',
+            'programs', 'programId', 'kind'
         ));
+    }
+
+    /**
+     * Programs of one kind. "course" covers the course-like types the admin
+     * lists under الدورات; "diploma" is everything else (including untyped).
+     */
+    private function programsOfKind(string $kind)
+    {
+        $courseTypes = ['course', 'english', 'training'];
+
+        return \App\Models\Program::when($kind === 'course',
+                fn($q) => $q->whereIn('type', $courseTypes),
+                fn($q) => $q->where(fn($w) => $w->whereNull('type')->orWhereNotIn('type', $courseTypes)),
+            )
+            ->orderBy('name_ar')
+            ->get(['id', 'name_ar', 'name_en', 'code']);
     }
 
     /** Persist the limit settings. */

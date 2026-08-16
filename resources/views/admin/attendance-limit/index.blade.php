@@ -49,25 +49,54 @@
         <button type="submit" class="al-btn">💾 حفظ الإعدادات</button>
     </form>
 
-    {{-- حد لكل مادة --}}
+    {{-- حد لكل مادة، مقسّمة حسب الدبلومة/الدورة --}}
+    <div class="al-card">
+        <h2 class="al-h2">حد الغياب لكل مقرر</h2>
+        <p class="al-note al-note-top">
+            اختر الدبلومة أو الدورة لعرض مقرراتها، ثم اضبط النسبة لكل مقرر.
+            اترك الخانة فارغة ليتبع المقرر الحد العام ({{ $percent }}%).
+        </p>
+
+        {{-- تبويب: دبلومات / دورات --}}
+        <div class="al-tabs">
+            <a href="{{ route('admin.attendance-limit.index', ['kind' => 'diploma']) }}"
+               class="al-tab {{ $kind === 'diploma' ? 'al-tab-on' : '' }}">الدبلومات</a>
+            <a href="{{ route('admin.attendance-limit.index', ['kind' => 'course']) }}"
+               class="al-tab {{ $kind === 'course' ? 'al-tab-on' : '' }}">الدورات</a>
+        </div>
+
+        @if($programs->isEmpty())
+            <p class="al-empty">لا توجد {{ $kind === 'course' ? 'دورات' : 'دبلومات' }}.</p>
+        @else
+            {{-- اختيار البرنامج --}}
+            <form method="GET" action="{{ route('admin.attendance-limit.index') }}" class="al-picker">
+                <input type="hidden" name="kind" value="{{ $kind }}">
+                <label for="program_id">{{ $kind === 'course' ? 'الدورة' : 'الدبلومة' }}</label>
+                <select name="program_id" id="program_id" onchange="this.form.submit()" class="al-sel">
+                    @foreach($programs as $p)
+                        <option value="{{ $p->id }}" @selected($programId == $p->id)>
+                            {{ $p->name_ar ?: $p->name_en }}{{ $p->code ? ' — ' . $p->code : '' }}
+                        </option>
+                    @endforeach
+                </select>
+            </form>
+        @endif
+    </div>
+
     <form method="POST" action="{{ route('admin.attendance-limit.update-subjects') }}" class="al-card">
         @csrf
         @method('PUT')
 
-        <h2 class="al-h2">حد الغياب لكل مادة</h2>
-        <p class="al-note al-note-top">
-            اترك الخانة فارغة لتتبع المادة الحد العام ({{ $percent }}%).
-            القيمة هنا تتجاوز الحد العام لهذه المادة فقط.
-        </p>
+        <h2 class="al-h2">المقررات</h2>
 
         @if($subjects->isEmpty())
-            <p class="al-empty">لا توجد مواد.</p>
+            <p class="al-empty">لا توجد مقررات في هذا البرنامج.</p>
         @else
             <div class="al-scroll">
             <table class="al-table">
                 <thead>
                     <tr>
-                        <th>المادة</th>
+                        <th>المقرر</th>
                         <th>الرمز</th>
                         <th>الحد المخصص</th>
                         <th>المطبَّق فعليًا</th>
@@ -109,9 +138,11 @@
             <h2 class="al-h2">المتدربون المتجاوزون للحد <span class="al-count">{{ $offenders->count() }}</span></h2>
 
             <form method="GET" action="{{ route('admin.attendance-limit.index') }}">
+                <input type="hidden" name="kind" value="{{ $kind }}">
+                <input type="hidden" name="program_id" value="{{ $programId }}">
                 <select name="subject_id" onchange="this.form.submit()" class="al-sel">
                     <option value="">كل المواد</option>
-                    @foreach($subjects as $s)
+                    @foreach($allSubjects as $s)
                         <option value="{{ $s->id }}" @selected($subjectId == $s->id)>
                             {{ $s->name_ar ?: $s->name_en }}
                         </option>
@@ -302,6 +333,17 @@
     .al-mini-input { width:82px; border:1px solid #e2e8f0; border-radius:9px;
                      padding:7px 9px; font-size:13px; font-weight:700; font-family:inherit; }
     .al-note-top { margin:0 0 14px; }
+
+    .al-tabs { display:flex; gap:8px; margin-bottom:16px; }
+    .al-tab { text-decoration:none; background:#f1f5f9; color:#475569; border-radius:11px;
+              padding:9px 20px; font-size:13px; font-weight:700; transition:background .15s; }
+    .al-tab:hover { background:#e2e8f0; }
+    .al-tab-on { background:#0071AA; color:#fff; }
+    .al-tab-on:hover { background:#0071AA; }
+
+    .al-picker { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+    .al-picker label { font-size:13px; font-weight:700; color:#334155; margin:0; }
+    .al-picker .al-sel { min-width:260px; }
     .al-badge-no   { background:#fee2e2; color:#b91c1c; }
     .al-badge-idle { background:#f1f5f9; color:#64748b; }
 
