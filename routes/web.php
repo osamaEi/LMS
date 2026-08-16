@@ -562,6 +562,10 @@ Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')
     Route::get('/subjects/{id}', [TeacherDashboardController::class, 'showSubject'])->name('subjects.show');
 
     // My Subjects — diploma subjects only
+    // Absence standing per subject: who is barred, who is close to it
+    Route::get('/attendance-status', [\App\Http\Controllers\Teacher\AttendanceStatusController::class, 'index'])->name('attendance-status.index');
+    Route::get('/attendance-status/{subject}', [\App\Http\Controllers\Teacher\AttendanceStatusController::class, 'show'])->name('attendance-status.show');
+
     Route::get('/my-subjects', [\App\Http\Controllers\Teacher\SubjectController::class, 'index'])->name('my-subjects.index');
     Route::get('/my-subjects/{id}', [\App\Http\Controllers\Teacher\SubjectController::class, 'show'])->name('my-subjects.show');
 
