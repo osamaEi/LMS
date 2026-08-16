@@ -252,9 +252,11 @@
             return `<div class="dr">
                 <span class="dr-main"><b>${esc(r.title)}</b><i>${esc(r.date || '—')}</i></span>
                 <span class="dr-edit">
-                    <input type="number" min="0" step="1" name="homework[${r.id}][grade]"
+                    <input type="number" min="0" step="0.01" name="homework[${r.id}][grade]"
                            value="${r.grade ?? ''}" placeholder="الدرجة" class="dr-num">
-                    <span class="dr-lbl">/ ${esc(r.max_grade ?? '—')}</span>
+                    <span class="dr-lbl">من</span>
+                    <input type="number" min="1" step="1" name="homework[${r.id}][max_grade]"
+                           value="${r.max_grade ?? 10}" class="dr-num dr-num-sm">
                     <input type="text" name="homework[${r.id}][feedback]"
                            value="${esc(r.feedback ?? '')}" placeholder="ملاحظة" class="dr-txt">
                 </span>
@@ -285,7 +287,9 @@
             <span class="dr-edit">
                 <input type="number" min="0" step="0.01" name="quizzes[${r.id}][score]"
                        value="${r.score ?? ''}" placeholder="الدرجة" class="dr-num">
-                <span class="dr-lbl">من ${esc(r.total ?? '—')}</span>
+                <span class="dr-lbl">من</span>
+                <input type="number" min="1" step="1" name="quizzes[${r.id}][total_marks]"
+                       value="${r.total ?? ''}" class="dr-num dr-num-sm">
             </span>
         </div>`;
     }
@@ -332,7 +336,7 @@
 
         // المجموع: override the computed total per subject instead of listing records.
         if (conf.totals) {
-            body.innerHTML = `<section class="dsec">
+            body.innerHTML = `<section class="dsec dsec-pin">
                 <h3>الدرجة النهائية <em>(من 100)</em></h3>
                 <p class="dr-note">اترك الخانة فارغة ليُحتسب المجموع تلقائيًا من توزيع الدرجات.</p>
                 ${mine(conf.totals).map(t => `<div class="dr">
@@ -403,7 +407,7 @@
                 ? `<div class="dr-slot"></div>
                    <button type="button" class="dr-add" data-kind="${sec.kind || 'participation'}">+ إضافة بند</button>`
                 : '';
-            return `<section class="dsec"><h3>${esc(sec.title)} <em>(${rows.length})</em></h3>${inner}${add}</section>`;
+            return `<section class="dsec dsec-pin"><h3>${esc(sec.title)} <em>(${rows.length})</em></h3>${inner}${add}</section>`;
         }).join('') + pinnedAfter;
 
         body.querySelectorAll('.dr-add').forEach(btn => {
@@ -507,10 +511,15 @@
     .dr-badge { font-style:normal; font-size:10px; font-weight:700; color:#15803d;
                 background:#dcfce7; border-radius:99px; padding:2px 7px; margin-right:6px; }
 
-    .dsec { margin-top:16px; }
-    .dsec-pin { background:#f6faff; border:1px solid #dbeafe; border-radius:14px; padding:12px 12px 4px; }
-    .dsec-pin h3 { color:#0071AA; }
-    .dsec-pin .dr { background:#fff; }
+    .dsec { margin-top:14px; }
+    /* Every section is a boxed card so the modal reads as one consistent list. */
+    .dsec-pin { background:#f6faff; border:1px solid #dbeafe; border-radius:14px; padding:13px 14px; }
+    .dsec-pin h3 { color:#0071AA; margin-bottom:10px; }
+    .dsec-pin .dr { background:#fff; margin-bottom:8px; }
+    .dsec-pin .dr:last-child { margin-bottom:0; }
+    .dsec-pin .dr-empty { background:#fff; border:1px dashed #dbeafe; border-radius:10px;
+                          padding:12px; text-align:center; margin:0; }
+    .dsec-pin .dr-add { margin-top:8px; }
     .dsec h3 { font-size:13px; font-weight:800; color:#334155; margin:0 0 8px; }
     .dsec h3 em { font-style:normal; color:#94a3b8; font-weight:600; }
     .dr { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;

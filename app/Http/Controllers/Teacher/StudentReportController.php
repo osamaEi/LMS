@@ -54,9 +54,11 @@ class StudentReportController extends Controller
             // Grades only — the percentage is always derived, never submitted.
             'quizzes'                => ['array'],
             'quizzes.*.score'        => ['nullable', 'numeric', 'min:0'],
+            'quizzes.*.total_marks'  => ['nullable', 'integer', 'min:1', 'max:1000'],
 
             'homework'               => ['array'],
-            'homework.*.grade'       => ['nullable', 'integer', 'min:0'],
+            'homework.*.grade'       => ['nullable', 'numeric', 'min:0'],
+            'homework.*.max_grade'   => ['nullable', 'integer', 'min:1', 'max:1000'],
             'homework.*.feedback'    => ['nullable', 'string', 'max:1000'],
 
             'subjects'               => ['array'],
@@ -127,9 +129,11 @@ class StudentReportController extends Controller
                 if (array_key_exists('score', $row) && $row['score'] !== null) {
                     $attempt->score = $row['score'];
 
-                    // The grade is the only field the teacher types, so derive the
-                    // percentage from it against the quiz total.
-                    $total = (float) ($attempt->quiz->total_marks ?? 0);
+                    // The percentage is derived, never typed. "من" may be edited
+                    // per attempt, but total_marks lives on the shared quiz row —
+                    // changing it there would rescore every other student — so the
+                    // submitted value is only used for this attempt's percentage.
+                    $total = (float) ($row['total_marks'] ?? $attempt->quiz->total_marks ?? 0);
                     if ($total > 0) {
                         $attempt->percentage = round(min(100, $row['score'] / $total * 100), 2);
                         $attempt->passed     = $attempt->percentage >= 50;
@@ -142,8 +146,9 @@ class StudentReportController extends Controller
                 if (!isset($allowedSubs[$id])) continue;
                 $sub = HomeworkSubmission::find($id);
                 if (!$sub) continue;
-                if (array_key_exists('grade', $row))    $sub->grade    = $row['grade'];
-                if (array_key_exists('feedback', $row)) $sub->feedback = $row['feedback'];
+                if (array_key_exists('grade', $row))     $sub->grade     = $row['grade'];
+                if (array_key_exists('feedback', $row))  $sub->feedback  = $row['feedback'];
+                if (!empty($row['max_grade']))          $sub->max_grade = $row['max_grade'];
                 $sub->save();
             }
 
