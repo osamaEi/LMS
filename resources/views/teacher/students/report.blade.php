@@ -70,7 +70,8 @@
                                 @endphp
                                 <td>
                                     <button type="button" class="mk-cell"
-                                            data-detail="{{ $c['key'] }}" data-title="{{ $c['label'] }}">
+                                            data-detail="{{ $c['key'] }}" data-title="{{ $c['label'] }}"
+                                            data-subject="{{ $r['subject_id'] }}" data-subject-name="{{ $r['name'] }}">
                                         <span class="mk-val" style="color:{{ $c['color'] }};">{{ $val }}</span>
                                         <span class="mk-of">/ {{ $c['max'] }}</span>
                                         <span class="mk-bar"><i style="width:{{ $pct }}%;background:{{ $c['color'] }};"></i></span>
@@ -79,7 +80,8 @@
                                 </td>
                             @endforeach
                             <td class="mk-total-c">
-                                <button type="button" class="mk-cell" data-detail="total" data-title="المجموع">
+                                <button type="button" class="mk-cell" data-detail="total" data-title="المجموع"
+                                        data-subject="{{ $r['subject_id'] }}" data-subject-name="{{ $r['name'] }}">
                                     <span class="mk-total-line">
                                         <span class="mk-total" style="color:{{ $subCol }};">{{ $r['total'] }}</span>
                                         <span class="g-letter" style="background:{{ $subCol }};">{{ $letter }}</span>
@@ -105,7 +107,10 @@
             @csrf
             @method('PATCH')
             <div class="rep-modal-head">
-                <h2 id="repModalTitle">التفاصيل</h2>
+                <div>
+                    <h2 id="repModalTitle">التفاصيل</h2>
+                    <p class="rep-modal-subject" id="repModalSubject"></p>
+                </div>
                 <button type="button" class="rep-x" data-close aria-label="إغلاق">✕</button>
             </div>
             <div class="rep-modal-body" id="repModalBody"></div>
@@ -223,6 +228,7 @@
     const modal = document.getElementById('repModal');
     const body  = document.getElementById('repModalBody');
     const title = document.getElementById('repModalTitle');
+    const subjectEl = document.getElementById('repModalSubject');
 
     const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c =>
         ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
@@ -309,23 +315,29 @@
         </div>`;
     }
 
-    function open(key, label) {
+    // Every modal is opened from one subject's card, so the name goes in the
+    // header once and each row list is narrowed to that subject.
+    function open(key, label, subjectId, subjectName) {
         const conf = DATA[key];
         if (!conf) return;
-        title.textContent = label;
 
-        const subjects = conf.subjects || [];
+        title.textContent = label;
+        subjectEl.textContent = subjectName || '';
+
+        const sid = subjectId != null ? Number(subjectId) : null;
+        const mine = (list) => (list || []).filter(
+            r => sid === null || r.subject_id == null || Number(r.subject_id) === sid);
+
+        const subjects = (conf.subjects || []).filter(s => sid === null || Number(s.id) === sid);
 
         // المجموع: override the computed total per subject instead of listing records.
         if (conf.totals) {
             body.innerHTML = `<section class="dsec">
                 <h3>الدرجة النهائية <em>(من 100)</em></h3>
                 <p class="dr-note">اترك الخانة فارغة ليُحتسب المجموع تلقائيًا من توزيع الدرجات.</p>
-                ${conf.totals.map(t => `<div class="dr">
+                ${mine(conf.totals).map(t => `<div class="dr">
                     <span class="dr-main">
-                        <b>${esc(t.name)}
-                            <em class="dr-grade">${esc(t.letter)} — ${esc(t.label)}</em>
-                        </b>
+                        <b><em class="dr-grade">${esc(t.letter)} — ${esc(t.label)}</em></b>
                         <i>الدرجة: ${t.total} من 100 · المحسوب تلقائيًا: ${t.computed}</i>
                     </span>
                     <span class="dr-edit">
@@ -353,12 +365,13 @@
 
         // Pinned grade box — one input per subject. `pinned` renders above the
         // records, `pinned_after` below them.
-        const pinBlock = (pin) => (pin && pin.rows.length)
+        const pinBlock = (pin) => {
+            const prows = mine(pin && pin.rows);
+            return prows.length
             ? `<section class="dsec dsec-pin">
                 <h3>${esc(pin.title)}</h3>
-                ${pin.rows.map(p => `<div class="dr">
+                ${prows.map(p => `<div class="dr">
                     <span class="dr-main">
-                        <b>${esc(p.name)}</b>
                         <i>${p.auto ? 'محسوبة تلقائيًا من الاختبار — يمكن تعديلها' : esc(pin.note)}</i>
                     </span>
                     <span class="dr-edit">
@@ -373,12 +386,13 @@
                 </div>`).join('')}
             </section>`
             : '';
+        };
 
         const pinned = pinBlock(conf.pinned);
         const pinnedAfter = (conf.pinned_after || []).map(pinBlock).join('');
 
         body.innerHTML = stats + pinned + conf.sections.map((sec, i) => {
-            const rows = (sec.rows || []);
+            const rows = mine(sec.rows);
             // Legacy sections only exist to keep old records editable — drop them
             // entirely once there is nothing left in them.
             if (sec.legacy && !rows.length) return '';
@@ -414,7 +428,8 @@
     }
 
     document.querySelectorAll('.mk-cell').forEach(btn => {
-        btn.addEventListener('click', () => open(btn.dataset.detail, btn.dataset.title));
+        btn.addEventListener('click', () => open(
+            btn.dataset.detail, btn.dataset.title, btn.dataset.subject, btn.dataset.subjectName));
     });
     modal.querySelectorAll('[data-close]').forEach(el => el.addEventListener('click', close));
     document.addEventListener('keydown', e => { if (e.key === 'Escape' && !modal.hidden) close(); });
@@ -476,6 +491,8 @@
     .rep-modal-head { display:flex; align-items:center; justify-content:space-between;
                       padding:16px 20px; border-bottom:1px solid #eef2f7; }
     .rep-modal-head h2 { margin:0; font-size:17px; font-weight:800; color:#0f172a; }
+    .rep-modal-subject { margin:3px 0 0; font-size:12px; font-weight:600; color:#0071AA; }
+    .rep-modal-subject:empty { display:none; }
     .rep-x { border:0; background:#f1f5f9; color:#475569; width:30px; height:30px; border-radius:9px; cursor:pointer; font-size:13px; }
     .rep-modal-body { padding:8px 20px 16px; overflow-y:auto; }
     .rep-modal-foot { display:flex; gap:10px; justify-content:flex-start;
