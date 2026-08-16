@@ -9,17 +9,15 @@
     $rows = $m['rows'];
     $d = $m['details'];
 
-    $agg = fn($k) => $rows->count() > 0 ? round($rows->avg($k), 1) : 0;
-
     // Column order is right-to-left as written: الحضور first, المجموع last.
-    $cells = [
-        ['key' => 'attendance', 'label' => 'الحضور',       'val' => $agg('attendance'),    'max' => $w['attendance'],              'color' => '#0071AA'],
-        ['key' => 'quizzes',    'label' => 'المشاركة',     'val' => $agg('participation'), 'max' => $w['quizzes'] + $w['homework'], 'color' => '#7c3aed'],
-        ['key' => 'midterm',    'label' => 'اختبار نصفي',  'val' => $agg('midterm'),       'max' => $w['midterm'],                 'color' => '#0f766e'],
-        ['key' => 'final',      'label' => 'اختبار نهائي', 'val' => $agg('final'),         'max' => $w['final'],                   'color' => '#dc2626'],
+    $columns = [
+        ['key' => 'attendance', 'field' => 'attendance',    'label' => 'الحضور',       'max' => $w['attendance'],               'color' => '#0071AA'],
+        ['key' => 'quizzes',    'field' => 'participation', 'label' => 'المشاركة',     'max' => $w['quizzes'] + $w['homework'], 'color' => '#7c3aed'],
+        ['key' => 'midterm',    'field' => 'midterm',       'label' => 'اختبار نصفي',  'max' => $w['midterm'],                  'color' => '#0f766e'],
+        ['key' => 'final',      'field' => 'final',         'label' => 'اختبار نهائي', 'max' => $w['final'],                    'color' => '#dc2626'],
     ];
-    $total    = $rows->count() > 0 ? round($rows->avg('total'), 1) : 0;
-    $totalCol = $total >= 85 ? '#15803d' : ($total >= 60 ? '#0071AA' : '#b91c1c');
+
+    $colorFor = fn($t) => $t >= 85 ? '#15803d' : ($t >= 60 ? '#0071AA' : '#b91c1c');
 @endphp
 
 <div class="rep-wrap">
@@ -44,64 +42,58 @@
     @if($rows->isEmpty())
         <div class="rep-empty">لا توجد مواد لحساب توزيع الدرجات.</div>
     @else
-        <div class="rep-card">
-            <table class="marks">
-                <thead>
-                    <tr>
-                        @foreach($cells as $c)
-                            <th>{{ $c['label'] }}<span class="mk-w">من {{ $c['max'] }}</span></th>
-                        @endforeach
-                        <th class="mk-total-h">المجموع<span class="mk-w">من 100</span></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        @foreach($cells as $c)
-                            @php $pct = $c['max'] > 0 ? max(0, min(100, $c['val'] / $c['max'] * 100)) : 0; @endphp
-                            <td>
-                                <button type="button" class="mk-cell" data-detail="{{ $c['key'] }}" data-title="{{ $c['label'] }}">
-                                    <span class="mk-val" style="color:{{ $c['color'] }};">{{ $c['val'] }}</span>
-                                    <span class="mk-of">/ {{ $c['max'] }}</span>
-                                    <span class="mk-bar"><i style="width:{{ $pct }}%;background:{{ $c['color'] }};"></i></span>
-                                    <span class="mk-hint">عرض التفاصيل</span>
+        @foreach($rows as $r)
+            @php
+                $subTotal = (float) $r['total'];
+                $subCol   = $colorFor($subTotal);
+                [$letter, $label] = \App\Models\Enrollment::gradeBand($subTotal);
+            @endphp
+
+            <div class="rep-card mk-card">
+                <h2 class="mk-subject">{{ $r['name'] }}</h2>
+
+                <table class="marks">
+                    <thead>
+                        <tr>
+                            @foreach($columns as $c)
+                                <th>{{ $c['label'] }}<span class="mk-w">من {{ $c['max'] }}</span></th>
+                            @endforeach
+                            <th class="mk-total-h">المجموع<span class="mk-w">من 100</span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            @foreach($columns as $c)
+                                @php
+                                    $val = $r[$c['field']] ?? 0;
+                                    $pct = $c['max'] > 0 ? max(0, min(100, $val / $c['max'] * 100)) : 0;
+                                @endphp
+                                <td>
+                                    <button type="button" class="mk-cell"
+                                            data-detail="{{ $c['key'] }}" data-title="{{ $c['label'] }}">
+                                        <span class="mk-val" style="color:{{ $c['color'] }};">{{ $val }}</span>
+                                        <span class="mk-of">/ {{ $c['max'] }}</span>
+                                        <span class="mk-bar"><i style="width:{{ $pct }}%;background:{{ $c['color'] }};"></i></span>
+                                        <span class="mk-hint">عرض التفاصيل</span>
+                                    </button>
+                                </td>
+                            @endforeach
+                            <td class="mk-total-c">
+                                <button type="button" class="mk-cell" data-detail="total" data-title="المجموع">
+                                    <span class="mk-total-line">
+                                        <span class="mk-total" style="color:{{ $subCol }};">{{ $r['total'] }}</span>
+                                        <span class="g-letter" style="background:{{ $subCol }};">{{ $letter }}</span>
+                                    </span>
+                                    <span class="mk-grade">{{ $label }}</span>
+                                    <span class="mk-bar"><i style="width:{{ max(0, min(100, $subTotal)) }}%;background:{{ $subCol }};"></i></span>
+                                    <span class="mk-hint">تعديل الدرجة النهائية</span>
                                 </button>
                             </td>
-                        @endforeach
-                        <td class="mk-total-c">
-                            <button type="button" class="mk-cell" data-detail="total" data-title="المجموع">
-                                <span class="mk-total" style="color:{{ $totalCol }};">{{ $total }}</span>
-                                <span class="mk-bar"><i style="width:{{ max(0, min(100, $total)) }}%;background:{{ $totalCol }};"></i></span>
-                                <span class="mk-hint">تعديل الدرجة النهائية</span>
-                            </button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        {{-- التقدير لكل مادة، محسوب من مجموع المادة نفسها. --}}
-        <div class="rep-card grades-card">
-            <h2 class="grades-h">التقدير حسب المادة</h2>
-            <table class="grades">
-                <thead>
-                    <tr><th>المادة</th><th>الدرجة</th><th>الرمز</th><th>التقدير</th></tr>
-                </thead>
-                <tbody>
-                    @foreach($rows as $r)
-                        @php
-                            [$letter, $label] = \App\Models\Enrollment::gradeBand((float) $r['total']);
-                            $col = $r['total'] >= 85 ? '#15803d' : ($r['total'] >= 60 ? '#0071AA' : '#b91c1c');
-                        @endphp
-                        <tr>
-                            <td class="g-name">{{ $r['name'] }}</td>
-                            <td class="g-num" style="color:{{ $col }};">{{ $r['total'] }}</td>
-                            <td><span class="g-letter" style="background:{{ $col }};">{{ $letter }}</span></td>
-                            <td class="g-label">{{ $label }}</td>
                         </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
+                    </tbody>
+                </table>
+            </div>
+        @endforeach
     @endif
 </div>
 
@@ -126,34 +118,56 @@
 </div>
 
 @php
-    // One pinned input per subject, seeded with the saved mark if there is one.
-    $pinnedRows = fn($saved, $defaultMax) => $rows->map(function ($r) use ($saved, $defaultMax) {
-        $existing = collect($saved)->firstWhere('subject_id', $r['subject_id']);
-        return [
-            'subject_id' => $r['subject_id'],
-            'name'       => $r['name'],
-            'grade'      => $existing['grade'] ?? null,
-            'max_grade'  => $existing['max_grade'] ?? $defaultMax,
-        ];
-    })->values();
+    /**
+     * One pinned input per subject. The saved manual mark wins; otherwise the
+     * grade is seeded automatically from the student's actual attempt, so the
+     * teacher only has to edit it when it needs changing.
+     */
+    $pinnedRows = function ($saved, $defaultMax, $attempts = null) use ($rows) {
+        $attempts = collect($attempts ?? []);
+
+        return $rows->map(function ($r) use ($saved, $defaultMax, $attempts) {
+            $existing = collect($saved)->firstWhere('subject_id', $r['subject_id']);
+
+            // Latest attempt on this subject, used only when nothing was saved.
+            $attempt = $attempts->first(fn($a) => ($a['subject_id'] ?? null) === $r['subject_id']
+                && ($a['score'] ?? null) !== null);
+
+            return [
+                'subject_id' => $r['subject_id'],
+                'name'       => $r['name'],
+                'grade'      => $existing['grade'] ?? $attempt['score'] ?? null,
+                'max_grade'  => $existing['max_grade'] ?? $attempt['total_marks'] ?? $defaultMax,
+                'auto'       => !$existing && $attempt !== null,
+            ];
+        })->values();
+    };
 
     // المشاركة merges two buckets; everything else maps 1:1.
     $modalData = [
         'attendance' => [
             'stats' => [
-                ['label' => 'حضور',      'val' => $report['attendance']['attended'], 'color' => '#15803d'],
+                ['label' => 'حضور',      'val' => $report['attendance']['attended'], 'color' => '#0071AA'],
                 ['label' => 'غياب',      'val' => $report['attendance']['absent'],   'color' => '#b91c1c'],
-                ['label' => 'غياب بعذر', 'val' => $report['attendance']['excused'],  'color' => '#b45309'],
+                ['label' => 'غياب بعذر', 'val' => $report['attendance']['excused'],  'color' => '#15803d'],
             ],
             'sections' => [['title' => 'الحضور', 'rows' => $d['attendance']]],
         ],
         'quizzes'    => [
-            // The built-in مشاركة grade, one row per subject, pinned first.
-            'pinned' => [
-                'title'  => 'مشاركة',
-                'field'  => 'participation_score',
-                'note'   => 'درجة المشاركة داخل المحاضرات',
-                'rows'   => $pinnedRows($d['participation_score'], 10),
+            // البنود الثابتة — تظهر أسفل السجلات.
+            'pinned_after' => [
+                [
+                    'title' => 'مشاركة',
+                    'field' => 'participation_score',
+                    'note'  => 'درجة المشاركة داخل المحاضرات',
+                    'rows'  => $pinnedRows($d['participation_score'], 10),
+                ],
+                [
+                    'title' => 'مشروع',
+                    'field' => 'project_score',
+                    'note'  => 'درجة المشروع',
+                    'rows'  => $pinnedRows($d['project_score'], 10),
+                ],
             ],
             'sections' => [
                 ['title' => 'الاختبارات القصيرة', 'rows' => $d['quizzes']],
@@ -167,19 +181,18 @@
                 'title' => 'اختبار نصفي',
                 'field' => 'midterm_score',
                 'note'  => 'الدرجة المرصودة يدويًا',
-                'rows'  => $pinnedRows($d['midterm_score'], 20),
+                'rows'  => $pinnedRows($d['midterm_score'], 20, $d['midterm']),
             ],
-            'sections' => [['title' => 'محاولات الاختبار', 'rows' => $d['midterm']]],
+            'sections' => [],
         ],
         'final'      => [
             'pinned' => [
                 'title' => 'اختبار نهائي',
                 'field' => 'final_score',
                 'note'  => 'الدرجة المرصودة يدويًا',
-                'rows'  => $pinnedRows($d['final_score'], 40),
+                'rows'  => $pinnedRows($d['final_score'], 40, $d['final']),
             ],
             'sections' => [
-                ['title' => 'محاولات الاختبار', 'rows' => $d['final']],
                 // Older free-form manual rows stay editable, but no new ones are added.
                 ['title' => 'درجات يدوية سابقة', 'rows' => $d['manual_final'], 'legacy' => true],
             ],
@@ -338,13 +351,16 @@
                 </div>`).join('')}</div>`
             : '';
 
-        // Pinned grade box — always first, one input per subject.
-        const pin = conf.pinned;
-        const pinned = (pin && pin.rows.length)
+        // Pinned grade box — one input per subject. `pinned` renders above the
+        // records, `pinned_after` below them.
+        const pinBlock = (pin) => (pin && pin.rows.length)
             ? `<section class="dsec dsec-pin">
                 <h3>${esc(pin.title)}</h3>
                 ${pin.rows.map(p => `<div class="dr">
-                    <span class="dr-main"><b>${esc(p.name)}</b><i>${esc(pin.note)}</i></span>
+                    <span class="dr-main">
+                        <b>${esc(p.name)}</b>
+                        <i>${p.auto ? 'محسوبة تلقائيًا من الاختبار — يمكن تعديلها' : esc(pin.note)}</i>
+                    </span>
                     <span class="dr-edit">
                         <input type="number" min="0" step="0.01"
                                name="${pin.field}[${p.subject_id}][grade]"
@@ -357,6 +373,9 @@
                 </div>`).join('')}
             </section>`
             : '';
+
+        const pinned = pinBlock(conf.pinned);
+        const pinnedAfter = (conf.pinned_after || []).map(pinBlock).join('');
 
         body.innerHTML = stats + pinned + conf.sections.map((sec, i) => {
             const rows = (sec.rows || []);
@@ -371,7 +390,7 @@
                    <button type="button" class="dr-add" data-kind="${sec.kind || 'participation'}">+ إضافة بند</button>`
                 : '';
             return `<section class="dsec"><h3>${esc(sec.title)} <em>(${rows.length})</em></h3>${inner}${add}</section>`;
-        }).join('');
+        }).join('') + pinnedAfter;
 
         body.querySelectorAll('.dr-add').forEach(btn => {
             btn.addEventListener('click', () => {
@@ -437,18 +456,13 @@
     .mk-hint { display:block; margin-top:8px; font-size:10px; font-weight:700; color:#b6c2d1; }
     .mk-cell:hover .mk-hint { color:#0071AA; }
 
-    .grades-card { margin-top:18px; padding:16px 18px 6px; }
-    .grades-h { font-size:15px; font-weight:800; color:#0f172a; margin:0 0 12px; }
-    .grades { width:100%; border-collapse:collapse; }
-    .grades th { text-align:right; font-size:12px; font-weight:700; color:#64748b;
-                 padding:0 8px 10px; border-bottom:1px solid #eef2f7; }
-    .grades td { padding:12px 8px; border-bottom:1px solid #f4f7fa; text-align:right; }
-    .grades tr:last-child td { border-bottom:0; }
-    .g-name { font-size:13px; font-weight:700; color:#0f172a; }
-    .g-num { font-size:17px; font-weight:800; width:80px; }
-    .g-letter { display:inline-block; min-width:34px; text-align:center; color:#fff;
-                font-size:12px; font-weight:800; border-radius:8px; padding:4px 8px; }
-    .g-label { font-size:12px; font-weight:600; color:#475569; }
+    .mk-card { margin-bottom:18px; }
+    .mk-subject { font-size:15px; font-weight:800; color:#0f172a;
+                  margin:0; padding:16px 18px; border-bottom:1px solid #eef2f7; }
+    .mk-total-line { display:flex; align-items:center; justify-content:center; gap:8px; }
+    .mk-grade { display:block; margin-top:4px; font-size:11px; font-weight:700; color:#475569; }
+    .g-letter { display:inline-block; min-width:32px; text-align:center; color:#fff;
+                font-size:12px; font-weight:800; border-radius:8px; padding:3px 8px; }
     .dr-grade { font-style:normal; font-size:11px; font-weight:700; color:#0071AA;
                 background:#eef4fa; border-radius:99px; padding:2px 8px; margin-right:6px; }
 
@@ -473,8 +487,8 @@
     .dstat { border:1px solid #eef2f7; border-radius:12px; padding:12px 8px; text-align:center; background:#fafcfe; }
     .dstat b { display:block; font-size:24px; font-weight:800; line-height:1.1; }
     .dstat span { display:block; margin-top:4px; font-size:11px; font-weight:700; color:#64748b; }
-    .dr-badge { font-style:normal; font-size:10px; font-weight:700; color:#b45309;
-                background:#fef3c7; border-radius:99px; padding:2px 7px; margin-right:6px; }
+    .dr-badge { font-style:normal; font-size:10px; font-weight:700; color:#15803d;
+                background:#dcfce7; border-radius:99px; padding:2px 7px; margin-right:6px; }
 
     .dsec { margin-top:16px; }
     .dsec-pin { background:#f6faff; border:1px solid #dbeafe; border-radius:14px; padding:12px 12px 4px; }

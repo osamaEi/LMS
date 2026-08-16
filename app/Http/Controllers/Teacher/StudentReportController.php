@@ -84,6 +84,11 @@ class StudentReportController extends Controller
             'participation_score.*.grade'        => ['nullable', 'numeric', 'min:0'],
             'participation_score.*.max_grade'    => ['nullable', 'integer', 'min:1', 'max:1000'],
 
+            // The built-in مشروع mark, keyed by subject id.
+            'project_score'              => ['array'],
+            'project_score.*.grade'      => ['nullable', 'numeric', 'min:0'],
+            'project_score.*.max_grade'  => ['nullable', 'integer', 'min:1', 'max:1000'],
+
             // The built-in اختبار نهائي mark, keyed by subject id.
             'final_score'                => ['array'],
             'final_score.*.grade'        => ['nullable', 'numeric', 'min:0'],
@@ -200,6 +205,7 @@ class StudentReportController extends Controller
             // A blank grade clears the mark entirely so the bucket stops counting.
             $pinned = [
                 ['participation_score', 'participation', self::PARTICIPATION_TITLE, 10],
+                ['project_score',       'participation', self::PROJECT_TITLE,       10],
                 ['final_score',         'final',         self::FINAL_TITLE,         40],
                 ['midterm_score',       'midterm',       self::MIDTERM_TITLE,       20],
             ];
@@ -400,6 +406,10 @@ class StudentReportController extends Controller
      * to the top of the المشاركة modal and upserted rather than added by hand.
      */
     public const PARTICIPATION_TITLE = 'مشاركة';
+    public const PROJECT_TITLE       = 'مشروع';
+
+    /** Reserved titles never listed under the free-form "بنود إضافية" section. */
+    private const RESERVED_PARTICIPATION = [self::PARTICIPATION_TITLE, self::PROJECT_TITLE];
 
     /** Same idea for the exams: a single pinned manual grade per subject. */
     public const FINAL_TITLE   = 'اختبار نهائي';
@@ -455,16 +465,14 @@ class StudentReportController extends Controller
             $partMax  = $subPart->sum('max_grade');
             $partPct  = $partMax > 0 ? $subPart->sum('grade') / $partMax : 0;
 
-            // Manual exam marks, for when the exam was graded on paper and there
-            // is no attempt in the system. Averaged with any real attempts.
-            $blendManual = function (string $kind, array $types, float $pct) use ($participation, $sid, $ofType) {
+            // The teacher-entered exam mark is authoritative: the pinned box is
+            // seeded from the attempt, so once it is saved it *is* the grade —
+            // averaging it back against the attempt would undo any edit.
+            $blendManual = function (string $kind, array $types, float $pct) use ($participation, $sid) {
                 $manual = $participation->where('subject_id', $sid)->where('kind', $kind);
                 $max    = $manual->sum('max_grade');
-                if ($max <= 0) return $pct;
 
-                $manualPct = $manual->sum('grade') / $max;
-
-                return $ofType($types)->isNotEmpty() ? ($pct + $manualPct) / 2 : $manualPct;
+                return $max > 0 ? $manual->sum('grade') / $max : $pct;
             };
 
             $finalPct   = $blendManual('final',   ['exam'],    $finalPct);
@@ -530,13 +538,15 @@ class StudentReportController extends Controller
         $quizRows = fn(array $types) => $quizzes
             ->filter(fn($q) => in_array($q['type'], $types, true))
             ->map(fn($q) => [
-                'id'    => $q['attempt_id'],
-                'kind'  => 'quiz',
-                'title' => $q['title'],
-                'date'  => $q['submitted_at'],
-                'score' => $q['score'],
-                'total' => $q['total_marks'],
-                'pct'   => $q['percentage'],
+                'id'          => $q['attempt_id'],
+                'kind'        => 'quiz',
+                'subject_id'  => $q['subject_id'],
+                'title'       => $q['title'],
+                'date'        => $q['submitted_at'],
+                'score'       => $q['score'],
+                'total'       => $q['total_marks'],
+                'total_marks' => $q['total_marks'],
+                'pct'         => $q['percentage'],
             ])->values();
 
         return [
@@ -577,9 +587,19 @@ class StudentReportController extends Controller
                     'max_grade'  => $p->max_grade,
                 ])->values(),
 
+            'project_score' => $participation
+                ->where('kind', 'participation')
+                ->where('title', self::PROJECT_TITLE)
+                ->map(fn($p) => [
+                    'id'         => $p->id,
+                    'subject_id' => $p->subject_id,
+                    'grade'      => $p->grade,
+                    'max_grade'  => $p->max_grade,
+                ])->values(),
+
             'manual' => $participation
                 ->where('kind', 'participation')
-                ->where('title', '!=', self::PARTICIPATION_TITLE)
+                ->whereNotIn('title', self::RESERVED_PARTICIPATION)
                 ->map(fn($p) => [
                 'id'         => $p->id,
                 'kind'       => 'manual',
