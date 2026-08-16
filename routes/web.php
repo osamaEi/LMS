@@ -406,6 +406,7 @@ Route::middleware(['auth', 'role:admin,super_admin'])->prefix('admin')->name('ad
     Route::get('/attendance-limit', [\App\Http\Controllers\Admin\AttendanceLimitController::class, 'index'])->name('attendance-limit.index');
     Route::put('/attendance-limit', [\App\Http\Controllers\Admin\AttendanceLimitController::class, 'update'])->name('attendance-limit.update');
     Route::put('/attendance-limit/subjects', [\App\Http\Controllers\Admin\AttendanceLimitController::class, 'updateSubjects'])->name('attendance-limit.update-subjects');
+    Route::get('/attendance-limit/export', [\App\Http\Controllers\Admin\AttendanceLimitController::class, 'export'])->name('attendance-limit.export');
     Route::post('/attendance-limit/exempt', [\App\Http\Controllers\Admin\AttendanceLimitController::class, 'exempt'])->name('attendance-limit.exempt');
     Route::post('/attendance-limit/revoke', [\App\Http\Controllers\Admin\AttendanceLimitController::class, 'revoke'])->name('attendance-limit.revoke');
 
