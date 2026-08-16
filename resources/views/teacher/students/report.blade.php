@@ -175,8 +175,10 @@
                 ],
             ],
             'sections' => [
-                ['title' => 'الاختبارات القصيرة', 'rows' => $d['quizzes']],
-                ['title' => 'الواجبات',           'rows' => $d['homework']],
+                ['title' => 'الاختبارات القصيرة', 'rows' => $d['quizzes'],
+                 'addable' => true, 'kind' => 'quiz',     'manual' => $d['manual_quiz']],
+                ['title' => 'الواجبات',           'rows' => $d['homework'],
+                 'addable' => true, 'kind' => 'homework', 'manual' => $d['manual_homework']],
                 ['title' => 'بنود إضافية',        'rows' => $d['manual'], 'addable' => true],
             ],
             'subjects' => $rows->map(fn($r) => ['id' => $r['subject_id'], 'name' => $r['name']])->values(),
@@ -302,7 +304,7 @@
         return `<div class="dr" data-new>
             <span class="dr-main">
                 <input type="text" name="new_participation[${i}][title]"
-                       placeholder="${kind === 'final' ? 'اسم الاختبار' : 'اسم البند'}" class="dr-key">
+                       placeholder="${({final:'اسم الاختبار', midterm:'اسم الاختبار', quiz:'اسم الاختبار القصير', homework:'اسم الواجب'})[kind] || 'اسم البند'}" class="dr-key">
                 <input type="hidden" name="new_participation[${i}][kind]" value="${kind || 'participation'}">
                 ${subjects.length > 1
                     ? `<select name="new_participation[${i}][subject_id]" class="dr-sel">${opts}</select>`
@@ -399,15 +401,18 @@
             const rows = mine(sec.rows);
             // Legacy sections only exist to keep old records editable — drop them
             // entirely once there is nothing left in them.
-            if (sec.legacy && !rows.length) return '';
-            const inner = rows.length
-                ? rows.map(rowHtml).join('')
-                : `<p class="dr-empty">لا توجد سجلات.</p>`;
+            if (sec.legacy && !rows.length && !(sec.manual || []).length) return '';
+            // Manually added grades sit alongside the real records in the same box.
+            const manual = mine(sec.manual);
+            const all    = rows.concat(manual);
+            const inner  = all.length
+                ? all.map(rowHtml).join('')
+                : `<p class="dr-empty">لا توجد سجلات — أضف درجة يدويًا.</p>`;
             const add = sec.addable && subjects.length
                 ? `<div class="dr-slot"></div>
-                   <button type="button" class="dr-add" data-kind="${sec.kind || 'participation'}">+ إضافة بند</button>`
+                   <button type="button" class="dr-add" data-kind="${sec.kind || 'participation'}">+ إضافة درجة</button>`
                 : '';
-            return `<section class="dsec dsec-pin"><h3>${esc(sec.title)} <em>(${rows.length})</em></h3>${inner}${add}</section>`;
+            return `<section class="dsec dsec-pin"><h3>${esc(sec.title)} <em>(${all.length})</em></h3>${inner}${add}</section>`;
         }).join('') + pinnedAfter;
 
         body.querySelectorAll('.dr-add').forEach(btn => {

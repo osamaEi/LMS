@@ -79,7 +79,7 @@ class StudentReportController extends Controller
             'new_participation.*.grade'     => ['nullable', 'numeric', 'min:0'],
             'new_participation.*.max_grade' => ['nullable', 'integer', 'min:1', 'max:1000'],
             'new_participation.*.subject_id'=> ['nullable', 'integer'],
-            'new_participation.*.kind'      => ['nullable', 'in:participation,final'],
+            'new_participation.*.kind'      => ['nullable', 'in:participation,final,midterm,quiz,homework'],
 
             // The built-in مشاركة mark, keyed by subject id.
             'participation_score'                => ['array'],
@@ -459,10 +459,26 @@ class StudentReportController extends Controller
             $midtermPct = $avg($ofType(['midterm']));
             $finalPct   = $avg($ofType(['exam']));
 
-            // Homework: sum of grades over sum of max grades.
-            $subHw   = $homework->filter(fn($h) => $h['subject_id'] === $sid && $h['grade'] !== null);
-            $hwMax   = $subHw->sum(fn($h) => $h['max_grade'] ?: 0);
-            $hwPct   = $hwMax > 0 ? $subHw->sum('grade') / $hwMax : 0;
+            // Manually added grades for a quiz/homework with no record in the
+            // system. They join the same bucket as the real records.
+            $manualOf = fn(string $kind) => $participation
+                ->where('subject_id', $sid)->where('kind', $kind);
+
+            // Short quizzes may also be entered by hand; fold those in.
+            $mQuiz    = $manualOf('quiz');
+            $mQuizMax = $mQuiz->sum('max_grade');
+            if ($mQuizMax > 0) {
+                $mQuizPct = $mQuiz->sum('grade') / $mQuizMax;
+                $quizPct  = $ofType(['quiz', 'paper'])->isNotEmpty()
+                    ? ($quizPct + $mQuizPct) / 2
+                    : $mQuizPct;
+            }
+
+            // Homework: sum of grades over sum of max grades, real + manual.
+            $subHw = $homework->filter(fn($h) => $h['subject_id'] === $sid && $h['grade'] !== null);
+            $mHw   = $manualOf('homework');
+            $hwMax = $subHw->sum(fn($h) => $h['max_grade'] ?: 0) + $mHw->sum('max_grade');
+            $hwPct = $hwMax > 0 ? ($subHw->sum('grade') + $mHw->sum('grade')) / $hwMax : 0;
 
             // Manual participation items: sum of grades over sum of max grades.
             $subPart  = $participation->where('subject_id', $sid)
@@ -496,7 +512,7 @@ class StudentReportController extends Controller
             // weight, so the column can never exceed its cap.
             $partWeight = self::WEIGHTS['quizzes'] + self::WEIGHTS['homework'];
             $buckets    = [];
-            if ($quizPct !== 0 || $ofType(['quiz', 'paper'])->isNotEmpty()) $buckets[] = $quizPct;
+            if ($quizPct !== 0 || $ofType(['quiz', 'paper'])->isNotEmpty() || $mQuizMax > 0) $buckets[] = $quizPct;
             if ($hwMax > 0)   $buckets[] = $hwPct;
             if ($partMax > 0) $buckets[] = $partPct;
 
@@ -601,6 +617,26 @@ class StudentReportController extends Controller
                     'grade'      => $p->grade,
                     'max_grade'  => $p->max_grade,
                 ])->values(),
+
+            // Manually added grades for a quiz or homework that has no record in
+            // the system — they live alongside the real ones in the same bucket.
+            'manual_quiz' => $participation->where('kind', 'quiz')->map(fn($p) => [
+                'id'         => $p->id,
+                'kind'       => 'manual',
+                'subject_id' => $p->subject_id,
+                'title'      => $p->title,
+                'grade'      => $p->grade,
+                'max_grade'  => $p->max_grade,
+            ])->values(),
+
+            'manual_homework' => $participation->where('kind', 'homework')->map(fn($p) => [
+                'id'         => $p->id,
+                'kind'       => 'manual',
+                'subject_id' => $p->subject_id,
+                'title'      => $p->title,
+                'grade'      => $p->grade,
+                'max_grade'  => $p->max_grade,
+            ])->values(),
 
             'manual' => $participation
                 ->where('kind', 'participation')
