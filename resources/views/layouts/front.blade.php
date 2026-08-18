@@ -6,7 +6,7 @@
     <title>@yield('title', __('Al-Ertiqaa High Institute for Training'))</title>
 
     <!-- Favicon -->
-    <link rel="icon" type="image/png" href="{{ asset('images/Vector.png') }}" />
+    <link rel="icon" type="image/svg+xml" href="{{ asset('images/logo.svg') }}" />
 
     <!-- Bootstrap CSS -->
     @if(app()->getLocale() == 'ar')
@@ -960,7 +960,7 @@
             }
 
             .navbar-brand img {
-                max-width: 80px;
+                height: 36px;
             }
 
             .navbar-toggler {
