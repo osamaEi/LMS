@@ -210,8 +210,9 @@
         [dir="ltr"] .navbar-brand { margin-left: 0; margin-right: 1.25rem; }
 
         .navbar-brand img {
-            max-width: 183px;
-            height: auto;
+            /* Square brand mark — size by height so it never stretches. */
+            height: 52px;
+            width: auto;
             display: block;
         }
 
@@ -402,8 +403,8 @@
         }
 
         .mobile-menu-header .navbar-brand img {
-            max-width: 100px;
-            height: auto;
+            height: 40px;
+            width: auto;
         }
 
         .close-menu-btn {
@@ -766,7 +767,7 @@
 
         /* ── Footer ── */
         .foot { background: #1d3a52; color: #fff; padding: clamp(3rem,5vw,6rem) clamp(1rem,4vw,5rem); }
-        .footer-logo img { max-width: 320px; width: 100%; margin-bottom: 1rem; }
+        .footer-logo img { height: 64px; width: auto; margin-bottom: 1rem; }
         .footer-desc { opacity: .8; line-height: 1.8; font-size: .9rem; margin-bottom: 1.5rem; }
         .footer-social-wrap { display: flex; gap: .75rem; }
         .footer-social-wrap a { width: 38px; height: 38px; border-radius: 50%; background: rgba(255,255,255,.1); color: #fff; display: flex; align-items: center; justify-content: center; transition: all .3s; text-decoration: none; font-size: 1rem; }
@@ -913,7 +914,7 @@
             }
 
             .navbar-brand img {
-                max-width: 100px;
+                height: 42px;
             }
 
             /* Hero section mobile */

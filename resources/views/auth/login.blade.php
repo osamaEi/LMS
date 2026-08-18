@@ -85,7 +85,7 @@
             <!-- Content: Logo + tagline -->
             <div class="relative z-10 flex flex-col justify-center items-center text-white p-12 w-full text-center">
                 <div class="bg-white rounded-3xl px-8 py-6 shadow-2xl mb-8">
-                    <img src="{{ asset('images/logo.svg') }}" alt="ALERTIQA" style="width: 220px; height: auto;">
+                    <img src="{{ asset('images/logo.svg') }}" alt="ALERTIQA" style="height: 96px; width: auto;">
                 </div>
                 <h1 class="text-3xl font-bold mb-3">
                     {{ app()->getLocale() === 'ar' ? 'منصة الإرتقاء التعليمية' : 'ALERTIQA Learning Platform' }}
@@ -112,7 +112,7 @@
                     <img src="{{ asset('images/logo.svg') }}"
                          alt="ALERTIQA"
                          class="mx-auto mb-8"
-                         style="width: 160px; height: auto;">
+                         style="height: 72px; width: auto;">
 
                     <h2 class="text-3xl font-bold text-gray-900 mb-3">
                         {{ app()->getLocale() === 'ar' ? 'تسجيل الدخول' : 'Login' }}
