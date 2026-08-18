@@ -1173,7 +1173,7 @@
 
             {{-- Logo --}}
             <a class="navbar-brand" href="/">
-                <img src="{{ asset('images/nav.png') }}" alt="Logo" />
+                <img src="{{ asset('images/logo.svg') }}" alt="Logo" />
             </a>
 
             {{-- Mobile toggler --}}
@@ -1288,7 +1288,7 @@
     <div class="mobile-menu" id="mobileMenu">
         <div class="mobile-menu-header">
             <a class="navbar-brand" href="/">
-                <img src="{{ asset('images/nav.png') }}" alt="Logo" />
+                <img src="{{ asset('images/logo.svg') }}" alt="Logo" />
             </a>
             <button class="close-menu-btn" type="button" onclick="closeMobileMenu()">
                 <i class="bi bi-x-lg"></i>

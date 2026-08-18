@@ -119,7 +119,7 @@
         <div class="relative flex flex-col justify-between h-full p-10">
             {{-- Logo --}}
             <div>
-                <img src="{{ asset('images/logo/logo.png') }}" alt="ALERTIQA" style="height:56px; width:auto; filter:brightness(0) invert(1);">
+                <img src="{{ asset('images/logo.svg') }}" alt="ALERTIQA" style="height:56px; width:auto; filter:brightness(0) invert(1);">
             </div>
 
             {{-- Center content --}}
@@ -138,7 +138,7 @@
 
             {{-- Mobile logo --}}
             <div class="lg:hidden text-center mb-6">
-                <img src="{{ asset('images/logo/logo.png') }}" alt="ALERTIQA" style="height:48px;width:auto;margin:0 auto;">
+                <img src="{{ asset('images/logo.svg') }}" alt="ALERTIQA" style="height:48px;width:auto;margin:0 auto;">
             </div>
 
             {{-- ── Step Indicator ── --}}

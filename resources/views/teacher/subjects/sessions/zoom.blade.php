@@ -672,7 +672,7 @@
                     </svg>
                 </a>
                 <div style="width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; margin-left: 12px; overflow: hidden; border: 2px solid rgba(255,255,255,0.2);">
-                    <img src="{{ asset('images/logo/logo.png') }}" alt="Logo" style="height: 28px; object-fit: contain;" />
+                    <img src="{{ asset('images/logo.svg') }}" alt="Logo" style="height: 28px; object-fit: contain;" />
                 </div>
                 <div class="header-title">
                     <h1>{{ $session->title }}</h1>
@@ -698,7 +698,7 @@
                     <!-- Logo in center above card -->
                     <div style="position: absolute; top: 80px; left: 50%; transform: translateX(-50%); z-index: 20;">
                         <div style="width: 100px; height: 100px; border-radius: 50%; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; border: 3px solid rgba(255,255,255,0.2); backdrop-filter: blur(10px);">
-                            <img src="{{ asset('images/logo/logo.png') }}" alt="Logo" style="height: 60px; object-fit: contain;" />
+                            <img src="{{ asset('images/logo.svg') }}" alt="Logo" style="height: 60px; object-fit: contain;" />
                         </div>
                     </div>
 
