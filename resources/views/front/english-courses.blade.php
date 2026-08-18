@@ -1,6 +1,6 @@
 ﻿@extends('layouts.front')
 
-@section('title', 'برامج اللغة الإنجليزية - معهد الإرتقاء العالي للتدريب')
+@section('title', 'برامج اللغة الإنجليزية - أكاديميةالإرتقاء العالي للتدريب')
 
 @section('styles')
 <style>
