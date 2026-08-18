@@ -17,7 +17,7 @@ class FaqSeeder extends Seeder
             [
                 'category'    => 'registration',
                 'sort_order'  => 1,
-                'question_ar' => 'كيف أتسجل في الأكاديمية؟',
+                'question_ar' => 'كيف أتسجل في الأكاديمية ؟',
                 'question_en' => 'How do I register at the institute?',
                 'answer_ar'   => 'يمكنك التسجيل بسهولة عبر حساب نفاذ أو إنشاء حساب داخلي. بعد التسجيل، يمكنك اختيار الدبلوم الأكاديمي أو الدورات التي تناسبك. ستتلقى رسالة تأكيد على بريدك الإلكتروني بعد إتمام التسجيل.',
                 'answer_en'   => 'You can register easily via your Nafath account or by creating an internal account. After registering, you can choose the academic diploma or short courses that suit you. You will receive a confirmation email once registration is complete.',
@@ -69,7 +69,7 @@ class FaqSeeder extends Seeder
                 'sort_order'  => 2,
                 'question_ar' => 'هل يمكنني التحويل من دبلوم لآخر؟',
                 'question_en' => 'Can I transfer from one diploma to another?',
-                'answer_ar'   => 'نعم، يمكنك التحويل بين الدبلومات   وفق شروط أكاديمية محددة وبعد مراجعة الساعات التدريبية  المنجزة والتنسيق مع الإدارة الأكاديمية.',
+                'answer_ar'   => 'نعم، يمكنك التحويل بين الدبلومات   وفق شروط أكاديمية  محددة وبعد مراجعة الساعات التدريبية  المنجزة والتنسيق مع الإدارة الأكاديمية .',
                 'answer_en'   => 'Yes, you can transfer between diplomas according to specific academic conditions and after reviewing completed training hours and coordinating with the academic administration.',
             ],
             [

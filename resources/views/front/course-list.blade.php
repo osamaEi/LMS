@@ -1,6 +1,6 @@
 ﻿@extends('layouts.front')
 
-@section('title', $pageTitle . ' — أكاديميةالإرتقاء العالي للتدريب')
+@section('title', $pageTitle . ' — أكاديمية الإرتقاء العالي للتدريب')
 
 @section('styles')
 <style>

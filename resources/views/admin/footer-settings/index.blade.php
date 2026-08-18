@@ -85,12 +85,12 @@
     </div>
     <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-5">
         <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">وصف الأكاديمية(عربي)</label>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">وصف الأكاديمية (عربي)</label>
             <textarea name="footer_description_ar" rows="3"
                       class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white">{{ $settings['footer_description_ar'] ?? '' }}</textarea>
         </div>
         <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">وصف الأكاديمية(إنجليزي)</label>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">وصف الأكاديمية (إنجليزي)</label>
             <textarea name="footer_description_en" rows="3" dir="ltr"
                       class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white">{{ $settings['footer_description_en'] ?? '' }}</textarea>
         </div>

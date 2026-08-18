@@ -1,6 +1,6 @@
 ﻿@extends('layouts.front')
 
-@section('title', 'العروض والخصومات — أكاديميةالارتقاء')
+@section('title', 'العروض والخصومات — أكاديمية الارتقاء')
 
 @section('styles')
 <style>

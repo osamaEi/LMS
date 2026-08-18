@@ -195,7 +195,7 @@
                                 <input type="text" name="question_ar" id="question_ar"
                                        value="{{ old('question_ar') }}"
                                        class="fi {{ $errors->has('question_ar') ? 'is-error' : '' }}"
-                                       placeholder="مثال: كيف أتسجل في الأكاديمية؟"
+                                       placeholder="مثال: كيف أتسجل في الأكاديمية ؟"
                                        maxlength="500"
                                        oninput="updateCounter(this,'cnt-qar',500);syncPreview()">
                                 <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px;">

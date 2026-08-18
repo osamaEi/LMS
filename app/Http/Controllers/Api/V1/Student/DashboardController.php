@@ -540,7 +540,7 @@ class DashboardController extends Controller
                 'title' => 'التقويم الأكاديمي',
                 'url' => Setting::where('key', 'calendar_url')->value('value') ?? '#',
                 'icon' => 'calendar',
-                'description' => 'عرض المواعيد والأحداث الأكاديمية',
+                'description' => 'عرض المواعيد والأحداث الأكاديمية ',
             ],
         ];
 

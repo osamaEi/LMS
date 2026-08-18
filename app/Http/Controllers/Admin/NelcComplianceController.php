@@ -80,13 +80,13 @@ class NelcComplianceController extends Controller
             ],
             [
                 'code' => '1.1.4',
-                'title_ar' => 'الالتزام بتحقيق النزاهة الأكاديمية',
+                'title_ar' => 'الالتزام بتحقيق النزاهة الأكاديمية ',
                 'category' => 'السياسات والتنظيم',
                 'type' => 'إلزامي',
                 'status' => 'implemented',
                 'link' => route('nelc.policies.academic-integrity'),
                 'link_label' => 'سياسة النزاهة',
-                'notes' => 'سياسة النزاهة الأكاديمية منشورة',
+                'notes' => 'سياسة النزاهة الأكاديمية  منشورة',
             ],
             [
                 'code' => '1.1.5',

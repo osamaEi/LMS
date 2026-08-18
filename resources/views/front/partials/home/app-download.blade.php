@@ -21,7 +21,7 @@
                 </div>
             </div>
             <div class="col-lg-6 text-center">
-                <img loading="lazy" src="{{ asset('images/phone1.png') }}" alt="تطبيق أكاديميةالارتقاء"
+                <img loading="lazy" src="{{ asset('images/phone1.png') }}" alt="تطبيق أكاديمية الارتقاء"
                      style="max-width:300px;width:100%;filter:drop-shadow(0 24px 48px rgba(0,0,0,.35));" />
             </div>
         </div>

@@ -918,7 +918,7 @@ class DashboardController extends Controller
                 'key'         => 'student_portal_url',
                 'title'       => 'البوابة الإلكترونية',
                 'subtitle'    => 'بوابة ال متدرب الرسمية',
-                'description' => 'منصة متكاملة تتيح لل متدرب الوصول إلى جميع خدماته الأكاديمية والإدارية في مكان واحد.',
+                'description' => 'منصة متكاملة تتيح لل متدرب الوصول إلى جميع خدماته الأكاديمية  والإدارية في مكان واحد.',
                 'icon_bg'     => 'linear-gradient(135deg,#3b82f6,#1d4ed8)',
                 'badge_bg'    => '#dbeafe',
                 'badge_color' => '#1d4ed8',
@@ -934,7 +934,7 @@ class DashboardController extends Controller
             'library' => [
                 'key'         => 'library_url',
                 'title'       => 'المكتبة الرقمية',
-                'subtitle'    => 'مستودع المعرفة الأكاديمية',
+                'subtitle'    => 'مستودع المعرفة الأكاديمية ',
                 'description' => 'مكتبة إلكترونية شاملة تضم آلاف الكتب والمراجع والدوريات العلمية المحكّمة.',
                 'icon_bg'     => 'linear-gradient(135deg,#8b5cf6,#6d28d9)',
                 'badge_bg'    => '#ede9fe',
@@ -1071,7 +1071,7 @@ class DashboardController extends Controller
                 'title' => 'التقويم الأكاديمي',
                 'url' => Setting::where('key', 'calendar_url')->value('value') ?? '#',
                 'icon' => 'calendar',
-                'description' => 'عرض المواعيد والأحداث الأكاديمية',
+                'description' => 'عرض المواعيد والأحداث الأكاديمية ',
             ],
         ];
 

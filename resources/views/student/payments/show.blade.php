@@ -474,7 +474,7 @@
                     </div>
                     <div class="bank-row">
                         <span class="text-gray-500 font-medium">اسم المستفيد</span>
-                        <span class="font-bold text-gray-800">أكاديمية LOOP</span>
+                        <span class="font-bold text-gray-800">أكاديمية  LOOP</span>
                     </div>
                     <div class="bank-row">
                         <span class="text-gray-500 font-medium">رقم الحساب</span>

@@ -467,7 +467,7 @@
         </div>
         <div class="gallery-grid">
             <div class="g-item tall">
-                <img loading="lazy" src="{{ $lms3s('2.png') }}" alt="أكاديميةالارتقاء" />
+                <img loading="lazy" src="{{ $lms3s('2.png') }}" alt="أكاديمية الارتقاء" />
             </div>
             <div class="g-item">
                 <img loading="lazy" src="{{ $lms3s('4.png') }}" alt="قاعة التدريب" />

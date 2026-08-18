@@ -128,7 +128,7 @@
                 </div>
                 <div>
                     <h1 style="font-size:1.75rem;font-weight:900;color:#fff;margin:0;line-height:1.2">روابط مفيدة</h1>
-                    <p style="font-size:0.9rem;color:rgba(255,255,255,0.75);margin:4px 0 0">وصول سريع لجميع الأنظمة والخدمات الأكاديمية</p>
+                    <p style="font-size:0.9rem;color:rgba(255,255,255,0.75);margin:4px 0 0">وصول سريع لجميع الأنظمة والخدمات الأكاديمية </p>
                 </div>
             </div>
 
@@ -164,7 +164,7 @@
                 'service'     => 'library',
                 'key'         => 'library_url',
                 'title'       => 'المكتبة الرقمية',
-                'desc'        => 'تصفح الكتب والمراجع العلمية والأبحاث الأكاديمية الرقمية',
+                'desc'        => 'تصفح الكتب والمراجع العلمية والأبحاث الأكاديمية  الرقمية',
                 'badge'       => 'مكتبة',
                 'icon_bg'     => 'linear-gradient(135deg,#8b5cf6,#7c3aed)',
                 'card_top'    => '#f5f3ff',
@@ -190,7 +190,7 @@
                 'service'     => 'calendar',
                 'key'         => 'calendar_url',
                 'title'       => 'التقويم الأكاديمي',
-                'desc'        => 'مواعيد الاختبارات، الإجازات، الأحداث الجامعية والمناسبات الأكاديمية',
+                'desc'        => 'مواعيد الاختبارات، الإجازات، الأحداث الجامعية والمناسبات الأكاديمية ',
                 'badge'       => 'تقويم',
                 'icon_bg'     => 'linear-gradient(135deg,#0891b2,#0e7490)',
                 'card_top'    => '#ecfeff',

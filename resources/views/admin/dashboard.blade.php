@@ -21,7 +21,7 @@
             </div>
             <div>
                 <h1 style="color:#fff;font-size:1.75rem;font-weight:900;margin:0;line-height:1.2;">لوحة التحكم</h1>
-                <p style="color:rgba(255,255,255,.65);font-size:.9rem;margin:.3rem 0 0;">مرحباً بك في أكاديميةالارتقاء، <strong style="color:rgba(255,255,255,.9);">{{ auth()->user()->name }}</strong></p>
+                <p style="color:rgba(255,255,255,.65);font-size:.9rem;margin:.3rem 0 0;">مرحباً بك في أكاديمية الارتقاء، <strong style="color:rgba(255,255,255,.9);">{{ auth()->user()->name }}</strong></p>
             </div>
         </div>
 

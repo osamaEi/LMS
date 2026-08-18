@@ -124,7 +124,7 @@
 
         {{-- Academic Info --}}
         <div class="border-t border-gray-200 dark:border-gray-800 pt-6">
-            <h2 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4">البيانات الأكاديمية</h2>
+            <h2 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4">البيانات الأكاديمية </h2>
             <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
 
                 <div>
