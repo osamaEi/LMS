@@ -18,9 +18,9 @@
           <td style="background:linear-gradient(135deg,#0a1628 0%,#0f2744 50%,#0a1f3d 100%);border-radius:16px 16px 0 0;padding:36px 40px;text-align:center;">
 
             {{-- Logo --}}
-            <img src="https://www.alertiqa.edu.sa/images/nav.png"
+            <img src="https://www.alertiqa.edu.sa/images/logo/logo.png"
                  alt="{{ config('app.name') }}"
-                 width="180"
+                 width="60"
                  style="display:inline-block;height:auto;max-height:64px;object-fit:contain;filter:brightness(0) invert(1);">
 
             {{-- Divider --}}
@@ -82,9 +82,9 @@
         {{-- ── Footer ── --}}
         <tr>
           <td style="background:#f8fafc;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 16px 16px;padding:24px 40px;text-align:center;font-family:'Cairo',Arial,sans-serif;">
-            <img src="https://www.alertiqa.edu.sa/images/nav.png"
+            <img src="https://www.alertiqa.edu.sa/images/logo/logo.png"
                  alt="{{ config('app.name') }}"
-                 width="80"
+                 width="28"
                  style="display:inline-block;height:auto;max-height:30px;object-fit:contain;opacity:.5;margin-bottom:10px;filter:brightness(0);">
             <p style="margin:0 0 4px;font-size:13px;font-weight:700;color:#475569;font-family:'Cairo',Arial,sans-serif;">
               {{ config('app.name') }}
