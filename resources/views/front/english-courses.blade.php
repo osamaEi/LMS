@@ -282,7 +282,6 @@ $defEngImg = function($lv) use ($engPhotos) {
                         @if($prog->price > 0)
                         <span class="meta-chip"><i class="bi bi-tag"></i> {{ number_format($prog->price,0) }} <x-riyal /></span>
                         @else
-                        <span class="meta-chip" style="background:#dcfce7;color:#16a34a;"><i class="bi bi-gift" style="color:#16a34a;"></i> مجاني</span>
                         @endif
                     </div>
                 </div>

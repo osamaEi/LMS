@@ -499,7 +499,7 @@ $lms3s = fn(string $n) => asset('lms3/' . rawurlencode('حين يلتقي الت
                         <div class="ps-price-big">{{ number_format($program->price, 0) }} <x-riyal /></div>
                         <div class="ps-price-sub">رسوم التسجيل</div>
                     @else
-                        <span class="ps-price-free"><i class="bi bi-gift-fill"></i> مجاني</span>
+                    
                     @endif
                 </div>
 

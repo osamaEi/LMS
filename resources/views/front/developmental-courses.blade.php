@@ -185,7 +185,7 @@ $defaultColor = ['top'=>'linear-gradient(90deg,#64748b,#94a3b8)', 'badge'=>'#f1f
                         @if($program->price > 0)
                         <span class="meta-chip"><i class="bi bi-tag"></i> {{ number_format($program->price,0) }} <x-riyal /></span>
                         @else
-                        <span class="meta-chip" style="background:#dcfce7;color:#16a34a;"><i class="bi bi-gift" style="color:#16a34a;"></i> مجاني</span>
+                        
                         @endif
                     </div>
                 </div>
@@ -232,7 +232,6 @@ $defaultColor = ['top'=>'linear-gradient(90deg,#64748b,#94a3b8)', 'badge'=>'#f1f
                         @if($program->price > 0)
                         <span class="meta-chip"><i class="bi bi-tag"></i> {{ number_format($program->price,0) }} <x-riyal /></span>
                         @else
-                        <span class="meta-chip" style="background:#dcfce7;color:#16a34a;"><i class="bi bi-gift" style="color:#16a34a;"></i> مجاني</span>
                         @endif
                     </div>
                 </div>
