@@ -77,6 +77,7 @@ Route::prefix('v1')->group(function () {
             Route::put('/profile', [App\Http\Controllers\Api\V1\Student\ProfileController::class, 'update']);
             Route::post('/profile/photo', [App\Http\Controllers\Api\V1\Student\ProfileController::class, 'updatePhoto']);
             Route::post('/profile/change-password', [App\Http\Controllers\Api\V1\Student\ProfileController::class, 'changePassword']);
+            Route::delete('/profile', [App\Http\Controllers\Api\V1\Student\ProfileController::class, 'destroy']);
 
             // Dashboard
             Route::get('/dashboard', [App\Http\Controllers\Api\V1\Student\DashboardController::class, 'index']);
@@ -91,6 +92,12 @@ Route::prefix('v1')->group(function () {
             Route::post('/sessions/{sessionId}/join', [App\Http\Controllers\Api\V1\Student\SessionController::class, 'join']);
             Route::post('/sessions/{sessionId}/join-zoom', [App\Http\Controllers\Api\V1\Student\DashboardController::class, 'joinZoom']);
             Route::post('/sessions/{sessionId}/leave-zoom', [App\Http\Controllers\Api\V1\Student\DashboardController::class, 'leaveZoom']);
+
+            // Absence Apologies
+            Route::post('/sessions/{sessionId}/apology', [App\Http\Controllers\Api\V1\Student\ApologyController::class, 'store']);
+            Route::get('/apologies', [App\Http\Controllers\Api\V1\Student\ApologyController::class, 'index']);
+            Route::get('/apologies/{id}', [App\Http\Controllers\Api\V1\Student\ApologyController::class, 'show']);
+            Route::delete('/apologies/{id}', [App\Http\Controllers\Api\V1\Student\ApologyController::class, 'destroy']);
 
             // Schedule (Calendar)
             Route::get('/schedule', [App\Http\Controllers\Api\V1\Student\ScheduleController::class, 'index']);

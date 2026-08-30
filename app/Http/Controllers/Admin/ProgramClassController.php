@@ -6,10 +6,18 @@ use App\Http\Controllers\Controller;
 use App\Models\Program;
 use App\Models\ProgramClass;
 use App\Models\User;
+use App\Services\ProgramClassService;
+use App\Services\StudentProgramClassService;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class ProgramClassController extends Controller
 {
+    public function __construct(
+        private readonly ProgramClassService $programClassService,
+        private readonly StudentProgramClassService $studentProgramClassService,
+    ) {}
+
     public function index(Request $request)
     {
         $query = ProgramClass::with(['program', 'teacher'])
@@ -19,16 +27,16 @@ class ProgramClassController extends Controller
             $query->where('program_id', $request->program_id);
         }
         if ($request->filled('type')) {
-            $query->whereHas('program', fn($q) => $q->where('type', $request->type));
+            $query->whereHas('program', fn ($q) => $q->where('type', $request->type));
         }
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
         if ($request->filled('search')) {
-            $query->where('name', 'like', '%' . $request->search . '%');
+            $query->where('name', 'like', '%'.$request->search.'%');
         }
 
-        $classes  = $query->latest()->paginate(20)->withQueryString();
+        $classes = $query->latest()->paginate(20)->withQueryString();
         $programs = Program::orderBy('name_ar')->get(['id', 'name_ar', 'name_en']);
         $teachers = User::where('role', 'teacher')->orderBy('name')->get(['id', 'name']);
 
@@ -42,8 +50,8 @@ class ProgramClassController extends Controller
             'teacher',
             'terms' => function ($query) {
                 $query->withCount('subjects')
-                      ->with(['subjects' => fn($q) => $q->with(['teacher:id,name', 'teachers:id,name'])->orderBy('name_ar')])
-                      ->orderBy('term_number');
+                    ->with(['subjects' => fn ($q) => $q->with(['teacher:id,name', 'teachers:id,name'])->orderBy('name_ar')])
+                    ->orderBy('term_number');
             },
         ]);
 
@@ -51,9 +59,9 @@ class ProgramClassController extends Controller
         $classStudents = User::where('role', 'student')
             ->where(function ($q) use ($class) {
                 $q->where('class_id', $class->id)
-                  ->orWhereHas('programs', fn($sq) => $sq
-                      ->where('programs.id', $class->program_id)
-                      ->where('student_programs.class_id', $class->id));
+                    ->orWhereHas('programs', fn ($sq) => $sq
+                        ->where('programs.id', $class->program_id)
+                        ->where('student_programs.class_id', $class->id));
             })
             ->get(['id', 'name', 'email', 'national_id', 'phone', 'class_id']);
 
@@ -75,9 +83,9 @@ class ProgramClassController extends Controller
             ->pluck('code')
             ->filter()
             ->all();
-        $suffix = '-C' . $class->id;
+        $suffix = '-C'.$class->id;
         $usedSubjectIds = $programSubjects->filter(function ($s) use ($usedCodes, $suffix) {
-            return $s->code && in_array($s->code . $suffix, $usedCodes, true);
+            return $s->code && in_array($s->code.$suffix, $usedCodes, true);
         })->pluck('id')->all();
 
         // All teachers in the system — so the assign-teacher modal is never empty.
@@ -86,7 +94,7 @@ class ProgramClassController extends Controller
         // Subjects belonging to THIS class (used as the session subject picker for diplomas).
         // Attach each subject's term so the form can derive the term end date.
         $classSubjects = $class->terms->flatMap(function ($term) {
-            return $term->subjects->each(fn($s) => $s->setRelation('term', $term));
+            return $term->subjects->each(fn ($s) => $s->setRelation('term', $term));
         })->values();
 
         // Existing sessions for this class
@@ -107,41 +115,50 @@ class ProgramClassController extends Controller
     {
         $isDiploma = $class->program && $class->program->type === 'diploma';
 
+        if ($class->status !== 'active') {
+            return redirect()->to(route('admin.classes.show', $class->id).'#sessions')
+                ->with('error', 'لا يمكن إنشاء جلسات لمجموعة غير نشطة.');
+        }
+
         $data = $request->validate([
-            'subject_id'       => [$isDiploma ? 'required' : 'nullable', 'exists:subjects,id'],
-            'teacher_id'       => 'required|exists:users,id',
-            'days'             => 'required|array|min:1',
-            'days.*'           => 'integer|min:0|max:6',
-            'time'             => 'required|date_format:H:i',
-            'start_date'       => 'required|date',
-            'end_date'         => 'nullable|date|after_or_equal:start_date',
+            'subject_id' => [$isDiploma ? 'required' : 'nullable', 'exists:subjects,id'],
+            'teacher_id' => 'required|exists:users,id',
+            'days' => 'required|array|min:1',
+            'days.*' => 'integer|min:0|max:6',
+            'time' => 'required|date_format:H:i',
+            'start_date' => 'required|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
         ]);
 
         $class->loadMissing('students');
 
         // Errors should land back on the Sessions tab of this class
-        $err = fn($msg) => redirect()->to(route('admin.classes.show', $class->id) . '#sessions')->with('error', $msg);
+        $err = fn ($msg) => redirect()->to(route('admin.classes.show', $class->id).'#sessions')->with('error', $msg);
 
         // Resolve FK column/value + title label + the end-of-period date
         if ($isDiploma) {
             $subject = \App\Models\Subject::with(['term', 'teachers', 'terms'])->findOrFail($data['subject_id']);
-            
+
+            if ((int) $subject->program_id !== (int) $class->program_id) {
+                return $err('المقرر لا ينتمي إلى برنامج هذه المجموعة');
+            }
+
             // Check if subject belongs to a term of this class
-            $belongsToClass = $subject->terms->contains(fn($t) => $t->class_id === $class->id);
-            if (!$belongsToClass) {
+            $belongsToClass = $subject->terms->contains(fn ($t) => $t->class_id === $class->id);
+            if (! $belongsToClass) {
                 return $err('المقرر لا يخص هذه المجموعة');
             }
             // The session teacher must be one assigned to this subject
             $assignedTeacherIds = $subject->teachers->pluck('id')
                 ->merge($subject->teacher_id ? [$subject->teacher_id] : [])
                 ->unique();
-            if (!$assignedTeacherIds->contains((int) $data['teacher_id'])) {
+            if (! $assignedTeacherIds->contains((int) $data['teacher_id'])) {
                 return $err('المدرب المختار غير معيّن لهذا المقرر');
             }
-            
+
             // Get the term of this subject that belongs to this class
-            $term = $subject->terms->first(fn($t) => $t->class_id === $class->id);
-            
+            $term = $subject->terms->first(fn ($t) => $t->class_id === $class->id);
+
             $fkCol = 'subject_id';
             $fkVal = $subject->id;
             $label = $subject->name_ar ?? 'جلسة';
@@ -158,14 +175,14 @@ class ProgramClassController extends Controller
 
         // The end date is pre-filled but editable, so the entered value wins.
         // Fall back to the term/class end only if it's left blank, then persist.
-        if (!empty($data['end_date'])) {
+        if (! empty($data['end_date'])) {
             $end = \Carbon\Carbon::parse($data['end_date']);
             if ($isDiploma && $term) {
                 $term->update(['end_date' => $end->toDateString()]);
-            } elseif (!$isDiploma) {
+            } elseif (! $isDiploma) {
                 $class->update(['end_date' => $end->toDateString()]);
             }
-        } elseif (!$end) {
+        } elseif (! $end) {
             return $err('حدّد تاريخ نهاية الجلسات');
         }
 
@@ -174,15 +191,15 @@ class ProgramClassController extends Controller
         // Build weekly recurring datetimes from start_date until the period end
         [$hh, $mm] = explode(':', $data['time']);
         $start = \Carbon\Carbon::parse($data['start_date']);
-        $end   = \Carbon\Carbon::parse($end)->endOfDay();
-        $days  = array_map('intval', $data['days']);
+        $end = \Carbon\Carbon::parse($end)->endOfDay();
+        $days = array_map('intval', $data['days']);
 
         if ($start->gt($end)) {
             return $err('تاريخ البداية بعد نهاية الفترة');
         }
 
         $dates = [];
-        $cur   = $start->copy();
+        $cur = $start->copy();
         while ($cur->lte($end)) {
             if (in_array($cur->dayOfWeek, $days)) {
                 $dates[] = $cur->copy()->setHour((int) $hh)->setMinute((int) $mm)->setSecond(0);
@@ -195,22 +212,22 @@ class ProgramClassController extends Controller
         }
 
         $nextNumber = \App\Models\Session::where($fkCol, $fkVal)->where('class_id', $class->id)->max('session_number') ?? 0;
-        $students   = $class->students;
-        $created    = 0;
+        $students = $class->students;
+        $created = 0;
 
         foreach ($dates as $scheduledAt) {
             $nextNumber++;
             $session = \App\Models\Session::create([
-                $fkCol             => $fkVal,
-                'program_id'       => $programId,
-                'class_id'         => $class->id,
-                'teacher_id'       => $teacherId,
-                'type'             => 'live_zoom',
-                'status'           => 'scheduled',
-                'scheduled_at'     => $scheduledAt,
+                $fkCol => $fkVal,
+                'program_id' => $programId,
+                'class_id' => $class->id,
+                'teacher_id' => $teacherId,
+                'type' => 'live_zoom',
+                'status' => 'scheduled',
+                'scheduled_at' => $scheduledAt,
                 'duration_minutes' => 60,
-                'session_number'   => $nextNumber,
-                'title_ar'         => $label . ' (#' . $nextNumber . ')',
+                'session_number' => $nextNumber,
+                'title_ar' => $label.' (#'.$nextNumber.')',
             ]);
 
             foreach ($students as $student) {
@@ -222,7 +239,7 @@ class ProgramClassController extends Controller
             $created++;
         }
 
-        return redirect()->to(route('admin.classes.show', $class->id) . '#sessions')
+        return redirect()->to(route('admin.classes.show', $class->id).'#sessions')
             ->with('success', "تم إنشاء {$created} جلسة وإسناد {$students->count()} متدرب لكل جلسة");
     }
 
@@ -233,14 +250,14 @@ class ProgramClassController extends Controller
     public function reassignSessionTeacher(Request $request, ProgramClass $class)
     {
         $data = $request->validate([
-            'teacher_id'   => 'required|exists:users,id',
-            'session_ids'  => 'required|array|min:1',
-            'session_ids.*'=> 'integer',
+            'teacher_id' => 'required|exists:users,id',
+            'session_ids' => 'required|array|min:1',
+            'session_ids.*' => 'integer',
         ]);
 
         // Guard: only teachers, and only sessions that belong to this class.
         $isTeacher = User::where('id', $data['teacher_id'])->where('role', 'teacher')->exists();
-        if (!$isTeacher) {
+        if (! $isTeacher) {
             return response()->json(['success' => false, 'message' => 'المستخدم المختار ليس معلمًا'], 422);
         }
 
@@ -258,7 +275,7 @@ class ProgramClassController extends Controller
             $unassigned = \App\Models\Subject::with('teachers')
                 ->whereIn('id', $subjectIds)
                 ->get()
-                ->reject(fn($subject) => (int) $subject->teacher_id === $teacherId
+                ->reject(fn ($subject) => (int) $subject->teacher_id === $teacherId
                     || $subject->teachers->contains('id', $teacherId));
             if ($unassigned->isNotEmpty()) {
                 return response()->json([
@@ -282,7 +299,7 @@ class ProgramClassController extends Controller
     public function deleteSessions(Request $request, ProgramClass $class)
     {
         $data = $request->validate([
-            'session_ids'   => 'required|array|min:1',
+            'session_ids' => 'required|array|min:1',
             'session_ids.*' => 'integer',
         ]);
 
@@ -317,7 +334,7 @@ class ProgramClassController extends Controller
             return response()->json(['success' => true, 'deleted' => $count]);
         }
 
-        return redirect()->to(route('admin.classes.show', $class->id) . '#sessions')
+        return redirect()->to(route('admin.classes.show', $class->id).'#sessions')
             ->with('success', "تم حذف {$count} جلسة");
     }
 
@@ -329,10 +346,10 @@ class ProgramClassController extends Controller
     public function attachSubject(Request $request, ProgramClass $class)
     {
         $data = $request->validate([
-            'term_id'      => 'required|exists:terms,id',
-            'subject_id'   => 'nullable|exists:subjects,id',          // single (modal)
-            'subject_ids'  => 'nullable|array',                       // multiple (checkboxes)
-            'subject_ids.*'=> 'integer|exists:subjects,id',
+            'term_id' => 'required|exists:terms,id',
+            'subject_id' => 'nullable|exists:subjects,id',          // single (modal)
+            'subject_ids' => 'nullable|array',                       // multiple (checkboxes)
+            'subject_ids.*' => 'integer|exists:subjects,id',
         ]);
 
         $term = \App\Models\Term::findOrFail($data['term_id']);
@@ -340,7 +357,7 @@ class ProgramClassController extends Controller
 
         // Collect chosen subject IDs from either input
         $ids = collect($data['subject_ids'] ?? [])
-            ->merge(!empty($data['subject_id']) ? [$data['subject_id']] : [])
+            ->merge(! empty($data['subject_id']) ? [$data['subject_id']] : [])
             ->unique()->values();
 
         if ($ids->isEmpty()) {
@@ -350,7 +367,7 @@ class ProgramClassController extends Controller
         }
 
         $attached = 0;
-        $skipped  = [];
+        $skipped = [];
         foreach ($ids as $sid) {
             $result = $this->attachOneSubject($class, $term, (int) $sid);
             if ($result === true) {
@@ -365,9 +382,10 @@ class ProgramClassController extends Controller
         }
 
         $msg = "تم إضافة {$attached} مقرر للمجموعة";
-        $redirect = redirect()->to(route('admin.classes.show', $class->id) . '#terms');
-        return !empty($skipped)
-            ? $redirect->with('error', $msg . ' — تم تخطي: ' . implode('، ', array_unique($skipped)))
+        $redirect = redirect()->to(route('admin.classes.show', $class->id).'#terms');
+
+        return ! empty($skipped)
+            ? $redirect->with('error', $msg.' — تم تخطي: '.implode('، ', array_unique($skipped)))
             : $redirect->with('success', $msg);
     }
 
@@ -378,25 +396,32 @@ class ProgramClassController extends Controller
     private function attachOneSubject(ProgramClass $class, \App\Models\Term $term, int $sourceId)
     {
         $source = \App\Models\Subject::find($sourceId);
-        if (!$source) return 'مقرر غير موجود';
+        if (! $source) {
+            return 'مقرر غير موجود';
+        }
+
+        if ((int) $source->program_id !== (int) $class->program_id) {
+            return 'المقرر لا ينتمي إلى برنامج هذه المجموعة';
+        }
 
         if ($source->class_id === null) {
             // Clone the program-wide subject into this class.
             $subject = $source->replicate(['class_id']);
             $subject->class_id = $class->id;
-            $subject->term_id  = $term->id;
-            $baseCode = $source->code ? $source->code . '-C' . $class->id : null;
+            $subject->term_id = $term->id;
+            $baseCode = $source->code ? $source->code.'-C'.$class->id : null;
             $subject->code = $baseCode;
 
             $existing = $baseCode
                 ? \App\Models\Subject::where('program_id', $class->program_id)->where('code', $baseCode)->first()
                 : null;
             if ($existing && $existing->term_id) {
-                return ($source->name_ar ?: $source->name_en) . ' (مُسند لربع آخر)';
+                return ($source->name_ar ?: $source->name_en).' (مُسند لربع آخر)';
             }
             if ($existing) {
                 $existing->update(['term_id' => $term->id, 'class_id' => $class->id]);
                 $existing->terms()->syncWithoutDetaching([$term->id]);
+
                 return true;
             }
             $subject->save();
@@ -405,7 +430,7 @@ class ProgramClassController extends Controller
             }
         } else {
             if ($source->class_id != $class->id) {
-                return ($source->name_ar ?: $source->name_en) . ' (يخص مجموعة أخرى)';
+                return ($source->name_ar ?: $source->name_en).' (يخص مجموعة أخرى)';
             }
             $subject = $source;
             $subject->term_id = $term->id;
@@ -413,19 +438,21 @@ class ProgramClassController extends Controller
         }
 
         $subject->terms()->syncWithoutDetaching([$term->id]);
+
         return true;
     }
 
     public function store(Request $request)
     {
         $data = $request->validate([
-            'program_id'      => 'required|exists:programs,id',
-            'name'            => 'required|string|max:255',
+            'program_id' => 'required|exists:programs,id',
+            'name' => 'required|string|max:255',
+            'teacher_id' => ['nullable', Rule::exists('users', 'id')->where('role', 'teacher')],
             'supervisor_name' => 'nullable|string|max:255',
-            'start_date'      => 'nullable|date',
-            'end_date'        => 'nullable|date|after_or_equal:start_date',
-            'max_students'    => 'nullable|integer|min:1',
-            'status'          => 'nullable|in:active,inactive,completed',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
+            'max_students' => 'nullable|integer|min:1',
+            'status' => 'nullable|in:active,inactive,completed',
         ]);
 
         $class = ProgramClass::create($data);
@@ -440,12 +467,13 @@ class ProgramClassController extends Controller
     public function update(Request $request, ProgramClass $class)
     {
         $data = $request->validate([
-            'name'            => 'required|string|max:255',
+            'name' => 'required|string|max:255',
+            'teacher_id' => ['nullable', Rule::exists('users', 'id')->where('role', 'teacher')],
             'supervisor_name' => 'nullable|string|max:255',
-            'start_date'      => 'nullable|date',
-            'end_date'        => 'nullable|date|after_or_equal:start_date',
-            'max_students'    => 'nullable|integer|min:1',
-            'status'          => 'nullable|in:active,inactive,completed',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
+            'max_students' => 'nullable|integer|min:1',
+            'status' => 'nullable|in:active,inactive,completed',
         ]);
 
         $class->update($data);
@@ -459,9 +487,7 @@ class ProgramClassController extends Controller
 
     public function destroy(ProgramClass $class)
     {
-        // Unassign students first
-        User::where('class_id', $class->id)->update(['class_id' => null]);
-        $class->delete();
+        $this->programClassService->delete($class);
 
         return response()->json(['success' => true]);
     }
@@ -472,9 +498,9 @@ class ProgramClassController extends Controller
         $students = User::where('role', 'student')
             ->where(function ($q) use ($class) {
                 $q->where('class_id', $class->id)
-                  ->orWhereHas('programs', fn($sq) => $sq
-                      ->where('programs.id', $class->program_id)
-                      ->where('student_programs.class_id', $class->id));
+                    ->orWhereHas('programs', fn ($sq) => $sq
+                        ->where('programs.id', $class->program_id)
+                        ->where('student_programs.class_id', $class->id));
             })
             ->get(['id', 'name', 'email', 'national_id', 'status', 'profile_photo']);
 
@@ -484,39 +510,11 @@ class ProgramClassController extends Controller
     public function assignStudents(Request $request, ProgramClass $class)
     {
         $request->validate([
-            'student_ids'   => 'required|array',
+            'student_ids' => 'required|array',
             'student_ids.*' => 'exists:users,id',
         ]);
 
-        // Only students who belong to this class's program (primary or via pivot)
-        $students = User::whereIn('id', $request->student_ids)
-            ->where(function ($q) use ($class) {
-                $q->where('program_id', $class->program_id)
-                  ->orWhereHas('programs', fn($sq) => $sq->where('programs.id', $class->program_id));
-            })
-            ->get();
-
-        $assigned = 0;
-        foreach ($students as $student) {
-            // Source of truth: the student_programs pivot (one class per program).
-            // Ensure a pivot row exists for this program, then set its class_id.
-            if ($student->programs()->where('programs.id', $class->program_id)->exists()) {
-                $student->programs()->updateExistingPivot($class->program_id, ['class_id' => $class->id]);
-            } else {
-                // Primary-program enrollment with no pivot row yet — create one
-                $student->programs()->attach($class->program_id, [
-                    'class_id'   => $class->id,
-                    'status'     => $student->program_status ?? 'approved',
-                    'enrolled_at'=> now(),
-                ]);
-            }
-
-            // Mirror to legacy users.class_id ONLY for the student's primary program
-            if ($student->program_id == $class->program_id) {
-                $student->update(['class_id' => $class->id]);
-            }
-            $assigned++;
-        }
+        $assigned = $this->studentProgramClassService->assignStudents($class, $request->student_ids);
 
         return response()->json(['success' => true, 'assigned' => $assigned]);
     }
@@ -525,17 +523,9 @@ class ProgramClassController extends Controller
     {
         $request->validate(['student_id' => 'required|exists:users,id']);
 
-        $student = User::find($request->student_id);
-        if ($student) {
-            // Clear the per-program pivot assignment
-            if ($student->programs()->where('programs.id', $class->program_id)->exists()) {
-                $student->programs()->updateExistingPivot($class->program_id, ['class_id' => null]);
-            }
-            // Clear legacy column if it points to this class
-            if ($student->class_id == $class->id) {
-                $student->update(['class_id' => null]);
-            }
-        }
+        $student = User::findOrFail($request->student_id);
+        $this->studentProgramClassService->removeStudent($class, $student);
+
         return response()->json(['success' => true]);
     }
 
@@ -545,15 +535,16 @@ class ProgramClassController extends Controller
             ->where(function ($q) use ($class) {
                 // Primary program assignment OR via student_programs pivot
                 $q->where('program_id', $class->program_id)
-                  ->orWhereHas('programs', fn($sq) => $sq->where('programs.id', $class->program_id));
+                    ->orWhereHas('programs', fn ($sq) => $sq->where('programs.id', $class->program_id));
             })
-            ->with(['programs' => fn($q) => $q->where('programs.id', $class->program_id)])
+            ->with(['programs' => fn ($q) => $q->where('programs.id', $class->program_id)])
             ->get(['id', 'name', 'email', 'national_id', 'class_id', 'program_id']);
 
         // Report the student's class WITHIN THIS program only (so a student in another
         // program's class isn't falsely shown as "in another group" here).
         $students->transform(function ($s) use ($class) {
             $s->class_id = $s->classIdForProgram((int) $class->program_id);
+
             return $s;
         });
 

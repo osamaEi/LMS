@@ -3,7 +3,9 @@
 namespace App\Services;
 
 use App\Models\OtpVerification;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use RuntimeException;
 
 class OtpService
 {
@@ -38,8 +40,12 @@ class OtpService
             'attempts' => 0,
         ]);
 
-        // Send SMS
-        $this->sendSms($phone, $otpCode);
+        try {
+            $this->sendSms($phone, $otpCode);
+        } catch (\Throwable $e) {
+            $otp->delete();
+            throw $e;
+        }
 
         return $otp;
     }
@@ -98,53 +104,37 @@ class OtpService
      */
     protected function sendSms(string $phone, string $otpCode): void
     {
-        // For now, just log the OTP
-        // In production, integrate with Unifonic or Twilio
-        Log::info("OTP for {$phone}: {$otpCode}");
+        $apiKey = config('services.oursms.api_key');
+        $senderId = config('services.oursms.sender_id');
 
-        // TODO: Implement SMS provider integration
-        // Example for Unifonic:
-        // $this->sendViaUnifonicprovider($phone, $otpCode);
+        if (!$apiKey || !$senderId) {
+            if (app()->environment('local', 'testing')) {
+                Log::info("OTP for {$phone}: {$otpCode}");
+                return;
+            }
 
-        // Example for Twilio:
-        // $this->sendViaTwilio($phone, $otpCode);
-    }
+            throw new RuntimeException('OurSMS credentials are not configured.');
+        }
 
-    /**
-     * Send OTP via Unifonic (placeholder)
-     */
-    protected function sendViaUnifonic(string $phone, string $otpCode): void
-    {
-        // Implementation example:
-        // $apiKey = config('services.unifonic.api_key');
-        // $senderId = config('services.unifonic.sender_id');
-        //
-        // $message = "Your verification code is: {$otpCode}. Valid for 5 minutes.";
-        //
-        // Http::asForm()->post('https://api.unifonic.com/rest/SMS/messages', [
-        //     'AppSid' => $apiKey,
-        //     'SenderID' => $senderId,
-        //     'Recipient' => $phone,
-        //     'Body' => $message,
-        // ]);
-    }
+        $destination = preg_replace('/\D+/', '', $phone);
+        if (str_starts_with($destination, '0')) {
+            $destination = '966' . substr($destination, 1);
+        } elseif (str_starts_with($destination, '5')) {
+            $destination = '966' . $destination;
+        }
 
-    /**
-     * Send OTP via Twilio (placeholder)
-     */
-    protected function sendViaTwilio(string $phone, string $otpCode): void
-    {
-        // Implementation example:
-        // $accountSid = config('services.twilio.account_sid');
-        // $authToken = config('services.twilio.auth_token');
-        // $fromNumber = config('services.twilio.from_number');
-        //
-        // $message = "Your verification code is: {$otpCode}. Valid for 5 minutes.";
-        //
-        // $client = new \Twilio\Rest\Client($accountSid, $authToken);
-        // $client->messages->create($phone, [
-        //     'from' => $fromNumber,
-        //     'body' => $message
-        // ]);
+        Http::baseUrl(rtrim(config('services.oursms.base_url'), '/'))
+            ->withToken($apiKey)
+            ->acceptJson()
+            ->timeout((int) config('services.oursms.timeout', 10))
+            ->retry(2, 250)
+            ->post('/msgs/sms', [
+                'src' => $senderId,
+                'dests' => [$destination],
+                'body' => "رمز التحقق الخاص بك هو: {$otpCode}. صالح لمدة 5 دقائق.",
+                'msgClass' => 'transactional',
+                'secure' => true,
+            ])
+            ->throw();
     }
 }

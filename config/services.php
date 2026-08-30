@@ -78,6 +78,13 @@ return [
         'key' => env('ANTHROPIC_API_KEY'),
     ],
 
+    'oursms' => [
+        'base_url' => env('OURSMS_BASE_URL', 'https://api.oursms.com'),
+        'api_key' => env('OURSMS_API_KEY'),
+        'sender_id' => env('OURSMS_SENDER_ID'),
+        'timeout' => env('OURSMS_TIMEOUT', 10),
+    ],
+
     // NELC FutureX Integration
     'futurex' => [
         // SSO Configuration

@@ -150,8 +150,15 @@
                     </div>
                     <div id="step-line-1" class="step-line" style="background:#e2e8f0;margin:0 4px;margin-bottom:18px;"></div>
                 </div>
+                <div style="display:flex;align-items:center;gap:0;">
+                    <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+                        <div id="step-dot-2" class="step-dot" style="background:#e2e8f0;color:#94a3b8;">2</div>
+                        <span style="font-size:10px;font-weight:600;color:#94a3b8;">رمز الجوال</span>
+                    </div>
+                    <div id="step-line-2" class="step-line" style="background:#e2e8f0;margin:0 4px;margin-bottom:18px;"></div>
+                </div>
                 <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
-                    <div id="step-dot-3" class="step-dot" style="background:#e2e8f0;color:#94a3b8;">2</div>
+                    <div id="step-dot-3" class="step-dot" style="background:#e2e8f0;color:#94a3b8;">3</div>
                     <span style="font-size:10px;font-weight:600;color:#94a3b8;">البيانات</span>
                 </div>
             </div>
@@ -196,6 +203,24 @@
             </div>
 
             {{-- ══════════ STEP 3 ══════════ --}}
+            <div id="step2" class="step">
+                <div style="background:white;border-radius:20px;padding:28px;box-shadow:0 4px 24px rgba(0,0,0,.06);border:1px solid #e2e8f0;text-align:center;">
+                    <div style="width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,#1a3a5c,#2563eb);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">
+                        <svg style="width:24px;height:24px;color:white;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                    </div>
+                    <h2 style="font-size:20px;font-weight:700;color:#1a3a5c;margin:0 0 6px;">تحقق من رقم الجوال</h2>
+                    <p style="font-size:13px;color:#64748b;margin:0 0 20px;">أرسلنا رمزاً من 6 أرقام إلى <strong id="otp-phone" dir="ltr"></strong></p>
+                    <form id="step2-form" style="display:flex;flex-direction:column;gap:14px;">
+                        <input id="otp" name="otp" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="------" required class="field-input" dir="ltr" style="text-align:center;font-size:24px;letter-spacing:10px;font-weight:700;">
+                        <p id="otp-error" class="field-error"></p>
+                        <div id="step2-error" style="display:none;background:#fff7ed;border:1px solid #fde68a;border-right:3px solid #f59e0b;border-radius:10px;padding:12px 14px;font-size:13px;color:#92400e;"></div>
+                        <button type="submit" id="step2-btn" class="btn-primary"><span id="step2-btn-text">تحقق ومتابعة</span><svg id="step2-spinner" class="hidden spin-slow" style="width:18px;height:18px;display:none;vertical-align:middle;margin-right:6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg></button>
+                        <button type="button" id="resend-otp" style="border:0;background:transparent;color:#2563eb;font-size:13px;font-weight:600;cursor:pointer;">إعادة إرسال الرمز</button>
+                        <button type="button" onclick="goToStep(1)" style="border:0;background:transparent;color:#64748b;font-size:12px;cursor:pointer;">تغيير رقم الجوال</button>
+                    </form>
+                </div>
+            </div>
+
             <div id="step3" class="step">
                 {{-- Header bar --}}
                 <div style="background:linear-gradient(135deg,#1a3a5c,#2563eb);border-radius:20px 20px 0 0;padding:20px 24px;display:flex;align-items:center;gap:14px;">
@@ -488,7 +513,7 @@ function goToStep(step) {
     }
 
     // Only 2 dots now: step-dot-1 (التحقق) and step-dot-3 (البيانات)
-    const dotMap = { 1: 'step-dot-1', 3: 'step-dot-3' };
+    const dotMap = { 1: 'step-dot-1', 2: 'step-dot-2', 3: 'step-dot-3' };
     const numericStep = step === 'success' ? 3 : step;
     for (const [num, dotId] of Object.entries(dotMap)) {
         const dot = document.getElementById(dotId);
@@ -509,7 +534,9 @@ function goToStep(step) {
         }
     }
     const line1 = document.getElementById('step-line-1');
-    if (line1) line1.style.background = numericStep >= 3 ? '#22c55e' : '#e2e8f0';
+    if (line1) line1.style.background = numericStep >= 2 ? '#22c55e' : '#e2e8f0';
+    const line2 = document.getElementById('step-line-2');
+    if (line2) line2.style.background = numericStep >= 3 ? '#22c55e' : '#e2e8f0';
 }
 
 // ── Step 1 ──
@@ -528,10 +555,58 @@ document.getElementById('step1-form').addEventListener('submit', async function(
         showFieldError('national_id-error', 'رقم الهوية يجب أن يكون 10 أرقام'); return;
     }
 
-    document.getElementById('step3-phone').value = phone;
-    document.getElementById('step3-national-id').value = nationalId;
-    goToStep(3);
+    await sendRegistrationOtp(phone, nationalId);
 });
+
+async function sendRegistrationOtp(phone, nationalId) {
+    setBtn('step1-btn', 'step1-btn-text', 'step1-spinner', 'جاري الإرسال...', true);
+    try {
+        const res = await fetch('/register/otp/send', {
+            method: 'POST',
+            headers: {'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json', 'Content-Type': 'application/json'},
+            body: JSON.stringify({phone, national_id: nationalId}),
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) throw new Error(data.message || Object.values(data.errors || {}).flat()[0] || 'تعذر إرسال الرمز');
+        document.getElementById('step3-phone').value = phone;
+        document.getElementById('step3-national-id').value = nationalId;
+        document.getElementById('otp-phone').textContent = phone;
+        document.getElementById('otp').value = '';
+        goToStep(2);
+        document.getElementById('otp').focus();
+    } catch (error) {
+        const el = document.getElementById('step1-error'); el.textContent = error.message; el.style.display = 'block';
+    } finally {
+        setBtn('step1-btn', 'step1-btn-text', 'step1-spinner', 'متابعة', false);
+    }
+}
+
+document.getElementById('step2-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const otp = document.getElementById('otp').value.trim();
+    document.getElementById('step2-error').style.display = 'none';
+    if (!/^\d{6}$/.test(otp)) { showFieldError('otp-error', 'أدخل رمز التحقق المكون من 6 أرقام'); return; }
+    document.getElementById('otp-error').style.display = 'none';
+    setBtn('step2-btn', 'step2-btn-text', 'step2-spinner', 'جاري التحقق...', true);
+    try {
+        const res = await fetch('/register/otp/verify', {
+            method: 'POST',
+            headers: {'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json', 'Content-Type': 'application/json'},
+            body: JSON.stringify({otp}),
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) throw new Error(data.message || 'رمز التحقق غير صحيح');
+        goToStep(3);
+    } catch (error) {
+        const el = document.getElementById('step2-error'); el.textContent = error.message; el.style.display = 'block';
+    } finally {
+        setBtn('step2-btn', 'step2-btn-text', 'step2-spinner', 'تحقق ومتابعة', false);
+    }
+});
+
+document.getElementById('resend-otp').addEventListener('click', () => sendRegistrationOtp(
+    document.getElementById('phone').value.trim(), document.getElementById('national_id').value.trim()
+));
 
 // ── File helpers ──
 function previewFile(input, previewId, labelId) {

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\StudentDocument;
 use App\Services\NafathService;
+use App\Services\OtpService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
@@ -15,9 +16,56 @@ class RegisterController extends Controller
 {
     protected NafathService $nafathService;
 
-    public function __construct(NafathService $nafathService)
+    public function __construct(NafathService $nafathService, protected OtpService $otpService)
     {
         $this->nafathService = $nafathService;
+    }
+
+    public function sendOtp(Request $request)
+    {
+        $data = $request->validate([
+            'phone' => ['required', 'regex:/^(05|5)\d{8}$/'],
+            'national_id' => ['required', 'digits:10'],
+        ]);
+
+        $phone = str_starts_with($data['phone'], '0') ? $data['phone'] : '0' . $data['phone'];
+        if (User::where('phone', $phone)->orWhere('phone', ltrim($phone, '0'))->exists()) {
+            return response()->json(['success' => false, 'message' => 'رقم الجوال مسجل مسبقاً'], 422);
+        }
+        if (User::where('national_id', $data['national_id'])->exists()) {
+            return response()->json(['success' => false, 'message' => 'رقم الهوية مسجل مسبقاً'], 422);
+        }
+
+        try {
+            $otp = $this->otpService->send($phone, 'registration');
+            session([
+                'register_phone' => $phone,
+                'register_national_id' => $data['national_id'],
+                'register_sms_verified' => false,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'تم إرسال رمز التحقق إلى جوالك',
+                'expires_at' => $otp->expires_at?->toIso8601String(),
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('Registration SMS error', ['error' => $e->getMessage()]);
+            return response()->json(['success' => false, 'message' => 'تعذر إرسال رمز التحقق. حاول مرة أخرى.'], 502);
+        }
+    }
+
+    public function verifyOtp(Request $request)
+    {
+        $data = $request->validate(['otp' => ['required', 'digits:6']]);
+        $phone = session('register_phone');
+
+        if (!$phone || !$this->otpService->verify($phone, $data['otp'], 'registration')) {
+            return response()->json(['success' => false, 'message' => 'رمز التحقق غير صحيح أو منتهي الصلاحية'], 422);
+        }
+
+        session(['register_sms_verified' => true]);
+        return response()->json(['success' => true]);
     }
 
     /**
@@ -190,6 +238,10 @@ class RegisterController extends Controller
         $phone = str_starts_with($rawPhone, '0') ? $rawPhone : '0' . $rawPhone;
         $nationalId = $request->input('national_id', '');
 
+        if (!session('register_sms_verified') || session('register_phone') !== $phone || session('register_national_id') !== $nationalId) {
+            return response()->json(['success' => false, 'message' => 'يجب التحقق من رقم الجوال أولاً'], 403);
+        }
+
         if (User::where('national_id', $nationalId)->exists()) {
             return response()->json(['success' => false, 'message' => 'رقم الهوية مسجل مسبقاً'], 422);
         }
@@ -215,6 +267,7 @@ class RegisterController extends Controller
                 'role'                => 'student',
                 'status'              => 'pending',
                 'date_of_register'    => now()->toDateString(),
+                'phone_verified_at'   => now(),
             ];
 
             $user = User::create($userData);
@@ -235,6 +288,8 @@ class RegisterController extends Controller
                     ]);
                 }
             }
+
+            $request->session()->forget(['register_phone', 'register_national_id', 'register_sms_verified']);
 
             return response()->json([
                 'success' => true,

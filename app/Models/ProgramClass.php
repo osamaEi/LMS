@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
 
 class ProgramClass extends Model
 {
@@ -26,7 +27,8 @@ class ProgramClass extends Model
     {
         return [
             'start_date' => 'date',
-            'end_date'   => 'date',
+            'end_date' => 'date',
+            'max_students' => 'integer',
         ];
     }
 
@@ -62,6 +64,11 @@ class ProgramClass extends Model
 
     public function getStudentsCountAttribute(): int
     {
-        return $this->students()->count();
+        return DB::table('student_programs')
+            ->where('class_id', $this->id)
+            ->pluck('student_id')
+            ->merge(User::where('class_id', $this->id)->pluck('id'))
+            ->unique()
+            ->count();
     }
 }

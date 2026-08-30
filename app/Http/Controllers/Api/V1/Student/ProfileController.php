@@ -105,4 +105,50 @@ class ProfileController extends Controller
             'message' => 'تم تغيير كلمة المرور بنجاح',
         ]);
     }
+
+    /**
+     * DELETE /api/v1/student/profile
+     * Delete the authenticated account (soft delete).
+     *
+     * Fields: password (required), reason (optional)
+     */
+    public function destroy(Request $request)
+    {
+        $request->validate([
+            'password' => 'required|string',
+            'reason'   => 'nullable|string|max:1000',
+        ], [
+            'password.required' => 'كلمة المرور مطلوبة لتأكيد حذف الحساب',
+        ]);
+
+        $user = $request->user();
+
+        if (!Hash::check($request->password, $user->password)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'كلمة المرور غير صحيحة',
+                'errors'  => ['password' => ['كلمة المرور غير صحيحة']],
+            ], 422);
+        }
+
+        // Release the unique identifiers so the student can register again later.
+        // `deleted_at` (soft delete) is what marks the account as gone — the
+        // status enum has no 'deleted' value.
+        $suffix = '_del_' . time();
+        $user->update([
+            'email'       => $user->email . $suffix,
+            'phone'       => $user->phone ? substr($user->phone, 0, 20 - strlen($suffix)) . $suffix : null,
+            'national_id' => $user->national_id ? substr($user->national_id, 0, 20 - strlen($suffix)) . $suffix : null,
+            'status'      => 'suspended',
+        ]);
+
+        // Revoke every token, then soft delete.
+        $user->tokens()->delete();
+        $user->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'تم حذف حسابك بنجاح.',
+        ]);
+    }
 }
