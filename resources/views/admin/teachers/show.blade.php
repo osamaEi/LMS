@@ -189,31 +189,7 @@
                         </span>
                     @endif
                 </div>
-                <div class="flex items-center justify-between">
-                    <span class="text-gray-700 dark:text-gray-300">حالة التحقق من نفاذ</span>
-                    @if($teacher->nafath_verified_at)
-                        <span class="inline-flex rounded-full bg-success-100 px-2 py-1 text-xs font-medium text-success-700 dark:bg-success-900 dark:text-success-200">
-                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                        </span>
-                    @else
-                        <span class="inline-flex rounded-full bg-warning-100 px-2 py-1 text-xs font-medium text-warning-700 dark:bg-warning-900 dark:text-warning-200">
-                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                        </span>
-                    @endif
                 </div>
-                <div class="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 pb-3">
-                    <span class="text-gray-700 dark:text-gray-300">عدد الدورات المعيّنة</span>
-                    <span class="text-xl font-bold text-green-600 dark:text-green-400">{{ $courses->count() }}</span>
-                </div>
-                <div class="flex items-center justify-between">
-                    <span class="text-gray-700 dark:text-gray-300">مقررات الدبلومات</span>
-                    <span class="text-xl font-bold text-purple-600 dark:text-purple-400">{{ $diplomaSubjects->count() }}</span>
-                </div>
-            </div>
         </div>
 
     </div>

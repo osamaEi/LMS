@@ -239,7 +239,7 @@
                             <svg style="width:13px;height:13px;color:#86efac;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
                             </svg>
-                            <span style="font-size:11px;color:white;font-weight:600;">نفاذ</span>
+                            <span style="font-size:11px;color:white;font-weight:600;">SMS</span>
                         </div>
                     </div>
                 </div>

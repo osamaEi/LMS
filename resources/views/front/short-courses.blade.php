@@ -452,7 +452,7 @@
                 </h2>
                 <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
                     <div class="accordion-body">
-                        {{ __('You can easily register via Nafath account or create an internal account. After registration, you can choose the academic path or short courses that suit you.') }}
+                        {{ __('You can easily create an account using your mobile number. After registration, you can choose the academic path or short courses that suit you.') }}
                     </div>
                 </div>
             </div>

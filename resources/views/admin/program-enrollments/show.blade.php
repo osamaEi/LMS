@@ -541,13 +541,6 @@
                             <div style="font-size:.82rem;font-weight:700;color:#111827;">إنشاء الحساب</div>
                             <div style="font-size:.72rem;color:#9ca3af;margin-top:2px;">{{ $user->created_at->format('Y/m/d H:i') }}</div>
                         </div>
-                        @if($user->nafath_verified_at)
-                        <div class="tl-item">
-                            <div class="tl-dot blue"></div>
-                            <div style="font-size:.82rem;font-weight:700;color:#111827;">التحقق عبر نفاذ</div>
-                            <div style="font-size:.72rem;color:#9ca3af;margin-top:2px;">{{ \Carbon\Carbon::parse($user->nafath_verified_at)->format('Y/m/d H:i') }}</div>
-                        </div>
-                        @endif
                         @if($user->documents && $user->documents->count() > 0)
                         <div class="tl-item">
                             <div class="tl-dot blue"></div>
@@ -589,7 +582,6 @@
                         $checks = [
                             ['label'=>'البريد الإلكتروني','ok'=>!!$user->email_verified_at],
                             ['label'=>'رقم الجوال','ok'=>!!$user->phone_verified_at],
-                            ['label'=>'نفاذ الوطني','ok'=>!!$user->nafath_verified_at],
                             ['label'=>'صور الهوية','ok'=>$user->documents && $user->documents->count() > 0],
                             ['label'=>'الشروط والأحكام','ok'=>!!$user->is_terms],
                         ];

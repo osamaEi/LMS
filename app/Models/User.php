@@ -100,7 +100,6 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'phone_verified_at' => 'datetime',
-            'nafath_verified_at' => 'datetime',
             'profile_completed_at' => 'datetime',
             'date_of_birth' => 'date',
             'date_of_register' => 'date',

@@ -77,7 +77,6 @@
     "Search for your question here...": "Search for your question here...",
     "Filter": "Filter",
     "How do I register at the institute?": "How do I register at the institute?",
-    "You can easily register via Nafath account or create an internal account. After registration, you can choose the academic path or short courses that suit you.": "You can easily register via Nafath account or create an internal account. After registration, you can choose the academic path or short courses that suit you.",
     "What payment methods are available?": "What payment methods are available?",
     "We provide several payment methods including: credit cards, Mada, bank transfer, and payment upon registration. We also offer installment options for long paths.": "We provide several payment methods including: credit cards, Mada, bank transfer, and payment upon registration. We also offer installment options for long paths.",
     "Are the certificates accredited?": "Are the certificates accredited?",
@@ -192,7 +191,6 @@
     "How does our training system work?": "How does our training system work?",
     "An integrated training system that ensures a clear, organized educational journey with measurable results. From registration to certification, we designed our system to be simple, effective, and compliant with private training standards in the Kingdom.": "An integrated training system that ensures a clear, organized educational journey with measurable results. From registration to certification, we designed our system to be simple, effective, and compliant with private training standards in the Kingdom.",
     "Registration and Getting Started": "Registration and Getting Started",
-    "Start your educational journey easily by creating an account or logging in through Nafath, then discover programs and paths designed to suit your goals and aspirations.": "Start your educational journey easily by creating an account or logging in through Nafath, then discover programs and paths designed to suit your goals and aspirations.",
     "Choosing the Right Program for You": "Choosing the Right Program for You",
     "Whether youre looking for an academic path spanning two and a half years (10 quarters), or a short course lasting weeks or months... you will find what suits your goals and professional aspirations.": "Whether you're looking for an academic path spanning two and a half years (10 quarters), or a short course lasting weeks or months... you will find what suits your goals and professional aspirations.",
     "Learning and Follow-up": "Learning and Follow-up",
@@ -228,7 +226,6 @@
     "English Language": "English Language",
     "Saudi Arabia": "Saudi Arabia",
     "Official Accredited Site": "Official Accredited Site",
-
     "Main": "Main",
     "Teaching": "Teaching",
     "Academic Schedule": "Academic Schedule",
@@ -245,7 +242,6 @@
     "Profile": "Profile",
     "Grades": "Grades",
     "Surveys": "Surveys",
-
     "Dashboard Overview": "Dashboard Overview",
     "Track your subjects, sessions and students": "Track your subjects, sessions and students",
     "My Subjects": "My Subjects",
@@ -273,8 +269,6 @@
     "Start Session": "Start Session",
     "Join": "Join",
     "Add Attendance": "Add Attendance",
-
-    "Academic Schedule": "Academic Schedule",
     "Overview of all your sessions and lectures": "Overview of all your sessions and lectures",
     "Total": "Total",
     "Upcoming": "Upcoming",
@@ -291,8 +285,6 @@
     "Join via Zoom": "Join via Zoom",
     "No Zoom link": "No Zoom link",
     "minutes": "minutes",
-
-    "Homework": "Homework",
     "Add and manage homework for each session": "Add and manage homework for each session",
     "With homework": "With homework",
     "Without homework": "Without homework",
@@ -310,7 +302,6 @@
     "File": "File",
     "No due date": "No due date",
     "Download": "Download",
-
     "Files & Resources": "Files & Resources",
     "Upload New File": "Upload New File",
     "No files uploaded yet": "No files uploaded yet",
@@ -320,14 +311,11 @@
     "File Description": "File Description",
     "Choose File": "Choose File",
     "Upload File": "Upload File",
-
     "View all students enrolled in your subjects": "View all students enrolled in your subjects",
     "Total Enrollments": "Total Enrollments",
     "No students found": "No students found",
     "Student": "Student",
     "Enrolled Subjects": "Enrolled Subjects",
-
-    "Support Tickets": "Support Tickets",
     "Manage and follow up on support requests": "Manage and follow up on support requests",
     "Total Tickets": "Total Tickets",
     "Open": "Open",
@@ -338,10 +326,7 @@
     "Priority": "Priority",
     "Created": "Created",
     "No tickets yet": "No tickets yet",
-
-    "Attendance": "Attendance",
     "Record student attendance for all your sessions": "Record student attendance for all your sessions",
-    "No subjects assigned to you": "No subjects assigned to you",
     "registered student": "registered student",
     "completed sessions": "completed sessions",
     "View Subject": "View Subject",
@@ -350,7 +335,6 @@
     "Attended": "Attended",
     "Absent": "Absent",
     "View Attendance": "View Attendance",
-
     "Personal Information": "Personal Information",
     "Name": "Name",
     "National ID": "National ID",
@@ -363,7 +347,6 @@
     "Update Password": "Update Password",
     "Change Photo": "Change Photo",
     "Joined": "Joined",
-
     "Manage subjects and students easily from the dashboard": "Manage subjects and students easily from the dashboard",
     "Track your courses and educational progress easily": "Track your courses and educational progress easily",
     "Manage the system, users, and courses easily": "Manage the system, users, and courses easily",

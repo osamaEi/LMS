@@ -10,6 +10,10 @@ class OtpVerification extends Model
         'phone',
         'otp',
         'type',
+        'status',
+        'sent_at',
+        'provider_reference',
+        'failure_reason',
         'verified_at',
         'expires_at',
         'attempts',
@@ -19,6 +23,7 @@ class OtpVerification extends Model
     {
         return [
             'verified_at' => 'datetime',
+            'sent_at' => 'datetime',
             'expires_at' => 'datetime',
         ];
     }

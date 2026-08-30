@@ -4,19 +4,50 @@ namespace Tests\Feature\Auth;
 
 use App\Models\OtpVerification;
 use App\Services\OtpService;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
 
 class RegistrationSmsVerificationTest extends TestCase
 {
-    use DatabaseTransactions;
-
     protected function setUp(): void
     {
         parent::setUp();
         $this->withoutMiddleware(ValidateCsrfToken::class);
+
+        if (!Schema::hasTable('otp_verifications')) {
+            Schema::create('otp_verifications', function (Blueprint $table) {
+                $table->id();
+                $table->string('phone', 20);
+                $table->string('otp', 6);
+                $table->string('type')->default('registration');
+                $table->string('status')->default('sent');
+                $table->timestamp('sent_at')->nullable();
+                $table->string('provider_reference')->nullable();
+                $table->text('failure_reason')->nullable();
+                $table->timestamp('verified_at')->nullable();
+                $table->timestamp('expires_at')->nullable();
+                $table->integer('attempts')->default(0);
+                $table->timestamps();
+            });
+        }
+
+        if (!Schema::hasColumn('otp_verifications', 'status')) {
+            Schema::table('otp_verifications', function (Blueprint $table) {
+                $table->string('status')->default('sent');
+                $table->timestamp('sent_at')->nullable();
+                $table->string('provider_reference')->nullable();
+                $table->text('failure_reason')->nullable();
+            });
+        }
+    }
+
+    protected function tearDown(): void
+    {
+        OtpVerification::where('phone', '0501234567')->delete();
+        parent::tearDown();
     }
 
     public function test_otp_is_sent_through_oursms_with_a_saudi_destination(): void
@@ -38,6 +69,13 @@ class RegistrationSmsVerificationTest extends TestCase
             && $request['msgClass'] === 'transactional'
             && $request['secure'] === true
         );
+
+        $this->assertDatabaseHas('otp_verifications', [
+            'phone' => '0501234567',
+            'status' => 'sent',
+            'provider_reference' => 'job-1',
+        ]);
+        $this->assertNotNull(OtpVerification::where('phone', '0501234567')->value('sent_at'));
     }
 
     public function test_registration_otp_can_be_verified_in_the_same_session(): void
@@ -46,6 +84,8 @@ class RegistrationSmsVerificationTest extends TestCase
             'phone' => '0501234567',
             'otp' => '123456',
             'type' => 'registration',
+            'status' => 'sent',
+            'sent_at' => now(),
             'expires_at' => now()->addMinutes(5),
         ]);
 
@@ -57,6 +97,8 @@ class RegistrationSmsVerificationTest extends TestCase
             ->assertOk()
             ->assertJson(['success' => true])
             ->assertSessionHas('register_sms_verified', true);
+
+        $this->assertNotNull(OtpVerification::where('phone', '0501234567')->value('verified_at'));
     }
 
     public function test_registration_completion_requires_sms_verification(): void

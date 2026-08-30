@@ -16,7 +16,7 @@
                         <div class="how-step-number">1</div>
                         <div class="how-step-text">
                             <h5>{{ __('Registration and Getting Started') }}</h5>
-                            <p>{{ __('Start your educational journey easily by creating an account or logging in through Nafath, then discover programs and paths designed to suit your goals.') }}</p>
+                            <p>{{ __('Start your educational journey easily by creating an account or logging in, then discover programs and paths designed to suit your goals.') }}</p>
                         </div>
                     </div>
                     <div class="how-step">

@@ -178,7 +178,7 @@ class NelcComplianceController extends Controller
                 'status' => 'implemented',
                 'link' => route('login'),
                 'link_label' => 'صفحة الدخول',
-                'notes' => 'FutureX SSO + Nafath + نظام مصادقة موحد',
+                'notes' => 'FutureX SSO + نظام مصادقة موحد',
             ],
             [
                 'code' => '1.2.3',
@@ -188,7 +188,7 @@ class NelcComplianceController extends Controller
                 'status' => 'implemented',
                 'link' => route('login'),
                 'link_label' => 'نظام التحقق',
-                'notes' => 'Nafath (هوية وطنية) + OTP + تحقق ثنائي',
+                'notes' => 'OTP عبر SMS + تحقق ثنائي',
             ],
             [
                 'code' => '1.2.4',

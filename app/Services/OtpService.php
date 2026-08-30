@@ -36,14 +36,23 @@ class OtpService
             'phone' => $phone,
             'otp' => $otpCode,
             'type' => $type,
+            'status' => 'pending',
             'expires_at' => now()->addMinutes(5),
             'attempts' => 0,
         ]);
 
         try {
-            $this->sendSms($phone, $otpCode);
+            $providerReference = $this->sendSms($phone, $otpCode);
+            $otp->update([
+                'status' => 'sent',
+                'sent_at' => now(),
+                'provider_reference' => $providerReference,
+            ]);
         } catch (\Throwable $e) {
-            $otp->delete();
+            $otp->update([
+                'status' => 'failed',
+                'failure_reason' => mb_substr($e->getMessage(), 0, 1000),
+            ]);
             throw $e;
         }
 
@@ -57,6 +66,7 @@ class OtpService
     {
         $otp = OtpVerification::where('phone', $phone)
             ->where('type', $type)
+            ->where('status', 'sent')
             ->whereNull('verified_at')
             ->latest()
             ->first();
@@ -102,7 +112,7 @@ class OtpService
     /**
      * Send SMS via configured provider
      */
-    protected function sendSms(string $phone, string $otpCode): void
+    protected function sendSms(string $phone, string $otpCode): ?string
     {
         $apiKey = config('services.oursms.api_key');
         $senderId = config('services.oursms.sender_id');
@@ -110,7 +120,7 @@ class OtpService
         if (!$apiKey || !$senderId) {
             if (app()->environment('local', 'testing')) {
                 Log::info("OTP for {$phone}: {$otpCode}");
-                return;
+                return 'local-log';
             }
 
             throw new RuntimeException('OurSMS credentials are not configured.');
@@ -123,7 +133,7 @@ class OtpService
             $destination = '966' . $destination;
         }
 
-        Http::baseUrl(rtrim(config('services.oursms.base_url'), '/'))
+        $response = Http::baseUrl(rtrim(config('services.oursms.base_url'), '/'))
             ->withToken($apiKey)
             ->acceptJson()
             ->timeout((int) config('services.oursms.timeout', 10))
@@ -136,5 +146,10 @@ class OtpService
                 'secure' => true,
             ])
             ->throw();
+
+        return $response->json('jobId')
+            ?? $response->json('job_id')
+            ?? $response->json('messages.0.msgId')
+            ?? $response->json('messages.0.id');
     }
 }

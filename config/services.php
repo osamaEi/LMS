@@ -59,14 +59,6 @@ return [
         'webhook_secret' => env('TAMARA_WEBHOOK_SECRET'),
     ],
 
-    'nafath' => [
-        'api_url' => env('NAFATH_API_URL', 'https://mock-service.api.elm.sa/nafath'),
-        'app_id' => env('NAFATH_APP_ID', 'w9kyh348'),
-        'app_key' => env('NAFATH_APP_KEY', '87e50ef41b694ef7ae8b0c9831fd530d'),
-        'timeout' => env('NAFATH_TIMEOUT', 300),
-        'bypass' => env('NAFATH_BYPASS', false),
-    ],
-
     'whatsapp' => [
         'phone_number_id' => env('WHATSAPP_PHONE_NUMBER_ID'),
         'access_token'    => env('WHATSAPP_ACCESS_TOKEN'),

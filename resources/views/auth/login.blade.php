@@ -208,7 +208,7 @@
 
                 <!-- Bottom Buttons -->
                 <div class="grid grid-cols-2 gap-4">
-                    <!-- Nafath Button -->
+                    <!-- Help Button -->
                     <button type="button" class="flex flex-col items-center justify-center gap-2 px-4 py-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
                         <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none">
                             <circle cx="12" cy="12" r="10" fill="#1F2937"/>

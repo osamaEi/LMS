@@ -32,17 +32,10 @@ Route::get('/diag/attendance/{subjectId}/{sessionId}', function ($subjectId, $se
     ], 200, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
 })->middleware('auth');
 
-// My IP (for Nafath whitelist)
-Route::get('/my-ip', function () {
-    return response()->json(['ip' => request()->ip()]);
-});
-
 // Registration Routes
 Route::get('/register', [\App\Http\Controllers\Auth\RegisterController::class, 'showForm'])->name('register');
 Route::post('/register/otp/send', [\App\Http\Controllers\Auth\RegisterController::class, 'sendOtp'])->middleware('throttle:3,1')->name('register.otp.send');
 Route::post('/register/otp/verify', [\App\Http\Controllers\Auth\RegisterController::class, 'verifyOtp'])->middleware('throttle:10,1')->name('register.otp.verify');
-Route::post('/register/nafath', [\App\Http\Controllers\Auth\RegisterController::class, 'initiateNafath'])->name('register.nafath');
-Route::get('/register/nafath/poll/{transactionId}', [\App\Http\Controllers\Auth\RegisterController::class, 'pollNafath'])->name('register.nafath.poll');
 Route::post('/register/complete', [\App\Http\Controllers\Auth\RegisterController::class, 'completeRegistration'])->name('register.complete');
 
 // Zoom OAuth Callback (for General App setup - not actively used)
@@ -848,16 +841,7 @@ Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')
 
 // Webhooks (Public routes - no authentication required)
 Route::post('/webhooks/tamara', [\App\Http\Controllers\Webhooks\TamaraWebhookController::class, 'handle'])->name('webhooks.tamara');
-Route::post('/webhooks/nafath', [\App\Http\Controllers\Webhooks\NafathWebhookController::class, 'handle'])->name('webhooks.nafath');
 
 // WhatsApp Webhook (Meta verification + incoming messages)
 Route::get('/webhooks/whatsapp',  [\App\Http\Controllers\Webhooks\WhatsAppWebhookController::class, 'verify'])->name('webhooks.whatsapp.verify');
 Route::post('/webhooks/whatsapp', [\App\Http\Controllers\Webhooks\WhatsAppWebhookController::class, 'handle'])->name('webhooks.whatsapp');
-
-// Local Mock Nafath API (for development/testing)
-Route::prefix('mock-nafath/api/v1/mfa')->group(function () {
-    Route::post('/request', [\App\Http\Controllers\Mock\NafathMockController::class, 'createRequest']);
-    Route::post('/request/status', [\App\Http\Controllers\Mock\NafathMockController::class, 'getStatus']);
-    Route::get('/request/status/{transId}', [\App\Http\Controllers\Mock\NafathMockController::class, 'getStatus']);
-    Route::get('/jwk', [\App\Http\Controllers\Mock\NafathMockController::class, 'getJwk']);
-});
