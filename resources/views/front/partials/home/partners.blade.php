@@ -21,20 +21,7 @@
             @foreach($partners as $p)
             <div class="p-logo-card">
                 @if($p->url)
-                    <a href="{{ $p->url }}" target="_blank" rel="noopener" style="display:contents">
-                        <img src="{{ \Illuminate\Support\Facades\Storage::url($p->logo) }}" alt="{{ $p->name }}">
-                    </a>
-                @else
-                    <img src="{{ \Illuminate\Support\Facades\Storage::url($p->logo) }}" alt="{{ $p->name }}">
-                @endif
-                <span class="p-name">{{ $p->name }}</span>
-            </div>
-            @endforeach
-            {{-- duplicate for seamless loop --}}
-            @foreach($partners as $p)
-            <div class="p-logo-card" aria-hidden="true">
-                @if($p->url)
-                    <a href="{{ $p->url }}" target="_blank" rel="noopener" style="display:contents">
+                    <a href="{{ $p->url }}" target="_blank" rel="noopener" class="p-logo-link">
                         <img src="{{ \Illuminate\Support\Facades\Storage::url($p->logo) }}" alt="{{ $p->name }}">
                     </a>
                 @else
