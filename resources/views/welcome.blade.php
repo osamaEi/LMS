@@ -186,8 +186,8 @@
     justify-items: stretch;
 }
 .p-logo-card {
-    display:flex; flex-direction:column; align-items:center; justify-content:center;
-    min-height:150px; padding:22px 18px; gap:12px;
+    display:flex; align-items:center; justify-content:center;
+    min-height:170px; padding:24px 20px;
     background:#fff; border:1px solid #e8edf3; border-radius:14px;
     box-shadow:0 1px 2px rgba(15,23,42,.04);
     transition:transform .25s ease, box-shadow .25s ease, border-color .25s ease;
@@ -198,7 +198,7 @@
     box-shadow:0 12px 24px -8px rgba(13,111,166,.18);
 }
 .p-logo-link { display:flex; align-items:center; justify-content:center; width:100%; }
-.p-logo-card img { max-width:100%; max-height:72px; object-fit:contain; }
+.p-logo-card img { max-width:100%; max-height:120px; object-fit:contain; }
 .p-logo-card .p-name { font-size:.82rem; font-weight:700; color:#475569; line-height:1.4; text-align:center; display:block; }
 .p-logo-card:hover .p-name { color:var(--main-color); }
 @media (max-width: 480px) {

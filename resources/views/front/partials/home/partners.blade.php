@@ -27,7 +27,6 @@
                 @else
                     <img src="{{ \Illuminate\Support\Facades\Storage::url($p->logo) }}" alt="{{ $p->name }}">
                 @endif
-                <span class="p-name">{{ $p->name }}</span>
             </div>
             @endforeach
         </div>
