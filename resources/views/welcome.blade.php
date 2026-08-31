@@ -199,8 +199,6 @@
 }
 .p-logo-link { display:flex; align-items:center; justify-content:center; width:100%; }
 .p-logo-card img { max-width:100%; max-height:120px; object-fit:contain; }
-.p-logo-card .p-name { font-size:.82rem; font-weight:700; color:#475569; line-height:1.4; text-align:center; display:block; }
-.p-logo-card:hover .p-name { color:var(--main-color); }
 @media (max-width: 480px) {
     .partners-track { grid-template-columns: repeat(2, 1fr); gap:.85rem; }
     .p-logo-card { min-height:120px; padding:16px 10px; }
