@@ -201,8 +201,8 @@
 .p-logo-card img { max-width:100%; max-height:120px; object-fit:contain; }
 @media (max-width: 480px) {
     .partners-track { grid-template-columns: repeat(2, 1fr); gap:.85rem; }
-    .p-logo-card { min-height:120px; padding:16px 10px; }
-    .p-logo-card img { max-height:54px; }
+    .p-logo-card { min-height:130px; padding:16px 12px; }
+    .p-logo-card img { max-height:90px; }
 }
 
 /* ── App Section ── */
