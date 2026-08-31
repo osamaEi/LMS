@@ -198,8 +198,7 @@
     box-shadow:0 12px 24px -8px rgba(13,111,166,.18);
 }
 .p-logo-link { display:flex; align-items:center; justify-content:center; width:100%; }
-.p-logo-card img { max-width:100%; max-height:72px; object-fit:contain; filter:grayscale(100%) opacity(.65); transition:filter .3s; }
-.p-logo-card:hover img { filter:grayscale(0%) opacity(1); }
+.p-logo-card img { max-width:100%; max-height:72px; object-fit:contain; }
 .p-logo-card .p-name { font-size:.82rem; font-weight:700; color:#475569; line-height:1.4; text-align:center; display:block; }
 .p-logo-card:hover .p-name { color:var(--main-color); }
 @media (max-width: 480px) {
