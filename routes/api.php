@@ -36,6 +36,8 @@ Route::prefix('v1')->group(function () {
 
     // Authentication Routes (Public)
     Route::prefix('auth')->group(function () {
+        Route::post('/register/otp/send', [App\Http\Controllers\Api\V1\Auth\RegisterController::class, 'sendOtp'])->middleware('throttle:3,1');
+        Route::post('/register/otp/verify', [App\Http\Controllers\Api\V1\Auth\RegisterController::class, 'verifyOtp'])->middleware('throttle:10,1');
         Route::post('/register', [App\Http\Controllers\Api\V1\Auth\RegisterController::class, 'register']);
         Route::post('/send-otp', [App\Http\Controllers\Api\V1\Auth\OtpController::class, 'send']);
         Route::post('/verify-otp', [App\Http\Controllers\Api\V1\Auth\OtpController::class, 'verify']);
