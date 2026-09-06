@@ -80,6 +80,10 @@ return [
         // always accept OTP_TEST_CODE. Leave empty to disable.
         'test_phones' => env('OTP_TEST_PHONES', ''),
         'test_code' => env('OTP_TEST_CODE', '123456'),
+
+        // Accounts whose national id is listed here also skip the real SMS
+        // and accept OTP_TEST_CODE, whatever phone they have on file.
+        'test_national_ids' => env('OTP_TEST_NATIONAL_IDS', ''),
     ],
 
     // NELC FutureX Integration

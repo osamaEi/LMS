@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\OtpVerification;
+use App\Models\User;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use RuntimeException;
@@ -72,21 +73,78 @@ class OtpService
      */
     public function isTestPhone(string $phone): bool
     {
-        $configured = (string) config('services.oursms.test_phones', '');
+        $target = $this->normalizePhone($phone);
 
-        if (trim($configured) === '') {
+        if ($target === '') {
             return false;
         }
 
-        $target = $this->normalizePhone($phone);
+        $configured = (string) config('services.oursms.test_phones', '');
 
         foreach (explode(',', $configured) as $candidate) {
-            if ($candidate !== '' && $this->normalizePhone($candidate) === $target && $target !== '') {
+            if (trim($candidate) !== '' && $this->normalizePhone($candidate) === $target) {
+                return true;
+            }
+        }
+
+        // The phone may belong to an account flagged for testing by national id.
+        return $this->phoneBelongsToTestAccount($target);
+    }
+
+    /**
+     * Do any of the configured testing national ids own this phone number?
+     */
+    protected function phoneBelongsToTestAccount(string $normalisedPhone): bool
+    {
+        $ids = $this->testNationalIds();
+
+        if ($ids === []) {
+            return false;
+        }
+
+        try {
+            $phones = User::whereIn('national_id', $ids)->pluck('phone');
+        } catch (\Throwable $e) {
+            // Never let the bypass lookup break a real send.
+            Log::warning('Test national id lookup failed', ['error' => $e->getMessage()]);
+
+            return false;
+        }
+
+        foreach ($phones as $accountPhone) {
+            if ($accountPhone !== null && $this->normalizePhone($accountPhone) === $normalisedPhone) {
                 return true;
             }
         }
 
         return false;
+    }
+
+    /**
+     * National ids configured to bypass the real SMS, as a clean list.
+     */
+    public function testNationalIds(): array
+    {
+        $configured = (string) config('services.oursms.test_national_ids', '');
+
+        return array_values(array_filter(array_map(
+            static fn ($id) => preg_replace('/\D+/', '', (string) $id),
+            explode(',', $configured)
+        ), static fn ($id) => $id !== ''));
+    }
+
+    /**
+     * Is this national id flagged for OTP bypass?
+     */
+    public function isTestNationalId(?string $nationalId): bool
+    {
+        if ($nationalId === null) {
+            return false;
+        }
+
+        $target = preg_replace('/\D+/', '', $nationalId);
+
+        return $target !== '' && in_array($target, $this->testNationalIds(), true);
     }
 
     /**

@@ -54,6 +54,19 @@ class PasswordResetController extends Controller
                 'error'   => $e->getMessage(),
             ]);
 
+            // A testing account must stay usable even if its stored phone is
+            // not routable — the fixed code is accepted regardless.
+            if ($this->otpService->isTestNationalId($user->national_id)) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'إذا كان الحساب مسجلاً لدينا فسيتم إرسال رمز التحقق إلى رقم الجوال المرتبط به.',
+                    'data'    => [
+                        'phone'      => $this->maskPhone($user->phone),
+                        'expires_at' => now()->addMinutes(5)->toIso8601String(),
+                    ],
+                ]);
+            }
+
             return response()->json([
                 'success' => false,
                 'message' => 'تعذر إرسال رمز التحقق حالياً. يرجى المحاولة لاحقاً.',
