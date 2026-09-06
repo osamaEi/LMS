@@ -75,6 +75,11 @@ return [
         'api_key' => env('OURSMS_API_KEY'),
         'sender_id' => env('OURSMS_SENDER_ID'),
         'timeout' => env('OURSMS_TIMEOUT', 10),
+
+        // Testing bypass: comma separated phones that skip the real SMS and
+        // always accept OTP_TEST_CODE. Leave empty to disable.
+        'test_phones' => env('OTP_TEST_PHONES', ''),
+        'test_code' => env('OTP_TEST_CODE', '123456'),
     ],
 
     // NELC FutureX Integration

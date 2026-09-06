@@ -135,9 +135,9 @@ class RegisterController extends Controller
             'specialization'        => 'required|string|max:255',
             'specialization_type'   => 'required|string|max:255',
             'date_of_graduation'    => 'required|date',
-            'national_id_front'     => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
-            'national_id_back'      => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
-            'certificate'           => 'required|file|mimes:pdf|max:10240',
+            'national_id_front'     => 'required|string|max:255',
+            'national_id_back'      => 'required|string|max:255',
+            'certificate'           => 'required|string|max:255',
             'is_confirm_user'       => 'required|accepted',
             'is_terms'              => 'required|accepted',
         ], [
@@ -161,14 +161,11 @@ class RegisterController extends Controller
             'specialization_type.required'=> 'المؤهل التعليمي  مطلوب',
             'date_of_graduation.required' => 'تاريخ التخرج مطلوب',
             'national_id_front.required'  => 'صورة الهوية الأمامية مطلوبة',
-            'national_id_front.mimes'     => 'يجب أن تكون الصورة بصيغة JPG أو PNG أو PDF',
-            'national_id_front.max'       => 'حجم الملف لا يتجاوز 5 ميجابايت',
+            'national_id_front.max'       => 'مسار صورة الهوية الأمامية طويل جداً',
             'national_id_back.required'   => 'صورة الهوية الخلفية مطلوبة',
-            'national_id_back.mimes'      => 'يجب أن تكون الصورة بصيغة JPG أو PNG أو PDF',
-            'national_id_back.max'        => 'حجم الملف لا يتجاوز 5 ميجابايت',
+            'national_id_back.max'        => 'مسار صورة الهوية الخلفية طويل جداً',
             'certificate.required'        => 'الشهادة مطلوبة',
-            'certificate.mimes'           => 'يجب أن تكون الشهادة بصيغة PDF',
-            'certificate.max'             => 'حجم الشهادة يجب ألا يتجاوز 10 ميجابايت',
+            'certificate.max'             => 'مسار الشهادة طويل جداً',
             'is_confirm_user.accepted'    => 'يجب الإقرار بصحة البيانات المدخلة',
             'is_terms.accepted'           => 'يجب الموافقة على الشروط والأحكام',
         ]);
@@ -211,21 +208,25 @@ class RegisterController extends Controller
                 'phone_verified_at'   => now(),
             ]);
 
-            // Store national ID images and certificate in student_documents
+            // Store national ID / certificate references in student_documents.
+            // These arrive as plain path (or URL) strings pointing at files that
+            // were uploaded separately, so nothing is written to disk here.
             foreach (['national_id_front', 'national_id_back', 'certificate'] as $field) {
-                if ($request->hasFile($field)) {
-                    $file = $request->file($field);
-                    $path = $file->store("student-documents/{$user->id}", 'public');
-                    StudentDocument::create([
-                        'user_id'       => $user->id,
-                        'document_type' => $field,
-                        'file_path'     => $path,
-                        'original_name' => $file->getClientOriginalName(),
-                        'file_size'     => $file->getSize(),
-                        'mime_type'     => $file->getMimeType(),
-                        'status'        => 'pending',
-                    ]);
+                $path = trim((string) $request->input($field));
+
+                if ($path === '') {
+                    continue;
                 }
+
+                StudentDocument::create([
+                    'user_id'       => $user->id,
+                    'document_type' => $field,
+                    'file_path'     => $path,
+                    'original_name' => basename(parse_url($path, PHP_URL_PATH) ?: $path),
+                    'file_size'     => 0,
+                    'mime_type'     => $this->guessMimeType($path),
+                    'status'        => 'pending',
+                ]);
             }
         } catch (\Throwable $e) {
             Log::error('Registration error', ['error' => $e->getMessage()]);
@@ -280,5 +281,23 @@ class RegisterController extends Controller
     protected function normalisePhone(string $phone): string
     {
         return str_starts_with($phone, '0') ? $phone : '0' . $phone;
+    }
+
+    /**
+     * Best-effort mime type for a document path, derived from its extension.
+     * student_documents.mime_type is NOT NULL, so this always returns a value.
+     */
+    protected function guessMimeType(string $path): string
+    {
+        $extension = strtolower(pathinfo(parse_url($path, PHP_URL_PATH) ?: $path, PATHINFO_EXTENSION));
+
+        return match ($extension) {
+            'jpg', 'jpeg' => 'image/jpeg',
+            'png'         => 'image/png',
+            'pdf'         => 'application/pdf',
+            'webp'        => 'image/webp',
+            'gif'         => 'image/gif',
+            default       => 'application/octet-stream',
+        };
     }
 }

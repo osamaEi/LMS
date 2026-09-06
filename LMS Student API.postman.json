@@ -3765,6 +3765,836 @@
             "auth": []
         },
         {
+            "name": "Homework",
+            "description": "مسار تسليم الواجبات: عرض الواجبات ← عرض واجب ← تسليم الواجب ← حذف التسليم (لإعادة التسليم).",
+            "item": [
+                {
+                    "name": "1 - List Homework",
+                    "description": "عرض جميع الواجبات المسندة للطالب.\n\nمعامل اختياري (query):\n- filter: `pending` (لم يُسلَّم) | `submitted` (سُلِّم ولم يُصحَّح) | `graded` (تم تصحيحه)\n\nترجع الاستجابة أيضاً `stats` بإجمالي الواجبات وعدد كل حالة.\n\nيتطلب تسجيل الدخول (Bearer token).",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json",
+                                "description": "",
+                                "type": "string"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/student/homework?filter=pending",
+                            "path": [
+                                "api",
+                                "v1",
+                                "student",
+                                "homework"
+                            ],
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "query": [
+                                {
+                                    "key": "filter",
+                                    "value": "pending",
+                                    "description": "pending | submitted | graded",
+                                    "disabled": true
+                                }
+                            ],
+                            "variable": []
+                        },
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [
+                                {
+                                    "key": "token",
+                                    "value": "{{access_token}}",
+                                    "type": "string"
+                                }
+                            ]
+                        }
+                    },
+                    "response": [
+                        {
+                            "name": "List Homework - Success (200)",
+                            "status": "OK",
+                            "code": 200,
+                            "_postman_previewlanguage": "json",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "cookie": [],
+                            "body": "{\n    \"success\": true,\n    \"filter\": \"all\",\n    \"total\": 2,\n    \"stats\": {\n        \"total\": 2,\n        \"pending\": 1,\n        \"submitted\": 1,\n        \"graded\": 0\n    },\n    \"data\": [\n        {\n            \"id\": 5,\n            \"title\": \"الواجب الأول — مقدمة في البرمجة\",\n            \"description\": \"حل التمارين من 1 إلى 10\",\n            \"due_date\": \"2026-09-10T23:59:00+00:00\",\n            \"max_grade\": 10,\n            \"submission\": null\n        },\n        {\n            \"id\": 6,\n            \"title\": \"الواجب الثاني — الجمل الشرطية\",\n            \"description\": \"كتابة برنامج بسيط\",\n            \"due_date\": \"2026-09-15T23:59:00+00:00\",\n            \"max_grade\": 10,\n            \"submission\": {\n                \"id\": 12,\n                \"homework_id\": 5,\n                \"content\": \"الإجابة على أسئلة الواجب الأول...\",\n                \"file_url\": \"http://localhost:8000/storage/homework-submissions/answer.pdf\",\n                \"grade\": null,\n                \"feedback\": null,\n                \"submitted_at\": \"2026-09-05T10:30:00+00:00\"\n            }\n        }\n    ]\n}"
+                        },
+                        {
+                            "name": "Unauthenticated (401)",
+                            "status": "Unauthorized",
+                            "code": 401,
+                            "_postman_previewlanguage": "json",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "cookie": [],
+                            "body": "{\n    \"message\": \"Unauthenticated.\"\n}"
+                        }
+                    ]
+                },
+                {
+                    "name": "2 - Show Homework",
+                    "description": "عرض تفاصيل واجب واحد مع بيانات تسليم الطالب له (إن وُجد).\n\nاستبدل `{{homework_id}}` بمعرّف الواجب.\n\nيتطلب تسجيل الدخول (Bearer token).",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json",
+                                "description": "",
+                                "type": "string"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/student/homework/{{homework_id}}",
+                            "path": [
+                                "api",
+                                "v1",
+                                "student",
+                                "homework",
+                                "{{homework_id}}"
+                            ],
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "query": [],
+                            "variable": []
+                        },
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [
+                                {
+                                    "key": "token",
+                                    "value": "{{access_token}}",
+                                    "type": "string"
+                                }
+                            ]
+                        }
+                    },
+                    "response": [
+                        {
+                            "name": "Show Homework - Success (200)",
+                            "status": "OK",
+                            "code": 200,
+                            "_postman_previewlanguage": "json",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "cookie": [],
+                            "body": "{\n    \"success\": true,\n    \"data\": {\n        \"id\": 5,\n        \"title\": \"الواجب الأول — مقدمة في البرمجة\",\n        \"description\": \"حل التمارين من 1 إلى 10\",\n        \"due_date\": \"2026-09-10T23:59:00+00:00\",\n        \"max_grade\": 10,\n        \"submission\": null\n    }\n}"
+                        },
+                        {
+                            "name": "Show Homework - Not Found / No Access (404)",
+                            "status": "Not Found",
+                            "code": 404,
+                            "_postman_previewlanguage": "json",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "cookie": [],
+                            "body": "{\n    \"message\": \"No query results for model [App\\\\Models\\\\Homework].\"\n}"
+                        },
+                        {
+                            "name": "Unauthenticated (401)",
+                            "status": "Unauthorized",
+                            "code": 401,
+                            "_postman_previewlanguage": "json",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "cookie": [],
+                            "body": "{\n    \"message\": \"Unauthenticated.\"\n}"
+                        }
+                    ]
+                },
+                {
+                    "name": "3 - Submit Homework",
+                    "description": "تسليم الواجب (multipart/form-data).\n\nيجب إرسال **واحد على الأقل** من الحقول التالية، وإلا سيرجع الخطأ 422:\n- content: نص الإجابة (حتى 3000 حرف)\n- file: ملف الإجابة (حتى 20 ميجابايت، أي صيغة)\n- file_url: رابط خارجي للإجابة (حتى 2048 حرف)\n\nيمكن الجمع بين النص والملف معاً.\n\nاستبدل `{{homework_id}}` بمعرّف الواجب. يتم حفظ معرّف التسليم في متغير `submission_id` تلقائياً لاستخدامه في حذف التسليم.\n\nيتطلب تسجيل الدخول (Bearer token).",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "var json = pm.response.json();",
+                                    "if (json.success && json.data && json.data.id) {",
+                                    "    pm.collectionVariables.set('submission_id', json.data.id);",
+                                    "    console.log('Submission id saved:', json.data.id);",
+                                    "}"
+                                ],
+                                "type": "text/javascript",
+                                "packages": []
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "body": {
+                            "mode": "formdata",
+                            "formdata": [
+                                {
+                                    "key": "content",
+                                    "value": "هذه إجابتي على أسئلة الواجب الأول...",
+                                    "description": "نص الإجابة (حتى 3000 حرف) — اختياري إذا تم رفع ملف أو رابط",
+                                    "type": "text",
+                                    "disabled": false
+                                },
+                                {
+                                    "key": "file",
+                                    "description": "ملف الإجابة (حتى 20 ميجابايت) — اختياري",
+                                    "type": "file",
+                                    "disabled": false
+                                },
+                                {
+                                    "key": "file_url",
+                                    "value": "https://drive.google.com/file/d/xxxx/view",
+                                    "description": "رابط خارجي للإجابة — اختياري (بديل عن رفع الملف)",
+                                    "type": "text",
+                                    "disabled": true
+                                }
+                            ]
+                        },
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json",
+                                "description": "",
+                                "type": "string"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/student/homework/{{homework_id}}/submit",
+                            "path": [
+                                "api",
+                                "v1",
+                                "student",
+                                "homework",
+                                "{{homework_id}}",
+                                "submit"
+                            ],
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "query": [],
+                            "variable": []
+                        },
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [
+                                {
+                                    "key": "token",
+                                    "value": "{{access_token}}",
+                                    "type": "string"
+                                }
+                            ]
+                        }
+                    },
+                    "response": [
+                        {
+                            "name": "Submit Homework - Success (201)",
+                            "status": "Created",
+                            "code": 201,
+                            "_postman_previewlanguage": "json",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "cookie": [],
+                            "body": "{\n    \"success\": true,\n    \"message\": \"تم تسليم الواجب بنجاح\",\n    \"data\": {\n        \"id\": 12,\n        \"homework_id\": 5,\n        \"content\": \"الإجابة على أسئلة الواجب الأول...\",\n        \"file_url\": \"http://localhost:8000/storage/homework-submissions/answer.pdf\",\n        \"grade\": null,\n        \"feedback\": null,\n        \"submitted_at\": \"2026-09-05T10:30:00+00:00\"\n    }\n}"
+                        },
+                        {
+                            "name": "Submit Homework - Nothing Provided (422)",
+                            "status": "Unprocessable Content",
+                            "code": 422,
+                            "_postman_previewlanguage": "json",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "cookie": [],
+                            "body": "{\n    \"success\": false,\n    \"message\": \"يرجى كتابة نص الإجابة أو رفع ملف أو إرسال رابط.\"\n}"
+                        },
+                        {
+                            "name": "Submit Homework - File Too Large (422)",
+                            "status": "Unprocessable Content",
+                            "code": 422,
+                            "_postman_previewlanguage": "json",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "cookie": [],
+                            "body": "{\n    \"message\": \"The file field must not be greater than 20480 kilobytes.\",\n    \"errors\": {\n        \"file\": [\n            \"The file field must not be greater than 20480 kilobytes.\"\n        ]\n    }\n}"
+                        },
+                        {
+                            "name": "Submit Homework - Not Found / No Access (404)",
+                            "status": "Not Found",
+                            "code": 404,
+                            "_postman_previewlanguage": "json",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "cookie": [],
+                            "body": "{\n    \"message\": \"No query results for model [App\\\\Models\\\\Homework].\"\n}"
+                        },
+                        {
+                            "name": "Unauthenticated (401)",
+                            "status": "Unauthorized",
+                            "code": 401,
+                            "_postman_previewlanguage": "json",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "cookie": [],
+                            "body": "{\n    \"message\": \"Unauthenticated.\"\n}"
+                        }
+                    ]
+                },
+                {
+                    "name": "4 - Delete Submission",
+                    "description": "حذف تسليم الواجب، ليتمكن الطالب من إعادة التسليم من جديد.\n\nاستبدل `{{submission_id}}` بمعرّف التسليم (يُحفظ تلقائياً بعد تنفيذ «Submit Homework»).\n\nيتطلب تسجيل الدخول (Bearer token).",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json",
+                                "description": "",
+                                "type": "string"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/student/homework/submissions/{{submission_id}}",
+                            "path": [
+                                "api",
+                                "v1",
+                                "student",
+                                "homework",
+                                "submissions",
+                                "{{submission_id}}"
+                            ],
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "query": [],
+                            "variable": []
+                        },
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [
+                                {
+                                    "key": "token",
+                                    "value": "{{access_token}}",
+                                    "type": "string"
+                                }
+                            ]
+                        }
+                    },
+                    "response": [
+                        {
+                            "name": "Delete Submission - Success (200)",
+                            "status": "OK",
+                            "code": 200,
+                            "_postman_previewlanguage": "json",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "cookie": [],
+                            "body": "{\n    \"success\": true,\n    \"message\": \"تم حذف التسليم بنجاح\"\n}"
+                        },
+                        {
+                            "name": "Delete Submission - Not Found (404)",
+                            "status": "Not Found",
+                            "code": 404,
+                            "_postman_previewlanguage": "json",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "cookie": [],
+                            "body": "{\n    \"message\": \"No query results for model [App\\\\Models\\\\HomeworkSubmission].\"\n}"
+                        },
+                        {
+                            "name": "Unauthenticated (401)",
+                            "status": "Unauthorized",
+                            "code": 401,
+                            "_postman_previewlanguage": "json",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "cookie": [],
+                            "body": "{\n    \"message\": \"Unauthenticated.\"\n}"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Absence Apologies",
+            "description": "مسار أعذار الغياب: تقديم عذر عن محاضرة ← عرض الأعذار ← عرض عذر ← سحب عذر ما زال قيد المراجعة.",
+            "item": [
+                {
+                    "name": "1 - Submit Apology",
+                    "description": "تقديم عذر غياب عن محاضرة (multipart/form-data).\n\nالحقول:\n- reason: سبب الغياب (مطلوب، من 5 إلى 1000 حرف)\n- attachment: مرفق داعم مثل تقرير طبي (اختياري — PDF أو JPG أو PNG، حتى 4 ميجابايت)\n\nاستبدل `{{session_id}}` بمعرّف المحاضرة. يتم حفظ معرّف العذر في متغير `apology_id` تلقائياً.\n\nالشروط:\n- يجب أن يكون الطالب مسجلاً في هذه المحاضرة، وإلا يرجع 403.\n- لا يمكن تقديم أكثر من عذر واحد لنفس المحاضرة (422).\n- لا يمكن تقديم عذر لمحاضرة تم حضورها فعلياً (422).\n\nيتم إنشاء العذر بحالة `pending` في انتظار مراجعة الإدارة.\n\nيتطلب تسجيل الدخول (Bearer token).",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "var json = pm.response.json();",
+                                    "if (json.success && json.data && json.data.id) {",
+                                    "    pm.collectionVariables.set('apology_id', json.data.id);",
+                                    "    console.log('Apology id saved:', json.data.id);",
+                                    "}"
+                                ],
+                                "type": "text/javascript",
+                                "packages": []
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "body": {
+                            "mode": "formdata",
+                            "formdata": [
+                                {
+                                    "key": "reason",
+                                    "value": "كنت مريضاً ولدي تقرير طبي مرفق.",
+                                    "description": "سبب الغياب (مطلوب، 5 إلى 1000 حرف)",
+                                    "type": "text",
+                                    "disabled": false
+                                },
+                                {
+                                    "key": "attachment",
+                                    "description": "مرفق داعم — PDF أو JPG أو PNG، حتى 4 ميجابايت (اختياري)",
+                                    "type": "file",
+                                    "disabled": false
+                                }
+                            ]
+                        },
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json",
+                                "description": "",
+                                "type": "string"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/student/sessions/{{session_id}}/apology",
+                            "path": [
+                                "api",
+                                "v1",
+                                "student",
+                                "sessions",
+                                "{{session_id}}",
+                                "apology"
+                            ],
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "query": [],
+                            "variable": []
+                        },
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [
+                                {
+                                    "key": "token",
+                                    "value": "{{access_token}}",
+                                    "type": "string"
+                                }
+                            ]
+                        }
+                    },
+                    "response": [
+                        {
+                            "name": "Submit Apology - Success (201)",
+                            "status": "Created",
+                            "code": 201,
+                            "_postman_previewlanguage": "json",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "cookie": [],
+                            "body": "{\n    \"success\": true,\n    \"message\": \"تم إرسال عذر الغياب بنجاح، وسيتم مراجعته من قبل الإدارة.\",\n    \"data\": {\n        \"id\": 3,\n        \"reason\": \"كنت مريضاً ولدي تقرير طبي مرفق.\",\n        \"status\": \"pending\",\n        \"status_label\": \"قيد المراجعة\",\n        \"attachment\": \"http://localhost:8000/storage/apologies/report.pdf\",\n        \"review_note\": null,\n        \"reviewed_by\": null,\n        \"reviewed_at\": null,\n        \"created_at\": \"2026-09-05T09:00:00+00:00\",\n        \"session\": {\n            \"id\": 21,\n            \"title\": \"محاضرة مقدمة في البرمجة\",\n            \"scheduled_at\": \"2026-09-03T08:00:00+00:00\"\n        }\n    }\n}"
+                        },
+                        {
+                            "name": "Submit Apology - Not Enrolled in Session (403)",
+                            "status": "Forbidden",
+                            "code": 403,
+                            "_postman_previewlanguage": "json",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "cookie": [],
+                            "body": "{\n    \"success\": false,\n    \"message\": \"لا يمكنك تقديم عذر لمحاضرة غير مسجل بها.\"\n}"
+                        },
+                        {
+                            "name": "Submit Apology - Already Submitted (422)",
+                            "status": "Unprocessable Content",
+                            "code": 422,
+                            "_postman_previewlanguage": "json",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "cookie": [],
+                            "body": "{\n    \"success\": false,\n    \"message\": \"لقد قمت بتقديم عذر لهذه المحاضرة مسبقاً (الحالة: قيد المراجعة).\",\n    \"data\": {\n        \"id\": 3,\n        \"reason\": \"كنت مريضاً ولدي تقرير طبي مرفق.\",\n        \"status\": \"pending\",\n        \"status_label\": \"قيد المراجعة\",\n        \"attachment\": \"http://localhost:8000/storage/apologies/report.pdf\",\n        \"review_note\": null,\n        \"reviewed_by\": null,\n        \"reviewed_at\": null,\n        \"created_at\": \"2026-09-05T09:00:00+00:00\",\n        \"session\": {\n            \"id\": 21,\n            \"title\": \"محاضرة مقدمة في البرمجة\",\n            \"scheduled_at\": \"2026-09-03T08:00:00+00:00\"\n        }\n    }\n}"
+                        },
+                        {
+                            "name": "Submit Apology - Already Attended (422)",
+                            "status": "Unprocessable Content",
+                            "code": 422,
+                            "_postman_previewlanguage": "json",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "cookie": [],
+                            "body": "{\n    \"success\": false,\n    \"message\": \"لا يمكن تقديم عذر لمحاضرة قمت بحضورها.\"\n}"
+                        },
+                        {
+                            "name": "Submit Apology - Reason Too Short (422)",
+                            "status": "Unprocessable Content",
+                            "code": 422,
+                            "_postman_previewlanguage": "json",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "cookie": [],
+                            "body": "{\n    \"message\": \"السبب قصير جداً.\",\n    \"errors\": {\n        \"reason\": [\n            \"السبب قصير جداً.\"\n        ]\n    }\n}"
+                        },
+                        {
+                            "name": "Unauthenticated (401)",
+                            "status": "Unauthorized",
+                            "code": 401,
+                            "_postman_previewlanguage": "json",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "cookie": [],
+                            "body": "{\n    \"message\": \"Unauthenticated.\"\n}"
+                        }
+                    ]
+                },
+                {
+                    "name": "2 - List Apologies",
+                    "description": "عرض جميع أعذار الغياب المقدَّمة من الطالب (مقسَّمة على صفحات، 15 لكل صفحة).\n\nمعامل اختياري (query):\n- status: `pending` | `approved` | `rejected`\n\nترجع الاستجابة أيضاً `stats` بعدد الأعذار في كل حالة.\n\nيتطلب تسجيل الدخول (Bearer token).",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json",
+                                "description": "",
+                                "type": "string"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/student/apologies?status=pending",
+                            "path": [
+                                "api",
+                                "v1",
+                                "student",
+                                "apologies"
+                            ],
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "query": [
+                                {
+                                    "key": "status",
+                                    "value": "pending",
+                                    "description": "pending | approved | rejected",
+                                    "disabled": true
+                                }
+                            ],
+                            "variable": []
+                        },
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [
+                                {
+                                    "key": "token",
+                                    "value": "{{access_token}}",
+                                    "type": "string"
+                                }
+                            ]
+                        }
+                    },
+                    "response": [
+                        {
+                            "name": "List Apologies - Success (200)",
+                            "status": "OK",
+                            "code": 200,
+                            "_postman_previewlanguage": "json",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "cookie": [],
+                            "body": "{\n    \"success\": true,\n    \"status\": \"all\",\n    \"stats\": {\n        \"pending\": 1,\n        \"approved\": 2,\n        \"rejected\": 0\n    },\n    \"data\": {\n        \"current_page\": 1,\n        \"per_page\": 15,\n        \"total\": 3,\n        \"last_page\": 1,\n        \"data\": [\n            {\n                \"id\": 3,\n                \"reason\": \"كنت مريضاً ولدي تقرير طبي مرفق.\",\n                \"status\": \"pending\",\n                \"status_label\": \"قيد المراجعة\",\n                \"attachment\": \"http://localhost:8000/storage/apologies/report.pdf\",\n                \"review_note\": null,\n                \"reviewed_by\": null,\n                \"reviewed_at\": null,\n                \"created_at\": \"2026-09-05T09:00:00+00:00\",\n                \"session\": {\n                    \"id\": 21,\n                    \"title\": \"محاضرة مقدمة في البرمجة\",\n                    \"scheduled_at\": \"2026-09-03T08:00:00+00:00\"\n                }\n            }\n        ]\n    }\n}"
+                        },
+                        {
+                            "name": "Unauthenticated (401)",
+                            "status": "Unauthorized",
+                            "code": 401,
+                            "_postman_previewlanguage": "json",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "cookie": [],
+                            "body": "{\n    \"message\": \"Unauthenticated.\"\n}"
+                        }
+                    ]
+                },
+                {
+                    "name": "3 - Show Apology",
+                    "description": "عرض تفاصيل عذر واحد، بما في ذلك ملاحظة المراجعة واسم المراجِع وتاريخ المراجعة بعد البت فيه.\n\nاستبدل `{{apology_id}}` بمعرّف العذر.\n\nيتطلب تسجيل الدخول (Bearer token).",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json",
+                                "description": "",
+                                "type": "string"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/student/apologies/{{apology_id}}",
+                            "path": [
+                                "api",
+                                "v1",
+                                "student",
+                                "apologies",
+                                "{{apology_id}}"
+                            ],
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "query": [],
+                            "variable": []
+                        },
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [
+                                {
+                                    "key": "token",
+                                    "value": "{{access_token}}",
+                                    "type": "string"
+                                }
+                            ]
+                        }
+                    },
+                    "response": [
+                        {
+                            "name": "Show Apology - Approved (200)",
+                            "status": "OK",
+                            "code": 200,
+                            "_postman_previewlanguage": "json",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "cookie": [],
+                            "body": "{\n    \"success\": true,\n    \"data\": {\n        \"id\": 3,\n        \"reason\": \"كنت مريضاً ولدي تقرير طبي مرفق.\",\n        \"status\": \"approved\",\n        \"status_label\": \"مقبول\",\n        \"attachment\": \"http://localhost:8000/storage/apologies/report.pdf\",\n        \"review_note\": \"تم قبول العذر بناءً على التقرير الطبي.\",\n        \"reviewed_by\": \"مدير النظام\",\n        \"reviewed_at\": \"2026-09-06T11:00:00+00:00\",\n        \"created_at\": \"2026-09-05T09:00:00+00:00\",\n        \"session\": {\n            \"id\": 21,\n            \"title\": \"محاضرة مقدمة في البرمجة\",\n            \"scheduled_at\": \"2026-09-03T08:00:00+00:00\"\n        }\n    }\n}"
+                        },
+                        {
+                            "name": "Show Apology - Not Found (404)",
+                            "status": "Not Found",
+                            "code": 404,
+                            "_postman_previewlanguage": "json",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "cookie": [],
+                            "body": "{\n    \"message\": \"No query results for model [App\\\\Models\\\\AttendanceApology].\"\n}"
+                        },
+                        {
+                            "name": "Unauthenticated (401)",
+                            "status": "Unauthorized",
+                            "code": 401,
+                            "_postman_previewlanguage": "json",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "cookie": [],
+                            "body": "{\n    \"message\": \"Unauthenticated.\"\n}"
+                        }
+                    ]
+                },
+                {
+                    "name": "4 - Withdraw Apology",
+                    "description": "سحب (حذف) عذر ما زال قيد المراجعة، ويتم حذف المرفق المرتبط به.\n\nلا يمكن حذف عذر تمت مراجعته (مقبول أو مرفوض) — يرجع الخطأ 422.\n\nاستبدل `{{apology_id}}` بمعرّف العذر.\n\nيتطلب تسجيل الدخول (Bearer token).",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json",
+                                "description": "",
+                                "type": "string"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/student/apologies/{{apology_id}}",
+                            "path": [
+                                "api",
+                                "v1",
+                                "student",
+                                "apologies",
+                                "{{apology_id}}"
+                            ],
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "query": [],
+                            "variable": []
+                        },
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [
+                                {
+                                    "key": "token",
+                                    "value": "{{access_token}}",
+                                    "type": "string"
+                                }
+                            ]
+                        }
+                    },
+                    "response": [
+                        {
+                            "name": "Withdraw Apology - Success (200)",
+                            "status": "OK",
+                            "code": 200,
+                            "_postman_previewlanguage": "json",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "cookie": [],
+                            "body": "{\n    \"success\": true,\n    \"message\": \"تم حذف العذر بنجاح\"\n}"
+                        },
+                        {
+                            "name": "Withdraw Apology - Already Reviewed (422)",
+                            "status": "Unprocessable Content",
+                            "code": 422,
+                            "_postman_previewlanguage": "json",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "cookie": [],
+                            "body": "{\n    \"success\": false,\n    \"message\": \"لا يمكن حذف عذر تمت مراجعته.\"\n}"
+                        },
+                        {
+                            "name": "Withdraw Apology - Not Found (404)",
+                            "status": "Not Found",
+                            "code": 404,
+                            "_postman_previewlanguage": "json",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "cookie": [],
+                            "body": "{\n    \"message\": \"No query results for model [App\\\\Models\\\\AttendanceApology].\"\n}"
+                        },
+                        {
+                            "name": "Unauthenticated (401)",
+                            "status": "Unauthorized",
+                            "code": 401,
+                            "_postman_previewlanguage": "json",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "cookie": [],
+                            "body": "{\n    \"message\": \"Unauthenticated.\"\n}"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
             "name": "sessions",
             "description": "",
             "item": [
@@ -5418,6 +6248,26 @@
         {
             "key": "register_phone",
             "value": "0512345678",
+            "type": "string"
+        },
+        {
+            "key": "homework_id",
+            "value": "5",
+            "type": "string"
+        },
+        {
+            "key": "submission_id",
+            "value": "12",
+            "type": "string"
+        },
+        {
+            "key": "session_id",
+            "value": "21",
+            "type": "string"
+        },
+        {
+            "key": "apology_id",
+            "value": "3",
             "type": "string"
         }
     ],
