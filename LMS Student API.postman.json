@@ -211,7 +211,7 @@
                 },
                 {
                     "name": "Register — Step 3: Complete Registration",
-                    "description": "الخطوة الثالثة والأخيرة: إنشاء الحساب (multipart/form-data).\n\nيتطلب التحقق من رقم الجوال أولاً عبر الخطوتين 1 و 2، ويجب استخدام نفس رقم الجوال. التحقق صالح لمدة ساعة.\n\nيتم إنشاء الحساب بحالة 'pending' في انتظار مراجعة الإدارة وتفعيل الحساب.\n\nالحقول المطلوبة:\n- phone: رقم الجوال الذي تم التحقق منه (05XXXXXXXX)\n- national_id: رقم الهوية الوطنية (10 أرقام، فريد)\n- name: الاسم الكامل\n- email: البريد الإلكتروني (فريد)\n- password: كلمة المرور (8 أحرف على الأقل)\n- password_confirmation: تأكيد كلمة المرور\n- date_of_birth: تاريخ الميلاد (YYYY-MM-DD)\n- gender: الجنس (male / female)\n- nationality: الجنسية\n- specialization: نوع المؤهل\n- specialization_type: المؤهل التعليمي\n- date_of_graduation: تاريخ التخرج (YYYY-MM-DD)\n- national_id_front: صورة الهوية الأمامية (JPG/PNG/PDF، max 5MB)\n- national_id_back: صورة الهوية الخلفية (JPG/PNG/PDF، max 5MB)\n- certificate: الشهادة (PDF فقط، max 10MB)\n- is_confirm_user: 1 (إقرار بصحة البيانات)\n- is_terms: 1 (موافقة على الشروط والأحكام)\n\nملاحظة: استخدم form-data وليس JSON لأن الطلب يحتوي على ملفات.",
+                    "description": "الخطوة الثالثة والأخيرة: إنشاء الحساب.\n\nيتطلب التحقق من رقم الجوال أولاً عبر الخطوتين 1 و 2، ويجب استخدام نفس رقم الجوال. التحقق صالح لمدة ساعة.\n\nيتم إنشاء الحساب بحالة 'pending' في انتظار مراجعة الإدارة وتفعيل الحساب.\n\nالحقول المطلوبة:\n- phone: رقم الجوال الذي تم التحقق منه (05XXXXXXXX)\n- national_id: رقم الهوية الوطنية (10 أرقام، فريد)\n- name: الاسم الكامل\n- email: البريد الإلكتروني (فريد)\n- password: كلمة المرور (8 أحرف على الأقل)\n- password_confirmation: تأكيد كلمة المرور\n- date_of_birth: تاريخ الميلاد (YYYY-MM-DD)\n- gender: الجنس (male / female)\n- nationality: الجنسية\n- specialization: نوع المؤهل\n- specialization_type: المؤهل التعليمي\n- date_of_graduation: تاريخ التخرج (YYYY-MM-DD)\n- national_id_front: مسار صورة الهوية الأمامية (نص)\n- national_id_back: مسار صورة الهوية الخلفية (نص)\n- certificate: مسار الشهادة (نص)\n- is_confirm_user: 1 (إقرار بصحة البيانات)\n- is_terms: 1 (موافقة على الشروط والأحكام)\n\nملاحظة: جميع الحقول نصية، ولا يتم رفع ملفات في هذا الطلب.",
                     "event": [
                         {
                             "listen": "test",
@@ -321,21 +321,24 @@
                                 },
                                 {
                                     "key": "national_id_front",
-                                    "description": "صورة الهوية الوطنية (الوجه الأمامي) — JPG/PNG/PDF، max 5MB",
-                                    "type": "file",
-                                    "disabled": false
+                                    "description": "مسار صورة الهوية الوطنية (الوجه الأمامي)",
+                                    "type": "text",
+                                    "disabled": false,
+                                    "value": "student-documents/id-front.jpg"
                                 },
                                 {
                                     "key": "national_id_back",
-                                    "description": "صورة الهوية الوطنية (الوجه الخلفي) — JPG/PNG/PDF، max 5MB",
-                                    "type": "file",
-                                    "disabled": false
+                                    "description": "مسار صورة الهوية الوطنية (الوجه الخلفي)",
+                                    "type": "text",
+                                    "disabled": false,
+                                    "value": "student-documents/id-back.jpg"
                                 },
                                 {
                                     "key": "certificate",
-                                    "description": "الشهادة — PDF فقط، max 10MB",
-                                    "type": "file",
-                                    "disabled": false
+                                    "description": "مسار الشهادة",
+                                    "type": "text",
+                                    "disabled": false,
+                                    "value": "student-documents/certificate.pdf"
                                 },
                                 {
                                     "key": "is_confirm_user",
@@ -485,16 +488,16 @@
                                         },
                                         {
                                             "key": "national_id_front",
-                                            "value": "",
-                                            "description": "صورة الهوية الوطنية (الوجه الأمامي) — JPG/PNG/PDF، max 5MB",
-                                            "type": "file",
+                                            "value": "student-documents/id-front.jpg",
+                                            "description": "مسار صورة الهوية الوطنية (الوجه الأمامي)",
+                                            "type": "text",
                                             "disabled": false
                                         },
                                         {
                                             "key": "national_id_back",
-                                            "value": "",
-                                            "description": "صورة الهوية الوطنية (الوجه الخلفي) — JPG/PNG/PDF، max 5MB",
-                                            "type": "file",
+                                            "value": "student-documents/id-back.jpg",
+                                            "description": "مسار صورة الهوية الوطنية (الوجه الخلفي)",
+                                            "type": "text",
                                             "disabled": false
                                         },
                                         {

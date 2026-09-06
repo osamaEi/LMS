@@ -33,17 +33,38 @@ class OtpService
     {
         $digits = preg_replace('/\D+/', '', $phone) ?? '';
 
+        // Strip an international access prefix: 00966… or a stray 966 kept
+        // alongside the local trunk zero (96605…).
         if (str_starts_with($digits, '00')) {
             $digits = substr($digits, 2);
         }
 
+        while (str_starts_with($digits, '9660')) {
+            $digits = '966' . substr($digits, 4);
+        }
+
+        if (str_starts_with($digits, '966')) {
+            return $digits;
+        }
+
+        // Local forms: 05XXXXXXXX (trunk zero) or 5XXXXXXXX (bare).
         if (str_starts_with($digits, '0')) {
-            $digits = '966' . substr($digits, 1);
-        } elseif (str_starts_with($digits, '5')) {
-            $digits = '966' . $digits;
+            return '966' . substr($digits, 1);
+        }
+
+        if (str_starts_with($digits, '5')) {
+            return '966' . $digits;
         }
 
         return $digits;
+    }
+
+    /**
+     * A destination OurSMS will accept: a Saudi mobile MSISDN, 9665XXXXXXXX.
+     */
+    protected function isValidSaudiMsisdn(string $msisdn): bool
+    {
+        return (bool) preg_match('/^9665\d{8}$/', $msisdn);
     }
 
     /**
@@ -215,11 +236,15 @@ class OtpService
             throw new RuntimeException('OurSMS credentials are not configured.');
         }
 
-        $destination = preg_replace('/\D+/', '', $phone);
-        if (str_starts_with($destination, '0')) {
-            $destination = '966' . substr($destination, 1);
-        } elseif (str_starts_with($destination, '5')) {
-            $destination = '966' . $destination;
+        $destination = $this->normalizePhone($phone);
+
+        // OurSMS answers an unroutable destination with a generic HTTP 400
+        // ("Prefix not supported"), so catch it here where we can say which
+        // number was at fault.
+        if (!$this->isValidSaudiMsisdn($destination)) {
+            throw new RuntimeException(
+                "Invalid Saudi mobile number for SMS: '{$phone}' (normalised to '{$destination}')."
+            );
         }
 
         $response = Http::baseUrl(rtrim(config('services.oursms.base_url'), '/'))

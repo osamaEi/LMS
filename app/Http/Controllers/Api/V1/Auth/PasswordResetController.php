@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Services\OtpService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rules\Password;
 
 class PasswordResetController extends Controller
@@ -43,7 +44,21 @@ class PasswordResetController extends Controller
             ]);
         }
 
-        $otp = $this->otpService->send($user->phone, 'password_reset');
+        // An SMS failure must not turn into a stack trace: that would answer
+        // differently for real and unknown accounts and leak which exist.
+        try {
+            $otp = $this->otpService->send($user->phone, 'password_reset');
+        } catch (\Throwable $e) {
+            Log::error('Password reset OTP failed', [
+                'user_id' => $user->id,
+                'error'   => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'تعذر إرسال رمز التحقق حالياً. يرجى المحاولة لاحقاً.',
+            ], 503);
+        }
 
         return response()->json([
             'success' => true,
