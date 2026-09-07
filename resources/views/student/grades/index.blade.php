@@ -270,8 +270,8 @@
                 </div>
             </div>
             <div class="grade-display">
-                <div class="grade-value" style="color: {{ $data['percentage'] >= 75 ? '#059669' : ($data['percentage'] >= 60 ? '#d97706' : '#dc2626') }};">{{ number_format($data['percentage'], 0) }}%</div>
-                <div class="grade-label">النسبة</div>
+                <div class="grade-value" style="color: {{ $data['percentage'] >= 75 ? '#059669' : ($data['percentage'] >= 60 ? '#d97706' : '#dc2626') }};">{{ $data['final_grade'] !== null ? rtrim(rtrim(number_format($data['percentage'], 2, '.', ''), '0'), '.') : number_format($data['percentage'], 0) . '%' }}</div>
+                <div class="grade-label">{{ $data['final_grade'] !== null ? 'الدرجة النهائية من 100' : 'النسبة' }}</div>
             </div>
             <span class="grade-badge {{ $gradeBadgeClass($data['percentage']) }}">{{ $data['grade_label'] }}</span>
         </div>

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
+use App\Models\Enrollment;
 use App\Models\Evaluation;
 use App\Models\QuizAttempt;
 use App\Models\Subject;
@@ -27,8 +28,14 @@ class GradesController extends Controller
             ->orderBy('submitted_at', 'desc')
             ->get();
 
-        // Subjects with evaluations summary
-        $subjectIds = $evaluations->pluck('subject_id')->merge($quizAttempts->pluck('quiz.subject_id'))->unique()->filter();
+        $finalGrades = Enrollment::where('student_id', $student->id)
+            ->whereNotNull('final_grade')
+            ->pluck('final_grade', 'subject_id');
+
+        // Include saved final grades even when no assessments exist.
+        $subjectIds = $evaluations->pluck('subject_id')
+            ->merge($quizAttempts->pluck('quiz.subject_id'))
+            ->merge($finalGrades->keys())->unique()->filter();
         $subjects   = Subject::whereIn('id', $subjectIds)->with('teacher')->get()->keyBy('id');
 
         // Per-subject grade summary
@@ -41,12 +48,17 @@ class GradesController extends Controller
             $totalMax    = $subjectEvals->sum('total_score') + $subjectAttempts->max(fn($a) => $a->quiz?->total_marks ?? 0);
 
             $percentage = $totalMax > 0 ? round(($totalEarned / $totalMax) * 100, 1) : 0;
+            $finalGrade = $finalGrades->get($subject->id);
+            if ($finalGrade !== null) {
+                $percentage = (float) $finalGrade;
+            }
 
             $subjectGrades[$subject->id] = [
                 'subject'     => $subject,
                 'evaluations' => $subjectEvals->values(),
                 'attempts'    => $subjectAttempts->values(),
                 'percentage'  => $percentage,
+                'final_grade' => $finalGrade,
                 'grade_label' => $this->gradeLabel($percentage),
             ];
         }
