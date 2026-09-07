@@ -315,7 +315,14 @@
             </div>
 
             {{-- Right: nav buttons --}}
-           
+            <div class="hdr-nav relative z-10">
+                <a href="{{ route('student.grades.index') }}" class="hdr-btn">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                    </svg>
+                    الدرجات والتقييمات
+                </a>
+            </div>
         </div>
 
         {{-- Bottom chips strip --}}
