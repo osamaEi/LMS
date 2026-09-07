@@ -27,6 +27,30 @@ class QuizController extends Controller
         return view('teacher.quizzes.create-global', compact('classes'));
     }
 
+    public function duplicateForm(Quiz $quiz)
+    {
+        abort_unless($quiz->created_by == auth()->id(), 403);
+        $classes = $this->quizService->selectableClasses(auth()->id())
+            ->reject(fn ($class) => $class['id'] == $quiz->class_id);
+
+        return view('teacher.quizzes.duplicate', compact('quiz', 'classes'));
+    }
+
+    public function duplicate(Request $request, Quiz $quiz)
+    {
+        abort_unless($quiz->created_by == auth()->id(), 403);
+        $validated = $request->validate([
+            'destination' => ['required', 'string', 'regex:/^\d+:(subject|program):\d+$/'],
+            'starts_at' => 'nullable|date',
+            'ends_at' => ['nullable', 'date', 'after:now', ...($request->filled('starts_at') ? ['after_or_equal:starts_at'] : [])],
+        ]);
+        [$classId, $kind, $targetId] = explode(':', $validated['destination']);
+        $this->quizService->duplicateForClass($quiz, "$kind:$targetId", (int) $classId, auth()->id(), $validated);
+
+        return redirect()->route('teacher.quizzes.overview')
+            ->with('success', 'تمت إعادة الاختبار للمجموعة المختارة بنفس الأسئلة والإعدادات، وبمحاولات ونتائج مستقلة.');
+    }
+
     /**
      * Store a quiz created from the global form and redirect to add questions.
      */

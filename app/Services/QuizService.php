@@ -200,6 +200,59 @@ class QuizService
         return $this->quizzes->update($quiz, $data);
     }
 
+    public function duplicateForClass(Quiz $source, string $target, int $classId, int $teacherId, array $schedule): Quiz
+    {
+        abort_unless($source->created_by == $teacherId, 403);
+        if ($source->class_id == $classId) {
+            throw ValidationException::withMessages(['destination' => 'اختر مجموعة أخرى غير مجموعة الاختبار الأصلي.']);
+        }
+
+        $images = [];
+        try {
+            $copy = DB::transaction(function () use ($source, $target, $classId, $teacherId, $schedule, &$images) {
+                $copy = $source->replicate();
+                $copy->setRelations([]);
+                $copy->starts_at = $schedule['starts_at'] ?? null;
+                $copy->ends_at = $schedule['ends_at'] ?? null;
+                $copy->is_active = true;
+                $copy->save();
+                // Invalid destinations roll back the entire copy.
+                $this->retarget($copy, $target, $classId, $teacherId);
+
+                foreach ($source->questions()->with('options')->get() as $question) {
+                    $newQuestion = $question->replicate();
+                    $newQuestion->setRelations([]);
+                    $newQuestion->quiz_id = $copy->id;
+                    if ($question->image) {
+                        $path = 'uploads/images/' . \Illuminate\Support\Str::uuid() . '.' . pathinfo($question->image, PATHINFO_EXTENSION);
+                        $images[] = $path;
+                        if (!Storage::disk('public')->copy($question->image, $path)) {
+                            throw new \RuntimeException('Could not copy quiz question image.');
+                        }
+                        $newQuestion->image = $path;
+                    }
+                    $newQuestion->save();
+                    foreach ($question->options as $option) {
+                        $newOption = $option->replicate();
+                        $newOption->question_id = $newQuestion->id;
+                        $newOption->save();
+                    }
+                }
+
+                return $copy;
+            });
+        } catch (\Throwable $e) {
+            foreach ($images as $path) {
+                $this->deleteImage($path);
+            }
+            throw $e;
+        }
+
+        $this->notifications->notifyQuizCreated($copy);
+
+        return $copy;
+    }
+
     /**
      * Re-point a quiz at a new target (subject or program) + class, validating
      * that the teacher reaches it and the class belongs to it. Sets the correct
