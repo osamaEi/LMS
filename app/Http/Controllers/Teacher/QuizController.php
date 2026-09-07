@@ -41,6 +41,9 @@ class QuizController extends Controller
         abort_unless($quiz->created_by == auth()->id(), 403);
         $validated = $request->validate([
             'destination' => ['required', 'string', 'regex:/^\d+:(subject|program):\d+$/'],
+            'type' => 'required|in:quiz,midterm,exam,homework,paper',
+            'total_marks' => 'required|numeric|min:1',
+            'duration_minutes' => 'nullable|integer|min:1',
             'starts_at' => 'nullable|date',
             'ends_at' => ['nullable', 'date', 'after:now', ...($request->filled('starts_at') ? ['after_or_equal:starts_at'] : [])],
         ]);
@@ -48,7 +51,7 @@ class QuizController extends Controller
         $this->quizService->duplicateForClass($quiz, "$kind:$targetId", (int) $classId, auth()->id(), $validated);
 
         return redirect()->route('teacher.quizzes.overview')
-            ->with('success', 'تمت إعادة الاختبار للمجموعة المختارة بنفس الأسئلة والإعدادات، وبمحاولات ونتائج مستقلة.');
+            ->with('success', 'تمت إعادة الاختبار للمجموعة المختارة بنفس الأسئلة والإعدادات المحددة، وبمحاولات ونتائج مستقلة.');
     }
 
     /**

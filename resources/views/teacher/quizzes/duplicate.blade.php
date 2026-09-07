@@ -63,7 +63,21 @@
             <p class="qd-help" id="destination-help">سيظهر الاختبار لطلاب المجموعة التي تختارها.</p>
             </section>
             <section class="qd-section">
-            <div class="qd-heading"><span class="qd-step">2</span><h2>حدّد مواعيد الاختبار <span class="qd-optional">اختياري</span></h2></div>
+            <div class="qd-heading"><span class="qd-step">2</span><h2>إعدادات النسخة الجديدة</h2></div>
+            <label class="qd-label" for="type">نوع الاختبار</label>
+            <select class="qd-field" id="type" name="type" required>
+                @foreach(['quiz' => 'اختبار قصير', 'midterm' => 'اختبار نصفي', 'exam' => 'امتحان', 'homework' => 'واجب', 'paper' => 'ورقة أعمال'] as $value => $label)
+                    <option value="{{ $value }}" @selected(old('type', $quiz->type) === $value)>{{ $label }}</option>
+                @endforeach
+            </select>
+            <div class="qd-dates" style="margin-top:16px;">
+                <div><label class="qd-label" for="total_marks">الدرجة الكلية</label><input class="qd-field" type="number" id="total_marks" name="total_marks" min="1" step="0.01" required value="{{ old('total_marks', $quiz->total_marks) }}"></div>
+                <div><label class="qd-label" for="duration_minutes">مدة الاختبار بالدقائق <span class="qd-optional">اختياري</span></label><input class="qd-field" type="number" id="duration_minutes" name="duration_minutes" min="1" step="1" placeholder="بدون مدة محددة" value="{{ old('duration_minutes', $quiz->duration_minutes) }}"></div>
+            </div>
+            <p class="qd-help">تُطبّق هذه الإعدادات على النسخة الجديدة فقط. يمكنك ترك المدة فارغة لاختبار بدون حد زمني.</p>
+            </section>
+            <section class="qd-section">
+            <div class="qd-heading"><span class="qd-step">3</span><h2>حدّد مواعيد الاختبار <span class="qd-optional">اختياري</span></h2></div>
             <div class="qd-dates">
                 <div><label class="qd-label" for="starts_at">موعد البداية الجديد</label><input class="qd-field" dir="ltr" type="datetime-local" id="starts_at" name="starts_at" value="{{ old('starts_at') }}" aria-describedby="schedule-help"></div>
                 <div><label class="qd-label" for="ends_at">موعد النهاية الجديد</label><input class="qd-field" dir="ltr" type="datetime-local" id="ends_at" name="ends_at" value="{{ old('ends_at') }}" aria-describedby="schedule-help"></div>
@@ -75,12 +89,12 @@
     @endif
     </div>
     <aside class="qd-panel qd-summary" aria-label="ملخص الاختبار">
-        <div class="qd-eyebrow">الاختبار الذي ستتم إعادته</div>
+        <div class="qd-eyebrow">إعدادات الاختبار الأصلي</div>
         <div class="qd-title">{{ $quiz->title_ar }}</div>
         <div class="qd-stat"><span>نوع الاختبار</span><strong>{{ $quiz->type_label }}</strong></div>
         <div class="qd-stat"><span>الدرجة الكلية</span><strong>{{ $quiz->total_marks }} درجة</strong></div>
         <div class="qd-stat"><span>مدة الاختبار</span><strong>{{ $quiz->duration_minutes ? $quiz->duration_minutes . ' دقيقة' : 'غير محددة' }}</strong></div>
-        <p class="qd-help">تتضمن النسخة نفس الأسئلة والإجابات والدرجات وإعدادات الاختبار الأصلي.</p>
+        <p class="qd-help">تتضمن النسخة نفس الأسئلة والإجابات. يمكنك تعديل نوع الاختبار والدرجة الكلية والمدة من إعدادات النسخة الجديدة.</p>
         <p class="qd-summary-note">لكل مجموعة محاولات ونتائج مستقلة. تظل نتائج المجموعة الأصلية محفوظة.</p>
     </aside>
     </div>

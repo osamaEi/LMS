@@ -86,4 +86,32 @@ class QuizDuplicationTest extends TestCase
             $this->assertSame(1, Quiz::count());
         }
     }
+
+    public function test_copy_uses_custom_settings_without_changing_original(): void
+    {
+        $source = Quiz::create(['created_by' => 7, 'program_id' => 5, 'class_id' => 10,
+            'type' => 'quiz', 'total_marks' => 20, 'duration_minutes' => 30]);
+
+        $copy = $this->service()->duplicateForClass($source, 'program:5', 20, 7, [
+            'type' => 'exam', 'total_marks' => 50, 'duration_minutes' => 60,
+        ]);
+        $copy->refresh();
+        $this->assertSame('exam', $copy->type);
+        $this->assertEquals(50, $copy->total_marks);
+        $this->assertEquals(60, $copy->duration_minutes);
+        $this->assertSame('quiz', $source->fresh()->type);
+        $this->assertEquals(20, $source->fresh()->total_marks);
+        $this->assertEquals(30, $source->fresh()->duration_minutes);
+    }
+
+    public function test_copy_can_remove_time_limit(): void
+    {
+        $source = Quiz::create(['created_by' => 7, 'program_id' => 5, 'class_id' => 10,
+            'duration_minutes' => 30]);
+        $copy = $this->service()->duplicateForClass($source, 'program:5', 20, 7, [
+            'duration_minutes' => null,
+        ]);
+        $this->assertNull($copy->fresh()->duration_minutes);
+        $this->assertEquals(30, $source->fresh()->duration_minutes);
+    }
 }

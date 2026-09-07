@@ -212,6 +212,11 @@ class QuizService
             $copy = DB::transaction(function () use ($source, $target, $classId, $teacherId, $schedule, &$images) {
                 $copy = $source->replicate();
                 $copy->setRelations([]);
+                foreach (['type', 'total_marks', 'duration_minutes'] as $attribute) {
+                    if (array_key_exists($attribute, $schedule)) {
+                        $copy->setAttribute($attribute, $schedule[$attribute]);
+                    }
+                }
                 $copy->starts_at = $schedule['starts_at'] ?? null;
                 $copy->ends_at = $schedule['ends_at'] ?? null;
                 $copy->is_active = true;
