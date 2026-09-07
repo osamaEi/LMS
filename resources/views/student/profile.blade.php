@@ -241,7 +241,18 @@ $sc = [
                 <div class="sp-ch-ico" style="background:#fdf4ff;"><svg width="14" height="14" fill="none" stroke="#7c3aed" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0"/></svg></div>
                 <h4>الوثائق</h4>
             </div>
-            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem;padding:.9rem 1.1rem;">
+            <p style="padding:0 1.1rem;font-size:.72rem;color:#6b7280;">يمكنك رفع أو استبدال الوثائق بصيغة JPG أو PNG أو PDF، بحد أقصى 5 ميجابايت لكل ملف. تخضع الوثائق المرفوعة للمراجعة.</p>
+            @if(session('document_success'))
+                <p role="status" style="padding:0 1.1rem;color:#15803d;">{{ session('document_success') }}</p>
+            @endif
+            @if($errors->has('document') || $errors->has('document_type'))
+                <div role="alert" style="padding:0 1.1rem;color:#b91c1c;">
+                    @foreach(array_merge($errors->get('document'), $errors->get('document_type')) as $error)
+                        <p>{{ $error }}</p>
+                    @endforeach
+                </div>
+            @endif
+            <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.6rem;padding:.9rem 1.1rem;">
                 @foreach(['national_id_front'=>'هوية (أمامي)','national_id_back'=>'هوية (خلفي)','certificate'=>'الشهادة'] as $dt=>$dl)
                 @php
                     $doc=$documents->get($dt);
@@ -263,6 +274,13 @@ $sc = [
                         <span style="font-size:.6rem;font-weight:700;color:#374151;">{{ $dl }}</span>
                         <span style="font-size:.58rem;font-weight:700;padding:1px 6px;border-radius:5px;background:{{ $dBg }};color:{{ $dC }};">{{ $dL }}</span>
                     </div>
+                    <form method="POST" action="{{ route('student.profile.documents.upload') }}" enctype="multipart/form-data" style="padding:.55rem;min-width:0;" onsubmit="this.querySelector('button').disabled=true;this.querySelector('button').textContent='جارٍ الرفع…';">
+                        @csrf
+                        <input type="hidden" name="document_type" value="{{ $dt }}">
+                        <label for="document-{{ $dt }}" style="display:block;font-size:.65rem;margin-bottom:.35rem;">اختر ملف {{ $dl }}</label>
+                        <input id="document-{{ $dt }}" name="document" type="file" accept=".jpg,.jpeg,.png,.pdf" required style="display:block;width:100%;min-width:0;font-size:.65rem;margin-bottom:.5rem;">
+                        <button type="submit" style="width:100%;padding:.45rem;border:0;border-radius:7px;background:#f3e8ff;color:#7c3aed;font-size:.7rem;font-weight:700;cursor:pointer;">{{ $doc ? 'استبدال الوثيقة' : 'رفع الوثيقة' }}</button>
+                    </form>
                 </div>
                 @endforeach
             </div>

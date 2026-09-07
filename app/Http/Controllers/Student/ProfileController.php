@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\StudentDocument;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules\Password;
 
 class ProfileController extends Controller
@@ -78,5 +80,58 @@ class ProfileController extends Controller
             'message' => 'تم تحديث الصورة الشخصية بنجاح',
             'photo_url' => asset('storage/' . $path),
         ]);
+    }
+
+    public function uploadDocument(Request $request)
+    {
+        $validated = $request->validate([
+            'document_type' => 'required|in:national_id_front,national_id_back,certificate',
+            'document' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+        ], [
+            'document.required' => 'يرجى اختيار الوثيقة أولاً.',
+            'document.mimes' => 'الوثيقة يجب أن تكون بصيغة JPG أو PNG أو PDF.',
+            'document.max' => 'حجم الوثيقة يجب ألا يتجاوز 5 ميجابايت.',
+            'document.uploaded' => 'تعذر رفع الوثيقة. تأكد من حجم الملف وحاول مرة أخرى.',
+            'document_type.in' => 'نوع الوثيقة غير صالح.',
+        ]);
+
+        $user = $request->user();
+        $file = $request->file('document');
+        $path = $file->store("student-documents/{$user->id}", 'public');
+        abort_unless($path, 500, 'تعذر حفظ الوثيقة.');
+
+        try {
+            $oldPath = DB::transaction(function () use ($user, $validated, $file, $path) {
+                // Serialize replacements, including the first upload of a document type.
+                $user->newQuery()->whereKey($user->id)->lockForUpdate()->firstOrFail();
+                $document = StudentDocument::firstOrNew([
+                    'user_id' => $user->id,
+                    'document_type' => $validated['document_type'],
+                ]);
+                $oldPath = $document->file_path;
+                $document->fill([
+                    'file_path' => $path,
+                    'original_name' => $file->getClientOriginalName(),
+                    'file_size' => $file->getSize(),
+                    'mime_type' => $file->getMimeType(),
+                    'status' => 'pending',
+                    'rejection_reason' => null,
+                    'reviewed_by' => null,
+                    'reviewed_at' => null,
+                ])->save();
+
+                return $oldPath;
+            });
+        } catch (\Throwable $e) {
+            Storage::disk('public')->delete($path);
+            throw $e;
+        }
+
+        if ($oldPath && $oldPath !== $path) {
+            Storage::disk('public')->delete($oldPath);
+        }
+
+        return redirect()->route('student.profile')
+            ->with('document_success', 'تم رفع الوثيقة بنجاح وهي الآن قيد المراجعة.');
     }
 }
