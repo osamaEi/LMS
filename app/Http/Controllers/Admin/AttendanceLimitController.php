@@ -253,6 +253,7 @@ class AttendanceLimitController extends Controller
                      ->on('ex.session_id', '=', 'a.session_id');
             })
             ->whereIn('s.subject_id', $ctx['subjectIds'])
+            ->whereNull('s.deleted_at')
             ->when($ctx['search'], fn($q, $term) => $q->where(fn($w) => $w
                 ->where('u.name', 'like', "%{$term}%")
                 ->orWhere('u.email', 'like', "%{$term}%")))
@@ -277,8 +278,15 @@ class AttendanceLimitController extends Controller
             ->get(['student_id', 'subject_id', 'reason'])
             ->keyBy(fn($e) => $e->student_id . '-' . $e->subject_id);
 
+        $totals = \App\Models\Session::whereIn('subject_id', $ctx['subjectIds'])
+            ->selectRaw('subject_id, COUNT(*) as total')->groupBy('subject_id')->pluck('total', 'subject_id');
+
         return $rows
-            ->map(function ($r) use ($exempt, $ctx) {
+            ->map(function ($r) use ($exempt, $ctx, $totals) {
+                $r->total = (int) ($totals[$r->subject_id] ?? 0);
+                $standing = AttendanceLimitService::statusFor((int) $r->student_id, (int) $r->subject_id);
+                $r->absent = $standing['absent'];
+                $r->excused = $standing['excused'];
                 $r->percent = $r->total > 0 ? round($r->absent / $r->total * 100, 1) : 0;
                 $key        = $r->student_id . '-' . $r->subject_id;
                 $r->exempt  = $exempt->has($key);
@@ -293,7 +301,7 @@ class AttendanceLimitController extends Controller
 
                 return $r;
             })
-            ->filter(fn($r) => $r->percent > $r->limit)
+            ->filter(fn($r) => AttendanceLimitService::exceedsLimit((int) $r->absent, $r->total, (float) $r->limit))
             ->when($ctx['status'] === 'banned', fn($c) => $c->where('exempt', false))
             ->when($ctx['status'] === 'exempt', fn($c) => $c->where('exempt', true))
             ->sortByDesc('percent')

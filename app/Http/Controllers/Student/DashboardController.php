@@ -608,6 +608,9 @@ class DashboardController extends Controller
 
         $session = Session::with('subject.term')->findOrFail($sessionId);
 
+        $blocked = \App\Services\AttendanceLimitService::blockReason($student->id, $session->subject_id);
+        abort_if($blocked !== null, 403, $blocked ?? '');
+
 
         
 

@@ -398,7 +398,8 @@ class DashboardController extends Controller
             ->where('session_id', $session->id)
             ->first();
 
-        $joinUrl = $session->zoom_join_url;
+        $joinUrl = \App\Services\AttendanceLimitService::blockReason($studentId, $session->subject_id)
+            ? null : $session->zoom_join_url;
 
         return [
             'id'             => $session->id,

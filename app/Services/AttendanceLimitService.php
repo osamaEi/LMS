@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Attendance;
 use App\Models\Setting;
+use App\Models\Session;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -21,11 +22,11 @@ class AttendanceLimitService
     public const SETTING_PERCENT = 'attendance_limit_percent';
 
     /** Fallback when the setting has never been saved. */
-    public const DEFAULT_PERCENT = 25;
+    public const DEFAULT_PERCENT = 20;
 
     public static function isEnabled(): bool
     {
-        return (bool) Setting::get(self::SETTING_ENABLED, false);
+        return (bool) Setting::get(self::SETTING_ENABLED, true);
     }
 
     /** The global allowed unexcused-absence percentage. */
@@ -60,9 +61,13 @@ class AttendanceLimitService
         $rows = Attendance::where('attendances.student_id', $studentId)
             ->join('class_sessions', 'class_sessions.id', '=', 'attendances.session_id')
             ->where('class_sessions.subject_id', $subjectId)
+            ->whereNull('class_sessions.deleted_at')
+            ->where(function ($query) {
+                $query->whereNotNull('class_sessions.ended_at')->orWhere('class_sessions.status', 'completed');
+            })
             ->get(['attendances.attended', 'attendances.session_id']);
 
-        $total = $rows->count();
+        $total = Session::where('subject_id', $subjectId)->count();
 
         // Absences the student apologised for, and the apology was approved.
         $excusedIds = DB::table('attendance_apologies')
@@ -77,7 +82,7 @@ class AttendanceLimitService
 
         $limit    = self::limitForSubject($subjectId);
         $percent  = $total > 0 ? round($absent / $total * 100, 1) : 0.0;
-        $exceeded = self::isEnabled() && $total > 0 && $percent > $limit;
+        $exceeded = self::exceedsLimit($absent, $total, $limit);
         $exempt   = self::isExempt($studentId, $subjectId);
 
         return [
@@ -98,6 +103,12 @@ class AttendanceLimitService
             ->where('student_id', $studentId)
             ->where('subject_id', $subjectId)
             ->exists();
+    }
+
+    public static function exceedsLimit(int $absent, int $total, float $limit): bool
+    {
+        // Compare before rounding so the displayed percentage cannot hide a breach.
+        return self::isEnabled() && $total > 0 && $absent * 100 > $total * $limit;
     }
 
     /**

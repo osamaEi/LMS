@@ -143,10 +143,13 @@ class AttendanceStatusController extends Controller
         $totalSessions = $sessionIds->count();
         $allowed       = (int) floor($totalSessions * $limit / 100);
 
-        return $rows->map(function ($r) use ($exempt, $totalSessions, $allowed, $limit) {
+        return $rows->map(function ($r) use ($exempt, $totalSessions, $allowed, $limit, $subjectId) {
+                $standing = AttendanceLimitService::statusFor((int) $r->student_id, $subjectId);
+                $r->absent = $standing['absent'];
+                $r->excused = $standing['excused'];
                 $r->percent   = $totalSessions > 0 ? round($r->absent / $totalSessions * 100, 1) : 0;
                 $r->exempt    = $exempt->has($r->student_id);
-                $r->exceeded  = $r->percent > $limit;
+                $r->exceeded  = AttendanceLimitService::exceedsLimit((int) $r->absent, $totalSessions, $limit);
                 $r->banned    = $r->exceeded && !$r->exempt;
                 $r->allowed   = $allowed;
                 // How many more sessions they may still miss.
