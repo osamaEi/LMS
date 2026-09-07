@@ -118,6 +118,22 @@
     transition: transform .28s, opacity .28s;
 }
 #spt.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+.sp-doc-grid { display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:12px;padding:1rem; }
+.sp-doc-form { padding:10px;min-width:0; }
+.sp-doc-picker { position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;min-height:132px;padding:14px 8px;border:2px dashed #c4b5fd;border-radius:12px;background:#faf7ff;color:#6d28d9;text-align:center;cursor:pointer;transition:background .15s,border-color .15s; }
+.sp-doc-picker:hover,.sp-doc-picker:focus-within { background:#f3e8ff;border-color:#7c3aed; }
+.sp-doc-picker:focus-within { outline:3px solid #ddd6fe;outline-offset:2px; }
+.sp-doc-picker input { position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer; }
+.sp-doc-picker strong { font-size:.8rem; }
+.sp-doc-picker small { font-size:.65rem;color:#64748b; }
+.sp-doc-icon { display:flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:12px;background:#ede9fe; }
+.sp-doc-name { display:block;margin:9px 0;font-size:.7rem;color:#64748b;text-align:center;overflow-wrap:anywhere; }
+.sp-doc-form.has-file .sp-doc-picker { border-color:#16a34a;background:#f0fdf4;color:#15803d; }
+.sp-doc-form.has-file .sp-doc-name { color:#15803d;font-weight:700; }
+.sp-doc-submit { width:100%;min-height:42px;padding:9px;border:0;border-radius:9px;background:#7c3aed;color:#fff;font:700 .78rem 'Cairo',sans-serif;cursor:pointer; }
+.sp-doc-submit:hover { background:#6d28d9; }
+.sp-doc-submit:disabled { opacity:.6;cursor:wait; }
+@media(max-width:420px) { .sp-doc-grid { grid-template-columns:1fr; } }
 </style>
 @endpush
 
@@ -252,7 +268,7 @@ $sc = [
                     @endforeach
                 </div>
             @endif
-            <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.6rem;padding:.9rem 1.1rem;">
+            <div class="sp-doc-grid">
                 @foreach(['national_id_front'=>'هوية (أمامي)','national_id_back'=>'هوية (خلفي)','certificate'=>'الشهادة'] as $dt=>$dl)
                 @php
                     $doc=$documents->get($dt);
@@ -261,7 +277,8 @@ $sc = [
                     $dL=$doc?match($doc->status){'approved'=>'مقبول','rejected'=>'مرفوض',default=>'مراجعة'}:'غير موجود';
                 @endphp
                 <div style="border:1.5px solid #f1f5f9;border-radius:12px;overflow:hidden;">
-                    <div style="height:72px;background:#f8fafc;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+                    @if($doc && $doc->file_path)
+                    <div style="height:90px;background:#f8fafc;display:flex;align-items:center;justify-content:center;overflow:hidden;">
                         @if($doc&&$doc->file_path&&in_array(pathinfo($doc->file_path,PATHINFO_EXTENSION),['jpg','jpeg','png']))
                             <img src="{{ asset('storage/'.$doc->file_path) }}" style="width:100%;height:100%;object-fit:cover;cursor:pointer;" onclick="document.getElementById('sp-lb-i').src=this.src;document.getElementById('sp-lb').style.display='flex'">
                         @elseif($doc&&$doc->file_path)
@@ -270,16 +287,23 @@ $sc = [
                             <svg width="22" height="22" fill="none" stroke="#d1d5db" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                         @endif
                     </div>
+                    @endif
                     <div style="padding:.35rem .55rem;border-top:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between;gap:.25rem;">
-                        <span style="font-size:.6rem;font-weight:700;color:#374151;">{{ $dl }}</span>
+                        <span style="font-size:.78rem;font-weight:700;color:#374151;padding:7px 0;">{{ $dl }}</span>
                         <span style="font-size:.58rem;font-weight:700;padding:1px 6px;border-radius:5px;background:{{ $dBg }};color:{{ $dC }};">{{ $dL }}</span>
                     </div>
-                    <form method="POST" action="{{ route('student.profile.documents.upload') }}" enctype="multipart/form-data" style="padding:.55rem;min-width:0;" onsubmit="this.querySelector('button').disabled=true;this.querySelector('button').textContent='جارٍ الرفع…';">
+                    <form class="sp-doc-form" method="POST" action="{{ route('student.profile.documents.upload') }}" enctype="multipart/form-data" onsubmit="this.querySelector('button').disabled=true;this.querySelector('button').textContent='جارٍ الرفع…';">
                         @csrf
                         <input type="hidden" name="document_type" value="{{ $dt }}">
-                        <label for="document-{{ $dt }}" style="display:block;font-size:.65rem;margin-bottom:.35rem;">اختر ملف {{ $dl }}</label>
-                        <input id="document-{{ $dt }}" name="document" type="file" accept=".jpg,.jpeg,.png,.pdf" required style="display:block;width:100%;min-width:0;font-size:.65rem;margin-bottom:.5rem;">
-                        <button type="submit" style="width:100%;padding:.45rem;border:0;border-radius:7px;background:#f3e8ff;color:#7c3aed;font-size:.7rem;font-weight:700;cursor:pointer;">{{ $doc ? 'استبدال الوثيقة' : 'رفع الوثيقة' }}</button>
+                        <label class="sp-doc-picker" for="document-{{ $dt }}">
+                            <span class="sp-doc-icon" aria-hidden="true"><svg width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16V4m-4 4 4-4 4 4M4 15v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4"/></svg></span>
+                            <strong>اضغط لاختيار ملف</strong>
+                            <small>JPG · PNG · PDF</small>
+                            <small>حتى 5 ميجابايت</small>
+                            <input id="document-{{ $dt }}" name="document" type="file" accept=".jpg,.jpeg,.png,.pdf" required aria-label="اختر ملف {{ $dl }}" aria-describedby="document-name-{{ $dt }}" onchange="spDocumentSelected(this)">
+                        </label>
+                        <span id="document-name-{{ $dt }}" class="sp-doc-name" aria-live="polite">لم يتم اختيار ملف بعد</span>
+                        <button class="sp-doc-submit" type="submit">{{ $doc ? 'رفع الوثيقة البديلة' : 'رفع الوثيقة' }}</button>
                     </form>
                 </div>
                 @endforeach
@@ -420,6 +444,16 @@ $sc = [
 @push('scripts')
 <script>
 const _c = document.querySelector('meta[name="csrf-token"]').content;
+
+function spDocumentSelected(input) {
+    const file = input.files[0];
+    const form = input.closest('form');
+    form.classList.toggle('has-file', !!file);
+    form.querySelector('.sp-doc-name').textContent = file ? file.name : 'لم يتم اختيار ملف بعد';
+    form.querySelector('.sp-doc-picker strong').textContent = file ? 'تغيير الملف المختار' : 'اضغط لاختيار ملف';
+    input.setCustomValidity(file && file.size > 5 * 1024 * 1024 ? 'حجم الوثيقة يجب ألا يتجاوز 5 ميجابايت.' : '');
+    if (!input.checkValidity()) input.reportValidity();
+}
 
 async function spUpload(file) {
     if (!file) return;
