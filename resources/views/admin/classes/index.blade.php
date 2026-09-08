@@ -2,6 +2,20 @@
 @section('title', 'المجموعات الدراسية')
 
 @section('content')
+<style>
+    .class-types { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:18px; }
+    .class-types a { padding:10px 18px; border:1px solid #e2e8f0; border-radius:10px; background:white; color:#475569; font-size:13px; font-weight:700; text-decoration:none; }
+    .class-types a[aria-current="page"] { background:#7c3aed; border-color:#7c3aed; color:white; }
+    .class-name { display:block; min-width:200px; max-width:340px; font-size:16px; font-weight:800; line-height:1.7; color:#5b21b6; text-decoration:none; overflow-wrap:anywhere; }
+    .class-name:hover { text-decoration:underline; }
+    .class-actions { min-width:135px; text-align:right; }
+    .class-actions summary { padding:8px 12px; border:1px solid #e2e8f0; border-radius:8px; cursor:pointer; color:#475569; font-weight:700; white-space:nowrap; }
+    .class-actions-list { display:flex; flex-direction:column; gap:4px; padding-top:6px; }
+    .class-actions-list a, .class-actions-list button { display:block; width:100%; padding:8px 10px; border:0; border-radius:6px; background:#f8fafc; color:#475569; font:inherit; text-align:right; text-decoration:none; cursor:pointer; }
+    .class-actions-list a:hover, .class-actions-list button:hover { background:#ede9fe; color:#5b21b6; }
+    .class-actions-list .delete-action { color:#dc2626; }
+    .class-types a:focus-visible, .class-name:focus-visible, .class-actions summary:focus-visible, .class-actions-list :focus-visible { outline:2px solid #7c3aed; outline-offset:3px; }
+</style>
 <div style="max-width:1200px;margin:0 auto;">
 
 {{-- Header --}}
@@ -17,20 +31,19 @@
 </div>
 
 {{-- Filters --}}
+<nav class="class-types" aria-label="نوع البرنامج">
+    @foreach(['' => 'كل المجموعات', 'diploma' => 'الدبلومات', 'course' => 'الدورات', 'english' => 'الإنجليزي', 'training' => 'التدريب'] as $type => $label)
+        <a href="{{ route('admin.classes.index', array_merge(request()->only(['search', 'status']), $type ? ['type' => $type] : [])) }}" @if((string) request('type', '') === (string) $type) aria-current="page" @endif>{{ $label }}</a>
+    @endforeach
+</nav>
 <form method="GET" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;">
+    @if(request('type'))<input type="hidden" name="type" value="{{ request('type') }}">@endif
     <input name="search" value="{{ request('search') }}" placeholder="بحث بالاسم..." style="padding:8px 12px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13px;min-width:200px;">
     <select name="program_id" style="padding:8px 12px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13px;">
         <option value="">كل البرامج</option>
-        @foreach($programs as $p)
+        @foreach($programs->filter(fn ($program) => !request('type') || $program->type === request('type')) as $p)
         <option value="{{ $p->id }}" {{ request('program_id')==$p->id?'selected':'' }}>{{ $p->name_ar }}</option>
         @endforeach
-    </select>
-    <select name="type" style="padding:8px 12px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13px;">
-        <option value="">كل الأنواع</option>
-        <option value="diploma"  {{ request('type')=='diploma'?'selected':'' }}>دبلومة</option>
-        <option value="course"   {{ request('type')=='course'?'selected':'' }}>دورة</option>
-        <option value="english"  {{ request('type')=='english'?'selected':'' }}>إنجليزي</option>
-        <option value="training" {{ request('type')=='training'?'selected':'' }}>تدريب</option>
     </select>
     <select name="status" style="padding:8px 12px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13px;">
         <option value="">كل الحالات</option>
@@ -45,7 +58,7 @@
 </form>
 
 {{-- Table --}}
-<div style="background:white;border-radius:16px;border:1px solid #e2e8f0;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.04);">
+<div style="background:white;border-radius:16px;border:1px solid #e2e8f0;overflow-x:auto;box-shadow:0 2px 12px rgba(0,0,0,.04);">
     <table style="width:100%;border-collapse:collapse;font-size:13px;">
         <thead>
             <tr style="background:#f8fafc;border-bottom:1px solid #e2e8f0;">
@@ -65,7 +78,7 @@
             @php $stColors = ['active'=>['#dcfce7','#16a34a'],'inactive'=>['#f1f5f9','#64748b'],'completed'=>['#dbeafe','#2563eb']]; $sc=$stColors[$cls->status]??['#f1f5f9','#64748b']; @endphp
             <tr style="border-bottom:1px solid #f1f5f9;" class="hover:bg-gray-50">
                 <td style="padding:12px 16px;color:#94a3b8;">{{ $cls->id }}</td>
-                <td style="padding:12px 16px;font-weight:600;color:#1e293b;">{{ $cls->name }}</td>
+                <td style="padding:16px;"><a class="class-name" href="{{ route('admin.classes.show', $cls->id) }}">{{ $cls->name }}</a></td>
                 <td style="padding:12px 16px;color:#64748b;">{{ $cls->program?->name_ar ?? '—' }}</td>
                 <td style="padding:12px 16px;text-align:center;">
                     @php
@@ -92,9 +105,11 @@
                     @if($cls->end_date) → {{ $cls->end_date->format('Y/m/d') }} @endif
                 </td>
                 <td style="padding:12px 16px;text-align:center;">
-                    <div style="display:flex;gap:6px;justify-content:center;">
-                        <a href="{{ route('admin.classes.show', $cls->id) }}" style="padding:5px 10px;font-size:11px;color:#7c3aed;background:#f5f3ff;border:1px solid #e9d5ff;border-radius:7px;cursor:pointer;font-weight:600;text-decoration:none;">عرض</a>
-                        <button onclick="openStudentsModal({{ $cls->id }}, '{{ addslashes($cls->name) }}')" style="padding:5px 10px;font-size:11px;color:#0369a1;background:#e0f2fe;border:1px solid #bae6fd;border-radius:7px;cursor:pointer;font-weight:600;">الطلاب</button>
+                    <details class="class-actions">
+                        <summary aria-label="إجراءات المجموعة {{ $cls->name }}">الإجراءات</summary>
+                        <div class="class-actions-list">
+                        <a href="{{ route('admin.classes.show', $cls->id) }}">عرض التفاصيل</a>
+                        <button type="button" onclick="openStudentsModal({{ $cls->id }}, {{ Illuminate\Support\Js::from($cls->name) }}); this.closest('details').open = false;">الطلاب</button>
                         @php
                             $clsEdit = [
                                 'id'           => $cls->id,
@@ -107,9 +122,11 @@
                                 'end_date'     => optional($cls->end_date)->format('Y-m-d'),
                             ];
                         @endphp
-                        <button onclick='openEditClass(@json($clsEdit))' style="padding:5px 10px;font-size:11px;color:#d97706;background:#fffbeb;border:1px solid #fde68a;border-radius:7px;cursor:pointer;font-weight:600;">تعديل</button>
-                        <button onclick="confirmDelete({{ $cls->id }})" style="padding:5px 10px;font-size:11px;color:#dc2626;background:#fff1f2;border:1px solid #fecaca;border-radius:7px;cursor:pointer;">حذف</button>
-                    </div>
+                        <button type="button" onclick="openEditClass({{ Illuminate\Support\Js::from($clsEdit) }}); this.closest('details').open = false;">تعديل المجموعة</button>
+                        <button type="button" onclick="openEditClass({{ Illuminate\Support\Js::from($clsEdit) }}); document.getElementById('m-status').focus(); this.closest('details').open = false;">تعديل حالة النشاط</button>
+                        <button type="button" class="delete-action" onclick="this.closest('details').open = false; confirmDelete({{ $cls->id }});">حذف المجموعة</button>
+                        </div>
+                    </details>
                 </td>
             </tr>
             @empty
@@ -225,6 +242,19 @@
 <script>
 const CSRF = '{{ csrf_token() }}';
 let _editClassId = null;
+
+document.addEventListener('click', event => {
+    document.querySelectorAll('.class-actions[open]').forEach(menu => {
+        if (!menu.contains(event.target)) menu.open = false;
+    });
+});
+document.addEventListener('keydown', event => {
+    if (event.key !== 'Escape') return;
+    document.querySelectorAll('.class-actions[open]').forEach(menu => {
+        menu.open = false;
+        menu.querySelector('summary').focus();
+    });
+});
 
 function openCreateModal() {
     _editClassId = null;

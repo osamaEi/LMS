@@ -37,7 +37,7 @@ class ProgramClassController extends Controller
         }
 
         $classes = $query->latest()->paginate(20)->withQueryString();
-        $programs = Program::orderBy('name_ar')->get(['id', 'name_ar', 'name_en']);
+        $programs = Program::orderBy('name_ar')->get(['id', 'name_ar', 'name_en', 'type']);
         $teachers = User::where('role', 'teacher')->orderBy('name')->get(['id', 'name']);
 
         return view('admin.classes.index', compact('classes', 'programs', 'teachers'));
