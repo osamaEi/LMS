@@ -34,6 +34,10 @@ Route::prefix('v1')->group(function () {
     // FAQ
     Route::get('/faqs', [App\Http\Controllers\Api\V1\FaqController::class, 'index']);
 
+    // Phone OTP (Public)
+    Route::post('/send-otp', [App\Http\Controllers\Api\V1\Auth\OtpController::class, 'send']);
+    Route::post('/verify-otp', [App\Http\Controllers\Api\V1\Auth\OtpController::class, 'verify']);
+
     // Authentication Routes (Public)
     Route::prefix('auth')->group(function () {
         Route::post('/register/otp/send', [App\Http\Controllers\Api\V1\Auth\RegisterController::class, 'sendOtp'])->middleware('throttle:3,1');
