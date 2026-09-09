@@ -26,7 +26,7 @@ class RegisterController extends Controller
     public function sendOtp(Request $request)
     {
         $data = $request->validate([
-            'phone'       => ['required', 'regex:/^(05|5)\d{8}$/', 'max:12'],
+            'phone'       => ['required', 'regex:/^(?:05|5|\+9665)\d{8}$/', 'max:13'],
             'national_id' => ['required', 'digits:10'],
         ], [
             'phone.required'       => 'رقم الجوال مطلوب',
@@ -81,7 +81,7 @@ class RegisterController extends Controller
     public function verifyOtp(Request $request)
     {
         $data = $request->validate([
-            'phone' => ['required', 'regex:/^(05|5)\d{8}$/', 'max:12'],
+            'phone' => ['required', 'regex:/^(?:05|5|\+9665)\d{8}$/', 'max:13'],
             'otp'   => ['required', 'digits:6'],
         ], [
             'phone.required' => 'رقم الجوال مطلوب',
@@ -124,7 +124,7 @@ class RegisterController extends Controller
     public function register(Request $request)
     {
         $request->validate([
-            'phone'                 => ['required', 'regex:/^(05|5)\d{8}$/', 'max:12'],
+            'phone'                 => ['required', 'regex:/^(?:05|5|\+9665)\d{8}$/', 'max:13'],
             'national_id'           => 'required|digits:10|unique:users,national_id',
             'name'                  => 'required|string|max:255',
             'email'                 => 'required|email|max:255|unique:users,email',
@@ -280,6 +280,10 @@ class RegisterController extends Controller
      */
     protected function normalisePhone(string $phone): string
     {
+        if (str_starts_with($phone, '+966')) {
+            $phone = substr($phone, 4);
+        }
+
         return str_starts_with($phone, '0') ? $phone : '0' . $phone;
     }
 
