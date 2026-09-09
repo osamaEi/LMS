@@ -35,7 +35,7 @@ class LoginController extends Controller
         if ($user->status !== 'active') {
             return response()->json([
                 'success' => false,
-                'message' => 'حسابك غير نشط. يرجى التواصل مع الإدارة.',
+                'message' => 'حسابك قيد المراجعة',
             ], 400);
         }
 
