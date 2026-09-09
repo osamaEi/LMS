@@ -124,7 +124,7 @@ class RegisterController extends Controller
     public function register(Request $request)
     {
         $request->validate([
-            'phone'                 => ['required', 'regex:/^(?:05|5|\+9665)\d{8}$/', 'max:13'],
+            'phone'                 => ['required', 'max:13'],
             'national_id'           => 'required|digits:10|unique:users,national_id',
             'name'                  => 'required|string|max:255',
             'email'                 => 'required|email|max:255|unique:users,email',
