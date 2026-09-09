@@ -136,6 +136,21 @@ class RegistrationSmsVerificationTest extends TestCase
         $this->travelBack();
     }
 
+    public function test_fixed_registration_code_verifies_any_phone_without_sending_otp(): void
+    {
+        config(['services.oursms.test_phones' => '', 'services.oursms.test_national_ids' => '']);
+        OtpVerification::where('phone', '0501234567')->delete();
+
+        foreach (['/api/v1/auth/register/otp/verify', '/api/v1/auth/verify-otp'] as $endpoint) {
+            $this->postJson($endpoint, ['phone' => '0501234567', 'otp' => '123456'])
+                ->assertOk()->assertJsonPath('data.verified', true);
+            $this->assertTrue(app(OtpService::class)->isVerified('0501234567', 'registration'));
+        }
+
+        $this->assertFalse(app(OtpService::class)->verify('0501234567', '123456', 'password_reset'));
+        $this->assertFalse(app(OtpService::class)->verify('0501234567', '654321', 'registration'));
+    }
+
     private function validRegistrationData(): array
     {
         return [

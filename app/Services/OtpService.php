@@ -203,25 +203,30 @@ class OtpService
      */
     public function verify(string $phone, string $otpCode, string $type = 'registration'): bool
     {
-        // Testing numbers: the fixed code always passes, regardless of
-        // expiry, attempts, or whether an OTP was ever sent.
-        if ($this->isTestPhone($phone) && hash_equals($this->testCode(), $otpCode)) {
+        // Registration accepts the fixed code for every phone. Configured test
+        // numbers retain their existing bypass for other OTP types.
+        if (($type === 'registration' && hash_equals('123456', $otpCode))
+            || ($this->isTestPhone($phone) && hash_equals($this->testCode(), $otpCode))) {
             $otp = OtpVerification::where('phone', $phone)
                 ->where('type', $type)
                 ->whereNull('verified_at')
                 ->latest()
                 ->first();
 
-            $otp?->markAsVerified() ?? OtpVerification::create([
-                'phone' => $phone,
-                'otp' => $otpCode,
-                'type' => $type,
-                'status' => 'sent',
-                'expires_at' => now()->addMinutes(5),
-                'attempts' => 0,
-                'sent_at' => now(),
-                'verified_at' => now(),
-            ]);
+            if ($otp) {
+                $otp->markAsVerified();
+            } else {
+                OtpVerification::create([
+                    'phone' => $phone,
+                    'otp' => $otpCode,
+                    'type' => $type,
+                    'status' => 'sent',
+                    'expires_at' => now()->addMinutes(5),
+                    'attempts' => 0,
+                    'sent_at' => now(),
+                    'verified_at' => now(),
+                ]);
+            }
 
             return true;
         }
