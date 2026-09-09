@@ -267,7 +267,7 @@ class OtpService
         return OtpVerification::where('phone', $phone)
             ->where('type', $type)
             ->whereNotNull('verified_at')
-            ->where('created_at', '>=', now()->subHour())
+            ->where('verified_at', '>=', now()->subHour())
             ->exists();
     }
 

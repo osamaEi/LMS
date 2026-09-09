@@ -108,6 +108,34 @@ class RegistrationSmsVerificationTest extends TestCase
             ->assertJson(['success' => false]);
     }
 
+    public function test_api_otp_verification_marks_phone_verified_for_registration(): void
+    {
+        config(['services.oursms.test_phones' => '0501234567', 'services.oursms.test_code' => '123456']);
+
+        OtpVerification::create([
+            'phone' => '0501234567',
+            'otp' => '123456',
+            'type' => 'registration',
+            'status' => 'sent',
+            'expires_at' => now()->addMinutes(5),
+            'created_at' => now()->subHours(2),
+        ]);
+
+        $this->postJson('/api/v1/auth/verify-otp', [
+            'phone' => '+966501234567',
+            'otp' => '123456',
+        ])->assertOk()->assertJsonPath('data.verified', true)
+            ->assertJsonPath('data.phone', '0501234567');
+
+        $this->assertNotNull(OtpVerification::where('phone', '0501234567')->value('verified_at'));
+        $this->assertTrue(app(OtpService::class)->isVerified('0501234567', 'registration'));
+        $this->assertFalse(app(OtpService::class)->isVerified('0501234567', 'password_reset'));
+
+        $this->travel(61)->minutes();
+        $this->assertFalse(app(OtpService::class)->isVerified('0501234567', 'registration'));
+        $this->travelBack();
+    }
+
     private function validRegistrationData(): array
     {
         return [

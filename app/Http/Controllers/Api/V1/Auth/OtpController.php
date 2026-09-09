@@ -21,7 +21,7 @@ class OtpController extends Controller
     public function send(Request $request)
     {
         $data = $request->validate([
-            'phone' => ['required', 'regex:/^(05|5)\d{8}$/', 'max:12'],
+            'phone' => ['required', 'regex:/^(?:05|5|\+9665)\d{8}$/', 'max:13'],
             'type'  => 'nullable|in:registration,login,password_reset',
         ], [
             'phone.required' => 'رقم الجوال مطلوب',
@@ -54,7 +54,7 @@ class OtpController extends Controller
     public function verify(Request $request)
     {
         $data = $request->validate([
-            'phone' => ['required', 'regex:/^(05|5)\d{8}$/', 'max:12'],
+            'phone' => ['required', 'regex:/^(?:05|5|\+9665)\d{8}$/', 'max:13'],
             'otp'   => 'required|digits:6',
             'type'  => 'nullable|in:registration,login,password_reset',
         ], [
@@ -90,6 +90,10 @@ class OtpController extends Controller
      */
     protected function normalisePhone(string $phone): string
     {
+        if (str_starts_with($phone, '+966')) {
+            $phone = substr($phone, 4);
+        }
+
         return str_starts_with($phone, '0') ? $phone : '0' . $phone;
     }
 }
