@@ -20,7 +20,7 @@ class ForgotPasswordRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => ['required', 'string', 'email', 'exists:users,email'],
+            'phone' => ['required', 'string', 'regex:/^(05|5)\d{8}$/'],
         ];
     }
 
@@ -30,9 +30,8 @@ class ForgotPasswordRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'email.required' => 'Email is required',
-            'email.email' => 'Please provide a valid email address',
-            'email.exists' => 'No account found with this email address',
+            'phone.required'     => 'رقم الجوال مطلوب',
+            'phone.regex'        => 'رقم الجوال غير صالح (مثال: 0512345678)',
         ];
     }
 }

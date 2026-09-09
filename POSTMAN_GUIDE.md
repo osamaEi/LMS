@@ -401,6 +401,15 @@ Token saved to environment: 1|abc123def456ghi789jkl012mno345pqr678
 
 **Request:** POST `/auth/forgot-password`
 
+**Body:**
+```json
+{
+  "phone": "0512345678"
+}
+```
+
+Phone is required; national ID and email cannot replace it.
+
 **What it does:**
 - Sends OTP to user's registered phone
 - OTP type: `password_reset`
@@ -430,10 +439,9 @@ Token saved to environment: 1|abc123def456ghi789jkl012mno345pqr678
 **Body:**
 ```json
 {
-  "phone": "+966501234567",
+  "national_id": "1234567891",
   "otp": "789012",  // ← Replace with actual OTP
-  "password": "NewPassword123",
-  "password_confirmation": "NewPassword123"
+  "password": "NewPassword123"
 }
 ```
 

@@ -60,7 +60,7 @@ class TestNationalIdOtpBypassTest extends TestCase
     {
         Http::fake(['api.oursms.com/*' => Http::response(['jobId' => 'job-1'])]);
 
-        $this->postJson('/api/v1/auth/forgot-password', ['national_id' => $this->nationalId])
+        $this->postJson('/api/v1/auth/forgot-password', ['phone' => $this->phone])
             ->assertOk()
             ->assertJson(['success' => true]);
 
@@ -78,18 +78,37 @@ class TestNationalIdOtpBypassTest extends TestCase
     {
         Http::fake(['api.oursms.com/*' => Http::response(['jobId' => 'job-1'])]);
 
-        $this->postJson('/api/v1/auth/forgot-password', ['national_id' => $this->nationalId])
+        $this->postJson('/api/v1/auth/forgot-password', ['phone' => $this->phone])
             ->assertOk();
 
         $this->postJson('/api/v1/auth/reset-password', [
-            'phone' => $this->phone,
+            'national_id' => $this->nationalId,
             'otp' => '123456',
             'password' => 'BrandNewPass!23',
-            'password_confirmation' => 'BrandNewPass!23',
         ])->assertOk()->assertJson(['success' => true]);
 
         $user = User::where('national_id', $this->nationalId)->firstOrFail();
         $this->assertTrue(Hash::check('BrandNewPass!23', $user->password));
+    }
+
+    public function test_reset_password_rejects_wrong_otp_without_changing_password(): void
+    {
+        $this->postJson('/api/v1/auth/reset-password', [
+            'national_id' => $this->nationalId,
+            'otp' => '999999',
+            'password' => 'BrandNewPass!23',
+        ])->assertUnprocessable();
+
+        $this->assertTrue(Hash::check('OldPassw0rd!', User::where('national_id', $this->nationalId)->firstOrFail()->password));
+    }
+
+    public function test_reset_password_requires_national_id_instead_of_phone(): void
+    {
+        $this->postJson('/api/v1/auth/reset-password', [
+            'phone' => $this->phone,
+            'otp' => '123456',
+            'password' => 'BrandNewPass!23',
+        ])->assertUnprocessable()->assertJsonValidationErrors('national_id');
     }
 
     public function test_a_normal_account_still_uses_the_real_provider(): void
@@ -97,10 +116,41 @@ class TestNationalIdOtpBypassTest extends TestCase
         config(['services.oursms.test_national_ids' => '']);
         Http::fake(['api.oursms.com/*' => Http::response(['jobId' => 'job-1'])]);
 
-        $this->postJson('/api/v1/auth/forgot-password', ['national_id' => $this->nationalId])
+        $this->postJson('/api/v1/auth/forgot-password', ['phone' => $this->phone])
             ->assertOk();
 
         Http::assertSent(fn ($request) => $request['dests'] === ['966598765432']);
+    }
+
+    public function test_forgot_password_normalizes_phone_without_leading_zero(): void
+    {
+        Http::fake();
+        $this->postJson('/api/v1/auth/forgot-password', ['phone' => substr($this->phone, 1)])
+            ->assertOk()->assertJsonPath('data.phone', '059*****32');
+        $this->assertDatabaseHas('otp_verifications', [
+            'phone' => $this->phone,
+            'type' => 'password_reset',
+        ]);
+    }
+
+    public function test_forgot_password_requires_a_valid_phone(): void
+    {
+        Http::fake();
+        foreach ([[], ['national_id' => $this->nationalId], ['email' => $this->email], ['phone' => '12345']] as $payload) {
+            $this->postJson('/api/v1/auth/forgot-password', $payload)
+                ->assertUnprocessable()->assertJsonValidationErrors('phone');
+        }
+        Http::assertNothingSent();
+    }
+
+    public function test_forgot_password_uses_phone_when_other_identifiers_are_supplied(): void
+    {
+        Http::fake();
+        $this->postJson('/api/v1/auth/forgot-password', [
+            'phone' => $this->phone,
+            'national_id' => '9999999999',
+            'email' => 'another@example.com',
+        ])->assertOk()->assertJsonPath('data.phone', '059*****32');
     }
 
     public function test_wrong_code_is_still_rejected_for_a_test_account(): void

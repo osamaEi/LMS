@@ -768,7 +768,7 @@
                         "method": "POST",
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"national_id\": \"1234567822\"\n}",
+                            "raw": "{\n    \"phone\": \"0512345678\"\n}",
                             "options": {
                                 "raw": {
                                     "language": "json"
@@ -845,10 +845,10 @@
                                 }
                             ],
                             "cookie": [],
-                            "body": "{\n    \"message\": \"رقم الهوية يجب أن يكون 10 أرقام\",\n    \"errors\": {\n        \"national_id\": [\n            \"رقم الهوية يجب أن يكون 10 أرقام\"\n        ]\n    }\n}"
+                            "body": "{\n    \"message\": \"رقم الجوال غير صالح (مثال: 0512345678)\",\n    \"errors\": {\n        \"phone\": [\n            \"رقم الجوال غير صالح (مثال: 0512345678)\"\n        ]\n    }\n}"
                         },
                         {
-                            "name": "Forgot Password - By Email",
+                            "name": "Forgot Password - Phone Without Leading Zero",
                             "originalRequest": {
                                 "method": "POST",
                                 "header": [
@@ -867,7 +867,7 @@
                                 ],
                                 "body": {
                                     "mode": "raw",
-                                    "raw": "{\n    \"email\": \"student@example.com\"\n}",
+                                    "raw": "{\n    \"phone\": \"512345678\"\n}",
                                     "options": {
                                         "raw": {
                                             "language": "json"
@@ -959,14 +959,14 @@
                 },
                 {
                     "name": "Forgot Password — Step 2: Reset Password",
-                    "description": "الخطوة الثانية والأخيرة: تعيين كلمة مرور جديدة باستخدام رمز التحقق المُرسل في الخطوة الأولى.\n\nالحقول المطلوبة:\n- phone: رقم الجوال الكامل المرتبط بالحساب (05XXXXXXXX) — وليس الرقم المُقنّع\n- otp: رمز التحقق (6 أرقام)\n- password: كلمة المرور الجديدة (8 أحرف على الأقل)\n- password_confirmation: تأكيد كلمة المرور الجديدة\n\nبعد نجاح العملية يتم حذف جميع الجلسات (tokens) السابقة، ويجب تسجيل الدخول من جديد بكلمة المرور الجديدة.",
+                    "description": "Reset the password using national_id (10 digits), otp (6 digits), and password (at least 8 characters). The OTP is verified against the account registered phone. Password confirmation is not required. Existing tokens are revoked after success.",
                     "auth": [],
                     "request": {
                         "auth": [],
                         "method": "POST",
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"phone\": \"0512345678\",\n    \"otp\": \"123456\",\n    \"password\": \"newpassword123\",\n    \"password_confirmation\": \"newpassword123\"\n}",
+                            "raw": "{\n    \"national_id\": \"1234567891\",\n    \"otp\": \"123456\",\n    \"password\": \"newpassword123\"\n}",
                             "options": {
                                 "raw": {
                                     "language": "json"
@@ -1057,7 +1057,7 @@
                                 }
                             ],
                             "cookie": [],
-                            "body": "{\n    \"message\": \"تأكيد كلمة المرور غير متطابق\",\n    \"errors\": {\n        \"password\": [\n            \"تأكيد كلمة المرور غير متطابق\"\n        ]\n    }\n}"
+                            "body": "{\n    \"message\": \"The national id field is required.\",\n    \"errors\": {\n        \"national_id\": [\n            \"The national id field is required.\"\n        ]\n    }\n}"
                         }
                     ]
                 },

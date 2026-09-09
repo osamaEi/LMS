@@ -21,9 +21,9 @@ class ResetPasswordRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'phone' => ['required', 'string', 'max:20', 'regex:/^\+?[0-9]{10,20}$/'],
+            'national_id' => ['required', 'digits:10'],
             'otp' => ['required', 'string', 'size:6', 'regex:/^[0-9]{6}$/'],
-            'password' => ['required', 'confirmed', Password::min(8)->letters()->numbers()],
+            'password' => ['required', Password::min(8)],
         ];
     }
 
@@ -33,13 +33,12 @@ class ResetPasswordRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'phone.required' => 'Phone number is required',
-            'phone.regex' => 'Please provide a valid phone number',
+            'national_id.required' => 'National ID is required',
+            'national_id.digits' => 'National ID must be 10 digits',
             'otp.required' => 'OTP code is required',
             'otp.size' => 'OTP must be 6 digits',
             'otp.regex' => 'OTP must contain only numbers',
             'password.required' => 'Password is required',
-            'password.confirmed' => 'Password confirmation does not match',
         ];
     }
 }
