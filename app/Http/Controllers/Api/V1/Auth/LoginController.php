@@ -36,7 +36,7 @@ class LoginController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'حسابك غير نشط. يرجى التواصل مع الإدارة.',
-            ], 403);
+            ], 400);
         }
 
         // Create token
