@@ -434,13 +434,11 @@ Phone is required; national ID and email cannot replace it.
 
 **Request:** POST `/auth/reset-password`
 
-**IMPORTANT:** Replace `789012` with actual OTP from logs!
 
 **Body:**
 ```json
 {
   "national_id": "1234567891",
-  "otp": "789012",  // ← Replace with actual OTP
   "password": "NewPassword123"
 }
 ```

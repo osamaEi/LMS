@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Teacher;
 
 use App\Http\Controllers\Controller;
 use App\Models\Attendance;
+use App\Models\ProgramClass;
 use App\Models\Session;
 use App\Models\SessionFile;
 use App\Models\Subject;
@@ -27,20 +28,28 @@ class SubjectController extends Controller
     /**
      * Display teacher's subjects
      */
-    public function index()
+    public function index(Request $request)
     {
+        $validated = $request->validate(['class_id' => 'nullable|integer|min:1']);
+        $selectedClassId = $validated['class_id'] ?? null;
         $teacher = auth()->user();
 
         // Subjects assigned to this teacher via the subject_teacher pivot only.
         $subjects = $teacher->assignedSubjects()
-            ->with(['term.program'])
+            ->with(['term.program', 'terms', 'program'])
             ->withCount(['sessions as sessions_count' => fn($q) => $q->where('teacher_id', $teacher->id)])
             ->orderBy(app()->getLocale() === 'en' ? 'name_en' : 'name_ar')
             ->get();
 
-     
+        $subjectClassIds = $subjects->mapWithKeys(fn ($subject) => [$subject->id => $subject->classIds()]);
+        $classes = ProgramClass::whereIn('id', $subjectClassIds->flatten()->unique())
+            ->get()->sortBy('name')->keyBy('id');
 
-        return view('teacher.subjects.index', compact('subjects'));
+        if ($selectedClassId !== null) {
+            $subjects = $subjects->filter(fn ($subject) => $subjectClassIds[$subject->id]->contains($selectedClassId));
+        }
+
+        return view('teacher.subjects.index', compact('subjects', 'classes', 'subjectClassIds', 'selectedClassId'));
     }
 
     /**

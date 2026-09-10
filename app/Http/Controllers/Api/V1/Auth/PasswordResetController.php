@@ -78,36 +78,26 @@ class PasswordResetController extends Controller
 
     /**
      * POST /api/v1/auth/reset-password
-     * Set a new password using the OTP sent to the phone.
+     * Set a new password by national ID.
      *
-     * Fields: national_id, otp, password
+     * Fields: national_id, password
      */
     public function reset(Request $request)
     {
         $data = $request->validate([
             'national_id' => ['required', 'digits:10'],
-            'otp'      => 'required|digits:6',
             'password' => ['required', Password::min(8)],
         ], [
-            'otp.required'       => 'رمز التحقق مطلوب',
-            'otp.digits'         => 'رمز التحقق يجب أن يكون 6 أرقام',
             'password.required'  => 'كلمة المرور مطلوبة',
         ]);
 
         $user = User::where('national_id', $data['national_id'])->first();
 
-        if (!$user || !$user->phone) {
+        if (!$user) {
             return response()->json([
                 'success' => false,
                 'message' => 'لا يوجد حساب مرتبط بهذا الرقم',
             ], 404);
-        }
-
-        if (!$this->otpService->verify($user->phone, $data['otp'], 'password_reset')) {
-            return response()->json([
-                'success' => false,
-                'message' => 'رمز التحقق غير صحيح أو منتهي الصلاحية',
-            ], 422);
         }
 
         $user->update(['password' => Hash::make($data['password'])]);

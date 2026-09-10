@@ -74,32 +74,18 @@ class TestNationalIdOtpBypassTest extends TestCase
         ]);
     }
 
-    public function test_password_can_be_reset_with_the_fixed_code(): void
+    public function test_password_can_be_reset_without_otp_or_confirmation(): void
     {
-        Http::fake(['api.oursms.com/*' => Http::response(['jobId' => 'job-1'])]);
-
-        $this->postJson('/api/v1/auth/forgot-password', ['phone' => $this->phone])
-            ->assertOk();
+        $user = User::where('national_id', $this->nationalId)->firstOrFail();
+        $user->createToken('existing-session');
 
         $this->postJson('/api/v1/auth/reset-password', [
             'national_id' => $this->nationalId,
-            'otp' => '123456',
             'password' => 'BrandNewPass!23',
         ])->assertOk()->assertJson(['success' => true]);
 
-        $user = User::where('national_id', $this->nationalId)->firstOrFail();
-        $this->assertTrue(Hash::check('BrandNewPass!23', $user->password));
-    }
-
-    public function test_reset_password_rejects_wrong_otp_without_changing_password(): void
-    {
-        $this->postJson('/api/v1/auth/reset-password', [
-            'national_id' => $this->nationalId,
-            'otp' => '999999',
-            'password' => 'BrandNewPass!23',
-        ])->assertUnprocessable();
-
-        $this->assertTrue(Hash::check('OldPassw0rd!', User::where('national_id', $this->nationalId)->firstOrFail()->password));
+        $this->assertTrue(Hash::check('BrandNewPass!23', $user->fresh()->password));
+        $this->assertSame(0, $user->tokens()->count());
     }
 
     public function test_reset_password_requires_national_id_instead_of_phone(): void

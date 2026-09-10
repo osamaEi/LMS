@@ -205,7 +205,7 @@
                                 }
                             ],
                             "cookie": [],
-                            "body": "{\n    \"success\": false,\n    \"message\": \"رمز التحقق غير صحيح أو منتهي الصلاحية\"\n}"
+                            "body": "{\n    \"message\": \"The password field must be at least 8 characters.\",\n    \"errors\": {\n        \"password\": [\n            \"The password field must be at least 8 characters.\"\n        ]\n    }\n}"
                         }
                     ]
                 },
@@ -959,14 +959,14 @@
                 },
                 {
                     "name": "Forgot Password — Step 2: Reset Password",
-                    "description": "Reset the password using national_id (10 digits), otp (6 digits), and password (at least 8 characters). The OTP is verified against the account registered phone. Password confirmation is not required. Existing tokens are revoked after success.",
+                    "description": "Reset password using national_id (10 digits) and password (at least 8 characters). No OTP or password confirmation is required. Existing tokens are revoked.",
                     "auth": [],
                     "request": {
                         "auth": [],
                         "method": "POST",
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"national_id\": \"1234567891\",\n    \"otp\": \"123456\",\n    \"password\": \"newpassword123\"\n}",
+                            "raw": "{\n    \"national_id\": \"1234567891\",\n    \"password\": \"newpassword123\"\n}",
                             "options": {
                                 "raw": {
                                     "language": "json"
@@ -1018,7 +1018,7 @@
                             "body": "{\n    \"success\": true,\n    \"message\": \"تم تغيير كلمة المرور بنجاح. يرجى تسجيل الدخول من جديد.\"\n}"
                         },
                         {
-                            "name": "Reset Password - Invalid or Expired OTP (422)",
+                            "name": "Reset Password - Password Too Short (422)",
                             "status": "Unprocessable Content",
                             "code": 422,
                             "_postman_previewlanguage": "json",
