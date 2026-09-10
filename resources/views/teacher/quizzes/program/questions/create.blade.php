@@ -411,9 +411,9 @@
                 <!-- Question Arabic -->
                 <div>
                     <label for="question_ar" class="form-label">
-                        نص السؤال (عربي) <span class="required">*</span>
+                        نص السؤال (عربي أو صورة)
                     </label>
-                    <textarea name="question_ar" id="question_ar" rows="4" required class="form-textarea" placeholder="اكتب نص السؤال هنا...">{{ old('question_ar') }}</textarea>
+                    <textarea name="question_ar" id="question_ar" rows="4" class="form-textarea" placeholder="اكتب نص السؤال هنا...">{{ old('question_ar') }}</textarea>
                     @error('question_ar')
                         <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
                     @enderror
@@ -431,7 +431,7 @@
             <!-- Image Upload -->
             <div class="mb-8">
                 <label for="image" class="form-label">
-                    صورة السؤال (اختياري)
+                    صورة السؤال (يمكن استخدامها بدل النص)
                 </label>
                 <input type="file" name="image" id="image" accept="image/*" class="form-input">
                 <p class="hint-text">الصور المدعومة: JPG, PNG, GIF (حد أقصى 2 ميجابايت)</p>

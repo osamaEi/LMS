@@ -135,6 +135,11 @@
                 <span style="flex-shrink:0;background:#f1f5f9;color:#475569;border-radius:7px;padding:3px 10px;font-size:11px;font-weight:700;">{{ $q->type_label }}</span>
             </div>
 
+            @if($q->image)
+                <a href="{{ Storage::disk('public')->url($q->image) }}" target="_blank" rel="noopener" aria-label="فتح صورة السؤال بالحجم الكامل">
+                    <img src="{{ Storage::disk('public')->url($q->image) }}" alt="صورة السؤال" style="display:block;max-width:100%;max-height:420px;object-fit:contain;margin:12px 0;border-radius:10px" loading="lazy">
+                </a>
+            @endif
             @if(in_array($q->type, ['multiple_choice','true_false']))
                 @foreach($q->options as $opt)
                 @php

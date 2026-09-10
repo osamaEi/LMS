@@ -419,7 +419,7 @@
                             @endif
                             @if($question->image)
                             <div class="mt-4 rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700">
-                                <img src="{{ Storage::url($question->image) }}" alt="صورة السؤال" class="w-full h-auto">
+                                <img src="{{ Storage::disk('public')->url($question->image) }}" alt="صورة السؤال" class="w-full h-auto">
                             </div>
                             @endif
                         </div>

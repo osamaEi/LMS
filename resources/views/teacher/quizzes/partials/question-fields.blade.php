@@ -29,8 +29,8 @@
         <input type="number" name="marks" step="0.5" min="0" value="{{ $field('marks', $q->marks ?? 1) }}" required>
     </div>
     <div class="field full">
-        <label>نص السؤال (عربي) *</label>
-        <textarea name="question_ar" required>{{ $field('question_ar', $q->question_ar ?? '') }}</textarea>
+        <label>نص السؤال (عربي)</label>
+        <textarea name="question_ar" placeholder="اكتب نص السؤال أو ارفع صورته بالأسفل">{{ $field('question_ar', $q->question_ar ?? '') }}</textarea>
     </div>
     <div class="field full">
         <label>نص السؤال (إنجليزي)</label>
@@ -42,17 +42,19 @@
     </div>
 
     {{-- Image --}}
-    <div class="field full">
-        <label>صورة السؤال (اختياري)</label>
+    <div class="field full" x-data="{ preview: '', choose(input) { if (this.preview) URL.revokeObjectURL(this.preview); this.preview = input.files[0] ? URL.createObjectURL(input.files[0]) : ''; } }">
+        <label>صورة السؤال</label>
         @if($q && $q->image)
             <div style="margin-bottom:0.5rem;">
-                <img src="{{ \Illuminate\Support\Facades\Storage::url($q->image) }}" style="max-height:120px;border-radius:8px;border:1px solid #e5e7eb;">
+                <img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($q->image) }}" alt="صورة السؤال الحالية" style="max-width:100%;max-height:220px;border-radius:8px;border:1px solid #e5e7eb;">
                 <label style="display:inline-flex;align-items:center;gap:0.3rem;font-size:0.8rem;color:#dc2626;margin-top:0.3rem;">
                     <input type="checkbox" name="remove_image" value="1"> حذف الصورة الحالية
                 </label>
             </div>
         @endif
-        <input type="file" name="image" accept="image/*">
+        <input type="file" name="image" accept="image/jpeg,image/png,image/gif,image/webp" @change="choose($event.target)">
+        <p style="font-size:12px;color:#64748b;margin-top:8px">يمكن رفع صورة بدل نص السؤال. JPG، PNG، GIF، WEBP — حتى 2 ميجابايت.</p>
+        <template x-if="preview"><img :src="preview" alt="معاينة الصورة الجديدة" style="display:block;max-width:100%;max-height:280px;object-fit:contain;margin-top:12px;border-radius:10px"></template>
     </div>
 </div>
 

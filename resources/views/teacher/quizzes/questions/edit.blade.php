@@ -381,28 +381,28 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                 <!-- Question Arabic -->
                 <div>
-                    <label for="question_text_ar" class="form-label">
-                        نص السؤال (عربي) <span class="required">*</span>
+                    <label for="question_ar" class="form-label">
+                        نص السؤال (عربي أو صورة)
                     </label>
-                    <textarea name="question_text_ar" id="question_text_ar" rows="4" required class="form-textarea" placeholder="اكتب نص السؤال هنا...">{{ old('question_text_ar', $question->question_text_ar) }}</textarea>
+                    <textarea name="question_ar" id="question_ar" rows="4" class="form-textarea" placeholder="اكتب نص السؤال هنا...">{{ old('question_ar', $question->question_ar) }}</textarea>
                 </div>
 
                 <!-- Question English -->
                 <div>
-                    <label for="question_text_en" class="form-label">
+                    <label for="question_en" class="form-label">
                         نص السؤال (إنجليزي)
                     </label>
-                    <textarea name="question_text_en" id="question_text_en" rows="4" class="form-textarea" placeholder="Enter question text here...">{{ old('question_text_en', $question->question_text_en) }}</textarea>
+                    <textarea name="question_en" id="question_en" rows="4" class="form-textarea" placeholder="Enter question text here...">{{ old('question_en', $question->question_en) }}</textarea>
                 </div>
             </div>
 
             <!-- Image Upload -->
             <div class="mb-8">
                 <label class="form-label">صورة السؤال</label>
-                @if($question->image_path)
+                @if($question->image)
                 <div class="current-image-box">
                     <p class="text-sm text-gray-600 dark:text-gray-400 mb-2 font-medium">الصورة الحالية:</p>
-                    <img src="{{ Storage::url($question->image_path) }}" alt="صورة السؤال">
+                    <img src="{{ Storage::url($question->image) }}" alt="صورة السؤال">
                 </div>
                 @endif
                 <input type="file" name="image" accept="image/*" class="form-input">

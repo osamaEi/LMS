@@ -56,7 +56,9 @@ class QuizController extends Controller
             'questions' => 'required|array|min:1',
             'questions.*.source_id' => ['nullable', 'integer', \Illuminate\Validation\Rule::exists('questions', 'id')->where('quiz_id', $quiz->id)],
             'questions.*.type' => 'required|in:multiple_choice,true_false,short_answer,essay',
-            'questions.*.question_ar' => 'required|string',
+            'questions.*.question_ar' => 'nullable|string',
+            'questions.*.image' => 'nullable|image|mimes:jpg,jpeg,png,gif,webp|max:2048',
+            'questions.*.remove_image' => 'nullable|boolean',
             'questions.*.question_en' => 'nullable|string',
             'questions.*.explanation_ar' => 'nullable|string',
             'questions.*.explanation_en' => 'nullable|string',
@@ -71,7 +73,17 @@ class QuizController extends Controller
             'starts_at' => 'nullable|date',
             'ends_at' => ['nullable', 'date', 'after:now', ...($request->filled('starts_at') ? ['after_or_equal:starts_at'] : [])],
         ]);
+        $sourceQuestions = $quiz->questions()->get()->keyBy('id');
         foreach ($validated['questions'] as $index => $question) {
+            $retainedImage = empty($question['remove_image']) && $sourceQuestions->get($question['source_id'] ?? null)?->image;
+            if (empty(trim($question['question_ar'] ?? ''))) {
+                if (empty($question['image']) && !$retainedImage) {
+                    throw \Illuminate\Validation\ValidationException::withMessages([
+                        "questions.$index.question_ar" => 'أدخل نص السؤال أو ارفع صورة له.',
+                    ]);
+                }
+                $validated['questions'][$index]['question_ar'] = 'سؤال بالصورة';
+            }
             if (in_array($question['type'], ['multiple_choice', 'true_false'])) {
                 $options = collect($question['options'] ?? []);
                 if ($options->count() < 2 || !$options->contains(fn ($option) => (bool) $option['is_correct'])
@@ -429,6 +441,14 @@ class QuizController extends Controller
         $request->merge(['options' => $cleaned]);
     }
 
+    private function prepareImageQuestion(Request $request, ?\App\Models\Question $question = null): void
+    {
+        if (!$request->filled('question_ar') && ($request->hasFile('image')
+            || ($question?->image && !$request->boolean('remove_image')))) {
+            $request->merge(['question_ar' => 'سؤال بالصورة']);
+        }
+    }
+
     /**
      * Store a new question
      */
@@ -441,6 +461,7 @@ class QuizController extends Controller
         $quiz = $this->quizzes->findForSubject($subjectId, $quizId);
 
         // Drop option rows with no Arabic text so half-filled choice lists validate.
+        $this->prepareImageQuestion($request, $question ?? null);
         $this->pruneEmptyOptions($request);
 
         $validated = $request->validate([
@@ -505,6 +526,7 @@ class QuizController extends Controller
         $question = $this->quizzes->findQuestion($quizId, $questionId);
 
         // Drop option rows with no Arabic text so half-filled choice lists validate.
+        $this->prepareImageQuestion($request, $question ?? null);
         $this->pruneEmptyOptions($request);
 
         $validated = $request->validate([
@@ -950,6 +972,7 @@ class QuizController extends Controller
         $this->authorizeProgram($programId);
         $quiz = $this->quizzes->findForProgram($programId, $quizId);
 
+        $this->prepareImageQuestion($request, $question ?? null);
         $this->pruneEmptyOptions($request);
         $validated = $request->validate($this->questionRules());
 
@@ -983,6 +1006,7 @@ class QuizController extends Controller
         $this->quizzes->findForProgram($programId, $quizId);
         $question = $this->quizzes->findQuestion($quizId, $questionId);
 
+        $this->prepareImageQuestion($request, $question ?? null);
         $this->pruneEmptyOptions($request);
         $validated = $request->validate($this->questionRules(withRemoveImage: true));
 

@@ -8,6 +8,8 @@ use App\Services\{QuizService, NotificationService};
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\{DB, Schema, Storage};
 use Illuminate\Validation\ValidationException;
+use Illuminate\Http\UploadedFile;
+use App\Models\User;
 use Tests\TestCase;
 
 class QuizDuplicationTest extends TestCase
@@ -177,5 +179,90 @@ class QuizDuplicationTest extends TestCase
             $this->assertSame(2, Quiz::count());
             $this->assertSame(1, Question::count());
         }
+    }
+
+    public function test_teacher_can_save_a_new_image_question_from_the_duplicate_form(): void
+    {
+        $source = Quiz::create(['created_by' => 7, 'program_id' => 5, 'class_id' => 10, 'title_ar' => 'Original']);
+        $this->app->instance(QuizService::class, $this->service());
+        $teacher = User::factory()->make(['id' => 7, 'role' => 'teacher', 'status' => 'active']);
+        $this->actingAs($teacher)->post(route('teacher.quizzes.duplicate.store', $source), [
+            'destination' => '20:program:5', 'title_ar' => 'Image quiz', 'type' => 'quiz',
+            'total_marks' => 10, 'pass_marks' => 5, 'max_attempts' => 1,
+            'shuffle_questions' => 0, 'shuffle_answers' => 0, 'show_results' => 1,
+            'show_correct_answers' => 0, 'is_active' => 1,
+            'questions' => [['type' => 'essay', 'marks' => 10, 'question_ar' => '',
+                'image' => UploadedFile::fake()->image('question.png')]],
+        ])->assertSessionHasNoErrors()->assertRedirect(route('teacher.quizzes.overview'));
+
+        $copy = Quiz::where('id', '!=', $source->id)->firstOrFail();
+        $question = $copy->questions()->firstOrFail();
+        $this->assertSame('سؤال بالصورة', $question->question_ar);
+        Storage::disk('public')->assertExists($question->image);
+        $this->assertSame(0, $source->questions()->count());
+    }
+
+    public function test_duplicate_can_replace_and_remove_images_without_changing_originals(): void
+    {
+        $source = Quiz::create(['created_by' => 7, 'program_id' => 5, 'class_id' => 10]);
+        Storage::disk('public')->put('uploads/images/original.png', 'original');
+        $question = $source->questions()->create(['type' => 'essay', 'question_ar' => 'Original',
+            'marks' => 1, 'order' => 1, 'image' => 'uploads/images/original.png']);
+        $copy = $this->service()->duplicateForClass($source, 'program:5', 20, 7, ['questions' => [
+            ['source_id' => $question->id, 'type' => 'essay', 'question_ar' => 'Replacement', 'marks' => 1,
+                'image' => UploadedFile::fake()->image('replacement.png')],
+            ['source_id' => $question->id, 'type' => 'essay', 'question_ar' => 'Text only', 'marks' => 1, 'remove_image' => 1],
+        ]]);
+        $questions = $copy->questions()->orderBy('order')->get();
+        Storage::disk('public')->assertExists($questions[0]->image);
+        $this->assertNotSame($question->image, $questions[0]->image);
+        $this->assertNull($questions[1]->image);
+        Storage::disk('public')->assertExists($question->fresh()->image);
+    }
+
+    public function test_new_quiz_question_stores_an_uploaded_image(): void
+    {
+        $quiz = Quiz::create(['created_by' => 7]);
+        $service = new QuizService(new QuizRepository, \Mockery::mock(NotificationService::class));
+        $question = $service->createQuestion($quiz, [
+            'type' => 'essay', 'question_ar' => 'سؤال بالصورة', 'marks' => 5, 'order' => 1,
+        ], UploadedFile::fake()->image('new-question.jpg'));
+        Storage::disk('public')->assertExists($question->image);
+        $this->assertSame($quiz->id, $question->quiz_id);
+    }
+
+    public function test_duplicate_rejects_non_image_uploads_and_empty_questions(): void
+    {
+        $source = Quiz::create(['created_by' => 7, 'program_id' => 5, 'class_id' => 10]);
+        $service = \Mockery::mock(QuizService::class);
+        $service->shouldNotReceive('duplicateForClass');
+        $this->app->instance(QuizService::class, $service);
+        $teacher = User::factory()->make(['id' => 7, 'role' => 'teacher', 'status' => 'active']);
+        $data = [
+            'destination' => '20:program:5', 'title_ar' => 'Image quiz', 'type' => 'quiz',
+            'total_marks' => 10, 'pass_marks' => 5, 'max_attempts' => 1,
+            'shuffle_questions' => 0, 'shuffle_answers' => 0, 'show_results' => 1,
+            'show_correct_answers' => 0, 'is_active' => 1,
+            'questions' => [['type' => 'essay', 'marks' => 10, 'question_ar' => '',
+                'image' => UploadedFile::fake()->create('document.pdf', 10, 'application/pdf')]],
+        ];
+        $this->actingAs($teacher)->post(route('teacher.quizzes.duplicate.store', $source), $data)
+            ->assertSessionHasErrors('questions.0.image');
+        unset($data['questions'][0]['image']);
+        $this->post(route('teacher.quizzes.duplicate.store', $source), $data)
+            ->assertSessionHasErrors('questions.0.question_ar');
+        $this->assertSame(1, Quiz::count());
+    }
+
+    public function test_duplicate_editor_renders_existing_image_previews(): void
+    {
+        $quiz = Quiz::create(['created_by' => 7]);
+        $quiz->questions()->create(['type' => 'essay', 'question_ar' => 'Image question',
+            'image' => 'uploads/images/question.png', 'marks' => 1]);
+        $quiz->load('questions.options');
+        $html = view('teacher.quizzes.partials.duplicate-questions', compact('quiz'))->render();
+        $this->assertStringContainsString('question.png', $html);
+        $this->assertStringContainsString('type="file"', $html);
+        $this->assertStringContainsString('معاينة صورة السؤال', $html);
     }
 }

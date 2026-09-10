@@ -241,7 +241,14 @@ class QuizService
                     $newQuestion->setRelations([]);
                     $newQuestion->quiz_id = $copy->id;
                     $newQuestion->order = $index + 1;
-                    if ($question?->image) {
+                    if (($data['image'] ?? null) instanceof UploadedFile) {
+                        $path = $data['image']->store('uploads/images', 'public');
+                        if (!$path) {
+                            throw new \RuntimeException('Could not store quiz question image.');
+                        }
+                        $images[] = $path;
+                        $newQuestion->image = $path;
+                    } elseif ($question?->image && empty($data['remove_image'])) {
                         $path = 'uploads/images/' . \Illuminate\Support\Str::uuid() . '.' . pathinfo($question->image, PATHINFO_EXTENSION);
                         $images[] = $path;
                         if (!Storage::disk('public')->copy($question->image, $path)) {
