@@ -7,7 +7,7 @@
 
     {{-- Header --}}
     <div style="margin-bottom:20px;">
-        <h1 style="font-size:20px;font-weight:800;color:#1e293b;margin:0;">الاختبارات والامتحانات</h1>
+        <h1 style="font-size:20px;font-weight:800;color:#1e293b;margin:0;">الاختبارات </h1>
         <p style="font-size:12px;color:#94a3b8;margin:4px 0 0;">عرض جميع الاختبارات وحلول الطلاب بالتفصيل</p>
     </div>
 

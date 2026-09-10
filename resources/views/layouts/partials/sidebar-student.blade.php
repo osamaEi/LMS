@@ -73,7 +73,7 @@
     </a>
 </li>
 
-<!-- الاختبارات والامتحانات -->
+<!-- الاختبارات  -->
 <li>
     <a href="{{ route('student.quizzes.all') }}"
        class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('student.quizzes.*') ? 'menu-item-active' : 'menu-item-inactive' }}">

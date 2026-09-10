@@ -972,7 +972,7 @@ class DashboardController extends Controller
                 'key'         => 'calendar_url',
                 'title'       => 'التقويم الأكاديمي',
                 'subtitle'    => 'جدول العام التدريبي ',
-                'description' => 'التقويم الرسمي للعام التدريبي يشمل مواعيد بداية الفصول والامتحانات والإجازات.',
+                'description' => 'التقويم الرسمي للعام التدريبي يشمل مواعيد بداية الفصول  والإجازات.',
                 'icon_bg'     => 'linear-gradient(135deg,#0891b2,#0e7490)',
                 'badge_bg'    => '#cffafe',
                 'badge_color' => '#0e7490',

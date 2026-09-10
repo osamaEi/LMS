@@ -1,6 +1,6 @@
 @extends('layouts.dashboard')
 
-@section('title', 'الاختبارات والامتحانات')
+@section('title', 'الاختبارات ')
 
 @section('content')
 @php
@@ -18,7 +18,7 @@
 
     {{-- Header --}}
     <div style="background:linear-gradient(135deg,#0071AA,#004d77);border-radius:18px;padding:22px 26px;color:#fff;margin-bottom:22px;">
-        <div style="font-size:20px;font-weight:800;">الاختبارات والامتحانات</div>
+        <div style="font-size:20px;font-weight:800;">الاختبارات </div>
         <div style="font-size:13px;opacity:.85;margin-top:4px;">جميع اختباراتك عبر المقررات والبرامج — المتاحة والقادمة والمنتهية.</div>
         <div style="display:flex;gap:22px;margin-top:16px;flex-wrap:wrap;">
             <div><div style="font-size:22px;font-weight:800;">{{ $available->count() }}</div><div style="font-size:11px;opacity:.8;">متاحة</div></div>

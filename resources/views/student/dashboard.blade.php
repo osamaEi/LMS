@@ -373,7 +373,7 @@
         <div class="d-card-head" style="display:flex;align-items:center;justify-content:space-between;">
             <div style="display:flex;align-items:center;gap:8px;">
                 <svg width="18" height="18" fill="none" stroke="#0071AA" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                <span style="font-weight:800;color:#111827;">الاختبارات والامتحانات</span>
+                <span style="font-weight:800;color:#111827;">الاختبارات </span>
             </div>
             <span style="background:#e0f2fe;color:#0369a1;font-size:.72rem;font-weight:700;padding:.2rem .7rem;border-radius:999px;">{{ $quizzesList->count() }}</span>
         </div>

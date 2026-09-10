@@ -362,7 +362,7 @@
                 </a>
                 <div>
                     <h1 class="page-title">{{ $program->name }}@if($program->code) <span class="text-gray-400 font-normal">({{ $program->code }})</span>@endif</h1>
-                    <p class="page-subtitle">إدارة الاختبارات والامتحانات</p>
+                    <p class="page-subtitle">إدارة الاختبارات </p>
                 </div>
             </div>
             <a href="{{ route('teacher.quizzes.create-global') }}" class="create-btn">
