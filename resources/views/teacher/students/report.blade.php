@@ -38,6 +38,13 @@
     @if(session('success'))
         <div class="rep-alert">{{ session('success') }}</div>
     @endif
+    @if($rows->isNotEmpty())
+        <form method="POST" action="{{ route('teacher.students.report.send', $student) }}" style="display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin:18px 0" onsubmit="this.querySelector('button').disabled=true">
+            @csrf
+            <button type="submit" class="rep-send">إرسال كل الدرجات للطالب مع إشعار</button>
+            <span style="font-size:12px;color:#64748b">يتم إرسال الدرجات المحفوظة والمعروضة حاليًا.</span>
+        </form>
+    @endif
 
     @if($rows->isEmpty())
         <div class="rep-empty">لا توجد مواد لحساب توزيع الدرجات.</div>
@@ -51,6 +58,11 @@
 
             <div class="rep-card mk-card">
                 <h2 class="mk-subject">{{ $r['name'] }}</h2>
+                <form method="POST" action="{{ route('teacher.students.report.send', $student) }}" style="margin:12px 0" onsubmit="this.querySelector('button').disabled=true">
+                    @csrf
+                    <input type="hidden" name="subject_id" value="{{ $r['subject_id'] }}">
+                    <button type="submit" class="rep-send">إرسال درجة المادة للطالب</button>
+                </form>
 
                 <table class="marks">
                     <thead>
@@ -446,6 +458,8 @@
 </script>
 
 <style>
+    .rep-send { padding:10px 16px;border:0;border-radius:9px;background:#0071AA;color:white;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer; }
+    .rep-send:disabled { opacity:.6;cursor:wait; }
     .rep-wrap { direction:rtl; font-family:'Segoe UI',sans-serif; max-width:1100px; margin:0 auto; padding:20px 16px 60px; }
 
     .rep-head { display:flex; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; gap:14px; margin-bottom:22px; }

@@ -33,7 +33,7 @@ interface HomeworkRepositoryInterface extends BaseRepositoryInterface
      *
      * @param  int|array<int>  $programIds
      */
-    public function programHomeworks($programIds, array $relations = []): Collection;
+    public function programHomeworks($programIds, array $relations = [], ?SupportCollection $classIds = null): Collection;
 
     /**
      * Find a homework by id that the student is allowed to access, or fail.

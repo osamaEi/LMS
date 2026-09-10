@@ -35,7 +35,7 @@
             ];
         @endphp
         @foreach($tabs as $key => [$label, $color, $count])
-            <a href="{{ route('teacher.apologies.index', ['status' => $key]) }}"
+            <a href="{{ route('teacher.apologies.index', array_filter(['status' => $key, 'class_id' => $selectedClassId])) }}"
                style="display:inline-flex;align-items:center;gap:8px;padding:9px 16px;border-radius:12px;text-decoration:none;font-size:13px;font-weight:700;
                       {{ $status === $key ? "background:$color;color:#fff;" : 'background:#f1f5f9;color:#475569;' }}">
                 {{ $label }}
@@ -43,6 +43,25 @@
             </a>
         @endforeach
     </div>
+
+    {{-- Class filter --}}
+    @if($classes->isNotEmpty())
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:20px;flex-wrap:wrap;">
+            <span style="font-size:12px;color:#64748b;font-weight:700;">الفصل:</span>
+            <a href="{{ route('teacher.apologies.index', ['status' => $status]) }}"
+               style="padding:7px 14px;border-radius:10px;text-decoration:none;font-size:12px;font-weight:700;
+                      {{ $selectedClassId === null ? 'background:#0071AA;color:#fff;' : 'background:#f1f5f9;color:#475569;' }}">
+                كل الفصول
+            </a>
+            @foreach($classes as $class)
+                <a href="{{ route('teacher.apologies.index', ['status' => $status, 'class_id' => $class->id]) }}"
+                   style="padding:7px 14px;border-radius:10px;text-decoration:none;font-size:12px;font-weight:700;
+                          {{ $selectedClassId === $class->id ? 'background:#0071AA;color:#fff;' : 'background:#f1f5f9;color:#475569;' }}">
+                    {{ $class->name }}
+                </a>
+            @endforeach
+        </div>
+    @endif
 
     {{-- Apologies list --}}
     <div style="background:white;border-radius:16px;border:1px solid #e5e7eb;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.05);">
@@ -62,6 +81,9 @@
                             📚 المحاضرة: <strong>{{ $apology->session->title ?? '—' }}</strong>
                             @if($apology->session?->scheduled_at)
                                 — {{ \Carbon\Carbon::parse($apology->session->scheduled_at)->format('Y/m/d H:i') }}
+                            @endif
+                            @if($apology->session?->class_id && $classes->has($apology->session->class_id))
+                                — 🏫 {{ $classes[$apology->session->class_id]->name }}
                             @endif
                         </div>
                         <div style="font-size:13px;color:#1e293b;background:#f8fafc;border-radius:10px;padding:10px 12px;margin-top:8px;">

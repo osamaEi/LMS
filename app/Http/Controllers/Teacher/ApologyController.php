@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Teacher;
 use App\Http\Controllers\Controller;
 use App\Models\Attendance;
 use App\Models\AttendanceApology;
+use App\Models\ProgramClass;
 use App\Models\Session;
 use App\Notifications\ApologyReviewedNotification;
 use Illuminate\Http\Request;
@@ -17,10 +18,25 @@ class ApologyController extends Controller
      */
     public function index(Request $request)
     {
+        $validated = $request->validate(['class_id' => 'nullable|integer|min:1']);
         $status = $request->get('status', 'pending');
 
         // The teacher only ever sees apologies for sessions they teach.
-        $sessionIds = Session::where('teacher_id', auth()->id())->pluck('id');
+        $teacherSessions = Session::where('teacher_id', auth()->id())->get(['id', 'class_id']);
+
+        // Classes the teacher actually has sessions for — the filter options.
+        $classes = ProgramClass::whereIn('id', $teacherSessions->pluck('class_id')->filter()->unique())
+            ->get()->sortBy('name')->keyBy('id');
+
+        // Only honour a class the teacher really teaches.
+        $selectedClassId = $validated['class_id'] ?? null;
+        if ($selectedClassId !== null && ! $classes->has($selectedClassId)) {
+            $selectedClassId = null;
+        }
+
+        $sessionIds = $selectedClassId === null
+            ? $teacherSessions->pluck('id')
+            : $teacherSessions->where('class_id', $selectedClassId)->pluck('id');
 
         $base = fn() => AttendanceApology::whereIn('session_id', $sessionIds);
 
@@ -44,7 +60,7 @@ class ApologyController extends Controller
             'rejected' => (clone $base())->where('status', 'rejected')->count(),
         ];
 
-        return view('teacher.apologies.index', compact('apologies', 'counts', 'status'));
+        return view('teacher.apologies.index', compact('apologies', 'counts', 'status', 'classes', 'selectedClassId'));
     }
 
     public function approve(Request $request, AttendanceApology $apology)

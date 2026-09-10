@@ -194,7 +194,7 @@ class HomeworkService
         $subjectIds = $this->homeworkRepository->accessibleSubjectIdsForAllPrograms($student);
 
         $subjectHomeworks = $this->homeworkRepository->subjectHomeworks($subjectIds, ['subject'], $student->allClassIds());
-        $programHomeworks = $this->homeworkRepository->programHomeworks($student->allProgramIds(), ['program']);
+        $programHomeworks = $this->homeworkRepository->programHomeworks($student->allProgramIds(), ['program'], $student->allClassIds());
 
         return $subjectHomeworks->merge($programHomeworks)->sortByDesc('created_at')->values();
     }
@@ -214,7 +214,8 @@ class HomeworkService
         );
         $programHomeworks = $this->homeworkRepository->programHomeworks(
             $student->program_id,
-            ['program:id,name_ar,name_en']
+            ['program:id,name_ar,name_en'],
+            $student->allClassIds()
         );
 
         return $subjectHomeworks->merge($programHomeworks)->sortByDesc('created_at')->values();

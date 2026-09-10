@@ -19,10 +19,11 @@ class HomeworkRepository extends BaseRepository implements HomeworkRepositoryInt
 
     public function accessibleSubjectIdsForProgram(User $student): SupportCollection
     {
-        return Subject::where(function ($q) use ($student) {
-            $q->where('program_id', $student->program_id)
-              ->orWhereHas('term', fn($tq) => $tq->where('program_id', $student->program_id))
-              ->orWhereHas('terms', fn($tq) => $tq->where('program_id', $student->program_id))
+        $programIds = collect([$student->program_id])->filter()->values();
+        return Subject::where(function ($q) use ($student, $programIds) {
+            $q->whereIn('program_id', $programIds)
+              ->orWhereHas('term', fn($tq) => $tq->whereIn('program_id', $programIds))
+              ->orWhereHas('terms', fn($tq) => $tq->whereIn('program_id', $programIds))
               ->orWhereHas('enrollments', fn($eq) => $eq->where('student_id', $student->id));
         })->pluck('id');
     }
@@ -55,13 +56,13 @@ class HomeworkRepository extends BaseRepository implements HomeworkRepositoryInt
             ->get();
     }
 
-    public function programHomeworks($programIds, array $relations = []): Collection
+    public function programHomeworks($programIds, array $relations = [], ?SupportCollection $classIds = null): Collection
     {
+        $programIds = collect(is_array($programIds) || $programIds instanceof SupportCollection ? $programIds : [$programIds])->filter()->values();
         return $this->model
-            ->where(function ($q) use ($programIds) {
-                is_array($programIds) || $programIds instanceof SupportCollection
-                    ? $q->whereIn('program_id', $programIds)
-                    : $q->where('program_id', $programIds);
+            ->whereIn('program_id', $programIds)
+            ->when($classIds !== null, function ($q) use ($classIds) {
+                $q->where(fn ($cq) => $cq->whereNull('class_id')->orWhereIn('class_id', $classIds));
             })
             ->with($relations)
             ->orderByDesc('created_at')
@@ -82,7 +83,10 @@ class HomeworkRepository extends BaseRepository implements HomeworkRepositoryInt
                            $cq->whereNull('class_id')
                               ->orWhereIn('class_id', $classIds);
                        });
-                })->orWhere('program_id', $student->program_id);
+                })->orWhere(function ($pq) use ($student, $classIds) {
+                    $pq->whereIn('program_id', collect([$student->program_id])->filter()->values())
+                       ->where(fn ($cq) => $cq->whereNull('class_id')->orWhereIn('class_id', $classIds));
+                });
             })
             ->with(['subject:id,name_ar,name_en,code', 'program:id,name_ar,name_en'])
             ->firstOrFail();

@@ -28,6 +28,7 @@ class HomeworkController extends Controller
     public function submit(SubmitHomeworkRequest $request, Homework $homework)
     {
         $student = auth()->user();
+        abort_unless($this->homeworkService->homeworksForStudentWeb($student)->contains('id', $homework->id), 404);
 
         // Reject submissions after the deadline (due_date is a date, so the whole
         // due day is still allowed — only days after it are rejected).

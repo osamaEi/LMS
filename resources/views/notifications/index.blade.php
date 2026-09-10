@@ -91,7 +91,9 @@
                     // Icon + color by type
                     $iconBg = $isUnread ? 'linear-gradient(135deg,#0071AA,#005a88)' : '#f3f4f6';
                     $iconColor = $isUnread ? 'white' : '#9ca3af';
-                    if ($type === 'custom') {
+                    if ($type === 'teacher_grades') {
+                        $typeBadge = ['label' => 'درجات دراسية', 'bg' => '#eff6ff', 'color' => '#1d4ed8'];
+                    } elseif ($type === 'custom') {
                         $typeBadge = ['label' => 'مخصص', 'bg' => '#eff6ff', 'color' => '#1d4ed8'];
                     } elseif ($type === 'session_updated') {
                         $typeBadge = ['label' => 'تحديث جلسة', 'bg' => '#fff7ed', 'color' => '#c2410c'];
@@ -139,6 +141,22 @@
 
                         @if($msgBody)
                         <p style="font-size:.82rem;color:#6b7280;margin:4px 0 0;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">{{ $msgBody }}</p>
+                        @endif
+                        @if($type === 'teacher_grades')
+                            <div style="overflow-x:auto;margin-top:12px">
+                                <table style="width:100%;font-size:12px;text-align:right;border-collapse:collapse">
+                                    <thead><tr>
+                                        @foreach(['المادة', 'الحضور', 'المشاركة', 'النصفي', 'النهائي', 'المجموع / 100'] as $heading)
+                                            <th style="padding:8px;border-bottom:1px solid #e2e8f0;white-space:nowrap">{{ $heading }}</th>
+                                        @endforeach
+                                    </tr></thead>
+                                    <tbody>@foreach($data['grades'] ?? [] as $grade)
+                                        <tr>@foreach(['name', 'attendance', 'participation', 'midterm', 'final', 'total'] as $field)
+                                            <td style="padding:8px;border-bottom:1px solid #e2e8f0">{{ $grade[$field] ?? '—' }}</td>
+                                        @endforeach</tr>
+                                    @endforeach</tbody>
+                                </table>
+                            </div>
                         @endif
 
                         <div style="display:flex;align-items:center;gap:.75rem;margin-top:7px;flex-wrap:wrap;">

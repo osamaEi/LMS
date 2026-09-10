@@ -23,13 +23,35 @@ use Illuminate\Support\Facades\DB;
  */
 class StudentReportController extends Controller
 {
+    public function send(Request $request, User $student)
+    {
+        $teacher = auth()->user();
+        $scope = $this->scope($teacher, $student);
+        $this->authorizeStudent($student, $scope);
+        $data = $request->validate(['subject_id' => ['nullable', 'integer']]);
+        if (!empty($data['subject_id'])) {
+            abort_unless($scope['subject_ids']->contains($data['subject_id']), 403);
+        }
+        $report = $this->buildReport($student, $scope);
+        $grades = $report['marks']['rows']
+            ->when(!empty($data['subject_id']), fn ($rows) => $rows->where('subject_id', $data['subject_id']))
+            ->map(fn ($row) => \Illuminate\Support\Arr::only($row, [
+                'subject_id', 'name', 'attendance', 'participation', 'midterm', 'final', 'total',
+            ]))->values()->all();
+        abort_if(empty($grades), 422, 'لا توجد درجات لإرسالها.');
+        $student->notify(new \App\Notifications\TeacherGradesNotification($teacher->id, $teacher->name, $grades));
+
+        return redirect()->route('teacher.students.report.show', $student)
+            ->with('success', 'تم إرسال الدرجات المحفوظة للطالب مع إشعار.');
+    }
+
     /**
      * GET /teacher/students/{student}/report
      */
     public function show(User $student)
     {
         $teacher = auth()->user();
-        $scope   = $this->scope($teacher);
+        $scope   = $this->scope($teacher, $student);
 
         $this->authorizeStudent($student, $scope);
 
@@ -46,7 +68,7 @@ class StudentReportController extends Controller
     public function update(Request $request, User $student)
     {
         $teacher = auth()->user();
-        $scope   = $this->scope($teacher);
+        $scope   = $this->scope($teacher, $student);
 
         $this->authorizeStudent($student, $scope);
 
@@ -269,19 +291,19 @@ class StudentReportController extends Controller
     // ── Scope helpers ───────────────────────────────────────────────────────
 
     /**
-     * What this teacher is allowed to touch: their own session ids, and the
-     * subject ids they either are assigned to or actually teach sessions on.
+     * Only sessions taught by this teacher in this student's classes, and
+     * the subjects of those sessions. Assignment alone grants no access.
      *
      * @return array{session_ids: \Illuminate\Support\Collection, subject_ids: \Illuminate\Support\Collection}
      */
-    private function scope(User $teacher): array
+    private function scope(User $teacher, User $student): array
     {
         $sessions = Session::where('teacher_id', $teacher->id)
+            ->whereIn('class_id', $this->studentClassIds($student))
+            ->whereNotNull('subject_id')
             ->get(['id', 'subject_id']);
 
-        $subjectIds = $teacher->assignedSubjects()->pluck('subjects.id')
-            ->merge($sessions->pluck('subject_id')->filter())
-            ->unique()->values();
+        $subjectIds = $sessions->pluck('subject_id')->unique()->values();
 
         return [
             'teacher_id'  => $teacher->id,
@@ -295,12 +317,7 @@ class StudentReportController extends Controller
     {
         abort_unless($student->role === 'student', 404);
 
-        $teaches = Attendance::where('student_id', $student->id)
-                ->whereIn('session_id', $scope['session_ids'])->exists()
-            || Enrollment::where('student_id', $student->id)
-                ->whereIn('subject_id', $scope['subject_ids'])->exists();
-
-        abort_unless($teaches, 403, 'هذا المتدرب ليس ضمن طلابك.');
+        abort_unless($scope['subject_ids']->isNotEmpty(), 403, 'هذا المتدرب ليس ضمن طلابك.');
     }
 
     private function scopedEnrollments(User $student, array $scope)
@@ -311,41 +328,26 @@ class StudentReportController extends Controller
             ->get();
     }
 
-    /** The classes (groups) this student belongs to, via student_programs. */
+    /** Include both current class storage paths used by the student account. */
     private function studentClassIds(User $student)
     {
-        return DB::table('student_programs')
-            ->where('student_id', $student->id)
-            ->whereNotNull('class_id')
-            ->pluck('class_id')
-            ->unique()
-            ->values();
+        return $student->allClassIds();
     }
 
     /**
-     * Subjects to report on: the teacher's subjects that belong to one of the
-     * student's classes, unioned with any subject the student has an explicit
-     * enrollment in. Class membership is the primary source — most students are
-     * attached to a class via student_programs and have no enrollment rows.
+     * The scope already proves the teacher teaches each subject in a class
+     * belonging to this student. Enrollments only supply the saved grades.
      *
      * @return \Illuminate\Support\Collection<int, array>
      */
     private function reportSubjects(User $student, array $scope)
     {
-        $classIds    = $this->studentClassIds($student);
         $enrollments = $this->scopedEnrollments($student, $scope)->keyBy('subject_id');
 
         $subjects = \App\Models\Subject::whereIn('id', $scope['subject_ids'])
-            ->with(['term:id,class_id', 'terms:id,class_id'])
             ->get(['id', 'name_ar', 'name_en', 'code', 'class_id', 'term_id']);
 
-        return $subjects->filter(function ($subject) use ($classIds, $enrollments) {
-                if ($enrollments->has($subject->id)) return true;      // explicit enrollment
-                $subjectClasses = $subject->classIds();
-                if ($subjectClasses->isEmpty()) return true;           // open to any class
-                return $subjectClasses->intersect($classIds)->isNotEmpty();
-            })
-            ->map(function ($subject) use ($enrollments) {
+        return $subjects->map(function ($subject) use ($enrollments) {
                 $e = $enrollments->get($subject->id);
 
                 return [
