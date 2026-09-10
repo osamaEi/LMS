@@ -114,4 +114,68 @@ class QuizDuplicationTest extends TestCase
         $this->assertNull($copy->fresh()->duration_minutes);
         $this->assertEquals(30, $source->fresh()->duration_minutes);
     }
+
+    public function test_new_quiz_saves_edited_settings_and_questions_without_modifying_source(): void
+    {
+        $source = Quiz::create(['created_by' => 7, 'program_id' => 5, 'class_id' => 10,
+            'title_ar' => 'Original', 'pass_marks' => 5, 'max_attempts' => 1]);
+        $question = $source->questions()->create(['question_ar' => 'Original question',
+            'type' => 'multiple_choice', 'marks' => 10, 'order' => 1]);
+        $question->options()->create(['option_ar' => 'Original answer', 'is_correct' => true, 'order' => 1]);
+        $removed = $source->questions()->create(['question_ar' => 'Excluded question',
+            'type' => 'essay', 'marks' => 5, 'order' => 2]);
+
+        $copy = $this->service()->duplicateForClass($source, 'program:5', 20, 7, [
+            'title_ar' => 'New quiz', 'description_ar' => 'New description', 'pass_marks' => 8,
+            'max_attempts' => 3, 'show_correct_answers' => false, 'shuffle_questions' => true,
+            'questions' => [
+                ['source_id' => $question->id, 'type' => 'multiple_choice', 'question_ar' => 'Edited question',
+                    'marks' => 12, 'options' => [
+                        ['option_ar' => 'Edited answer', 'is_correct' => true],
+                        ['option_ar' => 'Wrong answer', 'is_correct' => false],
+                    ]],
+                ['type' => 'essay', 'question_ar' => 'New question', 'marks' => 3],
+            ],
+        ]);
+
+        $this->assertSame('New quiz', $copy->title_ar);
+        $this->assertEquals(8, $copy->pass_marks);
+        $this->assertEquals(3, $copy->max_attempts);
+        $this->assertTrue($copy->shuffle_questions);
+        $this->assertFalse($copy->show_correct_answers);
+        $questions = $copy->questions()->with('options')->orderBy('order')->get();
+        $this->assertSame(['Edited question', 'New question'], $questions->pluck('question_ar')->all());
+        $this->assertSame('Edited answer', $questions[0]->options[0]->option_ar);
+        $this->assertEquals(12, $questions[0]->marks);
+        $this->assertSame('Original', $source->fresh()->title_ar);
+        $this->assertSame('Original question', $question->fresh()->question_ar);
+        $this->assertSame('Original answer', $question->options()->first()->option_ar);
+        $this->assertNotNull($removed->fresh());
+    }
+
+    public function test_question_from_another_quiz_cannot_be_copied(): void
+    {
+        $source = Quiz::create(['created_by' => 7, 'class_id' => 10]);
+        $other = Quiz::create(['created_by' => 99]);
+        $question = $other->questions()->create(['question_ar' => 'Private', 'type' => 'essay']);
+        $repository = \Mockery::mock(QuizRepository::class)->makePartial();
+        $program = new Program;
+        $program->id = 5;
+        $program->setRelation('targetClasses', collect([['id' => 20]]));
+        $repository->shouldReceive('programsForTeacher')->with(7)
+            ->andReturn(new \Illuminate\Database\Eloquent\Collection([$program]));
+        $notifications = \Mockery::mock(NotificationService::class);
+        $notifications->shouldNotReceive('notifyQuizCreated');
+
+        try {
+            (new QuizService($repository, $notifications))->duplicateForClass($source, 'program:5', 20, 7, [
+                'questions' => [['source_id' => $question->id, 'question_ar' => 'Edited', 'type' => 'essay', 'marks' => 1]],
+            ]);
+            $this->fail('Expected question ownership validation.');
+        } catch (ValidationException $e) {
+            $this->assertArrayHasKey('questions', $e->errors());
+            $this->assertSame(2, Quiz::count());
+            $this->assertSame(1, Question::count());
+        }
+    }
 }

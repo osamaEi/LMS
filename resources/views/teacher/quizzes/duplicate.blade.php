@@ -1,5 +1,5 @@
 @extends('layouts.dashboard')
-@section('title', 'إعادة اختبار لمجموعة أخرى')
+@section('title', 'إنشاء اختبار جديد من اختبار سابق')
 @push('styles')
 <style>
 .qd{direction:rtl;max-width:960px;margin:0 auto 32px;color:#1e293b;font-family:'Cairo',sans-serif}
@@ -30,7 +30,7 @@
     <a class="qd-back" href="{{ route('teacher.quizzes.overview') }}"><span aria-hidden="true">→</span> العودة للاختبارات</a>
     <header class="qd-hero">
         <div class="qd-icon" aria-hidden="true"><svg width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="13" rx="2"/><path stroke-linecap="round" d="M16 4V3a1 1 0 0 0-1-1H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h1"/></svg></div>
-        <div><h1>إعادة اختبار لمجموعة أخرى</h1><p>استخدم اختبارك مرة أخرى، وحدّد المجموعة والمواعيد المناسبة لها.</p></div>
+        <div><h1>إنشاء اختبار جديد من اختبار سابق</h1><p>عدّل الاسم والإعدادات والأسئلة، ثم احفظ اختبارًا جديدًا للمجموعة المختارة.</p></div>
     </header>
     @if($errors->any())
         <div class="qd-error" role="alert">@foreach($errors->all() as $error)<p>{{ $error }}</p>@endforeach</div>
@@ -40,7 +40,7 @@
     @if($classes->isEmpty())
         <div class="qd-empty"><h2>لا توجد مجموعات أخرى متاحة</h2><p>ستظهر هنا المجموعات الأخرى المسندة إليك لاختيار المجموعة المستهدفة.</p><a class="qd-back" href="{{ route('teacher.quizzes.overview') }}">العودة للاختبارات</a></div>
     @else
-        <form method="POST" action="{{ route('teacher.quizzes.duplicate.store', $quiz) }}" onsubmit="const button=this.querySelector('[type=submit]');button.disabled=true;button.textContent='جارٍ إنشاء نسخة الاختبار…';">
+        <form method="POST" action="{{ route('teacher.quizzes.duplicate.store', $quiz) }}" onsubmit="const button=this.querySelector('[type=submit]');button.disabled=true;button.textContent='جارٍ إنشاء الاختبار…';">
             @csrf
             <section class="qd-section">
             <div class="qd-heading"><span class="qd-step">1</span><h2>اختر المجموعة المستهدفة</h2></div>
@@ -63,7 +63,15 @@
             <p class="qd-help" id="destination-help">سيظهر الاختبار لطلاب المجموعة التي تختارها.</p>
             </section>
             <section class="qd-section">
-            <div class="qd-heading"><span class="qd-step">2</span><h2>إعدادات النسخة الجديدة</h2></div>
+            <div class="qd-heading"><span class="qd-step">2</span><h2>بيانات الاختبار الجديد</h2></div>
+            <div class="qd-dates">
+                <div><label class="qd-label" for="title_ar">اسم الاختبار بالعربية</label><input class="qd-field" id="title_ar" name="title_ar" maxlength="255" required value="{{ old('title_ar', $quiz->title_ar) }}"></div>
+                <div><label class="qd-label" for="title_en">اسم الاختبار بالإنجليزية</label><input class="qd-field" id="title_en" name="title_en" maxlength="255" value="{{ old('title_en', $quiz->title_en) }}"></div>
+            </div>
+            <label class="qd-label" for="description_ar" style="margin-top:16px">الوصف بالعربية</label>
+            <textarea class="qd-field" id="description_ar" name="description_ar" rows="3">{{ old('description_ar', $quiz->description_ar) }}</textarea>
+            <label class="qd-label" for="description_en" style="margin-top:16px">الوصف بالإنجليزية</label>
+            <textarea class="qd-field" id="description_en" name="description_en" rows="3">{{ old('description_en', $quiz->description_en) }}</textarea>
             <label class="qd-label" for="type">نوع الاختبار</label>
             <select class="qd-field" id="type" name="type" required>
                 @foreach(['quiz' => 'اختبار قصير', 'midterm' => 'اختبار نصفي', 'exam' => 'امتحان', 'homework' => 'واجب', 'paper' => 'ورقة أعمال'] as $value => $label)
@@ -75,6 +83,14 @@
                 <div><label class="qd-label" for="duration_minutes">مدة الاختبار بالدقائق <span class="qd-optional">اختياري</span></label><input class="qd-field" type="number" id="duration_minutes" name="duration_minutes" min="1" step="1" placeholder="بدون مدة محددة" value="{{ old('duration_minutes', $quiz->duration_minutes) }}"></div>
             </div>
             <p class="qd-help">تُطبّق هذه الإعدادات على النسخة الجديدة فقط. يمكنك ترك المدة فارغة لاختبار بدون حد زمني.</p>
+            <div class="qd-dates" style="margin-top:16px">
+                <div><label class="qd-label" for="pass_marks">درجة النجاح</label><input class="qd-field" type="number" id="pass_marks" name="pass_marks" min="0" step="0.01" required value="{{ old('pass_marks', $quiz->pass_marks) }}"></div>
+                <div><label class="qd-label" for="max_attempts">عدد المحاولات</label><input class="qd-field" type="number" id="max_attempts" name="max_attempts" min="1" required value="{{ old('max_attempts', $quiz->max_attempts) }}"></div>
+            </div>
+            @foreach(['shuffle_questions' => 'ترتيب عشوائي للأسئلة', 'shuffle_answers' => 'ترتيب عشوائي للإجابات', 'show_results' => 'عرض النتائج', 'show_correct_answers' => 'عرض الإجابات الصحيحة', 'is_active' => 'تفعيل الاختبار'] as $field => $label)
+                <input type="hidden" name="{{ $field }}" value="0">
+                <label class="qd-label" style="margin-top:14px"><input type="checkbox" name="{{ $field }}" value="1" @checked(old($field, $field === 'is_active' ? true : $quiz->$field))> {{ $label }}</label>
+            @endforeach
             </section>
             <section class="qd-section">
             <div class="qd-heading"><span class="qd-step">3</span><h2>حدّد مواعيد الاختبار <span class="qd-optional">اختياري</span></h2></div>
@@ -84,7 +100,8 @@
             </div>
             <p class="qd-note" id="schedule-help">عند ترك المواعيد فارغة، يتاح الاختبار فورًا دون موعد انتهاء.</p>
             </section>
-            <div class="qd-actions"><button class="qd-submit" type="submit">إنشاء نسخة للمجموعة</button><a class="qd-cancel" href="{{ route('teacher.quizzes.overview') }}">إلغاء</a></div>
+            @include('teacher.quizzes.partials.duplicate-questions')
+            <div class="qd-actions"><button class="qd-submit" type="submit">حفظ اختبار جديد</button><a class="qd-cancel" href="{{ route('teacher.quizzes.overview') }}">إلغاء</a></div>
         </form>
     @endif
     </div>
@@ -94,7 +111,7 @@
         <div class="qd-stat"><span>نوع الاختبار</span><strong>{{ $quiz->type_label }}</strong></div>
         <div class="qd-stat"><span>الدرجة الكلية</span><strong>{{ $quiz->total_marks }} درجة</strong></div>
         <div class="qd-stat"><span>مدة الاختبار</span><strong>{{ $quiz->duration_minutes ? $quiz->duration_minutes . ' دقيقة' : 'غير محددة' }}</strong></div>
-        <p class="qd-help">تتضمن النسخة نفس الأسئلة والإجابات. يمكنك تعديل نوع الاختبار والدرجة الكلية والمدة من إعدادات النسخة الجديدة.</p>
+        <p class="qd-help">تمت تعبئة النموذج ببيانات الاختبار السابق. يمكنك تعديل الاسم والإعدادات وإضافة الأسئلة وتعديلها وحذفها قبل حفظ الاختبار الجديد.</p>
         <p class="qd-summary-note">لكل مجموعة محاولات ونتائج مستقلة. تظل نتائج المجموعة الأصلية محفوظة.</p>
     </aside>
     </div>

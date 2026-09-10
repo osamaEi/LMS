@@ -212,23 +212,36 @@ class QuizService
             $copy = DB::transaction(function () use ($source, $target, $classId, $teacherId, $schedule, &$images) {
                 $copy = $source->replicate();
                 $copy->setRelations([]);
-                foreach (['type', 'total_marks', 'duration_minutes'] as $attribute) {
+                foreach (['title_ar', 'title_en', 'description_ar', 'description_en', 'type', 'total_marks', 'duration_minutes',
+                    'pass_marks', 'max_attempts', 'shuffle_questions', 'shuffle_answers', 'show_results', 'show_correct_answers'] as $attribute) {
                     if (array_key_exists($attribute, $schedule)) {
                         $copy->setAttribute($attribute, $schedule[$attribute]);
                     }
                 }
                 $copy->starts_at = $schedule['starts_at'] ?? null;
                 $copy->ends_at = $schedule['ends_at'] ?? null;
-                $copy->is_active = true;
+                $copy->is_active = $schedule['is_active'] ?? true;
                 $copy->save();
                 // Invalid destinations roll back the entire copy.
                 $this->retarget($copy, $target, $classId, $teacherId);
 
-                foreach ($source->questions()->with('options')->get() as $question) {
-                    $newQuestion = $question->replicate();
+                $sourceQuestions = $source->questions()->with('options')->get()->keyBy('id');
+                $questions = $schedule['questions'] ?? $sourceQuestions->map(fn ($question) => array_merge(
+                    $question->only(['type', 'question_ar', 'question_en', 'explanation_ar', 'explanation_en', 'marks']),
+                    ['source_id' => $question->id, 'options' => $question->options->toArray()]
+                ))->values()->all();
+                foreach (array_values($questions) as $index => $data) {
+                    $question = !empty($data['source_id']) ? $sourceQuestions->get($data['source_id']) : null;
+                    if (!empty($data['source_id']) && !$question) {
+                        throw ValidationException::withMessages(['questions' => 'السؤال المحدد لا يخص الاختبار الأصلي.']);
+                    }
+                    $newQuestion = new \App\Models\Question(\Illuminate\Support\Arr::only($data, [
+                        'type', 'question_ar', 'question_en', 'explanation_ar', 'explanation_en', 'marks',
+                    ]));
                     $newQuestion->setRelations([]);
                     $newQuestion->quiz_id = $copy->id;
-                    if ($question->image) {
+                    $newQuestion->order = $index + 1;
+                    if ($question?->image) {
                         $path = 'uploads/images/' . \Illuminate\Support\Str::uuid() . '.' . pathinfo($question->image, PATHINFO_EXTENSION);
                         $images[] = $path;
                         if (!Storage::disk('public')->copy($question->image, $path)) {
@@ -237,9 +250,10 @@ class QuizService
                         $newQuestion->image = $path;
                     }
                     $newQuestion->save();
-                    foreach ($question->options as $option) {
-                        $newOption = $option->replicate();
+                    foreach (in_array($newQuestion->type, ['multiple_choice', 'true_false']) ? ($data['options'] ?? []) : [] as $optionIndex => $option) {
+                        $newOption = new \App\Models\QuestionOption(\Illuminate\Support\Arr::only($option, ['option_ar', 'option_en', 'is_correct']));
                         $newOption->question_id = $newQuestion->id;
+                        $newOption->order = $optionIndex + 1;
                         $newOption->save();
                     }
                 }
@@ -253,7 +267,9 @@ class QuizService
             throw $e;
         }
 
-        $this->notifications->notifyQuizCreated($copy);
+        if ($copy->is_active) {
+            $this->notifications->notifyQuizCreated($copy);
+        }
 
         return $copy;
     }

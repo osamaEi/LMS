@@ -173,7 +173,7 @@
                     <td style="padding:12px 16px;text-align:center;">
                         <div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap;">
                             @php $isProgramQuiz = $quiz->program_id !== null; @endphp
-                            <a href="{{ route('teacher.quizzes.duplicate', $quiz) }}" style="padding:5px 14px;font-size:11px;color:#0071AA;background:#e0f2fe;border:1px solid #bae6fd;border-radius:7px;font-weight:600;text-decoration:none;">إعادة لمجموعة أخرى</a>
+                            <a href="{{ route('teacher.quizzes.duplicate', $quiz) }}" style="padding:5px 14px;font-size:11px;color:#0071AA;background:#e0f2fe;border:1px solid #bae6fd;border-radius:7px;font-weight:600;text-decoration:none;">إنشاء اختبار من هذا الاختبار</a>
                             <a href="{{ route('teacher.quizzes.overview.show', $quiz->id) }}"
                                style="padding:5px 14px;font-size:11px;color:#0071AA;background:#e0f2fe;border:1px solid #bae6fd;border-radius:7px;font-weight:600;text-decoration:none;">عرض الحلول</a>
                             <a href="{{ $isProgramQuiz
@@ -250,7 +250,7 @@
                 </div>
 
                 <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:12px;">
-                    <a href="{{ route('teacher.quizzes.duplicate', $quiz) }}" style="padding:7px 12px;font-size:11px;color:#0071AA;background:#e0f2fe;border:1px solid #bae6fd;border-radius:7px;font-weight:600;text-decoration:none;">إعادة لمجموعة أخرى</a>
+                    <a href="{{ route('teacher.quizzes.duplicate', $quiz) }}" style="padding:7px 12px;font-size:11px;color:#0071AA;background:#e0f2fe;border:1px solid #bae6fd;border-radius:7px;font-weight:600;text-decoration:none;">إنشاء اختبار من هذا الاختبار</a>
                     <a href="{{ route('teacher.quizzes.overview.show', $quiz->id) }}"
                        style="flex:1;text-align:center;padding:7px 12px;font-size:11px;color:#0071AA;background:#e0f2fe;border:1px solid #bae6fd;border-radius:7px;font-weight:600;text-decoration:none;">عرض الحلول</a>
                     <a href="{{ $isProgramQuiz

@@ -32,6 +32,7 @@ class QuizController extends Controller
         abort_unless($quiz->created_by == auth()->id(), 403);
         $classes = $this->quizService->selectableClasses(auth()->id())
             ->reject(fn ($class) => $class['id'] == $quiz->class_id);
+        $quiz->load('questions.options');
 
         return view('teacher.quizzes.duplicate', compact('quiz', 'classes'));
     }
@@ -41,17 +42,51 @@ class QuizController extends Controller
         abort_unless($quiz->created_by == auth()->id(), 403);
         $validated = $request->validate([
             'destination' => ['required', 'string', 'regex:/^\d+:(subject|program):\d+$/'],
+            'title_ar' => 'required|string|max:255',
+            'title_en' => 'nullable|string|max:255',
+            'description_ar' => 'nullable|string',
+            'description_en' => 'nullable|string',
+            'pass_marks' => 'required|numeric|min:0|lte:total_marks',
+            'max_attempts' => 'required|integer|min:1',
+            'shuffle_questions' => 'required|boolean',
+            'shuffle_answers' => 'required|boolean',
+            'show_results' => 'required|boolean',
+            'show_correct_answers' => 'required|boolean',
+            'is_active' => 'required|boolean',
+            'questions' => 'required|array|min:1',
+            'questions.*.source_id' => ['nullable', 'integer', \Illuminate\Validation\Rule::exists('questions', 'id')->where('quiz_id', $quiz->id)],
+            'questions.*.type' => 'required|in:multiple_choice,true_false,short_answer,essay',
+            'questions.*.question_ar' => 'required|string',
+            'questions.*.question_en' => 'nullable|string',
+            'questions.*.explanation_ar' => 'nullable|string',
+            'questions.*.explanation_en' => 'nullable|string',
+            'questions.*.marks' => 'required|numeric|min:0.01',
+            'questions.*.options' => 'nullable|array',
+            'questions.*.options.*.option_ar' => 'required|string',
+            'questions.*.options.*.option_en' => 'nullable|string',
+            'questions.*.options.*.is_correct' => 'required|boolean',
             'type' => 'required|in:quiz,midterm,exam,homework,paper',
             'total_marks' => 'required|numeric|min:1',
             'duration_minutes' => 'nullable|integer|min:1',
             'starts_at' => 'nullable|date',
             'ends_at' => ['nullable', 'date', 'after:now', ...($request->filled('starts_at') ? ['after_or_equal:starts_at'] : [])],
         ]);
+        foreach ($validated['questions'] as $index => $question) {
+            if (in_array($question['type'], ['multiple_choice', 'true_false'])) {
+                $options = collect($question['options'] ?? []);
+                if ($options->count() < 2 || !$options->contains(fn ($option) => (bool) $option['is_correct'])
+                    || ($question['type'] === 'true_false' && ($options->count() !== 2 || $options->where('is_correct', 1)->count() !== 1))) {
+                    throw \Illuminate\Validation\ValidationException::withMessages([
+                        "questions.$index.options" => 'أضف اختيارين على الأقل وحدد الإجابة الصحيحة. سؤال صح وخطأ يحتاج اختيارين وإجابة صحيحة واحدة.',
+                    ]);
+                }
+            }
+        }
         [$classId, $kind, $targetId] = explode(':', $validated['destination']);
         $this->quizService->duplicateForClass($quiz, "$kind:$targetId", (int) $classId, auth()->id(), $validated);
 
         return redirect()->route('teacher.quizzes.overview')
-            ->with('success', 'تمت إعادة الاختبار للمجموعة المختارة بنفس الأسئلة والإعدادات المحددة، وبمحاولات ونتائج مستقلة.');
+            ->with('success', 'تم إنشاء اختبار جديد بالبيانات والأسئلة التي حددتها، وبمحاولات ونتائج مستقلة.');
     }
 
     /**
