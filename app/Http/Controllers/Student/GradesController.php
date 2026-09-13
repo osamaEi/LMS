@@ -68,12 +68,48 @@ class GradesController extends Controller
         $totalQuizzes     = $quizAttempts->count();
         $avgPercentage    = collect($subjectGrades)->avg('percentage');
 
+        $sentReports = $this->sentGradeReports($student);
+
         return view('student.grades.index', compact(
             'subjectGrades',
             'totalEvaluations',
             'totalQuizzes',
-            'avgPercentage'
+            'avgPercentage',
+            'sentReports'
         ));
+    }
+
+    /**
+     * Grade breakdowns teachers have explicitly sent to this student from the
+     * student report page. Stored as database notifications, newest first.
+     *
+     * Each entry: teacher name, when it was sent, and the per-subject rows
+     * (attendance / participation / midterm / final / total).
+     */
+    private function sentGradeReports($student): \Illuminate\Support\Collection
+    {
+        return $student->notifications()
+            ->where('type', \App\Notifications\TeacherGradesNotification::class)
+            ->latest()
+            ->get()
+            ->map(function ($notification) {
+                $data = $notification->data;
+
+                $rows = collect($data['grades'] ?? [])
+                    // Guard against malformed payloads from older sends.
+                    ->filter(fn ($row) => is_array($row) && isset($row['name']))
+                    ->values();
+
+                return $rows->isEmpty() ? null : (object) [
+                    'id'           => $notification->id,
+                    'teacher_name' => $data['sender_name'] ?? 'المعلم',
+                    'sent_at'      => $notification->created_at,
+                    'is_unread'    => $notification->read_at === null,
+                    'rows'         => $rows,
+                ];
+            })
+            ->filter()
+            ->values();
     }
 
     private function gradeLabel(float $pct): string
