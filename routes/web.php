@@ -15,6 +15,37 @@ Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/logout', [LogoutController::class, 'logout'])->name('logout');
 
+// DEV ONLY: create a ready-to-use demo student via NewStudentSeeder.
+// Optional query params: name, email, password, program_id
+// e.g. /dev/seed-student?email=me@demo.test&program_id=1
+if (app()->environment('local')) {
+    Route::get('/dev/seed-student', function (\Illuminate\Http\Request $request) {
+        $seeder = (new \Database\Seeders\NewStudentSeeder)
+            ->setOptions($request->only(['name', 'email', 'password', 'program_id', 'phone', 'national_id']));
+
+        $seeder->run();
+
+        $student = $seeder->student;
+
+        return response()->json([
+            'created'  => true,
+            'login'    => [
+                'email'    => $student->email,
+                'password' => $seeder->plainPassword,
+            ],
+            'student'  => [
+                'id'                  => $student->id,
+                'name'                => $student->name,
+                'student_code'        => $student->student_code,
+                'program_id'          => $student->program_id,
+                'class_id'            => $student->class_id,
+                'current_term_number' => $student->current_term_number,
+                'enrollments'         => \App\Models\Enrollment::where('student_id', $student->id)->count(),
+            ],
+        ], 201, [], JSON_UNESCAPED_UNICODE);
+    })->name('dev.seed-student');
+}
+
 // TEMP: diagnose attendance 404 — احذفه بعد التشخيص
 Route::get('/diag/attendance/{subjectId}/{sessionId}', function ($subjectId, $sessionId) {
     $user = auth()->user();
