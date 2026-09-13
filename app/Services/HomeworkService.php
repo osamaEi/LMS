@@ -192,11 +192,31 @@ class HomeworkService
     public function homeworksForStudentWeb(User $student)
     {
         $subjectIds = $this->homeworkRepository->accessibleSubjectIdsForAllPrograms($student);
+        $since      = $student->contentVisibleFrom();
 
-        $subjectHomeworks = $this->homeworkRepository->subjectHomeworks($subjectIds, ['subject'], $student->allClassIds());
-        $programHomeworks = $this->homeworkRepository->programHomeworks($student->allProgramIds(), ['program'], $student->allClassIds());
+        $subjectHomeworks = $this->homeworkRepository->subjectHomeworks($subjectIds, ['subject'], $student->allClassIds(), $since);
+        $programHomeworks = $this->homeworkRepository->programHomeworks($student->allProgramIds(), ['program'], $student->allClassIds(), $since);
 
-        return $subjectHomeworks->merge($programHomeworks)->sortByDesc('created_at')->values();
+        return $subjectHomeworks
+            ->merge($programHomeworks)
+            ->merge($this->alreadySubmitted($student))
+            ->unique('id')
+            ->sortByDesc('created_at')
+            ->values();
+    }
+
+    /**
+     * Homework the student has already submitted. Merged back into the visible
+     * list so the join-date cutoff can never hide their own work — this list
+     * also authorises submit/delete, so dropping one would lock them out.
+     */
+    protected function alreadySubmitted(User $student)
+    {
+        $ids = HomeworkSubmission::where('student_id', $student->id)->pluck('homework_id');
+
+        return $ids->isEmpty()
+            ? collect()
+            : Homework::whereIn('id', $ids)->with(['subject', 'program'])->get();
     }
 
     /**
@@ -206,16 +226,19 @@ class HomeworkService
     public function homeworksForStudentApi(User $student)
     {
         $subjectIds = $this->homeworkRepository->accessibleSubjectIdsForProgram($student);
+        $since      = $student->contentVisibleFrom();
 
         $subjectHomeworks = $this->homeworkRepository->subjectHomeworks(
             $subjectIds,
             ['subject:id,name_ar,name_en,code'],
-            $student->allClassIds()
+            $student->allClassIds(),
+            $since
         );
         $programHomeworks = $this->homeworkRepository->programHomeworks(
             $student->program_id,
             ['program:id,name_ar,name_en'],
-            $student->allClassIds()
+            $student->allClassIds(),
+            $since
         );
 
         return $subjectHomeworks->merge($programHomeworks)->sortByDesc('created_at')->values();

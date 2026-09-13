@@ -142,7 +142,18 @@ class DashboardController extends Controller
             ->filter()->unique()->values();
         $subjectIds = $this->studentSubjectIds($student);
 
+        // Quizzes from before the student joined are not theirs to sit.
+        $since = $student->contentVisibleFrom();
+
         $quizzes = \App\Models\Quiz::where('is_active', true)
+            ->when($since !== null, fn ($q) => $q->where(function ($dq) use ($since, $student) {
+                // Scheduled quizzes are judged by when they run; unscheduled
+                // ones by when they were created.
+                $dq->where('starts_at', '>=', $since)
+                   ->orWhere(fn ($nq) => $nq->whereNull('starts_at')->where('created_at', '>=', $since))
+                   // Never hide one the student has already attempted.
+                   ->orWhereHas('attempts', fn ($aq) => $aq->where('student_id', $student->id));
+            }))
             ->where(function ($q) use ($subjectIds, $programIds, $classIds) {
                 // Subject quizzes for accessible subjects…
                 $q->whereIn('subject_id', $subjectIds);

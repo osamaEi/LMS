@@ -237,6 +237,32 @@ class User extends Authenticatable
         return null;
     }
 
+    /**
+     * The date this student's content starts: homework and quizzes created
+     * before it belong to the period before they joined, so they are hidden.
+     *
+     * Uses the EARLIEST enrolled_at across the student's programs, so a student
+     * in more than one program keeps seeing everything from the first one.
+     * Returns null when no enrolment date is recorded (legacy rows) — callers
+     * must then apply no cutoff rather than hiding everything.
+     */
+    public function contentVisibleFrom(): ?\Illuminate\Support\Carbon
+    {
+        $enrolledAt = $this->programs()
+            ->pluck('student_programs.enrolled_at')
+            ->filter()
+            ->map(fn ($d) => \Illuminate\Support\Carbon::parse($d))
+            ->sort()
+            ->first();
+
+        // Fall back to enrollments, then to the account's own creation date.
+        $enrolledAt ??= \App\Models\Enrollment::where('student_id', $this->id)
+            ->whereNotNull('enrolled_at')
+            ->min('enrolled_at');
+
+        return $enrolledAt ? \Illuminate\Support\Carbon::parse($enrolledAt)->startOfDay() : null;
+    }
+
     public function track()
     {
         return $this->belongsTo(\App\Models\Track::class);

@@ -26,14 +26,14 @@ interface HomeworkRepositoryInterface extends BaseRepositoryInterface
     /**
      * Homework belonging to sessions in the given subjects, newest first.
      */
-    public function subjectHomeworks(SupportCollection $subjectIds, array $relations = [], ?SupportCollection $classIds = null): Collection;
+    public function subjectHomeworks(SupportCollection $subjectIds, array $relations = [], ?SupportCollection $classIds = null, ?\Illuminate\Support\Carbon $since = null): Collection;
 
     /**
      * Homework belonging to sessions in the given program(s), newest first.
      *
      * @param  int|array<int>  $programIds
      */
-    public function programHomeworks($programIds, array $relations = [], ?SupportCollection $classIds = null): Collection;
+    public function programHomeworks($programIds, array $relations = [], ?SupportCollection $classIds = null, ?\Illuminate\Support\Carbon $since = null): Collection;
 
     /**
      * Find a homework by id that the student is allowed to access, or fail.

@@ -39,7 +39,7 @@ class HomeworkRepository extends BaseRepository implements HomeworkRepositoryInt
         })->pluck('id');
     }
 
-    public function subjectHomeworks(SupportCollection $subjectIds, array $relations = [], ?SupportCollection $classIds = null): Collection
+    public function subjectHomeworks(SupportCollection $subjectIds, array $relations = [], ?SupportCollection $classIds = null, ?\Illuminate\Support\Carbon $since = null): Collection
     {
         return $this->model
             ->whereIn('subject_id', $subjectIds)
@@ -51,12 +51,16 @@ class HomeworkRepository extends BaseRepository implements HomeworkRepositoryInt
                        ->orWhereIn('class_id', $classIds);
                 });
             })
+            // Hide homework assigned before the student joined.
+            ->when($since !== null, fn ($q) => $q->where('created_at', '>=', $since))
             ->with($relations)
             ->orderByDesc('created_at')
             ->get();
     }
 
-    public function programHomeworks($programIds, array $relations = [], ?SupportCollection $classIds = null): Collection
+    // NOTE: a student who already submitted keeps seeing the homework — the
+    // service merges those back in, see HomeworkService::homeworksForStudentWeb.
+    public function programHomeworks($programIds, array $relations = [], ?SupportCollection $classIds = null, ?\Illuminate\Support\Carbon $since = null): Collection
     {
         $programIds = collect(is_array($programIds) || $programIds instanceof SupportCollection ? $programIds : [$programIds])->filter()->values();
         return $this->model
@@ -64,6 +68,8 @@ class HomeworkRepository extends BaseRepository implements HomeworkRepositoryInt
             ->when($classIds !== null, function ($q) use ($classIds) {
                 $q->where(fn ($cq) => $cq->whereNull('class_id')->orWhereIn('class_id', $classIds));
             })
+            // Hide homework assigned before the student joined.
+            ->when($since !== null, fn ($q) => $q->where('created_at', '>=', $since))
             ->with($relations)
             ->orderByDesc('created_at')
             ->get();
