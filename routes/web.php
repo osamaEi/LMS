@@ -15,13 +15,13 @@ Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/logout', [LogoutController::class, 'logout'])->name('logout');
 
-// DEV ONLY: create a ready-to-use demo student via NewStudentSeeder.
-// Optional query params: name, email, password, program_id
-// e.g. /dev/seed-student?email=me@demo.test&program_id=1
+// DEV ONLY: create a bare demo student (no program) via NewStudentSeeder.
+// Optional query params: name, email, password, phone, national_id
+// e.g. /dev/seed-student?email=me@demo.test
 if (app()->environment('local')) {
     Route::get('/dev/seed-student', function (\Illuminate\Http\Request $request) {
         $seeder = (new \Database\Seeders\NewStudentSeeder)
-            ->setOptions($request->only(['name', 'email', 'password', 'program_id', 'phone', 'national_id']));
+            ->setOptions($request->only(['name', 'email', 'password', 'phone', 'national_id']));
 
         $seeder->run();
 
@@ -34,13 +34,10 @@ if (app()->environment('local')) {
                 'password' => $seeder->plainPassword,
             ],
             'student'  => [
-                'id'                  => $student->id,
-                'name'                => $student->name,
-                'student_code'        => $student->student_code,
-                'program_id'          => $student->program_id,
-                'class_id'            => $student->class_id,
-                'current_term_number' => $student->current_term_number,
-                'enrollments'         => \App\Models\Enrollment::where('student_id', $student->id)->count(),
+                'id'           => $student->id,
+                'name'         => $student->name,
+                'student_code' => $student->student_code,
+                'program_id'   => $student->program_id, // null — assign via admin
             ],
         ], 201, [], JSON_UNESCAPED_UNICODE);
     })->name('dev.seed-student');

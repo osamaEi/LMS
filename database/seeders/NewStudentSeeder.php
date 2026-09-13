@@ -2,27 +2,20 @@
 
 namespace Database\Seeders;
 
-use App\Models\Enrollment;
-use App\Models\Program;
-use App\Models\ProgramClass;
-use App\Models\Subject;
-use App\Models\Term;
 use App\Models\User;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 /**
- * Creates one ready-to-use demo student:
- *  - user row (role student, active, confirmed)
- *  - primary program + class + term on the user and in student_programs
- *  - enrollments for every subject of the active term
+ * Creates one bare demo student: the user row only (role student, active,
+ * confirmed, email verified).
+ *
+ * No program, class, term or enrollments are assigned — the student lands in
+ * the same unassigned state as a fresh signup, ready to be placed into a
+ * program through the admin panel.
  *
  * Options can be passed before running:
  *   (new NewStudentSeeder)->setOptions(['email' => 'x@y.z'])->run();
- *
- * Sessions are not created here — they belong to the class, so the student
- * picks up whatever the class already has scheduled.
  */
 class NewStudentSeeder extends Seeder
 {
@@ -81,8 +74,6 @@ class NewStudentSeeder extends Seeder
             $student->syncRoles(['student']);
         }
 
-        $this->attachProgram($student);
-
         $this->student = $student->fresh();
 
         $this->command?->info("Student created: {$email} / {$this->plainPassword} (ID {$this->student->id})");
@@ -105,65 +96,5 @@ class NewStudentSeeder extends Seeder
         }
 
         return $n;
-    }
-
-    /**
-     * Put the student into a program + class + term and enroll them in that
-     * term's subjects. Silently skips whatever data does not exist yet.
-     */
-    protected function attachProgram(User $student): void
-    {
-        $program = isset($this->options['program_id'])
-            ? Program::find($this->options['program_id'])
-            : Program::query()->orderBy('id')->first();
-
-        if (! $program) {
-            $this->command?->warn('No program found — student created without a program.');
-
-            return;
-        }
-
-        $term = Term::where('program_id', $program->id)
-            ->orderBy('term_number')
-            ->first();
-
-        $termNumber = $term->term_number ?? 1;
-
-        $class = ProgramClass::where('program_id', $program->id)->orderBy('id')->first()
-            ?? ProgramClass::create([
-                'name'       => "فصل تجريبي - {$program->id}",
-                'program_id' => $program->id,
-            ]);
-
-        // class_id is not mass assignable on User — set it directly.
-        $student->forceFill([
-            'program_id'          => $program->id,
-            'program_status'      => 'approved',
-            'class_id'            => $class->id,
-            'current_term_number' => $termNumber,
-        ])->save();
-
-        DB::table('student_programs')->updateOrInsert(
-            ['student_id' => $student->id, 'program_id' => $program->id],
-            [
-                'status'              => 'approved',
-                'class_id'            => $class->id,
-                'current_term_number' => $termNumber,
-                'enrolled_at'         => now()->toDateString(),
-                'created_at'          => now(),
-                'updated_at'          => now(),
-            ]
-        );
-
-        if (! $term) {
-            return;
-        }
-
-        foreach (Subject::where('term_id', $term->id)->get() as $subject) {
-            Enrollment::withTrashed()->updateOrCreate(
-                ['student_id' => $student->id, 'subject_id' => $subject->id],
-                ['status' => 'active', 'enrolled_at' => now(), 'deleted_at' => null]
-            );
-        }
     }
 }
