@@ -45,11 +45,15 @@ class NewStudentSeeder extends Seeder
 
     public function run(): void
     {
-        $suffix = (string) (User::withTrashed()->max('id') + 1);
+        // phone/national_id are unique across trashed rows too, so walk the
+        // suffix forward until none of them is taken.
+        $suffix = (string) $this->freeSuffix();
 
         $email = $this->options['email'] ?? "student{$suffix}@demo.test";
         $this->plainPassword = $this->options['password'] ?? 'password';
 
+        // Reuse the row when the email already exists — including a trashed one,
+        // which still holds the unique email/phone/national_id.
         $student = User::withTrashed()->firstOrNew(['email' => $email]);
 
         $student->fill([
@@ -82,6 +86,25 @@ class NewStudentSeeder extends Seeder
         $this->student = $student->fresh();
 
         $this->command?->info("Student created: {$email} / {$this->plainPassword} (ID {$this->student->id})");
+    }
+
+    /**
+     * First suffix N (starting past the highest user id, trashed included)
+     * whose derived demo email / phone / national_id are all still free.
+     */
+    protected function freeSuffix(): int
+    {
+        $n = (int) User::withTrashed()->max('id') + 1;
+
+        while (User::withTrashed()->where(function ($q) use ($n) {
+            $q->where('email', "student{$n}@demo.test")
+              ->orWhere('phone', '05' . str_pad((string) $n, 8, '0', STR_PAD_LEFT))
+              ->orWhere('national_id', '1' . str_pad((string) $n, 9, '0', STR_PAD_LEFT));
+        })->exists()) {
+            $n++;
+        }
+
+        return $n;
     }
 
     /**

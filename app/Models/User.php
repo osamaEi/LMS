@@ -60,8 +60,11 @@ class User extends Authenticatable
 
     public static function generateStudentCode(): string
     {
-        // Include soft-deleted rows so we never reuse a code held by a trashed user
-        $query = method_exists(static::class, 'withTrashed')
+        // Include soft-deleted rows so we never reuse a code held by a trashed
+        // user — the unique index spans them. withTrashed() is a soft-delete
+        // scope resolved via __callStatic, so method_exists() never sees it;
+        // check the trait instead.
+        $query = in_array(SoftDeletes::class, class_uses_recursive(static::class), true)
             ? static::withTrashed()
             : static::query();
 
