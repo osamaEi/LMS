@@ -333,8 +333,8 @@ class ProgramController extends Controller
 
         return response()->json([
             'success'    => true,
-            'program_id' => $program->id,
-            'class_id'   => $classId,
+            'program_id' => (string) $program->id,
+            'class_id'   => $classId !== null ? (string) $classId : null,
             'total'      => $data->count(),
             'data'   => $data->values(),
         ]);
@@ -1069,7 +1069,12 @@ class ProgramController extends Controller
             // ── Course / Training / English: attendance based on program sessions ──
             // Only joined sessions are counted (attended = true) — mirrors the
             // /student/attendance web page.
-            $sessionIds = Session::where('program_id', $program->id)->pluck('id');
+            $classId    = $student->classIdForProgram($program->id);
+            $sessionIds = Session::where('program_id', $program->id)
+                ->when($classId, fn($q) => $q->where(
+                    fn($w) => $w->where('class_id', $classId)->orWhereNull('class_id')
+                ))
+                ->pluck('id');
 
             $attendedSessions = Attendance::where('student_id', $student->id)
                 ->whereIn('session_id', $sessionIds)
