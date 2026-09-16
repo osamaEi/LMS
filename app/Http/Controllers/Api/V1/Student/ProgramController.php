@@ -136,7 +136,7 @@ class ProgramController extends Controller
         $classId = $student->classIdForProgram($program->id);
 
         $payload = [
-            'id'              => $program->id,
+            'id'              => (string) $program->id,
             'name_ar'         => $program->name_ar,
             'name_en'         => $program->name_en,
             'type'            => $program->type,
@@ -148,7 +148,7 @@ class ProgramController extends Controller
             'duration_hours'  => $program->duration_hours ?? null,
             'status'          => $program->status,
             'enrollment_status' => $pivotStatus,
-            'class_id'          => $classId,
+            'class_id'          => $classId !== null ? (string) $classId : null,
         ];
 
         if ($program->type === 'diploma') {
@@ -166,7 +166,7 @@ class ProgramController extends Controller
             // Subjects are served separately by GET /my-program/{id}/subjects —
             // terms here carry only their own metadata plus a count.
             $payload['terms'] = $terms->map(fn($term) => [
-                'id'             => $term->id,
+                'id'             => (string) $term->id,
                 'term_number'    => $term->term_number,
                 'name'           => $term->name ?? ('الفصل ' . $term->term_number),
                 'status'         => $term->status,
@@ -200,7 +200,7 @@ class ProgramController extends Controller
             };
 
             return [
-                'id'               => $session->id,
+                'id'               => (string) $session->id,
                 'title'            => $session->title_ar ?? $session->title ?? null,
                 'session_number'   => $session->session_number,
                 'type'             => $session->type,

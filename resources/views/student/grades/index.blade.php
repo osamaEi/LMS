@@ -164,7 +164,11 @@
     <div class="grades-empty">
         <div class="course-grade-icon" aria-hidden="true">—</div>
         <h2>درجاتك ستظهر هنا</h2>
+        @if($sentReports->isNotEmpty())
+        <p>الدرجات التي أرسلها المعلم موضّحة بالأعلى. وعندما تُسجَّل درجتك النهائية أو تُصحّح تقييماتك، ستجد ملخّص المقررات هنا.</p>
+        @else
         <p>عندما يسجّل المدرب درجتك النهائية أو تُصحّح تقييماتك، ستجد درجات المقررات في هذه الصفحة.</p>
+        @endif
     </div>
     @else
     <div class="grades-grid">
