@@ -31,11 +31,9 @@ class MyProgramResource extends JsonResource
            
             'status'          => $this->status,
 
-            // The class every nested list below is scoped to; null when the
-            // student is not assigned to one and shared rows apply.
-            'class_id'            => isset($additional['class_id']) && $additional['class_id'] !== null
-                ? (string) $additional['class_id']
-                : null,
+            // The class every nested list below is scoped to. Programs without a
+            // class assignment are filtered out upstream, so this is always set.
+            'class_id'            => (string) $additional['class_id'],
 
             'enrollment_status'   => $additional['pivot_status'],
             'current_term_number' => $additional['pivot_term_number'],

@@ -62,12 +62,11 @@ class ProgramController extends Controller
         if ($allPrograms->isEmpty()) {
             return response()->json([
                 'success' => true,
+                'total'   => 0,
                 'data'    => [],
                 'message' => 'لا توجد برامج مسجل فيها',
             ]);
         }
-
-        $student = auth()->user();
 
         // A program is only shown once the student has been placed in one of its
         // classes — without a class there is no term, subject or teacher set that
