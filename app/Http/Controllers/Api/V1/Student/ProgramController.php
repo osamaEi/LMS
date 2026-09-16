@@ -205,7 +205,7 @@ class ProgramController extends Controller
                 'status'         => $term->status,
                 'start_date'     => $term->start_date?->format('Y-m-d'),
                 'end_date'       => $term->end_date?->format('Y-m-d'),
-                'subjects_count' => $this->termSubjectsQuery($term->id, $classId)->count(),
+                'subjects_count' => $this->termSubjectsQuery($term->id, $classId, $program->id)->count(),
                 'subjects_url'   => url("/api/v1/student/my-program/{$program->id}/subjects?term_id={$term->id}"),
             ])->values();
 
@@ -292,11 +292,7 @@ class ProgramController extends Controller
 
         $classId = $student->classIdForProgram($program->id);
 
-        // Prefer the student's own class terms; fall back to shared (class_id NULL)
-        $hasClassTerms = $classId
-            ? \App\Models\Term::where('program_id', $program->id)->where('class_id', $classId)->exists()
-            : false;
-        $termScope = fn($q) => $hasClassTerms ? $q->where('class_id', $classId) : $q->whereNull('class_id');
+        $termScope = $this->classScope('terms', $program->id, $classId);
 
         $terms = $program->terms()
             ->where(fn($q) => $termScope($q))
@@ -311,8 +307,8 @@ class ProgramController extends Controller
         // Flat subject list: one row per subject, tagged with its term so the
         // client can group without a nested payload. A subject reachable from two
         // terms is de-duplicated by id (first term wins, terms are ordered).
-        $data = $terms->flatMap(function ($term) use ($classId, $enrolledSubjectIds) {
-            $subjects = $this->termSubjectsQuery($term->id, $classId)
+        $data = $terms->flatMap(function ($term) use ($classId, $enrolledSubjectIds, $program) {
+            $subjects = $this->termSubjectsQuery($term->id, $classId, $program->id)
                 ->with(['teacher:id,name,profile_photo'])
                 ->withCount([
                     'sessions',
@@ -345,15 +341,15 @@ class ProgramController extends Controller
      * Subjects belonging to a term, via either the direct term_id column or the
      * term_subject pivot, scoped to the student's class (class-less = shared).
      */
-    private function termSubjectsQuery(int $termId, ?int $classId)
+    private function termSubjectsQuery(int $termId, ?int $classId, int $programId)
     {
+        $subjectScope = $this->classScope('subjects', $programId, $classId);
+
         return Subject::where(function ($q) use ($termId) {
                 $q->where('term_id', $termId)
                   ->orWhereHas('terms', fn($tq) => $tq->where('terms.id', $termId));
             })
-            ->when($classId, fn($q) => $q->where(
-                fn($w) => $w->where('class_id', $classId)->orWhereNull('class_id')
-            ));
+            ->where(fn($q) => $subjectScope($q));
     }
 
     /**
@@ -735,11 +731,8 @@ class ProgramController extends Controller
             return response()->json(['success' => false, 'message' => 'غير مسجل في برنامج أو فصل'], 403);
         }
 
-        // Prefer the student's own class terms; fall back to shared (class_id NULL)
-        $hasClassTerms = $classId
-            ? \App\Models\Term::where('program_id', $program->id)->where('class_id', $classId)->exists()
-            : false;
-        $termScope = fn($q) => $hasClassTerms ? $q->where('class_id', $classId) : $q->whereNull('class_id');
+        $termScope    = $this->classScope('terms', $program->id, $classId);
+        $subjectScope = $this->classScope('subjects', $program->id, $classId);
 
         $termsQuery = $program->terms()->orderBy('term_number')->where(fn($q) => $termScope($q));
 
@@ -763,7 +756,7 @@ class ProgramController extends Controller
         $termIds = $terms->pluck('id');
 
         // Load subjects via BOTH relationships: direct term_id and pivot term_subject,
-        // restricted to the student's own class (class-less shared subjects included).
+        // restricted to the student's own class (shared subjects when it defines none).
         $subjectQuery = Subject::with(['teacher:id,name,profile_photo'])
             ->withCount([
                 'sessions',
@@ -775,9 +768,7 @@ class ProgramController extends Controller
                 $q->whereIn('term_id', $termIds)
                   ->orWhereHas('terms', fn($tq) => $tq->whereIn('terms.id', $termIds));
             })
-            ->when($classId, fn($q) => $q->where(
-                fn($w) => $w->where('class_id', $classId)->orWhereNull('class_id')
-            ));
+            ->where(fn($q) => $subjectScope($q));
 
         $subjects = $subjectQuery->get();
 
@@ -1016,7 +1007,11 @@ class ProgramController extends Controller
 
         if ($isDiploma) {
             // ── Diploma: attendance based on term subjects ──────────────────
+            $classId   = $student->classIdForProgram($program->id);
+            $termScope = $this->classScope('terms', $program->id, $classId);
+
             $currentTerm = $program->terms()
+                ->where(fn($q) => $termScope($q))
                 ->where('status', 'active')
                 ->orderBy('term_number')
                 ->first();
@@ -1024,20 +1019,19 @@ class ProgramController extends Controller
             // Fallback: current_term_number or first term
             if (!$currentTerm) {
                 $currentTerm = $program->terms()
+                    ->where(fn($q) => $termScope($q))
                     ->where('term_number', $student->current_term_number ?? 1)
                     ->first()
-                    ?? $program->terms()->orderBy('term_number')->first();
+                    ?? $program->terms()->where(fn($q) => $termScope($q))->orderBy('term_number')->first();
             }
 
             if (!$currentTerm) {
                 return response()->json(['success' => true, 'data' => null]);
             }
 
-            // All subject IDs in this term (pivot + direct term_id)
-            $termSubjectIds = Subject::where(function ($q) use ($currentTerm) {
-                $q->where('term_id', $currentTerm->id)
-                  ->orWhereHas('terms', fn($tq) => $tq->where('terms.id', $currentTerm->id));
-            })->pluck('id');
+            // All subject IDs in this term (pivot + direct term_id), class-scoped
+            $termSubjectIds = $this->termSubjectsQuery($currentTerm->id, $classId, $program->id)
+                ->pluck('id');
 
             // Attendance is only counted when the student actually joins a session
             // (attended = true) — mirrors the /student/attendance web page. We only
