@@ -69,6 +69,22 @@ class ProgramController extends Controller
 
         $student = auth()->user();
 
+        // A program is only shown once the student has been placed in one of its
+        // classes — without a class there is no term, subject or teacher set that
+        // belongs to them, so the entry would be an empty shell.
+        $allPrograms = $allPrograms->filter(
+            fn($program) => $student->classIdForProgram($program->id) !== null
+        )->values();
+
+        if ($allPrograms->isEmpty()) {
+            return response()->json([
+                'success' => true,
+                'total'   => 0,
+                'data'    => [],
+                'message' => 'لم يتم تعيينك في فصل دراسي بعد',
+            ]);
+        }
+
         $data = $allPrograms->map(function ($program) use ($student) {
             $pivotStatus     = $program->pivot?->status               ?? $program->pivot_status              ?? 'approved';
             $pivotTermNumber = $program->pivot?->current_term_number  ?? $program->pivot_current_term_number ?? 1;
@@ -113,7 +129,7 @@ class ProgramController extends Controller
                         ->pluck('teacher_id');
 
                     $sessionTeacherIds = Session::where('program_id', $program->id)
-                        ->when($classId, fn($q) => $q->where('class_id', $classId))
+                        ->where('class_id', $classId)
                         ->whereNotNull('teacher_id')
                         ->pluck('teacher_id');
 
