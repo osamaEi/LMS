@@ -16,7 +16,7 @@ class ProgramSubjectResource extends JsonResource
             'code'             => $this->code !== null ? (string) $this->code : null,
             'description_ar'   => $this->description_ar ?? null,
             'description_en'   => $this->description_en ?? null,
-            'credits'          => $this->credits,
+            'duration_hours'          => $this->credits,
             'status'           => $this->status,
             'banner_photo'     => $this->banner_photo ? asset('storage/' . $this->banner_photo) : null,
             'teacher'          => $this->teacher ? [

@@ -200,7 +200,7 @@ class ProgramController extends Controller
             'description_en'  => $program->description_en ?? null,
             'image'           => $program->image ? asset('storage/' . $program->image) : null,
             'duration_months' => $program->duration_months ?? null,
-            'duration_hours'  => $program->duration_hours ?? null,
+           // 'duration_hours'  => $program->duration_hours ?? null,
             'status'          => $program->status,
             'enrollment_status' => $pivotStatus,
             'class_id'          => $classId !== null ? (string) $classId : null,
@@ -309,6 +309,16 @@ class ProgramController extends Controller
         }
 
         $classId = $student->classIdForProgram($program->id);
+
+        // Subjects are class content: without a placement there is no set of
+        // subjects that belongs to this student. Matches the program list, which
+        // hides class-less programs entirely.
+        if ($classId === null) {
+            return response()->json([
+                'success' => false,
+                'message' => 'لم يتم تعيينك في فصل دراسي لهذا البرنامج',
+            ], 403);
+        }
 
         $termScope = $this->classScope('terms', $program->id, $classId);
 
