@@ -83,9 +83,12 @@ class ProgramController extends Controller
             // Credits come from the subjects this class actually studies, so the
             // total matches the subjects the student is shown.
             $subjectScope = $this->classScope('subjects', $program->id, $classId);
-            $program->subjects_sum_credits = $program->subjects()
-                ->where(fn($q) => $subjectScope($q))
-                ->sum('credits');
+            $scopedSubjects = $program->subjects()->where(fn($q) => $subjectScope($q));
+            // No subjects for this class → null, not 0, so the resource can tell
+            // "nothing recorded" apart from "recorded as zero credits".
+            $program->subjects_sum_credits = $scopedSubjects->clone()->exists()
+                ? $scopedSubjects->sum('credits')
+                : null;
 
             if ($pivotStatus === 'approved' || $pivotStatus === 'completed') {
                 if ($isDiploma) {
