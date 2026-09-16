@@ -15,12 +15,30 @@ use App\Models\Session;
 use App\Models\Subject;
 use App\Models\SubjectFile;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ProgramController extends Controller
 {
     /**
+     * Scope a terms/subjects query to the student's class.
+     *
+     * A class may define its own rows; when it does not, the shared rows
+     * (class_id NULL) are the ones that apply. Returning the closure keeps
+     * that decision in one place for terms, subjects and credits alike.
+     */
+    private function classScope(string $table, int $programId, ?int $classId): \Closure
+    {
+        $hasClassRows = $classId
+            ? DB::table($table)->where('program_id', $programId)->where('class_id', $classId)->exists()
+            : false;
+
+        return fn($q) => $hasClassRows ? $q->where('class_id', $classId) : $q->whereNull('class_id');
+    }
+
+    /**
      * GET /api/v1/student/my-program
-     * Return all programs the student is enrolled in (primary + pivot).
+     * Return all programs the student is enrolled in (primary + pivot),
+     * with every nested list scoped to the class the student is assigned to.
      */
     public function show()
     {
@@ -41,10 +59,6 @@ class ProgramController extends Controller
             }
         }
 
-        // Credits are stored per-subject; sum them onto each program in one query
-        // so the resource can expose total_credits without an N+1.
-        $allPrograms->loadSum('subjects', 'credits');
-
         if ($allPrograms->isEmpty()) {
             return response()->json([
                 'success' => true,
@@ -64,28 +78,50 @@ class ProgramController extends Controller
             $currentTerm     = null;
             $programTeachers = collect();
             $supervisor      = null;
+            $classId         = $student->classIdForProgram($program->id);
+
+            // Credits come from the subjects this class actually studies, so the
+            // total matches the subjects the student is shown.
+            $subjectScope = $this->classScope('subjects', $program->id, $classId);
+            $program->subjects_sum_credits = $program->subjects()
+                ->where(fn($q) => $subjectScope($q))
+                ->sum('credits');
 
             if ($pivotStatus === 'approved' || $pivotStatus === 'completed') {
                 if ($isDiploma) {
                     $program->loadMissing('supervisor');
                     $supervisor = $program->supervisor ?? null;
-                    $classId    = $student->classIdForProgram($program->id);
 
-                    $hasClassTerms = $classId
-                        ? \App\Models\Term::where('program_id', $program->id)->where('class_id', $classId)->exists()
-                        : false;
-                    $termScope = fn($q) => $hasClassTerms ? $q->where('class_id', $classId) : $q->whereNull('class_id');
+                    $termScope = $this->classScope('terms', $program->id, $classId);
 
                     $currentTerm = $program->terms()
                         ->where('status', 'active')
                         ->where(fn($q) => $termScope($q))
                         ->orderBy('term_number')
-                        ->with(['subjects' => fn($q) => $termScope($q)
+                        ->with(['subjects' => fn($q) => $subjectScope($q)
                             ->with('teacher:id,name,specialization,profile_photo')])
                         ->first();
                 } else {
+                    // program_teacher carries no class, so derive the list from the
+                    // teachers on this class's subjects and sessions.
+                    $subjectTeacherIds = Subject::where('program_id', $program->id)
+                        ->where(fn($q) => $subjectScope($q))
+                        ->whereNotNull('teacher_id')
+                        ->pluck('teacher_id');
+
+                    $sessionTeacherIds = Session::where('program_id', $program->id)
+                        ->when($classId, fn($q) => $q->where('class_id', $classId))
+                        ->whereNotNull('teacher_id')
+                        ->pluck('teacher_id');
+
+                    $teacherIds = $subjectTeacherIds->merge($sessionTeacherIds)->unique();
+
                     $program->loadMissing('teachers');
-                    $programTeachers = $program->teachers;
+                    $programTeachers = $teacherIds->isEmpty()
+                        // No class-specific teachers recorded — fall back to the
+                        // program roster rather than showing none.
+                        ? $program->teachers
+                        : $program->teachers->whereIn('id', $teacherIds)->values();
                 }
             }
 
@@ -96,6 +132,7 @@ class ProgramController extends Controller
                 'current_term'     => $currentTerm,
                 'supervisor'       => $supervisor,
                 'teachers'         => $programTeachers,
+                'class_id'         => $classId,
             ])->resolve();
         })->values();
 
@@ -152,11 +189,7 @@ class ProgramController extends Controller
         ];
 
         if ($program->type === 'diploma') {
-            // Prefer the student's own class terms; fall back to shared (class_id NULL)
-            $hasClassTerms = $classId
-                ? \App\Models\Term::where('program_id', $program->id)->where('class_id', $classId)->exists()
-                : false;
-            $termScope = fn($q) => $hasClassTerms ? $q->where('class_id', $classId) : $q->whereNull('class_id');
+            $termScope = $this->classScope('terms', $program->id, $classId);
 
             $terms = $program->terms()
                 ->where(fn($q) => $termScope($q))
