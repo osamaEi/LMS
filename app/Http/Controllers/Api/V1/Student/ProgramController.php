@@ -486,8 +486,8 @@ class ProgramController extends Controller
      * Return the sessions of a program or a subject, scoped to the student's class.
      *
      * Exactly one of program_id / subject_id is required. Sessions are limited to
-     * the student's class for that program (class_id NULL sessions are shared and
-     * always included).
+     * the student's class for that program: only rows whose class_id matches that
+     * class are returned, and a student with no placement gets a 403.
      */
     public function sessionsBy(Request $request)
     {
@@ -522,15 +522,24 @@ class ProgramController extends Controller
 
         $classId = $student->classIdForProgram((int) $programId);
 
+        // Sessions are class content: without a placement there is no set of
+        // sessions that belongs to this student. Matches showOneSubjects, which
+        // treats subjects the same way.
+        if ($classId === null) {
+            return response()->json([
+                'success' => false,
+                'message' => 'لم يتم تعيينك في فصل دراسي لهذا البرنامج',
+            ], 403);
+        }
+
         // Build the session query for either a single subject or the whole program.
         $query = Session::query()
             ->when($request->filled('subject_id'),
                 fn($q) => $q->where('subject_id', $request->integer('subject_id')),
                 fn($q) => $q->where('program_id', $programId))
-            // Class scoping: the student's class + class-agnostic (NULL) sessions.
-            ->when($classId, fn($q) => $q->where(
-                fn($w) => $w->where('class_id', $classId)->orWhereNull('class_id')
-            ))
+            // Strict class scoping: only this class's sessions. A session with
+            // no class_id belongs to no class, so it is not this student's.
+            ->where('class_id', $classId)
             ->orderBy('session_number');
 
         $sessions = $query->get();
@@ -575,7 +584,7 @@ class ProgramController extends Controller
             'success'    => true,
             'program_id' => (string) $programId,
             'subject_id' => $request->filled('subject_id') ? (string) $request->integer('subject_id') : null,
-            'class_id'   => $classId !== null ? (string) $classId : null,
+            'class_id'   => (string) $classId,
             'total'      => $data->count(),
             'data'       => $data,
         ]);
