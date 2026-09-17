@@ -550,10 +550,10 @@ class ProgramController extends Controller
             };
 
             return [
-                'id'               => $session->id,
+                'id'               => (string) $session->id,
                 'title'            => $session->title_ar ?? $session->title ?? null,
                 'session_number'   => $session->session_number,
-                'subject_id'       => $session->subject_id,
+                'subject_id'       => $session->subject_id !== null ? (string) $session->subject_id : null,
                 'type'             => $session->type,
                 'status'           => $status,
                 'scheduled_at'     => $session->scheduled_at,
@@ -573,9 +573,9 @@ class ProgramController extends Controller
 
         return response()->json([
             'success'    => true,
-            'program_id' => (int) $programId,
-            'subject_id' => $request->filled('subject_id') ? $request->integer('subject_id') : null,
-            'class_id'   => $classId,
+            'program_id' => (string) $programId,
+            'subject_id' => $request->filled('subject_id') ? (string) $request->integer('subject_id') : null,
+            'class_id'   => $classId !== null ? (string) $classId : null,
             'total'      => $data->count(),
             'data'       => $data,
         ]);
