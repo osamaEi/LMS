@@ -40,6 +40,21 @@ class AttendanceApology extends Model
         return $this->belongsTo(User::class, 'reviewed_by');
     }
 
+    /**
+     * Public URL for the attachment. The stored value is either a path on the
+     * public disk or an external URL the student submitted as a string.
+     */
+    public function getAttachmentUrlAttribute(): ?string
+    {
+        if (!$this->attachment_path) {
+            return null;
+        }
+
+        return filter_var($this->attachment_path, FILTER_VALIDATE_URL)
+            ? $this->attachment_path
+            : asset('storage/' . $this->attachment_path);
+    }
+
     public function isPending(): bool
     {
         return $this->status === 'pending';

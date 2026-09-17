@@ -82,7 +82,12 @@ class HomeworkController extends Controller
         $student  = auth()->user();
         $homework = $this->homeworkService->findAccessibleForStudent((int) $id, $student);
 
-        if (!$request->filled('content') && !$request->hasFile('file') && !$request->filled('file_url')) {
+        // `file` may arrive as an upload or as a URL string; a string falls back
+        // to the same path as `file_url`.
+        $fileUrl = $request->input('file_url')
+            ?: (!$request->hasFile('file') ? $request->input('file') : null);
+
+        if (!$request->filled('content') && !$request->hasFile('file') && !$fileUrl) {
             return response()->json([
                 'success' => false,
                 'message' => 'يرجى كتابة نص الإجابة أو رفع ملف أو إرسال رابط.',
@@ -94,7 +99,7 @@ class HomeworkController extends Controller
             $student,
             ['content' => $request->input('content')],
             $request->file('file'),
-            $request->input('file_url')
+            $fileUrl
         );
 
         return response()->json([

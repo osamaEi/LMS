@@ -20,7 +20,9 @@ class ApiSubmitHomeworkRequest extends FormRequest
     {
         return [
             'content'  => 'nullable|string|max:3000',
-            'file'     => 'nullable|file|max:20480',
+            // Either a real upload or a URL string — a string in `file` is
+            // treated exactly like `file_url` (see the controller).
+            'file'     => $this->hasFile('file') ? 'nullable|file|max:20480' : 'nullable|string|max:2048',
             'file_url' => 'nullable|string|max:2048',
         ];
     }

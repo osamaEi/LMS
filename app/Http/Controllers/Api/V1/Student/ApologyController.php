@@ -68,7 +68,11 @@ class ApologyController extends Controller
 
         $data = $request->validate([
             'reason'     => ['required', 'string', 'min:5', 'max:1000'],
-            'attachment' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:4096'],
+            // Either a real upload or a URL string pointing at an already
+            // hosted file.
+            'attachment' => $request->hasFile('attachment')
+                ? ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:4096']
+                : ['nullable', 'string', 'max:2048'],
         ], [
             'reason.required'    => 'يرجى كتابة سبب الغياب.',
             'reason.min'         => 'السبب قصير جداً.',
@@ -120,6 +124,8 @@ class ApologyController extends Controller
         $attachmentPath = null;
         if ($request->hasFile('attachment')) {
             $attachmentPath = $request->file('attachment')->store('apologies', 'public');
+        } elseif (!empty($data['attachment'])) {
+            $attachmentPath = $data['attachment'];
         }
 
         $apology = AttendanceApology::create([
@@ -152,7 +158,8 @@ class ApologyController extends Controller
             ], 422);
         }
 
-        if ($apology->attachment_path) {
+        // External URLs are not ours to delete.
+        if ($apology->attachment_path && !filter_var($apology->attachment_path, FILTER_VALIDATE_URL)) {
             Storage::disk('public')->delete($apology->attachment_path);
         }
 
@@ -171,9 +178,7 @@ class ApologyController extends Controller
             'reason'       => $apology->reason,
             'status'       => $apology->status,
             'status_label' => $apology->statusLabelAr(),
-            'attachment'   => $apology->attachment_path
-                ? Storage::disk('public')->url($apology->attachment_path)
-                : null,
+            'attachment'   => $apology->attachment_url,
             'review_note'  => $apology->review_note,
             'reviewed_by'  => $apology->reviewer?->name,
             'reviewed_at'  => $apology->reviewed_at?->toIso8601String(),

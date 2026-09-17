@@ -62,7 +62,7 @@
                             <span style="color:#64748b;">السبب:</span> {{ $apology->reason }}
                         </div>
                         @if($apology->attachment_path)
-                            <a href="{{ asset('storage/'.$apology->attachment_path) }}" target="_blank"
+                            <a href="{{ $apology->attachment_url }}" target="_blank"
                                style="display:inline-flex;align-items:center;gap:6px;margin-top:8px;font-size:12px;color:#0071AA;font-weight:600;text-decoration:none;">📎 عرض المرفق</a>
                         @endif
                         @if($apology->review_note)
