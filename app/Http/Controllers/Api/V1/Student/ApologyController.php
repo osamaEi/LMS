@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Attendance;
 use App\Models\AttendanceApology;
 use App\Models\Session;
+use App\Models\Subject;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -83,10 +84,22 @@ class ApologyController extends Controller
 
         $session = Session::findOrFail($sessionId);
 
-        // The student must actually be assigned to this session.
+        // Access is program membership, not an attendance row: an apology is for
+        // a session the student did NOT attend, and an attendance row may only be
+        // created when they join or when an admin rosters the class. Gating on it
+        // would reject exactly the cases an apology exists for.
         $hasAccess = Attendance::where('student_id', $student->id)
             ->where('session_id', $session->id)
             ->exists();
+
+        if (!$hasAccess && $session->subject_id) {
+            $programIds = $student->allProgramIds();
+
+            $hasAccess = Subject::where('id', $session->subject_id)
+                ->where(fn($q) => $q->whereIn('program_id', $programIds)
+                    ->orWhereHas('term', fn($tq) => $tq->whereIn('program_id', $programIds)))
+                ->exists();
+        }
 
         if (!$hasAccess) {
             return response()->json([
