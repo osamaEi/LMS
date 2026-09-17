@@ -225,8 +225,8 @@
                     <h5 class="card-title">{{ $program->name_ar }}</h5>
                     <p class="card-text">{{ Str::limit($program->description_ar, 100) }}</p>
                     <div class="course-meta">
-                        @if($program->duration_months)
-                            <span><i class="bi bi-clock"></i> {{ $program->duration_months }} شهر</span>
+                        @if($program->duration_label)
+                            <span><i class="bi bi-clock"></i> {{ $program->duration_label }}</span>
                         @endif
                         @if($program->price)
                             <span class="course-price">{{ number_format($program->price, 0) }} <x-riyal /></span>

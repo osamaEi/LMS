@@ -418,7 +418,7 @@ $lms3s = fn(string $n) => asset('lms3/' . rawurlencode('حين يلتقي الت
                 <span class="ps-banner-pill"><i class="bi bi-clock"></i> {{ $program->duration_hours }} ساعة</span>
                 @endif
                 @if($program->duration_months && $program->type === 'diploma')
-                <span class="ps-banner-pill"><i class="bi bi-calendar3"></i> {{ $program->duration_months }} شهر</span>
+                <span class="ps-banner-pill"><i class="bi bi-calendar3"></i> {{ $program->duration_label }}</span>
                 @endif
                 @if($lc && isset($program->level))
                 <span class="ps-banner-pill"><i class="bi bi-bar-chart-steps"></i> {{ $levelLabels[$program->level] ?? '' }}</span>
@@ -453,8 +453,8 @@ $lms3s = fn(string $n) => asset('lms3/' . rawurlencode('حين يلتقي الت
                     @if($program->duration_months && $program->type === 'diploma')
                     <div class="ps-stat">
                         <div class="ps-stat-icon" style="background:#ede9fe;color:#7c3aed;"><i class="bi bi-calendar3-fill"></i></div>
-                        <div class="ps-stat-val">{{ $program->duration_months }}</div>
-                        <div class="ps-stat-lbl">شهر</div>
+                        <div class="ps-stat-val" style="font-size:1rem;line-height:1.3;">{{ $program->duration_label }}</div>
+                        <div class="ps-stat-lbl">مدة البرنامج</div>
                     </div>
                     @endif
                     <div class="ps-stat">
@@ -516,7 +516,7 @@ $lms3s = fn(string $n) => asset('lms3/' . rawurlencode('حين يلتقي الت
                     @if($program->duration_months && $program->type === 'diploma')
                     <li class="ps-meta-item">
                         <div class="ps-meta-item-icon"><i class="bi bi-calendar3-fill"></i></div>
-                        <span>المدة: <strong>{{ $program->duration_months }} شهر</strong></span>
+                        <span>المدة: <strong>{{ $program->duration_label }}</strong></span>
                     </li>
                     @endif
                     @if($program->supervisor_name)

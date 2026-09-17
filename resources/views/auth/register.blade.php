@@ -399,42 +399,6 @@
                                 </div>
                                 <span style="font-size:13px;font-weight:700;color:#0A5A86;">المستندات المطلوبة</span>
                             </div>
-                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
-                                <div>
-                                    <label class="field-label">الهوية — الوجه الأمامي <span style="color:#ef4444;">*</span></label>
-                                    <label id="front-label" for="national_id_front" class="upload-zone"
-                                           ondragover="event.preventDefault();this.style.borderColor='#0D6FA6'"
-                                           ondragleave="this.style.borderColor='#94a3b8'"
-                                           ondrop="handleDrop(event,'national_id_front','front-preview','front-label')">
-                                        <div id="front-preview" style="text-align:center;">
-                                            <svg style="width:26px;height:26px;color:#60a5fa;margin:0 auto 4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                                            </svg>
-                                            <p style="font-size:11px;color:#0D6FA6;font-weight:600;margin:0;">اضغط أو اسحب</p>
-                                            <p style="font-size:10px;color:#94a3b8;margin:2px 0 0;">JPG, PNG, PDF</p>
-                                        </div>
-                                        <input type="file" id="national_id_front" name="national_id_front" accept=".jpg,.jpeg,.png,.pdf" required class="hidden" onchange="previewFile(this,'front-preview','front-label')">
-                                    </label>
-                                    <p id="front-error" class="field-error"></p>
-                                </div>
-                                <div>
-                                    <label class="field-label">الهوية — الوجه الخلفي <span style="color:#ef4444;">*</span></label>
-                                    <label id="back-label" for="national_id_back" class="upload-zone"
-                                           ondragover="event.preventDefault();this.style.borderColor='#0D6FA6'"
-                                           ondragleave="this.style.borderColor='#94a3b8'"
-                                           ondrop="handleDrop(event,'national_id_back','back-preview','back-label')">
-                                        <div id="back-preview" style="text-align:center;">
-                                            <svg style="width:26px;height:26px;color:#60a5fa;margin:0 auto 4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                                            </svg>
-                                            <p style="font-size:11px;color:#0D6FA6;font-weight:600;margin:0;">اضغط أو اسحب</p>
-                                            <p style="font-size:10px;color:#94a3b8;margin:2px 0 0;">JPG, PNG, PDF</p>
-                                        </div>
-                                        <input type="file" id="national_id_back" name="national_id_back" accept=".jpg,.jpeg,.png,.pdf" required class="hidden" onchange="previewFile(this,'back-preview','back-label')">
-                                    </label>
-                                    <p id="back-error" class="field-error"></p>
-                                </div>
-                            </div>
                             <div>
                                 <label class="field-label">الشهادة <span style="color:#ef4444;">*</span></label>
                                 <label id="cert-label" for="certificate" class="upload-zone" style="min-height:72px;"
@@ -668,7 +632,7 @@ document.getElementById('step3-form').addEventListener('submit', async function(
     e.preventDefault();
 
     const errorIds = ['name-error','dob-error','gender-error','nationality-error','email-error','password-error',
-        'spec-error','spec-type-error','grad-error','front-error','back-error','cert-error','confirm-error','terms-error'];
+        'spec-error','spec-type-error','grad-error','cert-error','confirm-error','terms-error'];
     errorIds.forEach(id => { const el = document.getElementById(id); if(el){ el.textContent=''; el.style.display='none'; }});
     document.getElementById('step3-error').style.display = 'none';
 
@@ -693,8 +657,6 @@ document.getElementById('step3-form').addEventListener('submit', async function(
     if (pw.length < 8) { showFieldError('password-error', 'كلمة المرور 8 أحرف على الأقل'); valid = false; }
     else if (pw !== pwc) { showFieldError('password-error', 'تأكيد كلمة المرور غير متطابق'); valid = false; }
 
-    if (!document.getElementById('national_id_front').files.length) { showFieldError('front-error', 'صورة الهوية الأمامية مطلوبة'); valid = false; }
-    if (!document.getElementById('national_id_back').files.length)  { showFieldError('back-error',  'صورة الهوية الخلفية مطلوبة'); valid = false; }
     if (!document.getElementById('certificate').files.length)        { showFieldError('cert-error',  'الشهادة مطلوبة'); valid = false; }
     if (!document.getElementById('is_confirm_user').checked) { showFieldError('confirm-error', 'يجب الإقرار بصحة البيانات'); valid = false; }
     if (!document.getElementById('is_terms').checked)         { showFieldError('terms-error',   'يجب الموافقة على الشروط'); valid = false; }

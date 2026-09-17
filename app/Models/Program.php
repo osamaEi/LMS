@@ -47,6 +47,60 @@ class Program extends Model
         return $locale === 'en' ? ($this->description_en ?: $this->description_ar) : $this->description_ar;
     }
 
+    /**
+     * Human-readable duration in Arabic. Durations of a year or more read
+     * better as years ("سنتان ونصف") than as a raw month count ("30 شهر").
+     */
+    public function getDurationLabelAttribute(): ?string
+    {
+        $months = (int) $this->duration_months;
+
+        if ($months <= 0) {
+            return null;
+        }
+
+        if ($months < 12) {
+            return match (true) {
+                $months === 1 => 'شهر',
+                $months === 2 => 'شهران',
+                $months <= 10 => $months . ' أشهر',
+                default       => $months . ' شهراً',
+            };
+        }
+
+        $years  = intdiv($months, 12);
+        $rest   = $months % 12;
+
+        $yearsLabel = match (true) {
+            $years === 1 => 'سنة',
+            $years === 2 => 'سنتان',
+            $years <= 10 => $years . ' سنوات',
+            default      => $years . ' سنة',
+        };
+
+        // Half a year reads as "ونصف"; other remainders keep the months.
+        if ($rest === 0) {
+            return $yearsLabel;
+        }
+
+        if ($rest === 6) {
+            return match (true) {
+                $years === 1 => 'سنة ونصف',
+                $years === 2 => 'سنتان ونصف',
+                default      => $yearsLabel . ' ونصف',
+            };
+        }
+
+        $restLabel = match (true) {
+            $rest === 1  => 'شهر',
+            $rest === 2  => 'شهران',
+            $rest <= 10  => $rest . ' أشهر',
+            default      => $rest . ' شهراً',
+        };
+
+        return $yearsLabel . ' و' . $restLabel;
+    }
+
     protected function casts(): array
     {
         return [

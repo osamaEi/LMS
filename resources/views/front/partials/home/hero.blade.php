@@ -1,6 +1,6 @@
 <section class="hero-section">
     <div class="hero-slides">
-        <div class="hero-slide active" style="background-image:url('{{ asset('english/' . rawurlencode('تصميم بدون عنوان (1).png')) }}');background-position:center center;"></div>
+        <div class="hero-slide active" style="background-image:url('{{ asset('english/hero-academy.png') }}');background-position:center center;"></div>
     </div>
     <div class="hero-vline"></div>
     <div class="hero-content">
