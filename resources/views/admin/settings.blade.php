@@ -76,20 +76,15 @@
                     @foreach($tabs as $tab)
                     @php $cnt = count($settings[$tab['id']] ?? []); @endphp
                     <button type="button" @click="activeTab = '{{ $tab['id'] }}'" :aria-current="activeTab === '{{ $tab['id'] }}' ? 'page' : null"
-                            x-bind:style="activeTab === '{{ $tab['id'] }}' ? 'background:linear-gradient(135deg,{{ $tab['grad'] }});color:white;box-shadow:0 3px 10px rgba(0,0,0,0.18);' : 'background:transparent;color:#374151;'"
-                            class="settings-nav-button" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;border:none;cursor:pointer;font-size:13px;font-weight:600;text-align:right;transition:all .15s;">
-                        <div x-bind:style="activeTab === '{{ $tab['id'] }}' ? 'background:rgba(255,255,255,0.22)' : 'background:{{ $tab['light'] }}'"
-                             style="width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;">
-                            <svg width="15" height="15" fill="none" viewBox="0 0 24 24"
-                                 x-bind:stroke="activeTab === '{{ $tab['id'] }}' ? 'white' : '{{ $tab['text'] }}'"
-                                 stroke-width="2">
+                            :class="{ 'is-active': activeTab === '{{ $tab['id'] }}' }" class="settings-nav-button">
+                        <div class="settings-nav-icon">
+                            <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="{{ $tab['icon'] }}"/>
                             </svg>
                         </div>
-                        <span style="flex:1;text-align:right;">{{ $tab['label'] }}</span>
+                        <span class="settings-nav-label">{{ $tab['label'] }}</span>
                         @if($cnt > 0)
-                        <span x-bind:style="activeTab === '{{ $tab['id'] }}' ? 'background:rgba(255,255,255,0.25);color:white;' : 'background:{{ $tab['light'] }};color:{{ $tab['text'] }};'"
-                              style="font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;transition:all .15s;flex-shrink:0;">{{ $cnt }}</span>
+                        <span class="settings-nav-count">{{ $cnt }}</span>
                         @endif
                     </button>
                     @endforeach
@@ -312,7 +307,13 @@ function testEmail() {
 .settings-sidebar { position: sticky; top: 20px; min-width: 0; }
 .settings-nav-card { background: #fff; border-radius: 16px; border: 1px solid #e3eaf0; overflow: hidden; box-shadow: 0 4px 18px rgba(21, 48, 71, .06); }
 .settings-nav { display: grid; gap: 4px; padding: 10px; }
-.settings-nav-button { width: 100%; margin: 0; }
+.settings-nav-button { display: flex !important; align-items: center; gap: 10px; width: 100% !important; min-height: 46px; margin: 0; padding: 9px 12px; border: 0; border-radius: 10px; background: #f6f8fb !important; color: #374151 !important; font-family: inherit; font-size: 13px; font-weight: 600; text-align: right; cursor: pointer; transition: background .15s, color .15s; }
+.settings-nav-button:hover { background: #eaf1f7 !important; }
+.settings-nav-button.is-active { background: #e2f2fa !important; color: #07517a !important; }
+.settings-nav-icon { display: flex; align-items: center; justify-content: center; flex: 0 0 28px; width: 28px; height: 28px; color: inherit; }
+.settings-nav-label { flex: 1; text-align: right; white-space: nowrap; }
+.settings-nav-count { flex: 0 0 auto; min-width: 22px; padding: 2px 6px; border-radius: 6px; background: #fff; color: #64748b; font-size: 11px; font-weight: 700; text-align: center; }
+.settings-nav-button.is-active .settings-nav-count { color: #07517a; }
 .settings-content { min-width: 0; }
 .settings-content > div > div { box-shadow: 0 4px 18px rgba(21, 48, 71, .06) !important; border-color: #e3eaf0 !important; }
 .settings-page input:focus-visible, .settings-page textarea:focus-visible, .settings-page select:focus-visible, .settings-page button:focus-visible, .settings-page label:focus-within { outline: 2px solid #087fad; outline-offset: 2px; }
@@ -320,7 +321,7 @@ function testEmail() {
     .settings-layout { grid-template-columns: minmax(0, 1fr); gap: 18px; }
     .settings-sidebar { position: static; }
     .settings-nav { display: flex; overflow-x: auto; gap: 8px; padding: 12px; scrollbar-width: thin; }
-    .settings-nav-button { width: auto; min-width: max-content; margin: 0; }
+    .settings-nav-button { width: auto !important; min-width: max-content; margin: 0; }
     .settings-cache { padding-top: 8px !important; }
 }
 @media (max-width: 600px) {
