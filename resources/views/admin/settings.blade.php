@@ -3,10 +3,10 @@
 @section('title', 'إعدادات النظام')
 
 @section('content')
-<div style="direction:rtl;font-family:'Segoe UI',sans-serif;" x-data="{ activeTab: 'general' }">
+<div class="settings-page" dir="rtl" x-data="{ activeTab: 'general' }">
 
     {{-- Hero --}}
-    <div style="background:linear-gradient(135deg,#0071AA 0%,#004d77 100%);border-radius:24px;padding:2rem 2.5rem;color:#fff;position:relative;overflow:hidden;margin-bottom:1.5rem;">
+    <div class="settings-hero">
         <div style="position:absolute;top:-40%;right:-10%;width:280px;height:280px;background:radial-gradient(circle,rgba(255,255,255,0.08) 0%,transparent 70%);border-radius:50%;pointer-events:none;"></div>
         <div style="position:absolute;bottom:-50%;left:5%;width:220px;height:220px;background:radial-gradient(circle,rgba(255,255,255,0.05) 0%,transparent 70%);border-radius:50%;pointer-events:none;"></div>
         <div style="position:relative;z-index:1;">
@@ -23,7 +23,7 @@
                 </div>
             </div>
             @php $totalSettings = collect($settings)->flatten(1)->count(); @endphp
-            <div style="display:flex;gap:1rem;flex-wrap:wrap;">
+            <div class="settings-summary">
                 <div style="background:rgba(255,255,255,0.15);border-radius:14px;padding:.75rem 1.25rem;text-align:center;">
                     <div style="font-size:1.4rem;font-weight:800;">{{ $totalSettings }}</div>
                     <div style="font-size:.72rem;opacity:.8;">إجمالي الإعدادات</div>
@@ -50,11 +50,11 @@
     </div>
     @endif
 
-    <div style="display:flex;gap:22px;align-items:flex-start;">
+    <div class="settings-layout">
 
         {{-- ── Sidebar ── --}}
-        <div style="width:260px;flex-shrink:0;position:sticky;top:20px;">
-            <div style="background:white;border-radius:16px;border:1px solid #e5e7eb;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.06);">
+        <div class="settings-sidebar">
+            <div class="settings-nav-card">
 
                 <div style="padding:14px 18px 10px;background:linear-gradient(135deg,#f8f9fa,#f0f4f8);border-bottom:1px solid #e5e7eb;">
                     <p style="font-size:11px;font-weight:700;color:#9ca3af;letter-spacing:1.2px;text-transform:uppercase;margin:0;">أقسام الإعدادات</p>
@@ -72,12 +72,12 @@
                 ];
                 @endphp
 
-                <nav style="padding:10px;">
+                <nav class="settings-nav" aria-label="أقسام الإعدادات">
                     @foreach($tabs as $tab)
                     @php $cnt = count($settings[$tab['id']] ?? []); @endphp
-                    <button @click="activeTab = '{{ $tab['id'] }}'"
+                    <button type="button" @click="activeTab = '{{ $tab['id'] }}'" :aria-current="activeTab === '{{ $tab['id'] }}' ? 'page' : null"
                             x-bind:style="activeTab === '{{ $tab['id'] }}' ? 'background:linear-gradient(135deg,{{ $tab['grad'] }});color:white;box-shadow:0 3px 10px rgba(0,0,0,0.18);' : 'background:transparent;color:#374151;'"
-                            style="width:100%;display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;border:none;cursor:pointer;font-size:13px;font-weight:600;text-align:right;transition:all .15s;margin-bottom:4px;">
+                            class="settings-nav-button" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;border:none;cursor:pointer;font-size:13px;font-weight:600;text-align:right;transition:all .15s;">
                         <div x-bind:style="activeTab === '{{ $tab['id'] }}' ? 'background:rgba(255,255,255,0.22)' : 'background:{{ $tab['light'] }}'"
                              style="width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;">
                             <svg width="15" height="15" fill="none" viewBox="0 0 24 24"
@@ -96,7 +96,7 @@
                 </nav>
 
                 {{-- Cache Clear --}}
-                <div style="padding:10px 12px 12px;border-top:1px solid #f3f4f6;">
+                <div class="settings-cache" style="padding:10px 12px 12px;border-top:1px solid #f3f4f6;">
                     <form action="{{ route('admin.settings.clear-cache') }}" method="POST">
                         @csrf
                         <button type="submit"
@@ -114,7 +114,7 @@
         </div>
 
         {{-- ── Content Area ── --}}
-        <div style="flex:1;min-width:0;">
+        <div class="settings-content">
 
             {{-- GENERAL --}}
             <div x-show="activeTab === 'general'" x-cloak>
@@ -301,5 +301,38 @@ function testEmail() {
     });
 }
 </script>
-<style>@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }</style>
+<style>
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.settings-page { font-family: 'Segoe UI', Tahoma, sans-serif; color: #17253a; max-width: 1440px; margin: 0 auto; }
+.settings-page [x-cloak] { display: none !important; }
+.settings-page *, .settings-page *::before, .settings-page *::after { box-sizing: border-box; }
+.settings-hero { background: linear-gradient(125deg, #07517a, #087fad); border-radius: 22px; padding: 28px 32px; color: #fff; position: relative; overflow: hidden; margin-bottom: 24px; box-shadow: 0 12px 28px rgba(0, 78, 119, .15); }
+.settings-summary { display: flex; gap: 12px; flex-wrap: wrap; }
+.settings-layout { display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 24px; align-items: start; }
+.settings-sidebar { position: sticky; top: 20px; min-width: 0; }
+.settings-nav-card { background: #fff; border-radius: 16px; border: 1px solid #e3eaf0; overflow: hidden; box-shadow: 0 4px 18px rgba(21, 48, 71, .06); }
+.settings-nav { display: grid; gap: 4px; padding: 10px; }
+.settings-nav-button { width: 100%; margin: 0; }
+.settings-content { min-width: 0; }
+.settings-content > div > div { box-shadow: 0 4px 18px rgba(21, 48, 71, .06) !important; border-color: #e3eaf0 !important; }
+.settings-page input:focus-visible, .settings-page textarea:focus-visible, .settings-page select:focus-visible, .settings-page button:focus-visible, .settings-page label:focus-within { outline: 2px solid #087fad; outline-offset: 2px; }
+@media (max-width: 900px) {
+    .settings-layout { grid-template-columns: minmax(0, 1fr); gap: 18px; }
+    .settings-sidebar { position: static; }
+    .settings-nav { display: flex; overflow-x: auto; gap: 8px; padding: 12px; scrollbar-width: thin; }
+    .settings-nav-button { width: auto; min-width: max-content; margin: 0; }
+    .settings-cache { padding-top: 8px !important; }
+}
+@media (max-width: 600px) {
+    .settings-hero { padding: 22px 18px; border-radius: 16px; margin-bottom: 16px; }
+    .settings-hero h1 { font-size: 1.35rem !important; }
+    .settings-summary > div { flex: 1; min-width: 110px; }
+    .settings-content > div > div { border-radius: 14px !important; }
+    .settings-content form { padding: 18px !important; }
+    .settings-content form > div:last-child { flex-wrap: wrap; }
+    .settings-content form > div:last-child button { justify-content: center; }
+    .settings-content form > div:last-child button:only-child { width: 100%; }
+    .settings-content h2 { line-height: 1.5; }
+}
+</style>
 @endsection
