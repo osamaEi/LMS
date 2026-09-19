@@ -88,7 +88,7 @@
                     <img src="{{ asset('images/logo.svg') }}" alt="ALERTIQA" style="height: 96px; width: auto;">
                 </div>
                 <h1 class="text-3xl font-bold mb-3">
-                    {{ app()->getLocale() === 'ar' ? 'منصة الإرتقاء التعليمية' : 'ALERTIQA Learning Platform' }}
+                    {{ app()->getLocale() === 'ar' ? 'منصة الارتقاء التعليمية' : 'ALERTIQA Learning Platform' }}
                 </h1>
                 <p class="text-base text-white/80 max-w-sm leading-relaxed">
                     {{ app()->getLocale() === 'ar'

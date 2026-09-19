@@ -142,7 +142,7 @@
             <div class="bg-white rounded-3xl px-8 py-6 shadow-2xl mb-8">
                 <img src="{{ asset('images/logo.svg') }}" alt="ALERTIQA" style="height: 96px; width: auto;">
             </div>
-            <h1 class="text-3xl font-bold mb-3">منصة الإرتقاء التعليمية</h1>
+            <h1 class="text-3xl font-bold mb-3">منصة الارتقاء التعليمية</h1>
             <p class="text-base text-white/80 max-w-sm leading-relaxed">
                 تابع دوراتك وجلساتك التدريبية وجدولك الدراسي في مكان واحد
             </p>
