@@ -35,6 +35,7 @@ class User extends Authenticatable
         'track_id',
         'current_term_number',
         'date_of_register',
+        'registration_ip',
         'is_terms',
         'is_confirm_user',
         'role',
@@ -91,6 +92,7 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'registration_ip',
     ];
 
     /**

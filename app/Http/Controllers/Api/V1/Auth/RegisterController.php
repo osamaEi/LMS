@@ -189,6 +189,7 @@ class RegisterController extends Controller
 
         try {
             $user = User::create([
+                'registration_ip'     => $request->ip(),
                 'name'                => $request->name,
                 'email'               => $request->email,
                 'phone'               => $phone,

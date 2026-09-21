@@ -1844,6 +1844,10 @@
                             <span class="value">{{ $student->created_at->format('Y/m/d') }}</span>
                         </div>
                         <div class="account-row">
+                            <span class="label">عنوان IP عند التسجيل</span>
+                            <span class="value" dir="ltr" style="overflow-wrap:anywhere">{{ $student->registration_ip ?? 'غير مسجل' }}</span>
+                        </div>
+                        <div class="account-row">
                             <span class="label">آخر تحديث</span>
                             <span class="value">{{ $student->updated_at->diffForHumans() }}</span>
                         </div>

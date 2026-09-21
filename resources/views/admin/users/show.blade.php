@@ -73,6 +73,10 @@
                             <span class="text-sm font-medium text-gray-900 dark:text-white">{{ $user->created_at->format('Y-m-d') }}</span>
                         </div>
                         <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600 dark:text-gray-400">عنوان IP عند التسجيل</span>
+                            <span class="text-sm font-medium text-gray-900 dark:text-white" dir="ltr" style="overflow-wrap:anywhere">{{ $user->registration_ip ?? 'غير مسجل' }}</span>
+                        </div>
+                        <div class="flex items-center justify-between">
                             <span class="text-sm text-gray-600 dark:text-gray-400">آخر تحديث</span>
                             <span class="text-sm font-medium text-gray-900 dark:text-white">{{ $user->updated_at->format('Y-m-d') }}</span>
                         </div>

@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>تسجيل حساب جديد - ALERTIQA</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -122,6 +122,31 @@
         }
         .btn-primary:hover { background-color: #0A5A86; }
         .btn-primary:disabled { opacity: .6; cursor: not-allowed; }
+
+        .consent-group { display: grid; gap: 10px; margin-bottom: 20px; }
+        .consent-card {
+            display: flex; align-items: flex-start; gap: 12px;
+            padding: 15px 16px; border: 1px solid #dbe4ed; border-radius: 12px;
+            background: #f8fafc; color: #334155; font-size: 14px; line-height: 1.9;
+            transition: border-color .2s, background .2s;
+        }
+        .consent-card:hover { border-color: #94b8cd; }
+        .consent-card:has(input:checked) { border-color: var(--blue); background: #eff8fc; }
+        .consent-card input {
+            width: 20px; height: 20px; flex-shrink: 0; margin-top: 3px;
+            accent-color: var(--navy); cursor: pointer;
+        }
+        .consent-card label { cursor: pointer; }
+        .consent-link { color: var(--navy); font-weight: 700; text-decoration: underline; text-underline-offset: 4px; }
+        .consent-link:hover { color: #08476a; }
+        .consent-link:focus-visible, .consent-card input:focus-visible {
+            outline: 2px solid var(--blue); outline-offset: 4px; border-radius: 3px;
+        }
+        .consent-hint { margin: 6px 0 0; color: #64748b; font-size: 12px; line-height: 1.7; }
+        @media (max-width: 639px) {
+            .registration-panel { padding: 24px 16px; }
+            #step3-form .consent-card { padding: 12px; gap: 10px; }
+        }
     </style>
 </head>
 <body>
@@ -150,7 +175,7 @@
     </div>
 
     {{-- ══ Right Panel (Form) ══ --}}
-    <div class="w-full lg:w-1/2 flex items-center justify-center p-8 overflow-y-auto" style="background:#ffffff;">
+    <div class="registration-panel w-full lg:w-1/2 flex items-center justify-center p-8 overflow-y-auto" style="background:#ffffff;">
         <div style="width:100%; max-width:520px; padding: 8px 0;">
 
             {{-- Logo at top --}}
@@ -418,21 +443,25 @@
                         </div>
 
                         {{-- ── Agreements ── --}}
-                        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;">
-                            <label id="confirm-box" style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:12px;border-radius:10px;border:1.5px solid #e2e8f0;background:#f8fafc;transition:border-color .2s;">
+                        <div class="consent-group">
+                            <div id="confirm-box" class="consent-card">
                                 <input type="checkbox" id="is_confirm_user" name="is_confirm_user" value="1"
-                                       style="width:16px;height:16px;flex-shrink:0;margin-top:2px;accent-color:#0A5A86;cursor:pointer;"
-                                       onchange="toggleCheckbox(this,'confirm-box')">
-                                <span style="font-size:12px;color:#374151;line-height:1.6;">أقر بأن جميع البيانات المدخلة صحيحة ومطابقة للهوية الرسمية.</span>
-                            </label>
+                                       aria-describedby="confirm-error">
+                                <label for="is_confirm_user">أقر بأن جميع البيانات المدخلة صحيحة ومطابقة للهوية الرسمية.</label>
+                            </div>
                             <p id="confirm-error" class="field-error" style="padding-right:4px;"></p>
 
-                            <label id="terms-box" style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:12px;border-radius:10px;border:1.5px solid #e2e8f0;background:#f8fafc;transition:border-color .2s;">
+                            <div id="terms-box" class="consent-card">
                                 <input type="checkbox" id="is_terms" name="is_terms" value="1"
-                                       style="width:16px;height:16px;flex-shrink:0;margin-top:2px;accent-color:#0A5A86;cursor:pointer;"
-                                       onchange="toggleCheckbox(this,'terms-box')">
-                                <span style="font-size:12px;color:#374151;line-height:1.6;">أوافق على الشروط والأحكام وسياسات الخصوصية.</span>
-                            </label>
+                                       aria-labelledby="terms-label terms-link privacy-link" aria-describedby="terms-hint terms-error">
+                                <div>
+                                    <label id="terms-label" for="is_terms">أوافق على</label>
+                                    <a id="terms-link" class="consent-link" href="{{ route('page.show', 'terms') }}" target="_blank" rel="noopener noreferrer">الشروط والأحكام</a>
+                                    <span>و</span>
+                                    <a id="privacy-link" class="consent-link" href="{{ route('page.show', 'privacy-policy') }}" target="_blank" rel="noopener noreferrer">سياسة الخصوصية</a>.
+                                    <p id="terms-hint" class="consent-hint">يمكنك قراءة السياسات في تبويب جديد دون فقدان بيانات التسجيل.</p>
+                                </div>
+                            </div>
                             <p id="terms-error" class="field-error" style="padding-right:4px;"></p>
                         </div>
 
@@ -619,12 +648,6 @@ function handleDrop(event, inputId, previewId, labelId) {
         previewFile(input, previewId, labelId);
     }
     document.getElementById(labelId).style.borderColor = '#0D6FA6';
-}
-
-function toggleCheckbox(cb, boxId) {
-    const box = document.getElementById(boxId);
-    box.style.borderColor = cb.checked ? '#0A5A86' : '#e2e8f0';
-    box.style.background  = cb.checked ? '#f0f4ff' : '#f8fafc';
 }
 
 // ── Step 3 submit ──

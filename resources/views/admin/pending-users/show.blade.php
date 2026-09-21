@@ -99,6 +99,10 @@
                     <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ $user->created_at->diffForHumans() }}</p>
                 </div>
                 <div>
+                    <label class="text-sm font-medium text-gray-600 dark:text-gray-400">عنوان IP عند التسجيل</label>
+                    <p class="text-base font-medium text-gray-900 dark:text-white mt-1" style="overflow-wrap:anywhere"><bdi dir="ltr">{{ $user->registration_ip ?? 'غير مسجل' }}</bdi></p>
+                </div>
+                <div>
                     <label class="text-sm font-medium text-gray-600 dark:text-gray-400">الحالة</label>
                     <p class="text-base font-medium text-gray-900 dark:text-white mt-1">
                         <span class="px-3 py-1 bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300 rounded-lg text-sm">

@@ -132,6 +132,7 @@ class RegisterController extends Controller
 
         try {
             $userData = [
+                'registration_ip'     => $request->ip(),
                 'name'                => $request->name,
                 'email'               => $request->email,
                 'phone'               => $phone,
