@@ -76,7 +76,7 @@ HTML;
                     'title_en' => $titleEn,
                     'content_ar' => $content,
                     // Fall back to the supplied Arabic text instead of an outdated translation.
-                    'content_en' => null,
+                    'content_en' => '',
                     'category' => 'legal',
                     'is_published' => true,
                     'version' => ($existing->version ?? 0) + 1,
