@@ -58,6 +58,12 @@
     flex-shrink: 0;
 }
 .page-content p { margin-bottom: 1.1rem; }
+.page-content ol {
+    list-style: decimal;
+    padding-inline-start: 1.75rem;
+    margin: .75rem 0 1.25rem;
+}
+.page-content ol > li { padding-inline-start: .25rem; margin-bottom: .5rem; }
 .page-content ul {
     margin: .75rem 0 1.25rem;
     padding: 0;
