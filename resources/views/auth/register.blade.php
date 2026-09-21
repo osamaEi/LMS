@@ -143,7 +143,6 @@
         .consent-link:focus-visible, .consent-card input:focus-visible {
             outline: 2px solid var(--blue); outline-offset: 4px; border-radius: 3px;
         }
-        .consent-hint { margin: 6px 0 0; color: #64748b; font-size: 12px; line-height: 1.7; }
         @media (max-width: 639px) {
             .registration-panel { padding: 24px 16px; }
             #step3-form .consent-card { padding: 2px 0; gap: 8px; }
@@ -454,7 +453,7 @@
 
                             <div id="terms-box" class="consent-card">
                                 <input type="checkbox" id="is_terms" name="is_terms" value="1"
-                                       required aria-labelledby="basic-consent-text" aria-describedby="terms-hint terms-error">
+                                       required aria-labelledby="basic-consent-text" aria-describedby="terms-error">
                                 <div>
                                     <span id="basic-consent-text">
                                     <label for="is_terms">أقر وأوافق على</label>
@@ -463,7 +462,6 @@
                                     <a id="privacy-link" class="consent-link" href="{{ route('page.show', 'privacy-policy') }}" target="_blank" rel="noopener noreferrer">سياسة الخصوصية</a>
                                     <label for="is_terms">الخاصة بـ أكاديمية الارتقاء للتدريب العالي، وأوافق على معالجة بياناتي الشخصية لأغراض تقديم الخدمات التدريبية وإصدار الشهادات.</label>
                                     </span>
-                                    <p id="terms-hint" class="consent-hint">يمكنك قراءة السياسات في تبويب جديد دون فقدان بيانات التسجيل.</p>
                                 </div>
                             </div>
                             <p id="terms-error" class="field-error" style="padding-right:4px;"></p>
@@ -471,7 +469,6 @@
                                 <input type="checkbox" id="marketing_consent" name="marketing_consent" value="1">
                                 <div>
                                     <label for="marketing_consent">{{ \App\Services\ConsentService::MARKETING }}</label>
-                                    <p class="consent-hint">اختياري — لا يؤثر على إنشاء حسابك أو الخدمات التدريبية.</p>
                                 </div>
                             </div>
                         </div>
