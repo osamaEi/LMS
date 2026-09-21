@@ -1159,11 +1159,7 @@ class ProgramController extends Controller
             ->where('status', 'active')
             ->firstOrFail();
 
-        $student->update([
-            'program_id' => $program->id,
-            'program_status' => 'pending',
-            'current_term_number' => 1,
-        ]);
+        app(\App\Services\ConsentService::class)->enroll($request, $student, $program);
 
         return response()->json([
             'success' => true,

@@ -324,6 +324,9 @@
                     @if($tamaraConfigured ?? false)
                     <form action="{{ route('student.payments.pay-tamara', $payment) }}" method="POST" class="inline">
                         @csrf
+                        @if($payment->program && !app(\App\Services\ConsentService::class)->hasCertificateConsent(auth()->user(), $payment->program))
+                            @include('student.partials.certificate-consent')
+                        @endif
                         <button type="submit" style="display:inline-flex;align-items:center;gap:.4rem;padding:.5rem 1.1rem;border-radius:10px;font-size:.8rem;font-weight:700;color:#fff;background:linear-gradient(135deg,#10b981,#059669);border:none;cursor:pointer;">
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
                             الدفع عبر تمارا
@@ -503,6 +506,9 @@
                 @else
                 <form action="{{ route('student.payments.upload-receipt', $payment) }}" method="POST" enctype="multipart/form-data" id="receiptForm">
                     @csrf
+                    @if($payment->program && !app(\App\Services\ConsentService::class)->hasCertificateConsent(auth()->user(), $payment->program))
+                        @include('student.partials.certificate-consent')
+                    @endif
 
                     {{-- Amount field --}}
                     <div style="margin-bottom:1rem;">

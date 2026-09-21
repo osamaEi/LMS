@@ -765,6 +765,7 @@ function switchProgTab(id) {
                             <form action="{{ route('student.enroll-program') }}" method="POST">
                                 @csrf
                                 <input type="hidden" name="program_id" value="{{ $availableProgram->id }}">
+                                @include('student.partials.certificate-consent')
                                 @if($availableProgram->price && $availableProgram->price > 0)
                                     <button type="submit" class="enroll-btn" style="background:{{ $gradient }};">
                                         التسجيل والدفع - {{ number_format($availableProgram->price, 2) }} <x-riyal />

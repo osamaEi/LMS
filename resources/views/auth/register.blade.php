@@ -454,16 +454,26 @@
 
                             <div id="terms-box" class="consent-card">
                                 <input type="checkbox" id="is_terms" name="is_terms" value="1"
-                                       aria-labelledby="terms-label terms-link privacy-link" aria-describedby="terms-hint terms-error">
+                                       required aria-labelledby="basic-consent-text" aria-describedby="terms-hint terms-error">
                                 <div>
-                                    <label id="terms-label" for="is_terms">أوافق على</label>
-                                    <a id="terms-link" class="consent-link" href="{{ route('page.show', 'terms') }}" target="_blank" rel="noopener noreferrer">الشروط والأحكام</a>
+                                    <span id="basic-consent-text">
+                                    <label for="is_terms">أقر وأوافق على</label>
+                                    <a id="terms-link" class="consent-link" href="{{ route('page.show', 'terms') }}" target="_blank" rel="noopener noreferrer">شروط وأحكام الاستخدام</a>
                                     <span>و</span>
-                                    <a id="privacy-link" class="consent-link" href="{{ route('page.show', 'privacy-policy') }}" target="_blank" rel="noopener noreferrer">سياسة الخصوصية</a>.
+                                    <a id="privacy-link" class="consent-link" href="{{ route('page.show', 'privacy-policy') }}" target="_blank" rel="noopener noreferrer">سياسة الخصوصية</a>
+                                    <label for="is_terms">الخاصة بـ أكاديمية الارتقاء للتدريب العالي، وأوافق على معالجة بياناتي الشخصية لأغراض تقديم الخدمات التدريبية وإصدار الشهادات.</label>
+                                    </span>
                                     <p id="terms-hint" class="consent-hint">يمكنك قراءة السياسات في تبويب جديد دون فقدان بيانات التسجيل.</p>
                                 </div>
                             </div>
                             <p id="terms-error" class="field-error" style="padding-right:4px;"></p>
+                            <div class="consent-card">
+                                <input type="checkbox" id="marketing_consent" name="marketing_consent" value="1">
+                                <div>
+                                    <label for="marketing_consent">{{ \App\Services\ConsentService::MARKETING }}</label>
+                                    <p class="consent-hint">اختياري — لا يؤثر على إنشاء حسابك أو الخدمات التدريبية.</p>
+                                </div>
+                            </div>
                         </div>
 
                         <div id="step3-error" style="display:none;background:#fff7ed;border:1px solid #fde68a;border-right:3px solid #f59e0b;border-radius:10px;padding:12px 14px;font-size:13px;color:#92400e;margin-bottom:12px;"></div>

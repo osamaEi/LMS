@@ -3,6 +3,7 @@
 @section('title', 'المستخدم: ' . $user->name)
 
 @section('content')
+@include('admin.partials.consent-records', ['consentUser' => $user])
 <div class="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Header -->

@@ -89,6 +89,8 @@ class PaymentController extends Controller
             'amount.min'       => 'المبلغ يجب أن يكون أكبر من صفر',
         ]);
 
+        app(\App\Services\ConsentService::class)->ensurePaymentConsent($request, $payment);
+
         $path = $request->file('receipt')->store('receipts', 'public');
 
         PaymentTransaction::create([
@@ -110,7 +112,7 @@ class PaymentController extends Controller
     /**
      * Initiate Tamara payment
      */
-    public function payWithTamara(Payment $payment)
+    public function payWithTamara(Request $request, Payment $payment)
     {
         // Ensure student can only pay their own payments
         if ($payment->user_id !== auth()->id()) {
@@ -132,6 +134,8 @@ class PaymentController extends Controller
             return redirect()->route('student.payments.show', $payment)
                 ->with('error', 'الدفعة ملغاة');
         }
+
+        app(\App\Services\ConsentService::class)->ensurePaymentConsent($request, $payment);
 
         try {
             $user = auth()->user();
@@ -212,4 +216,3 @@ class PaymentController extends Controller
     }
 
 }
-

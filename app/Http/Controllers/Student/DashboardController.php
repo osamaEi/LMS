@@ -907,11 +907,7 @@ class DashboardController extends Controller
 
         $isPaid = $program->price && $program->price > 0;
 
-        $student->update([
-            'program_id' => $program->id,
-            'program_status' => 'pending',
-            'current_term_number' => 1,
-        ]);
+        app(\App\Services\ConsentService::class)->enroll($request, $student, $program);
 
         if ($isPaid) {
             return redirect()->route('student.my-program')

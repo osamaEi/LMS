@@ -92,6 +92,7 @@ class RegisterController extends Controller
             'certificate'           => 'required|file|mimes:pdf|max:10240',
             'is_confirm_user'       => 'required|accepted',
             'is_terms'              => 'required|accepted',
+            'marketing_consent'     => 'sometimes|boolean',
         ], [
             'name.required'               => 'ÃƒËœÃ‚Â§Ãƒâ„¢Ã¢â‚¬Å¾ÃƒËœÃ‚Â§ÃƒËœÃ‚Â³Ãƒâ„¢Ã¢â‚¬Â¦ Ãƒâ„¢Ã¢â‚¬Â¦ÃƒËœÃ‚Â·Ãƒâ„¢Ã¢â‚¬Å¾Ãƒâ„¢Ã‹â€ ÃƒËœÃ‚Â¨',
             'email.required'              => 'ÃƒËœÃ‚Â§Ãƒâ„¢Ã¢â‚¬Å¾ÃƒËœÃ‚Â¨ÃƒËœÃ‚Â±Ãƒâ„¢Ã…Â ÃƒËœÃ‚Â¯ ÃƒËœÃ‚Â§Ãƒâ„¢Ã¢â‚¬Å¾ÃƒËœÃ‚Â¥Ãƒâ„¢Ã¢â‚¬Å¾Ãƒâ„¢Ã†â€™ÃƒËœÃ‚ÂªÃƒËœÃ‚Â±Ãƒâ„¢Ã‹â€ Ãƒâ„¢Ã¢â‚¬Â Ãƒâ„¢Ã…Â  Ãƒâ„¢Ã¢â‚¬Â¦ÃƒËœÃ‚Â·Ãƒâ„¢Ã¢â‚¬Å¾Ãƒâ„¢Ã‹â€ ÃƒËœÃ‚Â¨',
@@ -152,7 +153,7 @@ class RegisterController extends Controller
                 'phone_verified_at'   => now(),
             ];
 
-            $user = User::create($userData);
+            $user = app(\App\Services\ConsentService::class)->register($request, $userData);
 
             // Store national ID images and certificate in student_documents
             foreach (['national_id_front', 'national_id_back', 'certificate'] as $field) {

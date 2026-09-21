@@ -140,6 +140,7 @@ class RegisterController extends Controller
             'certificate'           => 'required|string|max:255',
             'is_confirm_user'       => 'required|accepted',
             'is_terms'              => 'required|accepted',
+            'marketing_consent'     => 'sometimes|boolean',
         ], [
             'phone.required'              => 'رقم الجوال مطلوب',
             'phone.regex'                 => 'رقم الجوال غير صالح (مثال: 0512345678)',
@@ -188,7 +189,7 @@ class RegisterController extends Controller
         }
 
         try {
-            $user = User::create([
+            $user = app(\App\Services\ConsentService::class)->register($request, [
                 'registration_ip'     => $request->ip(),
                 'name'                => $request->name,
                 'email'               => $request->email,

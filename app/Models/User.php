@@ -50,6 +50,11 @@ class User extends Authenticatable
         'zoom_join_url',
     ];
 
+    public function consentRecords()
+    {
+        return $this->hasMany(ConsentRecord::class)->orderByDesc('id');
+    }
+
     protected static function booted(): void
     {
         static::creating(function (User $user) {

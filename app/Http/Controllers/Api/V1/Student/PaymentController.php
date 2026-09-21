@@ -101,6 +101,8 @@ class PaymentController extends Controller
             ], 422);
         }
 
+        app(\App\Services\ConsentService::class)->ensurePaymentConsent($request, $payment);
+
         // Handle receipt: file upload or string URL
         $receiptPath = null;
         if ($request->hasFile('receipt')) {
@@ -142,7 +144,7 @@ class PaymentController extends Controller
      * POST /api/v1/student/payments/{id}/pay-with-tamara
      * Initiate Tamara payment
      */
-    public function payWithTamara($id)
+    public function payWithTamara(Request $request, $id)
     {
         $user = auth()->user();
 
@@ -168,6 +170,8 @@ class PaymentController extends Controller
                 'message' => 'الدفعة ملغاة',
             ], 422);
         }
+
+        app(\App\Services\ConsentService::class)->ensurePaymentConsent($request, $payment);
 
         try {
             $studentInfo = [

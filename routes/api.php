@@ -21,6 +21,7 @@ Route::post('/zoom/webhook', [App\Http\Controllers\Admin\ZoomWebhookController::
 Route::prefix('v1')->group(function () {
 
     // Public Routes
+    Route::get('/consents', App\Http\Controllers\Api\V1\ConsentController::class);
     Route::get('/programs', [App\Http\Controllers\Api\V1\ProgramController::class, 'index']);
     Route::get('/programs/{program}', [App\Http\Controllers\Api\V1\ProgramController::class, 'show']);
 

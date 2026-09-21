@@ -1269,6 +1269,7 @@
 @endpush
 
 @section('content')
+@include('admin.partials.consent-records', ['consentUser' => $student])
 @php
     $completedEnrollments = $student->enrollments->where('status', 'completed')->whereNotNull('final_grade');
     $averageGrade = $completedEnrollments->count() > 0 ? $completedEnrollments->avg('final_grade') : 0;

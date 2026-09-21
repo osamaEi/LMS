@@ -3,6 +3,7 @@
 @section('title', 'تفاصيل الطلب - ' . $user->name)
 
 @section('content')
+@include('admin.partials.consent-records', ['consentUser' => $user])
 <div class="space-y-6">
     <!-- Header with Actions -->
     <div class="flex items-center justify-between">
