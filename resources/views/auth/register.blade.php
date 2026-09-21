@@ -123,15 +123,12 @@
         .btn-primary:hover { background-color: #0A5A86; }
         .btn-primary:disabled { opacity: .6; cursor: not-allowed; }
 
-        .consent-group { display: grid; gap: 10px; margin-bottom: 20px; }
+        .consent-group { display: grid; gap: 12px; margin-bottom: 20px; }
         .consent-card {
-            display: flex; align-items: flex-start; gap: 12px;
-            padding: 15px 16px; border: 1px solid #dbe4ed; border-radius: 12px;
-            background: #f8fafc; color: #334155; font-size: 14px; line-height: 1.9;
-            transition: border-color .2s, background .2s;
+            display: flex; align-items: flex-start; gap: 10px;
+            padding: 2px 0; border: 0; background: transparent;
+            color: #334155; font-size: 14px; line-height: 1.9;
         }
-        .consent-card:hover { border-color: #94b8cd; }
-        .consent-card:has(input:checked) { border-color: var(--blue); background: #eff8fc; }
         .consent-card input {
             width: 20px; height: 20px; flex-shrink: 0; margin-top: 3px;
             accent-color: var(--navy); cursor: pointer;
@@ -145,7 +142,7 @@
         .consent-hint { margin: 6px 0 0; color: #64748b; font-size: 12px; line-height: 1.7; }
         @media (max-width: 639px) {
             .registration-panel { padding: 24px 16px; }
-            #step3-form .consent-card { padding: 12px; gap: 10px; }
+            #step3-form .consent-card { padding: 2px 0; gap: 8px; }
         }
     </style>
 </head>
