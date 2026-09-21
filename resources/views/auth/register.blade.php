@@ -103,8 +103,8 @@
 
         /* ── Upload zone ── */
         .upload-zone {
-            border: 2px dashed #cbd5e1; border-radius: 8px;
-            background: #fff; min-height: 88px;
+            border: 2px dashed #cbd5e1; border-radius: 10px;
+            background: #f9fafb; min-height: 88px;
             display: flex; flex-direction: column;
             align-items: center; justify-content: center;
             cursor: pointer; padding: 10px; transition: border-color .2s;
@@ -123,7 +123,11 @@
         .btn-primary:hover { background-color: #0A5A86; }
         .btn-primary:disabled { opacity: .6; cursor: not-allowed; }
 
-        .consent-group { display: grid; gap: 12px; margin-bottom: 20px; }
+        .consent-group {
+            display: grid; gap: 12px;
+            margin: 4px 0 22px; padding-top: 16px;
+            border-top: 1px solid #eef2f6;
+        }
         .consent-card {
             display: flex; align-items: flex-start; gap: 10px;
             padding: 2px 0; border: 0; background: transparent;
@@ -152,7 +156,7 @@
 
     {{-- ══ Left Panel: Branded (matches login) ══ --}}
     <div class="hidden lg:flex lg:w-1/2 relative overflow-hidden"
-         style="background: linear-gradient(135deg, #0A5A86 0%, #0D6FA6 55%, #1283c0 100%);">
+         style="background: linear-gradient(135deg, #0A5A86 0%, #0D6FA6 55%, #1283c0 100%); position:sticky; top:0; height:100vh; align-self:flex-start;">
 
         {{-- Decorative shapes --}}
         <div class="absolute -top-24 -right-24 w-96 h-96 rounded-full" style="background: rgba(255,255,255,0.06);"></div>
@@ -172,8 +176,8 @@
     </div>
 
     {{-- ══ Right Panel (Form) ══ --}}
-    <div class="registration-panel w-full lg:w-1/2 flex items-center justify-center p-8 overflow-y-auto" style="background:#ffffff;">
-        <div style="width:100%; max-width:520px; padding: 8px 0;">
+    <div class="registration-panel w-full lg:w-1/2 flex items-center justify-center p-8" style="background:#ffffff;min-height:100vh;">
+        <div style="width:100%; max-width:560px; padding: 8px 0;">
 
             {{-- Logo at top --}}
             <div class="text-center mb-8">
@@ -263,7 +267,7 @@
 
             <div id="step3" class="step">
                 {{-- Header bar --}}
-                <div style="background:linear-gradient(135deg,#0A5A86,#1283c0);border-radius:20px 20px 0 0;padding:20px 24px;display:flex;align-items:center;gap:14px;">
+                <div style="background:linear-gradient(135deg,#0A5A86,#1283c0);border-radius:18px;padding:18px 22px;display:flex;align-items:center;gap:14px;box-shadow:0 8px 20px rgba(13,111,166,.18);">
                     <div style="width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
                         <svg style="width:20px;height:20px;color:white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
@@ -285,7 +289,7 @@
                 </div>
 
                 {{-- Verified info strip --}}
-                <div style="background:#f0fdf4;border-right:4px solid #22c55e;padding:10px 16px;display:flex;align-items:center;gap:12px;">
+                <div style="background:#f0fdf4;border-right:4px solid #22c55e;border-radius:12px;margin-top:12px;padding:10px 16px;display:flex;align-items:center;gap:12px;">
                     <svg style="width:16px;height:16px;color:#16a34a;flex-shrink:0;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
                     </svg>
@@ -297,8 +301,8 @@
                     <span id="display-national-id" style="font-size:12px;font-weight:700;color:#166534;" dir="ltr">—</span>
                 </div>
 
-                <div style="background:white;border-radius:0 0 20px 20px;box-shadow:0 1px 3px rgba(0,0,0,.05);border:1px solid #e5e7eb;border-top:none;">
-                    <form id="step3-form" style="max-height:60vh;overflow-y:auto;padding:20px;">
+                <div>
+                    <form id="step3-form" style="padding:22px 2px 0;">
                         <input type="hidden" id="step3-phone" name="phone">
                         <input type="hidden" id="step3-national-id" name="national_id">
 
