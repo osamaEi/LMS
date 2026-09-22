@@ -110,7 +110,7 @@ class ApiRegistrationDocumentStringsTest extends TestCase
         ]);
     }
 
-    public function test_certificate_is_required_but_identity_images_are_optional(): void
+    public function test_registration_accepts_empty_optional_documents(): void
     {
         $this->verifiedOtp();
 
@@ -119,9 +119,11 @@ class ApiRegistrationDocumentStringsTest extends TestCase
             'national_id_back' => null,
             'certificate' => null,
         ]))
-            ->assertStatus(422)
-            ->assertJsonValidationErrors(['certificate'])
-            ->assertJsonMissingValidationErrors(['national_id_front', 'national_id_back']);
+            ->assertCreated()
+            ->assertJson(['success' => true]);
+
+        $user = User::where('email', $this->email)->firstOrFail();
+        $this->assertSame(0, StudentDocument::where('user_id', $user->id)->count());
     }
 
     public function test_api_registration_stores_connection_ip_instead_of_submitted_ip(): void

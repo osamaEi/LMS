@@ -118,7 +118,7 @@ class RegisterController extends Controller
      *   phone, national_id, name, email, password, password_confirmation,
      *   date_of_birth, gender, nationality,
      *   specialization, specialization_type, date_of_graduation,
-     *   national_id_front (optional path), national_id_back (optional path), certificate (path),
+     *   national_id_front (optional path), national_id_back (optional path), certificate (optional path),
      *   is_confirm_user (1), is_terms (1)
      */
     public function register(Request $request)
@@ -137,7 +137,7 @@ class RegisterController extends Controller
             'date_of_graduation'    => 'required|date', 
             'national_id_front'     => 'nullable|string|max:255',
             'national_id_back'      => 'nullable|string|max:255',
-            'certificate'           => 'required|string|max:255',
+            'certificate'           => 'nullable|string|max:255',
             'is_confirm_user'       => 'required|accepted',
             'is_terms'              => 'required|accepted',
             'marketing_consent'     => 'sometimes|boolean',
@@ -163,7 +163,6 @@ class RegisterController extends Controller
             'date_of_graduation.required' => 'تاريخ التخرج مطلوب',
             'national_id_front.max'       => 'مسار صورة الهوية الأمامية طويل جداً',
             'national_id_back.max'        => 'مسار صورة الهوية الخلفية طويل جداً',
-            'certificate.required'        => 'الشهادة مطلوبة',
             'certificate.max'             => 'مسار الشهادة طويل جداً',
             'is_confirm_user.accepted'    => 'يجب الإقرار بصحة البيانات المدخلة',
             'is_terms.accepted'           => 'يجب الموافقة على الشروط والأحكام',

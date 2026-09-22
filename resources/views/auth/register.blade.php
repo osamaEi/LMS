@@ -425,7 +425,7 @@
                                 <span style="font-size:13px;font-weight:700;color:#0A5A86;">المستندات المطلوبة</span>
                             </div>
                             <div>
-                                <label class="field-label">الشهادة <span style="color:#ef4444;">*</span></label>
+                                <label class="field-label" for="certificate">الشهادة (اختياري)</label>
                                 <label id="cert-label" for="certificate" class="upload-zone" style="min-height:72px;"
                                        ondragover="event.preventDefault();this.style.borderColor='#0D6FA6'"
                                        ondragleave="this.style.borderColor='#94a3b8'"
@@ -436,7 +436,7 @@
                                         </svg>
                                         <p style="font-size:11px;color:#0D6FA6;font-weight:600;margin:0;">ارفع الشهادة (PDF)</p>
                                     </div>
-                                    <input type="file" id="certificate" name="certificate" accept=".pdf" required class="hidden" onchange="previewFile(this,'cert-preview','cert-label')">
+                                    <input type="file" id="certificate" name="certificate" accept=".pdf" class="hidden" onchange="previewFile(this,'cert-preview','cert-label')">
                                 </label>
                                 <p id="cert-error" class="field-error"></p>
                             </div>
@@ -688,7 +688,6 @@ document.getElementById('step3-form').addEventListener('submit', async function(
     if (pw.length < 8) { showFieldError('password-error', 'كلمة المرور 8 أحرف على الأقل'); valid = false; }
     else if (pw !== pwc) { showFieldError('password-error', 'تأكيد كلمة المرور غير متطابق'); valid = false; }
 
-    if (!document.getElementById('certificate').files.length)        { showFieldError('cert-error',  'الشهادة مطلوبة'); valid = false; }
     if (!document.getElementById('is_confirm_user').checked) { showFieldError('confirm-error', 'يجب الإقرار بصحة البيانات'); valid = false; }
     if (!document.getElementById('is_terms').checked)         { showFieldError('terms-error',   'يجب الموافقة على الشروط'); valid = false; }
 

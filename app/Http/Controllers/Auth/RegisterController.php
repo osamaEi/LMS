@@ -89,7 +89,7 @@ class RegisterController extends Controller
             'specialization'        => 'required|string|max:255',
             'specialization_type'   => 'required|string|max:255',
             'date_of_graduation'    => 'required|date',
-            'certificate'           => 'required|file|mimes:pdf|max:10240',
+            'certificate'           => 'nullable|file|mimes:pdf|max:10240',
             'is_confirm_user'       => 'required|accepted',
             'is_terms'              => 'required|accepted',
             'marketing_consent'     => 'sometimes|boolean',
