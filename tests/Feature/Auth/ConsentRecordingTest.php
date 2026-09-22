@@ -28,6 +28,7 @@ class ConsentRecordingTest extends TestCase
             $table->string('name');
             $table->string('email')->unique();
             $table->string('national_id')->nullable();
+            $table->timestamp('phone_verified_at')->nullable();
             $table->string('student_code')->nullable();
             $table->string('role')->default('student');
             $table->string('status')->default('active');
@@ -87,6 +88,17 @@ class ConsentRecordingTest extends TestCase
     {
         $user = app(ConsentService::class)->register($this->request(['is_terms' => 1, 'marketing_consent' => 1]), $this->attributes());
         $this->assertTrue($user->consentRecords()->where('type', 'marketing')->firstOrFail()->accepted);
+    }
+
+    public function test_registration_persists_server_verified_phone_timestamp(): void
+    {
+        $verifiedAt = now()->startOfSecond();
+        $user = app(ConsentService::class)->register(
+            $this->request(['is_terms' => 1, 'phone_verified_at' => '2000-01-01']),
+            array_merge($this->attributes(), ['phone_verified_at' => $verifiedAt]),
+        );
+        $this->assertTrue($user->fresh()->phone_verified_at->equalTo($verifiedAt));
+        $this->assertNull($user->fresh()->email_verified_at);
     }
 
     public function test_basic_consent_cannot_be_omitted(): void

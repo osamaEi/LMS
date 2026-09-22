@@ -23,7 +23,11 @@ class ConsentService
             'marketing_consent' => 'sometimes|boolean',
         ]);
         return DB::transaction(function () use ($request, $attributes) {
-            $user = User::create($attributes);
+            $user = new User($attributes);
+            // Verification timestamps are guarded from mass assignment and supplied
+            // by the registration controllers only after successful OTP verification.
+            $user->phone_verified_at = $attributes['phone_verified_at'] ?? null;
+            $user->save();
             $policies = Page::whereIn('slug', ['terms', 'privacy-policy'])
                 ->where('is_published', true)
                 ->get(['slug', 'version', 'title_ar', 'content_ar', 'title_en', 'content_en'])
