@@ -118,7 +118,7 @@ class RegisterController extends Controller
      *   phone, national_id, name, email, password, password_confirmation,
      *   date_of_birth, gender, nationality,
      *   specialization, specialization_type, date_of_graduation,
-     *   national_id_front (file), national_id_back (file), certificate (file),
+     *   national_id_front (optional path), national_id_back (optional path), certificate (path),
      *   is_confirm_user (1), is_terms (1)
      */
     public function register(Request $request)
@@ -134,9 +134,9 @@ class RegisterController extends Controller
             'nationality'           => 'required|string|max:100',
             'specialization'        => 'required|string|max:255',
             'specialization_type'   => 'required|string|max:255',
-            'date_of_graduation'    => 'required|date',
-            'national_id_front'     => 'required|string|max:255',
-            'national_id_back'      => 'required|string|max:255',
+            'date_of_graduation'    => 'required|date', 
+            'national_id_front'     => 'nullable|string|max:255',
+            'national_id_back'      => 'nullable|string|max:255',
             'certificate'           => 'required|string|max:255',
             'is_confirm_user'       => 'required|accepted',
             'is_terms'              => 'required|accepted',
@@ -161,9 +161,7 @@ class RegisterController extends Controller
             'specialization.required'     => 'نوع المؤهل مطلوب',
             'specialization_type.required'=> 'المؤهل التعليمي  مطلوب',
             'date_of_graduation.required' => 'تاريخ التخرج مطلوب',
-            'national_id_front.required'  => 'صورة الهوية الأمامية مطلوبة',
             'national_id_front.max'       => 'مسار صورة الهوية الأمامية طويل جداً',
-            'national_id_back.required'   => 'صورة الهوية الخلفية مطلوبة',
             'national_id_back.max'        => 'مسار صورة الهوية الخلفية طويل جداً',
             'certificate.required'        => 'الشهادة مطلوبة',
             'certificate.max'             => 'مسار الشهادة طويل جداً',

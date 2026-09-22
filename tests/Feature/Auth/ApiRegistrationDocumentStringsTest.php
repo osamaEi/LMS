@@ -110,16 +110,18 @@ class ApiRegistrationDocumentStringsTest extends TestCase
         ]);
     }
 
-    public function test_document_strings_are_still_required(): void
+    public function test_certificate_is_required_but_identity_images_are_optional(): void
     {
         $this->verifiedOtp();
 
         $this->postJson('/api/v1/auth/register', $this->payload([
             'national_id_front' => '',
+            'national_id_back' => null,
             'certificate' => null,
         ]))
             ->assertStatus(422)
-            ->assertJsonValidationErrors(['national_id_front', 'certificate']);
+            ->assertJsonValidationErrors(['certificate'])
+            ->assertJsonMissingValidationErrors(['national_id_front', 'national_id_back']);
     }
 
     public function test_api_registration_stores_connection_ip_instead_of_submitted_ip(): void

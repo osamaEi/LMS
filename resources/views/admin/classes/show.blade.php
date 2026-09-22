@@ -72,7 +72,7 @@
 @php $isDiplomaClass = $class->program && $class->program->type === 'diploma'; @endphp
 
 {{-- Tabs --}}
-<div style="display:flex;align-items:center;gap:4px;background:#f1f5f9;border-radius:12px;padding:4px;margin-bottom:20px;width:fit-content;">
+<div style="display:flex;flex-wrap:wrap;align-items:center;gap:4px;background:#f1f5f9;border-radius:12px;padding:4px;margin-bottom:20px;width:fit-content;max-width:100%;">
     <button onclick="switchClassTab('students')" id="ctab-btn-students"
         style="padding:8px 18px;border-radius:9px;font-size:13px;font-weight:700;border:none;cursor:pointer;transition:all .15s;background:white;color:#1e293b;box-shadow:0 1px 4px rgba(0,0,0,.08);">
         الطلاب
@@ -90,11 +90,8 @@
         <span style="background:#ede9fe;color:#7c3aed;border-radius:9999px;padding:.1rem .5rem;font-size:.65rem;margin-right:4px;font-weight:700;">{{ $class->terms->count() }}</span>
     </button>
     @endif
-</div>
-
-<div class="flex flex-wrap gap-2 mb-5">
-    <button type="button" onclick="switchClassTab('files')" id="ctab-btn-files" class="px-4 py-2 rounded-lg border text-sm font-bold">الملفات ({{ $subjectFiles->total() + $sessionFiles->total() }})</button>
-    <button type="button" onclick="switchClassTab('homeworks')" id="ctab-btn-homeworks" class="px-4 py-2 rounded-lg border text-sm font-bold">الواجبات ({{ $homeworks->total() }})</button>
+    <button type="button" onclick="switchClassTab('files')" id="ctab-btn-files" style="padding:8px 18px;border-radius:9px;font-size:13px;font-weight:700;border:none;cursor:pointer;background:transparent;color:#64748b;">الملفات <span style="background:#e0f2fe;color:#0369a1;border-radius:20px;padding:2px 8px;font-size:11px;">{{ $subjectFiles->total() + $sessionFiles->total() }}</span></button>
+    <button type="button" onclick="switchClassTab('homeworks')" id="ctab-btn-homeworks" style="padding:8px 18px;border-radius:9px;font-size:13px;font-weight:700;border:none;cursor:pointer;background:transparent;color:#64748b;">الواجبات <span style="background:#ede9fe;color:#7c3aed;border-radius:20px;padding:2px 8px;font-size:11px;">{{ $homeworks->total() }}</span></button>
 </div>
 
 {{-- Tab contents --}}
