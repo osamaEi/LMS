@@ -164,10 +164,18 @@ class HomeworkService
             $payload['file_name'] = basename($fileUrl);
         }
 
-        return HomeworkSubmission::updateOrCreate(
-            ['homework_id' => $homework->id, 'student_id' => $student->id],
-            $payload
-        );
+        // A resubmission replaces the previous attempt outright: the old row and
+        // its stored file go away, so no grade or feedback carries over and no
+        // orphaned upload is left behind.
+        $previous = HomeworkSubmission::where('homework_id', $homework->id)
+            ->where('student_id', $student->id)
+            ->get();
+
+        foreach ($previous as $submission) {
+            $this->deleteSubmission($submission);
+        }
+
+        return HomeworkSubmission::create($payload);
     }
 
     /**
