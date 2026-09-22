@@ -138,6 +138,7 @@ Route::prefix('v1')->group(function () {
             Route::get('/files-by/{key}', [App\Http\Controllers\Api\V1\Student\ProgramController::class, 'filesByKey']);
             Route::get('/homework-by/{key}', [App\Http\Controllers\Api\V1\Student\ProgramController::class, 'homeworkByKey']);
             Route::get('/term-attendance', [App\Http\Controllers\Api\V1\Student\ProgramController::class, 'termAttendance']);
+            Route::get('/attendance-alerts', App\Http\Controllers\Api\V1\Student\AttendanceAlertController::class);
             Route::post('/enroll-program', [App\Http\Controllers\Api\V1\Student\ProgramController::class, 'enroll']);
 
             // Quizzes

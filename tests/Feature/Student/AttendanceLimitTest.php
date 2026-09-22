@@ -23,7 +23,7 @@ class AttendanceLimitTest extends TestCase
             $t->id(); $t->string('key'); $t->string('value'); $t->string('type')->default('string'); $t->timestamps();
         });
         Schema::create('subjects', function (Blueprint $t) {
-            $t->id(); $t->float('absence_limit_percent')->nullable(); $t->integer('term_id')->nullable(); $t->softDeletes();
+            $t->id(); $t->string('name_ar')->default('مادة اختبار'); $t->string('name_en')->nullable(); $t->float('absence_limit_percent')->nullable(); $t->integer('term_id')->nullable(); $t->softDeletes();
         });
         Schema::create('class_sessions', function (Blueprint $t) {
             $t->id(); $t->integer('subject_id'); $t->string('status'); $t->timestamp('ended_at')->nullable(); $t->softDeletes();
@@ -94,5 +94,61 @@ class AttendanceLimitTest extends TestCase
                 ->assertForbidden()->assertJson(['success' => false]);
         }
         $this->assertEquals(0, DB::table('attendances')->where('session_id', 4)->value('attended'));
+    }
+
+    private function authenticateAlertStudent(int $id = 1): void
+    {
+        $student = new User;
+        $student->forceFill(['id' => $id, 'role' => 'student', 'status' => 'active']);
+        \Laravel\Sanctum\Sanctum::actingAs($student);
+    }
+
+    public function test_alerts_require_authentication(): void
+    {
+        $this->getJson('/api/v1/student/attendance-alerts')->assertUnauthorized();
+    }
+
+    public function test_alerts_follow_the_actual_join_limit_and_warning_boundary(): void
+    {
+        $this->authenticateAlertStudent();
+        $this->getJson('/api/v1/student/attendance-alerts')->assertOk()
+            ->assertJsonPath('data.alerts.0.code', 'absence_limit_exceeded')
+            ->assertJsonPath('data.alerts.0.blocked', true)
+            ->assertJsonPath('data.alerts.0.absent_sessions', 3);
+
+        DB::table('attendances')->where('session_id', 3)->update(['attended' => true]);
+        $this->getJson('/api/v1/student/attendance-alerts')->assertOk()
+            ->assertJsonPath('data.alerts.0.severity', 'warning')
+            ->assertJsonPath('data.alerts.0.blocked', false)
+            ->assertJsonPath('data.alerts.0.remaining_allowed_absences', 0);
+
+        DB::table('attendance_apologies')->insert(['student_id' => 1, 'session_id' => 2, 'status' => 'approved']);
+        $this->getJson('/api/v1/student/attendance-alerts')->assertOk()
+            ->assertJsonPath('data.alerts.0.remaining_allowed_absences', 1)
+            ->assertJsonPath('data.alerts.0.excused_sessions', 1);
+
+        DB::table('attendances')->where('session_id', 1)->update(['attended' => true]);
+        $this->getJson('/api/v1/student/attendance-alerts')->assertOk()
+            ->assertJsonPath('data.has_alerts', false)->assertJsonPath('data.alerts', []);
+    }
+
+    public function test_alerts_respect_subject_override_exemption_and_disabled_limit(): void
+    {
+        $this->authenticateAlertStudent();
+        DB::table('subjects')->update(['absence_limit_percent' => 60]);
+        $this->getJson('/api/v1/student/attendance-alerts')->assertOk()->assertJsonPath('data.alerts', []);
+        DB::table('subjects')->update(['absence_limit_percent' => null]);
+        DB::table('attendance_exemptions')->insert(['student_id' => 1, 'subject_id' => 1]);
+        $this->getJson('/api/v1/student/attendance-alerts')->assertOk()->assertJsonPath('data.alerts', []);
+        DB::table('attendance_exemptions')->delete();
+        Setting::set(Limit::SETTING_ENABLED, '0');
+        $this->getJson('/api/v1/student/attendance-alerts')->assertOk()->assertJsonPath('data.alerts', []);
+    }
+
+    public function test_alerts_do_not_expose_another_students_attendance(): void
+    {
+        $this->authenticateAlertStudent(2);
+        $this->getJson('/api/v1/student/attendance-alerts?student_id=1')->assertOk()
+            ->assertJsonPath('data.has_alerts', false)->assertJsonPath('data.alerts', []);
     }
 }
