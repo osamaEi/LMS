@@ -92,7 +92,13 @@
     @endif
 </div>
 
+<div class="flex flex-wrap gap-2 mb-5">
+    <button type="button" onclick="switchClassTab('files')" id="ctab-btn-files" class="px-4 py-2 rounded-lg border text-sm font-bold">الملفات ({{ $subjectFiles->total() + $sessionFiles->total() }})</button>
+    <button type="button" onclick="switchClassTab('homeworks')" id="ctab-btn-homeworks" class="px-4 py-2 rounded-lg border text-sm font-bold">الواجبات ({{ $homeworks->total() }})</button>
+</div>
+
 {{-- Tab contents --}}
+@include('admin.classes.partials._tab-content')
 @include('admin.classes.partials._tab-students')
 @include('admin.classes.partials._tab-terms')
 @include('admin.classes.partials._tab-sessions')
@@ -100,7 +106,7 @@
 {{-- Tab switcher script --}}
 <script>
 function switchClassTab(tab){
-    ['students','sessions','terms'].forEach(t=>{
+    ['students','sessions','terms','files','homeworks'].forEach(t=>{
         const pane=document.getElementById('ctab-'+t);
         const btn=document.getElementById('ctab-btn-'+t);
         if(pane) pane.style.display = (t===tab)?'block':'none';
@@ -114,7 +120,7 @@ function switchClassTab(tab){
 }
 (function(){
     const h = (location.hash || '').replace('#','');
-    if (['students','sessions','terms'].includes(h) && document.getElementById('ctab-btn-'+h)) {
+    if (['students','sessions','terms','files','homeworks'].includes(h) && document.getElementById('ctab-btn-'+h)) {
         switchClassTab(h);
     }
 })();

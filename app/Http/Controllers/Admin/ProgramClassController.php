@@ -103,7 +103,12 @@ class ProgramClassController extends Controller
             ->orderBy('scheduled_at')
             ->get();
 
-        return view('admin.classes.show', compact('class', 'programSubjects', 'usedSubjectIds', 'classSubjects', 'sessions', 'teachers', 'studentsCount'));
+        $content = app(\App\Services\ClassContentService::class);
+        $subjectFiles = $content->files($class)->with('subject')->latest()->paginate(15, ['*'], 'files_page')->withQueryString()->fragment('files');
+        $sessionFiles = $content->sessionFiles($class)->with('session.subject')->latest()->paginate(15, ['*'], 'session_files_page')->withQueryString()->fragment('files');
+        $homeworks = $content->homeworks($class)->with(['subject', 'session'])->latest()->paginate(15, ['*'], 'homeworks_page')->withQueryString()->fragment('homeworks');
+
+        return view('admin.classes.show', compact('class', 'programSubjects', 'usedSubjectIds', 'classSubjects', 'sessions', 'teachers', 'studentsCount', 'subjectFiles', 'sessionFiles', 'homeworks'));
     }
 
     /**
