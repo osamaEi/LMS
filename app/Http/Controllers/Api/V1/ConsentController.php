@@ -14,6 +14,7 @@ class ConsentController extends Controller
             'registration' => [
                 ['field' => 'is_terms', 'required' => true, 'default' => false, 'text' => ConsentService::BASIC],
                 ['field' => 'marketing_consent', 'required' => false, 'default' => false, 'text' => ConsentService::MARKETING],
+                ['field' => 'is_confirm_user', 'required' => true, 'default' => false, 'text' => 'أقر بأن جميع البيانات المدخلة صحيحة ومطابقة للهوية الرسمية.'],
             ],
             'enrollment' => [
                 'field' => 'certificate_consent', 'required' => true,

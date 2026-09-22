@@ -120,6 +120,8 @@ class RegisterController extends Controller
      *   specialization, specialization_type, date_of_graduation,
      *   national_id_front (optional path), national_id_back (optional path), certificate (optional path),
      *   is_confirm_user (1), is_terms (1)
+     * Optional: marketing_consent (boolean or 0/1; omitted means no consent).
+     * Checkbox text and policy links: GET /api/v1/consents.
      */
     public function register(Request $request)
     {

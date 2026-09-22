@@ -28,6 +28,14 @@ class ConsentRecordingTest extends TestCase
             $table->string('name');
             $table->string('email')->unique();
             $table->string('national_id')->nullable();
+            foreach (['phone', 'password', 'gender', 'nationality', 'specialization', 'specialization_type', 'registration_ip'] as $column) {
+                $table->string($column)->nullable();
+            }
+            foreach (['date_of_birth', 'date_of_graduation', 'date_of_register'] as $column) {
+                $table->date($column)->nullable();
+            }
+            $table->boolean('is_terms')->default(false);
+            $table->boolean('is_confirm_user')->default(false);
             $table->timestamp('phone_verified_at')->nullable();
             $table->string('student_code')->nullable();
             $table->string('role')->default('student');
@@ -57,6 +65,16 @@ class ConsentRecordingTest extends TestCase
             $table->timestamps();
         });
         (require database_path('migrations/2026_09_21_000002_create_consent_records_table.php'))->up();
+        Schema::create('personal_access_tokens', function (Blueprint $table) {
+            $table->id();
+            $table->morphs('tokenable');
+            $table->string('name');
+            $table->string('token', 64)->unique();
+            $table->text('abilities')->nullable();
+            $table->timestamp('last_used_at')->nullable();
+            $table->timestamp('expires_at')->nullable();
+            $table->timestamps();
+        });
         Page::create(['slug' => 'terms', 'version' => 1, 'title_ar' => 'الشروط', 'content_ar' => 'Original terms', 'is_published' => true]);
     }
 
@@ -201,7 +219,69 @@ class ConsentRecordingTest extends TestCase
             ->assertJsonPath('data.registration.0.default', false)
             ->assertJsonPath('data.registration.1.required', false)
             ->assertJsonPath('data.registration.1.default', false)
+            ->assertJsonPath('data.registration.2.field', 'is_confirm_user')
+            ->assertJsonPath('data.registration.2.required', true)
+            ->assertJsonPath('data.registration.2.default', false)
             ->assertJsonPath('data.enrollment.required', true)
             ->assertJsonPath('data.enrollment.default', false);
+    }
+
+    private function mobilePayload(): array
+    {
+        return [
+            'name' => 'Mobile Student', 'email' => 'mobile@example.test',
+            'phone' => '0507654321', 'national_id' => '1088776655',
+            'password' => 'Passw0rd!23', 'password_confirmation' => 'Passw0rd!23',
+            'date_of_birth' => '2000-01-01', 'gender' => 'male', 'nationality' => 'Saudi',
+            'specialization' => 'Computer Science', 'specialization_type' => 'bachelor',
+            'date_of_graduation' => '2022-01-01', 'is_confirm_user' => true, 'is_terms' => true,
+        ];
+    }
+
+    public function test_mobile_registration_rejects_missing_or_declined_required_acknowledgments(): void
+    {
+        foreach (['is_confirm_user', 'is_terms'] as $field) {
+            foreach ([null, false] as $value) {
+                $payload = $this->mobilePayload();
+                unset($payload[$field]);
+                if ($value !== null) {
+                    $payload[$field] = $value;
+                }
+                $this->postJson('/api/v1/auth/register', $payload)
+                    ->assertUnprocessable()->assertJsonValidationErrors($field);
+            }
+        }
+        $this->assertSame(0, User::count());
+        $this->assertSame(0, ConsentRecord::count());
+    }
+
+    public function test_mobile_registration_records_all_marketing_choices(): void
+    {
+        $this->mock(\App\Services\OtpService::class)
+            ->shouldReceive('isVerified')->with('0507654321', 'registration')->times(3)->andReturn(true);
+
+        foreach ([null, false, true] as $index => $choice) {
+            $payload = $this->mobilePayload();
+            $payload['email'] = "mobile{$index}@example.test";
+            $payload['national_id'] = '108877665' . $index;
+            if ($choice !== null) {
+                $payload['marketing_consent'] = $choice;
+            }
+            $this->withServerVariables(['REMOTE_ADDR' => '192.0.2.17'])
+                ->postJson('/api/v1/auth/register', $payload)->assertCreated();
+            $user = User::where('email', $payload['email'])->firstOrFail();
+            $this->assertTrue($user->is_terms);
+            $this->assertTrue($user->is_confirm_user);
+            $this->assertSame(2, $user->consentRecords()->count());
+            $this->assertDatabaseHas('consent_records', [
+                'user_id' => $user->id, 'type' => 'basic', 'accepted' => true,
+                'statement' => ConsentService::BASIC, 'ip_address' => '192.0.2.17',
+            ]);
+            $this->assertDatabaseHas('consent_records', [
+                'user_id' => $user->id, 'type' => 'marketing', 'accepted' => $choice === true,
+            ]);
+            // Free the shared phone for the next independent registration.
+            $user->update(['phone' => null]);
+        }
     }
 }

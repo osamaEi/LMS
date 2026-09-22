@@ -354,5 +354,20 @@
     "My Study Program": "My Study Program",
     "Payments": "Payments",
     "Users": "Users",
-    "Logout": "Logout"
+    "Logout": "Logout",
+    "Trainee Consent Records": "Trainee Consent Records",
+    "Not selecting marketing is recorded as non-consent and does not affect registration.": "Not selecting marketing is recorded as non-consent and does not affect registration.",
+    "Terms, Privacy and Data Processing": "Terms, Privacy and Data Processing",
+    "Marketing Communications": "Marketing Communications",
+    "Certificate Issuance": "Certificate Issuance",
+    "Consented": "Consented",
+    "Did Not Consent": "Did Not Consent",
+    "IP Address": "IP Address",
+    "Not available": "Not available",
+    "Statement version": "Statement version",
+    "Program": "Program",
+    "Name at time of consent": "Name at time of consent",
+    "Version": "Version",
+    "No documented consents yet. Consents were not created retroactively.": "No documented consents yet. Consents were not created retroactively.",
+    "Showing the latest 100 records.": "Showing the latest 100 records."
 }

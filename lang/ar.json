@@ -412,5 +412,20 @@
     "My Study Program": "برنامجي التدريبي ",
     "Payments": "المدفوعات",
     "Users": "المستخدمون",
-    "Logout": "تسجيل الخروج"
+    "Logout": "تسجيل الخروج",
+    "Trainee Consent Records": "سجل موافقات المتدرب",
+    "Not selecting marketing is recorded as non-consent and does not affect registration.": "عدم اختيار التسويق يُسجل كعدم موافقة، ولا يؤثر على التسجيل.",
+    "Terms, Privacy and Data Processing": "الشروط والخصوصية ومعالجة البيانات",
+    "Marketing Communications": "التواصل التسويقي",
+    "Certificate Issuance": "إصدار الشهادة",
+    "Consented": "وافق",
+    "Did Not Consent": "لم يوافق",
+    "IP Address": "عنوان IP",
+    "Not available": "غير متاح",
+    "Statement version": "إصدار النص",
+    "Program": "البرنامج",
+    "Name at time of consent": "الاسم وقت الموافقة",
+    "Version": "إصدار",
+    "No documented consents yet. Consents were not created retroactively.": "لا توجد موافقات موثقة بعد. لم تُنشأ موافقات بأثر رجعي.",
+    "Showing the latest 100 records.": "يعرض أحدث 100 سجل."
 }
