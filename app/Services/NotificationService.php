@@ -212,9 +212,12 @@ class NotificationService
             ->limit($limit)
             ->get()
             ->map(function ($notification) {
+                $data = $notification->data ?? [];
+
                 return [
                     'id' => $notification->id,
-                    'data' => $notification->data,
+                    'title' => $data['title'] ?? $data['session_title'] ?? $data['quiz_title'] ?? null,
+                    'description' => $data['body'] ?? $data['message_ar'] ?? null,
                     'read_at' => $notification->read_at,
                     'created_at' => $notification->created_at->toIso8601String(),
                     'created_at_human' => $notification->created_at->diffForHumans(),
