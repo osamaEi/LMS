@@ -44,7 +44,7 @@ class RegisterController extends Controller
             ], 422);
         }
 
-        if (User::where('national_id', $data['national_id'])->exists()) {
+        if (User::withTrashed()->where('national_id', $data['national_id'])->exists()) {
             return response()->json([
                 'success' => false,
                 'message' => 'رقم الهوية مسجل مسبقاً',
@@ -230,6 +230,15 @@ class RegisterController extends Controller
                 ]);
             }
         } catch (\Throwable $e) {
+            // A concurrent registration can pass the availability check first.
+            if ($e instanceof \Illuminate\Database\UniqueConstraintViolationException
+                && str_contains($e->getMessage(), 'users_phone_unique')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'رقم الجوال مسجل مسبقًا',
+                    'errors' => ['phone' => ['رقم الجوال مسجل مسبقًا']],
+                ], 422);
+            }
             Log::error('Registration error', ['error' => $e->getMessage()]);
 
             return response()->json([
@@ -271,7 +280,7 @@ class RegisterController extends Controller
      */
     protected function phoneTaken(string $phone): bool
     {
-        return User::where('phone', $phone)
+        return User::withTrashed()->where('phone', $phone)
             ->orWhere('phone', ltrim($phone, '0'))
             ->exists();
     }
