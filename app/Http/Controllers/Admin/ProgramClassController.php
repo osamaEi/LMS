@@ -417,10 +417,13 @@ class ProgramClassController extends Controller
             $baseCode = $source->code ? $source->code.'-C'.$class->id : null;
             $subject->code = $baseCode;
 
+            // Include soft-deleted rows: the unique index (program_id, code) still covers them.
             $existing = $baseCode
-                ? \App\Models\Subject::where('program_id', $class->program_id)->where('code', $baseCode)->first()
+                ? \App\Models\Subject::withTrashed()->where('program_id', $class->program_id)->where('code', $baseCode)->first()
                 : null;
-            if ($existing && $existing->term_id) {
+            if ($existing && $existing->trashed()) {
+                $existing->restore();
+            } elseif ($existing && $existing->term_id && (int) $existing->term_id !== (int) $term->id) {
                 return ($source->name_ar ?: $source->name_en).' (مُسند لربع آخر)';
             }
             if ($existing) {
