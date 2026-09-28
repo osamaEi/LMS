@@ -53,18 +53,18 @@ class Attendance extends Model
 
     /**
      * Whether a join at $joinedAt counts as late for the given session:
-     * LATE_THRESHOLD_MINUTES or more after the session's scheduled time
-     * (موعد السيشن), falling back to its actual start.
+     * more than LATE_THRESHOLD_MINUTES after the teacher actually started the
+     * session, falling back to its scheduled time (موعد السيشن).
      */
     public static function isLateJoin(Session $session, \DateTimeInterface $joinedAt): bool
     {
-        $start = $session->scheduled_at ?? $session->started_at;
+        $start = $session->started_at ?? $session->scheduled_at;
 
         if (!$start) {
             return false;
         }
 
-        return \Carbon\Carbon::instance($joinedAt)->greaterThanOrEqualTo(
+        return \Carbon\Carbon::instance($joinedAt)->greaterThan(
             \Carbon\Carbon::parse($start)->addMinutes(self::LATE_THRESHOLD_MINUTES)
         );
     }

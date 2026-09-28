@@ -573,16 +573,21 @@ class SubjectController extends Controller
             ->pluck('student_id')->flip();
 
         // Build unified attendances collection (one row per class student)
-        $attendances = $classStudents->map(function ($student) use ($attendanceMap, $sessionId, $excusedStudentIds) {
+        $attendances = $classStudents->map(function ($student) use ($attendanceMap, $sessionId, $excusedStudentIds, $session) {
             $att = $attendanceMap->get($student->id);
             $attended = $att?->attended ?? false;
+            // Recompute from the join time so the rule (> 10 min after the teacher
+            // started) applies to old records too; manual entries have no join time.
+            $isLate = $att?->joined_at
+                ? Attendance::isLateJoin($session, $att->joined_at)
+                : ($att?->is_late ?? false);
             return (object)[
                 'id'         => $att?->id,
                 'session_id' => $sessionId,
                 'student_id' => $student->id,
                 'student'    => $student,
                 'attended'   => $attended,
-                'is_late'    => $attended && ($att?->is_late ?? false),
+                'is_late'    => $attended && $isLate,
                 'excused'    => !$attended && $excusedStudentIds->has($student->id),
                 'joined_at'  => $att?->joined_at,
                 'notes'      => $att?->notes,
@@ -669,7 +674,7 @@ class SubjectController extends Controller
             foreach ($students as $i => $student) {
                 $att = $attendanceMap->get($student->id);
                 $status = $att && $att->attended
-                    ? ($att->is_late ? 'متأخر' : 'حاضر')
+                    ? (($att->joined_at ? Attendance::isLateJoin($session, $att->joined_at) : $att->is_late) ? 'متأخر' : 'حاضر')
                     : 'غائب';
                 fputcsv($f, [
                     $i + 1,

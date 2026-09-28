@@ -171,7 +171,7 @@
                 </td>
                 <td style="padding:12px 18px;color:#c2410c;font-weight:700">
                     @if($att->joined_at && $sessionStart)
-                        {{ \Carbon\Carbon::parse($sessionStart)->diffInMinutes(\Carbon\Carbon::parse($att->joined_at)) }} دقيقة
+                        {{ (int) floor(\Carbon\Carbon::parse($sessionStart)->diffInMinutes(\Carbon\Carbon::parse($att->joined_at), true)) }} دقيقة
                     @else
                         —
                     @endif
