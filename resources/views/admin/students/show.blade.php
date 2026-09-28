@@ -1781,7 +1781,7 @@
                                             <button type="submit" style="width:28px;height:28px;background:#fee2e2;border:none;border-radius:6px;cursor:pointer;color:#dc2626;font-size:16px;display:flex;align-items:center;justify-content:center;">×</button>
                                         </form>
                                     </div>
-                                    <div style="font-size:11px;color:#6b7280;">المدة: {{ $prog->duration_months }} شهر</div>
+                                    <div style="font-size:11px;color:#6b7280;">المدة: {{ $prog->duration_label }}</div>
                                 </div>
                                 @endforeach
 

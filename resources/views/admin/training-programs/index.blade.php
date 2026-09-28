@@ -230,7 +230,7 @@
                         </td>
                         <td class="px-6 py-5">
                             <span class="text-sm text-gray-700 font-medium">
-                                {{ $program->duration_months ? $program->duration_months . ' شهر' : '—' }}
+                                {{ $program->duration_label ?? '—' }}
                             </span>
                         </td>
                         <td class="px-6 py-5">

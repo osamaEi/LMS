@@ -427,7 +427,7 @@
         <div class="info-list">
             <div class="info-row"><span class="info-key">اسم البرنامج</span><span class="info-val">{{ $prog->name_ar ?? $prog->name }}</span></div>
             @if($prog->code)<div class="info-row"><span class="info-key">رمز البرنامج</span><span class="info-val">{{ $prog->code }}</span></div>@endif
-            @if($prog->duration_months)<div class="info-row"><span class="info-key">مدة البرنامج</span><span class="info-val">{{ $prog->duration_months }} شهر</span></div>@endif
+            @if($prog->duration_months)<div class="info-row"><span class="info-key">مدة البرنامج</span><span class="info-val">{{ $prog->duration_label }}</span></div>@endif
             <div class="info-row"><span class="info-key">عدد الفصول</span><span class="info-val">{{ $pdStats['total_terms'] ?? $pdTerms->count() }} فصول</span></div>
             <div class="info-row"><span class="info-key">إجمالي المقررات</span><span class="info-val">{{ $pdStats['total_subjects'] ?? $pdSubjects->count() }}</span></div>
             <div class="info-row"><span class="info-key">نسبة الحضور</span><span class="info-val">{{ $pdStats['attendance_rate'] ?? 0 }}%</span></div>
@@ -742,7 +742,7 @@ function switchProgTab(id) {
                                         <div class="prog-card-meta-icon" style="background:#dbeafe;">
                                             <svg style="color:#3b82f6;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                         </div>
-                                        المدة: <strong>{{ $availableProgram->duration_months }} شهر</strong>
+                                        المدة: <strong>{{ $availableProgram->duration_label }}</strong>
                                     </div>
                                 @endif
                                 @if($availableProgram->terms_count)
