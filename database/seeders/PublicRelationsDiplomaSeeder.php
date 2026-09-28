@@ -18,7 +18,7 @@ class PublicRelationsDiplomaSeeder extends Seeder
             'code'           => 'PR-DIPLOMA',
             'type'           => 'diploma',
             'status'         => 'active',
-            'duration_months'=> 10,
+            'duration_months'=> 18,
             'description_ar' => 'برنامج دبلوم تخصص العلاقات العامة — 10 أسابيع تدريب شاملة',
         ]);
 
