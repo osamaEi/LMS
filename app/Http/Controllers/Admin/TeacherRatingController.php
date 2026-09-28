@@ -77,10 +77,10 @@ class TeacherRatingController extends Controller
         $stats = [
             'total_ratings' => TeacherRating::where('is_approved', true)->count(),
             'avg_overall' => round(TeacherRating::where('is_approved', true)->avg('overall_rating') ?? 0, 2),
-            'avg_knowledge' => round(TeacherRating::where('is_approved', true)->avg('knowledge_rating') ?? 0, 2),
-            'avg_communication' => round(TeacherRating::where('is_approved', true)->avg('communication_rating') ?? 0, 2),
-            'avg_punctuality' => round(TeacherRating::where('is_approved', true)->avg('punctuality_rating') ?? 0, 2),
-            'avg_support' => round(TeacherRating::where('is_approved', true)->avg('support_rating') ?? 0, 2),
+            'avg_knowledge' => round(TeacherRating::where('is_approved', true)->avg('teaching_quality') ?? 0, 2),
+            'avg_communication' => round(TeacherRating::where('is_approved', true)->avg('communication') ?? 0, 2),
+            'avg_punctuality' => round(TeacherRating::where('is_approved', true)->avg('punctuality') ?? 0, 2),
+            'avg_support' => round(TeacherRating::where('is_approved', true)->avg('content_delivery') ?? 0, 2),
         ];
 
         // Top rated teachers

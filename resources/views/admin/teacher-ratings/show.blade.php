@@ -143,19 +143,19 @@
                 <div class="mt-3 grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
                     <div class="flex items-center justify-between bg-gray-50 dark:bg-gray-700 rounded px-2 py-1">
                         <span class="text-gray-500">المعرفة:</span>
-                        <span class="font-medium">{{ $rating->knowledge_rating }}/5</span>
+                        <span class="font-medium">{{ $rating->teaching_quality }}/5</span>
                     </div>
                     <div class="flex items-center justify-between bg-gray-50 dark:bg-gray-700 rounded px-2 py-1">
                         <span class="text-gray-500">التواصل:</span>
-                        <span class="font-medium">{{ $rating->communication_rating }}/5</span>
+                        <span class="font-medium">{{ $rating->communication }}/5</span>
                     </div>
                     <div class="flex items-center justify-between bg-gray-50 dark:bg-gray-700 rounded px-2 py-1">
                         <span class="text-gray-500">الالتزام:</span>
-                        <span class="font-medium">{{ $rating->punctuality_rating }}/5</span>
+                        <span class="font-medium">{{ $rating->punctuality }}/5</span>
                     </div>
                     <div class="flex items-center justify-between bg-gray-50 dark:bg-gray-700 rounded px-2 py-1">
                         <span class="text-gray-500">الدعم:</span>
-                        <span class="font-medium">{{ $rating->support_rating }}/5</span>
+                        <span class="font-medium">{{ $rating->content_delivery }}/5</span>
                     </div>
                 </div>
             </div>
