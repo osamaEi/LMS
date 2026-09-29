@@ -1,4 +1,4 @@
-﻿@extends('layouts.front')
+@extends('layouts.front')
 
 @section('title', 'العروض والخصومات — أكاديمية الارتقاء')
 
@@ -255,86 +255,40 @@
     .offer-copy:hover  { background: #0071AA; color: #fff; }
     .offer-copy.copied { background: #10b981; color: #fff; }
 
-    /* Video button */
-    .offer-video-btn {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        width: 100%;
-        margin-top: 0.75rem;
-        padding: 0.55rem 0.75rem;
-        border-radius: 10px;
-        border: 1.5px solid #0071AA;
-        background: #eaf5fb;
-        color: #0071AA;
-        font-size: 0.85rem;
-        font-weight: 800;
-        cursor: pointer;
-        transition: all 0.18s;
-    }
-    .offer-video-btn:hover { background: #0071AA; color: #fff; }
-    .offer-video-btn i { font-size: 1.1rem; }
-
-    /* Video modal */
-    .offer-video-modal {
-        position: fixed;
-        inset: 0;
-        z-index: 2000;
-        background: rgba(15, 23, 42, 0.85);
-        display: none;
-        align-items: center;
-        justify-content: center;
-        padding: 1rem;
-    }
-    .offer-video-modal.open { display: flex; }
-    .offer-video-box {
-        position: relative;
-        width: 100%;
-        max-width: 900px;
-    }
-    .offer-video-frame {
+    /* Video inside card */
+    .offer-card-video {
         position: relative;
         width: 100%;
         aspect-ratio: 16 / 9;
         background: #000;
-        border-radius: 14px;
-        overflow: hidden;
-        box-shadow: 0 20px 60px rgba(0,0,0,.5);
+        flex-shrink: 0;
     }
-    .offer-video-frame iframe,
-    .offer-video-frame video {
+    .offer-card-video iframe,
+    .offer-card-video video {
         position: absolute;
         inset: 0;
         width: 100%;
         height: 100%;
         border: 0;
+        object-fit: contain;
+        background: #000;
     }
-    .offer-video-title {
-        color: #fff;
-        font-weight: 800;
-        font-size: 1rem;
-        margin: 0 0 0.6rem;
-        padding-inline-end: 3rem;
-    }
-    .offer-video-close {
-        position: absolute;
-        top: -6px;
-        left: 0;
-        width: 38px;
-        height: 38px;
-        border-radius: 50%;
-        border: none;
-        background: rgba(255,255,255,.15);
-        color: #fff;
-        font-size: 1.1rem;
-        cursor: pointer;
+
+    /* Discount strip under the video */
+    .offer-disc-strip {
         display: flex;
         align-items: center;
-        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.6rem 1.25rem;
+        color: #fff;
+        flex-shrink: 0;
     }
-    [dir="ltr"] .offer-video-close { left: auto; right: 0; }
-    .offer-video-close:hover { background: rgba(255,255,255,.3); }
+    .offer-disc-strip.type-pct { background: linear-gradient(135deg, #0071AA 0%, #0ea5e9 100%); }
+    .offer-disc-strip.type-fix { background: linear-gradient(135deg, #059669 0%, #34d399 100%); }
+    .offer-disc-strip.type-ovr { background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%); }
+    .offer-disc-strip .strip-val { font-size: 1.35rem; font-weight: 900; line-height: 1; }
+    .offer-disc-strip .strip-lbl { font-size: 0.78rem; font-weight: 700; opacity: 0.85; }
+    .offer-disc-strip .offer-status { position: static; margin-inline-start: auto; }
 
     /* CTA row */
     .offer-cta {
@@ -575,11 +529,35 @@
     <div class="offer-card-wrapper" data-type="{{ $offer->discount_type }}">
         <div class="offer-card {{ $isExpired ? 'is-expired' : '' }}">
 
+            @if($offer->has_video)
+            {{-- Video top --}}
+            <div class="offer-card-video">
+                @if($offer->video_embed_url)
+                    <iframe src="{{ $offer->video_embed_url }}" title="{{ $offer->title_ar }}" loading="lazy"
+                            allow="encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>
+                @else
+                    <video src="{{ $offer->video_file_url }}" controls preload="metadata" playsinline></video>
+                @endif
+            </div>
+
+            {{-- Discount strip --}}
+            <div class="offer-disc-strip {{ $typeClass }}">
+                <span class="strip-val">{{ $dNum }} @if($dUnit === '%')%@else<x-riyal />@endif</span>
+                <span class="strip-lbl">{{ $dLabel }}</span>
+                @if($isExpired)
+                    <span class="offer-status st-expired"><i class="bi bi-x-circle-fill"></i> منتهي</span>
+                @elseif($isUpcoming)
+                    <span class="offer-status st-upcoming"><i class="bi bi-clock-fill"></i> قادم قريباً</span>
+                @else
+                    <span class="offer-status st-active"><i class="bi bi-circle-fill" style="font-size:.4rem;"></i> نشط الآن</span>
+                @endif
+            </div>
+            @else
             {{-- Discount visual top --}}
             <div class="offer-img-wrap {{ $typeClass }}">
                 <div class="offer-disc-display">
                     <span class="disc-num">{{ $dNum }}</span>
-                    <span class="disc-unit">{{ $dUnit }}</span>
+                    <span class="disc-unit">@if($dUnit === '%')%@else<x-riyal />@endif</span>
                     <span class="disc-lbl">{{ $dLabel }}</span>
                 </div>
 
@@ -595,6 +573,7 @@
                     <span class="offer-status st-active"><i class="bi bi-circle-fill" style="font-size:.4rem;"></i> نشط الآن</span>
                 @endif
             </div>
+            @endif
 
             {{-- Card body --}}
             <div class="card-body">
@@ -643,17 +622,6 @@
                 </div>
                 @endif
 
-                {{-- Video --}}
-                @if($offer->has_video)
-                <button type="button" class="offer-video-btn"
-                        data-title="{{ $offer->title_ar }}"
-                        data-embed="{{ $offer->video_embed_url }}"
-                        data-src="{{ $offer->video_file_url }}"
-                        onclick="openOfferVideo(this)">
-                    <i class="bi bi-play-circle-fill"></i> شاهد فيديو العرض
-                </button>
-                @endif
-
                 {{-- Meta row --}}
                 <div class="course-meta">
                     <span class="meta-date">
@@ -698,17 +666,6 @@
 
     </div>
 </section>
-
-{{-- Video Modal --}}
-<div class="offer-video-modal" id="offerVideoModal" onclick="if(event.target===this)closeOfferVideo()">
-    <div class="offer-video-box">
-        <p class="offer-video-title" id="offerVideoTitle"></p>
-        <button type="button" class="offer-video-close" onclick="closeOfferVideo()" aria-label="إغلاق">
-            <i class="bi bi-x-lg"></i>
-        </button>
-        <div class="offer-video-frame" id="offerVideoFrame"></div>
-    </div>
-</div>
 
 {{-- Mockup / CTA Section --}}
 <section class="mockup-section" style="background:linear-gradient(135deg,#004d7a 0%,#0071aa 100%);padding:3rem clamp(1rem,3vw,3rem);color:white;">
@@ -872,36 +829,6 @@ function copyCode(code, id) {
         setTimeout(() => { btn.classList.remove('copied'); ico.className = 'bi bi-clipboard'; }, 2000);
     });
 }
-
-function openOfferVideo(btn) {
-    const frame = document.getElementById('offerVideoFrame');
-    frame.innerHTML = '';
-    if (btn.dataset.embed) {
-        const iframe = document.createElement('iframe');
-        iframe.src = btn.dataset.embed + (btn.dataset.embed.includes('?') ? '&' : '?') + 'autoplay=1';
-        iframe.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
-        iframe.allowFullscreen = true;
-        frame.appendChild(iframe);
-    } else if (btn.dataset.src) {
-        const video = document.createElement('video');
-        video.src = btn.dataset.src;
-        video.controls = true;
-        video.autoplay = true;
-        video.playsInline = true;
-        frame.appendChild(video);
-    }
-    document.getElementById('offerVideoTitle').textContent = btn.dataset.title || '';
-    document.getElementById('offerVideoModal').classList.add('open');
-    document.body.style.overflow = 'hidden';
-}
-
-function closeOfferVideo() {
-    document.getElementById('offerVideoModal').classList.remove('open');
-    document.getElementById('offerVideoFrame').innerHTML = ''; // stops playback
-    document.body.style.overflow = '';
-}
-
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeOfferVideo(); });
 
 function updateCountdowns() {
     document.querySelectorAll('.offer-countdown[data-end]').forEach(el => {
