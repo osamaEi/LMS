@@ -14,6 +14,7 @@ class Offer extends Model
         'code', 'discount_type', 'discount_value', 'offer_price',
         'program_id', 'start_date', 'end_date',
         'max_uses', 'uses_count', 'image',
+        'video_url', 'video_path',
         'status', 'created_by',
     ];
 
@@ -111,6 +112,35 @@ class Offer extends Model
     public function getDaysLeftAttribute(): int
     {
         return max(0, (int) now()->diffInDays($this->end_date, false));
+    }
+
+    public function getHasVideoAttribute(): bool
+    {
+        return !empty($this->video_path) || !empty($this->video_url);
+    }
+
+    /** Embeddable iframe URL for YouTube / Vimeo links, null otherwise. */
+    public function getVideoEmbedUrlAttribute(): ?string
+    {
+        if (!$this->video_url || $this->video_path) return null;
+
+        if (preg_match('~(?:youtube\.com/(?:watch\?(?:.*&)?v=|embed/|shorts/|live/)|youtu\.be/)([A-Za-z0-9_-]{11})~', $this->video_url, $m)) {
+            return 'https://www.youtube.com/embed/' . $m[1] . '?rel=0';
+        }
+
+        if (preg_match('~vimeo\.com/(?:video/)?(\d+)~', $this->video_url, $m)) {
+            return 'https://player.vimeo.com/video/' . $m[1];
+        }
+
+        return null;
+    }
+
+    /** Direct video file URL (uploaded file or a direct .mp4/.webm link). */
+    public function getVideoFileUrlAttribute(): ?string
+    {
+        if ($this->video_path) return asset('storage/' . $this->video_path);
+        if ($this->video_url && !$this->video_embed_url) return $this->video_url;
+        return null;
     }
 
     public function getUsesLeftAttribute(): ?int

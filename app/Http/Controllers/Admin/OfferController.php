@@ -68,10 +68,15 @@ class OfferController extends Controller
             'max_uses'       => 'nullable|integer|min:1',
             'status'         => 'required|in:active,inactive',
             'image'          => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'video_url'      => 'nullable|url|max:500',
+            'video_file'     => 'nullable|file|mimes:mp4,webm,mov|max:102400',
         ], [
             'title_ar.required'       => 'العنوان بالعربية مطلوب',
             'discount_value.required' => 'قيمة الخصم مطلوبة',
             'offer_price.required'    => 'سعر العرض المباشر مطلوب عند اختيار هذا النوع',
+            'video_url.url'           => 'رابط الفيديو غير صالح',
+            'video_file.mimes'        => 'صيغة الفيديو يجب أن تكون MP4 أو WebM أو MOV',
+            'video_file.max'          => 'حجم الفيديو يجب ألا يتجاوز 100MB',
             'start_date.required'     => 'تاريخ البداية مطلوب',
             'end_date.required'       => 'تاريخ الانتهاء مطلوب',
             'end_date.after_or_equal' => 'تاريخ الانتهاء يجب أن يكون بعد تاريخ البداية',
@@ -80,6 +85,12 @@ class OfferController extends Controller
 
         if ($request->hasFile('image')) {
             $data['image'] = $request->file('image')->store('offers', 'public');
+        }
+
+        unset($data['video_file']);
+        if ($request->hasFile('video_file')) {
+            $data['video_path'] = $request->file('video_file')->store('offers/videos', 'public');
+            $data['video_url']  = null;
         }
 
         $data['created_by'] = auth()->id();
@@ -127,10 +138,15 @@ class OfferController extends Controller
             'max_uses'       => 'nullable|integer|min:1',
             'status'         => 'required|in:active,inactive',
             'image'          => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'video_url'      => 'nullable|url|max:500',
+            'video_file'     => 'nullable|file|mimes:mp4,webm,mov|max:102400',
         ], [
             'title_ar.required'       => 'العنوان بالعربية مطلوب',
             'discount_value.required' => 'قيمة الخصم مطلوبة',
             'offer_price.required'    => 'سعر العرض المباشر مطلوب عند اختيار هذا النوع',
+            'video_url.url'           => 'رابط الفيديو غير صالح',
+            'video_file.mimes'        => 'صيغة الفيديو يجب أن تكون MP4 أو WebM أو MOV',
+            'video_file.max'          => 'حجم الفيديو يجب ألا يتجاوز 100MB',
             'end_date.after_or_equal' => 'تاريخ الانتهاء يجب أن يكون بعد تاريخ البداية',
             'code.unique'             => 'كود العرض مستخدم مسبقاً',
         ]);
@@ -138,6 +154,21 @@ class OfferController extends Controller
         if ($request->hasFile('image')) {
             if ($offer->image) Storage::disk('public')->delete($offer->image);
             $data['image'] = $request->file('image')->store('offers', 'public');
+        }
+
+        unset($data['video_file']);
+        if ($request->hasFile('video_file')) {
+            if ($offer->video_path) Storage::disk('public')->delete($offer->video_path);
+            $data['video_path'] = $request->file('video_file')->store('offers/videos', 'public');
+            $data['video_url']  = null;
+        } elseif ($request->boolean('remove_video')) {
+            if ($offer->video_path) Storage::disk('public')->delete($offer->video_path);
+            $data['video_path'] = null;
+            $data['video_url']  = null;
+        } elseif (!empty($data['video_url']) && $offer->video_path) {
+            // a new link replaces the previously uploaded file
+            Storage::disk('public')->delete($offer->video_path);
+            $data['video_path'] = null;
         }
 
         if (!empty($data['code'])) {
@@ -153,6 +184,7 @@ class OfferController extends Controller
     public function destroy(Offer $offer)
     {
         if ($offer->image) Storage::disk('public')->delete($offer->image);
+        if ($offer->video_path) Storage::disk('public')->delete($offer->video_path);
         $offer->delete();
 
         return redirect()->route('admin.offers.index')

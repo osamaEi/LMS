@@ -193,6 +193,59 @@
             </div>
         </div>
 
+        {{-- Video --}}
+        @php $defaultVideoSource = $offer->video_path ? 'file' : ($offer->video_url ? 'url' : 'none'); @endphp
+        <div class="f-card">
+            <div class="f-section-title">
+                <svg style="width:16px;height:16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                فيديو العرض (اختياري)
+            </div>
+            <div class="f-group">
+                <label class="f-label">مصدر الفيديو</label>
+                <div class="f-radio-group">
+                    <label class="f-radio-option">
+                        <input type="radio" name="video_source" value="none" {{ old('video_source',$defaultVideoSource)=='none'?'checked':'' }} onchange="toggleVideoSource(this.value)">
+                        <span class="f-radio-lbl">🚫 بدون فيديو</span>
+                    </label>
+                    <label class="f-radio-option">
+                        <input type="radio" name="video_source" value="url" {{ old('video_source',$defaultVideoSource)=='url'?'checked':'' }} onchange="toggleVideoSource(this.value)">
+                        <span class="f-radio-lbl">🔗 رابط (يوتيوب / فيميو)</span>
+                    </label>
+                    <label class="f-radio-option">
+                        <input type="radio" name="video_source" value="file" {{ old('video_source',$defaultVideoSource)=='file'?'checked':'' }} onchange="toggleVideoSource(this.value)">
+                        <span class="f-radio-lbl">📁 رفع ملف</span>
+                    </label>
+                </div>
+                <input type="hidden" name="remove_video" id="inp-remove-video" value="1" disabled>
+                @if($offer->has_video)
+                <span class="f-hint" id="hint-remove-video" style="display:none;color:#ef4444;">⚠ سيتم حذف الفيديو الحالي عند الحفظ</span>
+                @endif
+            </div>
+            <div class="f-group" id="row-video-url" style="display:none;">
+                <label class="f-label">رابط الفيديو</label>
+                <input name="video_url" id="inp-video-url" class="f-input" type="url" dir="ltr" value="{{ old('video_url', $offer->video_url) }}" placeholder="https://www.youtube.com/watch?v=...">
+                <span class="f-hint">يدعم روابط YouTube و Vimeo أو رابط مباشر لملف MP4</span>
+                @error('video_url')<span class="error-msg">{{ $message }}</span>@enderror
+            </div>
+            <div class="f-group" id="row-video-file" style="display:none;">
+                <label class="f-label">ملف الفيديو</label>
+                @if($offer->video_path)
+                    <video src="{{ asset('storage/'.$offer->video_path) }}" controls preload="metadata" style="width:100%;max-height:220px;border-radius:10px;background:#000;margin-bottom:.5rem;"></video>
+                    <p style="font-size:.73rem;color:#9ca3af;margin-bottom:.5rem;">⬆ الفيديو الحالي — ارفع ملفاً جديداً للاستبدال</p>
+                @endif
+                <div class="upload-zone" onclick="this.querySelector('input').click()">
+                    <input type="file" name="video_file" id="inp-video-file" accept="video/mp4,video/webm,video/quicktime" onchange="previewVideo(this)">
+                    <div id="video-placeholder">
+                        <svg style="width:30px;height:30px;color:#d1d5db;margin:0 auto .4rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                        <p style="font-size:.78rem;color:#9ca3af;margin:0;">{{ $offer->video_path ? 'اختر فيديو بديل' : 'انقر لاختيار ملف الفيديو' }}</p>
+                        <p style="font-size:.7rem;color:#d1d5db;margin:.2rem 0 0;">MP4, WebM, MOV — حد أقصى 100MB</p>
+                    </div>
+                    <p id="video-file-name" style="display:none;font-size:.82rem;font-weight:700;color:#0071AA;margin:0;"></p>
+                </div>
+                @error('video_file')<span class="error-msg">{{ $message }}</span>@enderror
+            </div>
+        </div>
+
         {{-- Image & Status --}}
         <div class="f-card">
             <div class="f-section-title">
@@ -282,9 +335,33 @@ function toggleDiscountFields(type) {
     }
 }
 
+function toggleVideoSource(src) {
+    var inpUrl  = document.getElementById('inp-video-url');
+    var inpFile = document.getElementById('inp-video-file');
+    var hint    = document.getElementById('hint-remove-video');
+    document.getElementById('row-video-url').style.display  = src === 'url'  ? '' : 'none';
+    document.getElementById('row-video-file').style.display = src === 'file' ? '' : 'none';
+    // disabled inputs are not submitted, so only the chosen source is sent
+    inpUrl.disabled  = src !== 'url';
+    inpFile.disabled = src !== 'file';
+    document.getElementById('inp-remove-video').disabled = src !== 'none';
+    if (hint) hint.style.display = src === 'none' ? 'block' : 'none';
+}
+
+function previewVideo(input) {
+    var name = document.getElementById('video-file-name');
+    if (input.files && input.files[0]) {
+        document.getElementById('video-placeholder').style.display = 'none';
+        name.textContent = '🎬 ' + input.files[0].name + ' (' + (input.files[0].size / 1048576).toFixed(1) + ' MB)';
+        name.style.display = 'block';
+    }
+}
+
 (function() {
     var checked = document.querySelector('input[name="discount_type"]:checked');
     if (checked) toggleDiscountFields(checked.value);
+    var vsrc = document.querySelector('input[name="video_source"]:checked');
+    toggleVideoSource(vsrc ? vsrc.value : 'none');
 })();
 </script>
 @endpush

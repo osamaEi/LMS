@@ -255,6 +255,87 @@
     .offer-copy:hover  { background: #0071AA; color: #fff; }
     .offer-copy.copied { background: #10b981; color: #fff; }
 
+    /* Video button */
+    .offer-video-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        width: 100%;
+        margin-top: 0.75rem;
+        padding: 0.55rem 0.75rem;
+        border-radius: 10px;
+        border: 1.5px solid #0071AA;
+        background: #eaf5fb;
+        color: #0071AA;
+        font-size: 0.85rem;
+        font-weight: 800;
+        cursor: pointer;
+        transition: all 0.18s;
+    }
+    .offer-video-btn:hover { background: #0071AA; color: #fff; }
+    .offer-video-btn i { font-size: 1.1rem; }
+
+    /* Video modal */
+    .offer-video-modal {
+        position: fixed;
+        inset: 0;
+        z-index: 2000;
+        background: rgba(15, 23, 42, 0.85);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+    }
+    .offer-video-modal.open { display: flex; }
+    .offer-video-box {
+        position: relative;
+        width: 100%;
+        max-width: 900px;
+    }
+    .offer-video-frame {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        background: #000;
+        border-radius: 14px;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0,0,0,.5);
+    }
+    .offer-video-frame iframe,
+    .offer-video-frame video {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        border: 0;
+    }
+    .offer-video-title {
+        color: #fff;
+        font-weight: 800;
+        font-size: 1rem;
+        margin: 0 0 0.6rem;
+        padding-inline-end: 3rem;
+    }
+    .offer-video-close {
+        position: absolute;
+        top: -6px;
+        left: 0;
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        border: none;
+        background: rgba(255,255,255,.15);
+        color: #fff;
+        font-size: 1.1rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    [dir="ltr"] .offer-video-close { left: auto; right: 0; }
+    .offer-video-close:hover { background: rgba(255,255,255,.3); }
+
     /* CTA row */
     .offer-cta {
         padding: 0 1.5rem 1.25rem;
@@ -562,6 +643,17 @@
                 </div>
                 @endif
 
+                {{-- Video --}}
+                @if($offer->has_video)
+                <button type="button" class="offer-video-btn"
+                        data-title="{{ $offer->title_ar }}"
+                        data-embed="{{ $offer->video_embed_url }}"
+                        data-src="{{ $offer->video_file_url }}"
+                        onclick="openOfferVideo(this)">
+                    <i class="bi bi-play-circle-fill"></i> شاهد فيديو العرض
+                </button>
+                @endif
+
                 {{-- Meta row --}}
                 <div class="course-meta">
                     <span class="meta-date">
@@ -606,6 +698,17 @@
 
     </div>
 </section>
+
+{{-- Video Modal --}}
+<div class="offer-video-modal" id="offerVideoModal" onclick="if(event.target===this)closeOfferVideo()">
+    <div class="offer-video-box">
+        <p class="offer-video-title" id="offerVideoTitle"></p>
+        <button type="button" class="offer-video-close" onclick="closeOfferVideo()" aria-label="إغلاق">
+            <i class="bi bi-x-lg"></i>
+        </button>
+        <div class="offer-video-frame" id="offerVideoFrame"></div>
+    </div>
+</div>
 
 {{-- Mockup / CTA Section --}}
 <section class="mockup-section" style="background:linear-gradient(135deg,#004d7a 0%,#0071aa 100%);padding:3rem clamp(1rem,3vw,3rem);color:white;">
@@ -769,6 +872,36 @@ function copyCode(code, id) {
         setTimeout(() => { btn.classList.remove('copied'); ico.className = 'bi bi-clipboard'; }, 2000);
     });
 }
+
+function openOfferVideo(btn) {
+    const frame = document.getElementById('offerVideoFrame');
+    frame.innerHTML = '';
+    if (btn.dataset.embed) {
+        const iframe = document.createElement('iframe');
+        iframe.src = btn.dataset.embed + (btn.dataset.embed.includes('?') ? '&' : '?') + 'autoplay=1';
+        iframe.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
+        iframe.allowFullscreen = true;
+        frame.appendChild(iframe);
+    } else if (btn.dataset.src) {
+        const video = document.createElement('video');
+        video.src = btn.dataset.src;
+        video.controls = true;
+        video.autoplay = true;
+        video.playsInline = true;
+        frame.appendChild(video);
+    }
+    document.getElementById('offerVideoTitle').textContent = btn.dataset.title || '';
+    document.getElementById('offerVideoModal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeOfferVideo() {
+    document.getElementById('offerVideoModal').classList.remove('open');
+    document.getElementById('offerVideoFrame').innerHTML = ''; // stops playback
+    document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeOfferVideo(); });
 
 function updateCountdowns() {
     document.querySelectorAll('.offer-countdown[data-end]').forEach(el => {
