@@ -84,6 +84,103 @@
     .offers-empty p  { font-size: .88rem; margin: 0; }
     #filterEmpty { display: none; }
 
+    /* ── Offers slider ── */
+    .osl { max-width: 1240px; margin: 0 auto; outline: none; }
+    .osl-stage { display: flex; align-items: center; gap: 1rem; }
+    .osl-track { flex: 1; min-width: 0; touch-action: pan-y; }
+    .osl-arrow {
+        width: 52px; height: 52px; border-radius: 50%; flex-shrink: 0;
+        border: 1.5px solid #e2e8f0; background: #fff; color: #0f172a; font-size: 1.3rem;
+        display: flex; align-items: center; justify-content: center; cursor: pointer;
+        box-shadow: 0 6px 18px rgba(15,23,42,.08); transition: all .2s;
+    }
+    .osl-arrow:hover { background: #0071AA; border-color: #0071AA; color: #fff; transform: scale(1.06); }
+    .osl-arrow:disabled { opacity: .35; pointer-events: none; }
+    [dir="ltr"] .osl-arrow i { display: inline-block; transform: scaleX(-1); }
+
+    .os-slide {
+        display: none;
+        grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+        background: #fff; border: 1px solid #eef2f7; border-radius: 24px; overflow: hidden;
+        box-shadow: 0 18px 50px rgba(15,23,42,.10);
+        min-height: 440px;
+    }
+    .os-slide.is-active { display: grid; animation: slIn .45s ease; }
+    .os-slide.is-active.from-prev { animation-name: slInPrev; }
+    @keyframes slIn     { from { opacity: 0; transform: translateX(-40px); } to { opacity: 1; transform: none; } }
+    @keyframes slInPrev { from { opacity: 0; transform: translateX(40px); }  to { opacity: 1; transform: none; } }
+    [dir="ltr"] .os-slide.is-active          { animation-name: slInPrev; }
+    [dir="ltr"] .os-slide.is-active.from-prev { animation-name: slIn; }
+    .os-slide.is-expired .sl-media { filter: grayscale(.6); }
+
+    .sl-media { position: relative; background: #0f172a; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+    .sl-media img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .sl-media iframe, .sl-media video { width: 100%; aspect-ratio: 16 / 9; height: auto; border: 0; background: #000; display: block; }
+    .sl-media--hero { background: linear-gradient(135deg, var(--oc-c1), var(--oc-c2)); color: #fff; flex-direction: column; }
+    .sl-media--hero::before, .sl-media--hero::after { content: ''; position: absolute; border-radius: 50%; background: rgba(255,255,255,.08); }
+    .sl-media--hero::before { width: 320px; height: 320px; top: -110px; right: -70px; }
+    .sl-media--hero::after  { width: 200px; height: 200px; bottom: -80px; left: -40px; }
+    .sl-hero-num { font-size: clamp(4rem, 9vw, 7rem); font-weight: 900; line-height: 1; position: relative; z-index: 1; text-shadow: 0 6px 24px rgba(0,0,0,.18); }
+    .sl-hero-num small { font-size: .35em; margin-inline-start: .3rem; }
+    .sl-hero-lbl { font-size: 1.05rem; font-weight: 700; opacity: .9; margin-top: .5rem; position: relative; z-index: 1; }
+
+    .sl-info { padding: 1.75rem 1.9rem; display: flex; flex-direction: column; gap: .85rem; }
+    .sl-top { display: flex; align-items: center; justify-content: space-between; gap: .5rem; flex-wrap: wrap; }
+    .sl-type { font-size: .82rem; font-weight: 700; color: var(--oc-c1); background: var(--oc-soft); padding: .3rem .8rem; border-radius: 999px; }
+    .sl-type b { font-weight: 900; }
+    .sl-title { font-size: 1.6rem; font-weight: 900; line-height: 1.45; margin: 0; }
+    .sl-title a { color: #0f172a; text-decoration: none; }
+    .sl-title a:hover { color: var(--oc-c1); }
+    .sl-desc { font-size: .92rem; line-height: 1.9; color: #475569; margin: 0; }
+    .sl-price { background: var(--oc-soft); border-radius: 14px; padding: .8rem 1rem; }
+    .sl-price-lbl { font-size: .74rem; font-weight: 700; color: #64748b; }
+    .sl-price-row { display: flex; align-items: baseline; gap: .6rem; flex-wrap: wrap; }
+    .sl-price-new { font-size: 1.8rem; font-weight: 900; color: var(--oc-c1); line-height: 1.3; }
+    .sl-cd { display: grid; grid-template-columns: repeat(4, 1fr); gap: .45rem; }
+    .sl-cd > div { background: #0f172a; color: #fff; border-radius: 11px; text-align: center; padding: .45rem .2rem; }
+    .sl-cd b { display: block; font-size: 1.2rem; font-weight: 900; font-variant-numeric: tabular-nums; line-height: 1.2; }
+    .sl-cd span { font-size: .64rem; opacity: .6; font-weight: 700; }
+    .sl-actions { display: grid; grid-template-columns: 1.4fr 1fr; gap: .6rem; margin-top: auto; padding-top: .3rem; }
+    .sl-actions .oc-btn { padding: .8rem .9rem; font-size: .95rem; }
+
+    .osl-bar { display: flex; align-items: center; gap: 1rem; margin-top: 1.25rem; padding: 0 68px; }
+    .osl-counter { font-size: .9rem; font-weight: 700; color: #64748b; white-space: nowrap; }
+    .osl-counter b { color: #0071AA; font-size: 1.15rem; }
+    .osl-thumbs { display: flex; gap: .5rem; overflow-x: auto; scrollbar-width: none; padding: .25rem; flex: 1; }
+    .osl-thumbs::-webkit-scrollbar { display: none; }
+    .osl-thumb {
+        flex-shrink: 0; display: flex; align-items: center; gap: .5rem;
+        border: 1.5px solid #e2e8f0; background: #fff; border-radius: 12px; padding: .45rem .8rem;
+        cursor: pointer; transition: all .18s; font-family: inherit;
+    }
+    .osl-thumb-val { font-size: .85rem; font-weight: 900; color: var(--oc-c1); white-space: nowrap; }
+    .osl-thumb-title { font-size: .78rem; font-weight: 700; color: #475569; white-space: nowrap; }
+    .osl-thumb:first-child { margin-inline-start: auto; }  /* centred, but still scrollable when overflowing */
+    .osl-thumb:last-child  { margin-inline-end: auto; }
+    .osl-thumb:hover { border-color: var(--oc-c1); }
+    .osl-thumb.is-active { background: var(--oc-c1); border-color: var(--oc-c1); box-shadow: 0 6px 16px rgba(15,23,42,.15); }
+    .osl-thumb.is-active span { color: #fff; }
+
+    @media (max-width: 900px) {
+        .os-slide { grid-template-columns: 1fr; min-height: 0; }
+        .sl-media { aspect-ratio: 16 / 9; }
+        .sl-info { padding: 1.25rem; }
+        .sl-title { font-size: 1.3rem; }
+        .osl-stage { position: relative; }
+        .osl-arrow {
+            position: absolute; z-index: 5; width: 40px; height: 40px; font-size: 1rem;
+            top: calc((100vw - 2rem) * 9 / 32); transform: translateY(-50%);
+            background: rgba(255,255,255,.92);
+        }
+        .osl-arrow:hover { transform: translateY(-50%); }
+        .osl-prev { right: 10px; }
+        .osl-next { left: 10px; }
+        [dir="ltr"] .osl-prev { right: auto; left: 10px; }
+        [dir="ltr"] .osl-next { left: auto; right: 10px; }
+        .osl-bar { padding: 0; flex-direction: column; align-items: stretch; gap: .6rem; }
+        .osl-counter { text-align: center; }
+    }
+
     @media (max-width: 768px) {
         .featured-banner { height: auto; min-height: 220px; margin: 0 1rem 1.5rem; }
         .featured-banner img { position: absolute; inset: 0; }
@@ -189,23 +286,48 @@
         <p>خصومات حصرية على برامجنا التدريبية المعتمدة — عروض محدودة المدة تنتهي قريباً.</p>
     </div>
 
-    <div class="oc-grid" id="offersGrid">
-        @forelse($offers as $offer)
-            @include('front.partials.offer-card', ['offer' => $offer])
-        @empty
-            <div class="offers-empty">
-                <div class="offers-empty-ico"><i class="bi bi-tags"></i></div>
-                <h3>لا توجد عروض حالياً</h3>
-                <p>تابعنا للاطلاع على أحدث العروض والخصومات</p>
-            </div>
-        @endforelse
+    @if($offers->isEmpty())
+        <div class="offers-empty">
+            <div class="offers-empty-ico"><i class="bi bi-tags"></i></div>
+            <h3>لا توجد عروض حالياً</h3>
+            <p>تابعنا للاطلاع على أحدث العروض والخصومات</p>
+        </div>
+    @else
+    <div class="osl" id="offersSlider" aria-roledescription="carousel" tabindex="0">
+        <div class="osl-stage">
+            <button type="button" class="osl-arrow osl-prev" onclick="slideBy(-1)" aria-label="العرض السابق">
+                <i class="bi bi-chevron-right"></i>
+            </button>
 
-        <div class="offers-empty" id="filterEmpty">
-            <div class="offers-empty-ico"><i class="bi bi-funnel"></i></div>
-            <h3>لا توجد عروض من هذا النوع</h3>
-            <p>جرّب تصنيفاً آخر</p>
+            <div class="osl-track" id="offersTrack">
+                @foreach($offers as $i => $offer)
+                    @include('front.partials.offer-slide', ['offer' => $offer, 'index' => $i])
+                @endforeach
+                <div class="offers-empty" id="filterEmpty">
+                    <div class="offers-empty-ico"><i class="bi bi-funnel"></i></div>
+                    <h3>لا توجد عروض من هذا النوع</h3>
+                    <p>جرّب تصنيفاً آخر</p>
+                </div>
+            </div>
+
+            <button type="button" class="osl-arrow osl-next" onclick="slideBy(1)" aria-label="العرض التالي">
+                <i class="bi bi-chevron-left"></i>
+            </button>
+        </div>
+
+        <div class="osl-bar">
+            <span class="osl-counter"><b id="slideNow">1</b> / <span id="slideTotal">{{ $offers->count() }}</span></span>
+            <div class="osl-thumbs" id="offersThumbs">
+                @foreach($offers as $i => $offer)
+                <button type="button" class="osl-thumb oc--{{ $offer->display['type'] }}" data-index="{{ $i }}" data-type="{{ $offer->discount_type }}" onclick="goToSlide({{ $i }})">
+                    <span class="osl-thumb-val">{{ $offer->display['num'] }}@if($offer->display['money'])<x-riyal />@else%@endif</span>
+                    <span class="osl-thumb-title">{{ Str::limit($offer->title_ar, 28) }}</span>
+                </button>
+                @endforeach
+            </div>
         </div>
     </div>
+    @endif
 </section>
 
 {{-- Mockup / CTA Section --}}
@@ -239,18 +361,103 @@
 
 @section('scripts')
 <script>
-function filterOffers(type, btn) {
-    document.querySelectorAll('.offer-flt').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    let n = 0;
-    document.querySelectorAll('#offersGrid .oc').forEach(c => {
-        const show = type === 'all' || c.dataset.type === type;
-        c.style.display = show ? '' : 'none';
-        if (show) n++;
+(function () {
+    const slider = document.getElementById('offersSlider');
+    if (!slider) return;
+
+    const isRtl  = document.documentElement.dir === 'rtl';
+    const slides = [...slider.querySelectorAll('.os-slide')];
+    const thumbs = [...slider.querySelectorAll('.osl-thumb')];
+    let visible  = slides.slice();   // slides allowed by the current filter
+    let pos      = 0;                // position inside `visible`
+    let current  = null;
+    let touched  = false;            // only write the URL hash after the visitor navigates
+
+    function stopMedia(slide) {
+        if (!slide) return;
+        slide.querySelectorAll('iframe[src]').forEach(f => { f.src = f.src; }); // reload = stop playback
+        slide.querySelectorAll('video').forEach(v => v.pause());
+    }
+
+    function loadMedia(slide) {
+        slide.querySelectorAll('[data-src]').forEach(el => {
+            if (!el.getAttribute('src')) el.setAttribute('src', el.dataset.src);
+        });
+    }
+
+    function render(fromPrev, initial) {
+        if (!initial) touched = true;
+        const empty = document.getElementById('filterEmpty');
+        slides.forEach(s => s.classList.remove('is-active', 'from-prev'));
+        thumbs.forEach(t => t.classList.remove('is-active'));
+        stopMedia(current);
+
+        empty.style.display = visible.length ? 'none' : 'block';
+        slider.querySelectorAll('.osl-arrow').forEach(a => a.disabled = visible.length < 2);
+        document.getElementById('slideTotal').textContent = visible.length;
+        document.getElementById('slideNow').textContent = visible.length ? pos + 1 : 0;
+        if (!visible.length) { current = null; return; }
+
+        current = visible[pos];
+        current.classList.add('is-active');
+        if (fromPrev) current.classList.add('from-prev');
+        loadMedia(current);
+
+        const thumb = thumbs.find(t => t.dataset.index === current.dataset.index);
+        if (thumb) {
+            thumb.classList.add('is-active');
+            if (touched) thumb.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
+        }
+        if (touched) history.replaceState(null, '', '#' + current.id);
+    }
+
+    window.slideBy = function (dir) {
+        if (visible.length < 2) return;
+        pos = (pos + dir + visible.length) % visible.length;
+        render(dir < 0);
+    };
+
+    window.goToSlide = function (index) {
+        const target = visible.findIndex(s => s.dataset.index === String(index));
+        if (target < 0 || target === pos) return;
+        const fromPrev = target < pos;
+        pos = target;
+        render(fromPrev);
+    };
+
+    window.filterOffers = function (type, btn) {
+        document.querySelectorAll('.offer-flt').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        visible = slides.filter(s => type === 'all' || s.dataset.type === type);
+        thumbs.forEach(t => t.style.display = (type === 'all' || t.dataset.type === type) ? '' : 'none');
+        document.getElementById('visibleCount').innerHTML = `<i class="bi bi-card-list"></i> ${visible.length} عرض`;
+        pos = 0;
+        render(false);
+    };
+
+    // Keyboard: the "next" arrow sits on the left in RTL
+    document.addEventListener('keydown', e => {
+        if (/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) return;
+        if (e.key === 'ArrowLeft')  slideBy(isRtl ? 1 : -1);
+        if (e.key === 'ArrowRight') slideBy(isRtl ? -1 : 1);
     });
-    document.getElementById('visibleCount').innerHTML = `<i class="bi bi-card-list"></i> ${n} عرض`;
-    const hasCards = document.querySelectorAll('#offersGrid .oc').length > 0;
-    document.getElementById('filterEmpty').style.display = hasCards && n === 0 ? 'block' : 'none';
-}
+
+    // Swipe
+    let startX = null;
+    const track = document.getElementById('offersTrack');
+    track.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, { passive: true });
+    track.addEventListener('touchend', e => {
+        if (startX === null) return;
+        const dx = e.changedTouches[0].clientX - startX;
+        startX = null;
+        if (Math.abs(dx) < 50) return;
+        slideBy((dx > 0) === isRtl ? 1 : -1);
+    });
+
+    // Open the offer from the URL hash (#offer-12) when present
+    const fromHash = slides.findIndex(s => '#' + s.id === location.hash);
+    pos = fromHash > 0 ? fromHash : 0;
+    render(false, true);
+})();
 </script>
 @endsection
