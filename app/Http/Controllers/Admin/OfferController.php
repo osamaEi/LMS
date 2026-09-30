@@ -83,6 +83,9 @@ class OfferController extends Controller
             'code.unique'             => 'كود العرض مستخدم مسبقاً',
         ]);
 
+        // discount_value column is NOT NULL; override offers use offer_price instead
+        $data['discount_value'] = $data['discount_value'] ?? 0;
+
         if ($request->hasFile('image')) {
             $data['image'] = $request->file('image')->store('offers', 'public');
         }
@@ -150,6 +153,9 @@ class OfferController extends Controller
             'end_date.after_or_equal' => 'تاريخ الانتهاء يجب أن يكون بعد تاريخ البداية',
             'code.unique'             => 'كود العرض مستخدم مسبقاً',
         ]);
+
+        // discount_value column is NOT NULL; override offers use offer_price instead
+        $data['discount_value'] = $data['discount_value'] ?? 0;
 
         if ($request->hasFile('image')) {
             if ($offer->image) Storage::disk('public')->delete($offer->image);
