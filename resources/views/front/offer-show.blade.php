@@ -34,7 +34,9 @@
     /* Media */
     .os-media { position: relative; aspect-ratio: 16 / 9; background: #0f172a; }
     .os-media iframe, .os-media video, .os-media img { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
-    .os-media img { object-fit: cover; }
+    .os-media--img { aspect-ratio: auto; overflow: hidden; display: flex; justify-content: center; }
+    .os-media--img .img-full { position: relative; z-index: 1; display: block; cursor: zoom-in; }
+    .os-media--img img { position: static; width: auto; height: auto; max-width: 100%; max-height: 75vh; display: block; }
     .os-media video { object-fit: contain; background: #000; }
     .os-media--hero {
         background: linear-gradient(135deg, var(--oc-c1), var(--oc-c2));
@@ -164,7 +166,13 @@
                         @endif
                     </div>
                 @elseif($offer->image_url)
-                    <div class="os-media"><img src="{{ $offer->image_url }}" alt="{{ $offer->title_ar }}"></div>
+                    <div class="os-media os-media--img">
+                        <span class="img-blur-bg" style="background-image:url('{{ $offer->image_url }}')"></span>
+                        <a href="{{ $offer->image_url }}" target="_blank" rel="noopener" class="img-full" title="عرض الصورة بالحجم الكامل">
+                            <img src="{{ $offer->image_url }}" alt="{{ $offer->title_ar }}">
+                            <span class="img-zoom"><i class="bi bi-arrows-fullscreen"></i></span>
+                        </a>
+                    </div>
                 @else
                     <div class="os-media os-media--hero">
                         <span class="os-hero-num">{{ $d['num'] }}<small>@if($d['money'])<x-riyal />@else%@endif</small></span>

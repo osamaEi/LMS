@@ -36,8 +36,7 @@
         overflow: hidden;
         flex-shrink: 0;
     }
-    .oc-media img { width: 100%; height: 100%; object-fit: cover; transition: transform .4s; }
-    .oc:hover .oc-media img { transform: scale(1.04); }
+    .oc-media img { position: relative; z-index: 1; width: 100%; height: 100%; object-fit: contain; }
     .oc-media iframe, .oc-media video {
         position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: #000; object-fit: contain;
     }
@@ -54,6 +53,22 @@
         content: ''; position: absolute; width: 220px; height: 220px; border-radius: 50%;
         background: rgba(255,255,255,.08); top: -70px; left: -60px;
     }
+    /* Uncropped image over a blurred copy of itself */
+    .img-blur-bg {
+        position: absolute; inset: -30px; z-index: 0;
+        background-size: cover; background-position: center;
+        filter: blur(24px) brightness(.9) saturate(1.15);
+    }
+    .img-zoom {
+        position: absolute; top: 12px; left: 12px; z-index: 2;
+        width: 34px; height: 34px; border-radius: 10px;
+        background: rgba(15,23,42,.55); color: #fff; font-size: .85rem;
+        display: flex; align-items: center; justify-content: center;
+        opacity: 0; transition: opacity .2s;
+    }
+    [dir="ltr"] .img-zoom { left: auto; right: 12px; }
+    a:hover > .img-zoom, .img-full:hover .img-zoom { opacity: 1; }
+
     .oc-play {
         position: absolute; bottom: 12px; left: 12px; z-index: 1;
         width: 40px; height: 40px; border-radius: 50%;

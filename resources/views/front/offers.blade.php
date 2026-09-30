@@ -103,7 +103,7 @@
         grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
         background: #fff; border: 1px solid #eef2f7; border-radius: 24px; overflow: hidden;
         box-shadow: 0 18px 50px rgba(15,23,42,.10);
-        min-height: 440px;
+        min-height: 500px;
     }
     .os-slide.is-active { display: grid; animation: slIn .45s ease; }
     .os-slide.is-active.from-prev { animation-name: slInPrev; }
@@ -114,7 +114,8 @@
     .os-slide.is-expired .sl-media { filter: grayscale(.6); }
 
     .sl-media { position: relative; background: #0f172a; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-    .sl-media img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .sl-media .img-full { position: absolute; inset: 0; display: block; z-index: 1; cursor: zoom-in; }
+    .sl-media img { width: 100%; height: 100%; object-fit: contain; display: block; }
     .sl-media iframe, .sl-media video { width: 100%; aspect-ratio: 16 / 9; height: auto; border: 0; background: #000; display: block; }
     .sl-media--hero { background: linear-gradient(135deg, var(--oc-c1), var(--oc-c2)); color: #fff; flex-direction: column; }
     .sl-media--hero::before, .sl-media--hero::after { content: ''; position: absolute; border-radius: 50%; background: rgba(255,255,255,.08); }
@@ -164,6 +165,7 @@
     @media (max-width: 900px) {
         .os-slide { grid-template-columns: 1fr; min-height: 0; }
         .sl-media { aspect-ratio: 16 / 9; }
+        .sl-media:has(.img-full) { aspect-ratio: 4 / 3; }
         .sl-info { padding: 1.25rem; }
         .sl-title { font-size: 1.3rem; }
         .osl-stage { position: relative; }

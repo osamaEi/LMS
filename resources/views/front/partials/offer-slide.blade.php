@@ -22,7 +22,12 @@
             <video data-src="{{ $offer->video_file_url }}" controls preload="none" playsinline
                    @if($offer->image_url) poster="{{ $offer->image_url }}" @endif></video>
         @elseif($offer->image_url)
-            <img src="{{ $offer->image_url }}" alt="{{ $offer->title_ar }}" {{ $index > 0 ? 'loading=lazy' : '' }}>
+            {{-- whole image, never cropped; a blurred copy fills the empty space --}}
+            <span class="img-blur-bg" style="background-image:url('{{ $offer->image_url }}')"></span>
+            <a href="{{ $offer->image_url }}" target="_blank" rel="noopener" class="img-full" title="عرض الصورة بالحجم الكامل">
+                <img src="{{ $offer->image_url }}" alt="{{ $offer->title_ar }}" {{ $index > 0 ? 'loading=lazy' : '' }}>
+                <span class="img-zoom"><i class="bi bi-arrows-fullscreen"></i></span>
+            </a>
         @else
             <span class="sl-hero-num">{{ $d['num'] }}<small>@if($d['money'])<x-riyal />@else%@endif</small></span>
             <span class="sl-hero-lbl">{{ $d['label'] }}</span>

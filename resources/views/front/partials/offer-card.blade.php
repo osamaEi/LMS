@@ -15,6 +15,7 @@
     {{-- Cards show the image; the video plays on the offer's page --}}
     @if($offer->image_url)
         <a href="{{ $showUrl }}" class="oc-media">
+            <span class="img-blur-bg" style="background-image:url('{{ $offer->image_url }}')"></span>
             <img src="{{ $offer->image_url }}" alt="{{ $offer->title_ar }}" loading="lazy">
             @if($offer->has_video)<span class="oc-play" title="يحتوي على فيديو"><i class="bi bi-play-fill"></i></span>@endif
         </a>
