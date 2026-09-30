@@ -169,9 +169,13 @@
             <p style="font-size:.82rem;color:#6b7280;margin:0 0 .75rem;line-height:1.6;">{{ $offer->description_ar }}</p>
             @endif
 
-            @if($offer->program)
-            <div style="display:inline-flex;align-items:center;gap:.4rem;background:rgba(139,92,246,.08);border-radius:8px;padding:.3rem .75rem;font-size:.75rem;font-weight:700;color:#7c3aed;margin-bottom:.75rem;">
-                🎓 {{ $offer->program->name_ar }}
+            @if($offer->programs->isNotEmpty())
+            <div style="display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:.75rem;">
+                @foreach($offer->programs as $prog)
+                <span style="display:inline-flex;align-items:center;gap:.4rem;background:rgba(139,92,246,.08);border-radius:8px;padding:.3rem .75rem;font-size:.75rem;font-weight:700;color:#7c3aed;">
+                    🎓 {{ $prog->name_ar }}
+                </span>
+                @endforeach
             </div>
             @else
             <div style="display:inline-flex;align-items:center;gap:.4rem;background:rgba(59,130,246,.08);border-radius:8px;padding:.3rem .75rem;font-size:.75rem;font-weight:700;color:#2563eb;margin-bottom:.75rem;">
@@ -249,8 +253,8 @@
                 🕐 قادم — {{ $offer->discount_label }} خصم
             </span>
             <h2 style="font-size:1rem;font-weight:900;color:#111827;margin:.4rem 0 .3rem;">{{ $offer->title_ar }}</h2>
-            @if($offer->program)
-            <div style="font-size:.75rem;color:#7c3aed;font-weight:700;margin-bottom:.5rem;">🎓 {{ $offer->program->name_ar }}</div>
+            @if($offer->programs->isNotEmpty())
+            <div style="font-size:.75rem;color:#7c3aed;font-weight:700;margin-bottom:.5rem;">🎓 {{ $offer->programs->pluck('name_ar')->implode('، ') }}</div>
             @endif
             <div style="font-size:.8rem;color:#6b7280;">
                 📅 يبدأ في {{ $offer->start_date->format('Y/m/d') }}

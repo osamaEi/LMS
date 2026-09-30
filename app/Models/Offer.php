@@ -35,6 +35,32 @@ class Offer extends Model
         return $this->belongsTo(Program::class);
     }
 
+    /** Programs / courses the offer applies to. Empty = all programs. */
+    public function programs()
+    {
+        return $this->belongsToMany(Program::class)->withTimestamps();
+    }
+
+    public function getAppliesToAllAttribute(): bool
+    {
+        return $this->programs->isEmpty();
+    }
+
+    /**
+     * Cheapest original price among the offer's programs and its price after the offer,
+     * or null when there is no priced program to compare against.
+     */
+    public function getPriceInfoAttribute(): ?array
+    {
+        $programs = $this->programs->filter(fn($p) => (float) $p->price > 0);
+        if ($programs->isEmpty()) return null;
+
+        $rows = $programs->map(fn($p) => ['orig' => (float) $p->price, 'new' => $this->getEffectivePriceForProgram($p)]);
+        $best = $rows->sortBy('new')->first();
+
+        return $best + ['from' => $programs->count() > 1];
+    }
+
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');
@@ -112,6 +138,21 @@ class Offer extends Model
     public function getDaysLeftAttribute(): int
     {
         return max(0, (int) now()->diffInDays($this->end_date, false));
+    }
+
+    /** Values for rendering the discount headline: number, whether it is money, label, css type. */
+    public function getDisplayAttribute(): array
+    {
+        return match ($this->discount_type) {
+            'percentage' => ['num' => number_format($this->discount_value, 0), 'money' => false, 'label' => 'نسبة خصم', 'type' => 'pct'],
+            'fixed'      => ['num' => number_format($this->discount_value, 0), 'money' => true,  'label' => 'خصم ثابت', 'type' => 'fix'],
+            default      => ['num' => number_format($this->offer_price, 0),    'money' => true,  'label' => 'سعر العرض', 'type' => 'ovr'],
+        };
+    }
+
+    public function getImageUrlAttribute(): ?string
+    {
+        return $this->image ? asset('storage/' . $this->image) : null;
     }
 
     public function getHasVideoAttribute(): bool

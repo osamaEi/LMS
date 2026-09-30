@@ -9,8 +9,8 @@ class OfferController extends Controller
 {
     public function index()
     {
-        $activeOffers   = Offer::with('program')->active()->orderBy('end_date')->get();
-        $upcomingOffers = Offer::with('program')->upcoming()->orderBy('start_date')->get();
+        $activeOffers   = Offer::with('programs')->active()->orderBy('end_date')->get();
+        $upcomingOffers = Offer::with('programs')->upcoming()->orderBy('start_date')->get();
 
         return view('student.offers.index', compact('activeOffers', 'upcomingOffers'));
     }

@@ -13,14 +13,14 @@ class OfferController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Offer::with(['program', 'creator']);
+        $query = Offer::with(['programs', 'creator']);
 
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
 
         if ($request->filled('program_id')) {
-            $query->where('program_id', $request->program_id);
+            $query->whereHas('programs', fn($q) => $q->where('programs.id', $request->program_id));
         }
 
         if ($request->filled('search')) {
@@ -62,7 +62,8 @@ class OfferController extends Controller
             'discount_type'  => 'required|in:percentage,fixed,override',
             'discount_value' => $isOverride ? 'nullable|numeric|min:0' : 'required|numeric|min:0.01',
             'offer_price'    => $isOverride ? 'required|numeric|min:0' : 'nullable|numeric|min:0',
-            'program_id'     => 'nullable|exists:programs,id',
+            'program_ids'    => 'nullable|array',
+            'program_ids.*'  => 'integer|exists:programs,id',
             'start_date'     => 'required|date',
             'end_date'       => 'required|date|after_or_equal:start_date',
             'max_uses'       => 'nullable|integer|min:1',
@@ -104,7 +105,12 @@ class OfferController extends Controller
             $data['code'] = strtoupper($data['code']);
         }
 
-        Offer::create($data);
+        $programIds = array_values(array_unique($data['program_ids'] ?? []));
+        unset($data['program_ids']);
+        $data['program_id'] = $programIds[0] ?? null; // legacy single-program column
+
+        $offer = Offer::create($data);
+        $offer->programs()->sync($programIds);
 
         return redirect()->route('admin.offers.index')
             ->with('success', 'تم إنشاء العرض بنجاح');
@@ -112,7 +118,7 @@ class OfferController extends Controller
 
     public function show(Offer $offer)
     {
-        $offer->load(['program', 'creator']);
+        $offer->load(['programs', 'creator']);
         return view('admin.offers.show', compact('offer'));
     }
 
@@ -135,7 +141,8 @@ class OfferController extends Controller
             'discount_type'  => 'required|in:percentage,fixed,override',
             'discount_value' => $isOverride ? 'nullable|numeric|min:0' : 'required|numeric|min:0.01',
             'offer_price'    => $isOverride ? 'required|numeric|min:0' : 'nullable|numeric|min:0',
-            'program_id'     => 'nullable|exists:programs,id',
+            'program_ids'    => 'nullable|array',
+            'program_ids.*'  => 'integer|exists:programs,id',
             'start_date'     => 'required|date',
             'end_date'       => 'required|date|after_or_equal:start_date',
             'max_uses'       => 'nullable|integer|min:1',
@@ -181,7 +188,12 @@ class OfferController extends Controller
             $data['code'] = strtoupper($data['code']);
         }
 
+        $programIds = array_values(array_unique($data['program_ids'] ?? []));
+        unset($data['program_ids']);
+        $data['program_id'] = $programIds[0] ?? null; // legacy single-program column
+
         $offer->update($data);
+        $offer->programs()->sync($programIds);
 
         return redirect()->route('admin.offers.index')
             ->with('success', 'تم تحديث العرض بنجاح');

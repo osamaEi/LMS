@@ -39,6 +39,21 @@ class Program extends Model
     }
 
     /**
+     * Public (front site) page for this program — its detail page when one exists,
+     * otherwise the listing page of its category.
+     */
+    public function getPublicUrlAttribute(): string
+    {
+        return match (true) {
+            $this->type === 'english'                                        => route('english-courses.show', $this),
+            $this->type === 'course' && $this->course_type === 'developmental' => route('courses.developmental.show', $this),
+            $this->type === 'course'                                         => route('courses.qualifying'),
+            $this->type === 'training'                                       => route('training-programs'),
+            default                                                          => route('training-paths.show', $this),
+        };
+    }
+
+    /**
      * Get the localized description
      */
     public function getDescriptionAttribute(): ?string

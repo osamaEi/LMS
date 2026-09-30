@@ -117,7 +117,7 @@ Route::get('/short-courses', function () {
     $programs = \App\Models\Program::where('status', 'active')
         ->where('type', 'course')
         ->get();
-    $activeOffers = \App\Models\Offer::active()->with('program')->get();
+    $activeOffers = \App\Models\Offer::active()->with('programs')->get();
     return view('front.short-courses', compact('programs', 'activeOffers'));
 })->name('short-courses');
 
@@ -179,7 +179,7 @@ Route::get('/english-courses/{program}', function (\App\Models\Program $program)
 })->name('english-courses.show');
 
 Route::get('/offers', function () {
-    $offers = \App\Models\Offer::with('program')
+    $offers = \App\Models\Offer::with('programs')
         ->where('status', 'active')
         ->orderByRaw("CASE WHEN start_date <= NOW() AND end_date >= NOW() THEN 0 WHEN start_date > NOW() THEN 1 ELSE 2 END")
         ->orderBy('end_date')
@@ -194,6 +194,20 @@ Route::get('/offers', function () {
 
     return view('front.offers', compact('offers', 'stats'));
 })->name('offers');
+
+Route::get('/offers/{offer}', function (\App\Models\Offer $offer) {
+    abort_unless($offer->status === 'active', 404);
+    $offer->load('programs');
+
+    $otherOffers = \App\Models\Offer::with('programs')
+        ->active()
+        ->where('id', '!=', $offer->id)
+        ->orderBy('end_date')
+        ->take(3)
+        ->get();
+
+    return view('front.offer-show', compact('offer', 'otherOffers'));
+})->name('offers.show');
 
 Route::get('/about', function () {
     return view('front.about');

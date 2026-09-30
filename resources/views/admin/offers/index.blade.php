@@ -170,8 +170,13 @@
         @endif
 
         <div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.75rem;">
-            @if($offer->program)
-                <span class="tag tag-program">🎓 {{ $offer->program->name_ar }}</span>
+            @if($offer->programs->isNotEmpty())
+                @foreach($offer->programs->take(2) as $prog)
+                <span class="tag tag-program">🎓 {{ Str::limit($prog->name_ar, 30) }}</span>
+                @endforeach
+                @if($offer->programs->count() > 2)
+                <span class="tag tag-program" title="{{ $offer->programs->skip(2)->pluck('name_ar')->implode('، ') }}">+{{ $offer->programs->count() - 2 }}</span>
+                @endif
             @else
                 <span class="tag tag-global">🌐 جميع البرامج</span>
             @endif

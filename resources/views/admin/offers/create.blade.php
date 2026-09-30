@@ -202,17 +202,11 @@
                 <svg style="width:16px;height:16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                 البرنامج والصلاحية
             </div>
+            <div class="f-group">
+                <label class="f-label">البرامج والدورات المشمولة بالعرض</label>
+                @include('admin.offers.partials.program-picker', ['selected' => old('program_ids', [])])
+            </div>
             <div class="f-grid">
-                <div class="f-group">
-                    <label class="f-label">البرنامج المخصص له</label>
-                    <select name="program_id" class="f-select">
-                        <option value="">🌐 جميع البرامج</option>
-                        @foreach($programs as $prog)
-                        <option value="{{ $prog->id }}" {{ old('program_id')==$prog->id?'selected':'' }}>{{ $prog->name_ar }}</option>
-                        @endforeach
-                    </select>
-                    <span class="f-hint">اتركه فارغاً لتطبيق العرض على جميع البرامج</span>
-                </div>
                 <div class="f-group">
                     <label class="f-label">الحد الأقصى للاستخدامات</label>
                     <input name="max_uses" class="f-input" type="number" min="1" value="{{ old('max_uses') }}" placeholder="مثال: 100">
