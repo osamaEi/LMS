@@ -21,7 +21,6 @@
 @section('title', $offer->title_ar . ' — العروض والخصومات')
 
 @section('styles')
-<style>
     .os-wrap { padding: 2rem clamp(1rem, 3vw, 3rem) 3rem; background: #f8fafc; }
     .os-grid { display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr); gap: 1.75rem; align-items: start; max-width: 1280px; margin: 0 auto; }
     @media (max-width: 992px) { .os-grid { grid-template-columns: 1fr; } }
@@ -131,7 +130,6 @@
     .os-more-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; }
     .os-more-head h2 { font-size: 1.35rem; font-weight: 800; margin: 0; }
     .os-more-head a { font-size: .88rem; font-weight: 700; color: #0071AA; text-decoration: none; }
-</style>
 @endsection
 
 @section('content')
@@ -162,8 +160,7 @@
                             <iframe src="{{ $offer->video_embed_url }}" title="{{ $offer->title_ar }}"
                                     allow="encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>
                         @else
-                            <video src="{{ $offer->video_file_url }}" controls preload="metadata" playsinline
-                                   @if($offer->image_url) poster="{{ $offer->image_url }}" @endif></video>
+                            <video src="{{ $offer->video_file_url }}" controls preload="metadata" playsinline></video>
                         @endif
                     </div>
                 @elseif($offer->image_url)
@@ -185,7 +182,7 @@
                         <p class="os-desc os-desc-empty">
                             احصل على {{ $d['label'] }} بقيمة {{ $d['num'] }}@if($d['money']) <x-riyal />@else%@endif
                             على {{ $progText }}
-                            حتى {{ $offer->end_date->format('d/m/Y') }}.
+                            {{ $offer->end_date ? 'حتى ' . $offer->end_date->format('d/m/Y') : '— عرض مستمر لفترة غير محددة' }}.
                         </p>
                     @endif
                 </div>
@@ -295,7 +292,11 @@
                         @endif
                     </div>
 
-                    @if($isActive)
+                    @if($isActive && $offer->is_open_ended)
+                        <div class="oc-countdown oc-countdown--open" style="margin-bottom:1rem;">
+                            <i class="bi bi-infinity"></i> <span>عرض مستمر — لفترة غير محددة</span>
+                        </div>
+                    @elseif($isActive)
                         <div class="os-cd-title"><i class="bi bi-hourglass-split"></i> ينتهي العرض خلال</div>
                         <div class="os-cd" data-end="{{ $offer->end_date->copy()->endOfDay()->toISOString() }}">
                             <div class="os-cd-box"><b class="cd-days">--</b><span>يوم</span></div>
@@ -317,7 +318,7 @@
 
                     <ul class="os-info">
                         <li><span><i class="bi bi-calendar-check"></i> يبدأ</span><b>{{ $offer->start_date->format('d/m/Y') }}</b></li>
-                        <li><span><i class="bi bi-calendar-x"></i> ينتهي</span><b>{{ $offer->end_date->format('d/m/Y') }}</b></li>
+                        <li><span><i class="bi bi-calendar-x"></i> ينتهي</span><b>{{ $offer->end_date?->format('d/m/Y') ?? '♾️ غير محدد' }}</b></li>
                         @if($offer->max_uses)
                         <li style="display:block;">
                             <div style="display:flex;justify-content:space-between;">

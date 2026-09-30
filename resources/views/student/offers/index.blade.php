@@ -142,7 +142,7 @@
     @foreach($activeOffers as $offer)
     @php
         $daysLeft = $offer->days_left;
-        $badgeClass = $daysLeft <= 3 ? 'badge-hot' : ($daysLeft <= 14 ? 'badge-soon' : 'badge-normal');
+        $badgeClass = $daysLeft === null ? 'badge-normal' : ($daysLeft <= 3 ? 'badge-hot' : ($daysLeft <= 14 ? 'badge-soon' : 'badge-normal'));
     @endphp
     <div class="offer-card">
         @if($offer->image)
@@ -193,12 +193,14 @@
             @endif
 
             {{-- Countdown timer --}}
-            <div class="timer-wrap" data-end="{{ $offer->end_date->endOfDay()->toIso8601String() }}">
+            @unless($offer->is_open_ended)
+            <div class="timer-wrap" data-end="{{ $offer->end_date->copy()->endOfDay()->toIso8601String() }}">
                 <div class="timer-box"><span class="timer-num" data-days>{{ $daysLeft }}</span><span class="timer-lbl">يوم</span></div>
                 <div class="timer-box"><span class="timer-num" data-hours>00</span><span class="timer-lbl">ساعة</span></div>
                 <div class="timer-box"><span class="timer-num" data-mins>00</span><span class="timer-lbl">دقيقة</span></div>
                 <div class="timer-box"><span class="timer-num" data-secs>00</span><span class="timer-lbl">ثانية</span></div>
             </div>
+            @endunless
 
             @if($offer->max_uses)
             @php $usePct = min(100, ($offer->uses_count / $offer->max_uses) * 100); @endphp
@@ -217,11 +219,17 @@
         <div class="offer-footer">
             <div>
                 <span class="days-badge {{ $badgeClass }}">
+                    @if($daysLeft === null)
+                    ♾️ عرض مستمر
+                    @else
                     ⏰ {{ $daysLeft == 0 ? 'ينتهي اليوم!' : 'متبقي '.$daysLeft.' يوم' }}
+                    @endif
                 </span>
+                @if($offer->end_date)
                 <div style="font-size:.7rem;color:#9ca3af;margin-top:.25rem;">
                     ينتهي {{ $offer->end_date->format('Y/m/d') }}
                 </div>
+                @endif
             </div>
             <a href="{{ route('student.payments.index') }}" class="contact-btn">
                 <svg style="width:15px;height:15px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
@@ -261,7 +269,7 @@
             </div>
         </div>
         <div class="offer-footer">
-            <span style="font-size:.78rem;color:#9ca3af;font-weight:600;">ينتهي {{ $offer->end_date->format('Y/m/d') }}</span>
+            <span style="font-size:.78rem;color:#9ca3af;font-weight:600;">{{ $offer->end_date ? 'ينتهي ' . $offer->end_date->format('Y/m/d') : '♾️ عرض مستمر' }}</span>
         </div>
     </div>
     @endforeach

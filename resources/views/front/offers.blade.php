@@ -3,7 +3,6 @@
 @section('title', 'العروض والخصومات — أكاديمية الارتقاء')
 
 @section('styles')
-<style>
     /* Featured Banner */
     .featured-banner {
         margin: 0 clamp(1rem, 3vw, 3rem) 2rem;
@@ -70,7 +69,7 @@
     .offer-count i { color: #0071AA; }
 
     /* Section */
-    .offers-section { padding: 2.5rem clamp(1rem, 3vw, 3rem); background: #f8fafc; min-height: 50vh; }
+    .offers-section { padding: 2.5rem clamp(1rem, 3vw, 3rem); background: #f8fafc; min-height: 420px; }
     .offers-section .head { text-align: center; margin-bottom: 2rem; }
     .offers-section .head h2 { margin: 1rem 0 .5rem; font-weight: 800; }
     .offers-section .head p { max-width: 700px; margin: 0 auto; line-height: 1.8; color: #384250; font-size: .95rem; }
@@ -130,7 +129,6 @@
     .cta-disc-pct { display: block; font-size: 1.3rem; font-weight: 900; color: #fff; line-height: 1; }
     .cta-disc-lbl { display: block; font-size: 9px; font-weight: 700; color: rgba(255,255,255,.85); margin-top: 2px; white-space: nowrap; }
     @media (max-width: 768px) { .cta-formal-inner img { height: 240px; } }
-</style>
 @endsection
 
 @section('content')

@@ -186,9 +186,9 @@
         </div>
 
         <div style="display:flex;gap:1rem;font-size:.72rem;color:#9ca3af;margin-top:auto;flex-wrap:wrap;">
-            <span>📅 {{ $offer->start_date->format('Y/m/d') }} → {{ $offer->end_date->format('Y/m/d') }}</span>
+            <span>📅 {{ $offer->start_date->format('Y/m/d') }} → {{ $offer->end_date?->format('Y/m/d') ?? '♾️ مفتوح' }}</span>
             @if($isActive)
-            <span style="color:#10b981;font-weight:700;">⏳ {{ $offer->days_left }} يوم متبقي</span>
+            <span style="color:#10b981;font-weight:700;">{{ $offer->is_open_ended ? '♾️ مستمر بدون تاريخ انتهاء' : '⏳ ' . $offer->days_left . ' يوم متبقي' }}</span>
             @endif
             @if($offer->max_uses)
             <span>🔢 {{ $offer->uses_count }}/{{ $offer->max_uses }} استخدام</span>

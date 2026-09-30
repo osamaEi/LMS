@@ -71,14 +71,19 @@ class Offer extends Model
     public function scopeActive($query)
     {
         return $query->where('status', 'active')
-                     ->where('start_date', '<=', now())
-                     ->where('end_date', '>=', now());
+                     ->whereDate('start_date', '<=', today())
+                     ->where(fn($q) => $q->whereNull('end_date')->orWhereDate('end_date', '>=', today()));
+    }
+
+    public function scopeExpired($query)
+    {
+        return $query->whereNotNull('end_date')->whereDate('end_date', '<', today());
     }
 
     public function scopeUpcoming($query)
     {
         return $query->where('status', 'active')
-                     ->where('start_date', '>', now());
+                     ->whereDate('start_date', '>', today());
     }
 
     // ── Accessors ──────────────────────────────────────────────────────────────
@@ -121,23 +126,31 @@ class Offer extends Model
     public function getIsActiveAttribute(): bool
     {
         return $this->status === 'active'
-            && $this->start_date->lte(now())
-            && $this->end_date->gte(now());
+            && $this->start_date->lte(today())
+            && !$this->is_expired;
+    }
+
+    /** Open-ended offer: no end date, stays on until disabled. */
+    public function getIsOpenEndedAttribute(): bool
+    {
+        return is_null($this->end_date);
     }
 
     public function getIsExpiredAttribute(): bool
     {
-        return $this->end_date->lt(now());
+        return $this->end_date !== null && $this->end_date->lt(today());
     }
 
     public function getIsUpcomingAttribute(): bool
     {
-        return $this->start_date->gt(now());
+        return $this->start_date->gt(today());
     }
 
-    public function getDaysLeftAttribute(): int
+    /** Days until the offer ends; null for open-ended offers. */
+    public function getDaysLeftAttribute(): ?int
     {
-        return max(0, (int) now()->diffInDays($this->end_date, false));
+        if ($this->end_date === null) return null;
+        return max(0, (int) today()->diffInDays($this->end_date, false));
     }
 
     /** Values for rendering the discount headline: number, whether it is money, label, css type. */

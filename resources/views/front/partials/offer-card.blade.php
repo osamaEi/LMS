@@ -12,24 +12,17 @@
 <article class="oc oc--{{ $d['type'] }} {{ $isExpired ? 'is-expired' : '' }}" data-type="{{ $offer->discount_type }}">
 
     {{-- Media --}}
-    @if($offer->has_video)
-        <div class="oc-media oc-media--video">
-            @if($offer->video_embed_url)
-                <iframe src="{{ $offer->video_embed_url }}" title="{{ $offer->title_ar }}" loading="lazy"
-                        allow="encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>
-            @else
-                <video src="{{ $offer->video_file_url }}" controls preload="metadata" playsinline
-                       @if($offer->image_url) poster="{{ $offer->image_url }}" @endif></video>
-            @endif
-        </div>
-    @elseif($offer->image_url)
+    {{-- Cards show the image; the video plays on the offer's page --}}
+    @if($offer->image_url)
         <a href="{{ $showUrl }}" class="oc-media">
             <img src="{{ $offer->image_url }}" alt="{{ $offer->title_ar }}" loading="lazy">
+            @if($offer->has_video)<span class="oc-play" title="يحتوي على فيديو"><i class="bi bi-play-fill"></i></span>@endif
         </a>
     @else
         <a href="{{ $showUrl }}" class="oc-media oc-media--hero">
             <span class="oc-hero-num">{{ $d['num'] }}<small>@if($d['money'])<x-riyal />@else%@endif</small></span>
             <span class="oc-hero-lbl">{{ $d['label'] }}</span>
+            @if($offer->has_video)<span class="oc-play" title="يحتوي على فيديو"><i class="bi bi-play-fill"></i></span>@endif
         </a>
     @endif
 
@@ -82,7 +75,12 @@
         </div>
         @endif
 
-        @if($isActive)
+        @if($isActive && $offer->is_open_ended)
+        <div class="oc-countdown oc-countdown--open">
+            <i class="bi bi-infinity"></i>
+            <span>عرض مستمر — لفترة غير محددة</span>
+        </div>
+        @elseif($isActive)
         <div class="oc-countdown" data-end="{{ $offer->end_date->copy()->endOfDay()->toISOString() }}">
             <i class="bi bi-hourglass-split"></i>
             <span>ينتهي خلال</span>
@@ -109,7 +107,11 @@
         @endif
 
         <div class="oc-meta">
+            @if($offer->end_date)
             <span><i class="bi bi-calendar3"></i> حتى {{ $offer->end_date->format('d/m/Y') }}</span>
+            @else
+            <span><i class="bi bi-infinity"></i> بدون تاريخ انتهاء</span>
+            @endif
             @if($offer->max_uses && $offer->uses_left !== null)
             <span><i class="bi bi-people-fill"></i> {{ $offer->uses_left }} مقعد متبقٍ</span>
             @endif

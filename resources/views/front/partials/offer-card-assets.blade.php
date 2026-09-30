@@ -2,13 +2,17 @@
 <style>
     .oc-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(320px, 380px));
+        justify-content: center;
         gap: 1.5rem;
+        max-width: 1280px;
+        margin: 0 auto;
     }
     @media (max-width: 400px) { .oc-grid { grid-template-columns: 1fr; } }
 
+    /* Colour tokens — any element with an oc--{type} class (cards, the offer page) */
+    .oc, .oc--pct { --oc-c1: #0071AA; --oc-c2: #0ea5e9; --oc-soft: #eaf5fb; }
     .oc {
-        --oc-c1: #0071AA; --oc-c2: #0ea5e9; --oc-soft: #eaf5fb;
         background: #fff;
         border-radius: 18px;
         overflow: hidden;
@@ -50,6 +54,15 @@
         content: ''; position: absolute; width: 220px; height: 220px; border-radius: 50%;
         background: rgba(255,255,255,.08); top: -70px; left: -60px;
     }
+    .oc-play {
+        position: absolute; bottom: 12px; left: 12px; z-index: 1;
+        width: 40px; height: 40px; border-radius: 50%;
+        background: rgba(255,255,255,.92); color: var(--oc-c1);
+        display: flex; align-items: center; justify-content: center; font-size: 1.35rem;
+        box-shadow: 0 4px 14px rgba(0,0,0,.2); transition: transform .2s;
+    }
+    [dir="ltr"] .oc-play { left: auto; right: 12px; }
+    .oc:hover .oc-play { transform: scale(1.1); }
     .oc-hero-num { font-size: 4rem; font-weight: 900; line-height: 1; text-shadow: 0 4px 16px rgba(0,0,0,.15); }
     .oc-hero-num small { font-size: 1.4rem; font-weight: 800; margin-inline-start: .25rem; }
     .oc-hero-lbl { font-size: .85rem; font-weight: 700; opacity: .85; margin-top: .35rem; }
@@ -106,6 +119,7 @@
     .oc-countdown small { font-size: .72rem; font-weight: 700; }
     .oc-countdown > span { margin-inline-end: .2rem; }
     .oc-countdown--soon { color: #1d4ed8; background: #eff6ff; border-color: #bfdbfe; }
+    .oc-countdown--open { color: #047857; background: #ecfdf5; border-color: #a7f3d0; }
 
     .oc-code {
         display: flex; align-items: center; gap: .5rem;

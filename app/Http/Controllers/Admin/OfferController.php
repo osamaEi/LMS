@@ -36,7 +36,7 @@ class OfferController extends Controller
         $stats = [
             'total'    => Offer::count(),
             'active'   => Offer::active()->count(),
-            'expired'  => Offer::where('end_date', '<', now())->count(),
+            'expired'  => Offer::expired()->count(),
             'upcoming' => Offer::upcoming()->count(),
         ];
 
@@ -65,7 +65,7 @@ class OfferController extends Controller
             'program_ids'    => 'nullable|array',
             'program_ids.*'  => 'integer|exists:programs,id',
             'start_date'     => 'required|date',
-            'end_date'       => 'required|date|after_or_equal:start_date',
+            'end_date'       => $request->boolean('no_end_date') ? 'nullable' : 'required|date|after_or_equal:start_date',
             'max_uses'       => 'nullable|integer|min:1',
             'status'         => 'required|in:active,inactive',
             'image'          => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
@@ -79,10 +79,12 @@ class OfferController extends Controller
             'video_file.mimes'        => 'صيغة الفيديو يجب أن تكون MP4 أو WebM أو MOV',
             'video_file.max'          => 'حجم الفيديو يجب ألا يتجاوز 100MB',
             'start_date.required'     => 'تاريخ البداية مطلوب',
-            'end_date.required'       => 'تاريخ الانتهاء مطلوب',
+            'end_date.required'       => 'تاريخ الانتهاء مطلوب — أو فعّل خيار «بدون تاريخ انتهاء»',
             'end_date.after_or_equal' => 'تاريخ الانتهاء يجب أن يكون بعد تاريخ البداية',
             'code.unique'             => 'كود العرض مستخدم مسبقاً',
         ]);
+
+        if ($request->boolean('no_end_date')) $data['end_date'] = null;
 
         // discount_value column is NOT NULL; override offers use offer_price instead
         $data['discount_value'] = $data['discount_value'] ?? 0;
@@ -144,7 +146,7 @@ class OfferController extends Controller
             'program_ids'    => 'nullable|array',
             'program_ids.*'  => 'integer|exists:programs,id',
             'start_date'     => 'required|date',
-            'end_date'       => 'required|date|after_or_equal:start_date',
+            'end_date'       => $request->boolean('no_end_date') ? 'nullable' : 'required|date|after_or_equal:start_date',
             'max_uses'       => 'nullable|integer|min:1',
             'status'         => 'required|in:active,inactive',
             'image'          => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
@@ -160,6 +162,8 @@ class OfferController extends Controller
             'end_date.after_or_equal' => 'تاريخ الانتهاء يجب أن يكون بعد تاريخ البداية',
             'code.unique'             => 'كود العرض مستخدم مسبقاً',
         ]);
+
+        if ($request->boolean('no_end_date')) $data['end_date'] = null;
 
         // discount_value column is NOT NULL; override offers use offer_price instead
         $data['discount_value'] = $data['discount_value'] ?? 0;

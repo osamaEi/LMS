@@ -1,4 +1,4 @@
-﻿@extends('layouts.dashboard')
+@extends('layouts.dashboard')
 
 @section('title', 'تعديل العرض: ' . $offer->title_ar)
 
@@ -40,6 +40,9 @@
     .f-btn-submit:hover { transform:translateY(-1px); box-shadow:0 6px 20px rgba(0,113,170,.3); }
     .f-btn-cancel { display:inline-flex; align-items:center; gap:.5rem; padding:.8rem 1.5rem; border-radius:12px; background:#f3f4f6; color:#6b7280; font-weight:700; font-size:.9rem; border:none; cursor:pointer; text-decoration:none; transition:all .2s; }
     .dark .f-btn-cancel { background:#374151; color:#d1d5db; }
+    .f-check { display:flex; align-items:center; gap:.5rem; margin-top:.55rem; font-size:.8rem; font-weight:700; color:#0071AA; cursor:pointer; }
+    .f-check input { accent-color:#0071AA; width:16px; height:16px; }
+    .f-input:disabled { opacity:.45; cursor:not-allowed; }
     .error-msg { font-size:.75rem; color:#ef4444; margin-top:.3rem; display:block; }
     #img-preview { max-width:100%; height:130px; object-fit:cover; border-radius:10px; margin-top:.75rem; }
     .current-img { width:100%; height:130px; object-fit:cover; border-radius:10px; margin-bottom:.5rem; display:block; }
@@ -183,8 +186,12 @@
                     @error('start_date')<span class="error-msg">{{ $message }}</span>@enderror
                 </div>
                 <div class="f-group">
-                    <label class="f-label"><span class="f-required">*</span>تاريخ الانتهاء</label>
-                    <input name="end_date" class="f-input" type="date" value="{{ old('end_date',$offer->end_date->format('Y-m-d')) }}" required>
+                    <label class="f-label"><span class="f-required" id="end-date-star">*</span>تاريخ الانتهاء</label>
+                    <input name="end_date" id="inp-end-date" class="f-input" type="date" value="{{ old('end_date', $offer->end_date?->format('Y-m-d')) }}" required>
+                    <label class="f-check">
+                        <input type="checkbox" name="no_end_date" value="1" {{ old('no_end_date', $offer->is_open_ended) ? 'checked' : '' }} onchange="toggleEndDate(this.checked)">
+                        <span>♾️ بدون تاريخ انتهاء — العرض مستمر حتى إيقافه يدوياً</span>
+                    </label>
                     @error('end_date')<span class="error-msg">{{ $message }}</span>@enderror
                 </div>
             </div>
@@ -312,6 +319,18 @@ function previewImg(input) {
         reader.readAsDataURL(input.files[0]);
     }
 }
+
+function toggleEndDate(open) {
+    var inp  = document.getElementById('inp-end-date');
+    var star = document.getElementById('end-date-star');
+    inp.disabled = open;
+    inp.required = !open;
+    if (star) star.style.visibility = open ? 'hidden' : 'visible';
+}
+(function() {
+    var cb = document.querySelector('input[name="no_end_date"]');
+    if (cb) toggleEndDate(cb.checked);
+})();
 
 function toggleDiscountFields(type) {
     var rowDiscount = document.getElementById('row-discount-value');

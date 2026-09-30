@@ -181,8 +181,8 @@ Route::get('/english-courses/{program}', function (\App\Models\Program $program)
 Route::get('/offers', function () {
     $offers = \App\Models\Offer::with('programs')
         ->where('status', 'active')
-        ->orderByRaw("CASE WHEN start_date <= NOW() AND end_date >= NOW() THEN 0 WHEN start_date > NOW() THEN 1 ELSE 2 END")
-        ->orderBy('end_date')
+        ->orderByRaw("CASE WHEN start_date > CURDATE() THEN 1 WHEN end_date IS NULL OR end_date >= CURDATE() THEN 0 ELSE 2 END")
+        ->orderByRaw('end_date IS NULL, end_date')
         ->get();
 
     $stats = [
@@ -202,7 +202,7 @@ Route::get('/offers/{offer}', function (\App\Models\Offer $offer) {
     $otherOffers = \App\Models\Offer::with('programs')
         ->active()
         ->where('id', '!=', $offer->id)
-        ->orderBy('end_date')
+        ->orderByRaw('end_date IS NULL, end_date')
         ->take(3)
         ->get();
 
