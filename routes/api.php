@@ -149,8 +149,11 @@ Route::prefix('v1')->group(function () {
             Route::post('/subjects/{subjectId}/quizzes/{quizId}/submit', [App\Http\Controllers\Api\V1\Student\QuizController::class, 'submit']);
             Route::get('/subjects/{subjectId}/quizzes/{quizId}/result/{attemptId}', [App\Http\Controllers\Api\V1\Student\QuizController::class, 'result']);
 
+            // Grades
+            Route::get('/grades', [App\Http\Controllers\Api\V1\Student\GradesController::class, 'index']);
+
             // Homework
-            Route::get('/homework', [App\Http\Controllers\Api\V1\Student\HomeworkController::class, 'index']);
+            Route::get('/homework',[App\Http\Controllers\Api\V1\Student\HomeworkController::class, 'index']);
             Route::get('/homework/{id}', [App\Http\Controllers\Api\V1\Student\HomeworkController::class, 'show']);
             Route::post('/homework/{id}/submit', [App\Http\Controllers\Api\V1\Student\HomeworkController::class, 'submit']);
             Route::delete('/homework/submissions/{id}', [App\Http\Controllers\Api\V1\Student\HomeworkController::class, 'deleteSubmission']);
