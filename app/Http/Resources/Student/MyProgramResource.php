@@ -49,7 +49,7 @@ class MyProgramResource extends JsonResource
 
             if (isset($additional['supervisor']) && $additional['supervisor']) {
                 $result['supervisor'] = [
-                    'id'   => $additional['supervisor']->id,
+                    'id'   => (string) $additional['supervisor']->id,
                     'name' => $additional['supervisor']->name,
                 ];
             }
@@ -58,7 +58,7 @@ class MyProgramResource extends JsonResource
         // Course/training/english: teachers list
         if (isset($additional['teachers']) && $additional['teachers']->isNotEmpty()) {
             $result['teachers'] = $additional['teachers']->map(fn($t) => [
-                'id'            => $t->id,
+                'id'            => (string) $t->id,
                 'name'          => $t->name,
                 'profile_photo' => $t->profile_photo
                     ? asset('storage/' . $t->profile_photo)

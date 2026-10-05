@@ -98,7 +98,7 @@ class DashboardController extends Controller
             'success' => true,
             'data' => [
                 'profile' => [
-                    'id'                  => $student->id,
+                    'id'                  => (string) $student->id,
                     'name'                => $student->name,
                     'email'               => $student->email,
                     'phone'               => $student->phone,
@@ -120,7 +120,7 @@ class DashboardController extends Controller
                             : asset('storage/' . $student->profile_photo))
                         : null,
                     'program' => $student->program ? [
-                        'id'     => $student->program->id,
+                        'id'     => (string) $student->program->id,
                         'name'   => $student->program->name_ar ?? $student->program->name,
                         'name_en'=> $student->program->name_en ?? null,
                         'type'   => $student->program->type ?? null,
@@ -200,7 +200,7 @@ class DashboardController extends Controller
                 $attended      = $subjectAttended[$subject->id] ?? 0;
 
                 return [
-                    'id'           => $subject->id,
+                    'id'           => (string) $subject->id,
                     'name_ar'      => $subject->name_ar,
                     'name_en'      => $subject->name_en,
                     'code'         => $subject->code,
@@ -209,7 +209,7 @@ class DashboardController extends Controller
                     'banner_photo' => $subject->banner_photo,
                     'status'       => $subject->status,
                     'teacher'      => $subject->teacher ? [
-                        'id'            => $subject->teacher->id,
+                        'id'            => (string) $subject->teacher->id,
                         'name'          => $subject->teacher->name,
                         'email'         => $subject->teacher->email,
                         'profile_photo' => $subject->teacher->profile_photo,
@@ -235,7 +235,7 @@ class DashboardController extends Controller
             $enrolledCount = $subjects->where('is_enrolled', true)->count();
 
             return [
-                'id'             => $term->id,
+                'id'             => (string) $term->id,
                 'term_number'    => $term->term_number,
                 'name'           => $term->name ?? ('الفصل ' . $term->term_number),
                 'subjects_count' => $subjects->count(),
@@ -257,7 +257,7 @@ class DashboardController extends Controller
         return response()->json([
             'success' => true,
             'data'    => [
-                'program_id'        => $student->program_id,
+                'program_id'        => $student->program_id !== null ? (string) $student->program_id : null,
                 'program_status'    => $student->program_status,
                 'current_term_number' => $currentTermNumber,
                 'current_term'      => $currentTermData,   // full term object with subjects
@@ -402,7 +402,7 @@ class DashboardController extends Controller
             ? null : $session->zoom_join_url;
 
         return [
-            'id'             => $session->id,
+            'id'             => (string) $session->id,
             'title'          => $session->title,
             'type'           => $session->type,
             'scheduled_at'   => $session->scheduled_at,
@@ -411,19 +411,19 @@ class DashboardController extends Controller
             'duration_minutes' => $session->duration_minutes,
             'is_live'        => $isLive,
             'subject'        => $session->subject ? [
-                'id'      => $session->subject->id,
+                'id'      => (string) $session->subject->id,
                 'name_ar' => $session->subject->name_ar,
                 'name_en' => $session->subject->name_en,
                 'code'    => $session->subject->code,
                 'color'   => $session->subject->color,
                 'term'    => $session->subject->term ? [
-                    'id'          => $session->subject->term->id,
+                    'id'          => (string) $session->subject->term->id,
                     'term_number' => $session->subject->term->term_number,
                     'name'        => $session->subject->term->name,
                 ] : null,
             ] : null,
             'unit'           => $session->unit ? [
-                'id'    => $session->unit->id,
+                'id'    => (string) $session->unit->id,
                 'title' => $session->unit->title,
             ] : null,
             'links'          => [
@@ -599,7 +599,7 @@ class DashboardController extends Controller
             'success' => true,
             'data' => [
                 'session' => $session,
-                'attendance_id' => $attendance->id,
+                'attendance_id' => (string) $attendance->id,
                 'zoom_meeting_id' => $session->zoom_meeting_id,
                 'zoom_signature' => $signature,
                 'zoom_join_url' => $session->zoom_join_url,

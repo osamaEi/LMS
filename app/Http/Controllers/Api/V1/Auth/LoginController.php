@@ -47,13 +47,13 @@ class LoginController extends Controller
             'message' => 'تم تسجيل الدخول بنجاح',
             'data' => [
                 'user' => [
-                    'id' => $user->id,
+                    'id' => (string) $user->id,
                     'name' => $user->name,
                     'email' => $user->email,
                     'phone' => $user->phone,
                     'role' => $user->role,
                     'status' => $user->status,
-                    'program_id' => $user->program_id,
+                    'program_id' => $user->program_id !== null ? (string) $user->program_id : null,
                     'program_status' => $user->program_status,
                 ],
                 'token' => $token,

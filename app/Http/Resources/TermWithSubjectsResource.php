@@ -19,7 +19,7 @@ class TermWithSubjectsResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id'          => $this->id,
+            'id'          => (string) $this->id,
             'name'        => $this->name,
             'term_number' => $this->term_number,
             'start_date'  => $this->start_date?->format('Y-m-d'),

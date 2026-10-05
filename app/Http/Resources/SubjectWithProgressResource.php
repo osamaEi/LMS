@@ -35,7 +35,7 @@ class SubjectWithProgressResource extends JsonResource
         }
 
         $data = [
-            'id'             => $this->id,
+            'id'             => (string) $this->id,
             'name'           => $this->name,
             'name_ar'        => $this->name_ar ?: null,
             'name_en'        => $this->name_en ?: null,
@@ -49,7 +49,7 @@ class SubjectWithProgressResource extends JsonResource
                 : ($this->sessions_count ?? 0),
             'total_hours'    => $totalHours,
             'teacher'        => $this->teacher_id && $this->relationLoaded('teacher') && $this->teacher
-                ? ['id' => $this->teacher->id, 'name' => $this->teacher->name]
+                ? ['id' => (string) $this->teacher->id, 'name' => $this->teacher->name]
                 : null,
             'enrollment'     => $enrollment ? array_filter([
                 'status'            => $enrollment->status,

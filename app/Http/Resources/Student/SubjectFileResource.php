@@ -11,7 +11,7 @@ class SubjectFileResource extends JsonResource
     public function toArray(Request $request): array
     {
         $data = [
-            'id'    => $this->id,
+            'id'    => (string) $this->id,
             'title' => $this->title,
             'url'   => asset('storage/' . $this->file_path),
             'type'  => $this->file_type,

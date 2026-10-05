@@ -187,7 +187,7 @@ class ApologyController extends Controller
     protected function format(AttendanceApology $apology): array
     {
         return [
-            'id'           => $apology->id,
+            'id'           => (string) $apology->id,
             'reason'       => $apology->reason,
             'status'       => $apology->status,
             'status_label' => $apology->statusLabelAr(),
@@ -197,7 +197,7 @@ class ApologyController extends Controller
             'reviewed_at'  => $apology->reviewed_at?->toIso8601String(),
             'created_at'   => $apology->created_at?->toIso8601String(),
             'session'      => $apology->relationLoaded('session') && $apology->session ? [
-                'id'           => $apology->session->id,
+                'id'           => (string) $apology->session->id,
                 'title'        => $apology->session->title,
                 'scheduled_at' => $apology->session->scheduled_at?->toIso8601String(),
             ] : null,

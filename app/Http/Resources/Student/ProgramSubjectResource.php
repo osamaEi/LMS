@@ -20,7 +20,7 @@ class ProgramSubjectResource extends JsonResource
             'status'           => $this->status,
             'banner_photo'     => $this->banner_photo ? asset('storage/' . $this->banner_photo) : null,
             'teacher'          => $this->teacher ? [
-                'id'            => $this->teacher->id,
+                'id'            => (string) $this->teacher->id,
                 'name'          => $this->teacher->name,
                 'profile_photo' => $this->teacher->profile_photo
                     ? asset('storage/' . $this->teacher->profile_photo)

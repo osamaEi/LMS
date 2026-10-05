@@ -61,11 +61,11 @@ class SubjectController extends Controller
         $attendedSessions = $attendances->where('attended', true)->count();
 
         $data = (new ProgramSubjectResource($subject))->resolve() + [
-            'term_id'     => $term?->id,
+            'term_id'     => $term?->id !== null ? (string) $term->id : null,
             'term_number' => $term?->term_number,
             'term_name'   => $term ? ($term->name ?? ('الفصل ' . $term->term_number)) : null,
-            'program_id'  => $term?->program_id,
-            'class_id'    => $classId,
+            'program_id'  => $term?->program_id !== null ? (string) $term->program_id : null,
+            'class_id'    => $classId !== null ? (string) $classId : null,
             'progress'    => [
                 'total_sessions'    => $totalSessions,
                 'attended_sessions' => $attendedSessions,
@@ -145,7 +145,7 @@ class SubjectController extends Controller
     private function mapFile($f): array
     {
         return [
-            'id'    => $f->id,
+            'id'    => (string) $f->id,
             'title' => $f->title,
             'url'   => asset('storage/' . $f->file_path),
             'type'  => $f->file_type,

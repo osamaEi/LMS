@@ -10,7 +10,7 @@ class TermResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id'                  => $this->id,
+            'id'                  => (string) $this->id,
             'term_number'         => $this->term_number,
             'name'                => $this->name,
             'name_ar'             => $this->name_ar,

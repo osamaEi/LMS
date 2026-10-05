@@ -19,7 +19,7 @@ class SubjectSessionResource extends JsonResource
         };
 
         return [
-            'id'               => $this->id,
+            'id'               => (string) $this->id,
             'title'            => $this->title_ar ?? $this->title ?? '',
             'title_en'         => $this->title_en ?? '',
             'type'             => $this->type,

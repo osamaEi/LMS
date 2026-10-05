@@ -254,7 +254,7 @@ class RegisterController extends Controller
             'message' => 'تم إنشاء حسابك بنجاح! سيتم مراجعة بياناتك والتواصل معك قريباً.',
             'data' => [
                 'user' => [
-                    'id'                  => $user->id,
+                    'id'                  => (string) $user->id,
                     'name'                => $user->name,
                     'national_id'         => $user->national_id,
                     'date_of_birth'       => $user->date_of_birth?->format('Y-m-d'),
@@ -267,7 +267,7 @@ class RegisterController extends Controller
                     'date_of_graduation'  => $user->date_of_graduation?->format('Y-m-d'),
                     'role'                => $user->role,
                     'status'              => $user->status,
-                    'program_id'          => $user->program_id,
+                    'program_id'          => $user->program_id !== null ? (string) $user->program_id : null,
                     'program_status'      => $user->program_status,
                 ],
                 'token' => $token,

@@ -10,7 +10,7 @@ class TicketReplyResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id'             => $this->id,
+            'id'             => (string) $this->id,
             'message'        => $this->message,
             'attachment_url' => $this->attachment
                 ? basename(parse_url($this->attachment, PHP_URL_PATH) ?: $this->attachment)
@@ -20,7 +20,7 @@ class TicketReplyResource extends JsonResource
                 fn() => $this->user_id === $request->user()?->id
             ),
             'user'           => $this->whenLoaded('user', fn() => [
-                'id'            => $this->user->id,
+                'id'            => (string) $this->user->id,
                 'name'          => $this->user->name,
                 'role'          => $this->user->role,
                 'profile_photo' => $this->user->profile_photo

@@ -10,7 +10,7 @@ class NewsResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id'           => $this->id,
+            'id'           => (string) $this->id,
             'title'        => $this->title,
             'title_ar'     => $this->title_ar,
             'title_en'     => $this->title_en,

@@ -350,7 +350,7 @@ class ProgramController extends Controller
 
             return collect(ProgramSubjectResource::collection($subjects)->resolve())
                 ->map(fn($row) => $row + [
-                    'term_id'     => $term->id,
+                    'term_id'     => (string) $term->id,
                     'term_number' => $term->term_number,
                     'term_name'   => $term->name ?? ('الفصل ' . $term->term_number),
                 ]);
@@ -464,8 +464,8 @@ class ProgramController extends Controller
                     'success'    => false,
                     'message'    => 'الكود مكرر في أكثر من برنامج — حدّد program_id',
                     'candidates' => $scoped->map(fn($s) => [
-                        'subject_id' => $s->id,
-                        'program_id' => $s->program_id,
+                        'subject_id' => (string) $s->id,
+                        'program_id' => $s->program_id !== null ? (string) $s->program_id : null,
                         'name'       => $s->name_ar,
                     ])->values(),
                 ], 409);
@@ -634,7 +634,7 @@ class ProgramController extends Controller
             ->get();
 
         $data = $files->map(fn($f) => [
-            'id'    => $f->id,
+            'id'    => (string) $f->id,
             'title' => $f->title,
             'url'   => filter_var($f->file_path, FILTER_VALIDATE_URL)
                 ? $f->file_path
@@ -647,8 +647,8 @@ class ProgramController extends Controller
 
         return response()->json([
             'success'    => true,
-            'program_id' => (int) $programId,
-            'subject_id' => $request->filled('subject_id') ? $request->integer('subject_id') : null,
+            'program_id' => (string) $programId,
+            'subject_id' => $request->filled('subject_id') ? (string) $request->integer('subject_id') : null,
             'total'      => $data->count(),
             'data'       => $data,
         ]);
@@ -712,16 +712,16 @@ class ProgramController extends Controller
             $submission = $submissions->get($hw->id);
 
             return [
-                'id'             => $hw->id,
+                'id'             => (string) $hw->id,
                 'title_ar'       => $hw->title_ar,
                 'title_en'       => $hw->title_en,
                 'description_ar' => $hw->description_ar,
                 'description_en' => $hw->description_en,
-                'subject_id'     => $hw->subject_id,
+                'subject_id'     => $hw->subject_id !== null ? (string) $hw->subject_id : null,
                 'due_date'       => $hw->due_date?->format('Y-m-d'),
                 'attachment_url' => $hw->file_url,
                 'submission'     => $submission ? [
-                    'id'           => $submission->id,
+                    'id'           => (string) $submission->id,
                     'content'      => $submission->content,
                     'file_url'     => $submission->file_path
                         ? (filter_var($submission->file_path, FILTER_VALIDATE_URL)
@@ -737,9 +737,9 @@ class ProgramController extends Controller
 
         return response()->json([
             'success'    => true,
-            'program_id' => (int) $programId,
-            'subject_id' => $request->filled('subject_id') ? $request->integer('subject_id') : null,
-            'class_id'   => $classId,
+            'program_id' => (string) $programId,
+            'subject_id' => $request->filled('subject_id') ? (string) $request->integer('subject_id') : null,
+            'class_id'   => $classId !== null ? (string) $classId : null,
             'total'      => $data->count(),
             'data'       => $data,
         ]);
@@ -820,7 +820,7 @@ class ProgramController extends Controller
 
         // Group by term for context
         $termData = $terms->map(fn($term) => [
-            'id'          => $term->id,
+            'id'          => (string) $term->id,
             'term_number' => $term->term_number,
             'name'        => $term->name ?? ('الفصل ' . $term->term_number),
             'status'      => $term->status,
@@ -831,7 +831,7 @@ class ProgramController extends Controller
         return response()->json([
             'success'    => true,
             'filter'     => $filter,
-            'class_id'   => $classId,
+            'class_id'   => $classId !== null ? (string) $classId : null,
             'class_name' => $class?->name,
             'terms'      => $termData,
             'data'       => $data,
@@ -921,7 +921,7 @@ class ProgramController extends Controller
             ->orderBy('order')
             ->get()
             ->map(fn($f) => [
-                'id'    => $f->id,
+                'id'    => (string) $f->id,
                 'title' => $f->title,
                 'url'   => asset('storage/' . $f->file_path),
                 'type'  => $f->file_type,
@@ -941,7 +941,7 @@ class ProgramController extends Controller
             };
 
             return [
-                'id'               => $session->id,
+                'id'               => (string) $session->id,
                 'title'            => $session->title_ar ?? $session->title ?? null,
                 'session_number'   => $session->session_number,
                 'type'             => $session->type,
@@ -953,21 +953,21 @@ class ProgramController extends Controller
                 'video_url'        => $session->type === 'recorded_video' ? $session->getVideoUrl() : null,
                 'recording_url'    => $session->recording_url ?? null,
                 'files'            => $session->files->map(fn($f) => [
-                    'id'    => $f->id,
+                    'id'    => (string) $f->id,
                     'title' => $f->title,
                     'url'   => asset('storage/' . $f->file_path),
                     'type'  => $f->file_type,
                     'size'  => $f->file_size,
                 ])->values(),
                 'homework' => $homework ? [
-                    'id'             => $homework->id,
+                    'id'             => (string) $homework->id,
                     'title_ar'       => $homework->title_ar,
                     'title_en'       => $homework->title_en,
                     'description_ar' => $homework->description_ar,
                     'due_date'       => $homework->due_date?->format('Y-m-d'),
                     'attachment_url' => $homework->file_url,
                     'submission'     => $mySubmissions->has($homework->id) ? [
-                        'id'           => $mySubmissions[$homework->id]->id,
+                        'id'           => (string) $mySubmissions[$homework->id]->id,
                         'content'      => $mySubmissions[$homework->id]->content,
                         'file_url'     => $mySubmissions[$homework->id]->file_path
                             ? (filter_var($mySubmissions[$homework->id]->file_path, FILTER_VALIDATE_URL)
@@ -1001,7 +1001,7 @@ class ProgramController extends Controller
             'success' => true,
             'data'    => [
                 'program' => [
-                    'id'          => $program->id,
+                    'id'          => (string) $program->id,
                     'name_ar'     => $program->name_ar,
                     'name_en'     => $program->name_en,
                     'type'        => $program->type,
@@ -1009,7 +1009,7 @@ class ProgramController extends Controller
                     'duration_hours'  => $program->duration_hours ?? null,
                     'duration_months' => $program->duration_months ?? null,
                     'teacher'     => $program->teachers->first() ? [
-                        'id'    => $program->teachers->first()->id,
+                        'id'    => (string) $program->teachers->first()->id,
                         'name'  => $program->teachers->first()->name,
                         'photo' => $program->teachers->first()->profile_photo
                             ? asset('storage/' . $program->teachers->first()->profile_photo)

@@ -31,7 +31,7 @@ class ScheduleController extends Controller
         }
 
         $sessions = $query->get()->map(fn($session) => [
-            'id'             => $session->id,
+            'id'             => (string) $session->id,
             'title'          => $session->title,
             'start'          => $session->scheduled_at,
             'end'            => $session->scheduled_at

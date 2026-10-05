@@ -10,7 +10,7 @@ class FaqResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id'          => $this->id,
+            'id'          => (string) $this->id,
             'question'    => $this->question,
             'question_ar' => $this->question_ar,
             'question_en' => $this->question_en,

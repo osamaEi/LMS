@@ -10,7 +10,7 @@ class HomeworkSubmissionResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id'           => $this->id,
+            'id'           => (string) $this->id,
             'content'      => $this->content,
             'file_url'     => $this->file_path
                 ? (filter_var($this->file_path, FILTER_VALIDATE_URL)

@@ -10,7 +10,7 @@ class PaymentInstallmentResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id'                    => $this->id,
+            'id'                    => (string) $this->id,
             'installment_number'    => $this->installment_number,
             'amount'                => $this->amount,
             'due_date'              => $this->due_date?->format('Y-m-d'),

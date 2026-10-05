@@ -32,9 +32,9 @@ class PaymentResource extends JsonResource
         $effectiveRemaining = max(0, (float) $this->total_amount - $effectivePaid - (float) $this->discount_amount);
 
         return [
-            'id'               => $this->id,
+            'id'               => (string) $this->id,
             'program'          => $this->whenLoaded('program', fn() => [
-                'id'   => $this->program->id,
+                'id'   => (string) $this->program->id,
                 'name' => $this->program->name_ar ?? $this->program->name,
                 'code' => $this->program->code,
             ]),

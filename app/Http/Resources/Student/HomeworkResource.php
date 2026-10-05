@@ -22,7 +22,7 @@ class HomeworkResource extends JsonResource
         $program = $this->program;
 
         return [
-            'id'             => $this->id,
+            'id'             => (string) $this->id,
             'title_ar'       => $this->title_ar,
             'title_en'       => $this->title_en,
             'description_ar' => $this->description_ar,
@@ -31,13 +31,13 @@ class HomeworkResource extends JsonResource
             'is_overdue'     => $this->due_date && $this->due_date->isPast() && !$this->submission,
             'attachment_url' => $this->file_url,
             'subject' => $subject ? [
-                'id'      => $subject->id,
+                'id'      => (string) $subject->id,
                 'name_ar' => $subject->name_ar,
                 'name_en' => $subject->name_en,
                 'code'    => $subject->code,
             ] : null,
             'program' => $program ? [
-                'id'      => $program->id,
+                'id'      => (string) $program->id,
                 'name_ar' => $program->name_ar,
                 'name_en' => $program->name_en,
             ] : null,

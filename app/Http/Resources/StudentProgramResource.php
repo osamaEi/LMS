@@ -72,7 +72,7 @@ class StudentProgramResource extends JsonResource
     private function formatTeacher($teacher): array
     {
         return [
-            'id'             => $teacher->id,
+            'id'             => (string) $teacher->id,
             'name'           => $teacher->name,
             'specialization' => $teacher->specialization ?? null,
             'photo'          => $teacher->profile_photo

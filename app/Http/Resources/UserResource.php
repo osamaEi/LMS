@@ -48,18 +48,18 @@ class UserResource extends JsonResource
                 ->first();
 
             return [
-                'id'                  => $program->id,
+                'id'                  => (string) $program->id,
                 'name_ar'             => $program->name_ar,
                 'name_en'             => $program->name_en,
                 'type'                => $program->type,
                 'enrollment_status'   => $status,
                 'current_term_number' => $termNumber,
                 'class'               => $studentClass ? [
-                    'id'   => $studentClass->id,
+                    'id'   => (string) $studentClass->id,
                     'name' => $studentClass->name,
                 ] : null,
                 'current_term'        => $currentTerm ? [
-                    'id'          => $currentTerm->id,
+                    'id'          => (string) $currentTerm->id,
                     'term_number' => $currentTerm->term_number,
                     'name'        => $currentTerm->name ?? ('الفصل ' . $currentTerm->term_number),
                 ] : null,
@@ -71,7 +71,7 @@ class UserResource extends JsonResource
 
         return [
             // Identity
-            'id'                    => $this->id,
+            'id'                    => (string) $this->id,
             'name'                  => $this->name,
             'email'                 => $this->email,
             'phone'                 => $this->phone,

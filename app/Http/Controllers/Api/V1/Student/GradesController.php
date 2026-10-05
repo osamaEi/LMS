@@ -24,10 +24,10 @@ class GradesController extends Controller
             $isFinal = $data['final_grade'] !== null;
 
             return [
-                'subject_id'        => $subject->id,
+                'subject_id'        => (string) $subject->id,
                 'subject_name'      => $subject->name_ar ?? $subject->name,
                 'teacher'           => $subject->teacher ? [
-                    'id'   => $subject->teacher->id,
+                    'id'   => (string) $subject->teacher->id,
                     'name' => $subject->teacher->name,
                 ] : null,
                 'percentage'        => (float) $data['percentage'],
@@ -43,7 +43,7 @@ class GradesController extends Controller
         });
 
         $sentReports = $overview['sentReports']->map(fn ($report) => [
-            'id'           => $report->id,
+            'id'           => (string) $report->id,
             'teacher_name' => $report->teacher_name,
             'sent_at'      => $report->sent_at?->toIso8601String(),
             'is_unread'    => $report->is_unread,

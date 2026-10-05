@@ -194,7 +194,7 @@ class QuizController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'انتهى وقت الاختبار وتم تسليمه تلقائياً',
-                'data' => ['attempt_id' => $attempt->id],
+                'data' => ['attempt_id' => (string) $attempt->id],
             ], 422);
         }
 
@@ -253,7 +253,7 @@ class QuizController extends Controller
             'success' => true,
             'message' => 'تم تسليم الاختبار بنجاح',
             'data' => [
-                'attempt_id' => $attempt->id,
+                'attempt_id' => (string) $attempt->id,
                 'score' => $attempt->score,
                 'total_marks' => $attempt->total_marks,
                 'percentage' => $attempt->percentage,

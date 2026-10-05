@@ -128,7 +128,7 @@ class PaymentController extends Controller
             'success' => true,
             'message' => 'تم إرسال إيصال التحويل البنكي بنجاح. سيتم مراجعته من قِبل الإدارة.',
             'data'    => [
-                'transaction_id'  => $transaction->id,
+                'transaction_id'  => (string) $transaction->id,
                 'amount'          => $amount,
                 'receipt_status'  => 'pending',
                 'receipt_url'     => $receiptPath

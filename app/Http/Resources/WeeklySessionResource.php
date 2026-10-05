@@ -43,7 +43,7 @@ class WeeklySessionResource extends JsonResource
         }
 
         return [
-            'id'               => $this->id,
+            'id'               => (string) $this->id,
             'title'            => $this->title,
             'title_ar'         => $this->title_ar,
             'title_en'         => $this->title_en,
@@ -57,7 +57,7 @@ class WeeklySessionResource extends JsonResource
             'zoom_join_url'    => $sessionStatus === 'live' ? $this->zoom_join_url : null,
 
             'subject' => $this->whenLoaded('subject', fn() => [
-                'id'    => $this->subject->id,
+                'id'    => (string) $this->subject->id,
                 'name'  => $this->subject->name,
                 'color' => $this->subject->color,
             ]),

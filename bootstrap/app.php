@@ -27,7 +27,6 @@ return Application::configure(basePath: dirname(__DIR__))
         // Add SetLocale to API group so ?lang= and Accept-Language work for all API endpoints
         $middleware->api(append: [
             \App\Http\Middleware\SetLocale::class,
-            \App\Http\Middleware\CastIdsToString::class,
         ]);
 
         // Exclude webhooks from CSRF verification

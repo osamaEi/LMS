@@ -125,7 +125,7 @@ class SessionController extends Controller
             return response()->json([
                 'success'       => true,
                 'type'          => 'live_zoom',
-                'attendance_id' => $attendance->id,
+                'attendance_id' => (string) $attendance->id,
                 'data'          => [
                     'zoom_meeting_id' => $session->zoom_meeting_id,
                     'zoom_join_url'   => $session->zoom_join_url,
@@ -147,7 +147,7 @@ class SessionController extends Controller
             return response()->json([
                 'success'       => true,
                 'type'          => 'recorded_video',
-                'attendance_id' => $attendance->id,
+                'attendance_id' => (string) $attendance->id,
                 'data'          => [
                     'video_url'      => $session->getVideoUrl(),
                     'video_duration' => $session->video_duration,

@@ -10,7 +10,7 @@ class MyProgramTermResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id'          => $this->id,
+            'id'          => (string) $this->id,
             'term_number' => $this->term_number,
             'name'        => $this->name ?? ('الفصل ' . $this->term_number),
             'status'      => $this->status,

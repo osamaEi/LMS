@@ -33,7 +33,7 @@ class AttendanceAlertController extends Controller
                 }
 
                 $alerts[] = [
-                    'subject_id' => $subject->id,
+                    'subject_id' => (string) $subject->id,
                     'subject_name' => $subject->name,
                     'severity' => $status['blocked'] ? 'danger' : 'warning',
                     'code' => $status['blocked'] ? 'absence_limit_exceeded' : 'absence_limit_approaching',

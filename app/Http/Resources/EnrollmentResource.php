@@ -10,8 +10,8 @@ class EnrollmentResource extends JsonResource
     public function toArray(Request $request): array
     {
         return array_filter([
-            'id'              => $this->id,
-            'subject_id'      => $this->subject_id,
+            'id'              => (string) $this->id,
+            'subject_id'      => $this->subject_id !== null ? (string) $this->subject_id : null,
             'status'          => $this->status,
             'progress'        => (int) ($this->progress ?? 0),
             'final_grade'     => $this->final_grade,
