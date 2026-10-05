@@ -1,0 +1,245 @@
+{
+    "info": {
+        "name": "LMS Student API — Grades",
+        "description": "Endpoints جديدة: التقييم والشهادات (الدرجات).",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Grades",
+            "description": "التقييم والشهادات",
+            "item": [
+                {
+                    "name": "My Grades (Final Results)",
+                    "description": "نتائج الطالب النهائية — نفس بيانات صفحة الويب /student/grades.\n\nfinal_result (كارت \"نتائجك النهائية\"):\n- average: المعدل العام (متوسط نسب المقررات) أو null لو مفيش درجات\n- grade_label: التقدير (ممتاز ≥ 90، جيد جداً ≥ 75، جيد ≥ 60، مقبول ≥ 50، ضعيف)\n- grade_level: excellent | good | average | poor\n- approval_status: approved (كل المقررات لها درجة نهائية) | pending (بعضها) | no_grades\n- approval_label: نص حالة الاعتماد للعرض\n- certificates.available / download_url: تحميل الشهادات (غير متاح حالياً → false / null)\n\nstats: إحصائيات عامة.\nsent_reports: الدرجات التي أرسلها المعلم (حضور / مشاركة / نصفي / نهائي / مجموع من 100).\nsubjects: درجة كل مقرر — درجة نهائية مسجّلة (source = final_grade) أو نسبة محسوبة من التقييمات والاختبارات (source = calculated).\n\nمتاح للطلاب فقط (403 لغير الطالب).",
+                    "event": [],
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [
+                                {
+                                    "key": "token",
+                                    "value": "{{token}}",
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json",
+                                "type": "string"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/student/grades",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "student",
+                                "grades"
+                            ]
+                        }
+                    },
+                    "response": [
+                        {
+                            "name": "Grades - Approved (200)",
+                            "originalRequest": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/v1/student/grades",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "student",
+                                        "grades"
+                                    ]
+                                }
+                            },
+                            "status": "OK",
+                            "code": 200,
+                            "_postman_previewlanguage": "json",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "cookie": [],
+                            "body": "{\n  \"success\": true,\n  \"data\": {\n    \"final_result\": {\n      \"average\": 85,\n      \"grade_label\": \"جيد جداً\",\n      \"grade_level\": \"good\",\n      \"is_approved\": true,\n      \"approval_status\": \"approved\",\n      \"approval_label\": \"تم اعتماد النتيجة من شؤون المتدربين\",\n      \"certificates\": {\n        \"available\": false,\n        \"download_url\": null\n      }\n    },\n    \"stats\": {\n      \"average_percentage\": 85,\n      \"subjects_count\": 2,\n      \"quiz_attempts\": 3,\n      \"graded_evaluations\": 4\n    },\n    \"sent_reports\": [\n      {\n        \"id\": \"9d2c1f3e-6a1b-4c8e-9f0a-1b2c3d4e5f60\",\n        \"teacher_name\": \"أ. محمد أحمد\",\n        \"sent_at\": \"2026-09-28T10:30:00+03:00\",\n        \"is_unread\": true,\n        \"rows\": [\n          {\n            \"name\": \"التسويق الرقمي\",\n            \"attendance\": 10,\n            \"participation\": 8,\n            \"midterm\": 25,\n            \"final\": 37,\n            \"total\": 80,\n            \"total_max\": 100\n          }\n        ]\n      }\n    ],\n    \"subjects\": [\n      {\n        \"subject_id\": 5,\n        \"subject_name\": \"التسويق الرقمي\",\n        \"teacher\": { \"id\": 9, \"name\": \"أ. محمد أحمد\" },\n        \"percentage\": 80,\n        \"is_final\": true,\n        \"final_grade\": 80,\n        \"source\": \"final_grade\",\n        \"source_label\": \"درجة نهائية مسجّلة\",\n        \"grade_label\": \"جيد جداً\",\n        \"grade_level\": \"good\",\n        \"evaluations_count\": 2,\n        \"attempts_count\": 1\n      },\n      {\n        \"subject_id\": 6,\n        \"subject_name\": \"إدارة المشاريع\",\n        \"teacher\": { \"id\": 11, \"name\": \"أ. سارة علي\" },\n        \"percentage\": 90,\n        \"is_final\": true,\n        \"final_grade\": 90,\n        \"source\": \"final_grade\",\n        \"source_label\": \"درجة نهائية مسجّلة\",\n        \"grade_label\": \"ممتاز\",\n        \"grade_level\": \"excellent\",\n        \"evaluations_count\": 2,\n        \"attempts_count\": 2\n      }\n    ]\n  }\n}"
+                        },
+                        {
+                            "name": "Grades - Pending Approval (200)",
+                            "originalRequest": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/v1/student/grades",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "student",
+                                        "grades"
+                                    ]
+                                }
+                            },
+                            "status": "OK",
+                            "code": 200,
+                            "_postman_previewlanguage": "json",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "cookie": [],
+                            "body": "{\n  \"success\": true,\n  \"data\": {\n    \"final_result\": {\n      \"average\": 80,\n      \"grade_label\": \"جيد جداً\",\n      \"grade_level\": \"good\",\n      \"is_approved\": false,\n      \"approval_status\": \"pending\",\n      \"approval_label\": \"النتيجة بانتظار الاعتماد\",\n      \"certificates\": {\n        \"available\": false,\n        \"download_url\": null\n      }\n    },\n    \"stats\": {\n      \"average_percentage\": 80,\n      \"subjects_count\": 2,\n      \"quiz_attempts\": 0,\n      \"graded_evaluations\": 1\n    },\n    \"sent_reports\": [],\n    \"subjects\": [\n      {\n        \"subject_id\": 5,\n        \"subject_name\": \"التسويق الرقمي\",\n        \"teacher\": { \"id\": 9, \"name\": \"أ. محمد أحمد\" },\n        \"percentage\": 85,\n        \"is_final\": true,\n        \"final_grade\": 85,\n        \"source\": \"final_grade\",\n        \"source_label\": \"درجة نهائية مسجّلة\",\n        \"grade_label\": \"جيد جداً\",\n        \"grade_level\": \"good\",\n        \"evaluations_count\": 0,\n        \"attempts_count\": 0\n      },\n      {\n        \"subject_id\": 6,\n        \"subject_name\": \"إدارة المشاريع\",\n        \"teacher\": { \"id\": 11, \"name\": \"أ. سارة علي\" },\n        \"percentage\": 75,\n        \"is_final\": false,\n        \"final_grade\": null,\n        \"source\": \"calculated\",\n        \"source_label\": \"نسبة محسوبة\",\n        \"grade_label\": \"جيد جداً\",\n        \"grade_level\": \"good\",\n        \"evaluations_count\": 1,\n        \"attempts_count\": 0\n      }\n    ]\n  }\n}"
+                        },
+                        {
+                            "name": "Grades - No Grades Yet (200)",
+                            "originalRequest": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/v1/student/grades",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "student",
+                                        "grades"
+                                    ]
+                                }
+                            },
+                            "status": "OK",
+                            "code": 200,
+                            "_postman_previewlanguage": "json",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "cookie": [],
+                            "body": "{\n  \"success\": true,\n  \"data\": {\n    \"final_result\": {\n      \"average\": null,\n      \"grade_label\": null,\n      \"grade_level\": null,\n      \"is_approved\": false,\n      \"approval_status\": \"no_grades\",\n      \"approval_label\": \"لم تُرصد النتيجة بعد\",\n      \"certificates\": {\n        \"available\": false,\n        \"download_url\": null\n      }\n    },\n    \"stats\": {\n      \"average_percentage\": null,\n      \"subjects_count\": 0,\n      \"quiz_attempts\": 0,\n      \"graded_evaluations\": 0\n    },\n    \"sent_reports\": [],\n    \"subjects\": []\n  }\n}"
+                        },
+                        {
+                            "name": "Grades - Unauthenticated (401)",
+                            "originalRequest": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/v1/student/grades",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "student",
+                                        "grades"
+                                    ]
+                                }
+                            },
+                            "status": "Unauthorized",
+                            "code": 401,
+                            "_postman_previewlanguage": "json",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "cookie": [],
+                            "body": "{\n  \"message\": \"Unauthenticated.\"\n}"
+                        },
+                        {
+                            "name": "Grades - Not a Student (403)",
+                            "originalRequest": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/v1/student/grades",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "student",
+                                        "grades"
+                                    ]
+                                }
+                            },
+                            "status": "Forbidden",
+                            "code": 403,
+                            "_postman_previewlanguage": "json",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "cookie": [],
+                            "body": "{\n  \"message\": \"This action is unauthorized.\"\n}"
+                        }
+                    ],
+                    "protocolProfileBehavior": {
+                        "strictSSL": false,
+                        "followRedirects": true
+                    }
+                }
+            ]
+        }
+    ],
+    "variable": [
+        {
+            "key": "baseUrl",
+            "value": "https://www.alertiqa.edu.sa",
+            "type": "string"
+        },
+        {
+            "key": "token",
+            "value": "",
+            "type": "string"
+        }
+    ]
+}
