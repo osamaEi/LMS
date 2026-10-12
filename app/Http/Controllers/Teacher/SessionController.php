@@ -40,7 +40,7 @@ class SessionController extends Controller
 
         // Store the link exactly as the teacher pasted it — no normalising, no URL
         // validation — so students and the teacher see the identical link.
-        $request->validate(['zoom_join_url' => 'nullable|string|max:500']);
+        $request->validate(['zoom_join_url' => 'nullable|string|max:8192']);
 
         $teacher->update(['zoom_join_url' => $request->input('zoom_join_url') ?: null]);
 
@@ -69,7 +69,7 @@ class SessionController extends Controller
 
         // Store the link exactly as the teacher pasted it — no normalising, no URL
         // validation — so students and the teacher see the identical link.
-        $request->validate(['zoom_join_url' => 'nullable|string|max:500']);
+        $request->validate(['zoom_join_url' => 'nullable|string|max:8192']);
 
         $joinUrl = $request->input('zoom_join_url') ?: null;
 
