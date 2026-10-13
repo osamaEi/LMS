@@ -50,28 +50,39 @@ class CourseController extends Controller
             ->withCount(['terms', 'files'])
             ->get();
 
-        // Attach class-scoped counts per program
-        $programs->each(function ($program) use ($teacherClasses) {
-            $progClassIds = $teacherClasses->where('program_id', $program->id)->pluck('id');
-            $program->sessions_count = \App\Models\Session::where('program_id', $program->id)
-                ->where(function ($q) use ($progClassIds) {
-                    $q->whereIn('class_id', $progClassIds)->orWhereNull('class_id');
-                })->count();
-            $program->class_student_count = $progClassIds->isNotEmpty()
-                ? \Illuminate\Support\Facades\DB::table('student_programs')
+        $classes = ProgramClass::whereIn('program_id', $programs->modelKeys())
+            ->where(fn ($query) => $query->where('teacher_id', $teacher->id)
+                ->orWhereIn('program_id', $directProgramIds))
+            ->orderBy('name')->get()->groupBy('program_id');
+
+        // Keep one row per class, even when several classes share a program.
+        $programs = $programs->flatMap(function ($program) use ($classes, $teacher) {
+            $programClasses = $classes->get($program->id, collect());
+
+            return ($programClasses->isEmpty() ? collect([null]) : $programClasses)->map(function ($class) use ($program, $teacher) {
+                $row = clone $program;
+                $row->class_id = $class?->id;
+                $row->class_name = $class?->name;
+                $row->status = $class?->status ?? $program->status;
+                $row->sessions_count = Session::where('program_id', $program->id)
+                    ->where('teacher_id', $teacher->id)
+                    ->where('class_id', $class?->id)->count();
+                $row->class_student_count = \Illuminate\Support\Facades\DB::table('student_programs')
                     ->where('program_id', $program->id)
-                    ->whereIn('class_id', $progClassIds)
-                    ->distinct()->count('student_id')
-                : \Illuminate\Support\Facades\DB::table('student_programs')
-                    ->where('program_id', $program->id)
+                    ->where('class_id', $class?->id)
                     ->distinct()->count('student_id');
+
+                return $row;
+            });
         });
 
         return view('teacher.courses.index', compact('programs', 'selectedType'));
     }
 
-    public function show($id)
+    public function show(Request $request, $id)
     {
+        $validated = $request->validate(['class_id' => 'nullable|integer|min:1']);
+        $selectedClassId = $validated['class_id'] ?? null;
         $teacher = auth()->user();
 
         // Programs accessible via class supervisor OR direct program_teacher pivot
@@ -85,10 +96,16 @@ class CourseController extends Controller
             ->withCount(['enrolledStudents'])
             ->findOrFail($id);
 
+        $selectedClass = $selectedClassId ? ProgramClass::where('program_id', $id)
+            ->where(fn ($query) => $query->where('teacher_id', $teacher->id)
+                ->orWhereIn('program_id', $directProgramIds))
+            ->findOrFail($selectedClassId) : null;
+
         // Show only the sessions (lectures) assigned to THIS teacher in this program.
         // Session teacher_id is set when sessions are generated for a class.
         $sessions = Session::where('program_id', $id)
             ->where('teacher_id', $teacher->id)
+            ->when($selectedClass, fn ($query) => $query->where('class_id', $selectedClass->id))
             ->with(['files'])
             ->orderBy('session_number', 'asc')
             ->get();
@@ -101,10 +118,15 @@ class CourseController extends Controller
         $legacyIds   = User::where('program_id', $id)->pluck('id');
         $attendedIds = \App\Models\Attendance::whereIn('session_id', $sessions->pluck('id'))->distinct()->pluck('student_id');
         $studentIds  = $pivotIds->merge($legacyIds)->merge($attendedIds)->unique()->values();
+        if ($selectedClass) {
+            $studentIds = \Illuminate\Support\Facades\DB::table('student_programs')
+                ->where('program_id', $id)->where('class_id', $selectedClass->id)
+                ->pluck('student_id');
+        }
         $students    = User::whereIn('id', $studentIds)->where('role', 'student')
                         ->with('program:id,name_ar,name_en')->orderBy('name')->get();
 
-        return view('teacher.courses.show', compact('program', 'sessions', 'students'));
+        return view('teacher.courses.show', compact('program', 'sessions', 'students', 'selectedClass'));
     }
 
     public function storeSession(Request $request, $programId)

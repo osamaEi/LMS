@@ -35,6 +35,7 @@
         <thead class="bg-gray-50 text-gray-600 dark:bg-gray-800 dark:text-gray-300">
             <tr>
                 <th scope="col" class="px-5 py-4 text-start">الدورة / البرنامج</th>
+                <th scope="col" class="px-5 py-4 text-start">الكلاس</th>
                 <th scope="col" class="px-5 py-4 text-start">النوع</th>
                 <th scope="col" class="px-5 py-4 text-center">المحاضرات</th>
                 <th scope="col" class="px-5 py-4 text-center">المتدربون</th>
@@ -46,11 +47,12 @@
             @forelse($programs as $program)
                 <tr class="hover:bg-gray-50 dark:hover:bg-gray-800">
                     <th scope="row" class="px-5 py-4 text-start">
-                        <a href="{{ route('teacher.my-courses.show', $program->id) }}" class="font-semibold text-gray-900 hover:underline dark:text-white">{{ $program->name_ar }}</a>
+                        <a href="{{ route('teacher.my-courses.show', ['id' => $program->id, 'class_id' => $program->class_id]) }}" class="font-semibold text-gray-900 hover:underline dark:text-white">{{ $program->name_ar }}</a>
                         @if($program->name_en)
                             <div class="mt-1 text-xs font-normal text-gray-500 dark:text-gray-400">{{ $program->name_en }}</div>
                         @endif
                     </th>
+                    <td class="px-5 py-4 text-gray-600 dark:text-gray-400">{{ $program->class_name ?? 'غير مرتبط بكلاس' }}</td>
                     <td class="px-5 py-4 text-gray-600 dark:text-gray-400">{{ $program->type === 'english' ? 'إنجليزي' : 'دورة' }}</td>
                     <td class="px-5 py-4 text-center text-gray-600 dark:text-gray-400">{{ $program->sessions_count }}</td>
                     <td class="px-5 py-4 text-center text-gray-600 dark:text-gray-400">{{ $program->class_student_count }}</td>
@@ -64,12 +66,12 @@
                         @endif
                     </td>
                     <td class="px-5 py-4 text-center whitespace-nowrap">
-                        <a href="{{ route('teacher.my-courses.show', $program->id) }}" class="inline-flex rounded-lg px-4 py-2 text-sm font-medium text-white" style="background-color: #0071AA;">عرض الدورة والمحاضرات</a>
+                        <a href="{{ route('teacher.my-courses.show', ['id' => $program->id, 'class_id' => $program->class_id]) }}" class="inline-flex rounded-lg px-4 py-2 text-sm font-medium text-white" style="background-color: #0071AA;">عرض الدورة والمحاضرات</a>
                     </td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="6" class="px-5 py-12 text-center">
+                    <td colspan="7" class="px-5 py-12 text-center">
                         <p class="font-medium text-gray-900 dark:text-white">{{ $selectedType !== null ? 'لا توجد برامج مسندة إليك من هذا النوع' : 'لا توجد دورات مسندة إليك' }}</p>
                         <p class="mt-1 text-gray-500 dark:text-gray-400">{{ $selectedType !== null ? 'اختر نوعًا آخر أو ألغِ الفلتر لعرض كل البرامج.' : 'تواصل مع الإدارة لإسناد دورات.' }}</p>
                     </td>

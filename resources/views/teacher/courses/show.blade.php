@@ -71,6 +71,9 @@
             <div class="flex-1">
                 <div class="flex items-center gap-3 flex-wrap mb-1">
                     <h1 class="text-2xl font-extrabold">{{ $program->name_ar }}</h1>
+                    @if($selectedClass)
+                        <p class="text-sm text-white/80">{{ $selectedClass->name }}</p>
+                    @endif
                     @php
                         $typeLabel = match($program->type) { 'training'=>'تدريبي','english'=>'إنجليزي','course'=>'دورة',default=>$program->type };
                     @endphp
