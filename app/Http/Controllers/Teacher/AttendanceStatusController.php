@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Teacher;
 
 use App\Http\Controllers\Controller;
 use App\Models\Session;
+use App\Models\ProgramClass;
 use App\Models\Subject;
 use App\Models\User;
 use App\Services\AttendanceLimitService;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
 
 /**
  * Absence standing for a teacher's own subjects: who is already barred
@@ -17,7 +19,7 @@ use Illuminate\Support\Facades\DB;
  */
 class AttendanceStatusController extends Controller
 {
-    /** GET /teacher/attendance-status — the teacher's subjects as cards. */
+    /** Subject attendance cards grouped by the teacher's classes. */
     public function index()
     {
         $teacher    = auth()->user();
@@ -25,12 +27,16 @@ class AttendanceStatusController extends Controller
 
         $subjects = Subject::whereIn('id', $subjectIds)
             ->orderBy('name_ar')
-            ->get(['id', 'name_ar', 'name_en', 'code', 'absence_limit_percent'])
-            ->map(function ($s) {
-                $stats = $this->subjectStats($s->id);
+            ->with(['term', 'terms'])
+            ->get()
+            ->flatMap(function ($s) use ($teacher) {
+                return $this->subjectClasses($s, $teacher)->map(function ($class) use ($s) {
+                $stats = $this->subjectStats($s->id, $class->id);
 
                 return [
                     'id'       => $s->id,
+                    'class_id' => $class->id,
+                    'class_name' => $class->name,
                     'name'     => $s->name_ar ?: $s->name_en,
                     'code'     => $s->code,
                     'limit'    => AttendanceLimitService::limitForSubject($s->id),
@@ -40,6 +46,7 @@ class AttendanceStatusController extends Controller
                     'banned'   => $stats['banned'],
                     'at_risk'  => $stats['at_risk'],
                 ];
+                });
             });
 
         $enabled = AttendanceLimitService::isEnabled();
@@ -47,22 +54,29 @@ class AttendanceStatusController extends Controller
         return view('teacher.attendance-status.index', compact('subjects', 'enabled'));
     }
 
-    /** GET /teacher/attendance-status/{subject} — the students of one subject. */
-    public function show(Subject $subject)
+    /** Attendance for one subject within an authorized class. */
+    public function show(Request $request, Subject $subject)
     {
         $teacher = auth()->user();
 
         abort_unless($this->subjectIds($teacher)->contains($subject->id), 403,
             'هذه المادة ليست ضمن موادك.');
 
+        $validated = $request->validate(['class_id' => 'nullable|integer|min:1']);
+        if (empty($validated['class_id'])) {
+            return redirect()->route('teacher.attendance-status.index');
+        }
+        $selectedClass = $this->subjectClasses($subject, $teacher)->firstWhere('id', $validated['class_id']);
+        abort_unless($selectedClass, 403);
+
         $limit    = AttendanceLimitService::limitForSubject($subject->id);
         $enabled  = AttendanceLimitService::isEnabled();
-        $sessions = $this->sessionIds($subject->id);
+        $sessions = $this->sessionIds($subject->id, $selectedClass->id);
 
         $students = $this->studentRows($subject->id, $sessions, $limit);
 
         return view('teacher.attendance-status.show', compact(
-            'subject', 'students', 'limit', 'enabled'
+            'subject', 'students', 'limit', 'enabled', 'selectedClass'
         ) + ['totalSessions' => $sessions->count()]);
     }
 
@@ -76,15 +90,28 @@ class AttendanceStatusController extends Controller
             ->unique()->values();
     }
 
-    private function sessionIds(int $subjectId)
+    private function subjectClasses(Subject $subject, User $teacher)
     {
-        return Session::where('subject_id', $subjectId)->pluck('id');
+        $taughtClassIds = Session::where('subject_id', $subject->id)
+            ->where('teacher_id', $teacher->id)->whereNotNull('class_id')->pluck('class_id');
+
+        return ProgramClass::where(function ($query) use ($subject, $teacher, $taughtClassIds) {
+            $query->where(function ($assigned) use ($subject, $teacher) {
+                $assigned->whereIn('id', $subject->classIds())->where('teacher_id', $teacher->id);
+            })->orWhereIn('id', $taughtClassIds);
+        })->orderBy('name')->get();
+    }
+
+    private function sessionIds(int $subjectId, int $classId)
+    {
+        return Session::where('subject_id', $subjectId)->where('class_id', $classId)
+            ->where('teacher_id', auth()->id())->pluck('id');
     }
 
     /** Headline counts for one subject's card. */
-    private function subjectStats(int $subjectId): array
+    private function subjectStats(int $subjectId, int $classId): array
     {
-        $sessions = $this->sessionIds($subjectId);
+        $sessions = $this->sessionIds($subjectId, $classId);
         $limit    = AttendanceLimitService::limitForSubject($subjectId);
         $rows     = $this->studentRows($subjectId, $sessions, $limit);
 
@@ -115,6 +142,7 @@ class AttendanceStatusController extends Controller
 
         $rows = DB::table('attendances as a')
             ->join('users as u', 'u.id', '=', 'a.student_id')
+            ->join('class_sessions as cs', 'cs.id', '=', 'a.session_id')
             ->leftJoinSub($excused, 'ex', function ($join) {
                 $join->on('ex.student_id', '=', 'a.student_id')
                      ->on('ex.session_id', '=', 'a.session_id');
@@ -127,8 +155,8 @@ class AttendanceStatusController extends Controller
                 'u.email as email',
                 DB::raw('COUNT(*) as total'),
                 DB::raw('SUM(CASE WHEN a.attended = 1 THEN 1 ELSE 0 END) as attended'),
-                DB::raw('SUM(CASE WHEN a.attended = 0 AND ex.session_id IS NULL THEN 1 ELSE 0 END) as absent'),
-                DB::raw('SUM(CASE WHEN a.attended = 0 AND ex.session_id IS NOT NULL THEN 1 ELSE 0 END) as excused'),
+                DB::raw("SUM(CASE WHEN a.attended = 0 AND (cs.ended_at IS NOT NULL OR cs.status = 'completed') AND ex.session_id IS NULL THEN 1 ELSE 0 END) as absent"),
+                DB::raw("SUM(CASE WHEN a.attended = 0 AND (cs.ended_at IS NOT NULL OR cs.status = 'completed') AND ex.session_id IS NOT NULL THEN 1 ELSE 0 END) as excused"),
             ])
             ->get();
 
@@ -138,15 +166,13 @@ class AttendanceStatusController extends Controller
             ->pluck('student_id')
             ->flip();
 
-        // The limit is a percentage of *all* the subject's sessions, so the
-        // allowance is fixed for everyone regardless of how many they attended.
+        // Use the same class-scoped sessions for the denominator and absences.
         $totalSessions = $sessionIds->count();
         $allowed       = (int) floor($totalSessions * $limit / 100);
 
-        return $rows->map(function ($r) use ($exempt, $totalSessions, $allowed, $limit, $subjectId) {
-                $standing = AttendanceLimitService::statusFor((int) $r->student_id, $subjectId);
-                $r->absent = $standing['absent'];
-                $r->excused = $standing['excused'];
+        return $rows->map(function ($r) use ($exempt, $totalSessions, $allowed, $limit) {
+                $r->absent = (int) $r->absent;
+                $r->excused = (int) $r->excused;
                 $r->percent   = $totalSessions > 0 ? round($r->absent / $totalSessions * 100, 1) : 0;
                 $r->exempt    = $exempt->has($r->student_id);
                 $r->exceeded  = AttendanceLimitService::exceedsLimit((int) $r->absent, $totalSessions, $limit);

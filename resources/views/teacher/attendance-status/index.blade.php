@@ -8,7 +8,7 @@
     <div class="as-head">
         <div>
             <p class="as-kicker">متابعة الحضور</p>
-            <h1 class="as-title">حالة الغياب في موادك</h1>
+            <h1 class="as-title">حالة الغياب حسب الكلاس</h1>
         </div>
     </div>
 
@@ -17,11 +17,13 @@
     @endunless
 
     @if($subjects->isEmpty())
-        <div class="as-empty">لا توجد مواد مسندة إليك.</div>
+        <div class="as-empty">لا توجد كلاسات مرتبطة بموادك ومسندة إليك.</div>
     @else
         <div class="as-grid">
-            @foreach($subjects as $s)
-                <a href="{{ route('teacher.attendance-status.show', $s['id']) }}" class="as-card">
+            @foreach($subjects->groupBy('class_id') as $classSubjects)
+                <h2 class="as-name" style="grid-column:1 / -1">{{ $classSubjects->first()['class_name'] }}</h2>
+                @foreach($classSubjects as $s)
+                <a href="{{ route('teacher.attendance-status.show', ['subject' => $s['id'], 'class_id' => $s['class_id']]) }}" class="as-card">
                     <div class="as-card-top">
                         <h2 class="as-name">{{ $s['name'] }}</h2>
                         @if($s['code'])<span class="as-code">{{ $s['code'] }}</span>@endif
@@ -49,6 +51,7 @@
 
                     <span class="as-go">عرض المتدربين ←</span>
                 </a>
+                @endforeach
             @endforeach
         </div>
     @endif

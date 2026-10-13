@@ -13,8 +13,9 @@
         <div>
             <p class="as-kicker">متابعة الحضور</p>
             <h1 class="as-title">{{ $subject->name_ar ?: $subject->name_en }}</h1>
+            <p class="as-kicker">الكلاس: {{ $selectedClass->name }}</p>
         </div>
-        <a href="{{ route('teacher.attendance-status.index') }}" class="as-back">← كل المواد</a>
+        <a href="{{ route('teacher.attendance-status.index') }}" class="as-back">← كل الكلاسات</a>
     </div>
 
     @unless($enabled)
@@ -29,7 +30,7 @@
     </div>
 
     @if($students->isEmpty())
-        <div class="as-empty">لا يوجد متدربون مسجّلون في محاضرات هذه المادة.</div>
+        <div class="as-empty">لا يوجد متدربون مسجّلون في محاضرات هذه المادة في هذا الكلاس.</div>
     @else
         <div class="as-card as-table-card">
             <div class="as-scroll">
