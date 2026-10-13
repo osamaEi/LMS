@@ -5,7 +5,7 @@
 @section('content')
 <div class="mb-6">
     <h1 class="text-2xl font-bold text-gray-900 dark:text-white">مقرراتي</h1>
-    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">عرض وإدارة المقررات التدريبية المسندة إليك</p>
+    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">عرض وإدارة المقررات التدريبية المسندة إليك في الربع التدريبي الحالي فقط</p>
 </div>
 
 @if(session('success'))
@@ -60,8 +60,8 @@
                         </div>
                     </td>
                     <td class="px-5 py-4 text-gray-600 dark:text-gray-400">
-                        <div>{{ $subject->program?->name ?? $subject->term?->program?->name ?? '-' }}</div>
-                        <div class="mt-1 text-xs">{{ $subject->term?->name ?? '-' }}</div>
+                        <div>{{ $subject->program?->name ?? $subject->term?->program?->name ?? $subject->terms->first()?->program?->name ?? '-' }}</div>
+                        <div class="mt-1 text-xs">{{ $subject->terms->merge($subject->term ? [$subject->term] : [])->unique('id')->pluck('name')->implode('، ') ?: '-' }}</div>
                     </td>
                     <td class="px-5 py-4 text-center text-gray-600 dark:text-gray-400">{{ $subject->sessions_count }}</td>
                     <td class="px-5 py-4 text-center whitespace-nowrap">
@@ -80,8 +80,8 @@
             @empty
                 <tr>
                     <td colspan="6" class="px-5 py-12 text-center">
-                        <p class="font-medium text-gray-900 dark:text-white">{{ $selectedClassId !== null ? 'لا توجد مقررات مسندة إليك في هذا الكلاس' : 'لا توجد مقررات مسندة إليك' }}</p>
-                        <p class="mt-1 text-gray-500 dark:text-gray-400">{{ $selectedClassId !== null ? 'اختر كلاسًا آخر أو ألغِ الفلتر لعرض كل المقررات.' : 'تواصل مع الإدارة لإسناد مقررات دراسية.' }}</p>
+                        <p class="font-medium text-gray-900 dark:text-white">{{ $selectedClassId !== null ? 'لا توجد مقررات مسندة إليك في هذا الكلاس خلال الربع الحالي' : 'لا توجد مقررات مسندة إليك في الربع الحالي' }}</p>
+                        <p class="mt-1 text-gray-500 dark:text-gray-400">{{ $selectedClassId !== null ? 'اختر كلاسًا آخر أو ألغِ الفلتر لعرض مقررات الربع الحالي.' : 'تواصل مع الإدارة للتحقق من إسناد المقررات ومواعيد الربع التدريبي.' }}</p>
                     </td>
                 </tr>
             @endforelse

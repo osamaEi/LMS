@@ -34,9 +34,16 @@ class SubjectController extends Controller
         $selectedClassId = $validated['class_id'] ?? null;
         $teacher = auth()->user();
 
+        $today = today()->toDateString();
+        $currentQuarter = fn ($query) => $query->where('status', 'active')
+            ->whereDate('start_date', '<=', $today)
+            ->whereDate('end_date', '>=', $today);
+
         // Subjects assigned to this teacher via the subject_teacher pivot only.
         $subjects = $teacher->assignedSubjects()
-            ->with(['term.program', 'terms', 'program'])
+            ->where(fn ($query) => $query->whereHas('term', $currentQuarter)
+                ->orWhereHas('terms', $currentQuarter))
+            ->with(['term' => $currentQuarter, 'term.program', 'terms' => $currentQuarter, 'terms.program', 'program'])
             ->withCount(['sessions as sessions_count' => fn($q) => $q->where('teacher_id', $teacher->id)])
             ->orderBy(app()->getLocale() === 'en' ? 'name_en' : 'name_ar')
             ->get();
