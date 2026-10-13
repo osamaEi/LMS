@@ -33,8 +33,10 @@ class CourseController extends Controller
         $selectedType = $validated['type'] ?? null;
         $teacher = auth()->user(); 
 
-        // Classes where this teacher is supervisor
-        $teacherClasses = ProgramClass::where('teacher_id', $teacher->id)->get(['id', 'program_id']);
+        // Program assignment alone does not grant access to other teachers' classes.
+        $teacherClasses = ProgramClass::where(fn ($query) => $query->where('teacher_id', $teacher->id)
+            ->orWhereHas('sessions', fn ($sessions) => $sessions->where('teacher_id', $teacher->id)))
+            ->get(['id', 'program_id']);
         $classProgramIds = $teacherClasses->pluck('program_id');
 
         // Programs assigned directly via program_teacher pivot
@@ -51,13 +53,17 @@ class CourseController extends Controller
             ->get();
 
         $classes = ProgramClass::whereIn('program_id', $programs->modelKeys())
-            ->where(fn ($query) => $query->where('teacher_id', $teacher->id)
-                ->orWhereIn('program_id', $directProgramIds))
+            ->whereIn('id', $teacherClasses->pluck('id'))
             ->orderBy('name')->get()->groupBy('program_id');
+        $programsWithClasses = ProgramClass::whereIn('program_id', $programs->modelKeys())
+            ->pluck('program_id');
 
         // Keep one row per class, even when several classes share a program.
-        $programs = $programs->flatMap(function ($program) use ($classes, $teacher) {
+        $programs = $programs->flatMap(function ($program) use ($classes, $teacher, $programsWithClasses) {
             $programClasses = $classes->get($program->id, collect());
+            if ($programClasses->isEmpty() && $programsWithClasses->contains($program->id)) {
+                return collect();
+            }
 
             return ($programClasses->isEmpty() ? collect([null]) : $programClasses)->map(function ($class) use ($program, $teacher) {
                 $row = clone $program;
@@ -86,7 +92,9 @@ class CourseController extends Controller
         $teacher = auth()->user();
 
         // Programs accessible via class supervisor OR direct program_teacher pivot
-        $classProgramIds  = ProgramClass::where('teacher_id', $teacher->id)->pluck('program_id');
+        $classProgramIds  = ProgramClass::where(fn ($query) => $query->where('teacher_id', $teacher->id)
+            ->orWhereHas('sessions', fn ($sessions) => $sessions->where('teacher_id', $teacher->id)))
+            ->pluck('program_id');
         $directProgramIds = $teacher->teachingPrograms()->whereIn('type', ['training', 'english', 'course'])->pluck('programs.id');
         $programIds       = $classProgramIds->merge($directProgramIds)->unique()->values();
 
@@ -98,7 +106,7 @@ class CourseController extends Controller
 
         $selectedClass = $selectedClassId ? ProgramClass::where('program_id', $id)
             ->where(fn ($query) => $query->where('teacher_id', $teacher->id)
-                ->orWhereIn('program_id', $directProgramIds))
+                ->orWhereHas('sessions', fn ($sessions) => $sessions->where('teacher_id', $teacher->id)))
             ->findOrFail($selectedClassId) : null;
 
         // Show only the sessions (lectures) assigned to THIS teacher in this program.

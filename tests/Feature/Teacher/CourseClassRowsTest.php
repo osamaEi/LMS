@@ -53,6 +53,22 @@ class CourseClassRowsTest extends HomeworkTestCase
 
         $teacher->teachingPrograms()->attach($program);
         $rows = $controller->index(Request::create('/'))->getData()['programs'];
+        $this->assertSame([$first->id, $second->id], $rows->pluck('class_id')->all());
+
+        Session::create(['program_id' => $program->id, 'class_id' => $other->id, 'teacher_id' => $teacher->id]);
+        $rows = $controller->index(Request::create('/'))->getData()['programs'];
         $this->assertSame([$first->id, $second->id, $other->id], $rows->pluck('class_id')->all());
+    }
+
+    public function test_direct_assignment_does_not_create_a_fallback_row_for_other_teachers_classes(): void
+    {
+        $teacher = User::factory()->create(['role' => 'teacher']);
+        $this->actingAs($teacher);
+        $program = Program::create(['name_ar' => 'Course', 'type' => 'course']);
+        $teacher->teachingPrograms()->attach($program);
+        ProgramClass::create(['program_id' => $program->id, 'name' => 'Other teacher', 'teacher_id' => 999]);
+
+        $rows = app(CourseController::class)->index(Request::create('/'))->getData()['programs'];
+        $this->assertCount(0, $rows);
     }
 }
