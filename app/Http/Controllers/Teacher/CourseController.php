@@ -27,8 +27,10 @@ class CourseController extends Controller
         $this->notificationService = $notificationService;
     }
 
-    public function index()
+    public function index(Request $request)
     {
+        $validated = $request->validate(['type' => 'nullable|in:course,english']);
+        $selectedType = $validated['type'] ?? null;
         $teacher = auth()->user(); 
 
         // Classes where this teacher is supervisor
@@ -44,6 +46,7 @@ class CourseController extends Controller
 
         $programs = Program::whereIn('id', $programIds)
             ->whereIn('type', ['training', 'english', 'course'])
+            ->when($selectedType, fn ($query) => $query->whereIn('type', $selectedType === 'english' ? ['english'] : ['training', 'course']))
             ->withCount(['terms', 'files'])
             ->get();
 
@@ -64,7 +67,7 @@ class CourseController extends Controller
                     ->distinct()->count('student_id');
         });
 
-        return view('teacher.courses.index', compact('programs'));
+        return view('teacher.courses.index', compact('programs', 'selectedType'));
     }
 
     public function show($id)
