@@ -39,7 +39,6 @@
                 <th scope="col" class="px-5 py-4 text-start">الكلاسات</th>
                 <th scope="col" class="px-5 py-4 text-start">البرنامج / الفصل الدراسي</th>
                 <th scope="col" class="px-5 py-4 text-center">المحاضرات</th>
-                <th scope="col" class="px-5 py-4 text-center">الحالة</th>
                 <th scope="col" class="px-5 py-4 text-center">الإجراءات</th>
             </tr>
         </thead>
@@ -65,21 +64,12 @@
                     </td>
                     <td class="px-5 py-4 text-center text-gray-600 dark:text-gray-400">{{ $subject->sessions_count }}</td>
                     <td class="px-5 py-4 text-center whitespace-nowrap">
-                        @if($subject->status === 'active')
-                            <span class="rounded-full bg-success-50 px-3 py-1 text-xs font-medium text-success-600 dark:bg-success-900 dark:text-success-200">نشط</span>
-                        @elseif($subject->status === 'completed')
-                            <span class="rounded-full bg-gray-50 px-3 py-1 text-xs font-medium text-gray-600 dark:bg-gray-800 dark:text-gray-400">مكتمل</span>
-                        @else
-                            <span class="rounded-full bg-yellow-50 px-3 py-1 text-xs font-medium text-yellow-600 dark:bg-yellow-900 dark:text-yellow-200">غير نشط</span>
-                        @endif
-                    </td>
-                    <td class="px-5 py-4 text-center whitespace-nowrap">
                         <a href="{{ route('teacher.my-subjects.show', $subject->id) }}" class="inline-flex rounded-lg px-4 py-2 text-sm font-medium text-white" style="background-color: #0071AA;">عرض المقرر والمحاضرات</a>
                     </td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="6" class="px-5 py-12 text-center">
+                    <td colspan="5" class="px-5 py-12 text-center">
                         <p class="font-medium text-gray-900 dark:text-white">{{ $selectedClassId !== null ? 'لا توجد مقررات مسندة إليك في هذا الكلاس خلال الربع الحالي' : 'لا توجد مقررات مسندة إليك في الربع الحالي' }}</p>
                         <p class="mt-1 text-gray-500 dark:text-gray-400">{{ $selectedClassId !== null ? 'اختر كلاسًا آخر أو ألغِ الفلتر لعرض مقررات الربع الحالي.' : 'تواصل مع الإدارة للتحقق من إسناد المقررات ومواعيد الربع التدريبي.' }}</p>
                     </td>
