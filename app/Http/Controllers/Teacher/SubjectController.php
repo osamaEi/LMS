@@ -35,12 +35,12 @@ class SubjectController extends Controller
         $teacher = auth()->user();
 
         $today = today()->toDateString();
-        $currentQuarter = fn ($query) => $query->where('status', 'active')
-            ->whereDate('start_date', '<=', $today)
+        $currentQuarter = fn ($query) => $query->whereDate('start_date', '<=', $today)
             ->whereDate('end_date', '>=', $today);
 
-        // Subjects assigned to this teacher via the subject_teacher pivot only.
-        $subjects = $teacher->assignedSubjects()
+        // Match the assignment and teaching access supported by the detail page.
+        $subjects = Subject::where(fn ($query) => $query->assignedToTeacher($teacher->id)
+                ->orWhereHas('sessions', fn ($sessions) => $sessions->where('teacher_id', $teacher->id)))
             ->where(fn ($query) => $query->whereHas('term', $currentQuarter)
                 ->orWhereHas('terms', $currentQuarter))
             ->with(['term' => $currentQuarter, 'term.program', 'terms' => $currentQuarter, 'terms.program', 'program'])

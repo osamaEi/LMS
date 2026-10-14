@@ -3,7 +3,7 @@
 namespace Tests\Feature\Teacher;
 
 use App\Http\Controllers\Teacher\SubjectController;
-use App\Models\{Subject, SubjectFile, Term, User};
+use App\Models\{Session, Subject, SubjectFile, Term, User};
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\{DB, Schema, Storage};
@@ -49,13 +49,23 @@ class CurrentQuarterSubjectsTest extends HomeworkTestCase
         $direct = Subject::create(['name_ar' => 'Direct', 'term_id' => $current->id]);
         $shared = Subject::create(['name_ar' => 'Shared', 'term_id' => $past->id]);
         $shared->terms()->attach([$current->id, $past->id]);
-        $excluded = collect([$past, $future, $inactive])->map(fn ($term) => Subject::create(['name_ar' => 'Excluded', 'term_id' => $term->id]));
+        $inactiveSubject = Subject::create(['name_ar' => 'Current completed quarter', 'term_id' => $inactive->id]);
+        $sharedInactive = Subject::create(['name_ar' => 'Shared completed quarter']);
+        $sharedInactive->terms()->attach($inactive);
+        $legacy = Subject::create(['name_ar' => 'Legacy assignment', 'term_id' => $current->id, 'teacher_id' => $teacher->id]);
+        $taught = Subject::create(['name_ar' => 'Taught subject', 'term_id' => $current->id]);
+        Session::create(['subject_id' => $taught->id, 'teacher_id' => $teacher->id]);
+        $pastTaught = Subject::create(['name_ar' => 'Past taught subject', 'term_id' => $past->id]);
+        Session::create(['subject_id' => $pastTaught->id, 'teacher_id' => $teacher->id]);
+        $otherTaught = Subject::create(['name_ar' => 'Another teachers session', 'term_id' => $current->id]);
+        Session::create(['subject_id' => $otherTaught->id, 'teacher_id' => $teacher->id + 100]);
+        $excluded = collect([$past, $future])->map(fn ($term) => Subject::create(['name_ar' => 'Excluded', 'term_id' => $term->id]));
         $noTerm = Subject::create(['name_ar' => 'No term']);
         Subject::create(['name_ar' => 'Other teacher', 'term_id' => $current->id]);
-        $teacher->assignedSubjects()->attach([$direct->id, $shared->id, $noTerm->id, ...$excluded->pluck('id')->all()]);
+        $teacher->assignedSubjects()->attach([$direct->id, $shared->id, $inactiveSubject->id, $sharedInactive->id, $noTerm->id, ...$excluded->pluck('id')->all()]);
 
         $data = app(SubjectController::class)->index(Request::create('/teacher/my-subjects'))->getData();
-        $this->assertEqualsCanonicalizing([$direct->id, $shared->id], $data['subjects']->modelKeys());
+        $this->assertEqualsCanonicalizing([$direct->id, $shared->id, $inactiveSubject->id, $sharedInactive->id, $legacy->id, $taught->id], $data['subjects']->modelKeys());
         $this->assertSame([10], $data['subjectClassIds'][$shared->id]->all());
         $this->assertNull($data['subjects']->find($shared->id)->term);
         $this->assertSame([$current->id], $data['subjects']->find($shared->id)->terms->modelKeys());
