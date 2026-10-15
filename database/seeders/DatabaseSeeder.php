@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use Database\Seeders\PermissionSeeder;
-use Database\Seeders\Student29DemoSeeder;
+use Database\Seeders\MajedFinalQuizSeeder;
+
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -16,8 +16,7 @@ class DatabaseSeeder extends Seeder
            //  PublicRelationsDiplomaSeeder::class,
            //  PublicRelationsSubjectsSeeder::class,
 
-           PermissionSeeder::class,
-           SuperAdminSeeder::class,
+           MajedFinalQuizSeeder::class,
         ]);
     }
 }
