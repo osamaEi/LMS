@@ -3,7 +3,8 @@
 @section('title', 'الاختبارات')
 
 @section('content')
-<div class="space-y-6">
+@include('student.quizzes.partials.page-style')
+<div class="quiz-page space-y-6">
     <!-- Header -->
     <div class="rounded-2xl p-6 text-white" style="background: linear-gradient(180deg, #0071AA 0%, #005a88 100%);">
         <div class="flex items-center gap-4">
@@ -14,11 +15,17 @@
             </div>
             <div>
                 <h1 class="text-2xl font-bold">الاختبارات</h1>
-                <p class="mt-1" style="color: rgba(255,255,255,0.8);">جميع الاختبارات المتاحة لك</p>
+                <p class="mt-1" style="color: rgba(255,255,255,0.8);">تابع اختباراتك ومحاولاتك ونتائجك المعتمدة</p>
             </div>
         </div>
     </div>
 
+    <dl class="quiz-metrics" aria-label="ملخص الاختبارات">
+        <div class="quiz-metric"><dt>متاحة الآن</dt><dd>{{ $availableQuizzes->count() }}</dd></div>
+        <div class="quiz-metric"><dt>قادمة</dt><dd>{{ $upcomingQuizzes->count() }}</dd></div>
+        <div class="quiz-metric"><dt>منتهية</dt><dd>{{ $pastQuizzes->count() }}</dd></div>
+        <div class="quiz-metric"><dt>عرض الدرجات</dt><dd>بعد الاعتماد</dd></div>
+    </dl>
     <!-- Available Quizzes -->
     @if($availableQuizzes->count() > 0)
         <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm overflow-hidden">

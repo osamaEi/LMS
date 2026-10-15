@@ -88,8 +88,8 @@ class QuizController extends Controller
             'success' => true,
             'data' => [
                 'quiz' => $quiz,
-                'attempts' => $attempts,
-                'active_attempt' => $activeAttempt,
+                'attempts' => $attempts->map(fn ($attempt) => $this->studentAttemptData($attempt)),
+                'active_attempt' => $activeAttempt ? $this->studentAttemptData($activeAttempt) : null,
                 'can_attempt' => $quiz->canStudentAttempt($student->id),
                 'is_available' => $quiz->isAvailable(),
             ],
@@ -254,9 +254,9 @@ class QuizController extends Controller
             'message' => 'تم تسليم الاختبار بنجاح',
             'data' => [
                 'attempt_id' => (string) $attempt->id,
-                'score' => $attempt->score,
+                'score' => $attempt->isReleased() ? $attempt->score : null,
                 'total_marks' => $attempt->total_marks,
-                'percentage' => $attempt->percentage,
+                'percentage' => $attempt->isReleased() ? $attempt->percentage : null,
                 'time_spent_seconds' => $attempt->time_spent_seconds,
             ],
         ]);
@@ -285,13 +285,13 @@ class QuizController extends Controller
         }
 
         $data = [
-            'attempt' => $attempt,
+            'attempt' => $this->studentAttemptData($attempt),
             'quiz' => $quiz,
-            'show_results' => $quiz->show_results,
+            'show_results' => $attempt->isReleased() && $quiz->show_results,
         ];
 
         // Only include answers if quiz allows showing correct answers
-        if ($quiz->show_correct_answers) {
+        if ($attempt->isReleased() && $quiz->show_correct_answers) {
             $data['answers'] = $attempt->answers->load('question.options', 'selectedOption');
         }
 
@@ -299,6 +299,20 @@ class QuizController extends Controller
             'success' => true,
             'data' => $data,
         ]);
+    }
+
+    private function studentAttemptData(QuizAttempt $attempt): array
+    {
+        // Loaded answers contain grading details; expose them only through the
+        // explicitly gated answers field in the result response.
+        $data = $attempt->attributesToArray();
+        if (! $attempt->isReleased()) {
+            $data['score'] = null;
+            $data['percentage'] = null;
+            $data['passed'] = null;
+        }
+
+        return $data;
     }
 
     private function submitAttempt(QuizAttempt $attempt)

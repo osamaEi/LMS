@@ -3,7 +3,8 @@
 @section('title', $quiz->title_ar)
 
 @section('content')
-<div class="space-y-6">
+@include('student.quizzes.partials.page-style')
+<div class="quiz-page space-y-6">
     <!-- Header -->
     <div class="rounded-2xl p-6 text-white" style="background: linear-gradient(135deg, #10b981, #059669);">
         <div class="flex items-center gap-4">
@@ -20,6 +21,8 @@
             </div>
         </div>
     </div>
+
+    @include('student.quizzes.partials.detail-summary')
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- Quiz Info -->
@@ -89,7 +92,7 @@
             <!-- Previous Attempts -->
             @if($attempts->count() > 0)
             <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-6">
-                <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-4">محاولاتك السابقة</h2>
+                <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-4">سجل المحاولات</h2>
                 <div class="overflow-x-auto">
                     <table class="w-full">
                         <thead>
@@ -121,7 +124,7 @@
                                     @elseif($attempt->isReleased())
                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" style="background-color: #d1fae5; color: #065f46;">تم اعتماد النتيجة</span>
                                     @else
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" style="background-color: #e0f2fe; color: #075985;">بانتظار اعتماد المدرب</span>
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" style="background-color: #e0f2fe; color: #075985;">بانتظار اعتماد المعلم</span>
                                     @endif
                                 </td>
                                 <td class="py-3 px-4">
@@ -133,7 +136,7 @@
                                             عرض إجاباتي
                                         </a>
                                     @elseif($attempt->isCompleted())
-                                        <span class="text-xs text-gray-400">لم يتم إرسال النتيجة بعد</span>
+                                        <span class="text-xs text-gray-400">ستظهر النتيجة بعد الاعتماد</span>
                                     @endif
                                 </td>
                             </tr>

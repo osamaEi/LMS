@@ -220,6 +220,7 @@ class Quiz extends Model
     {
         return $this->attemptsForStudent($studentId)
             ->whereNotNull('submitted_at')
+            ->whereNotNull('results_released_at')
             ->max('score');
     }
 }
