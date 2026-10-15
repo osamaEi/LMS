@@ -105,6 +105,7 @@
                     <option value="exam" {{ old('type')==='exam'?'selected':'' }}>امتحان</option>
                     <option value="quiz" {{ old('type')==='quiz'?'selected':'' }}>اختبار قصير</option>
                     <option value="midterm" {{ old('type')==='midterm'?'selected':'' }}>اختبار نصفي</option>
+                    <option value="final" {{ old('type')==='final'?'selected':'' }}>اختبار نهائي</option>
                     <option value="homework" {{ old('type')==='homework'?'selected':'' }}>واجب</option>
                     <option value="paper" {{ old('type')==='paper'?'selected':'' }}>ورقة أعمال</option>
                 </select>

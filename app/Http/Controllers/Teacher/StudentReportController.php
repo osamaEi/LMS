@@ -459,7 +459,7 @@ class StudentReportController extends Controller
 
             $quizPct    = $avg($ofType(['quiz', 'paper']));
             $midtermPct = $avg($ofType(['midterm']));
-            $finalPct   = $avg($ofType(['exam']));
+            $finalPct   = $avg($ofType(['exam', 'final']));
 
             // Manually added grades for a quiz/homework with no record in the
             // system. They join the same bucket as the real records.
@@ -498,7 +498,7 @@ class StudentReportController extends Controller
                 return $max > 0 ? $manual->sum('grade') / $max : $pct;
             };
 
-            $finalPct   = $blendManual('final',   ['exam'],    $finalPct);
+            $finalPct   = $blendManual('final',   ['exam', 'final'],    $finalPct);
             $midtermPct = $blendManual('midterm', ['midterm'], $midtermPct);
 
             $marks = [
@@ -586,7 +586,7 @@ class StudentReportController extends Controller
 
             'quizzes' => $quizRows(['quiz', 'paper']),
             'midterm'  => $quizRows(['midterm']),
-            'final'    => $quizRows(['exam']),
+            'final'    => $quizRows(['exam', 'final']),
 
             'homework' => $homework->map(fn($h) => [
                 'id'        => $h['submission_id'],

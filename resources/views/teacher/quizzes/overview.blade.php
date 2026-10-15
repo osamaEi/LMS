@@ -78,6 +78,7 @@
             <option value="">كل الأنواع</option>
             <option value="quiz" {{ $type==='quiz'?'selected':'' }}>اختبار قصير</option>
             <option value="midterm" {{ $type==='midterm'?'selected':'' }}>اختبار نصفي</option>
+            <option value="final" {{ $type==='final'?'selected':'' }}>اختبار نهائي</option>
             <option value="exam" {{ $type==='exam'?'selected':'' }}>امتحان</option>
             <option value="homework" {{ $type==='homework'?'selected':'' }}>واجب</option>
         </select>
@@ -126,7 +127,7 @@
                     </td>
                     <td style="padding:12px 16px;text-align:center;">
                         @php
-                            $typeMap = ['quiz'=>['اختبار قصير','#e0f2fe','#0891b2'],'midterm'=>['اختبار نصفي','#fae8ff','#a21caf'],'exam'=>['امتحان','#f3e8ff','#7c3aed'],'homework'=>['واجب','#fef9c3','#ca8a04'],'paper'=>['ورقة','#f1f5f9','#475569']];
+                            $typeMap = ['quiz'=>['اختبار قصير','#e0f2fe','#0891b2'],'midterm'=>['اختبار نصفي','#fae8ff','#a21caf'],'final'=>['اختبار نهائي','#fae8ff','#a21caf'],'exam'=>['امتحان','#f3e8ff','#7c3aed'],'homework'=>['واجب','#fef9c3','#ca8a04'],'paper'=>['ورقة','#f1f5f9','#475569']];
                             [$tl,$tbg,$tc] = $typeMap[$quiz->type] ?? [$quiz->type,'#f1f5f9','#475569'];
                         @endphp
                         <span style="background:{{ $tbg }};color:{{ $tc }};border-radius:9999px;padding:.2rem .7rem;font-size:.7rem;font-weight:700;white-space:nowrap;">{{ $tl }}</span>
@@ -203,7 +204,7 @@
         <div class="qz-cards">
             @forelse($quizzes as $quiz)
             @php
-                $typeMap = ['quiz'=>['اختبار قصير','#e0f2fe','#0891b2'],'midterm'=>['اختبار نصفي','#fae8ff','#a21caf'],'exam'=>['امتحان','#f3e8ff','#7c3aed'],'homework'=>['واجب','#fef9c3','#ca8a04'],'paper'=>['ورقة','#f1f5f9','#475569']];
+                $typeMap = ['quiz'=>['اختبار قصير','#e0f2fe','#0891b2'],'midterm'=>['اختبار نصفي','#fae8ff','#a21caf'],'final'=>['اختبار نهائي','#fae8ff','#a21caf'],'exam'=>['امتحان','#f3e8ff','#7c3aed'],'homework'=>['واجب','#fef9c3','#ca8a04'],'paper'=>['ورقة','#f1f5f9','#475569']];
                 [$tl,$tbg,$tc] = $typeMap[$quiz->type] ?? [$quiz->type,'#f1f5f9','#475569'];
                 $isProgramQuiz = $quiz->program_id !== null;
                 if (!$quiz->is_active)                              { $sl='موقوف'; $sbg='#fee2e2'; $sc='#dc2626'; }

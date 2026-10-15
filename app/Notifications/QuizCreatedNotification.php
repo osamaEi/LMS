@@ -27,6 +27,7 @@ class QuizCreatedNotification extends Notification
             : route('student.quizzes.show', [$quiz->subject_id, $quiz->id]);
 
         $typeLabel = match($quiz->type) {
+            'final'    => 'اختبار نهائي',
             'exam'     => 'امتحان',
             'homework' => 'واجب',
             default    => 'اختبار قصير',

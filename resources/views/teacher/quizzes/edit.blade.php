@@ -100,6 +100,7 @@
                     <option value="exam" {{ $t==='exam'?'selected':'' }}>امتحان</option>
                     <option value="quiz" {{ $t==='quiz'?'selected':'' }}>اختبار قصير</option>
                     <option value="midterm" {{ $t==='midterm'?'selected':'' }}>اختبار نصفي</option>
+                    <option value="final" {{ $t==='final'?'selected':'' }}>اختبار نهائي</option>
                     <option value="homework" {{ $t==='homework'?'selected':'' }}>واجب</option>
                     <option value="paper" {{ $t==='paper'?'selected':'' }}>ورقة أعمال</option>
                 </select>

@@ -117,7 +117,7 @@
     function openQuizCal(q){
         document.getElementById('smTitle').textContent = '📝 ' + (q.title||'اختبار');
         document.getElementById('sessionModal').style.display='flex';
-        const typeColors = {quiz:'#0891b2',midterm:'#a21caf',exam:'#7c3aed',homework:'#ca8a04',paper:'#475569'};
+        const typeColors = {quiz:'#0891b2',midterm:'#a21caf',final:'#7c3aed',exam:'#7c3aed',homework:'#ca8a04',paper:'#475569'};
         const tc = typeColors[q.type] || '#475569';
         let rows = [
             q.subject_name ? ['📚 المادة', q.subject_name] : null,
@@ -262,7 +262,7 @@
                 ${DAY_NAMES_CAL[i]}<br><span style="font-size:11px;font-weight:500;opacity:.85;">${d.getDate()} ${MONTH_NAMES_CAL[d.getMonth()]}</span>
             </td>`;
             // Build quiz cards for this day — keyed by period index so each quiz lands once
-            const typeColors = {quiz:'#0891b2',midterm:'#a21caf',exam:'#7c3aed',homework:'#ca8a04',paper:'#475569'};
+            const typeColors = {quiz:'#0891b2',midterm:'#a21caf',final:'#7c3aed',exam:'#7c3aed',homework:'#ca8a04',paper:'#475569'};
             const quizCellMap = {}; // pi -> html
             quizzesOnDayCal(d).forEach(q=>{
                 const dt = new Date(q.starts_at);

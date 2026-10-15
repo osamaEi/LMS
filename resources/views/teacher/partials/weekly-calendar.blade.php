@@ -200,7 +200,7 @@ function renderCalendar(){
         </td>`;
 
         // Quizzes the teacher created — placed into period cells like the student calendar.
-        const quizTypeColors = {quiz:'#0891b2',midterm:'#a21caf',exam:'#7c3aed',homework:'#ca8a04',paper:'#475569'};
+        const quizTypeColors = {quiz:'#0891b2',midterm:'#a21caf',final:'#7c3aed',exam:'#7c3aed',homework:'#ca8a04',paper:'#475569'};
         const quizCellMap = {};
         quizzesOnDay(d).forEach(q=>{
             const dt = new Date(q.starts_at);

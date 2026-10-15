@@ -36,6 +36,7 @@
             <option value="">كل الأنواع</option>
             <option value="quiz"     {{ $type=='quiz'?'selected':'' }}>اختبار قصير</option>
             <option value="midterm"  {{ $type=='midterm'?'selected':'' }}>اختبار نصفي</option>
+            <option value="final"  {{ $type=='final'?'selected':'' }}>اختبار نهائي</option>
             <option value="exam"     {{ $type=='exam'?'selected':'' }}>امتحان</option>
             <option value="homework" {{ $type=='homework'?'selected':'' }}>واجب</option>
             <option value="paper"    {{ $type=='paper'?'selected':'' }}>ورقة أعمال</option>
@@ -72,6 +73,7 @@
                 $typeMap = [
                     'quiz'    =>['اختبار قصير','#dcfce7','#16a34a'],
                     'midterm' =>['اختبار نصفي','#fae8ff','#a21caf'],
+                    'final' =>['اختبار نهائي','#fae8ff','#a21caf'],
                     'exam'    =>['امتحان','#ede9fe','#7c3aed'],
                     'homework'=>['واجب','#fef3c7','#d97706'],
                     'paper'   =>['ورقة أعمال','#dbeafe','#2563eb'],

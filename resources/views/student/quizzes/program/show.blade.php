@@ -159,6 +159,7 @@
                             @switch($quiz->type)
                                 @case('quiz') اختبار قصير @break
                                 @case('midterm') اختبار نصفي @break
+                                @case('final') اختبار نهائي @break
                                 @case('exam') امتحان @break
                                 @case('homework') واجب @break
                             @endswitch

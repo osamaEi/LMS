@@ -95,10 +95,11 @@ class QuizDuplicationTest extends TestCase
             'type' => 'quiz', 'total_marks' => 20, 'duration_minutes' => 30]);
 
         $copy = $this->service()->duplicateForClass($source, 'program:5', 20, 7, [
-            'type' => 'exam', 'total_marks' => 50, 'duration_minutes' => 60,
+            'type' => 'final', 'total_marks' => 50, 'duration_minutes' => 60,
         ]);
         $copy->refresh();
-        $this->assertSame('exam', $copy->type);
+        $this->assertSame('final', $copy->type);
+        $this->assertSame('اختبار نهائي', $copy->type_label);
         $this->assertEquals(50, $copy->total_marks);
         $this->assertEquals(60, $copy->duration_minutes);
         $this->assertSame('quiz', $source->fresh()->type);

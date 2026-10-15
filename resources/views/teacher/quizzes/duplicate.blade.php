@@ -58,7 +58,7 @@
             <textarea class="qd-field" dir="ltr" id="description_en" name="description_en" rows="3">{{ old('description_en', $quiz->description_en) }}</textarea>
             <label class="qd-label" for="type">نوع الاختبار</label>
             <select class="qd-field" id="type" name="type" required>
-                @foreach(['quiz' => 'اختبار قصير', 'midterm' => 'اختبار نصفي', 'exam' => 'امتحان', 'homework' => 'واجب', 'paper' => 'ورقة أعمال'] as $value => $label)
+                @foreach(['quiz' => 'اختبار قصير', 'midterm' => 'اختبار نصفي','final' => 'اختبار نهائي', 'exam' => 'امتحان', 'homework' => 'واجب', 'paper' => 'ورقة أعمال'] as $value => $label)
                     <option value="{{ $value }}" @selected(old('type', $quiz->type) === $value)>{{ $label }}</option>
                 @endforeach
             </select>

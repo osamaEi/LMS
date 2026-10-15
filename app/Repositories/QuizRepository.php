@@ -264,7 +264,7 @@ class QuizRepository
     {
         return [
             'total'    => Quiz::where('created_by', $teacherId)->count(),
-            'exams'    => Quiz::where('created_by', $teacherId)->where('type', 'exam')->count(),
+            'exams'    => Quiz::where('created_by', $teacherId)->whereIn('type', ['exam', 'final'])->count(),
             'quizzes'  => Quiz::where('created_by', $teacherId)->where('type', 'quiz')->count(),
             'attempts' => QuizAttempt::whereHas('quiz', fn($q) => $q->where('created_by', $teacherId))
                 ->whereNotNull('submitted_at')->count(),

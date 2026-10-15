@@ -779,7 +779,7 @@
                 <div class="field">
                     <label>النوع *</label>
                     <select name="type" required>
-                        @foreach(['quiz'=>'اختبار قصير','midterm'=>'اختبار نصفي','exam'=>'امتحان','homework'=>'واجب','paper'=>'ورقة أعمال'] as $val=>$lbl)
+                        @foreach(['quiz'=>'اختبار قصير','midterm'=>'اختبار نصفي','final'=>'اختبار نهائي','exam'=>'امتحان','homework'=>'واجب','paper'=>'ورقة أعمال'] as $val=>$lbl)
                             <option value="{{ $val }}" @selected(old('type',$quiz->type)===$val)>{{ $lbl }}</option>
                         @endforeach
                     </select>

@@ -106,6 +106,7 @@ class Quiz extends Model
         return match($this->type) {
             'quiz'     => 'اختبار قصير',
             'midterm'  => 'اختبار نصفي',
+            'final'  => 'اختبار نهائي',
             'exam'     => 'امتحان',
             'homework' => 'واجب',
             'paper'    => 'ورقة أعمال',
