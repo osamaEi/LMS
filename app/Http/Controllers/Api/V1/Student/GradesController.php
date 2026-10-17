@@ -14,11 +14,21 @@ class GradesController extends Controller
     {
         abort_unless($request->user()->role === 'student', 403);
 
-        $result = $grades->sentGradeReports($request->user())
+        $subjectKey = fn ($row) => isset($row['subject_id'])
+            ? 'id:' . $row['subject_id']
+            : 'name:' . $row['name'];
+
+        $rows = $grades->sentGradeReports($request->user())
             ->flatMap(fn ($report) => $report->rows)
-            ->unique(fn ($row) => isset($row['subject_id'])
-                ? 'id:' . $row['subject_id']
-                : 'name:' . $row['name'])
+            ->unique($subjectKey)
+            ->keyBy($subjectKey);
+
+        foreach ($grades->savedFinalGrades($request->user()) as $saved) {
+            $key = $subjectKey($saved);
+            $rows->put($key, array_replace($rows->get($key, []), $saved));
+        }
+
+        $result = $rows
             ->map(function ($row) {
                 $total = isset($row['total']) ? (float) $row['total'] : null;
                 [$letter, $label] = Enrollment::gradeBand($total);

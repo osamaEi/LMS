@@ -16,6 +16,21 @@ use Illuminate\Support\Collection;
  */
 class StudentGradesService
 {
+    /** Final grades saved by the teacher, including grades not yet sent. */
+    public function savedFinalGrades(User $student): Collection
+    {
+        return Enrollment::where('student_id', $student->id)
+            ->whereNotNull('final_grade')
+            ->with('subject')
+            ->get()
+            ->filter(fn ($enrollment) => $enrollment->subject !== null)
+            ->map(fn ($enrollment) => [
+                'subject_id' => $enrollment->subject_id,
+                'name' => $enrollment->subject->name_ar ?? $enrollment->subject->name,
+                'total' => (float) $enrollment->final_grade,
+            ])->values();
+    }
+
     /**
      * @return array{subjectGrades: array, totalEvaluations: int, totalQuizzes: int, avgPercentage: float|null, sentReports: Collection}
      */
