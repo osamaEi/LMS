@@ -151,6 +151,7 @@ Route::prefix('v1')->group(function () {
 
             // Grades
             Route::get('/grades', [App\Http\Controllers\Api\V1\Student\GradesController::class, 'index']);
+            Route::get('/grades/summary', [App\Http\Controllers\Api\V1\Student\GradesController::class, 'summary']);
 
             // Homework
             Route::get('/homework',[App\Http\Controllers\Api\V1\Student\HomeworkController::class, 'index']);

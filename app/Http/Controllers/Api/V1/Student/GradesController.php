@@ -9,6 +9,21 @@ use Illuminate\Http\Request;
 
 class GradesController extends Controller
 {
+    /** GET /api/v1/student/grades/summary */
+    public function summary(Request $request, StudentGradesService $grades)
+    {
+        abort_unless($request->user()->role === 'student', 403);
+
+        $overview = $grades->overview($request->user());
+        $result = collect($overview['subjectGrades'])->map(fn ($row) => [
+            'subject_name' => $row['subject']->name_ar ?? $row['subject']->name,
+            'grade' => (float) $row['percentage'],
+            'evaluation' => $row['grade_label'],
+        ])->values();
+
+        return response()->json(['result' => $result]);
+    }
+
     /** GET /api/v1/student/grades */
     public function index(Request $request, StudentGradesService $grades)
     {
