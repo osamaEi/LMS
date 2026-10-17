@@ -25,6 +25,7 @@ class ProfileController extends Controller
             'phone'       => 'nullable|string|max:20',
             'nationality' => 'nullable|string|max:100',
             'bio'         => 'nullable|string|max:500',
+            'certificate_url' => 'nullable|url:http,https|max:2048',
         ], [
             'name.required'  => 'الاسم مطلوب',
             'email.required' => 'البريد الإلكتروني مطلوب',

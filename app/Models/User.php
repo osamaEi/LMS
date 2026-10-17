@@ -42,6 +42,7 @@ class User extends Authenticatable
         'status',
         'profile_photo',
         'bio',
+        'certificate_url',
         'specialization',
         'specialization_type',
         'level',

@@ -45,6 +45,14 @@
             </div>
 
             <!-- البريد الإلكتروني -->
+            <div class="md:col-span-2">
+                <label for="certificate_url" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">رابط الشهادة</label>
+                <input type="url" id="certificate_url" name="certificate_url" dir="ltr" maxlength="2048"
+                       value="{{ old('certificate_url') }}"
+                       placeholder="https://example.com/certificate.pdf"
+                       class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
+            </div>
+
             <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     البريد الإلكتروني <span class="text-error-500">*</span>

@@ -164,6 +164,18 @@
 
             {{-- Change Password --}}
             <div class="p-card">
+                <div class="p-card-head"><span class="text-sm font-bold text-gray-900 dark:text-white">الشهادة</span></div>
+                <div class="p-4 space-y-3">
+                    @if($user->certificate_url)
+                        <a href="{{ $user->certificate_url }}" target="_blank" rel="noopener noreferrer" class="text-sm text-blue-600 underline">عرض الشهادة</a>
+                    @else
+                        <p class="text-sm text-gray-400">لم تتم إضافة رابط الشهادة</p>
+                    @endif
+                    <button type="button" onclick="openEditModal()" class="block text-sm font-bold text-blue-600">تعديل رابط الشهادة</button>
+                </div>
+            </div>
+
+            <div class="p-card">
                 <div class="p-card-head">
                     <div class="p-card-icon" style="background:#fef2f2;">
                         <svg class="w-4 h-4" style="color:#dc2626;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
@@ -227,6 +239,10 @@
                 <div>
                     <label class="edit-lbl">نبذة شخصية</label>
                     <textarea id="edit-bio" class="edit-field" rows="3" placeholder="اكتب نبذة مختصرة عنك...">{{ $user->bio }}</textarea>
+                </div>
+                <div>
+                    <label for="edit-certificate-url" class="edit-lbl">رابط الشهادة</label>
+                    <input type="url" id="edit-certificate-url" class="edit-field" dir="ltr" maxlength="2048" value="{{ $user->certificate_url }}" placeholder="https://example.com/certificate.pdf">
                 </div>
                 <p id="edit-error" class="text-xs hidden" style="color:#ef4444;"></p>
             </div>
@@ -293,6 +309,7 @@
                     phone:       document.getElementById('edit-phone').value.trim(),
                     nationality: document.getElementById('edit-nationality').value.trim(),
                     bio:         document.getElementById('edit-bio').value.trim(),
+                    certificate_url: document.getElementById('edit-certificate-url').value.trim(),
                 }),
             });
             const data = await res.json();

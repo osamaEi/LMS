@@ -76,6 +76,7 @@ class TeacherController extends Controller
             'gender'      => 'nullable|in:male,female',
             'nationality' => 'nullable|string|max:100',
             'password'    => 'required|string|min:8|confirmed',
+            'certificate_url' => 'nullable|url:http,https|max:2048',
             'subjects'    => 'nullable|array',
             'subjects.*'  => 'exists:subjects,id',
             'programs'    => 'nullable|array',
@@ -154,6 +155,7 @@ class TeacherController extends Controller
             'gender'      => 'nullable|in:male,female',
             'nationality' => 'nullable|string|max:100',
             'password'    => 'nullable|string|min:8|confirmed',
+            'certificate_url' => 'nullable|url:http,https|max:2048',
         ]);
 
         if (!empty($validated['password'])) {
