@@ -42,9 +42,6 @@ class MajedGradesSeeder extends Seeder
         $count = DB::transaction(function () use ($student, $subjects) {
             foreach ($subjects as $index => $subject) {
                 $teacher = $subject->teacher ?? $subject->teachers()->first();
-                if (! $teacher) {
-                    throw new RuntimeException("Assign a teacher to subject #{$subject->id} before seeding its grade report.");
-                }
 
                 $enrollment = Enrollment::firstOrCreate([
                     'student_id' => $student->id,
@@ -72,7 +69,9 @@ class MajedGradesSeeder extends Seeder
                     $attendance = round($total * 0.1, 1);
                     $participation = round($total * 0.3, 1);
                     $midterm = round($total * 0.2, 1);
-                    $notification = new TeacherGradesNotification($teacher->id, $teacher->name, [[
+                    // The sender is notification metadata only; zero denotes a demo
+                    // sender when the subject has no assigned teacher.
+                    $notification = new TeacherGradesNotification($teacher?->id ?? 0, $teacher?->name ?? 'معلم تجريبي', [[
                         'subject_id' => $subject->id,
                         'name' => $subject->name_ar,
                         'attendance' => $attendance,
