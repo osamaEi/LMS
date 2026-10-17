@@ -5,8 +5,11 @@ namespace Database\Seeders;
 use App\Models\Enrollment;
 use App\Models\Subject;
 use App\Models\User;
+use App\Services\StudentGradesService;
+use App\Notifications\TeacherGradesNotification;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use RuntimeException;
 
 class MajedGradesSeeder extends Seeder
@@ -36,8 +39,13 @@ class MajedGradesSeeder extends Seeder
             throw new RuntimeException('Enroll majed@lms.com in a subject or assign a class with subjects first.');
         }
 
-        DB::transaction(function () use ($student, $subjects) {
+        $count = DB::transaction(function () use ($student, $subjects) {
             foreach ($subjects as $index => $subject) {
+                $teacher = $subject->teacher ?? $subject->teachers()->first();
+                if (! $teacher) {
+                    throw new RuntimeException("Assign a teacher to subject #{$subject->id} before seeding its grade report.");
+                }
+
                 $enrollment = Enrollment::firstOrCreate([
                     'student_id' => $student->id,
                     'subject_id' => $subject->id,
@@ -53,9 +61,43 @@ class MajedGradesSeeder extends Seeder
                 }
 
                 $this->command?->info("{$subject->name_ar}: {$enrollment->final_grade}/100");
+
+                $marker = 'majed-grades-demo-' . $subject->id;
+                $exists = $student->notifications()
+                    ->where('type', TeacherGradesNotification::class)
+                    ->where('data->demo_key', $marker)->exists();
+
+                if (! $exists) {
+                    $total = (float) $enrollment->final_grade;
+                    $attendance = round($total * 0.1, 1);
+                    $participation = round($total * 0.3, 1);
+                    $midterm = round($total * 0.2, 1);
+                    $notification = new TeacherGradesNotification($teacher->id, $teacher->name, [[
+                        'subject_id' => $subject->id,
+                        'name' => $subject->name_ar,
+                        'attendance' => $attendance,
+                        'participation' => $participation,
+                        'midterm' => $midterm,
+                        'final' => round($total - $attendance - $participation - $midterm, 1),
+                        'total' => $total,
+                    ]]);
+                    $student->notifications()->create([
+                        'id' => (string) Str::uuid(),
+                        'type' => TeacherGradesNotification::class,
+                        'data' => $notification->toArray($student) + ['demo_key' => $marker],
+                    ]);
+                }
             }
+
+            $count = app(StudentGradesService::class)->savedFinalGrades($student)->count();
+            if ($count === 0) {
+                throw new RuntimeException('Verification failed: no saved grades are visible to the grades API.');
+            }
+
+            return $count;
         });
 
-        $this->command?->info('Grades ready for majed@lms.com at /api/v1/student/grades.');
+        $this->command?->info("Verified {$count} saved grade result(s) for majed@lms.com (student ID: {$student->id}).");
+        $this->command?->info('Call /api/v1/student/grades using this student\'s token.');
     }
 }

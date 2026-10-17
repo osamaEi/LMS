@@ -48,6 +48,9 @@
     .sent-report-head p { color: var(--grade-muted); font-size: 12px; margin: 4px 0 0; }
     .sent-report-new { flex-shrink: 0; background: #dcfce7; color: #166534; padding: 5px 11px; border-radius: 9px; font-size: 11px; font-weight: 700; }
     .sent-report-scroll { overflow-x: auto; }
+    .sent-report-details summary { cursor: pointer; display: list-item; width: fit-content; padding: 10px 16px; border-radius: 10px; background: #0071aa; color: #fff; font-size: 13px; }
+    .sent-report-details summary:focus-visible { outline: 3px solid #38bdf8; outline-offset: 3px; }
+    .sent-report-details[open] summary { margin-bottom: 14px; }
     .sent-report-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 520px; }
     .sent-report-table th, .sent-report-table td { padding: 11px 10px; text-align: center; border-bottom: 1px solid var(--grade-border); font-variant-numeric: tabular-nums; }
     .sent-report-table thead th { font-size: 11px; font-weight: 700; color: var(--grade-muted); }
@@ -125,16 +128,19 @@
             @endif
         </header>
 
+        <details class="sent-report-details">
+        <summary>عرض التفاصيل</summary>
         <div class="sent-report-scroll">
             <table class="sent-report-table">
                 <thead>
                     <tr>
                         <th scope="col">المقرر</th>
-                        <th scope="col">الحضور</th>
-                        <th scope="col">المشاركة</th>
-                        <th scope="col">النصفي</th>
-                        <th scope="col">النهائي</th>
+                        <th scope="col">الحضور / 10</th>
+                        <th scope="col">المشاركة / 30</th>
+                        <th scope="col">النصفي / 20</th>
+                        <th scope="col">النهائي / 40</th>
                         <th scope="col">المجموع</th>
+                        <th scope="col">التقدير</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -146,11 +152,13 @@
                         <td>{{ $row['midterm'] ?? '—' }}</td>
                         <td>{{ $row['final'] ?? '—' }}</td>
                         <td class="sent-report-total">{{ $row['total'] ?? '—' }} <small>/ 100</small></td>
+                        <td>{{ implode(' — ', \App\Models\Enrollment::gradeBand(isset($row['total']) ? (float) $row['total'] : null)) }}</td>
                     </tr>
                     @endforeach
                 </tbody>
             </table>
         </div>
+        </details>
     </article>
     @endforeach
     @endif
