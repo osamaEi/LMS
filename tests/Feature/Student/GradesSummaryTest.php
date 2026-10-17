@@ -16,16 +16,16 @@ class GradesSummaryTest extends TestCase
         Sanctum::actingAs($student);
         $this->mock(StudentGradesService::class)->shouldReceive('overview')
             ->once()->with($student)->andReturn(['subjectGrades' => [
-                105 => ['subject' => new Subject(['name_ar' => 'الرياضيات']),
+                105 => ['subject' => (new Subject(['name_ar' => 'الرياضيات']))->setRelation('teacher', new User(['certificate_url' => 'https://example.com/certificate.pdf'])),
                     'percentage' => 73, 'grade_label' => 'جيد'],
-                106 => ['subject' => new Subject(['name_ar' => 'العلوم']),
+                106 => ['subject' => (new Subject(['name_ar' => 'العلوم']))->setRelation('teacher', null),
                     'percentage' => 0, 'grade_label' => 'ضعيف'],
             ]]);
 
         $this->getJson('/api/v1/student/grades/summary')->assertOk()->assertExactJson([
             'result' => [
-                ['subject_name' => 'الرياضيات', 'grade' => 73, 'evaluation' => 'جيد'],
-                ['subject_name' => 'العلوم', 'grade' => 0, 'evaluation' => 'ضعيف'],
+                ['subject_name' => 'الرياضيات', 'grade' => 73, 'evaluation' => 'جيد', 'certificate_url' => 'https://example.com/certificate.pdf'],
+                ['subject_name' => 'العلوم', 'grade' => 0, 'evaluation' => 'ضعيف', 'certificate_url' => null],
             ],
         ]);
     }

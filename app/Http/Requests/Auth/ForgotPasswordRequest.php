@@ -20,7 +20,7 @@ class ForgotPasswordRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'phone' => ['required', 'string', 'regex:/^(05|5)\d{8}$/'],
+            'phone' => ['required', 'string', 'regex:/^(?:(?:\+966|00966|966)0?|0)?5\d{8}$/'],
         ];
     }
 

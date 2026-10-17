@@ -125,6 +125,9 @@
                 </div>
 
                 <!-- Login Form -->
+                @if(session('success'))
+                    <div role="status" class="mb-5 rounded-lg bg-green-50 p-4 text-sm text-green-800">{{ session('success') }}</div>
+                @endif
                 <form method="POST" action="{{ route('login') }}" class="space-y-5">
                     @csrf
 
@@ -176,7 +179,7 @@
                                 </svg>
                             </button>
                         </div>
-                        <a href="#" class="inline-block mt-2 text-sm text-blue-600 hover:text-blue-700">
+                        <a href="{{ route('password.request') }}" class="inline-block mt-2 text-sm text-blue-600 hover:text-blue-700">
                             {{ app()->getLocale() === 'ar' ? 'نسيت كلمة المرور؟' : 'Forgot password?' }}
                         </a>
                         @error('password')

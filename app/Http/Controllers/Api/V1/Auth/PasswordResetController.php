@@ -7,7 +7,7 @@ use App\Http\Requests\Auth\ForgotPasswordRequest;
 use App\Models\User;
 use App\Services\OtpService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
+use App\Services\PasswordRecoveryService;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rules\Password;
 
@@ -26,8 +26,7 @@ class PasswordResetController extends Controller
     public function forgot(ForgotPasswordRequest $request)
     {
         $phone = $request->validated('phone');
-        $phone = str_starts_with($phone, '0') ? $phone : '0' . $phone;
-        $user = User::where('phone', $phone)->first();
+        $user = app(PasswordRecoveryService::class)->findAccount($phone);
 
         // Do not leak which accounts exist — always answer the same way.
         if (!$user || !$user->phone) {
@@ -47,19 +46,6 @@ class PasswordResetController extends Controller
                 'error'   => $e->getMessage(),
             ]);
 
-            // A testing account must stay usable even if its stored phone is
-            // not routable — the fixed code is accepted regardless.
-            if ($this->otpService->isTestNationalId($user->national_id)) {
-                return response()->json([
-                    'success' => true,
-                    'message' => 'إذا كان الحساب مسجلاً لدينا فسيتم إرسال رمز التحقق إلى رقم الجوال المرتبط به.',
-                    'data'    => [
-                        'phone'      => $this->maskPhone($user->phone),
-                        'expires_at' => now()->addMinutes(5)->toIso8601String(),
-                    ],
-                ]);
-            }
-
             return response()->json([
                 'success' => false,
                 'message' => 'تعذر إرسال رمز التحقق حالياً. يرجى المحاولة لاحقاً.',
@@ -78,14 +64,15 @@ class PasswordResetController extends Controller
 
     /**
      * POST /api/v1/auth/reset-password
-     * Set a new password by national ID.
+     * Set a new password after validating a single-use SMS code.
      *
-     * Fields: national_id, password
+     * Fields: national_id, otp, password
      */
     public function reset(Request $request)
     {
         $data = $request->validate([
             'national_id' => ['required', 'digits:10'],
+            'otp' => ['required', 'digits:6'],
             'password' => ['required', Password::min(8)],
         ], [
             'password.required'  => 'كلمة المرور مطلوبة',
@@ -93,17 +80,12 @@ class PasswordResetController extends Controller
 
         $user = User::where('national_id', $data['national_id'])->first();
 
-        if (!$user) {
+        if (!$user || !app(PasswordRecoveryService::class)->reset($user, $data['otp'], $data['password'])) {
             return response()->json([
                 'success' => false,
-                'message' => 'لا يوجد حساب مرتبط بهذا الرقم',
-            ], 404);
+                'message' => 'الرمز غير صحيح أو انتهت صلاحيته.',
+            ], 422);
         }
-
-        $user->update(['password' => Hash::make($data['password'])]);
-
-        // Any session opened with the old password must not survive the reset.
-        $user->tokens()->delete();
 
         return response()->json([
             'success' => true,

@@ -47,8 +47,8 @@ Route::prefix('v1')->group(function () {
         Route::post('/send-otp', [App\Http\Controllers\Api\V1\Auth\OtpController::class, 'send']);
         Route::post('/verify-otp', [App\Http\Controllers\Api\V1\Auth\OtpController::class, 'verify']);
         Route::post('/login', [App\Http\Controllers\Api\V1\Auth\LoginController::class, 'login']);
-        Route::post('/forgot-password', [App\Http\Controllers\Api\V1\Auth\PasswordResetController::class, 'forgot']);
-        Route::post('/reset-password', [App\Http\Controllers\Api\V1\Auth\PasswordResetController::class, 'reset']);
+        Route::post('/forgot-password', [App\Http\Controllers\Api\V1\Auth\PasswordResetController::class, 'forgot'])->middleware('throttle:3,1');
+        Route::post('/reset-password', [App\Http\Controllers\Api\V1\Auth\PasswordResetController::class, 'reset'])->middleware('throttle:5,1');
     });
 
     // Protected Routes (Require Authentication)

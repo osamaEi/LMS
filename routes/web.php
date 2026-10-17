@@ -61,6 +61,12 @@ Route::get('/diag/attendance/{subjectId}/{sessionId}', function ($subjectId, $se
 })->middleware('auth');
 
 // Registration Routes
+Route::middleware('guest')->group(function () {
+    Route::get('/forgot-password', [\App\Http\Controllers\Auth\PasswordRecoveryController::class, 'show'])->name('password.request');
+    Route::post('/forgot-password', [\App\Http\Controllers\Auth\PasswordRecoveryController::class, 'send'])->middleware('throttle:3,1')->name('password.otp.send');
+    Route::post('/reset-password', [\App\Http\Controllers\Auth\PasswordRecoveryController::class, 'reset'])->middleware('throttle:5,1')->name('password.update');
+});
+
 Route::get('/register', [\App\Http\Controllers\Auth\RegisterController::class, 'showForm'])->name('register');
 Route::post('/register/otp/send', [\App\Http\Controllers\Auth\RegisterController::class, 'sendOtp'])->middleware('throttle:3,1')->name('register.otp.send');
 Route::post('/register/otp/verify', [\App\Http\Controllers\Auth\RegisterController::class, 'verifyOtp'])->middleware('throttle:10,1')->name('register.otp.verify');

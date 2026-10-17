@@ -19,6 +19,7 @@ class GradesController extends Controller
             'subject_name' => $row['subject']->name_ar ?? $row['subject']->name,
             'grade' => (float) $row['percentage'],
             'evaluation' => $row['grade_label'],
+            'certificate_url' => $row['subject']->teacher?->certificate_url,
         ])->values();
 
         return response()->json(['result' => $result]);
