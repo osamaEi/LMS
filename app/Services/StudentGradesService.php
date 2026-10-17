@@ -86,7 +86,7 @@ class StudentGradesService
      * Each entry: teacher name, when it was sent, and the per-subject rows
      * (attendance / participation / midterm / final / total).
      */
-    private function sentGradeReports(User $student): Collection
+    public function sentGradeReports(User $student): Collection
     {
         return $student->notifications()
             ->where('type', TeacherGradesNotification::class)
