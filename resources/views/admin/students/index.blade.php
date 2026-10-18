@@ -205,7 +205,24 @@
         white-space: nowrap;
     }
     .dark .program-badge { background: rgba(5,150,105,0.15); color: #6ee7b7; }
-    .row-actions { display: flex; gap: 6px; align-items: center; }
+    .student-actions-menu {
+        position: fixed;
+        inset: auto;
+        margin: 0;
+        width: 200px;
+        max-width: calc(100vw - 16px);
+        max-height: calc(100vh - 16px);
+        overflow-y: auto;
+        padding: 8px;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        background: #fff;
+        box-shadow: 0 12px 32px rgba(15,23,42,0.16);
+    }
+    .dark .student-actions-menu { background: #1e293b; border-color: #334155; }
+    .student-actions-menu form { display: block !important; margin: 0; }
+    .student-actions-menu .act-btn { display: flex; width: 100%; justify-content: flex-start; padding: 10px 12px; margin: 3px 0; gap: 8px; }
+    .act-btn:focus-visible { outline: 2px solid #059669; outline-offset: 2px; }
     .act-btn {
         display: inline-flex;
         align-items: center;
@@ -307,22 +324,69 @@
     </div>
     @endif
 
+    @if($errors->any())
+    <div role="alert" style="padding:14px;margin-bottom:16px;background:#fee2e2;color:#991b1b;border-radius:12px">
+        @foreach($errors->all() as $error)<p>{{ $error }}</p>@endforeach
+    </div>
+    @endif
+    <form method="GET" action="{{ route('admin.students.index') }}" class="table-card" style="padding:20px;margin-bottom:16px">
+        <h2 style="font-weight:800;margin-bottom:14px">البحث والتصفية المتقدمة</h2>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px">
+            <label>البحث
+                <input type="search" name="search" value="{{ $search }}" class="search-input" placeholder="الاسم، الكود، البريد، الهوية، الهاتف">
+            </label>
+            <label>الحالة
+                <select name="status" class="search-input">
+                    @foreach(['' => 'كل الحالات', 'active' => 'نشط', 'pending' => 'معلق', 'inactive' => 'غير نشط', 'suspended' => 'موقوف'] as $value => $label)
+                    <option value="{{ $value }}" @selected($statusFilter === $value)>{{ $label }}</option>
+                    @endforeach
+                </select>
+            </label>
+            <label>البرنامج
+                <select name="program_id" class="search-input">
+                    <option value="">كل البرامج</option>
+                    @foreach($programs as $program)
+                    <option value="{{ $program->id }}" @selected(request('program_id') == $program->id)>{{ $program->name_ar }}</option>
+                    @endforeach
+                </select>
+            </label>
+            <label>الكلاس
+                <select name="class_id" class="search-input">
+                    <option value="">كل الكلاسات</option>
+                    @foreach($classes as $class)
+                    <option value="{{ $class->id }}" @selected(request('class_id') == $class->id)>{{ $class->name }} — {{ $programs->firstWhere('id', $class->program_id)?->name_ar }}</option>
+                    @endforeach
+                </select>
+            </label>
+            <label>تاريخ التسجيل من
+                <input type="date" name="registered_from" value="{{ request('registered_from') }}" class="search-input">
+            </label>
+            <label>تاريخ التسجيل إلى
+                <input type="date" name="registered_to" value="{{ request('registered_to') }}" class="search-input">
+            </label>
+            <label>الترتيب
+                <select name="sort" class="search-input">
+                    @foreach(['newest' => 'الأحدث أولاً', 'oldest' => 'الأقدم أولاً', 'name' => 'الاسم'] as $value => $label)
+                    <option value="{{ $value }}" @selected(request('sort', 'newest') === $value)>{{ $label }}</option>
+                    @endforeach
+                </select>
+            </label>
+            <label>عدد النتائج في الصفحة
+                <select name="per_page" class="search-input">
+                    @foreach([15, 30, 50, 100] as $size)
+                    <option value="{{ $size }}" @selected(request('per_page', 15) == $size)>{{ $size }}</option>
+                    @endforeach
+                </select>
+            </label>
+        </div>
+        <div style="display:flex;gap:12px;margin-top:16px;align-items:center">
+            <button type="submit" class="act-btn act-on">تطبيق الفلاتر</button>
+            <a href="{{ route('admin.students.index') }}" class="act-btn act-del">مسح الفلاتر</a>
+        </div>
+    </form>
+
     {{-- Toolbar --}}
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap">
-        {{-- Search --}}
-        <form method="GET" action="{{ route('admin.students.index') }}" style="flex:1;min-width:220px;max-width:380px" class="search-wrap">
-            @if($statusFilter)
-                <input type="hidden" name="status" value="{{ $statusFilter }}">
-            @endif
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2"
-                 style="position:absolute;right:14px;top:50%;transform:translateY(-50%);pointer-events:none">
-                <circle cx="11" cy="11" r="8"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35"/>
-            </svg>
-            <input type="text" name="search" value="{{ $search }}"
-                   class="search-input"
-                   placeholder="ابحث بالاسم، البريد، رقم الهوية...">
-        </form>
-
         {{-- Status chips --}}
         @php
             $chips = [
@@ -330,14 +394,13 @@
                 ['value' => 'active',   'label' => 'نشط',        'count' => $stats['active']],
                 ['value' => 'pending',  'label' => 'معلق',        'count' => $stats['pending']],
                 ['value' => 'inactive', 'label' => 'غير نشط',    'count' => $stats['inactive']],
+                ['value' => 'suspended', 'label' => 'موقوف',    'count' => $stats['suspended']],
             ];
         @endphp
         @foreach($chips as $chip)
         @php
             $isActive = ($statusFilter === $chip['value']) || ($chip['value'] === null && !$statusFilter);
-            $href = $chip['value']
-                ? route('admin.students.index', array_filter(['status' => $chip['value'], 'search' => $search]))
-                : route('admin.students.index', array_filter(['search' => $search]));
+            $href = route('admin.students.index', array_merge(request()->except('page', 'status'), ['status' => $chip['value']]));
         @endphp
         <a href="{{ $href }}" class="filter-chip {{ $isActive ? 'active' : '' }}">
             {{ $chip['label'] }}
@@ -346,7 +409,7 @@
         @endforeach
 
         @if($search)
-        <a href="{{ route('admin.students.index', $statusFilter ? ['status' => $statusFilter] : []) }}"
+        <a href="{{ route('admin.students.index', request()->except('page', 'search')) }}"
            style="display:inline-flex;align-items:center;gap:5px;padding:7px 12px;border-radius:9px;background:#fee2e2;color:#dc2626;font-size:0.78rem;font-weight:700;text-decoration:none">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
@@ -461,7 +524,18 @@
 
                         {{-- Actions --}}
                         <td>
-                            <div class="row-actions" style="justify-content:center">
+                            <div style="text-align:center">
+                                <button type="button" id="student-actions-trigger-{{ $student->id }}"
+                                        class="act-btn act-view" popovertarget="student-actions-{{ $student->id }}"
+                                        aria-label="إجراءات الطالب {{ $student->name }}">
+                                    الإجراءات
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6"/>
+                                    </svg>
+                                </button>
+                            </div>
+                            <div id="student-actions-{{ $student->id }}" class="student-actions-menu" popover
+                                 data-trigger="student-actions-trigger-{{ $student->id }}" aria-label="إجراءات الطالب {{ $student->name }}">
                                 @if($student->status === 'active')
                                 <form action="{{ route('admin.students.dashboard-access', $student) }}" method="POST" style="display:inline">
                                     @csrf
@@ -524,6 +598,7 @@
                                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                                         </svg>
+                                        حذف
                                     </button>
                                 </form>
                             </div>
@@ -545,3 +620,24 @@
 
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    document.querySelectorAll('.student-actions-menu').forEach(menu => {
+        const trigger = document.getElementById(menu.dataset.trigger);
+        const positionMenu = () => {
+            if (!menu.matches(':popover-open')) return;
+            const rect = trigger.getBoundingClientRect();
+            const left = Math.max(8, Math.min(rect.right - menu.offsetWidth, window.innerWidth - menu.offsetWidth - 8));
+            const below = rect.bottom + 6;
+            const top = below + menu.offsetHeight <= window.innerHeight - 8
+                ? below : Math.max(8, rect.top - menu.offsetHeight - 6);
+            menu.style.left = `${left}px`;
+            menu.style.top = `${top}px`;
+        };
+        menu.addEventListener('toggle', positionMenu);
+        window.addEventListener('resize', positionMenu);
+        document.addEventListener('scroll', positionMenu, true);
+    });
+</script>
+@endpush

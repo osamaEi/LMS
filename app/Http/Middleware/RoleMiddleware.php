@@ -20,6 +20,12 @@ class RoleMiddleware
         }
 
         if (!in_array($request->user()->role, $roles)) {
+            if ($request->isMethod('GET') && $request->routeIs('admin.*')
+                && $request->user()->role === 'student'
+                && $request->session()->has('student_dashboard_admin_id')) {
+                return redirect()->route('student.dashboard');
+            }
+
             abort(403, 'Unauthorized access.');
         }
 

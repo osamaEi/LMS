@@ -14,17 +14,28 @@ class StudentController extends Controller
 {
     public function index(Request $request)
     {
-        $search = $request->get('search');
-        $statusFilter = $request->get('status');
+        $filters = $request->validate([
+            'search' => 'nullable|string|max:255',
+            'status' => 'nullable|in:all,active,pending,inactive,suspended',
+            'program_id' => 'nullable|integer|min:1',
+            'class_id' => 'nullable|integer|min:1',
+            'registered_from' => 'nullable|date_format:Y-m-d',
+            'registered_to' => 'nullable|date_format:Y-m-d'.($request->filled('registered_from') ? '|after_or_equal:registered_from' : ''),
+            'sort' => 'nullable|in:newest,oldest,name',
+            'per_page' => 'nullable|in:15,30,50,100',
+        ]);
+        $search = trim($filters['search'] ?? '');
+        $statusFilter = $filters['status'] ?? null;
 
         $query = User::where('role', 'student')->with(['program', 'programClasses:id,name']);
 
-        if ($search) {
+        if ($search !== '') {
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
                   ->orWhere('email', 'like', "%{$search}%")
                   ->orWhere('national_id', 'like', "%{$search}%")
-                  ->orWhere('phone', 'like', "%{$search}%");
+                  ->orWhere('phone', 'like', "%{$search}%")
+                  ->orWhere('student_code', 'like', "%{$search}%");
             });
         }
 
@@ -32,17 +43,39 @@ class StudentController extends Controller
             $query->where('status', $statusFilter);
         }
 
-        $students = $query->latest()->paginate(15)->withQueryString();
+        if (!empty($filters['program_id'])) {
+            $query->where(fn ($q) => $q->where('program_id', $filters['program_id'])
+                ->orWhereHas('programs', fn ($p) => $p->where('programs.id', $filters['program_id'])));
+        }
+        if (!empty($filters['class_id'])) {
+            $query->where(fn ($q) => $q->where('class_id', $filters['class_id'])
+                ->orWhereHas('programClasses', fn ($c) => $c->where('program_classes.id', $filters['class_id'])));
+        }
+        if (!empty($filters['registered_from'])) {
+            $query->whereDate('created_at', '>=', $filters['registered_from']);
+        }
+        if (!empty($filters['registered_to'])) {
+            $query->whereDate('created_at', '<=', $filters['registered_to']);
+        }
+        match ($filters['sort'] ?? 'newest') {
+            'oldest' => $query->oldest(),
+            'name' => $query->orderBy('name'),
+            default => $query->latest(),
+        };
+        $students = $query->orderBy('id')->paginate((int) ($filters['per_page'] ?? 15))->withQueryString();
+        $programs = Program::orderBy('name_ar')->get(['id', 'name_ar']);
+        $classes = \App\Models\ProgramClass::orderBy('name')->get(['id', 'name', 'program_id']);
 
         $stats = [
             'total'      => User::where('role', 'student')->count(),
             'active'     => User::where('role', 'student')->where('status', 'active')->count(),
             'pending'    => User::where('role', 'student')->where('status', 'pending')->count(),
-            'inactive'   => User::where('role', 'student')->whereIn('status', ['inactive', 'suspended'])->count(),
+            'inactive'   => User::where('role', 'student')->where('status', 'inactive')->count(),
+            'suspended'  => User::where('role', 'student')->where('status', 'suspended')->count(),
             'this_month' => User::where('role', 'student')->whereMonth('created_at', now()->month)->whereYear('created_at', now()->year)->count(),
         ];
 
-        return view('admin.students.index', compact('students', 'stats', 'search', 'statusFilter'));
+        return view('admin.students.index', compact('students', 'stats', 'search', 'statusFilter', 'programs', 'classes'));
     }
 
     public function create()

@@ -43,7 +43,9 @@ class StudentDashboardAccessTest extends TestCase
                 ->assertRedirect(route('student.dashboard'))
                 ->assertSessionHas('student_dashboard_admin_id', $admin->id);
             $this->assertAuthenticatedAs($student);
-            $this->get(route('admin.students.index'))->assertForbidden();
+            $this->get(route('admin.students.index', ['search' => 'نورة']))
+                ->assertRedirect(route('student.dashboard'));
+            $this->assertAuthenticatedAs($student);
 
             DB::table('users')->where('id', $student->id)->update(['status' => 'suspended']);
             $this->actingAs($student->fresh())->post(route('student-dashboard-access.stop'))
