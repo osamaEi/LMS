@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use Database\Seeders\ResetAlghnamn733PasswordSeeder;
+use Database\Seeders\Student303AllProgramsSeeder;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -15,7 +15,7 @@ class DatabaseSeeder extends Seeder
            //  PublicRelationsDiplomaSeeder::class,
            //  PublicRelationsSubjectsSeeder::class,
 
-           ResetAlghnamn733PasswordSeeder::class,
+           Student303AllProgramsSeeder::class,
         ]);
     }
 }
