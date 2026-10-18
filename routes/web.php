@@ -294,6 +294,11 @@ Route::middleware('auth')->prefix('profile')->name('profile.')->group(function (
 });
 
 // Admin Routes
+Route::post('/student-dashboard-access/stop', [\App\Http\Controllers\Admin\StudentDashboardAccessController::class, 'destroy'])
+    ->middleware('auth')
+    ->withoutMiddleware(\App\Http\Middleware\EnsureUserIsActive::class)
+    ->name('student-dashboard-access.stop');
+
 Route::middleware(['auth', 'role:admin,super_admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 
@@ -316,6 +321,8 @@ Route::middleware(['auth', 'role:admin,super_admin'])->prefix('admin')->name('ad
     // Students Management
     Route::get('/students/export', [\App\Http\Controllers\Admin\StudentController::class, 'export'])->name('students.export');
     Route::resource('students', \App\Http\Controllers\Admin\StudentController::class);
+    Route::post('/students/{student}/dashboard-access', [\App\Http\Controllers\Admin\StudentDashboardAccessController::class, 'store'])
+        ->name('students.dashboard-access');
 
     // Student academic report — exams, homework, attendance; editable + sendable
     Route::get('/students/{student}/report', [\App\Http\Controllers\Admin\StudentReportController::class, 'show'])->name('students.report.show');

@@ -462,6 +462,14 @@
                         {{-- Actions --}}
                         <td>
                             <div class="row-actions" style="justify-content:center">
+                                @if($student->status === 'active')
+                                <form action="{{ route('admin.students.dashboard-access', $student) }}" method="POST" style="display:inline">
+                                    @csrf
+                                    <button type="submit" class="act-btn act-on" title="دخول لوحة الطالب {{ $student->name }}">
+                                        دخول لوحة الطالب
+                                    </button>
+                                </form>
+                                @endif
                                 <a href="{{ route('admin.students.show', $student) }}" class="act-btn act-view">
                                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>

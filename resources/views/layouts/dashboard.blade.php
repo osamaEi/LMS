@@ -60,6 +60,15 @@
             <!-- Main Content -->
             <main class="bg-gray-50 dark:bg-gray-900 min-h-screen">
                 <div class="p-4 mx-auto max-w-screen-2xl md:p-6 space-y-6">
+                    @if(session()->has('student_dashboard_admin_id'))
+                    <div role="status" style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding:16px;border:1px solid #f59e0b;border-radius:12px;background:#fffbeb;color:#92400e">
+                        <span>أنت تتصفح حساب الطالب: <strong>{{ auth()->user()->name }}</strong>. الإجراءات تُنفذ باسم الطالب.</span>
+                        <form action="{{ route('student-dashboard-access.stop') }}" method="POST">
+                            @csrf
+                            <button type="submit" style="padding:8px 16px;border-radius:8px;background:#92400e;color:white;font-weight:700">العودة إلى الإدارة</button>
+                        </form>
+                    </div>
+                    @endif
                     @yield('content')
                 </div>
             </main>
