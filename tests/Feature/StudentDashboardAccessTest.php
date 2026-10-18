@@ -115,4 +115,44 @@ class StudentDashboardAccessTest extends TestCase
         $this->post(route('student-dashboard-access.stop'))->assertForbidden();
         $this->assertAuthenticatedAs($student);
     }
+
+    public function test_admins_can_enter_teacher_dashboard_and_return_to_teachers(): void
+    {
+        foreach (['admin', 'super_admin'] as $role) {
+            $admin = $this->user($role);
+            $teacher = $this->user('teacher');
+            $this->actingAs($admin)->post(route('admin.teachers.dashboard-access', $teacher))
+                ->assertRedirect(route('teacher.dashboard'))
+                ->assertSessionHas('student_dashboard_admin_id', $admin->id);
+            $this->assertAuthenticatedAs($teacher);
+            $this->post(route('student-dashboard-access.stop'))
+                ->assertRedirect(route('admin.teachers.index'))
+                ->assertSessionMissing('student_dashboard_admin_id')
+                ->assertSessionMissing('dashboard_access_role');
+            $this->assertAuthenticatedAs($admin);
+
+            $this->post(route('admin.teachers.dashboard-access', $teacher));
+            $url = route('admin.teachers.index', ['search' => 'Teacher']);
+            $this->get($url)->assertRedirect($url)->assertSessionMissing('dashboard_access_role');
+            $this->assertAuthenticatedAs($admin);
+        }
+    }
+
+    public function test_teacher_access_rejects_unauthorized_users_and_invalid_targets(): void
+    {
+        $teacher = $this->user('teacher');
+        $url = route('admin.teachers.dashboard-access', $teacher);
+        $this->post($url)->assertRedirect(route('login'));
+        foreach (['student', 'teacher'] as $role) {
+            $this->actingAs($this->user($role))->post($url)->assertForbidden();
+        }
+        $admin = $this->user('admin');
+        $this->actingAs($admin)->post(route('admin.teachers.dashboard-access', $this->user('student')))
+            ->assertNotFound();
+        foreach (['pending', 'inactive', 'suspended'] as $status) {
+            $this->post(route('admin.teachers.dashboard-access', $this->user('teacher', $status)))
+                ->assertForbidden();
+        }
+        $this->assertAuthenticatedAs($admin);
+    }
 }

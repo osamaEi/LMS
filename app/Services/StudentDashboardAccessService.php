@@ -17,7 +17,7 @@ class StudentDashboardAccessService
         abort_unless($admin && in_array($admin->role, ['admin', 'super_admin'], true)
             && !in_array($admin->status, ['inactive', 'suspended'], true), 403);
 
-        $request->session()->forget('student_dashboard_admin_id');
+        $request->session()->forget(['student_dashboard_admin_id', 'dashboard_access_role']);
         Auth::login($admin);
         $request->session()->regenerate();
     }

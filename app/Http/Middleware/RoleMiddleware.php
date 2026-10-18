@@ -21,7 +21,7 @@ class RoleMiddleware
 
         if (!in_array($request->user()->role, $roles)) {
             if ($request->isMethod('GET') && $request->routeIs('admin.*')
-                && $request->user()->role === 'student'
+                && in_array($request->user()->role, ['student', 'teacher'], true)
                 && $request->session()->has('student_dashboard_admin_id')) {
                 app(\App\Services\StudentDashboardAccessService::class)->restoreAdmin($request);
 

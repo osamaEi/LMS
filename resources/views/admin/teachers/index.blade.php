@@ -343,6 +343,15 @@
 
                 {{-- Actions --}}
                 <div class="card-actions" style="display:flex;gap:8px;flex-wrap:wrap">
+                    @if($teacher->status === 'active')
+                    <form action="{{ route('admin.teachers.dashboard-access', $teacher) }}" method="POST">
+                        @csrf
+                        <button type="submit" title="دخول لوحة المدرّس {{ $teacher->name }}"
+                                style="display:inline-flex;align-items:center;padding:8px 14px;border-radius:10px;background:#d1fae5;color:#065f46;font-weight:700;font-size:0.8rem;border:0;cursor:pointer">
+                            دخول لوحة المدرّس
+                        </button>
+                    </form>
+                    @endif
                     <a href="{{ route('admin.teachers.show', $teacher) }}"
                        class="action-btn"
                        style="flex:1;background:#ede9fe;color:#6d28d9;justify-content:center">

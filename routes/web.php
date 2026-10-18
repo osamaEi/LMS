@@ -317,6 +317,8 @@ Route::middleware(['auth', 'role:admin,super_admin'])->prefix('admin')->name('ad
     Route::post('/teachers/{teacher}/assign-subjects', [\App\Http\Controllers\Admin\TeacherController::class, 'assignSubjects'])->name('teachers.assign-subjects');
     Route::post('/teachers/{teacher}/assign-programs', [\App\Http\Controllers\Admin\TeacherController::class, 'assignPrograms'])->name('teachers.assign-programs');
     Route::resource('teachers', \App\Http\Controllers\Admin\TeacherController::class);
+    Route::post('/teachers/{teacher}/dashboard-access', [\App\Http\Controllers\Admin\StudentDashboardAccessController::class, 'storeTeacher'])
+        ->name('teachers.dashboard-access');
 
     // Students Management
     Route::get('/students/export', [\App\Http\Controllers\Admin\StudentController::class, 'export'])->name('students.export');
