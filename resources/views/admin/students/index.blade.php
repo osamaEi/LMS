@@ -292,11 +292,11 @@
 
             {{-- Stats --}}
             <div style="display:flex;gap:10px;flex-wrap:wrap">
-                <a href="{{ route('admin.students.index') }}" class="hero-stat {{ !$statusFilter ? 'active-filter' : '' }}">
+                <a href="{{ route('admin.students.index', request()->except('page', 'status')) }}" class="hero-stat {{ !$statusFilter || $statusFilter === 'all' ? 'active-filter' : '' }}">
                     <div style="font-size:1.8rem;font-weight:900;color:#fff;line-height:1">{{ $stats['total'] }}</div>
                     <div style="font-size:0.75rem;color:rgba(255,255,255,0.75);margin-top:4px">إجمالي  المتدربون </div>
                 </a>
-                <a href="{{ route('admin.students.index', ['status' => 'active']) }}" class="hero-stat {{ $statusFilter === 'active' ? 'active-filter' : '' }}">
+                <a href="{{ route('admin.students.index', array_merge(request()->except('page'), ['status' => 'active'])) }}" class="hero-stat {{ $statusFilter === 'active' ? 'active-filter' : '' }}">
                     <div style="font-size:1.8rem;font-weight:900;color:#6ee7b7;line-height:1">{{ $stats['active'] }}</div>
                     <div style="font-size:0.75rem;color:rgba(255,255,255,0.75);margin-top:4px">نشطون</div>
                 </a>
@@ -304,7 +304,7 @@
                     <div style="font-size:1.8rem;font-weight:900;color:#fde68a;line-height:1">{{ $stats['pending'] }}</div>
                     <div style="font-size:0.75rem;color:rgba(255,255,255,0.75);margin-top:4px">معلقون</div>
                 </a>
-                <a href="{{ route('admin.students.index', ['status' => 'inactive']) }}" class="hero-stat {{ $statusFilter === 'inactive' ? 'active-filter' : '' }}">
+                <a href="{{ route('admin.students.index', array_merge(request()->except('page'), ['status' => 'inactive'])) }}" class="hero-stat {{ $statusFilter === 'inactive' ? 'active-filter' : '' }}">
                     <div style="font-size:1.8rem;font-weight:900;color:#fca5a5;line-height:1">{{ $stats['inactive'] }}</div>
                     <div style="font-size:0.75rem;color:rgba(255,255,255,0.75);margin-top:4px">غير نشطين</div>
                 </a>
@@ -332,8 +332,11 @@
     <form method="GET" action="{{ route('admin.students.index') }}" class="table-card" style="padding:20px;margin-bottom:16px">
         <h2 style="font-weight:800;margin-bottom:14px">البحث والتصفية المتقدمة</h2>
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px">
-            <label>البحث
-                <input type="search" name="search" value="{{ $search }}" class="search-input" placeholder="الاسم، الكود، البريد، الهوية، الهاتف">
+            <label>الاسم
+                <input type="search" name="name" value="{{ $nameSearch }}" class="search-input" placeholder="ابحث باسم الطالب">
+            </label>
+            <label>البريد الإلكتروني
+                <input type="search" name="email" value="{{ $emailSearch }}" class="search-input" dir="ltr" style="direction:ltr" placeholder="البريد الإلكتروني أو جزء منه">
             </label>
             <label>الحالة
                 <select name="status" class="search-input">
@@ -399,7 +402,7 @@
         @endphp
         @foreach($chips as $chip)
         @php
-            $isActive = ($statusFilter === $chip['value']) || ($chip['value'] === null && !$statusFilter);
+            $isActive = ($statusFilter === $chip['value']) || ($chip['value'] === null && (!$statusFilter || $statusFilter === 'all'));
             $href = route('admin.students.index', array_merge(request()->except('page', 'status'), ['status' => $chip['value']]));
         @endphp
         <a href="{{ $href }}" class="filter-chip {{ $isActive ? 'active' : '' }}">
@@ -408,8 +411,8 @@
         </a>
         @endforeach
 
-        @if($search)
-        <a href="{{ route('admin.students.index', request()->except('page', 'search')) }}"
+        @if($nameSearch !== '' || $emailSearch !== '')
+        <a href="{{ route('admin.students.index', request()->except('page', 'name', 'email', 'search')) }}"
            style="display:inline-flex;align-items:center;gap:5px;padding:7px 12px;border-radius:9px;background:#fee2e2;color:#dc2626;font-size:0.78rem;font-weight:700;text-decoration:none">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
@@ -432,10 +435,10 @@
             </svg>
         </div>
         <h3 style="font-size:1.1rem;font-weight:800;color:#111827;margin:0 0 8px" class="dark:text-white">
-            @if($search) لا توجد نتائج لـ "{{ $search }}" @else لا يوجد طلاب مسجلون @endif
+            لا توجد نتائج مطابقة
         </h3>
         <p style="font-size:0.875rem;color:#9ca3af;margin:0">
-            @if($search) جرّب كلمات بحث مختلفة @else لم يتم تسجيل أي طلاب بعد @endif
+            جرّب تعديل الاسم أو البريد الإلكتروني أو الفلاتر المحددة
         </p>
     </div>
     @else

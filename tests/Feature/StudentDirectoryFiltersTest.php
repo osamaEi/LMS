@@ -50,6 +50,7 @@ class StudentDirectoryFiltersTest extends TestCase
             DB::table('users')->insert([
                 'id' => $id, 'name' => 'نورة '.$id, 'role' => $id === 4 ? 'teacher' : 'student',
                 'status' => $id === 3 ? 'suspended' : 'active', 'student_code' => 'STU-00'.$id,
+                'email' => 'student'.$id.'@example.com',
                 'created_at' => '2026-10-18 12:00:00',
                 'program_id' => $id === 1 ? 1 : null, 'class_id' => $id === 1 ? 1 : null,
             ]);
@@ -65,7 +66,7 @@ class StudentDirectoryFiltersTest extends TestCase
     public function test_combined_filters_include_legacy_and_pivot_membership_and_arabic_search(): void
     {
         $data = $this->results([
-            'search' => 'نورة', 'status' => 'active', 'program_id' => 1, 'class_id' => 1,
+            'name' => 'نورة', 'status' => 'active', 'program_id' => 1, 'class_id' => 1,
             'registered_from' => '2026-10-18', 'registered_to' => '2026-10-18',
             'sort' => 'name', 'per_page' => 30,
         ]);
@@ -76,9 +77,15 @@ class StudentDirectoryFiltersTest extends TestCase
         $this->assertSame(0, $this->results(['registered_from' => '2026-10-19'])['students']->total());
     }
 
-    public function test_student_code_search_and_suspended_filter(): void
+    public function test_name_and_email_search_are_independent_and_combine_with_and(): void
     {
-        $this->assertSame([2], $this->results(['search' => 'STU-002'])['students']->pluck('id')->all());
+        $this->assertSame([2], $this->results(['email' => 'student2@'])['students']->pluck('id')->all());
+        $this->assertSame([1], $this->results(['name' => 'نورة 1'])['students']->pluck('id')->all());
+        $this->assertSame([2], $this->results(['name' => 'نورة', 'email' => 'student2'])['students']->pluck('id')->all());
+        $this->assertSame(0, $this->results(['name' => 'نورة 1', 'email' => 'student2'])['students']->total());
+        $this->assertSame(0, $this->results(['name' => 'student2@example.com'])['students']->total());
+        $this->assertSame(0, $this->results(['email' => 'نورة'])['students']->total());
+        $this->assertSame(0, $this->results(['name' => 'STU-002'])['students']->total());
         $this->assertSame([3], $this->results(['status' => 'suspended'])['students']->pluck('id')->all());
     }
 

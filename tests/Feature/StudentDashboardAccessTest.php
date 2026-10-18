@@ -43,10 +43,6 @@ class StudentDashboardAccessTest extends TestCase
                 ->assertRedirect(route('student.dashboard'))
                 ->assertSessionHas('student_dashboard_admin_id', $admin->id);
             $this->assertAuthenticatedAs($student);
-            $this->get(route('admin.students.index', ['search' => 'نورة']))
-                ->assertRedirect(route('student.dashboard'));
-            $this->assertAuthenticatedAs($student);
-
             DB::table('users')->where('id', $student->id)->update(['status' => 'suspended']);
             $this->actingAs($student->fresh())->post(route('student-dashboard-access.stop'))
                 ->assertRedirect(route('admin.students.index'))
@@ -62,7 +58,38 @@ class StudentDashboardAccessTest extends TestCase
         $this->post($url)->assertRedirect(route('login'));
         foreach (['student', 'teacher'] as $role) {
             $this->actingAs($this->user($role))->post($url)->assertForbidden();
+            $this->get(route('admin.students.index', ['search' => 'نورة']))->assertForbidden();
         }
+    }
+
+    public function test_opening_students_restores_admin_and_preserves_filters(): void
+    {
+        foreach (['admin', 'super_admin'] as $role) {
+            $admin = $this->user($role);
+            $student = $this->user('student');
+            $this->actingAs($admin)->post(route('admin.students.dashboard-access', $student));
+            $url = route('admin.students.index', ['name' => 'نورة', 'status' => 'active']);
+            $this->get($url)->assertRedirect($url)
+                ->assertSessionMissing('student_dashboard_admin_id');
+            $this->assertAuthenticatedAs($admin);
+        }
+    }
+
+    public function test_automatic_return_rechecks_admin_access_and_does_not_restore_for_post_requests(): void
+    {
+        $admin = $this->user('admin');
+        $student = $this->user('student');
+        $this->actingAs($admin)->post(route('admin.students.dashboard-access', $student));
+        $this->post(route('admin.students.dashboard-access', $student))->assertForbidden();
+        $this->assertAuthenticatedAs($student);
+
+        DB::table('users')->where('id', $admin->id)->update(['status' => 'suspended']);
+        $this->get(route('admin.students.index'))->assertForbidden();
+        DB::table('users')->where('id', $admin->id)->update(['role' => 'student', 'status' => 'active']);
+        $this->get(route('admin.students.index'))->assertForbidden();
+        DB::table('users')->where('id', $admin->id)->delete();
+        $this->get(route('admin.students.index'))->assertForbidden();
+        $this->assertAuthenticatedAs($student);
     }
 
     public function test_only_active_student_targets_are_allowed(): void

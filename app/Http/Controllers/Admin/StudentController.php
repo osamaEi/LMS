@@ -15,7 +15,8 @@ class StudentController extends Controller
     public function index(Request $request)
     {
         $filters = $request->validate([
-            'search' => 'nullable|string|max:255',
+            'name' => 'nullable|string|max:255',
+            'email' => 'nullable|string|max:255',
             'status' => 'nullable|in:all,active,pending,inactive,suspended',
             'program_id' => 'nullable|integer|min:1',
             'class_id' => 'nullable|integer|min:1',
@@ -24,19 +25,17 @@ class StudentController extends Controller
             'sort' => 'nullable|in:newest,oldest,name',
             'per_page' => 'nullable|in:15,30,50,100',
         ]);
-        $search = trim($filters['search'] ?? '');
+        $nameSearch = trim($filters['name'] ?? '');
+        $emailSearch = trim($filters['email'] ?? '');
         $statusFilter = $filters['status'] ?? null;
 
         $query = User::where('role', 'student')->with(['program', 'programClasses:id,name']);
 
-        if ($search !== '') {
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%")
-                  ->orWhere('national_id', 'like', "%{$search}%")
-                  ->orWhere('phone', 'like', "%{$search}%")
-                  ->orWhere('student_code', 'like', "%{$search}%");
-            });
+        if ($nameSearch !== '') {
+            $query->where('name', 'like', "%{$nameSearch}%");
+        }
+        if ($emailSearch !== '') {
+            $query->where('email', 'like', "%{$emailSearch}%");
         }
 
         if ($statusFilter && $statusFilter !== 'all') {
@@ -75,7 +74,7 @@ class StudentController extends Controller
             'this_month' => User::where('role', 'student')->whereMonth('created_at', now()->month)->whereYear('created_at', now()->year)->count(),
         ];
 
-        return view('admin.students.index', compact('students', 'stats', 'search', 'statusFilter', 'programs', 'classes'));
+        return view('admin.students.index', compact('students', 'stats', 'nameSearch', 'emailSearch', 'statusFilter', 'programs', 'classes'));
     }
 
     public function create()

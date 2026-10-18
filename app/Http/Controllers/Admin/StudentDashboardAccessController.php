@@ -25,16 +25,7 @@ class StudentDashboardAccessController extends Controller
 
     public function destroy(Request $request)
     {
-        $adminId = $request->session()->get('student_dashboard_admin_id');
-        abort_unless($adminId, 403);
-
-        $admin = User::find($adminId);
-        abort_unless($admin && in_array($admin->role, ['admin', 'super_admin'], true)
-            && !in_array($admin->status, ['inactive', 'suspended'], true), 403);
-
-        $request->session()->forget('student_dashboard_admin_id');
-        Auth::login($admin);
-        $request->session()->regenerate();
+        app(\App\Services\StudentDashboardAccessService::class)->restoreAdmin($request);
 
         return redirect()->route('admin.students.index');
     }

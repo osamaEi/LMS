@@ -23,7 +23,9 @@ class RoleMiddleware
             if ($request->isMethod('GET') && $request->routeIs('admin.*')
                 && $request->user()->role === 'student'
                 && $request->session()->has('student_dashboard_admin_id')) {
-                return redirect()->route('student.dashboard');
+                app(\App\Services\StudentDashboardAccessService::class)->restoreAdmin($request);
+
+                return redirect()->to($request->getRequestUri());
             }
 
             abort(403, 'Unauthorized access.');
