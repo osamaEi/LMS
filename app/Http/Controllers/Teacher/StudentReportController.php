@@ -123,6 +123,11 @@ class StudentReportController extends Controller
             'midterm_score.*.grade'      => ['nullable', 'numeric', 'min:0'],
             'midterm_score.*.max_grade'  => ['nullable', 'integer', 'min:1', 'max:1000'],
 
+            // Manual override of one column's final value: [subject_id][column].
+            'column_override'         => ['array'],
+            'column_override.*'       => ['array'],
+            'column_override.*.*'     => ['nullable', 'numeric', 'min:0'],
+
             // Manual override of the computed total, per subject.
             'totals'                  => ['array'],
             'totals.*.final_grade'    => ['nullable', 'numeric', 'min:0', 'max:100'],
@@ -258,6 +263,35 @@ class StudentReportController extends Controller
                     $mark->teacher_id = $mark->teacher_id ?? $teacherId;
                     $mark->grade      = $grade;
                     $mark->max_grade  = $row['max_grade'] ?? $mark->max_grade ?? $defaultMax;
+                    $mark->save();
+                }
+            }
+
+            // Per-column overrides. A blank value drops the override so the column
+            // goes back to being computed.
+            foreach ($data['column_override'] ?? [] as $subjectId => $cols) {
+                if (!isset($allowedSubjects[$subjectId])) continue;
+
+                foreach ($cols as $column => $value) {
+                    $max = self::COLUMN_MAX[$column] ?? null;
+                    if ($max === null) continue;
+
+                    $key = [
+                        'student_id' => $studentId,
+                        'subject_id' => $subjectId,
+                        'kind'       => self::OVERRIDE_KIND,
+                        'title'      => $column,
+                    ];
+
+                    if ($value === null || $value === '') {
+                        ParticipationMark::where($key)->delete();
+                        continue;
+                    }
+
+                    $mark = ParticipationMark::firstOrNew($key);
+                    $mark->teacher_id = $mark->teacher_id ?? $teacherId;
+                    $mark->grade      = min((float) $value, $max);
+                    $mark->max_grade  = $max;
                     $mark->save();
                 }
             }
@@ -431,6 +465,20 @@ class StudentReportController extends Controller
     ];
 
     /**
+     * A teacher may type a column's final value directly. Stored as a
+     * ParticipationMark of this kind, titled with the column key.
+     */
+    private const OVERRIDE_KIND = 'override';
+
+    /** Cap of each overridable column (participation = quizzes + homework). */
+    private const COLUMN_MAX = [
+        'attendance'    => 10,
+        'participation' => 30,
+        'midterm'       => 20,
+        'final'         => 40,
+    ];
+
+    /**
      * Mark distribution per subject: attendance, participation (short quizzes +
      * homework), midterm, final, and the resulting total out of 100.
      *
@@ -532,6 +580,23 @@ class StudentReportController extends Controller
                 : 0;
             $participationMark = round(min($partWeight, $participationMark + $extraPts), 1);
 
+            // Teacher-typed column values replace the computed ones outright.
+            $overrides = $participation->where('subject_id', $sid)
+                ->where('kind', self::OVERRIDE_KIND)
+                ->mapWithKeys(fn($o) => [$o->title => round((float) $o->grade, 1)]);
+
+            $auto = [
+                'attendance'    => $marks['attendance'],
+                'participation' => $participationMark,
+                'midterm'       => $marks['midterm'],
+                'final'         => $marks['final'],
+            ];
+
+            foreach (['attendance', 'midterm', 'final'] as $col) {
+                if ($overrides->has($col)) $marks[$col] = $overrides[$col];
+            }
+            if ($overrides->has('participation')) $participationMark = $overrides['participation'];
+
             $totals = $marks;
             $totals['quizzes']  = $participationMark;   // المشاركة as one figure
             unset($totals['homework']);
@@ -546,6 +611,8 @@ class StudentReportController extends Controller
                 'name'          => $sub['name'],
                 'code'          => $sub['code'],
                 'participation' => $participationMark,
+                'auto'          => $auto,
+                'overrides'     => $overrides->all(),
                 'computed'      => $computed,
                 'override'      => $override,
                 'grade_letter'  => $sub['grade_letter'],

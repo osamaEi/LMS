@@ -79,15 +79,17 @@
                                 @php
                                     $val = $r[$c['field']] ?? 0;
                                     $pct = $c['max'] > 0 ? max(0, min(100, $val / $c['max'] * 100)) : 0;
+                                    $isManual = array_key_exists($c['field'], $r['overrides'] ?? []);
                                 @endphp
                                 <td>
                                     <button type="button" class="mk-cell"
                                             data-detail="{{ $c['key'] }}" data-title="{{ $c['label'] }}"
+                                            data-field="{{ $c['field'] }}" data-max="{{ $c['max'] }}"
                                             data-subject="{{ $r['subject_id'] }}" data-subject-name="{{ $r['name'] }}">
                                         <span class="mk-val" style="color:{{ $c['color'] }};">{{ $val }}</span>
                                         <span class="mk-of">/ {{ $c['max'] }}</span>
                                         <span class="mk-bar"><i style="width:{{ $pct }}%;background:{{ $c['color'] }};"></i></span>
-                                        <span class="mk-hint">عرض التفاصيل</span>
+                                        <span class="mk-hint">@if($isManual)<em class="mk-manual">يدوي</em> @endif عرض التفاصيل والتعديل</span>
                                     </button>
                                 </td>
                             @endforeach
@@ -234,11 +236,18 @@
             })->values(),
         ],
     ];
+
+    // Computed vs. manually typed value of each column, per subject.
+    $columnValues = $rows->mapWithKeys(fn($r) => [$r['subject_id'] => [
+        'auto'      => $r['auto'],
+        'overrides' => (object) ($r['overrides'] ?? []),
+    ]]);
 @endphp
 
 <script>
 (function () {
     const DATA  = @json($modalData);
+    const COLS  = @json($columnValues);
     const modal = document.getElementById('repModal');
     const body  = document.getElementById('repModalBody');
     const title = document.getElementById('repModalTitle');
@@ -335,7 +344,29 @@
 
     // Every modal is opened from one subject's card, so the name goes in the
     // header once and each row list is narrowed to that subject.
-    function open(key, label, subjectId, subjectName) {
+    // Box for typing the column's final value by hand. Blank = computed.
+    function overrideHtml(field, max, sid) {
+        const col = COLS[sid];
+        if (!field || !col) return '';
+        const manual = col.overrides[field];
+        const auto   = col.auto[field];
+        return `<section class="dsec dsec-pin dsec-final">
+            <h3>الدرجة النهائية للعمود <em>(من ${max})</em></h3>
+            <div class="dr">
+                <span class="dr-main">
+                    <i>المحسوب تلقائيًا: ${auto ?? 0} من ${max} — اترك الخانة فارغة للرجوع للحساب التلقائي.</i>
+                </span>
+                <span class="dr-edit">
+                    <input type="number" min="0" max="${max}" step="0.01"
+                           name="column_override[${sid}][${field}]"
+                           value="${manual ?? ''}" placeholder="${auto ?? ''}" class="dr-num">
+                    <span class="dr-lbl">من ${max}</span>
+                </span>
+            </div>
+        </section>`;
+    }
+
+    function open(key, label, subjectId, subjectName, field, max) {
         const conf = DATA[key];
         if (!conf) return;
 
@@ -409,7 +440,7 @@
         const pinned = pinBlock(conf.pinned);
         const pinnedAfter = (conf.pinned_after || []).map(pinBlock).join('');
 
-        body.innerHTML = stats + pinned + conf.sections.map((sec, i) => {
+        body.innerHTML = overrideHtml(field, max, sid) + stats + pinned + conf.sections.map((sec, i) => {
             const rows = mine(sec.rows);
             // Legacy sections only exist to keep old records editable — drop them
             // entirely once there is nothing left in them.
@@ -450,7 +481,8 @@
 
     document.querySelectorAll('.mk-cell').forEach(btn => {
         btn.addEventListener('click', () => open(
-            btn.dataset.detail, btn.dataset.title, btn.dataset.subject, btn.dataset.subjectName));
+            btn.dataset.detail, btn.dataset.title, btn.dataset.subject, btn.dataset.subjectName,
+            btn.dataset.field, btn.dataset.max));
     });
     modal.querySelectorAll('[data-close]').forEach(el => el.addEventListener('click', close));
     document.addEventListener('keydown', e => { if (e.key === 'Escape' && !modal.hidden) close(); });
@@ -493,6 +525,9 @@
     .mk-bar i { display:block; height:100%; border-radius:99px; }
     .mk-hint { display:block; margin-top:8px; font-size:10px; font-weight:700; color:#b6c2d1; }
     .mk-cell:hover .mk-hint { color:#0071AA; }
+    .mk-manual { font-style:normal; color:#b45309; background:#fef3c7; border-radius:99px; padding:1px 7px; }
+    .dsec-final { background:#fffbeb; border-color:#fde68a; }
+    .dsec-final h3 { color:#b45309; }
 
     .mk-card { margin-bottom:18px; }
     .mk-subject { font-size:15px; font-weight:800; color:#0f172a;
