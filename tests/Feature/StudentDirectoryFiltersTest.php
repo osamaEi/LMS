@@ -39,6 +39,12 @@ class StudentDirectoryFiltersTest extends TestCase
             $table->integer('program_id');
             $table->softDeletes();
         });
+        Schema::create('student_class_memberships', function (Blueprint $table) {
+            $table->id();
+            $table->integer('student_id');
+            $table->integer('class_id');
+            $table->timestamps();
+        });
         Schema::create('student_programs', function (Blueprint $table) {
             $table->integer('student_id');
             $table->integer('program_id');

@@ -41,6 +41,13 @@ class StudentQuizClassAuditTest extends TestCase
                 }
             });
         }
+        Schema::create('student_class_memberships', function (Blueprint $table) {
+            $table->id();
+            $table->integer('student_id');
+            $table->integer('class_id');
+            $table->timestamps();
+            $table->unique(['student_id', 'class_id']);
+        });
         Schema::create('student_programs', function (Blueprint $table) {
             $table->id();
             $table->integer('student_id');

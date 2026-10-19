@@ -245,6 +245,8 @@ class ScheduleController extends Controller
         ]);
 
         $class = ProgramClass::with('students')->findOrFail($data['class_id']);
+        $class->setRelation('students', \App\Models\User::whereIn('id',
+            app(\App\Services\ProgramClassService::class)->studentIds($class))->get());
 
         // Resolve FK column and value
         if ($data['entity_type'] === 'program') {

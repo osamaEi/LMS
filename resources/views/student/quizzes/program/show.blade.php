@@ -27,13 +27,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- Quiz Info -->
         <div class="lg:col-span-2 space-y-6">
-            <!-- Description -->
-            @if($quiz->description_ar)
-            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-6">
-                <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-4">وصف الاختبار</h2>
-                <p class="text-gray-600 dark:text-gray-400">{{ $quiz->description_ar }}</p>
-            </div>
-            @endif
+            @include('student.quizzes.partials.instructions')
 
             <!-- Instructions -->
             <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-6">

@@ -19,10 +19,10 @@ class SessionController extends Controller
     private function assignedSessionIds($student): \Illuminate\Support\Collection
     {
         $ids = Attendance::where('student_id', $student->id)->pluck('session_id');
-        if ($student->class_id) {
-            $ids = Session::whereIn('id', $ids)->where('class_id', $student->class_id)->pluck('id');
+        if ($student->allClassIds()->isNotEmpty()) {
+            $ids = Session::whereIn('id', $ids)->whereIn('class_id', $student->allClassIds())->pluck('id');
         }
-        return $ids;
+        return $ids->merge(Session::whereIn('class_id', $student->allClassIds())->pluck('id'))->unique()->values();
     }
 
     public function index(Request $request)
@@ -81,9 +81,11 @@ class SessionController extends Controller
             ->where('session_id', $session->id)
             ->exists();
 
-        $classMatch = !$student->class_id || $session->class_id === $student->class_id;
+        $classIds = $student->allClassIds();
+        $belongsToClass = $classIds->contains($session->class_id);
+        $classMatch = $classIds->isEmpty() || $session->class_id === null || $belongsToClass;
 
-        if (!$hasAttendance || !$classMatch) {
+        if ((!$hasAttendance && !$belongsToClass) || !$classMatch) {
             return response()->json([
                 'success' => false,
                 'message' => 'ليس لديك صلاحية الانضمام لهذه الجلسة',

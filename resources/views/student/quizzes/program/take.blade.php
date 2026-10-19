@@ -347,6 +347,8 @@
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
         <!-- Main Content -->
         <div class="lg:col-span-8 xl:col-span-9">
+            @include('student.quizzes.partials.instructions')
+
             <form id="quizForm" action="{{ route('student.quizzes.program.submit', [$program->id, $quiz->id], false) }}" method="POST">
                 @csrf
 

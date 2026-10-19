@@ -33,7 +33,7 @@ class DashboardController extends Controller
         $programIds = $this->studentProgramIds($student);
 
         $studentClassIds = $programIds
-            ->map(fn($pid) => $student->classIdForProgram((int) $pid))
+            ->flatMap(fn($pid) => $student->classIdsForProgram((int) $pid))
             ->filter()->unique()->values();
 
         // Sessions assigned to this student (via attendance), scoped to their classes + class-agnostic
@@ -138,7 +138,7 @@ class DashboardController extends Controller
     private function buildQuizzesList($student): \Illuminate\Support\Collection
     {
         $programIds = $this->studentProgramIds($student);
-        $classIds   = $programIds->map(fn($pid) => $student->classIdForProgram((int) $pid))
+        $classIds   = $programIds->flatMap(fn($pid) => $student->classIdsForProgram((int) $pid))
             ->filter()->unique()->values();
         $subjectIds = $this->studentSubjectIds($student);
 
@@ -235,7 +235,7 @@ class DashboardController extends Controller
         $programIds = $this->studentProgramIds($student);
 
         // The student's class per program (to scope subjects to their class + shared)
-        $classIds = $programIds->map(fn($pid) => $student->classIdForProgram((int) $pid))
+        $classIds = $programIds->flatMap(fn($pid) => $student->classIdsForProgram((int) $pid))
             ->filter()->unique()->values()->all();
 
         return Subject::where(function ($q) use ($student, $programIds) {
@@ -269,7 +269,7 @@ class DashboardController extends Controller
 
         // Student's class IDs (one per program)
         $studentClassIds = $studentProgramIds
-            ->map(fn($pid) => $student->classIdForProgram((int) $pid))
+            ->flatMap(fn($pid) => $student->classIdsForProgram((int) $pid))
             ->filter()->unique()->values()->all();
 
         // Get student's subjects scoped to their class (or program if not in a class)
@@ -391,7 +391,7 @@ class DashboardController extends Controller
         $student = auth()->user();
 
         $programIds = $this->studentProgramIds($student);
-        $classIds   = $programIds->map(fn($pid) => $student->classIdForProgram((int) $pid))->filter()->unique()->values();
+        $classIds   = $programIds->flatMap(fn($pid) => $student->classIdsForProgram((int) $pid))->filter()->unique()->values();
 
         // Sessions the student is assigned to (via attendance), scoped to their classes
         $assignedSessionIds = Attendance::where('student_id', $student->id)->pluck('session_id');
@@ -457,7 +457,7 @@ class DashboardController extends Controller
         // All classes the student belongs to (one per program — student can be in
         // multiple classes across different programs, never two in the same program)
         $studentClassIds = $programIds
-            ->map(fn($pid) => $student->classIdForProgram((int) $pid))
+            ->flatMap(fn($pid) => $student->classIdsForProgram((int) $pid))
             ->filter()->unique()->values();
 
         // Sessions assigned to this student (via attendance records), scoped to their
@@ -732,21 +732,21 @@ class DashboardController extends Controller
             $isDiploma = $prog->type === 'diploma';
 
             if ($isDiploma) {
-                $classId = $student->classIdForProgram((int) $prog->id);
+                $classIds = $student->classIdsForProgram((int) $prog->id);
 
                 // Show the class's OWN terms only. If the class has none yet, fall back to
                 // the program-wide (shared) terms so the page isn't empty.
-                $hasClassTerms = $classId
-                    ? Term::where('program_id', $prog->id)->where('class_id', $classId)->exists()
+                $hasClassTerms = $classIds->isNotEmpty()
+                    ? Term::where('program_id', $prog->id)->whereIn('class_id', $classIds)->exists()
                     : false;
 
                 $subjectScope = fn($sq) => $hasClassTerms
-                    ? $sq->where('class_id', $classId)
+                    ? $sq->whereIn('class_id', $classIds)
                     : $sq->whereNull('class_id');
 
                 $progTerms = Term::where('program_id', $prog->id)
                     ->when($hasClassTerms,
-                        fn($q) => $q->where('class_id', $classId),
+                        fn($q) => $q->whereIn('class_id', $classIds),
                         fn($q) => $q->whereNull('class_id'))
                     ->orderBy('term_number', 'asc')
                     ->with(['subjects' => fn($q) => $q->with(['teacher', 'sessions'])])
@@ -807,9 +807,9 @@ class DashboardController extends Controller
                 ];
             } else {
                 // Scope course/English sessions to the student's class
-                $classId = $student->classIdForProgram((int) $prog->id);
+                $classIds = $student->classIdsForProgram((int) $prog->id);
                 $progSessions = Session::where('program_id', $prog->id)
-                    ->when($classId, fn($q) => $q->where('class_id', $classId))
+                    ->when($classIds->isNotEmpty(), fn($q) => $q->whereIn('class_id', $classIds))
                     ->with(['files', 'homework'])
                     ->orderBy('session_number')->orderBy('scheduled_at')->get();
 

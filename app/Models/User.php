@@ -191,6 +191,21 @@ class User extends Authenticatable
         return $this->belongsToMany(\App\Models\ProgramClass::class, 'student_programs', 'student_id', 'class_id');
     }
 
+    public function additionalClasses()
+    {
+        return $this->belongsToMany(ProgramClass::class, 'student_class_memberships', 'student_id', 'class_id')->withTimestamps();
+    }
+
+    public function classIdsForProgram(int $programId): \Illuminate\Support\Collection
+    {
+        $ids = $this->additionalClasses()->where('program_classes.program_id', $programId)
+            ->pluck('program_classes.id');
+        $primary = $this->classIdForProgram($programId);
+        if ($primary) $ids->prepend($primary);
+
+        return $ids->unique()->values();
+    }
+
     // All programs including primary (unified view)
     public function allPrograms()
     {
@@ -222,7 +237,9 @@ class User extends Authenticatable
     {
         $ids = $this->programs()->pluck('student_programs.class_id');
         if ($this->class_id) $ids->push($this->class_id);
-        return $ids->filter()->unique()->values();
+        return $ids->merge($this->additionalClasses()
+            ->whereIn('program_classes.program_id', $this->allProgramIds())
+            ->pluck('program_classes.id'))->filter()->unique()->values();
     }
 
     // Resolve the class this student belongs to within a given program.

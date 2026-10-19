@@ -36,6 +36,10 @@ class StudentGradesService
      */
     public function overview(User $student): array
     {
+        $sentReports = $this->sentGradeReports($student);
+        $releasedRows = $sentReports->flatMap(fn ($report) => $report->rows)
+            ->filter(fn ($row) => isset($row['subject_id']))
+            ->unique('subject_id')->keyBy('subject_id');
         // Evaluations grouped by subject
         $evaluations = Evaluation::where('student_id', $student->id)
             ->where('status', 'graded')
@@ -46,6 +50,7 @@ class StudentGradesService
         // Quiz attempts with scores
         $quizAttempts = QuizAttempt::where('student_id', $student->id)
             ->whereNotNull('submitted_at')
+            ->whereNotNull('results_released_at')
             ->with(['quiz.subject.teacher'])
             ->orderBy('submitted_at', 'desc')
             ->get();
@@ -57,7 +62,7 @@ class StudentGradesService
         // Include saved final grades even when no assessments exist.
         $subjectIds = $evaluations->pluck('subject_id')
             ->merge($quizAttempts->pluck('quiz.subject_id'))
-            ->merge($finalGrades->keys())->unique()->filter();
+            ->merge($finalGrades->keys())->merge($releasedRows->keys())->unique()->filter();
         $subjects   = Subject::whereIn('id', $subjectIds)->with('teacher')->get()->keyBy('id');
 
         // Per-subject grade summary
@@ -70,6 +75,10 @@ class StudentGradesService
             $totalMax    = $subjectEvals->sum('total_score') + $subjectAttempts->max(fn($a) => $a->quiz?->total_marks ?? 0);
 
             $percentage = $totalMax > 0 ? round(($totalEarned / $totalMax) * 100, 1) : 0;
+            $breakdown = $releasedRows->get($subject->id);
+            if (isset($breakdown['total'])) {
+                $percentage = (float) $breakdown['total'];
+            }
             $finalGrade = $finalGrades->get($subject->id);
             if ($finalGrade !== null) {
                 $percentage = (float) $finalGrade;
@@ -81,6 +90,7 @@ class StudentGradesService
                 'attempts'    => $subjectAttempts->values(),
                 'percentage'  => $percentage,
                 'final_grade' => $finalGrade,
+                'breakdown'   => $breakdown,
                 'grade_label' => $this->gradeLabel($percentage),
             ];
         }
@@ -90,7 +100,7 @@ class StudentGradesService
             'totalEvaluations' => $evaluations->count(),
             'totalQuizzes'     => $quizAttempts->count(),
             'avgPercentage'    => collect($subjectGrades)->avg('percentage'),
-            'sentReports'      => $this->sentGradeReports($student),
+            'sentReports'      => $sentReports,
         ];
     }
 

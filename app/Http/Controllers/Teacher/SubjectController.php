@@ -96,9 +96,8 @@ class SubjectController extends Controller
                 ?? optional($subject->terms->firstWhere(fn($t) => $t->class_id))->class_id;
 
             if ($resolvedClassId) {
-                $studentIds = \Illuminate\Support\Facades\DB::table('student_programs')
-                    ->where('class_id', $resolvedClassId)
-                    ->distinct()->pluck('student_id');
+                $studentIds = app(\App\Services\ProgramClassService::class)
+                    ->studentIds(\App\Models\ProgramClass::findOrFail($resolvedClassId));
                 $students = \App\Models\User::whereIn('id', $studentIds)
                     ->where('role', 'student')
                     ->with('program:id,name_ar,name_en')
@@ -553,8 +552,7 @@ class SubjectController extends Controller
 
         // Get all students of that class from the student_programs pivot.
         $classStudentIds = $classId
-            ? \Illuminate\Support\Facades\DB::table('student_programs')
-                ->where('class_id', $classId)->distinct()->pluck('student_id')
+            ? app(\App\Services\ProgramClassService::class)->studentIds(\App\Models\ProgramClass::findOrFail($classId))
             : collect();
 
         // Fallback: if the class link is missing/empty, fall back to whoever already
@@ -651,7 +649,7 @@ class SubjectController extends Controller
             ?? $subject->term?->class_id
             ?? optional($subject->terms->firstWhere(fn($t) => $t->class_id))->class_id;
         $classStudentIds = $classId
-            ? \Illuminate\Support\Facades\DB::table('student_programs')->where('class_id', $classId)->distinct()->pluck('student_id')
+            ? app(\App\Services\ProgramClassService::class)->studentIds(\App\Models\ProgramClass::findOrFail($classId))
             : collect();
         if ($classStudentIds->isEmpty()) {
             $classStudentIds = Attendance::where('session_id', $sessionId)->distinct()->pluck('student_id');
@@ -782,8 +780,8 @@ class SubjectController extends Controller
         $subjects->each(function ($subject) {
             $classId = $subject->class_id ?? $subject->term?->class_id ?? null;
             $subject->class_student_count = $classId
-                ? \Illuminate\Support\Facades\DB::table('student_programs')
-                    ->where('class_id', $classId)->distinct()->count('student_id')
+                ? app(\App\Services\ProgramClassService::class)
+                    ->studentIds(\App\Models\ProgramClass::findOrFail($classId))->count()
                 : 0;
         });
 

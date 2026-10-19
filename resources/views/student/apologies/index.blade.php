@@ -25,6 +25,12 @@
         <div style="background:#fee2e2;border:1px solid #fca5a5;color:#b91c1c;padding:12px 16px;border-radius:12px;margin-bottom:16px;font-weight:600;">{{ session('error') }}</div>
     @endif
 
+    <p style="padding:12px 16px;background:#eff6ff;border-radius:12px;color:#334155;margin-bottom:16px;">
+        يمكنك رفع عذرين أو أكثر في اليوم نفسه لمحاضرات في أيام غياب مختلفة. اختاري كل محاضرة من
+        <a href="{{ route('student.my-sessions') }}" style="color:#0071AA;font-weight:700;">محاضراتي</a>
+        وارفعي العذر الخاص بها؛ سيظهر تاريخ ووقت كل رفع بشكل مستقل.
+    </p>
+
     {{-- Summary counters --}}
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;">
         @foreach([
@@ -56,9 +62,10 @@
                             <span style="font-size:11px;font-weight:700;padding:2px 10px;border-radius:20px;{{ $badge }}">{{ $apology->statusLabelAr() }}</span>
                         </div>
                         @if($apology->session?->scheduled_at)
-                            <div style="font-size:12px;color:#94a3b8;margin-bottom:6px;">📅 {{ \Carbon\Carbon::parse($apology->session->scheduled_at)->format('Y/m/d H:i') }}</div>
+                            <div style="font-size:12px;color:#64748b;margin-bottom:6px;">تاريخ الغياب: {{ \Carbon\Carbon::parse($apology->session->scheduled_at)->format('Y/m/d H:i') }}</div>
                         @endif
                         <div style="font-size:13px;color:#1e293b;background:#f8fafc;border-radius:10px;padding:10px 12px;">
+                            @include('student.apologies.upload-time')
                             <span style="color:#64748b;">السبب:</span> {{ $apology->reason }}
                         </div>
                         @if($apology->attachment_path)

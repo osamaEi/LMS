@@ -23,9 +23,12 @@ class StudentsController extends Controller
         // Sessions this teacher owns, plus the subjects they are assigned to.
         $sessions   = Session::where('teacher_id', $teacher->id)->get(['id', 'subject_id', 'class_id']);
         $sessionIds = $sessions->pluck('id');
+        $classIds = $sessions->pluck('class_id')->filter()->unique();
+        $classStudentIds = ProgramClass::whereIn('id', $classIds)->get()
+            ->flatMap(fn ($class) => app(\App\Services\ProgramClassService::class)->studentIds($class));
         $subjectIds = $teacher->assignedSubjects()->pluck('subjects.id')
             ->merge($sessions->pluck('subject_id')->filter())
-            ->unique()->values();
+            ->merge($classStudentIds)->unique()->values();
 
         // A student counts as "mine" if they attended one of my sessions or are
         // enrolled in one of my subjects.
@@ -43,8 +46,9 @@ class StudentsController extends Controller
         // back to the legacy users.class_id.
         $classNames = ProgramClass::pluck('name', 'id');
 
-        $grouped = $students->groupBy(function (User $student) {
-            return $student->allClassIds()->first() ?? 0;
+        $grouped = $students->groupBy(function (User $student) use ($classIds) {
+            $groups = $student->allClassIds()->intersect($classIds);
+            return $groups->isNotEmpty() ? $groups->all() : [0];
         })->map(function ($group, $classId) use ($classNames) {
             return [
                 'class_id' => $classId ?: null,

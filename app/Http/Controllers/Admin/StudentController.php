@@ -48,6 +48,7 @@ class StudentController extends Controller
         }
         if (!empty($filters['class_id'])) {
             $query->where(fn ($q) => $q->where('class_id', $filters['class_id'])
+                ->orWhereHas('additionalClasses', fn ($c) => $c->where('program_classes.id', $filters['class_id']))
                 ->orWhereHas('programClasses', fn ($c) => $c->where('program_classes.id', $filters['class_id'])));
         }
         if (!empty($filters['registered_from'])) {

@@ -57,6 +57,37 @@ class StudentProgramClassServiceTest extends TestCase
         $this->service->assignStudents($programClass, [$student->id]);
     }
 
+    public function test_adding_and_removing_a_second_group_preserves_the_first_group(): void
+    {
+        [$programId, $first] = $this->programAndClass();
+        $second = ProgramClass::create(['program_id' => $programId, 'name' => 'Second', 'status' => 'active']);
+        $student = $this->student($programId);
+        $this->service->assignStudents($first, [$student->id]);
+        $this->service->assignStudents($second, [$student->id]);
+        $this->service->assignStudents($second, [$student->id]);
+
+        $this->assertSame($first->id, $student->fresh()->class_id);
+        $this->assertEqualsCanonicalizing([$first->id, $second->id], $student->fresh()->classIdsForProgram($programId)->all());
+        $this->assertTrue($this->programClassService->studentIds($second)->contains($student->id));
+        $this->assertSame(1, DB::table('student_class_memberships')->where('student_id', $student->id)->count());
+
+        $this->service->removeStudent($second, $student->fresh());
+        $this->assertSame([$first->id], $student->fresh()->allClassIds()->all());
+        $this->assertFalse($this->programClassService->studentIds($second)->contains($student->id));
+    }
+
+    public function test_removing_the_primary_group_keeps_the_additional_group(): void
+    {
+        [$programId, $first] = $this->programAndClass();
+        $second = ProgramClass::create(['program_id' => $programId, 'name' => 'Second', 'status' => 'active']);
+        $student = $this->student($programId);
+        $this->service->assignStudents($first, [$student->id]);
+        $this->service->assignStudents($second, [$student->id]);
+        $this->service->removeStudent($first, $student->fresh());
+
+        $this->assertSame([$second->id], $student->fresh()->allClassIds()->all());
+    }
+
     public function test_it_rejects_the_whole_assignment_when_capacity_would_be_exceeded(): void
     {
         [$programId, $programClass] = $this->programAndClass(maxStudents: 1);
@@ -162,6 +193,7 @@ class StudentProgramClassServiceTest extends TestCase
             $table->softDeletes();
         });
 
+        (require database_path('migrations/2026_10_19_120000_create_student_class_memberships_table.php'))->up();
         Schema::create('student_programs', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('student_id');

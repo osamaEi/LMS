@@ -330,10 +330,10 @@ class DashboardController extends Controller
     private function assignedSessionIds($student): \Illuminate\Support\Collection
     {
         $ids = Attendance::where('student_id', $student->id)->pluck('session_id');
-        if ($student->class_id) {
-            $ids = Session::whereIn('id', $ids)->where('class_id', $student->class_id)->pluck('id');
+        if ($student->allClassIds()->isNotEmpty()) {
+            $ids = Session::whereIn('id', $ids)->whereIn('class_id', $student->allClassIds())->pluck('id');
         }
-        return $ids;
+        return $ids->merge(Session::whereIn('class_id', $student->allClassIds())->pluck('id'))->unique()->values();
     }
 
     public function upcomingSessions()

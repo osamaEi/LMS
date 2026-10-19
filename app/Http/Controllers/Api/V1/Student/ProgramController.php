@@ -28,11 +28,12 @@ class ProgramController extends Controller
      */
     private function classScope(string $table, int $programId, ?int $classId): \Closure
     {
-        $hasClassRows = $classId
-            ? DB::table($table)->where('program_id', $programId)->where('class_id', $classId)->exists()
+        $classIds = auth()->user()->classIdsForProgram($programId);
+        $hasClassRows = $classIds->isNotEmpty()
+            ? DB::table($table)->where('program_id', $programId)->whereIn('class_id', $classIds)->exists()
             : false;
 
-        return fn($q) => $hasClassRows ? $q->where('class_id', $classId) : $q->whereNull('class_id');
+        return fn($q) => $hasClassRows ? $q->whereIn('class_id', $classIds) : $q->whereNull('class_id');
     }
 
     /**
@@ -72,7 +73,7 @@ class ProgramController extends Controller
         // classes — without a class there is no term, subject or teacher set that
         // belongs to them, so the entry would be an empty shell.
         $allPrograms = $allPrograms->filter(
-            fn($program) => $student->classIdForProgram($program->id) !== null
+            fn($program) => $student->classIdsForProgram($program->id)->isNotEmpty()
         )->values();
 
         if ($allPrograms->isEmpty()) {
@@ -94,6 +95,7 @@ class ProgramController extends Controller
             $programTeachers = collect();
             $supervisor      = null;
             $classId         = $student->classIdForProgram($program->id);
+            $classIds = $student->classIdsForProgram($program->id);
 
             // Credits come from the subjects this class actually studies, so the
             // total matches the subjects the student is shown.
@@ -128,7 +130,7 @@ class ProgramController extends Controller
                         ->pluck('teacher_id');
 
                     $sessionTeacherIds = Session::where('program_id', $program->id)
-                        ->where('class_id', $classId)
+                        ->whereIn('class_id', $classIds)
                         ->whereNotNull('teacher_id')
                         ->pluck('teacher_id');
 
@@ -190,6 +192,8 @@ class ProgramController extends Controller
 
         $classId = $student->classIdForProgram($program->id);
 
+        $classIds = $student->classIdsForProgram($program->id);
+
         $payload = [
             'id'              => (string) $program->id,
             'name_ar'         => $program->name_ar,
@@ -232,7 +236,7 @@ class ProgramController extends Controller
 
         // ── Course / training / english: program sessions ───────────────────
         $sessions = Session::where('program_id', $program->id)
-            ->when($classId, fn($q) => $q->where('class_id', $classId))
+            ->when($classIds->isNotEmpty(), fn($q) => $q->whereIn('class_id', $classIds))
             ->orderBy('session_number')
             ->get();
 
@@ -310,10 +314,12 @@ class ProgramController extends Controller
 
         $classId = $student->classIdForProgram($program->id);
 
+        $classIds = $student->classIdsForProgram($program->id);
+
         // Subjects are class content: without a placement there is no set of
         // subjects that belongs to this student. Matches the program list, which
         // hides class-less programs entirely.
-        if ($classId === null) {
+        if ($classIds->isEmpty()) {
             return response()->json([
                 'success' => false,
                 'message' => 'لم يتم تعيينك في فصل دراسي لهذا البرنامج',
@@ -522,10 +528,12 @@ class ProgramController extends Controller
 
         $classId = $student->classIdForProgram((int) $programId);
 
+        $classIds = $student->classIdsForProgram((int) $programId);
+
         // Sessions are class content: without a placement there is no set of
         // sessions that belongs to this student. Matches showOneSubjects, which
         // treats subjects the same way.
-        if ($classId === null) {
+        if ($classIds->isEmpty()) {
             return response()->json([
                 'success' => false,
                 'message' => 'لم يتم تعيينك في فصل دراسي لهذا البرنامج',
@@ -539,7 +547,7 @@ class ProgramController extends Controller
                 fn($q) => $q->where('program_id', $programId))
             // Strict class scoping: only this class's sessions. A session with
             // no class_id belongs to no class, so it is not this student's.
-            ->where('class_id', $classId)
+            ->whereIn('class_id', $classIds)
             ->orderBy('session_number');
 
         $sessions = $query->get();
@@ -692,13 +700,15 @@ class ProgramController extends Controller
 
         $classId = $student->classIdForProgram((int) $programId);
 
+        $classIds = $student->classIdsForProgram((int) $programId);
+
         $homeworks = Homework::query()
             ->when($request->filled('subject_id'),
                 fn($q) => $q->where('subject_id', $request->integer('subject_id')),
                 fn($q) => $q->where('program_id', $programId))
             // Class scoping: the student's class + class-agnostic (NULL) homework.
-            ->when($classId, fn($q) => $q->where(
-                fn($w) => $w->where('class_id', $classId)->orWhereNull('class_id')
+            ->when($classIds->isNotEmpty(), fn($q) => $q->where(
+                fn($w) => $w->whereIn('class_id', $classIds)->orWhereNull('class_id')
             ))
             ->orderByDesc('due_date')
             ->get();
@@ -893,14 +903,15 @@ class ProgramController extends Controller
 
         // Determine the student's class for this program
         $classId = $student->classIdForProgram($program->id);
+        $classIds = $student->classIdsForProgram($program->id);
 
         // Filter sessions by program and class (if assigned to a class)
         $sessionQuery = Session::where('program_id', $program->id)
             ->with(['files', 'homework'])
             ->orderBy('session_number');
 
-        if ($classId) {
-            $sessionQuery->where('class_id', $classId);
+        if ($classIds->isNotEmpty()) {
+            $sessionQuery->whereIn('class_id', $classIds);
         }
 
         $sessions = $sessionQuery->get();
@@ -1045,6 +1056,7 @@ class ProgramController extends Controller
         if ($isDiploma) {
             // ── Diploma: attendance based on term subjects ──────────────────
             $classId   = $student->classIdForProgram($program->id);
+            $classIds = $student->classIdsForProgram($program->id);
             $termScope = $this->classScope('terms', $program->id, $classId);
 
             $currentTerm = $program->terms()
@@ -1104,9 +1116,10 @@ class ProgramController extends Controller
             // Only joined sessions are counted (attended = true) — mirrors the
             // /student/attendance web page.
             $classId    = $student->classIdForProgram($program->id);
+            $classIds = $student->classIdsForProgram($program->id);
             $sessionIds = Session::where('program_id', $program->id)
-                ->when($classId, fn($q) => $q->where(
-                    fn($w) => $w->where('class_id', $classId)->orWhereNull('class_id')
+                ->when($classIds->isNotEmpty(), fn($q) => $q->where(
+                    fn($w) => $w->whereIn('class_id', $classIds)->orWhereNull('class_id')
                 ))
                 ->pluck('id');
 

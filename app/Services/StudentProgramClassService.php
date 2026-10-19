@@ -28,7 +28,7 @@ class StudentProgramClassService
                         ->orWhereHas('programs', fn ($programs) => $programs
                             ->where('programs.id', $programClass->program_id));
                 })
-                ->get();
+                ->lockForUpdate()->get();
 
             if ($students->count() !== $studentIds->count()) {
                 throw ValidationException::withMessages([
@@ -50,6 +50,7 @@ class StudentProgramClassService
     public function removeStudent(ProgramClass $programClass, User $student): void
     {
         DB::transaction(function () use ($programClass, $student) {
+            $student->additionalClasses()->detach($programClass->id);
             DB::table('student_programs')
                 ->where('student_id', $student->id)
                 ->where('program_id', $programClass->program_id)
@@ -64,6 +65,15 @@ class StudentProgramClassService
 
     private function assignStudent(ProgramClass $programClass, User $student): void
     {
+        // Keep existing group membership when adding another group in this program.
+        $primaryClassId = $student->classIdForProgram((int) $programClass->program_id);
+        if ($primaryClassId === (int) $programClass->id) {
+            return;
+        }
+        if ($primaryClassId) {
+            $student->additionalClasses()->syncWithoutDetaching([$programClass->id]);
+            return;
+        }
         if ($student->programs()->where('programs.id', $programClass->program_id)->exists()) {
             $student->programs()->updateExistingPivot($programClass->program_id, [
                 'class_id' => $programClass->id,

@@ -17,7 +17,7 @@ class QuizController extends Controller
     private function studentClassIds($student)
     {
         return $student->allProgramIds()
-            ->map(fn($pid) => $student->classIdForProgram((int) $pid))
+            ->flatMap(fn($pid) => $student->classIdsForProgram((int) $pid))
             ->filter()->unique()->values();
     }
 
@@ -331,10 +331,10 @@ class QuizController extends Controller
     private function findVisibleProgramQuiz($student, int $programId, $quizId, $query = null): Quiz
     {
         $query ??= Quiz::query();
-        $classId = $this->classIdInProgram($student, $programId);
+        $classIds = $student->classIdsForProgram($programId);
 
         return $query->where('program_id', $programId)
-            ->visibleToClasses($classId ? [$classId] : [])
+            ->visibleToClasses($classIds)
             ->findOrFail($quizId);
     }
 
@@ -347,11 +347,11 @@ class QuizController extends Controller
             abort(403, 'أنت غير مسجل في هذا البرنامج');
         }
 
-        $classId = $this->classIdInProgram($student, (int) $programId);
+        $classIds = $student->classIdsForProgram((int) $programId);
 
         $quizzes = Quiz::where('program_id', $programId)
             ->where('is_active', true)
-            ->visibleToClasses($classId ? [$classId] : [])
+            ->visibleToClasses($classIds)
             ->withCount('questions')
             ->orderBy('created_at', 'desc')
             ->get()

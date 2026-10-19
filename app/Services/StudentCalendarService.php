@@ -79,7 +79,7 @@ class StudentCalendarService
     {
         $programIds = $this->programIds($student);
 
-        $classIds = $programIds->map(fn($pid) => $student->classIdForProgram((int) $pid))
+        $classIds = $programIds->flatMap(fn($pid) => $student->classIdsForProgram((int) $pid))
             ->filter()->unique()->values()->all();
 
         return Subject::where(function ($q) use ($student, $programIds) {
@@ -107,7 +107,7 @@ class StudentCalendarService
         $programIds = $this->programIds($student);
 
         $studentClassIds = $programIds
-            ->map(fn($pid) => $student->classIdForProgram((int) $pid))
+            ->flatMap(fn($pid) => $student->classIdsForProgram((int) $pid))
             ->filter()->unique()->values();
 
         // Sessions assigned to this student (via attendance), scoped to their classes + class-agnostic

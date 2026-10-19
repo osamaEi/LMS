@@ -38,6 +38,7 @@ abstract class HomeworkTestCase extends TestCase
             'enrollments',
             'term_subject',
             'student_programs',
+            'student_class_memberships',
             'class_sessions',
             'subjects',
             'program_classes',
@@ -128,6 +129,13 @@ abstract class HomeworkTestCase extends TestCase
             $table->timestamps();
         });
 
+        Schema::create('student_class_memberships', function (Blueprint $table) {
+            $table->id();
+            $table->integer('student_id');
+            $table->integer('class_id');
+            $table->timestamps();
+            $table->unique(['student_id', 'class_id']);
+        });
         Schema::create('student_programs', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('student_id');

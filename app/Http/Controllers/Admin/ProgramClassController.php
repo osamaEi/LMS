@@ -59,6 +59,7 @@ class ProgramClassController extends Controller
         $classStudents = User::where('role', 'student')
             ->where(function ($q) use ($class) {
                 $q->where('class_id', $class->id)
+                    ->orWhereHas('additionalClasses', fn ($sq) => $sq->where('program_classes.id', $class->id))
                     ->orWhereHas('programs', fn ($sq) => $sq
                         ->where('programs.id', $class->program_id)
                         ->where('student_programs.class_id', $class->id));
@@ -506,6 +507,7 @@ class ProgramClassController extends Controller
         $students = User::where('role', 'student')
             ->where(function ($q) use ($class) {
                 $q->where('class_id', $class->id)
+                    ->orWhereHas('additionalClasses', fn ($sq) => $sq->where('program_classes.id', $class->id))
                     ->orWhereHas('programs', fn ($sq) => $sq
                         ->where('programs.id', $class->program_id)
                         ->where('student_programs.class_id', $class->id));
@@ -551,6 +553,7 @@ class ProgramClassController extends Controller
         // Report the student's class WITHIN THIS program only (so a student in another
         // program's class isn't falsely shown as "in another group" here).
         $students->transform(function ($s) use ($class) {
+            $s->class_ids = $s->classIdsForProgram((int) $class->program_id)->all();
             $s->class_id = $s->classIdForProgram((int) $class->program_id);
 
             return $s;

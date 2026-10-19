@@ -115,12 +115,12 @@ class QuizRepository
     public function studentsForProgram(int $programId, ?int $classId = null): SupportCollection
     {
         return User::where('role', 'student')
-            ->whereHas('programs', function ($pq) use ($programId, $classId) {
-                $pq->where('programs.id', $programId);
-                if ($classId) {
-                    $pq->where('student_programs.class_id', $classId);
-                }
+            ->where(function ($query) use ($programId, $classId) {
+                $query->where('program_id', $programId)
+                    ->orWhereHas('programs', fn ($q) => $q->where('programs.id', $programId));
             })
+            ->when($classId, fn ($q) => $q->whereIn('id', app(\App\Services\ProgramClassService::class)
+                ->studentIds(\App\Models\ProgramClass::findOrFail($classId))))
             ->orderBy('name')
             ->get(['id', 'name', 'email']);
     }
@@ -287,6 +287,7 @@ class QuizRepository
                     $q->orWhereHas('programs', fn($pq) => $pq
                         ->where('student_programs.class_id', $classId));
                     $q->orWhere('class_id', $classId);
+                    $q->orWhereHas('additionalClasses', fn ($cq) => $cq->where('program_classes.id', $classId));
                 }
             })
             ->orderBy('name')
@@ -316,6 +317,7 @@ class QuizRepository
                         ->where('student_programs.class_id', $targetClassId));
                     // Legacy users.class_id fallback.
                     $q->orWhere('class_id', $targetClassId);
+                    $q->orWhereHas('additionalClasses', fn ($cq) => $cq->where('program_classes.id', $targetClassId));
                 }
             })
             ->orderBy('name')

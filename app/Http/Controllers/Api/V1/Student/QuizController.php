@@ -21,7 +21,7 @@ class QuizController extends Controller
         $student = auth()->user();
         $subject = Subject::findOrFail($subjectId);
 
-        $isEnrolled = $student->enrollments()->where('subject_id', $subjectId)->exists();
+        $isEnrolled = app(\App\Services\StudentCalendarService::class)->subjectIds($student)->contains((int) $subjectId);
         if (!$isEnrolled) {
             return response()->json([
                 'success' => false,
@@ -29,7 +29,7 @@ class QuizController extends Controller
             ], 406);
         }
 
-        $quizzes = Quiz::where('subject_id', $subjectId)
+        $quizzes = Quiz::where('subject_id', $subjectId)->visibleToClasses($student->allClassIds())
             ->where('is_active', true)
             ->with('subject:id,name_ar,name_en')
             ->withCount('questions')
@@ -64,7 +64,7 @@ class QuizController extends Controller
         $student = auth()->user();
         Subject::findOrFail($subjectId);
 
-        $isEnrolled = $student->enrollments()->where('subject_id', $subjectId)->exists();
+        $isEnrolled = app(\App\Services\StudentCalendarService::class)->subjectIds($student)->contains((int) $subjectId);
         if (!$isEnrolled) {
             return response()->json([
                 'success' => false,
@@ -72,7 +72,7 @@ class QuizController extends Controller
             ], 406);
         }
 
-        $quiz = Quiz::where('subject_id', $subjectId)
+        $quiz = Quiz::where('subject_id', $subjectId)->visibleToClasses($student->allClassIds())
             ->with('subject:id,name_ar,name_en')
             ->withCount('questions')
             ->findOrFail($quizId);
@@ -105,9 +105,9 @@ class QuizController extends Controller
         $student = auth()->user();
         Subject::findOrFail($subjectId);
 
-        $quiz = Quiz::where('subject_id', $subjectId)->findOrFail($quizId);
+        $quiz = Quiz::where('subject_id', $subjectId)->visibleToClasses($student->allClassIds())->findOrFail($quizId);
 
-        $isEnrolled = $student->enrollments()->where('subject_id', $subjectId)->exists();
+        $isEnrolled = app(\App\Services\StudentCalendarService::class)->subjectIds($student)->contains((int) $subjectId);
         if (!$isEnrolled) {
             return response()->json([
                 'success' => false,
@@ -172,7 +172,7 @@ class QuizController extends Controller
     {
         $student = auth()->user();
 
-        $quiz = Quiz::where('subject_id', $subjectId)
+        $quiz = Quiz::where('subject_id', $subjectId)->visibleToClasses($student->allClassIds())
             ->with('questions.options')
             ->findOrFail($quizId);
 
@@ -222,7 +222,7 @@ class QuizController extends Controller
     {
         $student = auth()->user();
         Subject::findOrFail($subjectId);
-        Quiz::where('subject_id', $subjectId)->findOrFail($quizId);
+        Quiz::where('subject_id', $subjectId)->visibleToClasses($student->allClassIds())->findOrFail($quizId);
 
         $attempt = QuizAttempt::where('quiz_id', $quizId)
             ->where('student_id', $student->id)

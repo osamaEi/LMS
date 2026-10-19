@@ -68,6 +68,7 @@ class ProgramClass extends Model
             ->where('class_id', $this->id)
             ->pluck('student_id')
             ->merge(User::where('class_id', $this->id)->pluck('id'))
+            ->merge(DB::table('student_class_memberships')->where('class_id', $this->id)->pluck('student_id'))
             ->unique()
             ->count();
     }

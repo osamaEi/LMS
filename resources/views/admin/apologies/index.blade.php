@@ -65,6 +65,7 @@
                             @endif
                         </div>
                         <div style="font-size:13px;color:#1e293b;background:#f8fafc;border-radius:10px;padding:10px 12px;margin-top:8px;">
+                            @include('student.apologies.upload-time')
                             <span style="color:#64748b;">السبب:</span> {{ $apology->reason }}
                         </div>
                         @if($apology->attachment_path)

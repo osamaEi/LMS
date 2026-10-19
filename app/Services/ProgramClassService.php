@@ -45,6 +45,7 @@ class ProgramClassService
             ->where('class_id', $programClass->id)
             ->pluck('student_id')
             ->merge(User::where('class_id', $programClass->id)->pluck('id'))
+            ->merge(DB::table('student_class_memberships')->where('class_id', $programClass->id)->pluck('student_id'))
             ->unique()
             ->values();
     }
@@ -53,6 +54,8 @@ class ProgramClassService
     {
         DB::transaction(function () use ($programClass) {
             $programClass = $this->lock($programClass);
+
+            DB::table('student_class_memberships')->where('class_id', $programClass->id)->delete();
 
             DB::table('student_programs')
                 ->where('class_id', $programClass->id)

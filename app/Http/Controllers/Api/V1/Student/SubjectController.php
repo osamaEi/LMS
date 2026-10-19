@@ -112,11 +112,11 @@ class SubjectController extends Controller
             ?? $student->class_id;
 
         // Guard: a class-scoped subject must match the student's class
-        if ($subject->class_id !== null && $subject->class_id != $classId) {
+        if ($subject->class_id !== null && !$student->allClassIds()->contains($subject->class_id)) {
             return response()->json(['success' => false, 'message' => 'هذا المقرر غير متاح لمجموعتك'], 403);
         }
 
-        return [$subject, $classId];
+        return [$subject, $subject->class_id ?? $classId];
     }
 
     /**
@@ -188,9 +188,7 @@ class SubjectController extends Controller
         $classId = (int) $classId;
 
         // The class in the URL must be one the student actually belongs to.
-        $studentClassIds = $student->programs()->pluck('student_programs.class_id')
-            ->push($student->class_id)
-            ->filter()->map(fn($c) => (int) $c)->unique();
+        $studentClassIds = $student->allClassIds()->map(fn($c) => (int) $c);
 
         if (!$studentClassIds->contains($classId)) {
             return response()->json(['success' => false, 'message' => 'هذا الفصل غير متاح لك'], 403);

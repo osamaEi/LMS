@@ -73,7 +73,9 @@ class CourseController extends Controller
                 $row->sessions_count = Session::where('program_id', $program->id)
                     ->where('teacher_id', $teacher->id)
                     ->where('class_id', $class?->id)->count();
-                $row->class_student_count = \Illuminate\Support\Facades\DB::table('student_programs')
+                $row->class_student_count = $class
+                    ? app(\App\Services\ProgramClassService::class)->studentIds($class)->count()
+                    : \Illuminate\Support\Facades\DB::table('student_programs')
                     ->where('program_id', $program->id)
                     ->where('class_id', $class?->id)
                     ->distinct()->count('student_id');
@@ -386,8 +388,7 @@ class CourseController extends Controller
 
         // Get all students in the class via student_programs pivot
         $classStudentIds = $classId
-            ? \Illuminate\Support\Facades\DB::table('student_programs')
-                ->where('class_id', $classId)->distinct()->pluck('student_id')
+            ? app(\App\Services\ProgramClassService::class)->studentIds(\App\Models\ProgramClass::findOrFail($classId))
             : \App\Models\User::where('program_id', $programId)->where('role', 'student')->pluck('id');
 
         // Fallback: nobody resolved → use whoever has an attendance record for this session
@@ -453,7 +454,7 @@ class CourseController extends Controller
             ?? \App\Models\ProgramClass::where('program_id', $programId)->where('teacher_id', $teacher->id)->value('id');
 
         $classStudentIds = $classId
-            ? \Illuminate\Support\Facades\DB::table('student_programs')->where('class_id', $classId)->distinct()->pluck('student_id')
+            ? app(\App\Services\ProgramClassService::class)->studentIds(\App\Models\ProgramClass::findOrFail($classId))
             : \App\Models\User::where('program_id', $programId)->where('role', 'student')->pluck('id');
 
         $students = \App\Models\User::whereIn('id', $classStudentIds)->where('role', 'student')->orderBy('name')->get();

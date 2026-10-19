@@ -92,8 +92,8 @@ class HomeworkService
 
         // When scoped to a class (group), notify only that class's students.
         if ($homework->class_id) {
-            $students = \App\Models\ProgramClass::find($homework->class_id)
-                ?->students()->get() ?? collect();
+            $class = \App\Models\ProgramClass::find($homework->class_id);
+            $students = $class ? \App\Models\User::whereIn('id', app(ProgramClassService::class)->studentIds($class))->get() : collect();
 
             foreach ($students as $student) {
                 $student->notify(new HomeworkCreatedNotification($homework));

@@ -90,7 +90,7 @@ function loadAvailableStudents() {
     fetch(`/admin/classes/${_classId}/available-students`, { headers: { 'Accept': 'application/json' } })
         .then(r => r.json()).then(d => {
             document.getElementById('sm-available-loading').style.display = 'none';
-            _allAvailable = d.students.filter(s => !s.class_id || s.class_id != _classId);
+            _allAvailable = d.students.filter(s => !(s.class_ids || [s.class_id]).some(id => Number(id) === Number(_classId)));
             renderAvailable(_allAvailable);
         });
 }
@@ -111,7 +111,7 @@ function renderAvailable(students) {
                 <div style="font-size:13px;font-weight:700;color:#1e293b;">${s.name}</div>
                 <div style="font-size:11px;color:#94a3b8;">${s.national_id || s.email || ''}</div>
             </div>
-            ${s.class_id ? '<span style="font-size:10px;color:#f59e0b;background:#fef3c7;padding:2px 7px;border-radius:20px;flex-shrink:0;">في مجموعة أخرى</span>' : ''}
+            ${(s.class_ids?.length || s.class_id) ? '<span style="font-size:10px;color:#f59e0b;background:#fef3c7;padding:2px 7px;border-radius:20px;flex-shrink:0;">في مجموعة أخرى</span>' : ''}
         </label>`).join('');
     list.style.display = 'block';
     updateAddBtn();
