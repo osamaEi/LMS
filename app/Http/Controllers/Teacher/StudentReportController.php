@@ -439,11 +439,15 @@ class StudentReportController extends Controller
      */
     private function buildMarks($subjects, $quizzes, $homework, $attendances, $participation, $excusedSessionIds = null)
     {
-        $rows = $subjects->map(function ($sub) use ($quizzes, $homework, $attendances, $participation) {
+        $excused = $excusedSessionIds ?? collect();
+
+        $rows = $subjects->map(function ($sub) use ($quizzes, $homework, $attendances, $participation, $excused) {
             $sid = $sub['subject_id'];
 
-            // Attendance: attended / total sessions of this subject.
-            $subAtt   = $attendances->filter(fn($a) => ($a->session->subject_id ?? null) === $sid);
+            // Attendance: attended / total sessions of this subject. An excused
+            // absence is left out entirely so it never costs the student marks.
+            $subAtt   = $attendances->filter(fn($a) => ($a->session->subject_id ?? null) === $sid
+                && ($a->attended || !$excused->contains($a->session_id)));
             $attTotal = $subAtt->count();
             $attPct   = $attTotal > 0 ? $subAtt->where('attended', true)->count() / $attTotal : 0;
 
@@ -482,11 +486,16 @@ class StudentReportController extends Controller
             $hwMax = $subHw->sum(fn($h) => $h['max_grade'] ?: 0) + $mHw->sum('max_grade');
             $hwPct = $hwMax > 0 ? ($subHw->sum('grade') + $mHw->sum('grade')) / $hwMax : 0;
 
-            // Manual participation items: sum of grades over sum of max grades.
+            // Pinned participation items (مشاركة / مشروع): sum of grades over sum
+            // of max grades.
             $subPart  = $participation->where('subject_id', $sid)
                 ->where('kind', 'participation');
-            $partMax  = $subPart->sum('max_grade');
-            $partPct  = $partMax > 0 ? $subPart->sum('grade') / $partMax : 0;
+            $pinPart  = $subPart->whereIn('title', self::RESERVED_PARTICIPATION);
+            $partMax  = $pinPart->sum('max_grade');
+            $partPct  = $partMax > 0 ? $pinPart->sum('grade') / $partMax : 0;
+
+            // "بنود إضافية" are bonus points added on top of المشاركة.
+            $extraPts = (float) $subPart->whereNotIn('title', self::RESERVED_PARTICIPATION)->sum('grade');
 
             // The teacher-entered exam mark is authoritative: the pinned box is
             // seeded from the attempt, so once it is saved it *is* the grade —
@@ -519,8 +528,9 @@ class StudentReportController extends Controller
             if ($partMax > 0) $buckets[] = $partPct;
 
             $participationMark = count($buckets) > 0
-                ? round(array_sum($buckets) / count($buckets) * $partWeight, 1)
+                ? array_sum($buckets) / count($buckets) * $partWeight
                 : 0;
+            $participationMark = round(min($partWeight, $participationMark + $extraPts), 1);
 
             $totals = $marks;
             $totals['quizzes']  = $participationMark;   // المشاركة as one figure
