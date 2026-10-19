@@ -69,6 +69,8 @@ class CurrentQuarterSubjectsTest extends HomeworkTestCase
         $this->assertSame([10], $data['subjectClassIds'][$shared->id]->all());
         $this->assertNull($data['subjects']->find($shared->id)->term);
         $this->assertSame([$current->id], $data['subjects']->find($shared->id)->terms->modelKeys());
+        // Assigned subjects outside the current quarter are listed separately.
+        $this->assertEqualsCanonicalizing([$noTerm->id, ...$excluded->pluck('id')->all()], $data['otherSubjects']->modelKeys());
 
         $filtered = app(SubjectController::class)->index(Request::create('/teacher/my-subjects', 'GET', ['class_id' => 20]))->getData();
         $this->assertCount(0, $filtered['subjects']);

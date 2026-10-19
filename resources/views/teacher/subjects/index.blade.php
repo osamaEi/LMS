@@ -5,7 +5,7 @@
 @section('content')
 <div class="mb-6">
     <h1 class="text-2xl font-bold text-gray-900 dark:text-white">مقرراتي</h1>
-    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">عرض وإدارة المقررات التدريبية المسندة إليك في الربع التدريبي الحالي فقط</p>
+    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">عرض وإدارة المقررات التدريبية المسندة إليك في الربع التدريبي الحالي، ثم باقي مقرراتك المسندة</p>
 </div>
 
 @if(session('success'))
@@ -30,6 +30,14 @@
     @endif
 </form>
 
+@foreach([['current', $subjects], ['other', $otherSubjects]] as [$section, $list])
+@continue($section === 'other' && $list->isEmpty())
+@if($section === 'other')
+<div class="mb-3 mt-8">
+    <h2 class="text-lg font-bold text-gray-900 dark:text-white">مقررات أخرى مسندة إليك</h2>
+    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">مقررات خارج الربع التدريبي الحالي أو غير مرتبطة بربع تدريبي</p>
+</div>
+@endif
 <div class="overflow-x-auto rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
     <table class="w-full text-start text-sm">
         <caption class="sr-only">المقررات المسندة إليك والكلاسات المرتبطة بها</caption>
@@ -43,7 +51,7 @@
             </tr>
         </thead>
         <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
-            @forelse($subjects as $subject)
+            @forelse($list as $subject)
                 <tr class="hover:bg-gray-50 dark:hover:bg-gray-800">
                     <th scope="row" class="px-5 py-4 text-start">
                         <a href="{{ route('teacher.my-subjects.show', $subject->id) }}" class="font-semibold text-gray-900 hover:underline dark:text-white">{{ $subject->name }}</a>
@@ -71,11 +79,12 @@
                 <tr>
                     <td colspan="5" class="px-5 py-12 text-center">
                         <p class="font-medium text-gray-900 dark:text-white">{{ $selectedClassId !== null ? 'لا توجد مقررات مسندة إليك في هذا الكلاس خلال الربع الحالي' : 'لا توجد مقررات مسندة إليك في الربع الحالي' }}</p>
-                        <p class="mt-1 text-gray-500 dark:text-gray-400">{{ $selectedClassId !== null ? 'اختر كلاسًا آخر أو ألغِ الفلتر لعرض مقررات الربع الحالي.' : 'تواصل مع الإدارة للتحقق من إسناد المقررات ومواعيد الربع التدريبي.' }}</p>
+                        <p class="mt-1 text-gray-500 dark:text-gray-400">{{ $selectedClassId !== null ? 'اختر كلاسًا آخر أو ألغِ الفلتر لعرض مقررات الربع الحالي.' : ($otherSubjects->isNotEmpty() ? 'مقرراتك الأخرى معروضة بالأسفل.' : 'تواصل مع الإدارة للتحقق من إسناد المقررات ومواعيد الربع التدريبي.') }}</p>
                     </td>
                 </tr>
             @endforelse
         </tbody>
     </table>
 </div>
+@endforeach
 @endsection

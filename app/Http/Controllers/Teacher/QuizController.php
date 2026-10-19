@@ -652,25 +652,34 @@ class QuizController extends Controller
             return $group->sortByDesc(fn($a) => $a->submitted_at ?? $a->started_at)->first();
         });
 
-        // Eligible students: for a program quiz, the target class of the program;
-        // otherwise the subject's class-scoped students.
+        // Eligible students: the quiz's own target class (falling back to the
+        // subject's class), via the program or the subject.
         if ($quiz->isProgramQuiz()) {
-            $eligibleStudents = $this->quizzes
-                ->studentsForProgram($quiz->program_id, $quiz->class_id)
-                ->map(function ($student) use ($attemptByStudent) {
-                    $student->attempt = $attemptByStudent[$student->id] ?? null;
-                    return $student;
-                });
+            $eligibleStudents = $this->quizzes->studentsForProgram($quiz->program_id, $quiz->class_id);
+        } elseif ($quiz->subject) {
+            // No target class on the quiz → every class the subject reaches
+            // (its own class and its terms' classes), not just subjects.class_id.
+            $classIds = $quiz->class_id ? collect([$quiz->class_id]) : $quiz->subject->classIds();
+            $eligibleStudents = $classIds->isEmpty()
+                ? $this->quizzes->studentsForSubject($quiz->subject)
+                : $classIds->flatMap(fn ($classId) => $this->quizzes->studentsForSubject($quiz->subject, $classId))
+                    ->unique('id')->values();
         } else {
-            $subject = $quiz->subject;
-            $eligibleStudents = $subject
-                ? $this->quizzes->eligibleStudentsFor($subject, $attemptByStudent)
-                : collect();
+            $eligibleStudents = collect();
         }
 
+        $eligibleStudents = $eligibleStudents->map(function ($student) use ($attemptByStudent) {
+            $student->attempt = $attemptByStudent[$student->id] ?? null;
+            return $student;
+        });
+
+        // A student who opened the quiz has entered it, whatever their class
+        // resolves to now — never count them as "لم يدخلوا".
+        $eligibleIds = $eligibleStudents->pluck('id')->merge($attemptByStudent->keys())->unique();
+
         $stats = [
-            'eligible'       => $eligibleStudents->count(),
-            'not_attempted'  => $eligibleStudents->filter(fn($s) => !$s->attempt)->count(),
+            'eligible'       => $eligibleIds->count(),
+            'not_attempted'  => $eligibleIds->diff($attemptByStudent->keys())->count(),
             'completed'      => $attempts->whereNotNull('submitted_at')->count(),
             'in_progress'    => $attempts->whereNull('submitted_at')->count(),
             'passed'         => $attempts->where('passed', true)->count(),

@@ -48,15 +48,28 @@ class SubjectController extends Controller
             ->orderBy(app()->getLocale() === 'en' ? 'name_en' : 'name_ar')
             ->get();
 
-        $subjectClassIds = $subjects->mapWithKeys(fn ($subject) => [$subject->id => $subject->classIds()]);
+        // Every other assigned subject (no quarter, or a quarter whose dates don't
+        // cover today) — the same set the quiz page offers, listed separately so
+        // nothing the teacher is assigned to goes missing.
+        $otherSubjects = Subject::assignedToTeacher($teacher->id)
+            ->whereNotIn('id', $subjects->modelKeys())
+            ->with(['term.program', 'terms.program', 'program'])
+            ->withCount(['sessions as sessions_count' => fn($q) => $q->where('teacher_id', $teacher->id)])
+            ->orderBy(app()->getLocale() === 'en' ? 'name_en' : 'name_ar')
+            ->get();
+
+        $subjectClassIds = $subjects->concat($otherSubjects)
+            ->mapWithKeys(fn ($subject) => [$subject->id => $subject->classIds()]);
         $classes = ProgramClass::whereIn('id', $subjectClassIds->flatten()->unique())
             ->get()->sortBy('name')->keyBy('id');
 
         if ($selectedClassId !== null) {
-            $subjects = $subjects->filter(fn ($subject) => $subjectClassIds[$subject->id]->contains($selectedClassId));
+            $inClass = fn ($subject) => $subjectClassIds[$subject->id]->contains($selectedClassId);
+            $subjects = $subjects->filter($inClass);
+            $otherSubjects = $otherSubjects->filter($inClass);
         }
 
-        return view('teacher.subjects.index', compact('subjects', 'classes', 'subjectClassIds', 'selectedClassId'));
+        return view('teacher.subjects.index', compact('subjects', 'otherSubjects', 'classes', 'subjectClassIds', 'selectedClassId'));
     }
 
     /**
