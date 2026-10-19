@@ -347,7 +347,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
         <!-- Main Content -->
         <div class="lg:col-span-8 xl:col-span-9">
-            <form id="quizForm" action="{{ route('student.quizzes.submit', [$subject->id, $quiz->id]) }}" method="POST">
+            <form id="quizForm" action="{{ route('student.quizzes.submit', [$subject->id, $quiz->id], false) }}" method="POST">
                 @csrf
 
                 @foreach($questions as $index => $question)
