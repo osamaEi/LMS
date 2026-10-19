@@ -26,7 +26,7 @@ class StudentQuizReleaseTest extends TestCase
             $table->timestamp('submitted_at')->nullable();
             $table->timestamp('results_released_at')->nullable();
         });
-        $quiz = new Quiz;
+        $quiz = new Quiz(['show_results' => true]);
         $quiz->id = 38;
         DB::table('quiz_attempts')->insert([
             'quiz_id' => 38, 'student_id' => 303, 'score' => 10,
@@ -46,6 +46,7 @@ class StudentQuizReleaseTest extends TestCase
     public function test_api_hides_unreleased_grades_and_loaded_answers(): void
     {
         $attempt = new QuizAttempt(['score' => 10, 'percentage' => 100, 'passed' => true]);
+        $attempt->setRelation('quiz', new Quiz(['show_results' => true]));
         $attempt->setRelation('answers', collect([['marks_obtained' => 10, 'is_correct' => true]]));
         $serialize = new \ReflectionMethod(QuizController::class, 'studentAttemptData');
         $data = $serialize->invoke(new QuizController, $attempt);
@@ -59,5 +60,11 @@ class StudentQuizReleaseTest extends TestCase
         $this->assertEquals(10, $data['score']);
         $this->assertEquals(100, $data['percentage']);
         $this->assertTrue($data['passed']);
+
+        $attempt->quiz->show_results = false;
+        $data = $serialize->invoke(new QuizController, $attempt);
+        $this->assertNull($data['score']);
+        $this->assertNull($data['percentage']);
+        $this->assertNull($data['passed']);
     }
 }

@@ -104,7 +104,7 @@
                                 <td class="py-3 px-4 text-gray-900 dark:text-white">{{ $index + 1 }}</td>
                                 <td class="py-3 px-4 text-gray-600 dark:text-gray-400">{{ $attempt->started_at->format('Y/m/d H:i') }}</td>
                                 <td class="py-3 px-4">
-                                    @if($attempt->isCompleted() && $attempt->isReleased())
+                                    @if($attempt->isCompleted() && $attempt->canShowResults())
                                         <span class="font-bold text-emerald-600">
                                             {{ $attempt->score ?? '-' }} / {{ $quiz->total_marks }}
                                         </span>
@@ -115,14 +115,14 @@
                                 <td class="py-3 px-4">
                                     @if(!$attempt->isCompleted())
                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" style="background-color: #fef3c7; color: #92400e;">قيد التنفيذ</span>
-                                    @elseif($attempt->isReleased())
+                                    @elseif($attempt->canShowResults())
                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" style="background-color: #d1fae5; color: #065f46;">تم اعتماد النتيجة</span>
                                     @else
                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" style="background-color: #e0f2fe; color: #075985;">بانتظار اعتماد المعلم</span>
                                     @endif
                                 </td>
                                 <td class="py-3 px-4">
-                                    @if($attempt->isCompleted() && $attempt->isReleased())
+                                    @if($attempt->isCompleted() && $attempt->canShowResults())
                                         <a href="{{ route('student.quizzes.result', [$subject->id, $quiz->id, $attempt->id]) }}"
                                            class="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-sm font-bold text-white"
                                            style="background-color: #0071AA;">

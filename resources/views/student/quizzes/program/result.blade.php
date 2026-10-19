@@ -20,7 +20,7 @@
     );
 
     // The teacher must release the grade before the student sees it.
-    $released = $attempt->isReleased();
+    $released = $attempt->canShowResults();
 @endphp
 <div class="space-y-6">
 
@@ -118,6 +118,7 @@
         </div>
     </div>
 
+    @if($showCorrectAnswers)
     {{-- Answer review — teacher-style read-only cards (result is released) --}}
     <div style="margin-top:4px;">
         <h2 style="font-size:16px;font-weight:800;color:#1e293b;margin-bottom:12px;">مراجعة إجاباتي</h2>
@@ -178,6 +179,8 @@
         </div>
         @endforeach
     </div>
+
+    @endif
 
     <!-- Actions -->
     <div class="flex items-center justify-center gap-4">

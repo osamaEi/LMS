@@ -55,6 +55,8 @@ class StudentGradesService
             ->orderBy('submitted_at', 'desc')
             ->get();
 
+        $quizAttempts = $quizAttempts->filter(fn ($attempt) => $attempt->canShowResults());
+
         $finalGrades = Enrollment::where('student_id', $student->id)
             ->whereNotNull('final_grade')
             ->pluck('final_grade', 'subject_id');

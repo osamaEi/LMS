@@ -160,6 +160,7 @@
                 @endphp
                 @foreach($opts as [$name, $label, $current])
                 <label style="display:flex;align-items:center;gap:9px;padding:10px 12px;border:1.5px solid #e2e8f0;border-radius:10px;cursor:pointer;font-size:13px;color:#475569;">
+                    <input type="hidden" name="{{ $name }}" value="0">
                     <input type="checkbox" name="{{ $name }}" value="1" {{ old($name, $current) ? 'checked' : '' }}
                            style="width:16px;height:16px;accent-color:#0071AA;">
                     {{ $label }}

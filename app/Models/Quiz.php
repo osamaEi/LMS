@@ -218,6 +218,10 @@ class Quiz extends Model
      */
     public function bestScoreForStudent($studentId)
     {
+        if (!$this->show_results) {
+            return null;
+        }
+
         return $this->attemptsForStudent($studentId)
             ->whereNotNull('submitted_at')
             ->whereNotNull('results_released_at')

@@ -254,9 +254,9 @@ class QuizController extends Controller
             'message' => 'تم تسليم الاختبار بنجاح',
             'data' => [
                 'attempt_id' => (string) $attempt->id,
-                'score' => $attempt->isReleased() ? $attempt->score : null,
+                'score' => $attempt->canShowResults() ? $attempt->score : null,
                 'total_marks' => $attempt->total_marks,
-                'percentage' => $attempt->isReleased() ? $attempt->percentage : null,
+                'percentage' => $attempt->canShowResults() ? $attempt->percentage : null,
                 'time_spent_seconds' => $attempt->time_spent_seconds,
             ],
         ]);
@@ -287,11 +287,11 @@ class QuizController extends Controller
         $data = [
             'attempt' => $this->studentAttemptData($attempt),
             'quiz' => $quiz,
-            'show_results' => $attempt->isReleased() && $quiz->show_results,
+            'show_results' => $attempt->canShowResults() && $quiz->show_results,
         ];
 
         // Only include answers if quiz allows showing correct answers
-        if ($attempt->isReleased() && $quiz->show_correct_answers) {
+        if ($attempt->canShowResults() && $quiz->show_correct_answers) {
             $data['answers'] = $attempt->answers->load('question.options', 'selectedOption');
         }
 
@@ -306,7 +306,7 @@ class QuizController extends Controller
         // Loaded answers contain grading details; expose them only through the
         // explicitly gated answers field in the result response.
         $data = $attempt->attributesToArray();
-        if (! $attempt->isReleased()) {
+        if (! $attempt->canShowResults()) {
             $data['score'] = null;
             $data['percentage'] = null;
             $data['passed'] = null;

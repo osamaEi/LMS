@@ -40,6 +40,11 @@ class QuizAttempt extends Model
         return $this->results_released_at !== null;
     }
 
+    public function canShowResults(): bool
+    {
+        return $this->isReleased() && (bool) $this->quiz?->show_results;
+    }
+
     /**
      * Check if attempt is completed
      */

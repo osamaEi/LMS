@@ -369,7 +369,7 @@ class QuizController extends Controller
 
         $validated['shuffle_questions'] = $request->boolean('shuffle_questions');
         $validated['shuffle_answers'] = $request->boolean('shuffle_answers');
-        $validated['show_results'] = $request->boolean('show_results', true);
+        $validated['show_results'] = $request->boolean('show_results');
         $validated['show_correct_answers'] = $request->boolean('show_correct_answers');
         $validated['is_active'] = $request->boolean('is_active', true);
 
@@ -872,7 +872,7 @@ class QuizController extends Controller
 
         $validated['shuffle_questions'] = $request->boolean('shuffle_questions');
         $validated['shuffle_answers'] = $request->boolean('shuffle_answers');
-        $validated['show_results'] = $request->boolean('show_results', true);
+        $validated['show_results'] = $request->boolean('show_results');
         $validated['show_correct_answers'] = $request->boolean('show_correct_answers');
         $validated['is_active'] = $request->boolean('is_active', true);
 
