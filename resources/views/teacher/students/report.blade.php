@@ -444,7 +444,11 @@
         const pinned = pinBlock(conf.pinned);
         const pinnedAfter = (conf.pinned_after || []).map(pinBlock).join('');
 
-        body.innerHTML = overrideHtml(field, max, sid) + stats + pinned + conf.sections.map((sec, i) => {
+        // Exam columns already have their single editable grade box (pinned),
+        // so the separate column override is only offered elsewhere.
+        const override = conf.pinned ? '' : overrideHtml(field, max, sid);
+
+        body.innerHTML = override + stats + pinned + conf.sections.map((sec, i) => {
             const rows = mine(sec.rows);
             // Legacy sections only exist to keep old records editable — drop them
             // entirely once there is nothing left in them.

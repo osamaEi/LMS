@@ -247,6 +247,18 @@ class StudentReportController extends Controller
                     if (!isset($allowedSubjects[$subjectId])) continue;
 
                     $grade = $row['grade'] ?? null;
+
+                    // The exam's grade box is the column's single input — drop any
+                    // older column override so it can't shadow what was typed.
+                    if (in_array($kind, ['final', 'midterm'], true)) {
+                        ParticipationMark::where([
+                            'student_id' => $studentId,
+                            'subject_id' => $subjectId,
+                            'kind'       => self::OVERRIDE_KIND,
+                            'title'      => $kind,
+                        ])->delete();
+                    }
+
                     $key   = [
                         'student_id' => $studentId,
                         'subject_id' => $subjectId,
