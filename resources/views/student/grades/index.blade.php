@@ -174,19 +174,6 @@
                 </div>
                 <span class="course-grade-badge {{ $badgeClass }}">{{ $data['grade_label'] }}</span>
             </div>
-            <dl class="subject-grade-details" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:20px 0;">
-                @foreach(['attendance' => ['الحضور', 10], 'participation' => ['المشاركة', 30], 'midterm' => ['الاختبار النصفي', 20], 'final' => ['الاختبار النهائي', 40], 'total' => ['المجموع', 100]] as $key => [$label, $max])
-                @php
-                    $mark = $key === 'total' ? ($data['final_grade'] ?? $data['breakdown']['total'] ?? null) : ($data['breakdown'][$key] ?? null);
-                @endphp
-                <div style="min-width:0;">
-                    <dt style="font-size:12px;font-weight:700;margin-bottom:6px;">{{ $label }}</dt>
-                    <dd style="margin:0;padding:12px;border:1px solid var(--grade-border);border-radius:8px;background:var(--grade-surface);font-variant-numeric:tabular-nums;">
-                        @if($mark !== null)<bdi>{{ $mark }} / {{ $max }}</bdi>@else<span style="color:var(--grade-muted);">لم تُعلن بعد</span>@endif
-                    </dd>
-                </div>
-                @endforeach
-            </dl>
             <div class="course-grade-track" aria-hidden="true"><span style="width: {{ max(0, min(100, $data['percentage'])) }}%;"></span></div>
             <div class="course-grade-footer">
                 <span class="course-grade-source">{{ $isFinal ? 'درجة نهائية مسجّلة' : 'نسبة محسوبة' }}</span>
