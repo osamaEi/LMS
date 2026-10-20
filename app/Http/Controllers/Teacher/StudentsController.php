@@ -28,12 +28,13 @@ class StudentsController extends Controller
             ->flatMap(fn ($class) => app(\App\Services\ProgramClassService::class)->studentIds($class));
         $subjectIds = $teacher->assignedSubjects()->pluck('subjects.id')
             ->merge($sessions->pluck('subject_id')->filter())
-            ->merge($classStudentIds)->unique()->values();
+            ->unique()->values();
 
         // A student counts as "mine" if they attended one of my sessions or are
         // enrolled in one of my subjects.
         $studentIds = Attendance::whereIn('session_id', $sessionIds)->distinct()->pluck('student_id')
             ->merge(Enrollment::whereIn('subject_id', $subjectIds)->distinct()->pluck('student_id'))
+            ->merge($classStudentIds)
             ->unique()->values();
 
         $students = User::whereIn('id', $studentIds)

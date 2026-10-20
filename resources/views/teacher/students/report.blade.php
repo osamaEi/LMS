@@ -383,6 +383,23 @@
 
         const subjects = (conf.subjects || []).filter(s => sid === null || Number(s.id) === sid);
 
+        if (field === 'participation' && COLS[sid]) {
+            const col = COLS[sid];
+            body.innerHTML = `<section class="dsec dsec-pin">
+                <h3><label for="participationGrade">درجة المشاركة <em>(من ${max})</em></label></h3>
+                <div class="dr">
+                    <input id="participationGrade" type="number" min="0" max="${max}" step="0.01" required
+                           name="column_override[${sid}][participation]"
+                           value="${col.overrides.participation ?? col.auto.participation ?? 0}" class="dr-num">
+                    <span class="dr-lbl">من ${max}</span>
+                </div>
+            </section>`;
+            modal.hidden = false;
+            document.body.style.overflow = 'hidden';
+            document.getElementById('participationGrade').focus();
+            return;
+        }
+
         // المجموع: override the computed total per subject instead of listing records.
         if (conf.totals) {
             body.innerHTML = `<section class="dsec dsec-pin">

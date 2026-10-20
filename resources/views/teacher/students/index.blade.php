@@ -33,8 +33,25 @@
 </div>
 @else
 
+<style>
+    .student-group-tab { border:1px solid #dbe4ee;border-radius:12px;padding:10px 16px;background:#fff;color:#475569;font:inherit;cursor:pointer;white-space:nowrap; }
+    .student-group-tab[aria-selected="true"] { background:#0071AA;border-color:#0071AA;color:#fff; }
+    .student-group-tab:focus-visible { outline:3px solid #38bdf8;outline-offset:3px; }
+</style>
+<div role="tablist" aria-label="مجموعات الطلاب" style="display:flex;gap:8px;overflow-x:auto;padding:4px;margin-bottom:16px;">
+    @foreach($grouped as $group)
+        <button type="button" class="student-group-tab" role="tab"
+                id="student-group-tab-{{ $loop->index }}" aria-controls="student-group-panel-{{ $loop->index }}"
+                aria-selected="{{ $loop->first ? 'true' : 'false' }}" tabindex="{{ $loop->first ? '0' : '-1' }}">
+            {{ $group['name'] }} <span style="font-size:12px;margin-inline-start:6px;">({{ count($group['students']) }})</span>
+        </button>
+    @endforeach
+</div>
+
 @foreach($grouped as $group)
-<div style="background:white;border-radius:18px;border:1px solid #e5e7eb;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:20px;">
+<div role="tabpanel" id="student-group-panel-{{ $loop->index }}" aria-labelledby="student-group-tab-{{ $loop->index }}"
+     tabindex="0" @if(!$loop->first) hidden @endif
+     style="background:white;border-radius:18px;border:1px solid #e5e7eb;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:20px;">
     {{-- Class header --}}
     <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 18px;background:#f8fafc;border-bottom:1px solid #eef2f7;">
         <div style="display:flex;align-items:center;gap:10px;">
@@ -84,6 +101,34 @@
     </div>
 </div>
 @endforeach
+
+<script>
+(() => {
+    const tabs = Array.from(document.querySelectorAll('.student-group-tab'));
+    function selectTab(selected) {
+        tabs.forEach(tab => {
+            const active = tab === selected;
+            tab.setAttribute('aria-selected', String(active));
+            tab.tabIndex = active ? 0 : -1;
+            document.getElementById(tab.getAttribute('aria-controls')).hidden = !active;
+        });
+    }
+    tabs.forEach((tab, index) => {
+        tab.addEventListener('click', () => selectTab(tab));
+        tab.addEventListener('keydown', event => {
+            let next;
+            if (event.key === 'ArrowLeft') next = (index + 1) % tabs.length;
+            else if (event.key === 'ArrowRight') next = (index - 1 + tabs.length) % tabs.length;
+            else if (event.key === 'Home') next = 0;
+            else if (event.key === 'End') next = tabs.length - 1;
+            else return;
+            event.preventDefault();
+            selectTab(tabs[next]);
+            tabs[next].focus();
+        });
+    });
+})();
+</script>
 
 @endif
 
