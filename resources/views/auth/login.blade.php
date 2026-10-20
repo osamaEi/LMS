@@ -128,6 +128,9 @@
                 @if(session('success'))
                     <div role="status" class="mb-5 rounded-lg bg-green-50 p-4 text-sm text-green-800">{{ session('success') }}</div>
                 @endif
+                @if(session('error'))
+                    <div role="alert" class="mb-5 rounded-lg bg-red-50 p-4 text-sm text-red-800">{{ session('error') }}</div>
+                @endif
                 <form method="POST" action="{{ route('login') }}" class="space-y-5">
                     @csrf
 

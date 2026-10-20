@@ -51,5 +51,24 @@ return Application::configure(basePath: dirname(__DIR__))
         $schedule->command('payments:send-reminders --days=3')->dailyAt('09:00');
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        // 419 (expired session / stale CSRF token): instead of a dead "Page
+        // Expired" screen, send the user back to the form with a fresh token.
+        $exceptions->render(function (\Symfony\Component\HttpKernel\Exception\HttpException $e, \Illuminate\Http\Request $request) {
+            if ($e->getStatusCode() !== 419 || $request->expectsJson()) {
+                return null;
+            }
+
+            $message = 'انتهت صلاحية الصفحة، يرجى المحاولة مرة أخرى.';
+
+            // A stale login form: go back to a fresh login page.
+            if ($request->routeIs('login', 'login.*') || !auth()->check()) {
+                return redirect()->route('login')
+                    ->withInput($request->except('password', 'password_confirmation', '_token'))
+                    ->with('error', $message);
+            }
+
+            return redirect()->back()
+                ->withInput($request->except('password', 'password_confirmation', '_token'))
+                ->with('error', $message);
+        });
     })->create();

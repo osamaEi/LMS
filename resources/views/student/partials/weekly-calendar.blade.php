@@ -112,7 +112,7 @@
     }
     function weekStartCal(d){ const c=new Date(d); c.setDate(c.getDate()-c.getDay()); c.setHours(0,0,0,0); return c; }
     function sessionsOnDayCal(date){ return CAL_SESSIONS.filter(s=>s.scheduled_at&&sameDayCal(new Date(s.scheduled_at),date)).sort((a,b)=>new Date(a.scheduled_at)-new Date(b.scheduled_at)); }
-    function quizzesOnDayCal(date){ return CAL_QUIZZES.filter(q=>q.starts_at&&sameDayCal(new Date(q.starts_at),date)); }
+    function quizzesOnDayCal(date){ return CAL_QUIZZES.filter(q=>q.starts_at&&sameDayCal(new Date(q.starts_at),date)).sort((a,b)=>new Date(a.starts_at)-new Date(b.starts_at)); }
 
     function openQuizCal(q){
         document.getElementById('smTitle').textContent = '📝 ' + (q.title||'اختبار');
@@ -263,7 +263,7 @@
             </td>`;
             // Build quiz cards for this day — keyed by period index so each quiz lands once
             const typeColors = {quiz:'#0891b2',midterm:'#a21caf',final:'#7c3aed',exam:'#7c3aed',homework:'#ca8a04',paper:'#475569'};
-            const quizCellMap = {}; // pi -> html
+            const quizCellMap = {}; // pi -> all quiz cards in this period
             quizzesOnDayCal(d).forEach(q=>{
                 const dt = new Date(q.starts_at);
                 const mins = dt.getHours()*60 + dt.getMinutes();
@@ -289,13 +289,14 @@
                     stateBadge = `<span style="background:#fef3c7;color:#b45309;font-size:10px;font-weight:700;padding:1px 6px;border-radius:20px;">متاح الآن</span>`;
                     borderColor = tc;
                 }
-                const card = `<div onclick='openQuizCal(${JSON.stringify(q)})' style="background:#fdfaff;border-right:4px solid ${borderColor};border-radius:6px;padding:6px 8px;margin-bottom:4px;line-height:1.35;cursor:pointer;">
+                const card = `<div onclick='openQuizCal(${JSON.stringify(q)})' style="background:#fdfaff;border-right:4px solid ${borderColor};border-radius:6px;padding:6px 8px;line-height:1.35;cursor:pointer;">
                     <div style="font-size:10px;font-weight:700;color:${tc};margin-bottom:2px;">📝 ${q.type_label||'اختبار'}</div>
                     <div style="font-size:12px;font-weight:700;color:#1e293b;">${q.title}</div>
                     ${q.subject_name?`<div style="font-size:10px;color:#64748b;">${q.subject_name}</div>`:''}
+                    <div style="font-size:10px;color:#64748b;">${fmtTimeCal(q.starts_at)}</div>
                     <div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:3px;">${stateBadge}</div>
                 </div>`;
-                quizCellMap[pi] = (quizCellMap[pi]||'') + card;
+                (quizCellMap[pi] = quizCellMap[pi] || []).push(card);
             });
 
             PERIODS_CAL.forEach((p,pi)=>{
@@ -332,7 +333,11 @@
                     </div>`;
                 }).join('');
 
-                row+=`<td style="min-height:80px;padding:5px;vertical-align:top;border:1px solid #d6e4f0;${isToday?'background:#f8fdff;':''}">${inner}${quizCellMap[pi]||''}</td>`;
+                const quizCards = quizCellMap[pi] || [];
+                const quizzes = quizCards.length
+                    ? `<div style="display:flex;flex-direction:column;gap:4px;">${quizCards.join('')}</div>`
+                    : '';
+                row+=`<td style="min-height:80px;padding:5px;vertical-align:top;border:1px solid #d6e4f0;${isToday?'background:#f8fdff;':''}">${inner}${quizzes}</td>`;
             });
             body+=`<tr>${row}</tr>`;
         });
