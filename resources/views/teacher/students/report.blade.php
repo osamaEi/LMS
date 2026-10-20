@@ -156,7 +156,8 @@
                 'subject_id' => $r['subject_id'],
                 'name'       => $r['name'],
                 'grade'      => $existing['grade'] ?? $attempt['score'] ?? null,
-                'max_grade'  => $existing['max_grade'] ?? $attempt['total_marks'] ?? $defaultMax,
+                // "من" must be a whole number — quiz totals arrive as "40.00".
+                'max_grade'  => (int) round((float) ($existing['max_grade'] ?? $attempt['total_marks'] ?? $defaultMax)),
                 'auto'       => !$existing && $attempt !== null,
             ];
         })->values();
@@ -256,6 +257,9 @@
     const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c =>
         ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
 
+    // "من" inputs only accept whole numbers server-side; totals may be "40.00".
+    const whole = (v) => (v === null || v === undefined || v === '') ? '' : Math.max(1, Math.round(Number(v)));
+
     // One editable line per record; input names mirror the PATCH payload shape.
     function rowHtml(r) {
         if (r.kind === 'attendance') {
@@ -279,7 +283,7 @@
                            value="${r.grade ?? ''}" placeholder="الدرجة" class="dr-num">
                     <span class="dr-lbl">من</span>
                     <input type="number" min="1" step="1" name="homework[${r.id}][max_grade]"
-                           value="${r.max_grade ?? 10}" class="dr-num dr-num-sm">
+                           value="${whole(r.max_grade ?? 10)}" class="dr-num dr-num-sm">
                     <input type="text" name="homework[${r.id}][feedback]"
                            value="${esc(r.feedback ?? '')}" placeholder="ملاحظة" class="dr-txt">
                 </span>
@@ -296,7 +300,7 @@
                            value="${r.grade ?? ''}" placeholder="الدرجة" class="dr-num">
                     <span class="dr-lbl">من</span>
                     <input type="number" min="1" step="1" name="participation[${r.id}][max_grade]"
-                           value="${r.max_grade ?? 10}" class="dr-num dr-num-sm">
+                           value="${whole(r.max_grade ?? 10)}" class="dr-num dr-num-sm">
                     <label class="dr-del">
                         <input type="checkbox" name="participation[${r.id}][delete]" value="1">
                         <span>حذف</span>
@@ -312,7 +316,7 @@
                        value="${r.score ?? ''}" placeholder="الدرجة" class="dr-num">
                 <span class="dr-lbl">من</span>
                 <input type="number" min="1" step="1" name="quizzes[${r.id}][total_marks]"
-                       value="${r.total ?? ''}" class="dr-num dr-num-sm">
+                       value="${whole(r.total)}" class="dr-num dr-num-sm">
             </span>
         </div>`;
     }
