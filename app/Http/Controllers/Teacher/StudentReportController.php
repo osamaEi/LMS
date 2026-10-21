@@ -53,7 +53,7 @@ class StudentReportController extends Controller
             }
         });
 
-        $message = "تم إرسال الدرجات المحفوظة إلى {$sent} طالب مع إشعار.";
+        $message = $sent > 0 ? 'تم الإرسال' : 'لا توجد درجات متاحة للإرسال.';
         if ($skipped > 0) {
             $message .= " تم تخطي {$skipped} طالب لعدم وجود درجات متاحة للإرسال.";
         }
