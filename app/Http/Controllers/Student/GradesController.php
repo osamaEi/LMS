@@ -12,6 +12,11 @@ class GradesController extends Controller
         $overview = $grades->overview(auth()->user());
         $subjectGrades = collect($overview['subjectGrades'])
             ->filter(fn ($data) => $data['final_grade'] !== null || isset($data['breakdown']['total']))
+            ->map(fn ($data) => [
+                'subject' => $data['subject'],
+                'percentage' => $data['percentage'],
+                'grade_label' => $data['grade_label'],
+            ])
             ->all();
 
         return view('student.grades.index', compact('subjectGrades'));
