@@ -9,6 +9,11 @@ class GradesController extends Controller
 {
     public function index(StudentGradesService $grades)
     {
-        return view('student.grades.index', $grades->overview(auth()->user()));
+        $overview = $grades->overview(auth()->user());
+        $subjectGrades = collect($overview['subjectGrades'])
+            ->filter(fn ($data) => $data['final_grade'] !== null || isset($data['breakdown']['total']))
+            ->all();
+
+        return view('student.grades.index', compact('subjectGrades'));
     }
 }

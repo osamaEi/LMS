@@ -1,6 +1,6 @@
 @extends('layouts.dashboard')
 
-@section('title', 'الدرجات والتقييمات')
+@section('title', 'الدرجات النهائية')
 
 @push('styles')
 <style>
@@ -15,12 +15,6 @@
     .grades-back { display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border: 1px solid var(--grade-border); border-radius: 10px; color: inherit; text-decoration: none; font-size: 13px; }
     .grades-back:hover { border-color: #0071aa; }
     .grades-back:focus-visible { outline: 3px solid #bae6fd; outline-offset: 4px; }
-    .grades-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 26px; }
-    .grades-stat { padding: 18px; background: var(--grade-surface); border: 1px solid var(--grade-border); border-radius: 14px; }
-    .grades-stat:first-child { background: #0071aa; color: #fff; border-color: #0071aa; }
-    .grades-stat:first-child span { color: #e0f2fe; }
-    .grades-stat strong { display: block; font-size: 28px; font-weight: 800; font-variant-numeric: tabular-nums; }
-    .grades-stat span { display: block; font-size: 12px; color: var(--grade-muted); margin-top: 4px; }
     .grades-section-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 28px 0 16px; }
     .grades-section-head h2 { font-size: 19px; font-weight: 800; margin: 0 0 5px; }
     .grades-section-head p { color: var(--grade-muted); font-size: 13px; margin: 0; line-height: 1.7; }
@@ -42,36 +36,6 @@
     .grade-poor { background: #fee2e2; color: #991b1b; }
     .course-grade-track { height: 7px; border-radius: 8px; background: #eaf0f5; overflow: hidden; }
     .course-grade-track span { display: block; height: 100%; border-radius: inherit; background: #0071aa; }
-    .course-grade-footer { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--grade-border); font-size: 11px; color: var(--grade-muted); }
-    .course-grade-source { color: #0071aa; font-weight: 700; }
-    .sent-report { background: var(--grade-surface); border: 1px solid var(--grade-border); border-radius: 20px; padding: 22px; margin-bottom: 14px; box-shadow: 0 4px 16px #12324a04; }
-    .sent-report-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
-    .sent-report-head h3 { font-size: 15px; font-weight: 800; margin: 0; }
-    .sent-report-head p { color: var(--grade-muted); font-size: 12px; margin: 4px 0 0; }
-    .sent-report-new { flex-shrink: 0; background: #dcfce7; color: #166534; padding: 5px 11px; border-radius: 9px; font-size: 11px; font-weight: 700; }
-    .sent-report-scroll { overflow-x: auto; }
-    .sent-report-details summary { cursor: pointer; display: list-item; width: fit-content; padding: 10px 16px; border-radius: 10px; background: #0071aa; color: #fff; font-size: 13px; }
-    .sent-report-details summary:focus-visible { outline: 3px solid #38bdf8; outline-offset: 3px; }
-    .sent-report-details[open] summary { margin-bottom: 14px; }
-    .report-subject { padding: 18px 0; border-top: 1px solid var(--grade-border); }
-    .report-subject:last-child { padding-bottom: 0; }
-    .report-subject h4 { margin: 0 0 16px; font-size: 15px; overflow-wrap: anywhere; }
-    .report-marks { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; margin: 0; }
-    .report-mark { padding: 16px 12px; border: 1px solid var(--grade-border); border-radius: 12px; text-align: center; }
-    .report-mark dt { color: var(--grade-muted); font-size: 12px; }
-    .report-mark dd { margin: 12px 0 0; font-size: 26px; font-weight: 800; font-variant-numeric: tabular-nums; }
-    .report-mark small { color: var(--grade-muted); font-size: 12px; font-weight: 400; }
-    .report-mark-total { border-color: #0071aa; background: #0071aa; color: #fff; }
-    .report-mark-total dt, .report-mark-total small { color: #e0f2fe; }
-    .report-mark-total span { display: block; margin-top: 8px; font-size: 11px; }
-    .report-preview { margin: 0 0 16px; font-size: 13px; line-height: 1.8; color: var(--grade-muted); overflow-wrap: anywhere; }
-    .sent-report-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 520px; }
-    .sent-report-table th, .sent-report-table td { padding: 11px 10px; text-align: center; border-bottom: 1px solid var(--grade-border); font-variant-numeric: tabular-nums; }
-    .sent-report-table thead th { font-size: 11px; font-weight: 700; color: var(--grade-muted); }
-    .sent-report-table tbody th[scope="row"] { text-align: right; font-weight: 700; overflow-wrap: anywhere; }
-    .sent-report-table tbody tr:last-child th, .sent-report-table tbody tr:last-child td { border-bottom: 0; }
-    .sent-report-total { font-weight: 800; color: #0071aa; }
-    .sent-report-total small { font-weight: 500; color: var(--grade-muted); }
     .grades-note { display: flex; align-items: flex-start; gap: 12px; background: #edf6fb; border: 1px solid #d6eaf5; border-radius: 16px; padding: 18px 20px; margin-top: 22px; }
     .grades-note svg { flex-shrink: 0; color: #0071aa; margin-top: 2px; }
     .grades-note h2 { font-size: 13px; font-weight: 800; margin: 0 0 5px; }
@@ -82,20 +46,10 @@
     .grades-empty p { font-size: 14px; color: var(--grade-muted); max-width: 420px; margin: auto; line-height: 1.9; }
     .dark .grades-page { color: #e5edf5; --grade-border: #334155; --grade-muted: #a6b5c7; --grade-surface: #1f2937; }
     .dark .course-grade-icon, .dark .grades-note { background: #173449; border-color: #28506a; }
-    .dark .course-grade-icon, .dark .course-grade-source, .dark .grades-note svg { color: #7dd3fc; }
     .dark .course-grade-track { background: #334155; }
     .dark .course-grade-track span { background: #38bdf8; }
-    .dark .sent-report-total { color: #7dd3fc; }
-    .dark .sent-report-new { background: #14532d; color: #bbf7d0; }
     @media (max-width: 640px) {
-        .report-marks { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-        .report-mark-total { grid-column: 1 / -1; }
-        .sent-report-details summary { width: 100%; min-height: 44px; }
-        .sent-report { padding: 18px; }
         .grades-hero { padding: 22px 18px; border-radius: 20px; }
-        .grades-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 20px; }
-        .grades-stat { padding: 14px; }
-        .grades-stat strong { font-size: 24px; }
         .grades-grid { grid-template-columns: 1fr; }
         .course-grade { padding: 18px; }
         .grades-section-head { align-items: flex-start; }
@@ -110,25 +64,18 @@
         <div class="grades-topline">
             <div>
                 <p class="grades-eyebrow">سجلك الأكاديمي</p>
-                <h1>الدرجات والتقييمات</h1>
-                <p class="grades-intro">درجاتك في مكان واحد، لمتابعة تقدمك في كل مقرر.</p>
+                <h1>الدرجات النهائية</h1>
+                <p class="grades-intro">درجاتك النهائية في كل مقرر من 100.</p>
             </div>
             <a href="{{ route('student.dashboard') }}" class="grades-back">
                 العودة للوحة التحكم <span aria-hidden="true">←</span>
             </a>
         </div>
     </header>
-        @if(!empty($subjectGrades))
-        <div class="grades-stats">
-            <div class="grades-stat"><strong>{{ number_format($avgPercentage ?? 0, 1) }}<small>%</small></strong><span>متوسط الدرجات المعروضة</span></div>
-            <div class="grades-stat"><strong>{{ count($subjectGrades) }}</strong><span>مقررات لها درجات</span></div>
-            <div class="grades-stat"><strong>{{ $totalQuizzes }}</strong><span>محاولات اختبار مسلّمة</span></div>
-            <div class="grades-stat"><strong>{{ $totalEvaluations }}</strong><span>تقييمات مصحّحة</span></div>
-        </div>
-        @endif
+
 
     <div class="grades-section-head">
-        <div><h2>درجات المقررات</h2><p>اطّلع على درجتك وتقديرك في كل مقرر.</p></div>
+        <div><h2>درجات المقررات</h2><p>اطّلع على درجتك النهائية وتقديرك في كل مقرر.</p></div>
         <span class="grades-count">{{ count($subjectGrades) }} مقرر</span>
     </div>
 
@@ -136,17 +83,12 @@
     <div class="grades-empty">
         <div class="course-grade-icon" aria-hidden="true">—</div>
         <h2>درجاتك ستظهر هنا</h2>
-        @if($sentReports->isNotEmpty())
-        <p>الدرجات التي أرسلها المعلم موضّحة في التقارير أدناه. وعندما تُسجَّل درجتك النهائية أو تُصحّح تقييماتك، ستجد ملخّص المقررات هنا.</p>
-        @else
-        <p>عندما يسجّل المدرب درجتك النهائية أو تُصحّح تقييماتك، ستجد درجات المقررات في هذه الصفحة.</p>
-        @endif
+        <p>عندما يسجّل المدرب درجتك النهائية، ستظهر هنا.</p>
     </div>
     @else
     <div class="grades-grid">
         @foreach($subjectGrades as $data)
         @php
-            $isFinal = $data['final_grade'] !== null || isset($data['breakdown']['total']);
             $score = rtrim(rtrim(number_format($data['percentage'], 2, '.', ''), '0'), '.');
             $badgeClass = match (true) {
                 $data['percentage'] >= 90 => 'grade-excellent',
@@ -169,73 +111,22 @@
             </div>
             <div class="course-grade-score">
                 <div>
-                    <div class="course-grade-number"><bdi>{{ $score }} <small>{{ $isFinal ? '/ 100' : '%' }}</small></bdi></div>
-                    <div class="course-grade-label">{{ $isFinal ? 'الدرجة النهائية من 100' : 'نسبة التقييمات والاختبارات' }}</div>
+                    <div class="course-grade-number"><bdi>{{ $score }} <small>/ 100</small></bdi></div>
+                    <div class="course-grade-label">الدرجة النهائية من 100</div>
                 </div>
                 <span class="course-grade-badge {{ $badgeClass }}">{{ $data['grade_label'] }}</span>
             </div>
             <div class="course-grade-track" aria-hidden="true"><span style="width: {{ max(0, min(100, $data['percentage'])) }}%;"></span></div>
-            <div class="course-grade-footer">
-                <span class="course-grade-source">{{ $isFinal ? 'درجة نهائية مسجّلة' : 'نسبة محسوبة' }}</span>
-                <span>{{ $data['evaluations']->count() }} تقييم · {{ $data['attempts']->count() }} محاولة اختبار</span>
-            </div>
         </article>
         @endforeach
     </div>
     @endif
 
-    @if($sentReports->isNotEmpty())
-    <div class="grades-section-head">
-        <div><h2>درجات أرسلها المعلم</h2><p>تفاصيل الدرجات كما اعتمدها المعلم وأرسلها إليك.</p></div>
-        <span class="grades-count">{{ $sentReports->count() }} إرسال</span>
-    </div>
-
-    @foreach($sentReports as $report)
-    <article class="sent-report">
-        <header class="sent-report-head">
-            <div>
-                <h3>{{ $report->teacher_name }}</h3>
-                <p>{{ $report->sent_at->translatedFormat('j F Y — g:i A') }}</p>
-            </div>
-            @if($report->is_unread)
-            <span class="sent-report-new">جديد</span>
-            @endif
-        </header>
-
-        <p class="report-preview">{{ $report->rows->pluck('name')->implode(' · ') }}</p>
-        <details class="sent-report-details">
-        <summary>عرض التفاصيل</summary>
-        <div class="report-subjects">
-            @foreach($report->rows as $row)
-            <section class="report-subject">
-                <h4>{{ $row['name'] }}</h4>
-                <dl class="report-marks">
-                    @foreach(['attendance' => ['الحضور', 10], 'participation' => ['المشاركة', 30], 'midterm' => ['اختبار نصفي', 20], 'final' => ['اختبار نهائي', 40]] as $key => [$label, $max])
-                    <div class="report-mark">
-                        <dt>{{ $label }}</dt>
-                        <dd><bdi>{{ $row[$key] ?? '—' }} <small>/ {{ $max }}</small></bdi></dd>
-                    </div>
-                    @endforeach
-                    <div class="report-mark report-mark-total">
-                        <dt>المجموع</dt>
-                        <dd><bdi>{{ $row['total'] ?? '—' }} <small>/ 100</small></bdi></dd>
-                        <span>{{ implode(' · ', \App\Models\Enrollment::gradeBand(isset($row['total']) ? (float) $row['total'] : null)) }}</span>
-                    </div>
-                </dl>
-            </section>
-            @endforeach
-        </div>
-        </details>
-    </article>
-    @endforeach
-    @endif
-
-
     <aside class="grades-note">
         <svg width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path stroke-linecap="round" d="M12 11v5m0-9v.1"/></svg>
         <div>
             <h2>كيف تُعرض درجاتك؟</h2>
-            <p>تظهر الدرجة النهائية عند تسجيلها من المدرب. قبل ذلك، تظهر النسبة المحسوبة من التقييمات والاختبارات المتاحة. للاستفسار عن درجتك، تواصل مع مدرب المقرر.</p>
+            <p>تظهر الدرجة النهائية عند تسجيلها من المدرب. للاستفسار عن درجتك، تواصل مع مدرب المقرر.</p>
         </div>
     </aside>
 </div>
