@@ -670,6 +670,7 @@ Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')
 
     // Students
     Route::get('/students', [\App\Http\Controllers\Teacher\StudentsController::class, 'index'])->name('students.index');
+    Route::post('/students/groups/{class}/report/send', [\App\Http\Controllers\Teacher\StudentReportController::class, 'sendGroup'])->name('students.groups.report.send');
     Route::get('/students/{student}/report', [\App\Http\Controllers\Teacher\StudentReportController::class, 'show'])->name('students.report.show');
     Route::patch('/students/{student}/report', [\App\Http\Controllers\Teacher\StudentReportController::class, 'update'])->name('students.report.update');
     Route::post('/students/{student}/report/send', [\App\Http\Controllers\Teacher\StudentReportController::class, 'send'])->name('students.report.send');

@@ -102,7 +102,7 @@ class StudentReportClassScopeTest extends HomeworkTestCase
         \Illuminate\Support\Facades\Notification::assertNothingSent();
     }
 
-    public function test_sending_grades_notifies_only_target_student_with_scoped_saved_grades(): void
+    private function buildGradesSchema(): void
     {
         foreach ([new \App\Models\Quiz, new \App\Models\QuizAttempt, new \App\Models\Attendance,
             new \App\Models\ParticipationMark, new \App\Models\AttendanceApology] as $model) {
@@ -118,6 +118,59 @@ class StudentReportClassScopeTest extends HomeworkTestCase
             $table->decimal('final_grade')->nullable();
             $table->string('grade_letter')->nullable();
         });
+    }
+
+    public function test_group_send_notifies_each_member_once_with_their_saved_report_grades(): void
+    {
+        $this->buildGradesSchema();
+        \Illuminate\Support\Facades\Notification::fake();
+        $teacher = User::factory()->create(['role' => 'teacher', 'status' => 'active']);
+        $program = Program::factory()->create();
+        $class = \App\Models\ProgramClass::create(['program_id' => $program->id, 'name' => 'Target']);
+        $otherClass = \App\Models\ProgramClass::create(['program_id' => $program->id, 'name' => 'Other']);
+        $subject = Subject::create(['name_ar' => 'Own subject']);
+        Session::create(['teacher_id' => $teacher->id, 'subject_id' => $subject->id, 'class_id' => $class->id]);
+        $students = User::factory()->count(3)->create(['role' => 'student']);
+        $students[0]->forceFill(['class_id' => $class->id])->save();
+        $students[0]->programs()->attach($program, ['class_id' => $class->id]);
+        $students[1]->programs()->attach($program, ['class_id' => $class->id]);
+        $students[2]->programs()->attach($program);
+        DB::table('student_class_memberships')->insert(['student_id' => $students[2]->id, 'class_id' => $class->id]);
+        $outsider = User::factory()->create(['role' => 'student']);
+        $outsider->forceFill(['class_id' => $otherClass->id])->save();
+        foreach ($students as $index => $student) {
+            DB::table('enrollments')->insert(['student_id' => $student->id, 'subject_id' => $subject->id, 'final_grade' => 80 + $index]);
+        }
+
+        $this->actingAs($teacher)->post(route('teacher.students.groups.report.send', $class))
+            ->assertRedirect(route('teacher.students.index'))->assertSessionHas('success');
+
+        foreach ($students as $index => $student) {
+            \Illuminate\Support\Facades\Notification::assertSentTo($student, \App\Notifications\TeacherGradesNotification::class,
+                function ($notification) use ($subject, $index, $teacher) {
+                    $this->assertSame($teacher->id, $notification->teacherId);
+                    $this->assertSame([$subject->id], array_column($notification->grades, 'subject_id'));
+                    $this->assertEquals(80 + $index, $notification->grades[0]['total']);
+                    return true;
+                });
+        }
+        \Illuminate\Support\Facades\Notification::assertNotSentTo($outsider, \App\Notifications\TeacherGradesNotification::class);
+        \Illuminate\Support\Facades\Notification::assertCount(3);
+    }
+
+    public function test_group_send_rejects_another_teachers_class(): void
+    {
+        \Illuminate\Support\Facades\Notification::fake();
+        $teacher = User::factory()->create(['role' => 'teacher', 'status' => 'active']);
+        $class = \App\Models\ProgramClass::create(['program_id' => Program::factory()->create()->id, 'name' => 'Other']);
+        Session::create(['teacher_id' => 999, 'class_id' => $class->id]);
+        $this->actingAs($teacher)->post(route('teacher.students.groups.report.send', $class))->assertForbidden();
+        \Illuminate\Support\Facades\Notification::assertNothingSent();
+    }
+
+    public function test_sending_grades_notifies_only_target_student_with_scoped_saved_grades(): void
+    {
+        $this->buildGradesSchema();
         \Illuminate\Support\Facades\Notification::fake();
         $teacher = User::factory()->create(['role' => 'teacher', 'status' => 'active']);
         $student = User::factory()->create(['role' => 'student']);

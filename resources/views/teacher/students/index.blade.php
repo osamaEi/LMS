@@ -5,6 +5,10 @@
 @section('content')
 <div style="direction:rtl;font-family:'Segoe UI',sans-serif;">
 
+@if(session('success'))
+    <div role="status" style="padding:14px 18px;margin-bottom:16px;border-radius:12px;background:#dcfce7;color:#166534;">{{ session('success') }}</div>
+@endif
+
 {{-- Header --}}
 <div style="background:linear-gradient(135deg,#0f172a 0%,#1e3a5f 55%,#0071AA 100%);border-radius:20px;padding:24px 28px;margin-bottom:24px;position:relative;overflow:hidden;">
     <div style="position:absolute;top:-60px;left:-60px;width:220px;height:220px;background:rgba(255,255,255,.05);border-radius:50%;pointer-events:none;"></div>
@@ -53,12 +57,20 @@
      tabindex="0" @if(!$loop->first) hidden @endif
      style="background:white;border-radius:18px;border:1px solid #e5e7eb;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:20px;">
     {{-- Class header --}}
-    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 18px;background:#f8fafc;border-bottom:1px solid #eef2f7;">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;padding:14px 18px;background:#f8fafc;border-bottom:1px solid #eef2f7;">
         <div style="display:flex;align-items:center;gap:10px;">
             <span style="width:30px;height:30px;border-radius:9px;background:#e0f2fe;color:#0071AA;display:flex;align-items:center;justify-content:center;font-size:14px;">🏫</span>
             <span style="font-weight:700;color:#1e293b;font-size:14px;">{{ $group['name'] }}</span>
         </div>
-        <span style="background:#eff6ff;color:#1d4ed8;border-radius:999px;padding:3px 12px;font-size:11px;font-weight:700;">{{ count($group['students']) }} طالب</span>
+        <div style="display:flex;align-items:center;flex-wrap:wrap;gap:12px;">
+            <span style="background:#eff6ff;color:#1d4ed8;border-radius:999px;padding:3px 12px;font-size:11px;font-weight:700;">{{ count($group['students']) }} طالب</span>
+            @if($group['class_id'])
+                <form method="POST" action="{{ route('teacher.students.groups.report.send', $group['class_id']) }}" onsubmit="const button = this.querySelector('button'); button.disabled = true; button.textContent = 'جارٍ إرسال الدرجات...';" style="margin:0;">
+                    @csrf
+                    <button type="submit" style="background:#0071AA;color:#fff;border:0;padding:10px 14px;border-radius:9px;font:inherit;font-size:12px;font-weight:700;cursor:pointer;">إرسال الدرجات لكل طلاب المجموعة</button>
+                </form>
+            @endif
+        </div>
     </div>
 
     <div style="overflow-x:auto;">

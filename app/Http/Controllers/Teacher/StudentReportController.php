@@ -23,6 +23,55 @@ use Illuminate\Support\Facades\DB;
  */
 class StudentReportController extends Controller
 {
+    public function sendGroup(\App\Models\ProgramClass $class)
+    {
+        $teacher = auth()->user();
+        abort_unless(Session::where('teacher_id', $teacher->id)->where('class_id', $class->id)->exists(), 403);
+
+        $studentIds = app(\App\Services\ProgramClassService::class)->studentIds($class);
+        $sent = 0;
+        $skipped = 0;
+
+        // Database notifications are committed together so a failed request can be retried safely.
+        DB::transaction(function () use ($teacher, $class, $studentIds, &$sent, &$skipped) {
+            foreach (User::whereIn('id', $studentIds)->where('role', 'student')->with('programs')->get() as $student) {
+                if (!$student->allClassIds()->contains($class->id)) {
+                    continue;
+                }
+                $scope = $this->scope($teacher, $student);
+                if ($scope['subject_ids']->isEmpty()) {
+                    $skipped++;
+                    continue;
+                }
+                $grades = $this->notificationGrades($student, $scope);
+                if (empty($grades)) {
+                    $skipped++;
+                    continue;
+                }
+                $student->notify(new \App\Notifications\TeacherGradesNotification($teacher->id, $teacher->name, $grades));
+                $sent++;
+            }
+        });
+
+        $message = "تم إرسال الدرجات المحفوظة إلى {$sent} طالب مع إشعار.";
+        if ($skipped > 0) {
+            $message .= " تم تخطي {$skipped} طالب لعدم وجود درجات متاحة للإرسال.";
+        }
+
+        return redirect()->route('teacher.students.index')->with('success', $message);
+    }
+
+    private function notificationGrades(User $student, array $scope, ?int $subjectId = null): array
+    {
+        $report = $this->buildReport($student, $scope);
+
+        return $report['marks']['rows']
+            ->when($subjectId, fn ($rows) => $rows->where('subject_id', $subjectId))
+            ->map(fn ($row) => \Illuminate\Support\Arr::only($row, [
+                'subject_id', 'name', 'attendance', 'participation', 'midterm', 'final', 'total',
+            ]))->values()->all();
+    }
+
     public function send(Request $request, User $student)
     {
         $teacher = auth()->user();
@@ -32,12 +81,7 @@ class StudentReportController extends Controller
         if (!empty($data['subject_id'])) {
             abort_unless($scope['subject_ids']->contains($data['subject_id']), 403);
         }
-        $report = $this->buildReport($student, $scope);
-        $grades = $report['marks']['rows']
-            ->when(!empty($data['subject_id']), fn ($rows) => $rows->where('subject_id', $data['subject_id']))
-            ->map(fn ($row) => \Illuminate\Support\Arr::only($row, [
-                'subject_id', 'name', 'attendance', 'participation', 'midterm', 'final', 'total',
-            ]))->values()->all();
+        $grades = $this->notificationGrades($student, $scope, $data['subject_id'] ?? null);
         abort_if(empty($grades), 422, 'لا توجد درجات لإرسالها.');
         $student->notify(new \App\Notifications\TeacherGradesNotification($teacher->id, $teacher->name, $grades));
 
