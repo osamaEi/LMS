@@ -765,16 +765,21 @@
             @method('PUT')
             <div class="inline-form-grid">
                 <div class="field full">
-                    <label>عنوان الاختبار (عربي) *</label>
-                    <input type="text" name="title_ar" value="{{ old('title_ar', $quiz->title_ar) }}" required>
+                    <label>عنوان الاختبار (عربي)</label>
+                    <input type="text" name="title_ar" value="{{ old('title_ar', $quiz->getRawOriginal('title_ar')) }}">
                 </div>
                 <div class="field full">
                     <label>العنوان (إنجليزي)</label>
                     <input type="text" name="title_en" value="{{ old('title_en', $quiz->title_en) }}" dir="ltr">
+                    <small style="font-size:12px;color:#64748b">يكفي العنوان بإحدى اللغتين.</small>
                 </div>
                 <div class="field full">
                     <label>الوصف (عربي)</label>
-                    <textarea name="description_ar">{{ old('description_ar', $quiz->description_ar) }}</textarea>
+                    <textarea name="description_ar">{{ old('description_ar', $quiz->getRawOriginal('description_ar')) }}</textarea>
+                </div>
+                <div class="field full">
+                    <label>الوصف (إنجليزي)</label>
+                    <textarea name="description_en" dir="ltr">{{ old('description_en', $quiz->description_en) }}</textarea>
                 </div>
                 <div class="field">
                     <label>النوع *</label>
@@ -1051,7 +1056,8 @@ function addOption(btn) {
     var row = document.createElement('div');
     row.className = 'opt-row';
     row.innerHTML =
-        '<input type="text" name="options[' + idx + '][text_ar]" placeholder="نص الخيار">' +
+        '<input type="text" name="options[' + idx + '][text_ar]" placeholder="نص الخيار (عربي)">' +
+        '<input type="text" name="options[' + idx + '][text_en]" placeholder="Option text (English)" dir="ltr">' +
         '<label class="opt-correct"><input type="checkbox" name="options[' + idx + '][is_correct]" value="1"> صحيحة</label>' +
         '<button type="button" class="opt-remove" onclick="removeOption(this)">×</button>';
     wrap.appendChild(row);
@@ -1065,7 +1071,9 @@ function removeOption(btn) {
     btn.closest('.opt-row').remove();
     // Re-index option names so they stay sequential after removal
     wrap.querySelectorAll('.opt-row').forEach(function (r, i) {
-        r.querySelector('input[type="text"]').name = 'options[' + i + '][text_ar]';
+        var texts = r.querySelectorAll('input[type="text"]');
+        texts[0].name = 'options[' + i + '][text_ar]';
+        texts[1].name = 'options[' + i + '][text_en]';
         r.querySelector('input[type="checkbox"]').name = 'options[' + i + '][is_correct]';
     });
 }
@@ -1075,7 +1083,7 @@ function removeOption(btn) {
 document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('#addQuestionBox form, .edit-form form').forEach(syncQuestionType);
 
-    @if(($errors ?? null) && $errors->any() && old('title_ar'))
+    @if(($errors ?? null) && $errors->any() && (old('title_ar') || old('title_en')))
         toggleQuizEdit();           // quiz settings form had the error
     @elseif(($errors ?? null) && $errors->any() && old('question_ar'))
         openAddQuestion();          // a question form had the error

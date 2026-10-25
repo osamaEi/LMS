@@ -415,7 +415,7 @@
                     <div class="px-6 py-5 sm:px-8 sm:py-6">
                         <!-- Question Text -->
                         <div class="mb-6">
-                            <p class="text-base sm:text-lg font-medium text-gray-900 dark:text-white leading-relaxed">{{ $question->question_ar }}</p>
+                            <p dir="auto" class="text-base sm:text-lg font-medium text-gray-900 dark:text-white leading-relaxed">{{ $question->question_ar }}</p>
                             @if($question->question_en)
                             <p class="mt-1.5 text-sm sm:text-base font-medium text-gray-700 dark:text-gray-300 leading-relaxed" dir="ltr">{{ $question->question_en }}</p>
                             @endif
@@ -445,7 +445,7 @@
                                         <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
                                     </svg>
                                     @endif
-                                    <span class="text-base font-bold text-gray-900 dark:text-white">{{ $option->option_ar }}</span>
+                                    <span dir="auto" class="text-base font-bold text-gray-900 dark:text-white">{{ $option->option_ar }}</span>
                                 </label>
                                 @endforeach
                             </div>
@@ -460,7 +460,7 @@
                                     <span class="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 flex-shrink-0">
                                         {{ ['أ', 'ب', 'ج', 'د', 'هـ'][$optIndex] ?? ($optIndex + 1) }}
                                     </span>
-                                    <span class="text-gray-900 dark:text-white text-base flex-1">{{ $option->option_ar }}</span>
+                                    <span dir="auto" class="text-gray-900 dark:text-white text-base flex-1">{{ $option->option_ar }}</span>
                                 </label>
                                 @endforeach
                             </div>

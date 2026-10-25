@@ -42,8 +42,8 @@ class QuizController extends Controller
         abort_unless($quiz->created_by == auth()->id(), 403);
         $validated = $request->validate([
             'destination' => ['required', 'string', 'regex:/^\d+:(subject|program):\d+$/'],
-            'title_ar' => 'required|string|max:255',
-            'title_en' => 'nullable|string|max:255',
+            'title_ar' => 'nullable|string|max:255|required_without:title_en',
+            'title_en' => 'nullable|string|max:255|required_without:title_ar',
             'description_ar' => 'nullable|string',
             'description_en' => 'nullable|string',
             'pass_marks' => 'required|numeric|min:0|lte:total_marks',
@@ -64,8 +64,8 @@ class QuizController extends Controller
             'questions.*.explanation_en' => 'nullable|string',
             'questions.*.marks' => 'required|numeric|min:0.01',
             'questions.*.options' => 'nullable|array',
-            'questions.*.options.*.option_ar' => 'required|string',
-            'questions.*.options.*.option_en' => 'nullable|string',
+            'questions.*.options.*.option_ar' => 'nullable|string|required_without:questions.*.options.*.option_en',
+            'questions.*.options.*.option_en' => 'nullable|string|required_without:questions.*.options.*.option_ar',
             'questions.*.options.*.is_correct' => 'required|boolean',
             'type' => 'required|in:quiz,midterm,final,exam,homework,paper',
             'total_marks' => 'required|numeric|min:1',
@@ -76,7 +76,7 @@ class QuizController extends Controller
         $sourceQuestions = $quiz->questions()->get()->keyBy('id');
         foreach ($validated['questions'] as $index => $question) {
             $retainedImage = empty($question['remove_image']) && $sourceQuestions->get($question['source_id'] ?? null)?->image;
-            if (empty(trim($question['question_ar'] ?? ''))) {
+            if (empty(trim($question['question_ar'] ?? '')) && empty(trim($question['question_en'] ?? ''))) {
                 if (empty($question['image']) && !$retainedImage) {
                     throw \Illuminate\Validation\ValidationException::withMessages([
                         "questions.$index.question_ar" => 'أدخل نص السؤال أو ارفع صورة له.',
@@ -114,9 +114,10 @@ class QuizController extends Controller
             // Array form so the regex's "|" isn't parsed as a rule separator.
             'target'           => ['required', 'string', 'regex:/^(subject|program):\d+$/'],
             'class_id'         => 'required|exists:program_classes,id',
-            'title_ar'         => 'required|string|max:255',
-            'title_en'         => 'nullable|string|max:255',
+            'title_ar'         => 'nullable|string|max:255|required_without:title_en',
+            'title_en'         => 'nullable|string|max:255|required_without:title_ar',
             'description_ar'   => 'nullable|string',
+            'description_en'   => 'nullable|string',
             'type'             => 'required|in:quiz,midterm,final,exam,homework,paper',
             'duration_minutes' => 'nullable|integer|min:1',
             'total_marks'      => 'required|numeric|min:1',
@@ -131,9 +132,10 @@ class QuizController extends Controller
         $classId  = (int) $validated['class_id'];
 
         $attributes = [
-            'title_ar'         => $validated['title_ar'],
+            'title_ar'         => $validated['title_ar'] ?? null,
             'title_en'         => $validated['title_en'] ?? null,
             'description_ar'   => $validated['description_ar'] ?? null,
+            'description_en'   => $validated['description_en'] ?? null,
             'type'             => $validated['type'],
             'duration_minutes' => $validated['duration_minutes'] ?? null,
             'total_marks'      => $validated['total_marks'],
@@ -196,8 +198,8 @@ class QuizController extends Controller
         $subject = Subject::assignedToTeacher($teacher->id)->findOrFail($subjectId);
 
         $validated = $request->validate([
-            'title_ar' => 'required|string|max:255',
-            'title_en' => 'nullable|string|max:255',
+            'title_ar' => 'nullable|string|max:255|required_without:title_en',
+            'title_en' => 'nullable|string|max:255|required_without:title_ar',
             'description_ar' => 'nullable|string',
             'description_en' => 'nullable|string',
             'type' => 'required|in:quiz,midterm,final,exam,homework,paper',
@@ -211,7 +213,7 @@ class QuizController extends Controller
 
         try {
             $quiz = $this->quizService->create($subjectId, $teacher->id, [
-                'title_ar' => $validated['title_ar'],
+                'title_ar' => $validated['title_ar'] ?? null,
                 'title_en' => $validated['title_en'] ?? null,
                 'description_ar' => $validated['description_ar'] ?? null,
                 'description_en' => $validated['description_en'] ?? null,
@@ -342,8 +344,8 @@ class QuizController extends Controller
         $validated = $request->validate([
             'target' => ['nullable', 'string', 'regex:/^(subject|program):\d+$/'],
             'class_id' => 'nullable|exists:program_classes,id',
-            'title_ar' => 'required|string|max:255',
-            'title_en' => 'nullable|string|max:255',
+            'title_ar' => 'nullable|string|max:255|required_without:title_en',
+            'title_en' => 'nullable|string|max:255|required_without:title_ar',
             'description_ar' => 'nullable|string',
             'description_en' => 'nullable|string',
             'type' => 'required|in:quiz,midterm,final,exam,homework,paper',
@@ -416,7 +418,7 @@ class QuizController extends Controller
     }
 
     /**
-     * Remove option rows whose Arabic text is blank, then re-index, so a
+     * Remove option rows with no text in either language, then re-index, so a
      * multiple-choice question submitted with only 2 of 4 boxes filled
      * validates against the remaining (non-empty) options.
      */
@@ -435,7 +437,7 @@ class QuizController extends Controller
         }
 
         $cleaned = array_values(array_filter($options, fn($opt) =>
-            is_array($opt) && trim((string) ($opt['text_ar'] ?? '')) !== ''
+            is_array($opt) && (trim((string) ($opt['text_ar'] ?? '')) !== '' || trim((string) ($opt['text_en'] ?? '')) !== '')
         ));
 
         $request->merge(['options' => $cleaned]);
@@ -443,7 +445,7 @@ class QuizController extends Controller
 
     private function prepareImageQuestion(Request $request, ?\App\Models\Question $question = null): void
     {
-        if (!$request->filled('question_ar') && ($request->hasFile('image')
+        if (!$request->filled('question_ar') && !$request->filled('question_en') && ($request->hasFile('image')
             || ($question?->image && !$request->boolean('remove_image')))) {
             $request->merge(['question_ar' => 'سؤال بالصورة']);
         }
@@ -460,25 +462,11 @@ class QuizController extends Controller
 
         $quiz = $this->quizzes->findForSubject($subjectId, $quizId);
 
-        // Drop option rows with no Arabic text so half-filled choice lists validate.
+        // Drop option rows with no text so half-filled choice lists validate.
         $this->prepareImageQuestion($request, $question ?? null);
         $this->pruneEmptyOptions($request);
 
-        $validated = $request->validate([
-            'type' => 'required|in:multiple_choice,true_false,short_answer,essay',
-            'question_ar' => 'required|string',
-            'question_en' => 'nullable|string',
-            'explanation_ar' => 'nullable|string',
-            'explanation_en' => 'nullable|string',
-            'marks' => 'required|numeric|min:0',
-            'order' => 'required|integer|min:1',
-            'image' => 'nullable|image|max:2048',
-            'options' => 'required_if:type,multiple_choice|array|min:2',
-            'options.*.text_ar' => 'required_if:type,multiple_choice|string',
-            'options.*.text_en' => 'nullable|string',
-            'options.*.is_correct' => 'nullable|boolean',
-            'correct_answer' => 'required_if:type,true_false|in:true,false',
-        ]);
+        $validated = $request->validate($this->questionRules());
 
         try {
             $this->quizService->createQuestion($quiz, $validated, $request->file('image'));
@@ -525,26 +513,11 @@ class QuizController extends Controller
 
         $question = $this->quizzes->findQuestion($quizId, $questionId);
 
-        // Drop option rows with no Arabic text so half-filled choice lists validate.
+        // Drop option rows with no text so half-filled choice lists validate.
         $this->prepareImageQuestion($request, $question ?? null);
         $this->pruneEmptyOptions($request);
 
-        $validated = $request->validate([
-            'type' => 'required|in:multiple_choice,true_false,short_answer,essay',
-            'question_ar' => 'required|string',
-            'question_en' => 'nullable|string',
-            'explanation_ar' => 'nullable|string',
-            'explanation_en' => 'nullable|string',
-            'marks' => 'required|numeric|min:0',
-            'order' => 'required|integer|min:1',
-            'image' => 'nullable|image|max:2048',
-            'remove_image' => 'nullable|boolean',
-            'options' => 'required_if:type,multiple_choice|array|min:2',
-            'options.*.text_ar' => 'required_if:type,multiple_choice|string',
-            'options.*.text_en' => 'nullable|string',
-            'options.*.is_correct' => 'nullable|boolean',
-            'correct_answer' => 'required_if:type,true_false|in:true,false',
-        ]);
+        $validated = $request->validate($this->questionRules(withRemoveImage: true));
 
         try {
             $this->quizService->updateQuestion(
@@ -805,21 +778,24 @@ class QuizController extends Controller
         return $program;
     }
 
-    /** Validation rules shared by the store/update question actions. */
+    /**
+     * Validation rules shared by the store/update question actions. Text is
+     * required in at least one language — Arabic or English, not both.
+     */
     private function questionRules(bool $withRemoveImage = false): array
     {
         return array_merge([
             'type' => 'required|in:multiple_choice,true_false,short_answer,essay',
-            'question_ar' => 'required|string',
-            'question_en' => 'nullable|string',
+            'question_ar' => 'nullable|string|required_without:question_en',
+            'question_en' => 'nullable|string|required_without:question_ar',
             'explanation_ar' => 'nullable|string',
             'explanation_en' => 'nullable|string',
             'marks' => 'required|numeric|min:0',
             'order' => 'required|integer|min:1',
             'image' => 'nullable|image|max:2048',
             'options' => 'required_if:type,multiple_choice|array|min:2',
-            'options.*.text_ar' => 'required_if:type,multiple_choice|string',
-            'options.*.text_en' => 'nullable|string',
+            'options.*.text_ar' => 'nullable|string|required_without:options.*.text_en',
+            'options.*.text_en' => 'nullable|string|required_without:options.*.text_ar',
             'options.*.is_correct' => 'nullable|boolean',
             'correct_answer' => 'required_if:type,true_false|in:true,false',
         ], $withRemoveImage ? ['remove_image' => 'nullable|boolean'] : []);
@@ -860,8 +836,8 @@ class QuizController extends Controller
         $validated = $request->validate([
             'target' => ['nullable', 'string', 'regex:/^(subject|program):\d+$/'],
             'class_id' => 'nullable|exists:program_classes,id',
-            'title_ar' => 'required|string|max:255',
-            'title_en' => 'nullable|string|max:255',
+            'title_ar' => 'nullable|string|max:255|required_without:title_en',
+            'title_en' => 'nullable|string|max:255|required_without:title_ar',
             'description_ar' => 'nullable|string',
             'description_en' => 'nullable|string',
             'type' => 'required|in:quiz,midterm,final,exam,homework,paper',

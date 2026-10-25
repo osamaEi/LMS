@@ -49,11 +49,11 @@
             <section class="qd-section" id="quiz-settings">
             <div class="qd-heading"><span class="qd-step">2</span><h2>بيانات الاختبار الجديد</h2></div>
             <div class="qd-dates">
-                <div><label class="qd-label" for="title_ar">اسم الاختبار بالعربية</label><input class="qd-field" id="title_ar" name="title_ar" maxlength="255" required value="{{ old('title_ar', $quiz->title_ar) }}"></div>
-                <div><label class="qd-label" for="title_en">اسم الاختبار بالإنجليزية <span class="qd-optional">اختياري</span></label><input class="qd-field" dir="ltr" id="title_en" name="title_en" maxlength="255" value="{{ old('title_en', $quiz->title_en) }}"></div>
+                <div><label class="qd-label" for="title_ar">اسم الاختبار بالعربية</label><input class="qd-field" id="title_ar" name="title_ar" maxlength="255" value="{{ old('title_ar', $quiz->getRawOriginal('title_ar')) }}"></div>
+                <div><label class="qd-label" for="title_en">اسم الاختبار بالإنجليزية <span class="qd-optional">تكفي إحدى اللغتين</span></label><input class="qd-field" dir="ltr" id="title_en" name="title_en" maxlength="255" value="{{ old('title_en', $quiz->title_en) }}"></div>
             </div>
             <label class="qd-label" for="description_ar" style="margin-top:16px">الوصف بالعربية</label>
-            <textarea class="qd-field" id="description_ar" name="description_ar" rows="3">{{ old('description_ar', $quiz->description_ar) }}</textarea>
+            <textarea class="qd-field" id="description_ar" name="description_ar" rows="3">{{ old('description_ar', $quiz->getRawOriginal('description_ar')) }}</textarea>
             <label class="qd-label" for="description_en" style="margin-top:16px">الوصف بالإنجليزية</label>
             <textarea class="qd-field" dir="ltr" id="description_en" name="description_en" rows="3">{{ old('description_en', $quiz->description_en) }}</textarea>
             <label class="qd-label" for="type">نوع الاختبار</label>

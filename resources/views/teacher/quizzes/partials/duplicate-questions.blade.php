@@ -1,8 +1,9 @@
 @php
+    // Raw attributes: the *_ar accessors fall back to English for display only.
     $initialQuestions = old('questions', $quiz->questions->map(fn ($question) => array_merge(
-        $question->only(['type', 'question_ar', 'question_en', 'explanation_ar', 'explanation_en', 'marks']),
+        Illuminate\Support\Arr::only($question->getAttributes(), ['type', 'question_ar', 'question_en', 'explanation_ar', 'explanation_en', 'marks']),
         ['source_id' => $question->id, 'options' => $question->options->map(fn ($option) => [
-            'option_ar' => $option->option_ar, 'option_en' => $option->option_en,
+            'option_ar' => $option->getRawOriginal('option_ar'), 'option_en' => $option->option_en,
             'is_correct' => (int) $option->is_correct,
         ])->values()->all()]
     ))->values()->all());
@@ -26,7 +27,7 @@
     }
 }">
     <div class="qd-heading"><span class="qd-step">4</span><h2>أسئلة الاختبار الجديد</h2><span class="qd-question-count" x-cloak x-text="questions.length + ' سؤال'"></span></div>
-    <p class="qd-help">أضف نصًا أو صورة للسؤال، وحدد الدرجة والإجابة الصحيحة.</p>
+    <p class="qd-help">أضف نصًا أو صورة للسؤال، وحدد الدرجة والإجابة الصحيحة. اكتب بالعربية للاختبار العربي وبالإنجليزية للاختبار الإنجليزي — تكفي لغة واحدة.</p>
     <template x-for="(question, index) in questions" :key="question.key">
         <div class="qd-question">
             <div class="qd-question-head">
@@ -57,14 +58,14 @@
                     <label class="qd-label" style="margin-top:12px"><input type="checkbox" :name="'questions[' + index + '][remove_image]'" value="1" :checked="Number(question.remove_image) === 1" @change="question.remove_image = $event.target.checked ? 1 : 0; previewImage(question, $el.closest('.qd-upload').querySelector('input[type=file]'))"> حذف الصورة الأصلية من الاختبار الجديد</label>
                 </template>
             </div>
-            <label class="qd-label">السؤال بالإنجليزية<textarea class="qd-field" rows="2" :name="'questions[' + index + '][question_en]'" x-model="question.question_en"></textarea></label>
+            <label class="qd-label">السؤال بالإنجليزية<textarea class="qd-field" rows="2" dir="ltr" :name="'questions[' + index + '][question_en]'" x-model="question.question_en"></textarea></label>
             <template x-if="['multiple_choice', 'true_false'].includes(question.type)">
                 <div class="qd-options">
                     <template x-for="(option, optionIndex) in question.options" :key="optionIndex">
                         <div class="qd-option" :class="{ 'qd-option-correct': Number(option.is_correct) === 1 }">
                             <div class="qd-option-grid">
-                            <label class="qd-label"><span x-text="'الاختيار ' + (optionIndex + 1)"></span><input class="qd-field" required :name="'questions[' + index + '][options][' + optionIndex + '][option_ar]'" x-model="option.option_ar"></label>
-                            <label class="qd-label">الاختيار بالإنجليزية<input class="qd-field" :name="'questions[' + index + '][options][' + optionIndex + '][option_en]'" x-model="option.option_en"></label>
+                            <label class="qd-label"><span x-text="'الاختيار ' + (optionIndex + 1)"></span><input class="qd-field" :required="!option.option_en" :name="'questions[' + index + '][options][' + optionIndex + '][option_ar]'" x-model="option.option_ar"></label>
+                            <label class="qd-label">الاختيار بالإنجليزية<input class="qd-field" dir="ltr" :required="!option.option_ar" :name="'questions[' + index + '][options][' + optionIndex + '][option_en]'" x-model="option.option_en"></label>
                             </div>
                             <div class="qd-option-footer">
                             <label class="qd-label">الإجابة

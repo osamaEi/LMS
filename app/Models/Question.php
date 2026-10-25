@@ -26,6 +26,21 @@ class Question extends Model
     ];
 
     /**
+     * English-only questions leave the Arabic columns empty; fall back to the
+     * English text so every view reading *_ar still shows something.
+     * Edit forms read the stored value via getRawOriginal().
+     */
+    public function getQuestionArAttribute($value)
+    {
+        return filled($value) ? $value : ($this->attributes['question_en'] ?? $value);
+    }
+
+    public function getExplanationArAttribute($value)
+    {
+        return filled($value) ? $value : ($this->attributes['explanation_en'] ?? $value);
+    }
+
+    /**
      * Get the question text based on current locale
      */
     public function getQuestionAttribute()

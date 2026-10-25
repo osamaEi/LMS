@@ -433,9 +433,9 @@
                     <!-- Title Arabic -->
                     <div class="form-group">
                         <label for="title_ar">
-                            عنوان الاختبار (عربي) <span class="required">*</span>
+                            عنوان الاختبار (عربي)
                         </label>
-                        <input type="text" name="title_ar" id="title_ar" value="{{ old('title_ar') }}" required
+                        <input type="text" name="title_ar" id="title_ar" value="{{ old('title_ar') }}"
                                class="form-input" placeholder="مثال: الاختبار الأول - الفصل الثاني">
                         @error('title_ar')
                             <p class="error-message">{{ $message }}</p>
@@ -447,8 +447,12 @@
                         <label for="title_en">
                             عنوان الاختبار (إنجليزي)
                         </label>
-                        <input type="text" name="title_en" id="title_en" value="{{ old('title_en') }}"
+                        <input type="text" name="title_en" id="title_en" value="{{ old('title_en') }}" dir="ltr"
                                class="form-input" placeholder="Example: First Quiz - Chapter 2">
+                        @error('title_en')
+                            <p class="error-message">{{ $message }}</p>
+                        @enderror
+                        <p style="font-size:12px;color:#64748b;margin-top:4px;">يكفي العنوان بإحدى اللغتين.</p>
                     </div>
 
                     <!-- Type -->
@@ -592,10 +596,18 @@
 
                 <div class="form-group">
                     <label for="description_ar">
-                        وصف الاختبار وتعليمات للطلاب
+                        وصف الاختبار وتعليمات للطلاب (عربي)
                     </label>
                     <textarea name="description_ar" id="description_ar" rows="4"
                               class="form-input textarea" placeholder="أدخل تعليمات الاختبار هنا...">{{ old('description_ar') }}</textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="description_en">
+                        وصف الاختبار وتعليمات للطلاب (إنجليزي)
+                    </label>
+                    <textarea name="description_en" id="description_en" rows="4" dir="ltr"
+                              class="form-input textarea" placeholder="Quiz instructions...">{{ old('description_en') }}</textarea>
                 </div>
             </div>
 

@@ -4,6 +4,8 @@
     // so edit forms for OTHER questions don't all get overwritten with that input.
     $useOld = $useOld ?? false;
     $field = fn($key, $current) => $useOld ? old($key, $current) : $current;
+    // Stored values only — the *_ar accessors fall back to English for display.
+    $raw = fn($model, $key) => $model?->getRawOriginal($key) ?? '';
 
     $qType = $field('type', $q->type ?? 'multiple_choice');
     $opts  = $q && $q->options->count()
@@ -28,17 +30,22 @@
         <label>الدرجة *</label>
         <input type="number" name="marks" step="0.5" min="0" value="{{ $field('marks', $q->marks ?? 1) }}" required>
     </div>
+    <p class="field full" style="font-size:12px;color:#64748b;margin:0">اكتب بالعربية للاختبار العربي وبالإنجليزية للاختبار الإنجليزي — تكفي لغة واحدة.</p>
     <div class="field full">
         <label>نص السؤال (عربي)</label>
-        <textarea name="question_ar" placeholder="اكتب نص السؤال أو ارفع صورته بالأسفل">{{ $field('question_ar', $q->question_ar ?? '') }}</textarea>
+        <textarea name="question_ar" placeholder="اكتب نص السؤال أو ارفع صورته بالأسفل">{{ $field('question_ar', $raw($q, 'question_ar')) }}</textarea>
     </div>
     <div class="field full">
         <label>نص السؤال (إنجليزي)</label>
-        <textarea name="question_en" dir="ltr">{{ $field('question_en', $q->question_en ?? '') }}</textarea>
+        <textarea name="question_en" dir="ltr" placeholder="Question text">{{ $field('question_en', $q->question_en ?? '') }}</textarea>
     </div>
     <div class="field full">
-        <label>الشرح (يظهر بعد التصحيح)</label>
-        <textarea name="explanation_ar">{{ $field('explanation_ar', $q->explanation_ar ?? '') }}</textarea>
+        <label>الشرح بالعربية (يظهر بعد التصحيح)</label>
+        <textarea name="explanation_ar">{{ $field('explanation_ar', $raw($q, 'explanation_ar')) }}</textarea>
+    </div>
+    <div class="field full">
+        <label>الشرح بالإنجليزية (يظهر بعد التصحيح)</label>
+        <textarea name="explanation_en" dir="ltr">{{ $field('explanation_en', $q->explanation_en ?? '') }}</textarea>
     </div>
 
     {{-- Image --}}
@@ -65,11 +72,12 @@
         @php
             $mcOpts = $qType === 'multiple_choice' && $opts->count()
                 ? $opts
-                : collect([(object)['option_ar'=>'','is_correct'=>false],(object)['option_ar'=>'','is_correct'=>false]]);
+                : collect([(object)['option_ar'=>'','option_en'=>'','is_correct'=>false],(object)['option_ar'=>'','option_en'=>'','is_correct'=>false]]);
         @endphp
         @foreach($mcOpts as $i => $opt)
             <div class="opt-row">
-                <input type="text" name="options[{{ $i }}][text_ar]" value="{{ $opt->option_ar ?? '' }}" placeholder="نص الخيار">
+                <input type="text" name="options[{{ $i }}][text_ar]" value="{{ $opt instanceof \App\Models\QuestionOption ? $opt->getRawOriginal('option_ar') : $opt->option_ar }}" placeholder="نص الخيار (عربي)">
+                <input type="text" name="options[{{ $i }}][text_en]" value="{{ $opt->option_en ?? '' }}" placeholder="Option text (English)" dir="ltr">
                 <label class="opt-correct">
                     <input type="checkbox" name="options[{{ $i }}][is_correct]" value="1" @checked($opt->is_correct ?? false)> صحيحة
                 </label>

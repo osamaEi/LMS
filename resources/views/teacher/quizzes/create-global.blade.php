@@ -78,8 +78,8 @@
         {{-- Title --}}
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
             <div>
-                <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:6px;">عنوان الاختبار (عربي) *</label>
-                <input type="text" name="title_ar" value="{{ old('title_ar') }}" required
+                <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:6px;">عنوان الاختبار (عربي)</label>
+                <input type="text" name="title_ar" value="{{ old('title_ar') }}"
                        style="width:100%;padding:10px 12px;font-size:13px;border:1.5px solid #e2e8f0;border-radius:10px;outline:none;">
             </div>
             <div>
@@ -88,12 +88,20 @@
                        style="width:100%;padding:10px 12px;font-size:13px;border:1.5px solid #e2e8f0;border-radius:10px;outline:none;">
             </div>
         </div>
+        <p style="font-size:12px;color:#64748b;margin-top:-8px;">اكتب بالعربية للاختبار العربي وبالإنجليزية للاختبار الإنجليزي — تكفي لغة واحدة.</p>
 
         {{-- Description --}}
-        <div>
-            <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:6px;">الوصف</label>
-            <textarea name="description_ar" rows="2"
-                      style="width:100%;padding:10px 12px;font-size:13px;border:1.5px solid #e2e8f0;border-radius:10px;outline:none;resize:vertical;">{{ old('description_ar') }}</textarea>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div>
+                <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:6px;">الوصف (عربي)</label>
+                <textarea name="description_ar" rows="2"
+                          style="width:100%;padding:10px 12px;font-size:13px;border:1.5px solid #e2e8f0;border-radius:10px;outline:none;resize:vertical;">{{ old('description_ar') }}</textarea>
+            </div>
+            <div>
+                <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:6px;">الوصف (إنجليزي)</label>
+                <textarea name="description_en" rows="2" dir="ltr"
+                          style="width:100%;padding:10px 12px;font-size:13px;border:1.5px solid #e2e8f0;border-radius:10px;outline:none;resize:vertical;">{{ old('description_en') }}</textarea>
+            </div>
         </div>
 
         {{-- Type + duration --}}

@@ -424,9 +424,14 @@
                     <label for="question_en" class="form-label">
                         نص السؤال (إنجليزي)
                     </label>
-                    <textarea name="question_en" id="question_en" rows="4" class="form-textarea" placeholder="Enter question text here...">{{ old('question_en') }}</textarea>
+                    <textarea name="question_en" id="question_en" rows="4" class="form-textarea" dir="ltr" placeholder="Enter question text here...">{{ old('question_en') }}</textarea>
+                    @error('question_en')
+                        <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
+                    @enderror
                 </div>
             </div>
+
+            <p class="hint-text mb-8" style="margin-top:-1.5rem;">اكتب بالعربية للاختبار العربي وبالإنجليزية للاختبار الإنجليزي — تكفي لغة واحدة.</p>
 
             <!-- Image Upload -->
             <div class="mb-8">
@@ -453,6 +458,7 @@
                         <div class="option-row">
                             <input type="checkbox" name="options[{{ $i }}][is_correct]" value="1" title="تحديد كإجابة صحيحة">
                             <input type="text" name="options[{{ $i }}][text_ar]" placeholder="الخيار {{ $i + 1 }}" class="option-input">
+                            <input type="text" name="options[{{ $i }}][text_en]" placeholder="Option {{ $i + 1 }}" class="option-input" dir="ltr">
                             <button type="button" onclick="removeOption(this)" class="remove-btn" title="حذف الخيار">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -484,9 +490,13 @@
             <!-- Explanation -->
             <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
                 <label for="explanation_ar" class="form-label">
-                    شرح الإجابة (اختياري)
+                    شرح الإجابة بالعربية (اختياري)
                 </label>
                 <textarea name="explanation_ar" id="explanation_ar" rows="3" class="form-textarea" placeholder="شرح يظهر لل متدرب بعد إجابة السؤال...">{{ old('explanation_ar') }}</textarea>
+                <label for="explanation_en" class="form-label mt-4">
+                    شرح الإجابة بالإنجليزية (اختياري)
+                </label>
+                <textarea name="explanation_en" id="explanation_en" rows="3" class="form-textarea" dir="ltr">{{ old('explanation_en') }}</textarea>
             </div>
 
             <!-- Submit Buttons -->
@@ -537,6 +547,7 @@ function addOption() {
         <div class="option-row">
             <input type="checkbox" name="options[${optionIndex}][is_correct]" value="1" title="تحديد كإجابة صحيحة">
             <input type="text" name="options[${optionIndex}][text_ar]" placeholder="الخيار ${optionIndex + 1}" class="option-input">
+            <input type="text" name="options[${optionIndex}][text_en]" placeholder="Option ${optionIndex + 1}" class="option-input" dir="ltr">
             <button type="button" onclick="removeOption(this)" class="remove-btn" title="حذف الخيار">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>

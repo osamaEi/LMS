@@ -45,6 +45,21 @@ class Quiz extends Model
     ];
 
     /**
+     * English-only quizzes leave the Arabic columns empty; fall back to the
+     * English text so every view reading *_ar still shows something.
+     * Edit forms read the stored value via getRawOriginal().
+     */
+    public function getTitleArAttribute($value)
+    {
+        return filled($value) ? $value : ($this->attributes['title_en'] ?? $value);
+    }
+
+    public function getDescriptionArAttribute($value)
+    {
+        return filled($value) ? $value : ($this->attributes['description_en'] ?? $value);
+    }
+
+    /**
      * Get the title based on current locale
      */
     public function getTitleAttribute()

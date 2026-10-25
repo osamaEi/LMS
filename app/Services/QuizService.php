@@ -226,9 +226,10 @@ class QuizService
                 $this->retarget($copy, $target, $classId, $teacherId);
 
                 $sourceQuestions = $source->questions()->with('options')->get()->keyBy('id');
+                // Raw attributes, so the *_ar → English display fallback isn't copied in.
                 $questions = $schedule['questions'] ?? $sourceQuestions->map(fn ($question) => array_merge(
-                    $question->only(['type', 'question_ar', 'question_en', 'explanation_ar', 'explanation_en', 'marks']),
-                    ['source_id' => $question->id, 'options' => $question->options->toArray()]
+                    \Illuminate\Support\Arr::only($question->getAttributes(), ['type', 'question_ar', 'question_en', 'explanation_ar', 'explanation_en', 'marks']),
+                    ['source_id' => $question->id, 'options' => $question->options->map->getAttributes()->all()]
                 ))->values()->all();
                 foreach (array_values($questions) as $index => $data) {
                     $question = !empty($data['source_id']) ? $sourceQuestions->get($data['source_id']) : null;
@@ -348,7 +349,7 @@ class QuizService
                 $question = Question::create([
                     'quiz_id'        => $quiz->id,
                     'type'           => $data['type'],
-                    'question_ar'    => $data['question_ar'],
+                    'question_ar'    => $data['question_ar'] ?? null,
                     'question_en'    => $data['question_en'] ?? null,
                     'explanation_ar' => $data['explanation_ar'] ?? null,
                     'explanation_en' => $data['explanation_en'] ?? null,
@@ -387,7 +388,7 @@ class QuizService
         return DB::transaction(function () use ($question, $data, $imagePath) {
             $question->update([
                 'type'           => $data['type'],
-                'question_ar'    => $data['question_ar'],
+                'question_ar'    => $data['question_ar'] ?? null,
                 'question_en'    => $data['question_en'] ?? null,
                 'explanation_ar' => $data['explanation_ar'] ?? null,
                 'explanation_en' => $data['explanation_en'] ?? null,
@@ -422,7 +423,7 @@ class QuizService
             foreach ($data['options'] as $index => $option) {
                 QuestionOption::create([
                     'question_id' => $question->id,
-                    'option_ar'   => $option['text_ar'],
+                    'option_ar'   => $option['text_ar'] ?? null,
                     'option_en'   => $option['text_en'] ?? null,
                     'is_correct'  => isset($option['is_correct']) && $option['is_correct'],
                     'order'       => $index + 1,

@@ -384,7 +384,7 @@
                     <label for="question_ar" class="form-label">
                         نص السؤال (عربي أو صورة)
                     </label>
-                    <textarea name="question_ar" id="question_ar" rows="4" class="form-textarea" placeholder="اكتب نص السؤال هنا...">{{ old('question_ar', $question->question_ar) }}</textarea>
+                    <textarea name="question_ar" id="question_ar" rows="4" class="form-textarea" placeholder="اكتب نص السؤال هنا...">{{ old('question_ar', $question->getRawOriginal('question_ar')) }}</textarea>
                 </div>
 
                 <!-- Question English -->
@@ -392,7 +392,7 @@
                     <label for="question_en" class="form-label">
                         نص السؤال (إنجليزي)
                     </label>
-                    <textarea name="question_en" id="question_en" rows="4" class="form-textarea" placeholder="Enter question text here...">{{ old('question_en', $question->question_en) }}</textarea>
+                    <textarea name="question_en" id="question_en" rows="4" class="form-textarea" dir="ltr" placeholder="Enter question text here...">{{ old('question_en', $question->question_en) }}</textarea>
                 </div>
             </div>
 
@@ -421,8 +421,11 @@
                     <div class="option-row">
                         <input type="radio" name="correct_option" value="{{ $index }}" {{ $option->is_correct ? 'checked' : '' }}>
                         <input type="text" name="options[{{ $index }}][text_ar]"
-                               value="{{ old('options.' . $index . '.text_ar', $option->option_text_ar) }}"
+                               value="{{ old('options.' . $index . '.text_ar', $option->getRawOriginal('option_ar')) }}"
                                class="option-input" placeholder="نص الخيار (عربي)">
+                        <input type="text" name="options[{{ $index }}][text_en]"
+                               value="{{ old('options.' . $index . '.text_en', $option->option_en) }}"
+                               class="option-input" placeholder="Option text (English)" dir="ltr">
                         <input type="hidden" name="options[{{ $index }}][id]" value="{{ $option->id }}">
                         @if($index > 1)
                         <button type="button" onclick="removeOption(this)" class="remove-btn" title="حذف الخيار">
@@ -448,9 +451,13 @@
             <!-- Explanation -->
             <div class="mb-8">
                 <label for="explanation_ar" class="form-label">
-                    شرح الإجابة (اختياري)
+                    شرح الإجابة بالعربية (اختياري)
                 </label>
-                <textarea name="explanation_ar" id="explanation_ar" rows="3" class="form-textarea" placeholder="سيظهر لل متدرب بعد تسليم الاختبار...">{{ old('explanation_ar', $question->explanation_ar) }}</textarea>
+                <textarea name="explanation_ar" id="explanation_ar" rows="3" class="form-textarea" placeholder="سيظهر لل متدرب بعد تسليم الاختبار...">{{ old('explanation_ar', $question->getRawOriginal('explanation_ar')) }}</textarea>
+                <label for="explanation_en" class="form-label mt-4">
+                    شرح الإجابة بالإنجليزية (اختياري)
+                </label>
+                <textarea name="explanation_en" id="explanation_en" rows="3" class="form-textarea" dir="ltr">{{ old('explanation_en', $question->explanation_en) }}</textarea>
             </div>
 
             <!-- Submit Buttons -->
@@ -507,6 +514,7 @@
         newOption.innerHTML = `
             <input type="radio" name="correct_option" value="${optionCount}">
             <input type="text" name="options[${optionCount}][text_ar]" class="option-input" placeholder="نص الخيار (عربي)">
+            <input type="text" name="options[${optionCount}][text_en]" class="option-input" placeholder="Option text (English)" dir="ltr">
             <button type="button" onclick="removeOption(this)" class="remove-btn" title="حذف الخيار">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
@@ -524,8 +532,9 @@
             // Re-index remaining options
             document.querySelectorAll('.option-row').forEach((row, index) => {
                 row.querySelector('input[type="radio"]').value = index;
-                const textInput = row.querySelector('input[type="text"]');
-                textInput.name = `options[${index}][text_ar]`;
+                const textInputs = row.querySelectorAll('input[type="text"]');
+                textInputs[0].name = `options[${index}][text_ar]`;
+                textInputs[1].name = `options[${index}][text_en]`;
             });
         } else {
             alert('يجب أن يكون هناك خياران على الأقل');

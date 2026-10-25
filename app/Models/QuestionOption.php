@@ -22,6 +22,15 @@ class QuestionOption extends Model
     ];
 
     /**
+     * English-only options leave option_ar empty; fall back to the English
+     * text so every view reading option_ar still shows something.
+     */
+    public function getOptionArAttribute($value)
+    {
+        return filled($value) ? $value : ($this->attributes['option_en'] ?? $value);
+    }
+
+    /**
      * Get the option text based on current locale
      */
     public function getOptionAttribute()
