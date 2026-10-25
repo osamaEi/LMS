@@ -41,6 +41,15 @@ class AttendanceApology extends Model
     }
 
     /**
+     * Excuses still in an open period. Once the session's quarter (or course)
+     * ends or is deactivated, its excuses drop out of every list.
+     */
+    public function scopeInOpenPeriod($query): void
+    {
+        $query->whereDoesntHave('session', fn ($s) => $s->withEndedPeriod());
+    }
+
+    /**
      * Public URL for the attachment. The stored value is either a path on the
      * public disk or an external URL the student submitted as a string.
      */

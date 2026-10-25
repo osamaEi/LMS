@@ -14,7 +14,9 @@ class ApologyController extends Controller
     {
         $status = $request->get('status', 'pending');
 
-        $query = AttendanceApology::with(['student:id,name,email', 'session:id,title_ar,title_en,scheduled_at', 'reviewer:id,name'])
+        // Excuses of ended/deactivated quarters and courses are hidden.
+        $query = AttendanceApology::inOpenPeriod()
+            ->with(['student:id,name,email', 'session:id,title_ar,title_en,scheduled_at', 'reviewer:id,name'])
             ->latest();
 
         if (in_array($status, ['pending', 'approved', 'rejected'])) {
@@ -24,9 +26,9 @@ class ApologyController extends Controller
         $apologies = $query->paginate(20)->withQueryString();
 
         $counts = [
-            'pending'  => AttendanceApology::where('status', 'pending')->count(),
-            'approved' => AttendanceApology::where('status', 'approved')->count(),
-            'rejected' => AttendanceApology::where('status', 'rejected')->count(),
+            'pending'  => AttendanceApology::inOpenPeriod()->where('status', 'pending')->count(),
+            'approved' => AttendanceApology::inOpenPeriod()->where('status', 'approved')->count(),
+            'rejected' => AttendanceApology::inOpenPeriod()->where('status', 'rejected')->count(),
         ];
 
         return view('admin.apologies.index', compact('apologies', 'counts', 'status'));

@@ -64,9 +64,11 @@ class DashboardController extends Controller
             ->with(['subject:id,name_ar,name_en', 'teacher:id,name,zoom_join_url'])
             ->orderBy('scheduled_at')
             ->get()
-            ->map(function ($s) use ($allAttendances, $apologies) {
+            ->map(function ($s) use ($allAttendances, $apologies, &$apologiesClosed) {
                 $att = $allAttendances[$s->id] ?? null;
                 $apo = $apologies[$s->id] ?? null;
+                // One check per subject/class, not per session.
+                $closedKey = $s->subject_id ? "s{$s->subject_id}" : "c{$s->class_id}";
                 return [
                     'id'               => $s->id,
                     'title'            => $s->title_ar ?: ($s->subject->name_ar ?? 'جلسة'),
@@ -83,6 +85,7 @@ class DashboardController extends Controller
                     'ended_at'         => $s->ended_at ? \Carbon\Carbon::parse($s->ended_at)->toIso8601String() : null,
                     'attended'         => $att ? (bool) $att->attended : null,
                     'apology_status'   => $apo?->status,
+                    'apologies_closed' => $apologiesClosed[$closedKey] ??= $s->apologiesClosed(),
                 ];
             })
             ->values();

@@ -133,6 +133,30 @@ class Session extends Model
     }
 
     // Helper Methods
+
+    /**
+     * Sessions whose period is over: the subject is no longer active or its
+     * quarter has ended/was deactivated/deleted, or — for course sessions — the
+     * class is inactive or past its end date. Excuses for these sessions can't
+     * be submitted and are hidden from the excuse lists.
+     */
+    public function scopeWithEndedPeriod($query): void
+    {
+        $query->where(fn ($q) => $q
+            ->whereHas('subject', fn ($s) => $s->where(fn ($x) => $x
+                ->whereIn('status', ['inactive', 'completed'])
+                ->orWhere(fn ($y) => $y->quarterEnded())))
+            ->orWhere(fn ($c) => $c->whereNull('subject_id')
+                ->whereHas('programClass', fn ($pc) => $pc->where(fn ($x) => $x
+                    ->whereIn('status', ['inactive', 'completed'])
+                    ->orWhereDate('end_date', '<', today()->toDateString())))));
+    }
+
+    public function apologiesClosed(): bool
+    {
+        return static::whereKey($this->id)->withEndedPeriod()->exists();
+    }
+
     public function isLiveZoom(): bool
     {
         return $this->type === 'live_zoom';

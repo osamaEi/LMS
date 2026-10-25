@@ -38,7 +38,7 @@ class ApologyController extends Controller
             ? $teacherSessions->pluck('id')
             : $teacherSessions->where('class_id', $selectedClassId)->pluck('id');
 
-        $base = fn() => AttendanceApology::whereIn('session_id', $sessionIds);
+        $base = fn() => AttendanceApology::whereIn('session_id', $sessionIds)->inOpenPeriod();
 
         $query = $base()
             ->with([

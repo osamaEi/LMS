@@ -116,6 +116,27 @@ class Subject extends Model
         });
     }
 
+    // Subjects whose quarters are all over: linked to at least one term (via
+    // term_id or term_subject, deleted terms included) and none of them still
+    // running. A running term is not deleted, not marked completed/inactive, and
+    // not past its end date (no end date = never ends).
+    public function scopeQuarterEnded($query): void
+    {
+        $today = today()->toDateString();
+        $running = fn ($q) => $q->where(fn ($t) => $t->whereNull('status')->orWhereNotIn('status', ['completed', 'inactive']))
+            ->where(fn ($t) => $t->whereNull('end_date')->orWhereDate('end_date', '>=', $today));
+        $any = fn ($q) => $q->withTrashed();
+
+        $query->where(fn ($q) => $q->whereHas('term', $any)->orWhereHas('terms', $any))
+            ->whereDoesntHave('term', $running)
+            ->whereDoesntHave('terms', $running);
+    }
+
+    public function quarterEnded(): bool
+    {
+        return static::whereKey($this->id)->quarterEnded()->exists();
+    }
+
     public function isAssignedToTeacher(int $teacherId): bool
     {
         return $this->teachers()->where('users.id', $teacherId)->exists();

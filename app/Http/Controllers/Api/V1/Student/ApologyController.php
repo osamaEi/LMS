@@ -20,7 +20,9 @@ class ApologyController extends Controller
     {
         $studentId = auth()->id();
 
-        $query = AttendanceApology::where('student_id', $studentId)
+        $base = fn() => AttendanceApology::where('student_id', $studentId)->inOpenPeriod();
+
+        $query = $base()
             ->with(['session:id,title_ar,title_en,scheduled_at', 'reviewer:id,name'])
             ->latest();
 
@@ -34,9 +36,9 @@ class ApologyController extends Controller
             'success' => true,
             'status'  => $status ?? 'all',
             'stats'   => [
-                'pending'  => AttendanceApology::where('student_id', $studentId)->where('status', 'pending')->count(),
-                'approved' => AttendanceApology::where('student_id', $studentId)->where('status', 'approved')->count(),
-                'rejected' => AttendanceApology::where('student_id', $studentId)->where('status', 'rejected')->count(),
+                'pending'  => $base()->where('status', 'pending')->count(),
+                'approved' => $base()->where('status', 'approved')->count(),
+                'rejected' => $base()->where('status', 'rejected')->count(),
             ],
             'data'    => $apologies->through(fn($apology) => $this->format($apology)),
         ]);
@@ -106,6 +108,13 @@ class ApologyController extends Controller
                 'success' => false,
                 'message' => 'لا يمكنك تقديم عذر لمحاضرة غير مسجل بها.',
             ], 403);
+        }
+
+        if ($session->apologiesClosed()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'انتهى الربع التدريبي أو الدورة لهذه المحاضرة، ولم يعد تقديم الأعذار متاحاً.',
+            ], 422);
         }
 
         // One apology per session.

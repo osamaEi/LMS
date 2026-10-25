@@ -207,8 +207,11 @@
             const st=new Date(s.scheduled_at), en=new Date(st.getTime()+(s.duration_minutes||60)*60000);
             const n=new Date(); return n>=st && n<=en;
         })());
+        // Once the quarter/course ends, excuses are closed and hidden.
         if(s.attended!==true && !isLiveNow){
-            if(s.apology_status==='pending'){
+            if(s.apologies_closed){
+                html+=`<div style="text-align:center;padding:9px;background:#f1f5f9;border-radius:10px;font-size:12px;font-weight:700;color:#64748b;margin-top:4px;">انتهت فترة تقديم الأعذار لهذه المحاضرة</div>`;
+            } else if(s.apology_status==='pending'){
                 html+=`<div style="text-align:center;padding:9px;background:#fef9c3;border-radius:10px;font-size:12px;font-weight:700;color:#a16207;margin-top:4px;">⏳ عذرك قيد المراجعة</div>`;
             } else if(s.apology_status==='approved'){
                 html+=`<div style="text-align:center;padding:9px;background:#dcfce7;border-radius:10px;font-size:12px;font-weight:700;color:#15803d;margin-top:4px;">✓ تم قبول عذر غيابك (معذور)</div>`;

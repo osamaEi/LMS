@@ -14,15 +14,17 @@ class ApologyController extends Controller
 {
     public function index()
     {
-        $apologies = AttendanceApology::where('student_id', auth()->id())
+        $base = fn() => AttendanceApology::where('student_id', auth()->id())->inOpenPeriod();
+
+        $apologies = $base()
             ->with(['session:id,title_ar,title_en,scheduled_at', 'reviewer:id,name'])
             ->latest()
             ->paginate(15);
 
         $counts = [
-            'pending'  => AttendanceApology::where('student_id', auth()->id())->where('status', 'pending')->count(),
-            'approved' => AttendanceApology::where('student_id', auth()->id())->where('status', 'approved')->count(),
-            'rejected' => AttendanceApology::where('student_id', auth()->id())->where('status', 'rejected')->count(),
+            'pending'  => $base()->where('status', 'pending')->count(),
+            'approved' => $base()->where('status', 'approved')->count(),
+            'rejected' => $base()->where('status', 'rejected')->count(),
         ];
 
         return view('student.apologies.index', compact('apologies', 'counts'));
@@ -39,6 +41,10 @@ class ApologyController extends Controller
             'reason.required' => 'يرجى كتابة سبب الغياب.',
             'reason.min'      => 'السبب قصير جداً.',
         ]);
+
+        if ($session->apologiesClosed()) {
+            return back()->with('error', 'انتهى الربع التدريبي أو الدورة لهذه المحاضرة، ولم يعد تقديم الأعذار متاحاً.');
+        }
 
         // Prevent duplicate apology for the same session
         $existing = AttendanceApology::where('student_id', $student->id)

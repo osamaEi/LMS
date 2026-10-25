@@ -49,6 +49,9 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // Send payment reminders daily at 9 AM for installments due in the next 3 days
         $schedule->command('payments:send-reminders --days=3')->dailyAt('09:00');
+
+        // Deactivate subjects whose quarter ended and courses past their end date
+        $schedule->command('academics:deactivate-ended')->dailyAt('00:05');
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         // 419 (expired session / stale CSRF token): instead of a dead "Page
