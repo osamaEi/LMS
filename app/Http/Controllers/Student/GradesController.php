@@ -10,8 +10,8 @@ class GradesController extends Controller
     public function index(StudentGradesService $grades)
     {
         $overview = $grades->overview(auth()->user());
+        // overview() already limits subjects to teacher-sent grade reports.
         $subjectGrades = collect($overview['subjectGrades'])
-            ->filter(fn ($data) => $data['final_grade'] !== null || isset($data['breakdown']['total']))
             ->map(fn ($data) => [
                 'subject' => $data['subject'],
                 'percentage' => $data['percentage'],
