@@ -18,6 +18,7 @@ class ScheduleController extends Controller
     public function index()
     {
         $sessions = Session::with(['subject.term.program', 'program', 'teacher', 'programClass'])
+            ->withCount('attendances')
             ->orderBy('scheduled_at')
             ->get();
 
@@ -44,7 +45,10 @@ class ScheduleController extends Controller
                 'subject_id'       => $s->subject_id,
                 'program_id'       => $s->program_id,
                 'is_course'        => $isCourse,
-                'attendance_count' => $s->attendances()->count(),
+                // Always the teacher's single personal link (see Session model).
+                'zoom_join_url'    => $s->zoom_join_url,
+                'is_live_zoom'     => $s->type === 'live_zoom',
+                'attendance_count' => $s->attendances_count,
             ];
         })->filter(fn($s) => $s['scheduled_at'])->values();
 

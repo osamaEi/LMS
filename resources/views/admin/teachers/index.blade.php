@@ -58,15 +58,16 @@
         box-shadow: 0 20px 60px rgba(0,0,0,0.1);
         border-color: #6366f1;
     }
-    .teacher-card:hover .card-actions {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    /* Actions stay visible: hiding them behind :hover made assign/edit/delete
+       undiscoverable and unreachable on touch devices. */
     .card-actions {
-        opacity: 0;
-        transform: translateY(6px);
-        transition: all 0.2s;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        padding-top: 14px;
+        border-top: 1px solid #f1f5f9;
     }
+    .dark .card-actions { border-top-color: rgba(255,255,255,0.08); }
     .action-btn {
         display: inline-flex;
         align-items: center;
@@ -221,6 +222,10 @@
             $colors = ['#6366f1','#8b5cf6','#0071AA','#0891b2','#059669','#d97706','#dc2626','#db2777'];
             $color  = $colors[$teacher->id % count($colors)];
             $initials = collect(explode(' ', $teacher->name))->take(2)->map(fn($w) => mb_substr($w, 0, 1))->join('');
+            // Pivot assignments plus legacy subjects.teacher_id — the modal must
+            // open pre-checked with BOTH, or saving would drop the legacy ones.
+            $allAssigned = $teacher->assignedSubjects->merge($teacher->subjects)->unique('id');
+            $isActive = $teacher->status === 'active';
         @endphp
         <div class="teacher-card">
             {{-- Top color accent --}}
@@ -240,7 +245,7 @@
                             {{ $teacher->email }}
                         </p>
                         {{-- Subjects count badge --}}
-                        @php $assignedCount = $teacher->assignedSubjects->merge($teacher->subjects)->unique('id')->count(); @endphp
+                        @php $assignedCount = $allAssigned->count(); @endphp
                         <span style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;font-size:0.72rem;font-weight:700;background:{{ $color }}18;color:{{ $color }}">
                             <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor">
                                 <path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3z"/>
@@ -251,7 +256,6 @@
                 </div>
 
                 {{-- Assigned subjects list (pivot + legacy teacher_id, same as /my-subjects) --}}
-                @php $allAssigned = $teacher->assignedSubjects->merge($teacher->subjects)->unique('id'); @endphp
                 @if($allAssigned->count())
                 <div style="margin-bottom:14px">
                     <p style="font-size:0.72rem;font-weight:700;color:#9ca3af;margin:0 0 7px;text-transform:uppercase;letter-spacing:.05em">المقررات المعيّنة</p>
@@ -332,7 +336,6 @@
                 </div>
 
                 {{-- Status badge --}}
-                @php $isActive = $teacher->status === 'active'; @endphp
                 <div style="margin-bottom:12px">
                     <span style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;font-size:0.72rem;font-weight:700;
                           background:{{ $isActive ? '#dcfce7' : '#fee2e2' }};color:{{ $isActive ? '#16a34a' : '#dc2626' }}">
@@ -342,7 +345,7 @@
                 </div>
 
                 {{-- Actions --}}
-                <div class="card-actions" style="display:flex;gap:8px;flex-wrap:wrap">
+                <div class="card-actions">
                     @if($teacher->status === 'active')
                     <form action="{{ route('admin.teachers.dashboard-access', $teacher) }}" method="POST">
                         @csrf
@@ -373,7 +376,7 @@
                     {{-- Assign programs (direct) --}}
                     <button type="button" class="action-btn"
                             style="flex:1;background:#f0fdf4;color:#15803d;justify-content:center"
-                            onclick="openProgramModal({{ $teacher->id }}, '{{ addslashes($teacher->name) }}', {{ $teacher->teachingPrograms->pluck('id')->toJson() }})">
+                            onclick="openProgramModal({{ $teacher->id }}, {{ Js::from($teacher->name) }}, {{ $teacher->teachingPrograms->pluck('id')->values()->toJson() }})">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
                         </svg>
@@ -383,7 +386,7 @@
                     {{-- Assign subjects --}}
                     <button type="button" class="action-btn"
                             style="flex:1;background:#e0f2fe;color:#0369a1;justify-content:center"
-                            onclick="openAssignModal({{ $teacher->id }}, '{{ addslashes($teacher->name) }}', {{ $teacher->assignedSubjects->pluck('id')->toJson() }})">
+                            onclick="openAssignModal({{ $teacher->id }}, {{ Js::from($teacher->name) }}, {{ $allAssigned->pluck('id')->values()->toJson() }})">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
                         </svg>
@@ -396,27 +399,31 @@
                         @method('PATCH')
                         <button type="submit" class="action-btn"
                                 style="background:{{ $isActive ? '#fef9c3' : '#dcfce7' }};color:{{ $isActive ? '#92400e' : '#15803d' }}"
-                                title="{{ $isActive ? 'تعطيل الحساب' : 'تفعيل الحساب' }}">
+                                title="{{ $isActive ? 'تعطيل حساب ' . $teacher->name : 'تفعيل حساب ' . $teacher->name }}">
                             @if($isActive)
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
                             </svg>
+                            تعطيل
                             @else
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                             </svg>
+                            تفعيل
                             @endif
                         </button>
                     </form>
 
                     <form action="{{ route('admin.teachers.destroy', $teacher) }}" method="POST"
-                          onsubmit="return confirm('هل أنت متأكد من حذف المدرب{{ addslashes($teacher->name) }}؟ لا يمكن التراجع عن هذا الإجراء.')">
+                          onsubmit="return confirm('هل أنت متأكد من حذف المدرب ' + {{ Js::from($teacher->name) }} + '؟ لا يمكن التراجع عن هذا الإجراء.')">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="action-btn" style="background:#fee2e2;color:#dc2626">
+                        <button type="submit" class="action-btn" style="background:#fee2e2;color:#dc2626"
+                                title="حذف {{ $teacher->name }}">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                             </svg>
+                            حذف
                         </button>
                     </form>
                 </div>
@@ -472,7 +479,9 @@
         <div style="display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid #f1f5f9">
             <div>
                 <h3 style="font-size:1rem;font-weight:800;color:#111827;margin:0" class="dark:text-white" id="modal-title">تعيين المقررات</h3>
-                <p style="font-size:0.78rem;color:#6b7280;margin:3px 0 0" id="modal-subtitle">اختر المقررات التي يدرّسها هذا المدرب</p>
+                <p style="font-size:0.78rem;color:#6b7280;margin:3px 0 0" id="modal-subtitle">
+                    ✓ محدد = معيّن له · إزالة العلامة = إلغاء التعيين عند الحفظ
+                </p>
             </div>
             <button onclick="closeAssignModal()" style="width:32px;height:32px;border-radius:8px;border:none;background:#f1f5f9;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#6b7280">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -489,6 +498,10 @@
         </div>
 
         {{-- Programs grouped by type --}}
+        <p id="modal-no-results" style="display:none;text-align:center;color:#9ca3af;font-size:0.85rem;padding:20px 22px 0;margin:0">
+            لا توجد مقررات مطابقة للبحث
+        </p>
+
         <div style="max-height:380px;overflow-y:auto;padding:14px 22px" id="modal-subjects-list">
             @php
             $typeConfig = [
@@ -504,7 +517,8 @@
                     <span style="font-size:0.72rem;font-weight:800;color:{{ $cfg['color'] }};text-transform:uppercase;letter-spacing:.06em">{{ $cfg['label'] }}</span>
                 </div>
                 @foreach($programs as $prog)
-                @php $subjects = $prog->terms->flatMap->subjects->unique('id'); @endphp
+                {{-- Term subjects AND subjects attached straight to the program. --}}
+                @php $subjects = $prog->terms->flatMap->subjects->merge($prog->subjects)->unique('id')->sortBy('name_ar'); @endphp
                 @if($subjects->count())
                 <div class="prog-block" data-prog="{{ $prog->id }}" style="margin-bottom:4px">
                     <div class="prog-hdr-row" style="display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:9px;cursor:pointer;border:1.5px solid #f1f5f9;transition:background 0.1s"
@@ -540,6 +554,32 @@
             @empty
             <p style="text-align:center;color:#9ca3af;font-size:0.875rem;padding:24px 0">لا توجد برامج أو مقررات</p>
             @endforelse
+
+            {{-- Subjects not linked to any program; without these the save
+                 would unassign them because they were never rendered. --}}
+            @if($orphanSubjects->count())
+            <div class="type-section" data-type="orphan" style="margin-bottom:14px">
+                <div style="display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:8px;background:#f3f4f6;margin-bottom:6px">
+                    <span style="font-size:0.72rem;font-weight:800;color:#6b7280;letter-spacing:.06em">مقررات غير مرتبطة ببرنامج</span>
+                </div>
+                <div class="prog-block" data-prog="orphan">
+                    <div class="prog-subjects-div" style="display:block;padding:4px">
+                        @foreach($orphanSubjects as $subj)
+                        <label class="subj-label"
+                               style="display:flex;align-items:center;gap:10px;padding:6px 10px;border-radius:8px;cursor:pointer;margin-bottom:2px;transition:background 0.1s"
+                               onmouseover="this.style.background='#f8faff'" onmouseout="this.style.background='transparent'">
+                            <input type="checkbox" class="assign-cb" value="{{ $subj->id }}" data-prog="orphan"
+                                   style="width:14px;height:14px;accent-color:#0071AA;cursor:pointer;flex-shrink:0">
+                            <div style="flex:1;min-width:0">
+                                <p style="font-size:0.82rem;font-weight:600;color:#111827;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" class="dark:text-white">{{ $subj->name_ar }}</p>
+                                <p style="font-size:0.7rem;color:#9ca3af;margin:1px 0 0">{{ $subj->code }}{{ $subj->name_en ? ' · ' . $subj->name_en : '' }}</p>
+                            </div>
+                        </label>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+            @endif
         </div>
 
         {{-- Footer --}}
@@ -569,7 +609,9 @@
         <div style="display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid #f1f5f9">
             <div>
                 <h3 style="font-size:1rem;font-weight:800;color:#111827;margin:0" class="dark:text-white" id="prog-modal-title">تعيين الدورات</h3>
-                <p style="font-size:0.78rem;color:#6b7280;margin:3px 0 0">اختر الدورات التي يدرّبها هذا المدرب</p>
+                <p style="font-size:0.78rem;color:#6b7280;margin:3px 0 0">
+                    ✓ محدد = معيّن له · إزالة العلامة = إلغاء التعيين عند الحفظ
+                </p>
             </div>
             <button onclick="closeProgramModal()" style="width:32px;height:32px;border-radius:8px;border:none;background:#f1f5f9;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#6b7280">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -632,11 +674,13 @@
 @push('scripts')
 <script>
 let currentTeacherId = null;
+let initialAssignedIds = [];
 
 function openAssignModal(teacherId, teacherName, assignedIds) {
     currentTeacherId = teacherId;
     document.getElementById('modal-title').textContent = 'تعيين المقررات — ' + teacherName;
     document.getElementById('modal-search').value = '';
+    initialAssignedIds = assignedIds.map(Number).sort((a, b) => a - b);
 
     // Reset visibility from any previous search
     document.querySelectorAll('.subj-label').forEach(l => l.style.display = 'flex');
@@ -661,9 +705,14 @@ function openAssignModal(teacherId, teacherName, assignedIds) {
     document.getElementById('assign-modal').style.display = 'flex';
 }
 
-function closeAssignModal() {
+function closeAssignModal(force) {
+    if (!force && hasUnsavedAssignChanges()
+        && !confirm('لديك تغييرات غير محفوظة على المقررات. هل تريد إغلاق النافذة وتجاهلها؟')) {
+        return;
+    }
     document.getElementById('assign-modal').style.display = 'none';
     currentTeacherId = null;
+    initialAssignedIds = [];
 }
 
 function toggleProgBlock(hdrEl) {
@@ -693,19 +742,36 @@ function syncProgHeader(progId) {
     progAllCb.indeterminate = n > 0 && n < cbs.length;
 }
 
+// Match Arabic the way admins type it: أ/إ/آ ≡ ا, ة ≡ ه, ى ≡ ي, ignore
+// diacritics, and treat Arabic-Indic digits as ASCII.
+function normalizeAr(value) {
+    return (value || '').toLowerCase()
+        .replace(/[ـً-ْ]/g, '')
+        .replace(/[آأإٱ]/g, 'ا')
+        .replace(/ى/g, 'ي')
+        .replace(/ة/g, 'ه')
+        .replace(/[٠-٩]/g, d => String.fromCharCode(d.charCodeAt(0) - 0x0630))
+        .replace(/[۰-۹]/g, d => String.fromCharCode(d.charCodeAt(0) - 0x06C0))
+        .replace(/\s+/g, ' ')
+        .trim();
+}
+
 function filterModalSubjects(q) {
-    q = q.toLowerCase().trim();
+    q = normalizeAr(q);
 
     if (!q) {
         document.querySelectorAll('.subj-label').forEach(l => l.style.display = 'flex');
         document.querySelectorAll('.prog-block, .type-section').forEach(el => el.style.display = '');
         document.querySelectorAll('.prog-subjects-div').forEach(d => d.style.display = 'block');
         document.querySelectorAll('.prog-arrow').forEach(a => a.style.transform = 'rotate(180deg)');
+        document.getElementById('modal-no-results').style.display = 'none';
         return;
     }
 
+    const terms = q.split(' ').filter(Boolean);
     document.querySelectorAll('.subj-label').forEach(label => {
-        label.style.display = label.textContent.toLowerCase().includes(q) ? 'flex' : 'none';
+        const haystack = normalizeAr(label.textContent);
+        label.style.display = terms.every(t => haystack.includes(t)) ? 'flex' : 'none';
     });
 
     document.querySelectorAll('.prog-block').forEach(block => {
@@ -723,41 +789,98 @@ function filterModalSubjects(q) {
         const any = Array.from(section.querySelectorAll('.prog-block')).some(b => b.style.display !== 'none');
         section.style.display = any ? '' : 'none';
     });
+
+    const anyVisible = Array.from(document.querySelectorAll('.subj-label'))
+        .some(l => l.style.display !== 'none');
+    document.getElementById('modal-no-results').style.display = anyVisible ? 'none' : 'block';
+}
+
+// Escape closes whichever modal is open (with the unsaved-changes guard).
+document.addEventListener('keydown', e => {
+    if (e.key !== 'Escape') return;
+    if (document.getElementById('assign-modal').style.display === 'flex') closeAssignModal();
+    else if (document.getElementById('prog-modal').style.display === 'flex') closeProgramModal();
+});
+
+// A subject can be listed under more than one program (via a term and via
+// program_id), so keep every checkbox for the same subject id in step.
+function mirrorSubject(changedCb) {
+    document.querySelectorAll('.assign-cb[value="' + changedCb.value + '"]').forEach(cb => {
+        if (cb !== changedCb && cb.checked !== changedCb.checked) {
+            cb.checked = changedCb.checked;
+            syncProgHeader(cb.dataset.prog);
+        }
+    });
+}
+
+function selectedSubjectIds() {
+    const ids = new Set();
+    document.querySelectorAll('.assign-cb:checked').forEach(cb => ids.add(parseInt(cb.value)));
+    return Array.from(ids).sort((a, b) => a - b);
 }
 
 function updateCount() {
-    const n = document.querySelectorAll('.assign-cb:checked').length;
-    document.getElementById('modal-selected-count').textContent = n + ' مقرر محدد';
+    const selected = selectedSubjectIds();
+    const added   = selected.filter(id => !initialAssignedIds.includes(id)).length;
+    const removed = initialAssignedIds.filter(id => !selected.includes(id)).length;
+
+    // Spell out the pending change so "تعيين" vs "إلغاء" is unambiguous.
+    const parts = [selected.length + ' مقرر محدد'];
+    if (added)   parts.push('+' + added + ' إضافة');
+    if (removed) parts.push('−' + removed + ' إلغاء');
+
+    const el = document.getElementById('modal-selected-count');
+    el.textContent = parts.join(' · ');
+    el.style.color = removed ? '#b45309' : '#6b7280';
+    el.style.fontWeight = (added || removed) ? '700' : '400';
+}
+
+function hasUnsavedAssignChanges() {
+    const selected = selectedSubjectIds();
+    return selected.length !== initialAssignedIds.length
+        || selected.some((id, i) => id !== initialAssignedIds[i]);
 }
 
 document.addEventListener('change', e => {
     if (e.target.classList.contains('assign-cb')) {
+        mirrorSubject(e.target);
         syncProgHeader(e.target.dataset.prog);
         updateCount();
     }
 });
 
 function submitAssign() {
+    const selected = selectedSubjectIds();
+    const removed  = initialAssignedIds.filter(id => !selected.includes(id)).length;
+
+    // Unassigning is destructive and used to happen with no warning at all.
+    if (removed && !confirm('سيتم إلغاء تعيين ' + removed + ' مقرر من هذا المدرب. هل تريد المتابعة؟')) {
+        return;
+    }
+
     const form = document.getElementById('assign-form');
     form.action = '/admin/teachers/' + currentTeacherId + '/assign-subjects';
     const container = document.getElementById('assign-inputs');
     container.innerHTML = '';
-    document.querySelectorAll('.assign-cb:checked').forEach(cb => {
+    selected.forEach(id => {
         const inp = document.createElement('input');
         inp.type = 'hidden';
         inp.name = 'subjects[]';
-        inp.value = cb.value;
+        inp.value = id;
         container.appendChild(inp);
     });
+    closeAssignModal(true);
     form.submit();
 }
 
 // ─── Program-level assign modal ──────────────────────────────────────────────
 let currentProgTeacherId = null;
+let initialProgIds = [];
 
 function openProgramModal(teacherId, teacherName, assignedProgIds) {
     currentProgTeacherId = teacherId;
     document.getElementById('prog-modal-title').textContent = 'تعيين الدورات — ' + teacherName;
+    initialProgIds = assignedProgIds.map(Number).sort((a, b) => a - b);
 
     document.querySelectorAll('.prog-top-cb').forEach(cb => {
         cb.checked = assignedProgIds.includes(parseInt(cb.value));
@@ -766,14 +889,40 @@ function openProgramModal(teacherId, teacherName, assignedProgIds) {
     document.getElementById('prog-modal').style.display = 'flex';
 }
 
-function closeProgramModal() {
+function closeProgramModal(force) {
+    if (!force && hasUnsavedProgChanges()
+        && !confirm('لديك تغييرات غير محفوظة على الدورات. هل تريد إغلاق النافذة وتجاهلها؟')) {
+        return;
+    }
     document.getElementById('prog-modal').style.display = 'none';
     currentProgTeacherId = null;
+    initialProgIds = [];
+}
+
+function selectedProgIds() {
+    return Array.from(document.querySelectorAll('.prog-top-cb:checked'))
+        .map(cb => parseInt(cb.value)).sort((a, b) => a - b);
+}
+
+function hasUnsavedProgChanges() {
+    const selected = selectedProgIds();
+    return selected.length !== initialProgIds.length
+        || selected.some((id, i) => id !== initialProgIds[i]);
 }
 
 function updateProgCount() {
-    const n = document.querySelectorAll('.prog-top-cb:checked').length;
-    document.getElementById('prog-selected-count').textContent = n + ' دورة محددة';
+    const selected = selectedProgIds();
+    const added   = selected.filter(id => !initialProgIds.includes(id)).length;
+    const removed = initialProgIds.filter(id => !selected.includes(id)).length;
+
+    const parts = [selected.length + ' دورة محددة'];
+    if (added)   parts.push('+' + added + ' إضافة');
+    if (removed) parts.push('−' + removed + ' إلغاء');
+
+    const el = document.getElementById('prog-selected-count');
+    el.textContent = parts.join(' · ');
+    el.style.color = removed ? '#b45309' : '#6b7280';
+    el.style.fontWeight = (added || removed) ? '700' : '400';
 }
 
 document.addEventListener('change', e => {
@@ -781,17 +930,25 @@ document.addEventListener('change', e => {
 });
 
 function submitProgramAssign() {
+    const selected = selectedProgIds();
+    const removed  = initialProgIds.filter(id => !selected.includes(id)).length;
+
+    if (removed && !confirm('سيتم إلغاء تعيين ' + removed + ' دورة من هذا المدرب. هل تريد المتابعة؟')) {
+        return;
+    }
+
     const form = document.getElementById('prog-assign-form');
     form.action = '/admin/teachers/' + currentProgTeacherId + '/assign-programs';
     const container = document.getElementById('prog-assign-inputs');
     container.innerHTML = '';
-    document.querySelectorAll('.prog-top-cb:checked').forEach(cb => {
+    selected.forEach(id => {
         const inp = document.createElement('input');
         inp.type = 'hidden';
         inp.name = 'program_ids[]';
-        inp.value = cb.value;
+        inp.value = id;
         container.appendChild(inp);
     });
+    closeProgramModal(true);
     form.submit();
 }
 </script>

@@ -119,6 +119,46 @@
 const sessions = @json($calSessions);
 const CSRF     = '{{ csrf_token() }}';
 
+// Session data is interpolated into HTML strings below, so escape anything
+// that reaches an attribute or a single-quoted inline handler.
+function esc(value) {
+    return String(value ?? '')
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+function copyZoom(event, url) {
+    event.stopPropagation();
+    event.preventDefault();
+
+    const btn  = event.currentTarget;
+    const done = ok => {
+        const original = btn.textContent;
+        btn.textContent = ok ? 'تم النسخ ✓' : 'تعذّر النسخ';
+        setTimeout(() => { btn.textContent = original; }, 1500);
+    };
+
+    // The decoded value, since the handler receives the escaped one.
+    const parser = document.createElement('textarea');
+    parser.innerHTML = url;
+    const plain = parser.value;
+
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(plain).then(() => done(true), () => done(false));
+        return;
+    }
+
+    // http:// fallback, where the clipboard API is unavailable.
+    const temp = document.createElement('textarea');
+    temp.value = plain;
+    temp.style.position = 'fixed';
+    temp.style.opacity = '0';
+    document.body.appendChild(temp);
+    temp.select();
+    try { done(document.execCommand('copy')); } catch (e) { done(false); }
+    document.body.removeChild(temp);
+}
+
 const DAY_NAMES   = ['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
 const MONTH_NAMES = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
 const TODAY = new Date();
@@ -183,6 +223,32 @@ function renderCalendar(){
         </th>`;
     });
 
+    // The Zoom link is the teacher's single personal link (Session model
+    // resolves it from users.zoom_join_url), so a session without a teacher
+    // link shows why it is missing instead of silently showing nothing.
+    function zoomRow(s) {
+        if (!s.is_live_zoom) return '';
+
+        if (!s.zoom_join_url) {
+            return `<div style="font-size:10px;color:#b45309;margin-top:4px;" title="يُضبط الرابط من حساب المدرب">
+                ⚠️ لا يوجد رابط زووم للمدرب
+            </div>`;
+        }
+
+        const url = esc(s.zoom_join_url);
+        return `<div style="display:flex;align-items:center;gap:4px;margin-top:4px;">
+            <a href="${url}" target="_blank" rel="noopener noreferrer"
+               onclick="event.stopPropagation()" title="${url}"
+               style="font-size:10px;color:#0071AA;font-weight:700;text-decoration:none;border-bottom:1px dashed #0071AA;">
+                🎥 دخول زووم
+            </a>
+            <button type="button" onclick="copyZoom(event, '${url}')" title="نسخ الرابط"
+                    style="border:0;background:#eff6ff;color:#0071AA;border-radius:5px;padding:1px 5px;font-size:10px;cursor:pointer;line-height:1.4;">
+                نسخ
+            </button>
+        </div>`;
+    }
+
     // Body rows
     let body='';
     weekDays.forEach((d,i)=>{
@@ -204,6 +270,7 @@ function renderCalendar(){
                         ?`<a href="/admin/classes/${s.class_id}" onclick="event.stopPropagation()" title="فتح صفحة المجموعة" style="display:inline-block;font-size:10px;color:#0071AA;font-weight:600;text-decoration:none;border-bottom:1px dashed #0071AA;">🏫 ${s.class_name}</a>`
                         :`<div style="font-size:10px;color:#0071AA;font-weight:600;">🏫 ${s.class_name}</div>`):''}
                     ${s.teacher_name?`<div style="font-size:10px;color:#64748b;">👤 ${s.teacher_name}</div>`:''}
+                    ${zoomRow(s)}
                     ${statusLabel?`<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:4px;">
                         <span style="background:${statusBg};color:${statusColor};font-size:10px;font-weight:600;padding:1px 6px;border-radius:20px;">${statusLabel}</span>
                     </div>`:''}

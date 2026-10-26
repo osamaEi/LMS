@@ -38,17 +38,33 @@ class TeacherController extends Controller
             'with_subjects'=> User::where('role', 'teacher')->has('subjects')->count(),
         ];
 
-        $programsByType = Program::with(['terms.subjects' => function ($q) {
-            $q->select('subjects.id', 'subjects.name_ar', 'subjects.name_en', 'subjects.code')
-              ->orderBy('subjects.name_ar');
-        }])->orderBy('name_ar')->get()->groupBy('type');
+        // Subjects reach a program either through a term or directly via
+        // subjects.program_id — the modal has to list both, otherwise saving
+        // would silently drop assignments it never rendered.
+        $programsByType = Program::with([
+            'terms.subjects' => function ($q) {
+                $q->select('subjects.id', 'subjects.name_ar', 'subjects.name_en', 'subjects.code')
+                  ->orderBy('subjects.name_ar');
+            },
+            'subjects' => function ($q) {
+                $q->select('subjects.id', 'subjects.program_id', 'subjects.name_ar', 'subjects.name_en', 'subjects.code')
+                  ->orderBy('subjects.name_ar');
+            },
+        ])->orderBy('name_ar')->get()->groupBy('type');
+
+        // Subjects tied to no program at all would otherwise be unreachable.
+        $orphanSubjects = Subject::whereNull('program_id')
+            ->whereNull('term_id')
+            ->whereDoesntHave('terms')
+            ->orderBy('name_ar')
+            ->get(['id', 'name_ar', 'name_en', 'code']);
 
         // All programs for the program-assign modal (excluding diplomas)
         $allPrograms = Program::select('id', 'name_ar', 'type', 'status')
             ->whereIn('type', ['training', 'english', 'course'])
             ->orderBy('type')->orderBy('name_ar')->get()->groupBy('type');
 
-        return view('admin.teachers.index', compact('teachers', 'stats', 'search', 'programsByType', 'allPrograms'));
+        return view('admin.teachers.index', compact('teachers', 'stats', 'search', 'programsByType', 'allPrograms', 'orphanSubjects'));
     }
 
     public function create()
@@ -180,6 +196,11 @@ class TeacherController extends Controller
 
     public function assignSubjects(Request $request, User $teacher)
     {
+        $request->validate([
+            'subjects'   => 'nullable|array',
+            'subjects.*' => 'exists:subjects,id',
+        ]);
+
         $subjectIds = array_map('intval', $request->input('subjects', []));
 
         // Sync pivot table
