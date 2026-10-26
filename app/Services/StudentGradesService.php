@@ -4,8 +4,10 @@ namespace App\Services;
 
 use App\Models\Enrollment;
 use App\Models\Evaluation;
+use App\Models\Program;
 use App\Models\QuizAttempt;
 use App\Models\Subject;
+use App\Models\Term;
 use App\Models\User;
 use App\Notifications\TeacherGradesNotification;
 use Illuminate\Support\Collection;
@@ -60,11 +62,9 @@ class StudentGradesService
         // Only subjects the teacher explicitly sent a grade report for. An
         // enrollment's final_grade or a graded quiz alone is NOT enough to
         // surface a subject here — the teacher has to send it to the student.
-        // Current training quarter only: subjects whose quarter is over are hidden.
-        $subjectIds = $releasedRows->keys();
-        $subjects   = Subject::whereIn('id', $subjectIds)
-            ->whereNotIn('id', Subject::query()->quarterEnded()->select('id'))
-            ->with('teacher')->get()->keyBy('id');
+        // Current training quarter only, matching student/my-program.
+        $subjectIds = $releasedRows->keys()->diff($this->otherTermSubjectIds($student));
+        $subjects   = Subject::whereIn('id', $subjectIds)->with('teacher')->get()->keyBy('id');
 
         // Per-subject grade summary
         $subjectGrades = [];
@@ -128,6 +128,65 @@ class StudentGradesService
             })
             ->filter()
             ->values();
+    }
+
+    /**
+     * A diploma program's terms as shown on student/my-program, plus the
+     * current one: the term running today, else the student's term number,
+     * else the first term.
+     *
+     * @return array{0: Collection, 1: Term|null}
+     */
+    public function diplomaTerms(User $student, Program $program): array
+    {
+        $classIds = $student->classIdsForProgram((int) $program->id);
+
+        // The class's own terms; fall back to the program-wide (shared) terms
+        // when the class has none yet.
+        $hasClassTerms = $classIds->isNotEmpty()
+            && Term::where('program_id', $program->id)->whereIn('class_id', $classIds)->exists();
+
+        $terms = Term::where('program_id', $program->id)
+            ->when($hasClassTerms,
+                fn ($q) => $q->whereIn('class_id', $classIds),
+                fn ($q) => $q->whereNull('class_id'))
+            ->orderBy('term_number', 'asc')
+            ->with('subjects')
+            ->get();
+
+        $currentTerm = $terms->first(fn ($t) =>
+            $t->start_date && $t->end_date && $t->start_date <= now() && $t->end_date >= now()
+        ) ?? $terms->firstWhere('term_number', $student->current_term_number ?? 1) ?? $terms->first();
+
+        return [$terms, $currentTerm];
+    }
+
+    /**
+     * Subjects of the student's diploma programs that belong to a term other
+     * than the current one. Subjects outside any term (courses) are not listed.
+     */
+    public function otherTermSubjectIds(User $student): Collection
+    {
+        $programs = $student->allPrograms()->where('type', 'diploma');
+        if ($programs->isEmpty()) {
+            return collect();
+        }
+
+        $inProgramTerm = fn ($t) => $t->withTrashed()->whereIn('program_id', $programs->pluck('id'));
+        $termSubjectIds = Subject::where(fn ($q) => $q
+            ->whereHas('term', $inProgramTerm)
+            ->orWhereHas('terms', $inProgramTerm))
+            ->pluck('id');
+
+        $currentSubjectIds = $programs->flatMap(function ($program) use ($student) {
+            [, $currentTerm] = $this->diplomaTerms($student, $program);
+
+            return $currentTerm
+                ? $currentTerm->subjects->pluck('id')->merge(Subject::where('term_id', $currentTerm->id)->pluck('id'))
+                : collect();
+        });
+
+        return $termSubjectIds->diff($currentSubjectIds)->values();
     }
 
     public function gradeLabel(float $pct): string

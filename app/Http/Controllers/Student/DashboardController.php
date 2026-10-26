@@ -12,6 +12,7 @@ use App\Models\Setting;
 use App\Models\Ticket;
 use App\Models\TeacherRating;
 use App\Models\Term;
+use App\Services\StudentGradesService;
 use App\Services\ZoomService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -699,7 +700,7 @@ class DashboardController extends Controller
     /**
      * عرض معلومات البرنامج التدريبي 
      */
-    public function myProgram()
+    public function myProgram(StudentGradesService $grades)
     {
         $student    = auth()->user();
         $programIds = $this->studentProgramIds($student);
@@ -735,29 +736,9 @@ class DashboardController extends Controller
             $isDiploma = $prog->type === 'diploma';
 
             if ($isDiploma) {
-                $classIds = $student->classIdsForProgram((int) $prog->id);
-
-                // Show the class's OWN terms only. If the class has none yet, fall back to
-                // the program-wide (shared) terms so the page isn't empty.
-                $hasClassTerms = $classIds->isNotEmpty()
-                    ? Term::where('program_id', $prog->id)->whereIn('class_id', $classIds)->exists()
-                    : false;
-
-                $subjectScope = fn($sq) => $hasClassTerms
-                    ? $sq->whereIn('class_id', $classIds)
-                    : $sq->whereNull('class_id');
-
-                $progTerms = Term::where('program_id', $prog->id)
-                    ->when($hasClassTerms,
-                        fn($q) => $q->whereIn('class_id', $classIds),
-                        fn($q) => $q->whereNull('class_id'))
-                    ->orderBy('term_number', 'asc')
-                    ->with(['subjects' => fn($q) => $q->with(['teacher', 'sessions'])])
-                    ->get();
-
-                $currentTerm = $progTerms->first(fn($t) =>
-                    $t->start_date && $t->end_date && $t->start_date <= now() && $t->end_date >= now()
-                ) ?? $progTerms->firstWhere('term_number', $currentTermNumber) ?? $progTerms->first();
+                // Shared with the grades page so both show the same current term.
+                [$progTerms, $currentTerm] = $grades->diplomaTerms($student, $prog);
+                $progTerms->load(['subjects.teacher', 'subjects.sessions']);
 
                 $currentTermIndex = $currentTerm
                     ? $progTerms->search(fn($t) => $t->id === $currentTerm->id) + 1
