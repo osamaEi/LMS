@@ -316,6 +316,7 @@ Route::middleware(['auth', 'role:admin,super_admin'])->prefix('admin')->name('ad
     Route::patch('/teachers/{teacher}/toggle-status', [\App\Http\Controllers\Admin\TeacherController::class, 'toggleStatus'])->name('teachers.toggle-status');
     Route::post('/teachers/{teacher}/assign-subjects', [\App\Http\Controllers\Admin\TeacherController::class, 'assignSubjects'])->name('teachers.assign-subjects');
     Route::post('/teachers/{teacher}/assign-programs', [\App\Http\Controllers\Admin\TeacherController::class, 'assignPrograms'])->name('teachers.assign-programs');
+    Route::post('/teachers/{teacher}/assign-classes', [\App\Http\Controllers\Admin\TeacherController::class, 'assignClasses'])->name('teachers.assign-classes');
     Route::resource('teachers', \App\Http\Controllers\Admin\TeacherController::class);
     Route::post('/teachers/{teacher}/dashboard-access', [\App\Http\Controllers\Admin\StudentDashboardAccessController::class, 'storeTeacher'])
         ->name('teachers.dashboard-access');

@@ -3,6 +3,12 @@
 @section('title', 'الملف الشخصي لل مدرب ')
 
 @section('content')
+@if(session('success'))
+<div class="mb-4 flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm font-semibold text-green-700">
+    {{ session('success') }}
+</div>
+@endif
+
 <!-- Profile Header Card -->
 <div class="mb-6 overflow-hidden rounded-lg bg-white shadow dark:bg-gray-800">
     <div class="relative h-35 bg-gradient-to-r from-brand-500 to-brand-600">
@@ -158,7 +164,15 @@
             <div class="space-y-4">
                 <div class="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 pb-3">
                     <span class="text-gray-700 dark:text-gray-300">عدد المقررات </span>
-                    <span class="text-xl font-bold text-brand-600 dark:text-brand-400">{{ $teacher->subjects->count() }}</span>
+                    <span class="text-xl font-bold text-brand-600 dark:text-brand-400">{{ $diplomaSubjects->count() }}</span>
+                </div>
+                <div class="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 pb-3">
+                    <span class="text-gray-700 dark:text-gray-300">عدد الدورات</span>
+                    <span class="text-xl font-bold text-green-600 dark:text-green-400">{{ $courses->count() }}</span>
+                </div>
+                <div class="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 pb-3">
+                    <span class="text-gray-700 dark:text-gray-300">عدد المجموعات</span>
+                    <span class="text-xl font-bold text-amber-600 dark:text-amber-400">{{ $teacher->teachingClasses->count() }}</span>
                 </div>
                 <div class="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 pb-3">
                     <span class="text-gray-700 dark:text-gray-300">حالة التحقق من البريد</span>
@@ -198,6 +212,175 @@
     </div>
 </div>
 
+<!-- Assignment panels: subjects, courses and classes are edited here -->
+<div class="mt-6 rounded-lg bg-white shadow dark:bg-gray-800" x-data="{ panel: null }">
+    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-gray-200 p-6 dark:border-gray-700">
+        <div>
+            <h4 class="text-xl font-bold text-black dark:text-white">التعيينات</h4>
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                ✓ محدد = معيّن له · إزالة العلامة = إلغاء التعيين عند الحفظ
+            </p>
+        </div>
+        <div class="flex flex-wrap gap-2">
+            <button type="button" @click="panel = panel === 'subjects' ? null : 'subjects'"
+                    :class="panel === 'subjects' ? 'bg-sky-600 text-white' : 'bg-sky-50 text-sky-700'"
+                    class="rounded-lg px-4 py-2 text-sm font-bold transition-colors">
+                تعديل المقررات
+            </button>
+            <button type="button" @click="panel = panel === 'programs' ? null : 'programs'"
+                    :class="panel === 'programs' ? 'bg-green-600 text-white' : 'bg-green-50 text-green-700'"
+                    class="rounded-lg px-4 py-2 text-sm font-bold transition-colors">
+                تعديل الدورات
+            </button>
+            <button type="button" @click="panel = panel === 'classes' ? null : 'classes'"
+                    :class="panel === 'classes' ? 'bg-amber-600 text-white' : 'bg-amber-50 text-amber-700'"
+                    class="rounded-lg px-4 py-2 text-sm font-bold transition-colors">
+                تعديل المجموعات
+            </button>
+        </div>
+    </div>
+
+    {{-- Subjects --}}
+    <div x-show="panel === 'subjects'" x-cloak class="border-b border-gray-200 p-6 dark:border-gray-700">
+        <form method="POST" action="{{ route('admin.teachers.assign-subjects', $teacher) }}"
+              x-data="assignPanel({{ $assignedSubjectIds->toJson() }}, 'subjects[]')" @submit="return confirmRemoval($event, 'مقرر')">
+            @csrf
+            <div class="mb-3 flex flex-wrap items-center gap-3">
+                <input type="search" placeholder="ابحث في المقررات…" x-model="query"
+                       class="w-full max-w-sm rounded-lg border border-gray-300 px-3 py-2 text-sm dark:bg-gray-900 dark:text-white">
+                <span class="text-sm font-semibold" :class="removedCount ? 'text-amber-600' : 'text-gray-500'" x-text="summary()"></span>
+            </div>
+
+            <div class="max-h-96 overflow-y-auto rounded-lg border border-gray-200 p-3 dark:border-gray-700">
+                @foreach($programsByType as $type => $programs)
+                @foreach($programs as $prog)
+                @php $subjects = $prog->terms->flatMap->subjects->merge($prog->subjects)->unique('id')->sortBy('name_ar'); @endphp
+                @if($subjects->count())
+                <div class="mb-3" x-show="groupVisible($el)">
+                    <p class="mb-1 text-xs font-bold uppercase tracking-wide text-gray-400">{{ $prog->name_ar }}</p>
+                    @foreach($subjects as $subj)
+                    <label class="flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 hover:bg-gray-50 dark:hover:bg-gray-700"
+                           x-show="matches('{{ \Illuminate\Support\Str::of($subj->name_ar . ' ' . $subj->code . ' ' . $subj->name_en)->replace("'", '') }}')">
+                        <input type="checkbox" name="subjects[]" value="{{ $subj->id }}"
+                               :checked="selected.includes({{ $subj->id }})" @change="toggle({{ $subj->id }}, $event)"
+                               class="h-4 w-4 rounded border-gray-300 text-sky-600">
+                        <span class="text-sm text-gray-800 dark:text-gray-100">{{ $subj->name_ar }}</span>
+                        @if($subj->code)<span class="text-xs text-gray-400">{{ $subj->code }}</span>@endif
+                    </label>
+                    @endforeach
+                </div>
+                @endif
+                @endforeach
+                @endforeach
+
+                @if($orphanSubjects->count())
+                <div class="mb-3">
+                    <p class="mb-1 text-xs font-bold uppercase tracking-wide text-gray-400">مقررات غير مرتبطة ببرنامج</p>
+                    @foreach($orphanSubjects as $subj)
+                    <label class="flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 hover:bg-gray-50 dark:hover:bg-gray-700"
+                           x-show="matches('{{ \Illuminate\Support\Str::of($subj->name_ar . ' ' . $subj->code)->replace("'", '') }}')">
+                        <input type="checkbox" name="subjects[]" value="{{ $subj->id }}"
+                               :checked="selected.includes({{ $subj->id }})" @change="toggle({{ $subj->id }}, $event)"
+                               class="h-4 w-4 rounded border-gray-300 text-sky-600">
+                        <span class="text-sm text-gray-800 dark:text-gray-100">{{ $subj->name_ar }}</span>
+                    </label>
+                    @endforeach
+                </div>
+                @endif
+            </div>
+
+            <div class="mt-4 flex gap-2">
+                <button type="submit" class="rounded-lg bg-sky-600 px-6 py-2 text-sm font-bold text-white">حفظ المقررات</button>
+                <button type="button" @click="panel = null" class="rounded-lg border border-gray-300 px-6 py-2 text-sm font-bold text-gray-700 dark:text-gray-200">إلغاء</button>
+            </div>
+        </form>
+    </div>
+
+    {{-- Programs / courses --}}
+    <div x-show="panel === 'programs'" x-cloak class="border-b border-gray-200 p-6 dark:border-gray-700">
+        <form method="POST" action="{{ route('admin.teachers.assign-programs', $teacher) }}"
+              x-data="assignPanel({{ $assignedProgramIds->toJson() }}, 'program_ids[]')" @submit="return confirmRemoval($event, 'دورة')">
+            @csrf
+            <div class="mb-3 flex flex-wrap items-center gap-3">
+                <input type="search" placeholder="ابحث في الدورات…" x-model="query"
+                       class="w-full max-w-sm rounded-lg border border-gray-300 px-3 py-2 text-sm dark:bg-gray-900 dark:text-white">
+                <span class="text-sm font-semibold" :class="removedCount ? 'text-amber-600' : 'text-gray-500'" x-text="summary()"></span>
+            </div>
+
+            <div class="max-h-96 overflow-y-auto rounded-lg border border-gray-200 p-3 dark:border-gray-700">
+                @forelse($allPrograms as $type => $programs)
+                <div class="mb-3">
+                    <p class="mb-1 text-xs font-bold uppercase tracking-wide text-gray-400">
+                        {{ ['training'=>'البرامج التدريبية','english'=>'دورات اللغة الإنجليزية','course'=>'الدورات التأهيلية'][$type] ?? $type }}
+                    </p>
+                    @foreach($programs as $prog)
+                    <label class="flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 hover:bg-gray-50 dark:hover:bg-gray-700"
+                           x-show="matches('{{ \Illuminate\Support\Str::of($prog->name_ar)->replace("'", '') }}')">
+                        <input type="checkbox" name="program_ids[]" value="{{ $prog->id }}"
+                               :checked="selected.includes({{ $prog->id }})" @change="toggle({{ $prog->id }}, $event)"
+                               class="h-4 w-4 rounded border-gray-300 text-green-600">
+                        <span class="text-sm text-gray-800 dark:text-gray-100">{{ $prog->name_ar }}</span>
+                    </label>
+                    @endforeach
+                </div>
+                @empty
+                <p class="py-6 text-center text-sm text-gray-400">لا توجد دورات</p>
+                @endforelse
+            </div>
+
+            <div class="mt-4 flex gap-2">
+                <button type="submit" class="rounded-lg bg-green-600 px-6 py-2 text-sm font-bold text-white">حفظ الدورات</button>
+                <button type="button" @click="panel = null" class="rounded-lg border border-gray-300 px-6 py-2 text-sm font-bold text-gray-700 dark:text-gray-200">إلغاء</button>
+            </div>
+        </form>
+    </div>
+
+    {{-- Classes --}}
+    <div x-show="panel === 'classes'" x-cloak class="border-b border-gray-200 p-6 dark:border-gray-700">
+        <form method="POST" action="{{ route('admin.teachers.assign-classes', $teacher) }}"
+              x-data="assignPanel({{ $assignedClassIds->toJson() }}, 'class_ids[]')" @submit="return confirmRemoval($event, 'مجموعة')">
+            @csrf
+            <div class="mb-3 flex flex-wrap items-center gap-3">
+                <input type="search" placeholder="ابحث في المجموعات…" x-model="query"
+                       class="w-full max-w-sm rounded-lg border border-gray-300 px-3 py-2 text-sm dark:bg-gray-900 dark:text-white">
+                <span class="text-sm font-semibold" :class="removedCount ? 'text-amber-600' : 'text-gray-500'" x-text="summary()"></span>
+            </div>
+
+            <p class="mb-3 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-700">
+                لكل مجموعة مدرب واحد — تعيين مجموعة مسندة لمدرب آخر سينقلها إلى هذا المدرب.
+            </p>
+
+            <div class="max-h-96 overflow-y-auto rounded-lg border border-gray-200 p-3 dark:border-gray-700">
+                @forelse($allClasses as $programName => $classes)
+                <div class="mb-3">
+                    <p class="mb-1 text-xs font-bold uppercase tracking-wide text-gray-400">{{ $programName }}</p>
+                    @foreach($classes as $class)
+                    @php $heldByOther = $class->teacher_id && $class->teacher_id !== $teacher->id; @endphp
+                    <label class="flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 hover:bg-gray-50 dark:hover:bg-gray-700"
+                           x-show="matches('{{ \Illuminate\Support\Str::of($class->name)->replace("'", '') }}')">
+                        <input type="checkbox" name="class_ids[]" value="{{ $class->id }}"
+                               :checked="selected.includes({{ $class->id }})" @change="toggle({{ $class->id }}, $event)"
+                               class="h-4 w-4 rounded border-gray-300 text-amber-600">
+                        <span class="text-sm text-gray-800 dark:text-gray-100">{{ $class->name }}</span>
+                        @if($heldByOther)
+                        <span class="rounded-full bg-red-50 px-2 py-0.5 text-xs font-semibold text-red-600">مسندة لمدرب آخر</span>
+                        @endif
+                    </label>
+                    @endforeach
+                </div>
+                @empty
+                <p class="py-6 text-center text-sm text-gray-400">لا توجد مجموعات</p>
+                @endforelse
+            </div>
+
+            <div class="mt-4 flex gap-2">
+                <button type="submit" class="rounded-lg bg-amber-600 px-6 py-2 text-sm font-bold text-white">حفظ المجموعات</button>
+                <button type="button" @click="panel = null" class="rounded-lg border border-gray-300 px-6 py-2 text-sm font-bold text-gray-700 dark:text-gray-200">إلغاء</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <!-- Courses & Diploma Subjects Tabs -->
 <div class="mt-6 rounded-lg bg-white shadow dark:bg-gray-800" x-data="{ tab: 'courses' }">
     <!-- Tab Headers -->
@@ -219,11 +402,50 @@
             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
             </svg>
-            مقررات الدبلومات
+            المقررات
             <span class="rounded-full bg-purple-100 px-2 py-0.5 text-xs font-semibold text-purple-700 dark:bg-purple-900 dark:text-purple-200">
                 {{ $diplomaSubjects->count() }}
             </span>
         </button>
+        <button @click="tab = 'classes'"
+                :class="tab === 'classes' ? 'border-b-2 border-brand-500 text-brand-600 dark:text-brand-400' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'"
+                class="flex items-center gap-2 px-6 py-4 text-sm font-medium transition-colors">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+            </svg>
+            المجموعات
+            <span class="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-700 dark:bg-amber-900 dark:text-amber-200">
+                {{ $teacher->teachingClasses->count() }}
+            </span>
+        </button>
+    </div>
+
+    <!-- Tab: Classes -->
+    <div x-show="tab === 'classes'" x-cloak class="p-6">
+        @if($teacher->teachingClasses->isEmpty())
+            <div class="flex flex-col items-center justify-center py-12 text-gray-400 dark:text-gray-500">
+                <p class="text-sm">لا توجد مجموعات معيّنة لهذا المدرب</p>
+            </div>
+        @else
+            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                @foreach($teacher->teachingClasses as $class)
+                <a href="{{ url('/admin/classes/' . $class->id) }}"
+                   class="flex items-start gap-3 rounded-lg border border-gray-200 p-4 transition-colors hover:border-amber-400 dark:border-gray-700">
+                    <div class="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900">
+                        <svg class="h-4 w-4 text-amber-600 dark:text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        </svg>
+                    </div>
+                    <div class="min-w-0 flex-1">
+                        <p class="font-medium text-black dark:text-white">{{ $class->name }}</p>
+                        @if($class->program)
+                        <p class="mt-1 truncate text-xs text-amber-600 dark:text-amber-400">{{ $class->program->name_ar }}</p>
+                        @endif
+                    </div>
+                </a>
+                @endforeach
+            </div>
+        @endif
     </div>
 
     <!-- Tab: Courses -->
@@ -271,7 +493,7 @@
                 <svg class="mb-3 h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
                 </svg>
-                <p class="text-sm">لا توجد مقررات دبلومات معيّنة لهذا المدرب</p>
+                <p class="text-sm">لا توجد مقررات معيّنة لهذا المدرب</p>
             </div>
         @else
             <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -298,4 +520,68 @@
         @endif
     </div>
 </div>
+
+@push('scripts')
+<script>
+// Shared behaviour for the three assign panels: live search, a running
+// "+added / −removed" summary, and a confirm before anything is unassigned.
+function assignPanel(initialIds, fieldName) {
+    return {
+        initial: initialIds.map(Number),
+        selected: initialIds.map(Number),
+        query: '',
+        fieldName,
+
+        // أ/إ/آ ≡ ا, ة ≡ ه, ى ≡ ي so search matches how admins type.
+        normalize(value) {
+            return (value || '').toLowerCase()
+                .replace(/[ـً-ْ]/g, '')
+                .replace(/[آأإٱ]/g, 'ا')
+                .replace(/ى/g, 'ي')
+                .replace(/ة/g, 'ه')
+                .replace(/\s+/g, ' ')
+                .trim();
+        },
+
+        matches(haystack) {
+            const q = this.normalize(this.query);
+            if (!q) return true;
+            const hay = this.normalize(haystack);
+            return q.split(' ').filter(Boolean).every(term => hay.includes(term));
+        },
+
+        groupVisible(el) {
+            return !this.query || el.querySelectorAll('label:not([style*="display: none"])').length > 0;
+        },
+
+        toggle(id, event) {
+            if (event.target.checked) {
+                if (!this.selected.includes(id)) this.selected.push(id);
+            } else {
+                this.selected = this.selected.filter(x => x !== id);
+            }
+        },
+
+        get addedCount()   { return this.selected.filter(id => !this.initial.includes(id)).length; },
+        get removedCount() { return this.initial.filter(id => !this.selected.includes(id)).length; },
+
+        summary() {
+            const parts = [this.selected.length + ' محدد'];
+            if (this.addedCount)   parts.push('+' + this.addedCount + ' إضافة');
+            if (this.removedCount) parts.push('−' + this.removedCount + ' إلغاء');
+            return parts.join(' · ');
+        },
+
+        confirmRemoval(event, noun) {
+            if (this.removedCount
+                && !confirm('سيتم إلغاء تعيين ' + this.removedCount + ' ' + noun + ' من هذا المدرب. هل تريد المتابعة؟')) {
+                event.preventDefault();
+                return false;
+            }
+            return true;
+        },
+    };
+}
+</script>
+@endpush
 @endsection

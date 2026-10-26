@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Program;
+use App\Models\ProgramClass;
 use App\Models\Subject;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -140,20 +141,78 @@ class TeacherController extends Controller
             'subjects.program',
             'subjects.term.program',
             'teachingPrograms',
+            'teachingClasses.program',
         ]);
 
         $allSubjects = $teacher->assignedSubjects->merge($teacher->subjects)->unique('id');
 
-        $diplomaSubjects = $allSubjects->filter(function ($subject) {
-            $prog = $subject->program ?? $subject->term?->program;
-            return $prog && $prog->type === 'diploma';
-        })->values();
+        // Every assigned subject, not just diploma ones: a non-diploma or
+        // program-less subject can be assigned, so it has to be visible here.
+        $diplomaSubjects = $allSubjects->sortBy(fn ($s) => $s->name_ar ?? $s->name)->values();
 
         $courses = $teacher->teachingPrograms->filter(
             fn($p) => in_array($p->type, ['training', 'english', 'course'])
         )->values();
 
-        return view('admin.teachers.show', compact('teacher', 'diplomaSubjects', 'courses'));
+        // Everything the assign panels on this page need.
+        $assignedSubjectIds = $allSubjects->pluck('id')->values();
+        $assignedProgramIds = $teacher->teachingPrograms->pluck('id')->values();
+        $assignedClassIds   = $teacher->teachingClasses->pluck('id')->values();
+
+        $programsByType = Program::with([
+            'terms.subjects' => function ($q) {
+                $q->select('subjects.id', 'subjects.name_ar', 'subjects.name_en', 'subjects.code')
+                  ->orderBy('subjects.name_ar');
+            },
+            'subjects' => function ($q) {
+                $q->select('subjects.id', 'subjects.program_id', 'subjects.name_ar', 'subjects.name_en', 'subjects.code')
+                  ->orderBy('subjects.name_ar');
+            },
+        ])->orderBy('name_ar')->get()->groupBy('type');
+
+        $orphanSubjects = Subject::whereNull('program_id')
+            ->whereNull('term_id')
+            ->whereDoesntHave('terms')
+            ->orderBy('name_ar')
+            ->get(['id', 'name_ar', 'name_en', 'code']);
+
+        $allPrograms = Program::select('id', 'name_ar', 'type', 'status')
+            ->whereIn('type', ['training', 'english', 'course'])
+            ->orderBy('type')->orderBy('name_ar')->get()->groupBy('type');
+
+        // A class belongs to one teacher, so show who currently holds each one.
+        $allClasses = ProgramClass::with('program:id,name_ar')
+            ->orderBy('name')
+            ->get(['id', 'name', 'program_id', 'teacher_id'])
+            ->groupBy(fn ($class) => $class->program->name_ar ?? 'بدون برنامج');
+
+        return view('admin.teachers.show', compact(
+            'teacher', 'diplomaSubjects', 'courses',
+            'assignedSubjectIds', 'assignedProgramIds', 'assignedClassIds',
+            'programsByType', 'orphanSubjects', 'allPrograms', 'allClasses'
+        ));
+    }
+
+    public function assignClasses(Request $request, User $teacher)
+    {
+        $validated = $request->validate([
+            'class_ids'   => 'nullable|array',
+            'class_ids.*' => 'exists:program_classes,id',
+        ]);
+
+        $classIds = array_map('intval', $validated['class_ids'] ?? []);
+
+        // program_classes.teacher_id is a single column, so assigning means
+        // claiming the class and releasing the ones no longer selected.
+        ProgramClass::where('teacher_id', $teacher->id)
+            ->when($classIds, fn ($q) => $q->whereNotIn('id', $classIds))
+            ->update(['teacher_id' => null]);
+
+        if ($classIds) {
+            ProgramClass::whereIn('id', $classIds)->update(['teacher_id' => $teacher->id]);
+        }
+
+        return back()->with('success', 'تم تحديث المجموعات للمدرب ' . $teacher->name);
     }
 
     public function edit(User $teacher)

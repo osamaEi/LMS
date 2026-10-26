@@ -385,6 +385,13 @@ class User extends Authenticatable
         return $this->belongsToMany(\App\Models\Program::class, 'program_teacher', 'teacher_id', 'program_id')->withTimestamps();
     }
 
+    // Classes (المجموعات) this teacher is responsible for. A class holds a
+    // single teacher_id, so this is one-to-many, not a pivot.
+    public function teachingClasses()
+    {
+        return $this->hasMany(\App\Models\ProgramClass::class, 'teacher_id');
+    }
+
     // Payments
     public function payments()
     {
