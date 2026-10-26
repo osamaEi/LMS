@@ -60,8 +60,11 @@ class StudentGradesService
         // Only subjects the teacher explicitly sent a grade report for. An
         // enrollment's final_grade or a graded quiz alone is NOT enough to
         // surface a subject here — the teacher has to send it to the student.
+        // Current training quarter only: subjects whose quarter is over are hidden.
         $subjectIds = $releasedRows->keys();
-        $subjects   = Subject::whereIn('id', $subjectIds)->with('teacher')->get()->keyBy('id');
+        $subjects   = Subject::whereIn('id', $subjectIds)
+            ->whereNotIn('id', Subject::quarterEnded()->select('id'))
+            ->with('teacher')->get()->keyBy('id');
 
         // Per-subject grade summary
         $subjectGrades = [];
