@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Program;
 use App\Models\ProgramClass;
+use App\Models\Session;
 use App\Models\Subject;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -123,16 +124,19 @@ class TeacherController extends Controller
 
         // Every assigned subject, not just diploma ones: a non-diploma or
         // program-less subject can be assigned, so it has to be visible here.
-        $diplomaSubjects = $allSubjects->sortBy(fn ($s) => $s->name_ar ?? $s->name)->values();
-
-        $courses = $teacher->teachingPrograms->filter(
-            fn($p) => in_array($p->type, ['training', 'english', 'course'])
-        )->values();
+        $subjects = $allSubjects->sortBy(fn ($s) => $s->name_ar ?? $s->name)->values();
+        $courses  = $teacher->teachingPrograms->sortBy('name_ar')->values();
+        $classes  = $teacher->teachingClasses->sortBy('name')->values();
 
         // Everything the assign panels on this page need.
         $assignedSubjectIds = $allSubjects->pluck('id')->values();
         $assignedProgramIds = $teacher->teachingPrograms->pluck('id')->values();
         $assignedClassIds   = $teacher->teachingClasses->pluck('id')->values();
+
+        $sessionStats = [
+            'total'    => Session::where('teacher_id', $teacher->id)->count(),
+            'upcoming' => Session::where('teacher_id', $teacher->id)->where('scheduled_at', '>', now())->count(),
+        ];
 
         $programsByType = Program::with([
             'terms.subjects' => function ($q) {
@@ -151,18 +155,21 @@ class TeacherController extends Controller
             ->orderBy('name_ar')
             ->get(['id', 'name_ar', 'name_en', 'code']);
 
+        // Course-type programs, plus any program already assigned whatever its
+        // type — assignPrograms() syncs, so an unlisted assignment would be dropped.
         $allPrograms = Program::select('id', 'name_ar', 'type', 'status')
-            ->whereIn('type', ['training', 'english', 'course'])
+            ->where(fn ($q) => $q->whereIn('type', ['training', 'english', 'course'])
+                                 ->orWhereIn('id', $assignedProgramIds))
             ->orderBy('type')->orderBy('name_ar')->get()->groupBy('type');
 
         // A class belongs to one teacher, so show who currently holds each one.
-        $allClasses = ProgramClass::with('program:id,name_ar')
+        $allClasses = ProgramClass::with(['program:id,name_ar', 'teacher:id,name'])
             ->orderBy('name')
             ->get(['id', 'name', 'program_id', 'teacher_id'])
             ->groupBy(fn ($class) => $class->program->name_ar ?? 'بدون برنامج');
 
         return view('admin.teachers.show', compact(
-            'teacher', 'diplomaSubjects', 'courses',
+            'teacher', 'subjects', 'courses', 'classes', 'sessionStats',
             'assignedSubjectIds', 'assignedProgramIds', 'assignedClassIds',
             'programsByType', 'orphanSubjects', 'allPrograms', 'allClasses'
         ));
@@ -270,7 +277,7 @@ class TeacherController extends Controller
             'status' => $teacher->status === 'active' ? 'inactive' : 'active',
         ]);
 
-        $label = $teacher->status === 'active' ? 'تم تفعيل المتدرب' : 'تم تعطيل المتدرب';
+        $label = $teacher->status === 'active' ? 'تم تفعيل المدرب' : 'تم تعطيل المدرب';
 
         return back()->with('success', $label . ' ' . $teacher->name);
     }
