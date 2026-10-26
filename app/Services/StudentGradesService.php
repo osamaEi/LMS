@@ -57,10 +57,6 @@ class StudentGradesService
 
         $quizAttempts = $quizAttempts->filter(fn ($attempt) => $attempt->canShowResults());
 
-        $finalGrades = Enrollment::where('student_id', $student->id)
-            ->whereNotNull('final_grade')
-            ->pluck('final_grade', 'subject_id');
-
         // Only subjects the teacher explicitly sent a grade report for. An
         // enrollment's final_grade or a graded quiz alone is NOT enough to
         // surface a subject here — the teacher has to send it to the student.
@@ -73,34 +69,26 @@ class StudentGradesService
             $subjectEvals   = $evaluations->where('subject_id', $subject->id);
             $subjectAttempts = $quizAttempts->filter(fn($a) => $a->quiz?->subject_id === $subject->id);
 
-            $totalEarned = $subjectEvals->sum('earned_score') + $subjectAttempts->max('score');
-            $totalMax    = $subjectEvals->sum('total_score') + $subjectAttempts->max(fn($a) => $a->quiz?->total_marks ?? 0);
-
-            $percentage = $totalMax > 0 ? round(($totalEarned / $totalMax) * 100, 1) : 0;
-            $breakdown = $releasedRows->get($subject->id);
-            if (isset($breakdown['total'])) {
-                $percentage = (float) $breakdown['total'];
-            }
-            $finalGrade = $finalGrades->get($subject->id);
-            if ($finalGrade !== null) {
-                $percentage = (float) $finalGrade;
-            }
+            // The number shown is the one the teacher sent, nothing else.
+            $breakdown  = $releasedRows->get($subject->id);
+            $percentage = (float) ($breakdown['total'] ?? 0);
 
             $subjectGrades[$subject->id] = [
                 'subject'     => $subject,
                 'evaluations' => $subjectEvals->values(),
                 'attempts'    => $subjectAttempts->values(),
                 'percentage'  => $percentage,
-                'final_grade' => $finalGrade,
+                'final_grade' => $breakdown['total'] ?? null,
                 'breakdown'   => $breakdown,
                 'grade_label' => $this->gradeLabel($percentage),
             ];
         }
 
+        // Counts cover the displayed subjects only, so they match what is shown.
         return [
             'subjectGrades'    => $subjectGrades,
-            'totalEvaluations' => $evaluations->count(),
-            'totalQuizzes'     => $quizAttempts->count(),
+            'totalEvaluations' => collect($subjectGrades)->sum(fn ($row) => $row['evaluations']->count()),
+            'totalQuizzes'     => collect($subjectGrades)->sum(fn ($row) => $row['attempts']->count()),
             'avgPercentage'    => collect($subjectGrades)->avg('percentage'),
             'sentReports'      => $sentReports,
         ];
