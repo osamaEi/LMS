@@ -63,7 +63,7 @@ class StudentGradesService
         // Current training quarter only: subjects whose quarter is over are hidden.
         $subjectIds = $releasedRows->keys();
         $subjects   = Subject::whereIn('id', $subjectIds)
-            ->whereNotIn('id', Subject::quarterEnded()->select('id'))
+            ->whereNotIn('id', Subject::query()->quarterEnded()->select('id'))
             ->with('teacher')->get()->keyBy('id');
 
         // Per-subject grade summary
