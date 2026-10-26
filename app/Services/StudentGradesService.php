@@ -61,18 +61,44 @@ class StudentGradesService
             ->whereNotNull('final_grade')
             ->pluck('final_grade', 'subject_id');
 
-        // Only subjects the student is actually enrolled in. A withdrawn
-        // enrollment is dropped; completed/failed ones keep showing their grade.
-        $enrolledSubjectIds = Enrollment::where('student_id', $student->id)
-            ->where('status', '!=', 'withdrawn')
-            ->pluck('subject_id');
-
         // Include saved final grades even when no assessments exist.
         $subjectIds = $evaluations->pluck('subject_id')
             ->merge($quizAttempts->pluck('quiz.subject_id'))
-            ->merge($finalGrades->keys())->merge($releasedRows->keys())->unique()->filter()
-            ->intersect($enrolledSubjectIds);
-        $subjects   = Subject::whereIn('id', $subjectIds)->with('teacher')->get()->keyBy('id');
+            ->merge($finalGrades->keys())->merge($releasedRows->keys())->unique()->filter();
+
+        // Keep only subjects the student actually has access to. A student
+        // reaches a subject either by a direct enrollment row or through the
+        // class they belong to (student_programs pivot / legacy users.class_id /
+        // extra class memberships) — mirroring QuizRepository::studentsForSubject.
+        // A withdrawn enrollment is dropped; completed/failed keep their grade.
+        $withdrawnSubjectIds = Enrollment::where('student_id', $student->id)
+            ->where('status', 'withdrawn')
+            ->pluck('subject_id')->filter();
+        $enrolledSubjectIds = Enrollment::where('student_id', $student->id)
+            ->where('status', '!=', 'withdrawn')
+            ->pluck('subject_id')->filter();
+        $studentClassIds = $student->allClassIds();
+
+        $subjects = Subject::whereIn('id', $subjectIds)
+            ->with('teacher')
+            ->get()
+            ->filter(function ($subject) use ($enrolledSubjectIds, $withdrawnSubjectIds, $studentClassIds) {
+                if ($enrolledSubjectIds->contains($subject->id)) {
+                    return true;
+                }
+                if ($withdrawnSubjectIds->contains($subject->id)) {
+                    return false;
+                }
+
+                // A subject tied to no class is visible to any class.
+                $subjectClassIds = $subject->classIds();
+                if ($subjectClassIds->isEmpty()) {
+                    return true;
+                }
+
+                return $subjectClassIds->intersect($studentClassIds)->isNotEmpty();
+            })
+            ->keyBy('id');
 
         // Per-subject grade summary
         $subjectGrades = [];
