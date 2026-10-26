@@ -216,8 +216,11 @@ class NotificationService
 
                 return [
                     'id' => $notification->id,
-                    'title' => $data['title'] ?? $data['session_title'] ?? $data['quiz_title'] ?? null,
-                    'description' => $data['body'] ?? $data['message_ar'] ?? null,
+                    'title' => $data['title'] ?? $data['session_title'] ?? $data['quiz_title'] ?? 'إشعار',
+                    'description' => $data['message_ar'] ?? $data['body'] ?? $data['subject_name'] ?? '',
+                    'action_url' => $data['action_url'] ?? null,
+                    'scheduled_at_formatted' => $data['scheduled_at_formatted'] ?? null,
+                    'data' => $data,
                     'read_at' => $notification->read_at,
                     'created_at' => $notification->created_at->toIso8601String(),
                     'created_at_human' => $notification->created_at->diffForHumans(),

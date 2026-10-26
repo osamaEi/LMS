@@ -101,14 +101,14 @@
                     {{-- Content --}}
                     <div style="flex:1;min-width:0">
                         <p style="font-size:0.875rem;font-weight:700;color:#111827;margin:0;line-height:1.35"
-                           x-text="notification.data.session_title || notification.data.title || 'إشعار'"></p>
+                           x-text="notification.title || 'إشعار'"></p>
                         <p style="font-size:0.78rem;color:#6b7280;margin:3px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"
-                           x-text="notification.data.subject_name || notification.data.body || ''"></p>
+                           x-text="notification.description || ''"></p>
                         <div style="display:flex;align-items:center;gap:6px;margin-top:5px;flex-wrap:wrap">
                             <span style="font-size:0.72rem;color:#9ca3af" x-text="notification.created_at_human"></span>
-                            <template x-if="notification.data.scheduled_at_formatted">
+                            <template x-if="notification.scheduled_at_formatted">
                                 <span style="display:inline-flex;align-items:center;border-radius:999px;padding:1px 8px;font-size:0.72rem;font-weight:600;background:#eff6ff;color:#0071AA"
-                                      x-text="notification.data.scheduled_at_formatted"></span>
+                                      x-text="notification.scheduled_at_formatted"></span>
                             </template>
                         </div>
                     </div>
@@ -181,7 +181,7 @@ function notificationDropdown() {
 
         async handleNotificationClick(notification) {
             if (!notification.read_at) await this.markAsRead(notification.id);
-            if (notification.data.action_url) window.location.href = notification.data.action_url;
+            if (notification.action_url) window.location.href = notification.action_url;
         },
 
         async markAsRead(id) {

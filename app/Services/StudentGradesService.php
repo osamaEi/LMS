@@ -61,10 +61,17 @@ class StudentGradesService
             ->whereNotNull('final_grade')
             ->pluck('final_grade', 'subject_id');
 
+        // Only subjects the student is actually enrolled in. A withdrawn
+        // enrollment is dropped; completed/failed ones keep showing their grade.
+        $enrolledSubjectIds = Enrollment::where('student_id', $student->id)
+            ->where('status', '!=', 'withdrawn')
+            ->pluck('subject_id');
+
         // Include saved final grades even when no assessments exist.
         $subjectIds = $evaluations->pluck('subject_id')
             ->merge($quizAttempts->pluck('quiz.subject_id'))
-            ->merge($finalGrades->keys())->merge($releasedRows->keys())->unique()->filter();
+            ->merge($finalGrades->keys())->merge($releasedRows->keys())->unique()->filter()
+            ->intersect($enrolledSubjectIds);
         $subjects   = Subject::whereIn('id', $subjectIds)->with('teacher')->get()->keyBy('id');
 
         // Per-subject grade summary
