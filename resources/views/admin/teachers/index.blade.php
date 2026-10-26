@@ -40,48 +40,71 @@
         flex: 1;
         min-width: 110px;
     }
-    .teacher-card {
+    .table-card {
         background: #fff;
-        border-radius: 20px;
+        border-radius: 18px;
         border: 1.5px solid #f1f5f9;
         overflow: hidden;
-        transition: all 0.25s;
-        display: flex;
-        flex-direction: column;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+        margin-bottom: 8px;
     }
-    .dark .teacher-card {
-        background: #1e293b;
-        border-color: rgba(255,255,255,0.08);
+    .dark .table-card { background: #1e293b; border-color: rgba(255,255,255,0.08); }
+    .teachers-table { width: 100%; min-width: 980px; border-collapse: collapse; font-size: 0.85rem; }
+    .teachers-table th {
+        padding: 12px 14px;
+        text-align: right;
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: #94a3b8;
+        background: #f8fafc;
+        border-bottom: 2px solid #f1f5f9;
+        white-space: nowrap;
     }
-    .teacher-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 20px 60px rgba(0,0,0,0.1);
-        border-color: #6366f1;
+    .teachers-table td { padding: 12px 14px; vertical-align: middle; border-bottom: 1px solid #f8fafc; }
+    .teachers-table tbody tr { transition: background 0.1s; }
+    .teachers-table tbody tr:hover { background: #f8faff; }
+    .dark .teachers-table th { background: rgba(255,255,255,0.04); border-bottom-color: rgba(255,255,255,0.08); }
+    .dark .teachers-table td { border-bottom-color: rgba(255,255,255,0.05); }
+    .dark .teachers-table tbody tr:hover { background: rgba(255,255,255,0.03); }
+    .teacher-name {
+        display: block;
+        font-weight: 800;
+        color: #111827;
+        font-size: 0.875rem;
+        text-decoration: none;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 220px;
     }
-    /* Actions stay visible: hiding them behind :hover made assign/edit/delete
-       undiscoverable and unreachable on touch devices. */
-    .card-actions {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        padding-top: 14px;
-        border-top: 1px solid #f1f5f9;
+    .teacher-name:hover { color: #4f46e5; }
+    .dark .teacher-name { color: #fff; }
+    .cell-ltr { direction: ltr; text-align: right; }
+    .chip {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 999px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        white-space: nowrap;
     }
-    .dark .card-actions { border-top-color: rgba(255,255,255,0.08); }
+    .row-actions { display: flex; gap: 6px; flex-wrap: nowrap; }
     .action-btn {
         display: inline-flex;
         align-items: center;
         justify-content: center;
         gap: 5px;
-        padding: 7px 14px;
-        border-radius: 10px;
-        font-size: 0.78rem;
+        padding: 6px 11px;
+        border-radius: 9px;
+        font-size: 0.75rem;
         font-weight: 700;
         text-decoration: none;
-        transition: all 0.15s;
+        transition: filter 0.15s;
         border: none;
         cursor: pointer;
+        white-space: nowrap;
     }
+    .action-btn:hover { filter: brightness(0.95); }
     .search-input {
         width: 100%;
         padding: 10px 16px 10px 42px;
@@ -103,18 +126,16 @@
         box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
     }
     .avatar-initials {
-        width: 72px;
-        height: 72px;
+        width: 36px;
+        height: 36px;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.5rem;
-        font-weight: 900;
+        font-size: 0.8rem;
+        font-weight: 800;
         color: #fff;
         flex-shrink: 0;
-        border: 3px solid rgba(255,255,255,0.3);
-        box-shadow: 0 8px 24px rgba(0,0,0,0.2);
     }
 </style>
 @endpush
@@ -214,230 +235,167 @@
         </div>
     </div>
 
-    {{-- Cards Grid --}}
+    {{-- Teachers Table --}}
     @if($teachers->count())
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px;margin-bottom:24px">
-        @foreach($teachers as $teacher)
-        @php
-            $colors = ['#6366f1','#8b5cf6','#0071AA','#0891b2','#059669','#d97706','#dc2626','#db2777'];
-            $color  = $colors[$teacher->id % count($colors)];
-            $initials = collect(explode(' ', $teacher->name))->take(2)->map(fn($w) => mb_substr($w, 0, 1))->join('');
-            // Pivot assignments plus legacy subjects.teacher_id — the modal must
-            // open pre-checked with BOTH, or saving would drop the legacy ones.
-            $allAssigned = $teacher->assignedSubjects->merge($teacher->subjects)->unique('id');
-            $isActive = $teacher->status === 'active';
-        @endphp
-        <div class="teacher-card">
-            {{-- Top color accent --}}
-            <div style="height:5px;background:linear-gradient(90deg,{{ $color }},{{ $color }}88)"></div>
+    <div class="table-card">
+        <div style="overflow-x:auto">
+            <table class="teachers-table">
+                <thead>
+                    <tr>
+                        <th style="width:44px">#</th>
+                        <th>المدرب</th>
+                        <th>التواصل</th>
+                        <th>المقررات</th>
+                        <th>الدورات</th>
+                        <th style="width:90px">الحالة</th>
+                        <th style="width:1%">الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($teachers as $teacher)
+                    @php
+                        $colors = ['#6366f1','#8b5cf6','#0071AA','#0891b2','#059669','#d97706','#dc2626','#db2777'];
+                        $color  = $colors[$teacher->id % count($colors)];
+                        $initials = collect(explode(' ', $teacher->name))->take(2)->map(fn($w) => mb_substr($w, 0, 1))->join('');
+                        // Pivot assignments plus the legacy subjects.teacher_id column.
+                        $allAssigned = $teacher->assignedSubjects->merge($teacher->subjects)->unique('id');
+                        $isActive = $teacher->status === 'active';
+                        $progTypeColors = ['training'=>'#6366f1','english'=>'#0891b2','course'=>'#059669','diploma'=>'#d97706'];
+                    @endphp
+                    <tr>
+                        <td style="color:#cbd5e1;font-size:0.72rem">
+                            {{ $loop->iteration + ($teachers->currentPage() - 1) * $teachers->perPage() }}
+                        </td>
 
-            <div style="padding:20px">
-                {{-- Avatar + info --}}
-                <div style="display:flex;align-items:flex-start;gap:14px;margin-bottom:16px">
-                    <div class="avatar-initials" style="background:linear-gradient(135deg,{{ $color }},{{ $color }}bb)">
-                        {{ $initials }}
-                    </div>
-                    <div style="flex:1;min-width:0">
-                        <h3 style="font-size:1rem;font-weight:800;color:#111827;margin:0 0 3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" class="dark:text-white">
-                            {{ $teacher->name }}
-                        </h3>
-                        <p style="font-size:0.78rem;color:#6b7280;margin:0 0 8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
-                            {{ $teacher->email }}
-                        </p>
-                        {{-- Subjects count badge --}}
-                        @php $assignedCount = $allAssigned->count(); @endphp
-                        <span style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;font-size:0.72rem;font-weight:700;background:{{ $color }}18;color:{{ $color }}">
-                            <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3z"/>
-                            </svg>
-                            {{ $assignedCount }} {{ $assignedCount === 1 ? 'مادة' : 'مقررات' }}
-                        </span>
-                    </div>
-                </div>
+                        {{-- Teacher --}}
+                        <td>
+                            <div style="display:flex;align-items:center;gap:10px">
+                                <div class="avatar-initials" style="background:linear-gradient(135deg,{{ $color }},{{ $color }}bb)">
+                                    {{ $initials }}
+                                </div>
+                                <div style="min-width:0">
+                                    <a href="{{ route('admin.teachers.show', $teacher) }}" class="teacher-name">{{ $teacher->name }}</a>
+                                    <div style="font-size:0.72rem;color:#9ca3af;margin-top:2px">
+                                        انضم {{ $teacher->created_at->diffForHumans() }}
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
 
-                {{-- Assigned subjects list (pivot + legacy teacher_id, same as /my-subjects) --}}
-                @if($allAssigned->count())
-                <div style="margin-bottom:14px">
-                    <p style="font-size:0.72rem;font-weight:700;color:#9ca3af;margin:0 0 7px;text-transform:uppercase;letter-spacing:.05em">المقررات المعيّنة</p>
-                    <div style="display:flex;flex-direction:column;gap:5px">
-                        @foreach($allAssigned->take(4) as $subj)
-                        <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:#f8faff;border-radius:9px;border-right:3px solid {{ $color }}" class="dark:bg-white/5">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="{{ $color }}">
-                                <path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3z"/>
-                            </svg>
-                            <span style="font-size:0.8rem;font-weight:600;color:#111827;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" class="dark:text-white">
-                                {{ $subj->name_ar }}
-                            </span>
-                            <span style="font-size:0.68rem;color:#9ca3af;flex-shrink:0">{{ $subj->code }}</span>
-                        </div>
-                        @endforeach
-                        @if($allAssigned->count() > 4)
-                        <div style="text-align:center;padding:5px;font-size:0.72rem;color:#6b7280">
-                            + {{ $allAssigned->count() - 4 }} مقررات أخرى
-                        </div>
-                        @endif
-                    </div>
-                </div>
-                @else
-                <div style="margin-bottom:14px;padding:10px 12px;background:#fafafa;border-radius:10px;border:1.5px dashed #e5e7eb;text-align:center">
-                    <span style="font-size:0.78rem;color:#9ca3af">لم يتم تعيين مقررات بعد</span>
-                </div>
-                @endif
-
-                {{-- Assigned programs --}}
-                @if($teacher->teachingPrograms->count())
-                @php
-                $progTypeColors = ['training'=>'#6366f1','english'=>'#0891b2','course'=>'#059669','diploma'=>'#d97706'];
-                $progTypeLabels = ['training'=>'تدريبي','english'=>'إنجليزي','course'=>'تأهيلي','diploma'=>'دبلوم'];
-                @endphp
-                <div style="margin-bottom:14px">
-                    <p style="font-size:0.72rem;font-weight:700;color:#9ca3af;margin:0 0 7px;text-transform:uppercase;letter-spacing:.05em">الدورات المعيّنة</p>
-                    <div style="display:flex;flex-direction:column;gap:5px">
-                        @foreach($teacher->teachingPrograms as $prog)
-                        @php $pc = $progTypeColors[$prog->type] ?? '#6b7280'; $pl = $progTypeLabels[$prog->type] ?? $prog->type; @endphp
-                        <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:#f0fdf4;border-radius:9px;border-right:3px solid {{ $pc }}">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="{{ $pc }}" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5"/>
-                            </svg>
-                            <span style="font-size:0.8rem;font-weight:600;color:#111827;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" class="dark:text-white">
-                                {{ $prog->name_ar }}
-                            </span>
-                            <span style="font-size:0.65rem;padding:2px 6px;border-radius:999px;background:{{ $pc }}18;color:{{ $pc }};font-weight:700;flex-shrink:0">{{ $pl }}</span>
-                        </div>
-                        @endforeach
-                    </div>
-                </div>
-                @endif
-
-                {{-- Meta info --}}
-                <div style="display:flex;flex-direction:column;gap:6px;padding:12px;background:#f8faff;border-radius:12px;margin-bottom:14px" class="dark:bg-white/5">
-                    @if($teacher->phone)
-                    <div style="display:flex;align-items:center;gap:8px;font-size:0.78rem;color:#6b7280">
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="{{ $color }}" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
-                        </svg>
-                        <span>{{ $teacher->phone }}</span>
-                    </div>
-                    @endif
-                    @if($teacher->national_id)
-                    <div style="display:flex;align-items:center;gap:8px;font-size:0.78rem;color:#6b7280">
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="{{ $color }}" stroke-width="2">
-                            <rect x="3" y="6" width="18" height="13" rx="2"/><path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M8 13h.01M12 10h4M12 13h4"/>
-                        </svg>
-                        <span style="font-family:monospace;letter-spacing:0.05em">{{ $teacher->national_id }}</span>
-                    </div>
-                    @endif
-                    <div style="display:flex;align-items:center;gap:8px;font-size:0.78rem;color:#6b7280">
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="{{ $color }}" stroke-width="2">
-                            <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-                        </svg>
-                        <span>انضم {{ $teacher->created_at->diffForHumans() }}</span>
-                    </div>
-                </div>
-
-                {{-- Status badge --}}
-                <div style="margin-bottom:12px">
-                    <span style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;font-size:0.72rem;font-weight:700;
-                          background:{{ $isActive ? '#dcfce7' : '#fee2e2' }};color:{{ $isActive ? '#16a34a' : '#dc2626' }}">
-                        <span style="width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block"></span>
-                        {{ $isActive ? 'نشط' : 'معطّل' }}
-                    </span>
-                </div>
-
-                {{-- Actions --}}
-                <div class="card-actions">
-                    @if($teacher->status === 'active')
-                    <form action="{{ route('admin.teachers.dashboard-access', $teacher) }}" method="POST">
-                        @csrf
-                        <button type="submit" title="دخول لوحة المدرّس {{ $teacher->name }}"
-                                style="display:inline-flex;align-items:center;padding:8px 14px;border-radius:10px;background:#d1fae5;color:#065f46;font-weight:700;font-size:0.8rem;border:0;cursor:pointer">
-                            دخول لوحة المدرّس
-                        </button>
-                    </form>
-                    @endif
-                    <a href="{{ route('admin.teachers.show', $teacher) }}"
-                       class="action-btn"
-                       style="flex:1;background:#ede9fe;color:#6d28d9;justify-content:center">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                        </svg>
-                        عرض
-                    </a>
-                    <a href="{{ route('admin.teachers.edit', $teacher) }}"
-                       class="action-btn"
-                       style="flex:1;background:#fef3c7;color:#b45309;justify-content:center">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                        </svg>
-                        تعديل
-                    </a>
-
-                    {{-- Assign programs (direct) --}}
-                    <button type="button" class="action-btn"
-                            style="flex:1;background:#f0fdf4;color:#15803d;justify-content:center"
-                            onclick="openProgramModal({{ $teacher->id }}, {{ Js::from($teacher->name) }}, {{ $teacher->teachingPrograms->pluck('id')->values()->toJson() }})">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-                        </svg>
-                        دورات
-                    </button>
-
-                    {{-- Assign subjects --}}
-                    <button type="button" class="action-btn"
-                            style="flex:1;background:#e0f2fe;color:#0369a1;justify-content:center"
-                            onclick="openAssignModal({{ $teacher->id }}, {{ Js::from($teacher->name) }}, {{ $allAssigned->pluck('id')->values()->toJson() }})">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-                        </svg>
-                        مقررات
-                    </button>
-
-                    {{-- Toggle active/inactive --}}
-                    <form action="{{ route('admin.teachers.toggle-status', $teacher) }}" method="POST">
-                        @csrf
-                        @method('PATCH')
-                        <button type="submit" class="action-btn"
-                                style="background:{{ $isActive ? '#fef9c3' : '#dcfce7' }};color:{{ $isActive ? '#92400e' : '#15803d' }}"
-                                title="{{ $isActive ? 'تعطيل حساب ' . $teacher->name : 'تفعيل حساب ' . $teacher->name }}">
-                            @if($isActive)
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
-                            </svg>
-                            تعطيل
-                            @else
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                            تفعيل
+                        {{-- Contact --}}
+                        <td>
+                            <div class="cell-ltr" style="font-size:0.78rem;color:#475569;max-width:210px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"
+                                 title="{{ $teacher->email }}">{{ $teacher->email }}</div>
+                            @if($teacher->phone)
+                            <div class="cell-ltr" style="font-size:0.75rem;color:#94a3b8;margin-top:2px">{{ $teacher->phone }}</div>
                             @endif
-                        </button>
-                    </form>
+                            @if($teacher->national_id)
+                            <div class="cell-ltr" style="font-size:0.72rem;color:#cbd5e1;font-family:monospace;margin-top:2px">{{ $teacher->national_id }}</div>
+                            @endif
+                        </td>
 
-                    <form action="{{ route('admin.teachers.destroy', $teacher) }}" method="POST"
-                          onsubmit="return confirm('هل أنت متأكد من حذف المدرب ' + {{ Js::from($teacher->name) }} + '؟ لا يمكن التراجع عن هذا الإجراء.')">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="action-btn" style="background:#fee2e2;color:#dc2626"
-                                title="حذف {{ $teacher->name }}">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                            </svg>
-                            حذف
-                        </button>
-                    </form>
-                </div>
-            </div>
+                        {{-- Subjects --}}
+                        <td>
+                            @if($allAssigned->count())
+                            <div style="display:flex;flex-wrap:wrap;gap:4px;max-width:250px">
+                                @foreach($allAssigned->take(3) as $subj)
+                                <span class="chip" style="background:{{ $color }}14;color:{{ $color }}" title="{{ $subj->name_ar }}">
+                                    {{ Str::limit($subj->name_ar, 20) }}
+                                </span>
+                                @endforeach
+                                @if($allAssigned->count() > 3)
+                                <span class="chip" style="background:#f1f5f9;color:#64748b"
+                                      title="{{ $allAssigned->skip(3)->pluck('name_ar')->implode('، ') }}">
+                                    +{{ $allAssigned->count() - 3 }}
+                                </span>
+                                @endif
+                            </div>
+                            @else
+                            <span style="font-size:0.75rem;color:#cbd5e1">—</span>
+                            @endif
+                        </td>
+
+                        {{-- Programs --}}
+                        <td>
+                            @if($teacher->teachingPrograms->count())
+                            <div style="display:flex;flex-wrap:wrap;gap:4px;max-width:200px">
+                                @foreach($teacher->teachingPrograms->take(2) as $prog)
+                                @php $pc = $progTypeColors[$prog->type] ?? '#6b7280'; @endphp
+                                <span class="chip" style="background:{{ $pc }}14;color:{{ $pc }}" title="{{ $prog->name_ar }}">
+                                    {{ Str::limit($prog->name_ar, 18) }}
+                                </span>
+                                @endforeach
+                                @if($teacher->teachingPrograms->count() > 2)
+                                <span class="chip" style="background:#f1f5f9;color:#64748b"
+                                      title="{{ $teacher->teachingPrograms->skip(2)->pluck('name_ar')->implode('، ') }}">
+                                    +{{ $teacher->teachingPrograms->count() - 2 }}
+                                </span>
+                                @endif
+                            </div>
+                            @else
+                            <span style="font-size:0.75rem;color:#cbd5e1">—</span>
+                            @endif
+                        </td>
+
+                        {{-- Status --}}
+                        <td>
+                            <span style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;font-size:0.72rem;font-weight:700;
+                                  background:{{ $isActive ? '#dcfce7' : '#fee2e2' }};color:{{ $isActive ? '#16a34a' : '#dc2626' }}">
+                                <span style="width:6px;height:6px;border-radius:50%;background:currentColor"></span>
+                                {{ $isActive ? 'نشط' : 'معطّل' }}
+                            </span>
+                        </td>
+
+                        {{-- Actions. Assigning subjects/courses/classes lives on the
+                             teacher page now, so this column only links there. --}}
+                        <td>
+                            <div class="row-actions">
+                                <a href="{{ route('admin.teachers.show', $teacher) }}" class="action-btn"
+                                   style="background:#ede9fe;color:#6d28d9">عرض وتعيين</a>
+                                <a href="{{ route('admin.teachers.edit', $teacher) }}" class="action-btn"
+                                   style="background:#fef3c7;color:#b45309">تعديل</a>
+
+                                @if($isActive)
+                                <form action="{{ route('admin.teachers.dashboard-access', $teacher) }}" method="POST" style="margin:0">
+                                    @csrf
+                                    <button type="submit" class="action-btn" style="background:#d1fae5;color:#065f46"
+                                            title="دخول لوحة المدرّس {{ $teacher->name }}">لوحة المدرّس</button>
+                                </form>
+                                @endif
+
+                                <form action="{{ route('admin.teachers.toggle-status', $teacher) }}" method="POST" style="margin:0">
+                                    @csrf
+                                    @method('PATCH')
+                                    <button type="submit" class="action-btn"
+                                            style="background:{{ $isActive ? '#fef9c3' : '#dcfce7' }};color:{{ $isActive ? '#92400e' : '#15803d' }}"
+                                            title="{{ $isActive ? 'تعطيل حساب ' . $teacher->name : 'تفعيل حساب ' . $teacher->name }}">
+                                        {{ $isActive ? 'تعطيل' : 'تفعيل' }}
+                                    </button>
+                                </form>
+
+                                <form action="{{ route('admin.teachers.destroy', $teacher) }}" method="POST" style="margin:0"
+                                      onsubmit="return confirm('هل أنت متأكد من حذف المدرب ' + {{ Js::from($teacher->name) }} + '؟ لا يمكن التراجع عن هذا الإجراء.')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="action-btn" style="background:#fee2e2;color:#dc2626"
+                                            title="حذف {{ $teacher->name }}">حذف</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
         </div>
-        @endforeach
     </div>
 
     {{-- Pagination --}}
     @if($teachers->hasPages())
-    <div style="display:flex;justify-content:center;padding:8px 0">
+    <div style="display:flex;justify-content:center;padding:16px 0">
         {{ $teachers->links() }}
     </div>
     @endif
+
 
     @else
     {{-- Empty State --}}
@@ -471,487 +429,4 @@
     @endif
 
 </div>
-
-{{-- Assign Subjects Modal --}}
-<div id="assign-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.5);align-items:center;justify-content:center;padding:16px" onclick="if(event.target===this)closeAssignModal()">
-    <div style="background:#fff;border-radius:18px;width:100%;max-width:520px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,0.25)" class="dark:bg-slate-800">
-        {{-- Modal header --}}
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid #f1f5f9">
-            <div>
-                <h3 style="font-size:1rem;font-weight:800;color:#111827;margin:0" class="dark:text-white" id="modal-title">تعيين المقررات</h3>
-                <p style="font-size:0.78rem;color:#6b7280;margin:3px 0 0" id="modal-subtitle">
-                    ✓ محدد = معيّن له · إزالة العلامة = إلغاء التعيين عند الحفظ
-                </p>
-            </div>
-            <button onclick="closeAssignModal()" style="width:32px;height:32px;border-radius:8px;border:none;background:#f1f5f9;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#6b7280">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-                </svg>
-            </button>
-        </div>
-
-        {{-- Search inside modal --}}
-        <div style="padding:14px 22px 0">
-            <input type="text" id="modal-search" placeholder="ابحث في المقررات..."
-                   oninput="filterModalSubjects(this.value)"
-                   style="width:100%;padding:8px 12px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:0.875rem;color:#111827;box-sizing:border-box;outline:none">
-        </div>
-
-        {{-- Programs grouped by type --}}
-        <p id="modal-no-results" style="display:none;text-align:center;color:#9ca3af;font-size:0.85rem;padding:20px 22px 0;margin:0">
-            لا توجد مقررات مطابقة للبحث
-        </p>
-
-        <div style="max-height:380px;overflow-y:auto;padding:14px 22px" id="modal-subjects-list">
-            @php
-            $typeConfig = [
-                'training' => ['label' => 'البرامج التدريبية',       'color' => '#6366f1', 'bg' => '#ede9fe'],
-                'english'  => ['label' => 'دورات اللغة الإنجليزية',  'color' => '#0891b2', 'bg' => '#e0f2fe'],
-                'course'   => ['label' => 'الدورات التأهيلية',        'color' => '#059669', 'bg' => '#dcfce7'],
-            ];
-            @endphp
-            @forelse($programsByType as $type => $programs)
-            @php $cfg = $typeConfig[$type] ?? ['label' => $type, 'color' => '#6b7280', 'bg' => '#f3f4f6']; @endphp
-            <div class="type-section" data-type="{{ $type }}" style="margin-bottom:14px">
-                <div style="display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:8px;background:{{ $cfg['bg'] }};margin-bottom:6px">
-                    <span style="font-size:0.72rem;font-weight:800;color:{{ $cfg['color'] }};text-transform:uppercase;letter-spacing:.06em">{{ $cfg['label'] }}</span>
-                </div>
-                @foreach($programs as $prog)
-                {{-- Term subjects AND subjects attached straight to the program. --}}
-                @php $subjects = $prog->terms->flatMap->subjects->merge($prog->subjects)->unique('id')->sortBy('name_ar'); @endphp
-                @if($subjects->count())
-                <div class="prog-block" data-prog="{{ $prog->id }}" style="margin-bottom:4px">
-                    <div class="prog-hdr-row" style="display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:9px;cursor:pointer;border:1.5px solid #f1f5f9;transition:background 0.1s"
-                         onmouseover="this.style.background='#f8faff'" onmouseout="this.style.background=''"
-                         onclick="toggleProgBlock(this)">
-                        <input type="checkbox" class="prog-all-cb" data-prog="{{ $prog->id }}"
-                               onclick="event.stopPropagation()" onchange="toggleProgramSubjects(this)"
-                               style="width:15px;height:15px;accent-color:{{ $cfg['color'] }};cursor:pointer;flex-shrink:0">
-                        <span style="flex:1;font-size:0.84rem;font-weight:700;color:#111827;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" class="dark:text-white">{{ $prog->name_ar }}</span>
-                        <span style="font-size:0.7rem;color:#9ca3af;flex-shrink:0;background:#f3f4f6;padding:2px 7px;border-radius:999px">{{ $subjects->count() }}</span>
-                        <svg class="prog-arrow" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2.5" style="flex-shrink:0;transition:transform 0.2s;transform:rotate(180deg)">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
-                        </svg>
-                    </div>
-                    <div class="prog-subjects-div" style="display:block;padding:4px 4px 4px 24px">
-                        @foreach($subjects as $subj)
-                        <label class="subj-label" id="subj-row-{{ $subj->id }}"
-                               style="display:flex;align-items:center;gap:10px;padding:6px 10px;border-radius:8px;cursor:pointer;margin-bottom:2px;transition:background 0.1s"
-                               onmouseover="this.style.background='#f8faff'" onmouseout="this.style.background='transparent'">
-                            <input type="checkbox" class="assign-cb" value="{{ $subj->id }}" data-prog="{{ $prog->id }}"
-                                   style="width:14px;height:14px;accent-color:#0071AA;cursor:pointer;flex-shrink:0">
-                            <div style="flex:1;min-width:0">
-                                <p style="font-size:0.82rem;font-weight:600;color:#111827;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" class="dark:text-white">{{ $subj->name_ar }}</p>
-                                <p style="font-size:0.7rem;color:#9ca3af;margin:1px 0 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ $subj->code }}{{ $subj->name_en ? ' · ' . $subj->name_en : '' }}</p>
-                            </div>
-                        </label>
-                        @endforeach
-                    </div>
-                </div>
-                @endif
-                @endforeach
-            </div>
-            @empty
-            <p style="text-align:center;color:#9ca3af;font-size:0.875rem;padding:24px 0">لا توجد برامج أو مقررات</p>
-            @endforelse
-
-            {{-- Subjects not linked to any program; without these the save
-                 would unassign them because they were never rendered. --}}
-            @if($orphanSubjects->count())
-            <div class="type-section" data-type="orphan" style="margin-bottom:14px">
-                <div style="display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:8px;background:#f3f4f6;margin-bottom:6px">
-                    <span style="font-size:0.72rem;font-weight:800;color:#6b7280;letter-spacing:.06em">مقررات غير مرتبطة ببرنامج</span>
-                </div>
-                <div class="prog-block" data-prog="orphan">
-                    <div class="prog-subjects-div" style="display:block;padding:4px">
-                        @foreach($orphanSubjects as $subj)
-                        <label class="subj-label"
-                               style="display:flex;align-items:center;gap:10px;padding:6px 10px;border-radius:8px;cursor:pointer;margin-bottom:2px;transition:background 0.1s"
-                               onmouseover="this.style.background='#f8faff'" onmouseout="this.style.background='transparent'">
-                            <input type="checkbox" class="assign-cb" value="{{ $subj->id }}" data-prog="orphan"
-                                   style="width:14px;height:14px;accent-color:#0071AA;cursor:pointer;flex-shrink:0">
-                            <div style="flex:1;min-width:0">
-                                <p style="font-size:0.82rem;font-weight:600;color:#111827;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" class="dark:text-white">{{ $subj->name_ar }}</p>
-                                <p style="font-size:0.7rem;color:#9ca3af;margin:1px 0 0">{{ $subj->code }}{{ $subj->name_en ? ' · ' . $subj->name_en : '' }}</p>
-                            </div>
-                        </label>
-                        @endforeach
-                    </div>
-                </div>
-            </div>
-            @endif
-        </div>
-
-        {{-- Footer --}}
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 22px;border-top:1px solid #f1f5f9;gap:10px">
-            <span style="font-size:0.78rem;color:#6b7280" id="modal-selected-count">0 مقرر محدد</span>
-            <div style="display:flex;gap:8px">
-                <button onclick="closeAssignModal()" style="padding:8px 18px;border-radius:10px;border:1.5px solid #e5e7eb;background:#fff;color:#374151;font-size:0.875rem;font-weight:700;cursor:pointer">
-                    إلغاء
-                </button>
-                <button onclick="submitAssign()" style="padding:8px 22px;border-radius:10px;border:none;background:#0071AA;color:#fff;font-size:0.875rem;font-weight:700;cursor:pointer">
-                    حفظ
-                </button>
-            </div>
-        </div>
-
-        {{-- Hidden form --}}
-        <form id="assign-form" method="POST" style="display:none">
-            @csrf
-            <div id="assign-inputs"></div>
-        </form>
-    </div>
-</div>
-
-{{-- Assign Programs Modal --}}
-<div id="prog-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.5);align-items:center;justify-content:center;padding:16px" onclick="if(event.target===this)closeProgramModal()">
-    <div style="background:#fff;border-radius:18px;width:100%;max-width:480px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,0.25)" class="dark:bg-slate-800">
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid #f1f5f9">
-            <div>
-                <h3 style="font-size:1rem;font-weight:800;color:#111827;margin:0" class="dark:text-white" id="prog-modal-title">تعيين الدورات</h3>
-                <p style="font-size:0.78rem;color:#6b7280;margin:3px 0 0">
-                    ✓ محدد = معيّن له · إزالة العلامة = إلغاء التعيين عند الحفظ
-                </p>
-            </div>
-            <button onclick="closeProgramModal()" style="width:32px;height:32px;border-radius:8px;border:none;background:#f1f5f9;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#6b7280">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-                </svg>
-            </button>
-        </div>
-
-        <div style="max-height:400px;overflow-y:auto;padding:16px 22px" id="prog-modal-list">
-            @php
-            $progTypeConfig = [
-                'training' => ['label' => 'البرامج التدريبية',       'color' => '#6366f1', 'bg' => '#ede9fe'],
-                'english'  => ['label' => 'دورات اللغة الإنجليزية',  'color' => '#0891b2', 'bg' => '#e0f2fe'],
-                'course'   => ['label' => 'الدورات التأهيلية',        'color' => '#059669', 'bg' => '#dcfce7'],
-                'diploma'  => ['label' => 'الدبلومات',                'color' => '#d97706', 'bg' => '#fef3c7'],
-            ];
-            @endphp
-            @forelse($allPrograms as $type => $programs)
-            @php $pcfg = $progTypeConfig[$type] ?? ['label' => $type, 'color' => '#6b7280', 'bg' => '#f3f4f6']; @endphp
-            <div style="margin-bottom:14px">
-                <div style="padding:5px 10px;border-radius:8px;background:{{ $pcfg['bg'] }};margin-bottom:6px">
-                    <span style="font-size:0.72rem;font-weight:800;color:{{ $pcfg['color'] }};letter-spacing:.06em">{{ $pcfg['label'] }}</span>
-                </div>
-                @foreach($programs as $prog)
-                <label style="display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;cursor:pointer;margin-bottom:4px;border:1.5px solid #f1f5f9;transition:border-color 0.15s"
-                       onmouseover="this.style.borderColor='{{ $pcfg['color'] }}33'" onmouseout="this.style.borderColor='#f1f5f9'">
-                    <input type="checkbox" class="prog-top-cb" value="{{ $prog->id }}"
-                           style="width:16px;height:16px;accent-color:{{ $pcfg['color'] }};cursor:pointer;flex-shrink:0">
-                    <span style="flex:1;font-size:0.875rem;font-weight:700;color:#111827" class="dark:text-white">{{ $prog->name_ar }}</span>
-                    @if($prog->status === 'active')
-                    <span style="font-size:0.68rem;padding:2px 8px;border-radius:999px;background:#dcfce7;color:#16a34a;font-weight:700;flex-shrink:0">نشط</span>
-                    @endif
-                </label>
-                @endforeach
-            </div>
-            @empty
-            <p style="text-align:center;color:#9ca3af;padding:24px 0">لا توجد دورات</p>
-            @endforelse
-        </div>
-
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 22px;border-top:1px solid #f1f5f9;gap:10px">
-            <span style="font-size:0.78rem;color:#6b7280" id="prog-selected-count">0 دورة محددة</span>
-            <div style="display:flex;gap:8px">
-                <button onclick="closeProgramModal()" style="padding:8px 18px;border-radius:10px;border:1.5px solid #e5e7eb;background:#fff;color:#374151;font-size:0.875rem;font-weight:700;cursor:pointer">
-                    إلغاء
-                </button>
-                <button onclick="submitProgramAssign()" style="padding:8px 22px;border-radius:10px;border:none;background:#059669;color:#fff;font-size:0.875rem;font-weight:700;cursor:pointer">
-                    حفظ
-                </button>
-            </div>
-        </div>
-
-        <form id="prog-assign-form" method="POST" style="display:none">
-            @csrf
-            <div id="prog-assign-inputs"></div>
-        </form>
-    </div>
-</div>
-
-@push('scripts')
-<script>
-let currentTeacherId = null;
-let initialAssignedIds = [];
-
-function openAssignModal(teacherId, teacherName, assignedIds) {
-    currentTeacherId = teacherId;
-    document.getElementById('modal-title').textContent = 'تعيين المقررات — ' + teacherName;
-    document.getElementById('modal-search').value = '';
-    initialAssignedIds = assignedIds.map(Number).sort((a, b) => a - b);
-
-    // Reset visibility from any previous search
-    document.querySelectorAll('.subj-label').forEach(l => l.style.display = 'flex');
-    document.querySelectorAll('.prog-block, .type-section').forEach(el => el.style.display = '');
-
-    // Set subject checkboxes
-    document.querySelectorAll('.assign-cb').forEach(cb => {
-        cb.checked = assignedIds.includes(parseInt(cb.value));
-    });
-
-    // Expand all programs and sync their header checkboxes
-    document.querySelectorAll('.prog-block').forEach(block => {
-        const progId = block.dataset.prog;
-        const subjDiv = block.querySelector('.prog-subjects-div');
-        const arrow = block.querySelector('.prog-arrow');
-        if (subjDiv) subjDiv.style.display = 'block';
-        if (arrow) arrow.style.transform = 'rotate(180deg)';
-        syncProgHeader(progId);
-    });
-
-    updateCount();
-    document.getElementById('assign-modal').style.display = 'flex';
-}
-
-function closeAssignModal(force) {
-    if (!force && hasUnsavedAssignChanges()
-        && !confirm('لديك تغييرات غير محفوظة على المقررات. هل تريد إغلاق النافذة وتجاهلها؟')) {
-        return;
-    }
-    document.getElementById('assign-modal').style.display = 'none';
-    currentTeacherId = null;
-    initialAssignedIds = [];
-}
-
-function toggleProgBlock(hdrEl) {
-    const block = hdrEl.closest('.prog-block');
-    const subjDiv = block.querySelector('.prog-subjects-div');
-    const arrow = hdrEl.querySelector('.prog-arrow');
-    const open = !subjDiv.style.display || subjDiv.style.display === 'none';
-    subjDiv.style.display = open ? 'block' : 'none';
-    if (arrow) arrow.style.transform = open ? 'rotate(180deg)' : 'rotate(0deg)';
-}
-
-function toggleProgramSubjects(progCb) {
-    const progId = progCb.dataset.prog;
-    document.querySelectorAll('.assign-cb[data-prog="' + progId + '"]').forEach(cb => {
-        cb.checked = progCb.checked;
-    });
-    progCb.indeterminate = false;
-    updateCount();
-}
-
-function syncProgHeader(progId) {
-    const cbs = Array.from(document.querySelectorAll('.assign-cb[data-prog="' + progId + '"]'));
-    const progAllCb = document.querySelector('.prog-all-cb[data-prog="' + progId + '"]');
-    if (!progAllCb || !cbs.length) return;
-    const n = cbs.filter(c => c.checked).length;
-    progAllCb.checked = n === cbs.length;
-    progAllCb.indeterminate = n > 0 && n < cbs.length;
-}
-
-// Match Arabic the way admins type it: أ/إ/آ ≡ ا, ة ≡ ه, ى ≡ ي, ignore
-// diacritics, and treat Arabic-Indic digits as ASCII.
-function normalizeAr(value) {
-    return (value || '').toLowerCase()
-        .replace(/[ـً-ْ]/g, '')
-        .replace(/[آأإٱ]/g, 'ا')
-        .replace(/ى/g, 'ي')
-        .replace(/ة/g, 'ه')
-        .replace(/[٠-٩]/g, d => String.fromCharCode(d.charCodeAt(0) - 0x0630))
-        .replace(/[۰-۹]/g, d => String.fromCharCode(d.charCodeAt(0) - 0x06C0))
-        .replace(/\s+/g, ' ')
-        .trim();
-}
-
-function filterModalSubjects(q) {
-    q = normalizeAr(q);
-
-    if (!q) {
-        document.querySelectorAll('.subj-label').forEach(l => l.style.display = 'flex');
-        document.querySelectorAll('.prog-block, .type-section').forEach(el => el.style.display = '');
-        document.querySelectorAll('.prog-subjects-div').forEach(d => d.style.display = 'block');
-        document.querySelectorAll('.prog-arrow').forEach(a => a.style.transform = 'rotate(180deg)');
-        document.getElementById('modal-no-results').style.display = 'none';
-        return;
-    }
-
-    const terms = q.split(' ').filter(Boolean);
-    document.querySelectorAll('.subj-label').forEach(label => {
-        const haystack = normalizeAr(label.textContent);
-        label.style.display = terms.every(t => haystack.includes(t)) ? 'flex' : 'none';
-    });
-
-    document.querySelectorAll('.prog-block').forEach(block => {
-        const any = Array.from(block.querySelectorAll('.subj-label')).some(l => l.style.display !== 'none');
-        block.style.display = any ? '' : 'none';
-        if (any) {
-            const subjDiv = block.querySelector('.prog-subjects-div');
-            const arrow = block.querySelector('.prog-arrow');
-            if (subjDiv) subjDiv.style.display = 'block';
-            if (arrow) arrow.style.transform = 'rotate(180deg)';
-        }
-    });
-
-    document.querySelectorAll('.type-section').forEach(section => {
-        const any = Array.from(section.querySelectorAll('.prog-block')).some(b => b.style.display !== 'none');
-        section.style.display = any ? '' : 'none';
-    });
-
-    const anyVisible = Array.from(document.querySelectorAll('.subj-label'))
-        .some(l => l.style.display !== 'none');
-    document.getElementById('modal-no-results').style.display = anyVisible ? 'none' : 'block';
-}
-
-// Escape closes whichever modal is open (with the unsaved-changes guard).
-document.addEventListener('keydown', e => {
-    if (e.key !== 'Escape') return;
-    if (document.getElementById('assign-modal').style.display === 'flex') closeAssignModal();
-    else if (document.getElementById('prog-modal').style.display === 'flex') closeProgramModal();
-});
-
-// A subject can be listed under more than one program (via a term and via
-// program_id), so keep every checkbox for the same subject id in step.
-function mirrorSubject(changedCb) {
-    document.querySelectorAll('.assign-cb[value="' + changedCb.value + '"]').forEach(cb => {
-        if (cb !== changedCb && cb.checked !== changedCb.checked) {
-            cb.checked = changedCb.checked;
-            syncProgHeader(cb.dataset.prog);
-        }
-    });
-}
-
-function selectedSubjectIds() {
-    const ids = new Set();
-    document.querySelectorAll('.assign-cb:checked').forEach(cb => ids.add(parseInt(cb.value)));
-    return Array.from(ids).sort((a, b) => a - b);
-}
-
-function updateCount() {
-    const selected = selectedSubjectIds();
-    const added   = selected.filter(id => !initialAssignedIds.includes(id)).length;
-    const removed = initialAssignedIds.filter(id => !selected.includes(id)).length;
-
-    // Spell out the pending change so "تعيين" vs "إلغاء" is unambiguous.
-    const parts = [selected.length + ' مقرر محدد'];
-    if (added)   parts.push('+' + added + ' إضافة');
-    if (removed) parts.push('−' + removed + ' إلغاء');
-
-    const el = document.getElementById('modal-selected-count');
-    el.textContent = parts.join(' · ');
-    el.style.color = removed ? '#b45309' : '#6b7280';
-    el.style.fontWeight = (added || removed) ? '700' : '400';
-}
-
-function hasUnsavedAssignChanges() {
-    const selected = selectedSubjectIds();
-    return selected.length !== initialAssignedIds.length
-        || selected.some((id, i) => id !== initialAssignedIds[i]);
-}
-
-document.addEventListener('change', e => {
-    if (e.target.classList.contains('assign-cb')) {
-        mirrorSubject(e.target);
-        syncProgHeader(e.target.dataset.prog);
-        updateCount();
-    }
-});
-
-function submitAssign() {
-    const selected = selectedSubjectIds();
-    const removed  = initialAssignedIds.filter(id => !selected.includes(id)).length;
-
-    // Unassigning is destructive and used to happen with no warning at all.
-    if (removed && !confirm('سيتم إلغاء تعيين ' + removed + ' مقرر من هذا المدرب. هل تريد المتابعة؟')) {
-        return;
-    }
-
-    const form = document.getElementById('assign-form');
-    form.action = '/admin/teachers/' + currentTeacherId + '/assign-subjects';
-    const container = document.getElementById('assign-inputs');
-    container.innerHTML = '';
-    selected.forEach(id => {
-        const inp = document.createElement('input');
-        inp.type = 'hidden';
-        inp.name = 'subjects[]';
-        inp.value = id;
-        container.appendChild(inp);
-    });
-    closeAssignModal(true);
-    form.submit();
-}
-
-// ─── Program-level assign modal ──────────────────────────────────────────────
-let currentProgTeacherId = null;
-let initialProgIds = [];
-
-function openProgramModal(teacherId, teacherName, assignedProgIds) {
-    currentProgTeacherId = teacherId;
-    document.getElementById('prog-modal-title').textContent = 'تعيين الدورات — ' + teacherName;
-    initialProgIds = assignedProgIds.map(Number).sort((a, b) => a - b);
-
-    document.querySelectorAll('.prog-top-cb').forEach(cb => {
-        cb.checked = assignedProgIds.includes(parseInt(cb.value));
-    });
-    updateProgCount();
-    document.getElementById('prog-modal').style.display = 'flex';
-}
-
-function closeProgramModal(force) {
-    if (!force && hasUnsavedProgChanges()
-        && !confirm('لديك تغييرات غير محفوظة على الدورات. هل تريد إغلاق النافذة وتجاهلها؟')) {
-        return;
-    }
-    document.getElementById('prog-modal').style.display = 'none';
-    currentProgTeacherId = null;
-    initialProgIds = [];
-}
-
-function selectedProgIds() {
-    return Array.from(document.querySelectorAll('.prog-top-cb:checked'))
-        .map(cb => parseInt(cb.value)).sort((a, b) => a - b);
-}
-
-function hasUnsavedProgChanges() {
-    const selected = selectedProgIds();
-    return selected.length !== initialProgIds.length
-        || selected.some((id, i) => id !== initialProgIds[i]);
-}
-
-function updateProgCount() {
-    const selected = selectedProgIds();
-    const added   = selected.filter(id => !initialProgIds.includes(id)).length;
-    const removed = initialProgIds.filter(id => !selected.includes(id)).length;
-
-    const parts = [selected.length + ' دورة محددة'];
-    if (added)   parts.push('+' + added + ' إضافة');
-    if (removed) parts.push('−' + removed + ' إلغاء');
-
-    const el = document.getElementById('prog-selected-count');
-    el.textContent = parts.join(' · ');
-    el.style.color = removed ? '#b45309' : '#6b7280';
-    el.style.fontWeight = (added || removed) ? '700' : '400';
-}
-
-document.addEventListener('change', e => {
-    if (e.target.classList.contains('prog-top-cb')) updateProgCount();
-});
-
-function submitProgramAssign() {
-    const selected = selectedProgIds();
-    const removed  = initialProgIds.filter(id => !selected.includes(id)).length;
-
-    if (removed && !confirm('سيتم إلغاء تعيين ' + removed + ' دورة من هذا المدرب. هل تريد المتابعة؟')) {
-        return;
-    }
-
-    const form = document.getElementById('prog-assign-form');
-    form.action = '/admin/teachers/' + currentProgTeacherId + '/assign-programs';
-    const container = document.getElementById('prog-assign-inputs');
-    container.innerHTML = '';
-    selected.forEach(id => {
-        const inp = document.createElement('input');
-        inp.type = 'hidden';
-        inp.name = 'program_ids[]';
-        inp.value = id;
-        container.appendChild(inp);
-    });
-    closeProgramModal(true);
-    form.submit();
-}
-</script>
-@endpush
-
 @endsection
