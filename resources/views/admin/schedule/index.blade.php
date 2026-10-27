@@ -166,13 +166,13 @@ let cur = new Date();
 
 const t = (h,m) => h*60+m;
 const PERIODS = [
-    { s:t(8,10),  e:t(9,20),  range:'9:20 - 8:10',   name:'الفترة الصباحية (1)' },
-    { s:t(9,30),  e:t(10,40), range:'10:40 - 9:30',  name:'الفترة الصباحية (2)' },
-    { s:t(10,50), e:t(12,0),  range:'12:00 - 10:50', name:'الفترة الصباحية (3)' },
-    { s:t(12,20), e:t(13,25), range:'1:25 - 12:20',  name:'الفترة المسائية (1)' },
-    { s:t(13,35), e:t(14,40), range:'2:40 - 1:35',   name:'الفترة المسائية (2)' },
-    { s:t(14,50), e:t(15,55), range:'3:55 - 2:50',   name:'الفترة المسائية (3)' },
-    { s:t(16,0),  e:t(17,15), range:'5:15 - 4:00',   name:'الفترة المسائية (4)' },
+    { s:t(8,10),    e:t(9,30),   range:'9:30 - 8:10',  name:'الفترة الصباحية (1)' },
+    { s:t(9,40),    e:t(11,0),   range:'11:00 - 9:40', name:'الفترة الصباحية (2)' },
+    { s:t(11,10),   e:t(12,30),  range:'12:30 - 11:10', name:'الفترة الصباحية (3)' },
+    { s:t(12,40),   e:t(14,0),   range:'2:00 - 12:40', name:'الفترة المسائية (1)' },
+    { s:t(14,10),   e:t(15,30),  range:'3:30 - 2:10',  name:'الفترة المسائية (2)' },
+    { s:t(15,40),   e:t(17,0),   range:'5:00 - 3:40',  name:'الفترة المسائية (3)' },
+    { s:t(17,10),   e:t(18,30),  range:'6:30 - 5:10',  name:'الفترة المسائية (4)' },
 ];
 const periodIndex = mins => { for(let p=0;p<PERIODS.length;p++) if(mins<PERIODS[p].e) return p; return PERIODS.length-1; };
 
@@ -729,12 +729,20 @@ async function submitGenerate() {
 
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
                 <div>
-                    <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:5px;">وقت الجلسة *</label>
-                    <input id="genTime" type="time" value="09:00" style="width:100%;padding:9px 12px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13px;box-sizing:border-box;">
+                    <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:5px;">الفترة (الوقت) *</label>
+                    <select id="genTime" style="width:100%;padding:9px 12px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13px;box-sizing:border-box;background:white;">
+                        <option value="08:10">الفترة الصباحية (1) — 8:10</option>
+                        <option value="09:40">الفترة الصباحية (2) — 9:40</option>
+                        <option value="11:10">الفترة الصباحية (3) — 11:10</option>
+                        <option value="12:40">الفترة المسائية (1) — 12:40</option>
+                        <option value="14:10">الفترة المسائية (2) — 2:10</option>
+                        <option value="15:40">الفترة المسائية (3) — 3:40</option>
+                        <option value="17:10">الفترة المسائية (4) — 5:10</option>
+                    </select>
                 </div>
                 <div>
                     <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:5px;">المدة (دقيقة) *</label>
-                    <input id="genDuration" type="number" value="60" min="15" max="480" style="width:100%;padding:9px 12px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13px;box-sizing:border-box;">
+                    <input id="genDuration" type="number" value="80" min="15" max="480" style="width:100%;padding:9px 12px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13px;box-sizing:border-box;">
                 </div>
                 <div>
                     <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:5px;">من تاريخ *</label>

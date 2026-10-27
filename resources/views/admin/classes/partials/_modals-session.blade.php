@@ -16,12 +16,12 @@
                 <select id="editSessTime" style="width:100%;padding:9px 12px;font-size:13px;border:1.5px solid #e2e8f0;border-radius:10px;outline:none;font-family:inherit;background:white;">
                     <option value="">— اختر الفترة —</option>
                     <option value="08:10">الفترة الصباحية (1) — 8:10</option>
-                    <option value="09:30">الفترة الصباحية (2) — 9:30</option>
-                    <option value="10:50">الفترة الصباحية (3) — 10:50</option>
-                    <option value="12:20">الفترة المسائية (1) — 12:20</option>
-                    <option value="13:35">الفترة المسائية (2) — 1:35</option>
-                    <option value="14:50">الفترة المسائية (3) — 2:50</option>
-                    <option value="16:00">الفترة المسائية (4) — 4:00</option>
+                    <option value="09:40">الفترة الصباحية (2) — 9:40</option>
+                    <option value="11:10">الفترة الصباحية (3) — 11:10</option>
+                    <option value="12:40">الفترة المسائية (1) — 12:40</option>
+                    <option value="14:10">الفترة المسائية (2) — 2:10</option>
+                    <option value="15:40">الفترة المسائية (3) — 3:40</option>
+                    <option value="17:10">الفترة المسائية (4) — 5:10</option>
                 </select>
             </div>
             <div>
@@ -181,12 +181,12 @@
                         <select name="time" required style="width:100%;padding:9px 12px;font-size:13px;border:1.5px solid #e2e8f0;border-radius:10px;outline:none;font-family:inherit;background:white;">
                             <option value="">— اختر الفترة —</option>
                             <option value="08:10">الفترة الصباحية (1) — 8:10</option>
-                            <option value="09:30">الفترة الصباحية (2) — 9:30</option>
-                            <option value="10:50">الفترة الصباحية (3) — 10:50</option>
-                            <option value="12:20">الفترة المسائية (1) — 12:20</option>
-                            <option value="13:35">الفترة المسائية (2) — 1:35</option>
-                            <option value="14:50">الفترة المسائية (3) — 2:50</option>
-                            <option value="16:00">الفترة المسائية (4) — 4:00</option>
+                            <option value="09:40">الفترة الصباحية (2) — 9:40</option>
+                            <option value="11:10">الفترة الصباحية (3) — 11:10</option>
+                            <option value="12:40">الفترة المسائية (1) — 12:40</option>
+                            <option value="14:10">الفترة المسائية (2) — 2:10</option>
+                            <option value="15:40">الفترة المسائية (3) — 3:40</option>
+                            <option value="17:10">الفترة المسائية (4) — 5:10</option>
                         </select>
                     </div>
                 </div>

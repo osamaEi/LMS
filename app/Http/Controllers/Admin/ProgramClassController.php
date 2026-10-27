@@ -231,7 +231,7 @@ class ProgramClassController extends Controller
                 'type' => 'live_zoom',
                 'status' => 'scheduled',
                 'scheduled_at' => $scheduledAt,
-                'duration_minutes' => 60,
+                'duration_minutes' => 80,
                 'session_number' => $nextNumber,
                 'title_ar' => $label.' (#'.$nextNumber.')',
             ]);

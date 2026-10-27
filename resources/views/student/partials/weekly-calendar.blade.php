@@ -84,13 +84,13 @@
 
     const tMin = (h,m) => h*60+m;
     const PERIODS_CAL = [
-        { e:tMin(9,20),  range:'9:20 - 8:10',   name:'الفترة الصباحية (1)' },
-        { e:tMin(10,40), range:'10:40 - 9:30',  name:'الفترة الصباحية (2)' },
-        { e:tMin(12,0),  range:'12:00 - 10:50', name:'الفترة الصباحية (3)' },
-        { e:tMin(13,25), range:'1:25 - 12:20',  name:'الفترة المسائية (1)' },
-        { e:tMin(14,40), range:'2:40 - 1:35',   name:'الفترة المسائية (2)' },
-        { e:tMin(15,55), range:'3:55 - 2:50',   name:'الفترة المسائية (3)' },
-        { e:tMin(17,15), range:'5:15 - 4:00',   name:'الفترة المسائية (4)' },
+        { e:tMin(9,30),   range:'9:30 - 8:10',  name:'الفترة الصباحية (1)' },
+        { e:tMin(11,0),   range:'11:00 - 9:40', name:'الفترة الصباحية (2)' },
+        { e:tMin(12,30),  range:'12:30 - 11:10', name:'الفترة الصباحية (3)' },
+        { e:tMin(14,0),   range:'2:00 - 12:40', name:'الفترة المسائية (1)' },
+        { e:tMin(15,30),  range:'3:30 - 2:10',  name:'الفترة المسائية (2)' },
+        { e:tMin(17,0),   range:'5:00 - 3:40',  name:'الفترة المسائية (3)' },
+        { e:tMin(18,30),  range:'6:30 - 5:10',  name:'الفترة المسائية (4)' },
     ];
     const getPeriod = mins => { for(let p=0;p<PERIODS_CAL.length;p++) if(mins<PERIODS_CAL[p].e) return p; return PERIODS_CAL.length-1; };
 

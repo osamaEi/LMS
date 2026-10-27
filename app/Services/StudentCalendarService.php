@@ -23,19 +23,19 @@ class StudentCalendarService
      * The grid's 7 teaching periods — same boundaries the API/web calendar use.
      */
     public const PERIODS = [
-        ['name' => 'الفترة الصباحية (1)', 'start' => '08:10', 'end' => '09:20'],
-        ['name' => 'الفترة الصباحية (2)', 'start' => '09:30', 'end' => '10:40'],
-        ['name' => 'الفترة الصباحية (3)', 'start' => '10:50', 'end' => '12:00'],
-        ['name' => 'الفترة المسائية (1)', 'start' => '12:20', 'end' => '13:25'],
-        ['name' => 'الفترة المسائية (2)', 'start' => '13:35', 'end' => '14:40'],
-        ['name' => 'الفترة المسائية (3)', 'start' => '14:50', 'end' => '15:55'],
-        ['name' => 'الفترة المسائية (4)', 'start' => '16:00', 'end' => '17:15'],
+        ['name' => 'الفترة الصباحية (1)', 'start' => '08:10', 'end' => '09:30'],
+        ['name' => 'الفترة الصباحية (2)', 'start' => '09:40', 'end' => '11:00'],
+        ['name' => 'الفترة الصباحية (3)', 'start' => '11:10', 'end' => '12:30'],
+        ['name' => 'الفترة المسائية (1)', 'start' => '12:40', 'end' => '14:00'],
+        ['name' => 'الفترة المسائية (2)', 'start' => '14:10', 'end' => '15:30'],
+        ['name' => 'الفترة المسائية (3)', 'start' => '15:40', 'end' => '17:00'],
+        ['name' => 'الفترة المسائية (4)', 'start' => '17:10', 'end' => '18:30'],
     ];
 
     /**
      * Bucket a session's start time into one of the teaching periods.
      *
-     * Falls back to the نصف اليوم (morning/evening) split at 12:00 when the
+     * Falls back to the نصف اليوم (morning/evening) split at 12:35 when the
      * time doesn't land inside a period's window (e.g. sits in a break).
      *
      * @return array{period_index:int|null, period_name:string|null, period:string, period_label:string}
@@ -59,7 +59,7 @@ class StudentCalendarService
             }
         }
 
-        $isMorning = $minutes < 12 * 60;
+        $isMorning = $minutes < 12 * 60 + 35;
         return [
             'period_index' => null,
             'period_name'  => null,
