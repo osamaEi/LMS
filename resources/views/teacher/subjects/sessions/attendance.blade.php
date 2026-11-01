@@ -110,7 +110,7 @@
                         <span style="font-weight:600;">{{ $j->format('h:i A') }}</span>
                         <span style="font-size:.72rem;color:#9ca3af;display:block;margin-top:1px;">{{ $j->translatedFormat('l، d/m/Y') }}</span>
                     @else
-                        —
+                        <span style="font-size:.78rem;color:#9ca3af;">تسجيل يدوي</span>
                     @endif
                 </td>
                 <td style="padding:12px 18px;text-align:left">
@@ -228,7 +228,7 @@
         <div style="display:flex;align-items:center;gap:10px">
             <div style="width:8px;height:8px;border-radius:50%;background:#dc2626"></div>
             <h2 style="font-size:.9rem;font-weight:700;color:#111827;margin:0">
-                تسجيل الحضور يدوياً — {{ $absentStudents->count() }} غائب
+                الغائبون ({{ $absentStudents->count() }}) — حدّد فقط من حضر فعلاً لتسجيله حاضراً
             </h2>
         </div>
         <label style="font-size:.78rem;font-weight:600;color:#374151;cursor:pointer;display:flex;align-items:center;gap:6px">
@@ -238,7 +238,8 @@
     </div>
 
     <form action="{{ route('teacher.my-subjects.sessions.attendance.save', [$subject->id, $session->id]) }}"
-          method="POST">
+          method="POST"
+          onsubmit="var n = this.querySelectorAll('.att-cb:checked').length; return n > 0 && confirm('سيتم تسجيل ' + n + ' متدرب كحاضرين في هذه المحاضرة. هل أنت متأكد؟')">
         @csrf
         <table style="width:100%;border-collapse:collapse;font-size:.85rem">
             @foreach($absentStudents as $student)
@@ -257,7 +258,7 @@
         <div style="padding:14px 16px;border-top:1px solid #f1f5f9;text-align:left">
             <button type="submit"
                     style="padding:10px 24px;border-radius:8px;border:none;font-size:.875rem;font-weight:700;color:#fff;background:linear-gradient(135deg,#16a34a,#15803d);cursor:pointer">
-                حفظ الحضور
+                تسجيل المحددين كحاضرين
             </button>
         </div>
     </form>

@@ -722,19 +722,15 @@ class SubjectController extends Controller
             'student_ids.*' => 'exists:users,id',
         ]);
 
-        $joinedAt = now();
-
-        // A student is "late" (تأخير) if they joined more than the threshold
-        // after the session started (see Attendance::isLateJoin).
-        $isLate = Attendance::isLateJoin($session, $joinedAt);
-
+        // Manual entries have no join time: the moment the teacher saves is not
+        // when the student joined, so it must not count as a late join (تأخير).
         foreach ($validated['student_ids'] as $studentId) {
             Attendance::updateOrCreate(
                 ['student_id' => $studentId, 'session_id' => $session->id],
                 [
                     'attended'    => true,
-                    'is_late'     => $isLate,
-                    'joined_at'   => $joinedAt,
+                    'is_late'     => false,
+                    'joined_at'   => null,
                 ]
             );
         }

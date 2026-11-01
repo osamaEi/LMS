@@ -505,10 +505,11 @@ class CourseController extends Controller
             'student_ids.*' => 'exists:users,id',
         ]);
 
+        // Manual entries have no join time (see Teacher\SubjectController::saveAttendance).
         foreach ($request->student_ids as $studentId) {
             Attendance::updateOrCreate(
                 ['student_id' => $studentId, 'session_id' => $session->id],
-                ['attended' => true, 'joined_at' => now()]
+                ['attended' => true, 'is_late' => false, 'joined_at' => null]
             );
         }
 
