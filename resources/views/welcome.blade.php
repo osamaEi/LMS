@@ -9,12 +9,18 @@
 .hero-slides { position: absolute; inset: 0; }
 .hero-slide {
     position: absolute; inset: 0;
-    background-size: cover; background-position: center 20%;
+    background-size: cover; background-position: center center;
     opacity: 0;
     transition: opacity 1.3s ease-in-out, transform 8s ease;
     transform: scale(1.02);
 }
 .hero-slide.active { opacity: 1; transform: scale(1); }
+/* The banner has the academy logo on its left edge: follow its 1600x498 ratio and, in RTL
+   where the text sits on the right, keep that edge in view. */
+@media (min-width: 992px) {
+    .hero-section { height: max(520px, 31.125vw); }
+    [dir="rtl"] .hero-slide { background-position: left center; }
+}
 .hero-slide::after {
     content: ''; position: absolute; inset: 0;
     background: linear-gradient(90deg, rgba(0,0,0,.38) 0%, rgba(0,0,0,.15) 40%, transparent 70%);
