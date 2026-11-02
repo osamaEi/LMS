@@ -19,6 +19,12 @@
     .grades-section-head h2 { font-size: 19px; font-weight: 800; margin: 0 0 5px; }
     .grades-section-head p { color: var(--grade-muted); font-size: 13px; margin: 0; line-height: 1.7; }
     .grades-count { flex-shrink: 0; background: var(--grade-surface); border: 1px solid var(--grade-border); padding: 7px 12px; border-radius: 10px; font-size: 12px; }
+    .grades-filter { display: flex; flex-wrap: wrap; gap: 8px; margin: 22px 0 0; }
+    .grades-filter a { padding: 8px 14px; border: 1px solid var(--grade-border); border-radius: 10px; background: var(--grade-surface); color: inherit; text-decoration: none; font-size: 13px; }
+    .grades-filter a:hover { border-color: #0071aa; }
+    .grades-filter a.is-active { background: #0071aa; border-color: #0071aa; color: #fff; font-weight: 700; }
+    .course-grade-term { display: inline-block; margin-top: 6px; padding: 3px 9px; border-radius: 7px; background: #eaf5fb; color: #0071aa; font-size: 11px; font-weight: 700; }
+    .dark .course-grade-term { background: #173449; color: #7dd3fc; }
     .grades-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
     .course-grade { background: var(--grade-surface); border: 1px solid var(--grade-border); border-radius: 16px; padding: 24px; box-shadow: 0 6px 22px #12324a06; min-width: 0; }
     .course-grade-head { display: flex; align-items: flex-start; gap: 12px; }
@@ -73,6 +79,16 @@
         </div>
     </header>
 
+    @if($terms->count() > 1 || $selectedTerm)
+    <nav class="grades-filter" aria-label="تصفية حسب الترم">
+        <a href="{{ route('student.grades.index') }}" class="{{ $selectedTerm ? '' : 'is-active' }}">كل الترمات</a>
+        @foreach($terms as $term)
+        <a href="{{ route('student.grades.index', ['term' => $term->id]) }}" class="{{ $selectedTerm === $term->id ? 'is-active' : '' }}">
+            {{ $term->name ?: 'الترم ' . $term->term_number }}
+        </a>
+        @endforeach
+    </nav>
+    @endif
 
     <div class="grades-section-head">
         <div><h2>درجات المقررات</h2><p>اطّلع على درجتك النهائية وتقديرك في كل مقرر.</p></div>
@@ -107,6 +123,9 @@
                     @if($data['subject']->teacher)
                     <p class="course-grade-teacher">المدرب: {{ $data['subject']->teacher->name }}</p>
                     @endif
+                    @foreach($data['terms'] as $term)
+                    <span class="course-grade-term">{{ $term->name ?: 'الترم ' . $term->term_number }}</span>
+                    @endforeach
                 </div>
             </div>
             <div class="course-grade-score">

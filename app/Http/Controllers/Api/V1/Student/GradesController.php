@@ -14,9 +14,10 @@ class GradesController extends Controller
     {
         abort_unless($request->user()->role === 'student', 403);
 
-        $overview = $grades->overview($request->user());
+        $overview = $grades->overview($request->user(), $request->integer('term_id') ?: null);
         $result = collect($overview['subjectGrades'])->map(fn ($row) => [
             'subject_name' => $row['subject']->name_ar ?? $row['subject']->name,
+            'terms' => $row['terms']->map(fn ($t) => ['id' => $t->id, 'name' => $t->name])->values(),
             'grade' => (float) $row['percentage'],
             'evaluation' => $row['grade_label'],
             'certificate_url' => $row['subject']->teacher?->certificate_url,

@@ -34,9 +34,10 @@ class StudentGradesService
     }
 
     /**
-     * @return array{subjectGrades: array, totalEvaluations: int, totalQuizzes: int, avgPercentage: float|null, sentReports: Collection}
+     * @param  int|null  $termId  Narrow to one term's subjects; null shows every term.
+     * @return array{subjectGrades: array, terms: Collection, totalEvaluations: int, totalQuizzes: int, avgPercentage: float|null, sentReports: Collection}
      */
-    public function overview(User $student): array
+    public function overview(User $student, ?int $termId = null): array
     {
         $sentReports = $this->sentGradeReports($student);
         $releasedRows = $sentReports->flatMap(fn ($report) => $report->rows)
@@ -62,9 +63,18 @@ class StudentGradesService
         // Only subjects the teacher explicitly sent a grade report for. An
         // enrollment's final_grade or a graded quiz alone is NOT enough to
         // surface a subject here — the teacher has to send it to the student.
-        // Current training quarter only, matching student/my-program.
-        $subjectIds = $releasedRows->keys()->diff($this->otherTermSubjectIds($student));
-        $subjects   = Subject::whereIn('id', $subjectIds)->with('teacher')->get()->keyBy('id');
+        $allSubjects = Subject::whereIn('id', $releasedRows->keys())
+            ->with(['teacher', 'term', 'terms'])->get()->keyBy('id');
+
+        $subjectTerms = fn (Subject $s) => collect([$s->term])->merge($s->terms)->filter()->unique('id');
+
+        // Every term that has at least one sent subject, for the filter.
+        $terms = $allSubjects->flatMap($subjectTerms)->unique('id')
+            ->sortBy(fn ($t) => [$t->term_number, $t->id])->values();
+
+        $subjects = $termId
+            ? $allSubjects->filter(fn ($s) => $subjectTerms($s)->contains('id', $termId))
+            : $allSubjects;
 
         // Per-subject grade summary
         $subjectGrades = [];
@@ -78,6 +88,7 @@ class StudentGradesService
 
             $subjectGrades[$subject->id] = [
                 'subject'     => $subject,
+                'terms'       => $subjectTerms($subject)->values(),
                 'evaluations' => $subjectEvals->values(),
                 'attempts'    => $subjectAttempts->values(),
                 'percentage'  => $percentage,
@@ -90,6 +101,7 @@ class StudentGradesService
         // Counts cover the displayed subjects only, so they match what is shown.
         return [
             'subjectGrades'    => $subjectGrades,
+            'terms'            => $terms,
             'totalEvaluations' => collect($subjectGrades)->sum(fn ($row) => $row['evaluations']->count()),
             'totalQuizzes'     => collect($subjectGrades)->sum(fn ($row) => $row['attempts']->count()),
             'avgPercentage'    => collect($subjectGrades)->avg('percentage'),
@@ -159,34 +171,6 @@ class StudentGradesService
         ) ?? $terms->firstWhere('term_number', $student->current_term_number ?? 1) ?? $terms->first();
 
         return [$terms, $currentTerm];
-    }
-
-    /**
-     * Subjects of the student's diploma programs that belong to a term other
-     * than the current one. Subjects outside any term (courses) are not listed.
-     */
-    public function otherTermSubjectIds(User $student): Collection
-    {
-        $programs = $student->allPrograms()->where('type', 'diploma');
-        if ($programs->isEmpty()) {
-            return collect();
-        }
-
-        $inProgramTerm = fn ($t) => $t->withTrashed()->whereIn('program_id', $programs->pluck('id'));
-        $termSubjectIds = Subject::where(fn ($q) => $q
-            ->whereHas('term', $inProgramTerm)
-            ->orWhereHas('terms', $inProgramTerm))
-            ->pluck('id');
-
-        $currentSubjectIds = $programs->flatMap(function ($program) use ($student) {
-            [, $currentTerm] = $this->diplomaTerms($student, $program);
-
-            return $currentTerm
-                ? $currentTerm->subjects->pluck('id')->merge(Subject::where('term_id', $currentTerm->id)->pluck('id'))
-                : collect();
-        });
-
-        return $termSubjectIds->diff($currentSubjectIds)->values();
     }
 
     public function gradeLabel(float $pct): string
