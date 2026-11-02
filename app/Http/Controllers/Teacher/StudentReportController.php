@@ -381,24 +381,39 @@ class StudentReportController extends Controller
     // ── Scope helpers ───────────────────────────────────────────────────────
 
     /**
-     * Only sessions taught by this teacher in this student's classes, and
-     * the subjects of those sessions. Assignment alone grants no access.
+     * Same membership rules as the teacher's students list: sessions this
+     * teacher runs in one of the student's classes or that the student
+     * attended, plus the teacher's subjects the student is enrolled in.
      *
      * @return array{session_ids: \Illuminate\Support\Collection, subject_ids: \Illuminate\Support\Collection}
      */
     private function scope(User $teacher, User $student): array
     {
-        $sessions = Session::where('teacher_id', $teacher->id)
-            ->whereIn('class_id', $this->studentClassIds($student))
-            ->whereNotNull('subject_id')
-            ->get(['id', 'subject_id']);
+        $attendedSessionIds = Attendance::where('student_id', $student->id)->pluck('session_id');
 
-        $subjectIds = $sessions->pluck('subject_id')->unique()->values();
+        $teacherSessions = Session::where('teacher_id', $teacher->id)
+            ->get(['id', 'subject_id', 'class_id']);
+
+        $classIds = $this->studentClassIds($student);
+        $sessions = $teacherSessions->filter(fn ($s) => $classIds->contains($s->class_id)
+            || $attendedSessionIds->contains($s->id));
+
+        $teacherSubjectIds = $teacher->assignedSubjects()->pluck('subjects.id')
+            ->merge($teacherSessions->pluck('subject_id')->filter())
+            ->unique();
+        $enrolledSubjectIds = Enrollment::where('student_id', $student->id)
+            ->whereIn('subject_id', $teacherSubjectIds)
+            ->pluck('subject_id');
+
+        $subjectIds = $sessions->pluck('subject_id')->filter()
+            ->merge($enrolledSubjectIds)
+            ->unique()->values();
 
         return [
             'teacher_id'  => $teacher->id,
-            'session_ids' => $sessions->pluck('id'),
+            'session_ids' => $sessions->pluck('id')->values(),
             'subject_ids' => $subjectIds,
+            'is_mine'     => $sessions->isNotEmpty() || $enrolledSubjectIds->isNotEmpty(),
         ];
     }
 
@@ -407,7 +422,7 @@ class StudentReportController extends Controller
     {
         abort_unless($student->role === 'student', 404);
 
-        abort_unless($scope['subject_ids']->isNotEmpty(), 403, 'هذا المتدرب ليس ضمن طلابك.');
+        abort_unless($scope['is_mine'], 403, 'هذا المتدرب ليس ضمن طلابك.');
     }
 
     private function scopedEnrollments(User $student, array $scope)
@@ -421,7 +436,10 @@ class StudentReportController extends Controller
     /** Include both current class storage paths used by the student account. */
     private function studentClassIds(User $student)
     {
-        return $student->allClassIds();
+        // Matches ProgramClassService::studentIds, which the students list uses.
+        return $student->allClassIds()
+            ->merge(DB::table('student_class_memberships')->where('student_id', $student->id)->pluck('class_id'))
+            ->filter()->unique()->values();
     }
 
     /**
