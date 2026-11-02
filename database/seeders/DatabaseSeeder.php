@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use Database\Seeders\Student115Quiz62AccessSeeder;
+use Database\Seeders\Student421TeacherReportDiagnosticSeeder;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -15,7 +15,7 @@ class DatabaseSeeder extends Seeder
            //  PublicRelationsDiplomaSeeder::class,
            //  PublicRelationsSubjectsSeeder::class,
 
-           Student115Quiz62AccessSeeder::class,
+           Student421TeacherReportDiagnosticSeeder::class,
         ]);
     }
 }
