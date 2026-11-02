@@ -382,8 +382,9 @@ class StudentReportController extends Controller
 
     /**
      * Two lookups only: the student's classes, then the teacher's subjects
-     * that belong to one of those classes (directly or through a term).
-     * Sessions are not used to pick subjects — they only feed attendance.
+     * that belong to one of those classes — linked to it directly, through a
+     * term, or taught there by this teacher (a session only tells us which
+     * class the subject runs in). Sessions otherwise only feed attendance.
      *
      * @return array{session_ids: \Illuminate\Support\Collection, subject_ids: \Illuminate\Support\Collection}
      */
@@ -391,16 +392,23 @@ class StudentReportController extends Controller
     {
         $classIds = $this->studentClassIds($student);
 
+        $taughtInClass = Session::where('teacher_id', $teacher->id)
+            ->whereIn('class_id', $classIds)
+            ->whereNotNull('subject_id')
+            ->pluck('subject_id');
+
         $teacherSubjectIds = $teacher->assignedSubjects()->pluck('subjects.id')
             ->merge(\App\Models\Subject::where('teacher_id', $teacher->id)->pluck('id'))
             ->unique();
 
         $inClass = fn ($q) => $q->whereIn('class_id', $classIds);
-        $subjectIds = \App\Models\Subject::whereIn('id', $teacherSubjectIds)
+        $linkedToClass = \App\Models\Subject::whereIn('id', $teacherSubjectIds)
             ->where(fn ($q) => $q->whereIn('class_id', $classIds)
                 ->orWhereHas('term', $inClass)
                 ->orWhereHas('terms', $inClass))
-            ->pluck('id')->values();
+            ->pluck('id');
+
+        $subjectIds = $linkedToClass->merge($taughtInClass)->unique()->values();
 
         $sessionIds = Session::where('teacher_id', $teacher->id)
             ->whereIn('subject_id', $subjectIds)
