@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Session;
 use App\Models\Subject;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -46,7 +47,7 @@ class Student421TeacherReportDiagnosticSeeder extends Seeder
             return;
         }
 
-        $teacherIds = DB::table('sessions')->whereIn('class_id', $classIds)
+        $teacherIds = Session::whereIn('class_id', $classIds)
             ->whereNotNull('teacher_id')->distinct()->pluck('teacher_id');
 
         if ($teacherIds->isEmpty()) {
@@ -55,7 +56,7 @@ class Student421TeacherReportDiagnosticSeeder extends Seeder
         }
 
         foreach (User::whereIn('id', $teacherIds)->get() as $teacher) {
-            $sessionsInClass = DB::table('sessions')->where('teacher_id', $teacher->id)
+            $sessionsInClass = Session::where('teacher_id', $teacher->id)
                 ->whereIn('class_id', $classIds)
                 ->get(['id', 'class_id', 'subject_id']);
             $taughtInClass = $sessionsInClass->pluck('subject_id')->filter()->unique()->values();
