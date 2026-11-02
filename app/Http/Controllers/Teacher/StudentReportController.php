@@ -381,39 +381,36 @@ class StudentReportController extends Controller
     // ── Scope helpers ───────────────────────────────────────────────────────
 
     /**
-     * Same membership rules as the teacher's students list: sessions this
-     * teacher runs in one of the student's classes or that the student
-     * attended, plus the teacher's subjects the student is enrolled in.
+     * Two lookups only: the student's classes, then the teacher's subjects
+     * that belong to one of those classes (directly or through a term).
+     * Sessions are not used to pick subjects — they only feed attendance.
      *
      * @return array{session_ids: \Illuminate\Support\Collection, subject_ids: \Illuminate\Support\Collection}
      */
     private function scope(User $teacher, User $student): array
     {
-        $attendedSessionIds = Attendance::where('student_id', $student->id)->pluck('session_id');
-
-        $teacherSessions = Session::where('teacher_id', $teacher->id)
-            ->get(['id', 'subject_id', 'class_id']);
-
         $classIds = $this->studentClassIds($student);
-        $sessions = $teacherSessions->filter(fn ($s) => $classIds->contains($s->class_id)
-            || $attendedSessionIds->contains($s->id));
 
         $teacherSubjectIds = $teacher->assignedSubjects()->pluck('subjects.id')
-            ->merge($teacherSessions->pluck('subject_id')->filter())
+            ->merge(\App\Models\Subject::where('teacher_id', $teacher->id)->pluck('id'))
             ->unique();
-        $enrolledSubjectIds = Enrollment::where('student_id', $student->id)
-            ->whereIn('subject_id', $teacherSubjectIds)
-            ->pluck('subject_id');
 
-        $subjectIds = $sessions->pluck('subject_id')->filter()
-            ->merge($enrolledSubjectIds)
-            ->unique()->values();
+        $inClass = fn ($q) => $q->whereIn('class_id', $classIds);
+        $subjectIds = \App\Models\Subject::whereIn('id', $teacherSubjectIds)
+            ->where(fn ($q) => $q->whereIn('class_id', $classIds)
+                ->orWhereHas('term', $inClass)
+                ->orWhereHas('terms', $inClass))
+            ->pluck('id')->values();
+
+        $sessionIds = Session::where('teacher_id', $teacher->id)
+            ->whereIn('subject_id', $subjectIds)
+            ->pluck('id');
 
         return [
             'teacher_id'  => $teacher->id,
-            'session_ids' => $sessions->pluck('id')->values(),
+            'session_ids' => $sessionIds,
             'subject_ids' => $subjectIds,
-            'is_mine'     => $sessions->isNotEmpty() || $enrolledSubjectIds->isNotEmpty(),
+            'is_mine'     => $subjectIds->isNotEmpty(),
         ];
     }
 
