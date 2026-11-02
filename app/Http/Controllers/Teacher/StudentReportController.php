@@ -381,9 +381,9 @@ class StudentReportController extends Controller
     // ── Scope helpers ───────────────────────────────────────────────────────
 
     /**
-     * Same membership rules as the teacher's students list: sessions this
-     * teacher runs in one of the student's classes or that the student
-     * attended, plus the teacher's subjects the student is enrolled in.
+     * The teacher's subjects (assigned, owned, or taught) that belong to this
+     * student — by group, by program, or by enrollment. Sessions only feed the
+     * attendance column; they are not what links a subject to the report.
      *
      * @return array{session_ids: \Illuminate\Support\Collection, subject_ids: \Illuminate\Support\Collection}
      */
@@ -394,26 +394,34 @@ class StudentReportController extends Controller
         $teacherSessions = Session::where('teacher_id', $teacher->id)
             ->get(['id', 'subject_id', 'class_id']);
 
-        $classIds = $this->studentClassIds($student);
-        $sessions = $teacherSessions->filter(fn ($s) => $classIds->contains($s->class_id)
-            || $attendedSessionIds->contains($s->id));
+        $classIds   = $this->studentClassIds($student);
+        $programIds = $student->allProgramIds();
 
         $teacherSubjectIds = $teacher->assignedSubjects()->pluck('subjects.id')
+            ->merge(\App\Models\Subject::where('teacher_id', $teacher->id)->pluck('id'))
             ->merge($teacherSessions->pluck('subject_id')->filter())
             ->unique();
-        $enrolledSubjectIds = Enrollment::where('student_id', $student->id)
-            ->whereIn('subject_id', $teacherSubjectIds)
-            ->pluck('subject_id');
 
-        $subjectIds = $sessions->pluck('subject_id')->filter()
-            ->merge($enrolledSubjectIds)
-            ->unique()->values();
+        $enrolledSubjectIds = Enrollment::where('student_id', $student->id)->pluck('subject_id');
+
+        // A subject tied to a group only counts for students of that group;
+        // otherwise its program decides.
+        $subjectIds = \App\Models\Subject::whereIn('id', $teacherSubjectIds)
+            ->where(fn ($q) => $q
+                ->whereIn('id', $enrolledSubjectIds)
+                ->orWhereIn('class_id', $classIds)
+                ->orWhere(fn ($q) => $q->whereNull('class_id')->whereIn('program_id', $programIds)))
+            ->pluck('id')->values();
+
+        $sessions = $teacherSessions->filter(fn ($s) => $attendedSessionIds->contains($s->id)
+            || $classIds->contains($s->class_id)
+            || $subjectIds->contains($s->subject_id));
 
         return [
             'teacher_id'  => $teacher->id,
             'session_ids' => $sessions->pluck('id')->values(),
             'subject_ids' => $subjectIds,
-            'is_mine'     => $sessions->isNotEmpty() || $enrolledSubjectIds->isNotEmpty(),
+            'is_mine'     => $subjectIds->isNotEmpty() || $sessions->isNotEmpty(),
         ];
     }
 
