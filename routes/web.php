@@ -574,6 +574,23 @@ Route::middleware(['auth', 'role:admin,super_admin'])->prefix('admin')->name('ad
         Route::get('/download', [\App\Http\Controllers\Admin\LogViewerController::class, 'download'])->name('download');
     });
 
+    // System issues tracker (internal): status, tags linking to records, comments & voice notes
+    Route::prefix('system-issues')->name('system-issues.')->controller(\App\Http\Controllers\Admin\SystemIssueController::class)->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/create', 'create')->name('create');
+        Route::get('/tags/search', 'searchTags')->name('tags.search');
+        Route::post('/', 'store')->name('store');
+        Route::get('/{systemIssue}', 'show')->name('show');
+        Route::put('/{systemIssue}', 'update')->name('update');
+        Route::patch('/{systemIssue}/status', 'updateStatus')->name('status');
+        Route::delete('/{systemIssue}', 'destroy')->name('destroy');
+        Route::post('/{systemIssue}/tags', 'storeTag')->name('tags.store');
+        Route::delete('/{systemIssue}/tags/{tag}', 'destroyTag')->name('tags.destroy');
+        Route::post('/{systemIssue}/comments', 'storeComment')->name('comments.store');
+        Route::put('/{systemIssue}/comments/{comment}', 'updateComment')->name('comments.update');
+        Route::delete('/{systemIssue}/comments/{comment}', 'destroyComment')->name('comments.destroy');
+    });
+
     // Quizzes & Exams — view all quizzes and students' solutions
     Route::prefix('quizzes')->name('quizzes.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Admin\QuizController::class, 'index'])->name('index');
@@ -648,6 +665,7 @@ Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')
     Route::get('/my-subjects/{subjectId}/sessions/{sessionId}/attendance', [\App\Http\Controllers\Teacher\SubjectController::class, 'sessionAttendance'])->name('my-subjects.sessions.attendance');
     Route::post('/my-subjects/{subjectId}/sessions/{sessionId}/attendance', [\App\Http\Controllers\Teacher\SubjectController::class, 'saveAttendance'])->name('my-subjects.sessions.attendance.save');
     Route::post('/my-subjects/{subjectId}/sessions/{sessionId}/attendance/absent', [\App\Http\Controllers\Teacher\SubjectController::class, 'markAbsent'])->name('my-subjects.sessions.attendance.absent');
+    Route::post('/my-subjects/{subjectId}/sessions/{sessionId}/attendance/late', [\App\Http\Controllers\Teacher\SubjectController::class, 'setLate'])->name('my-subjects.sessions.attendance.late');
     Route::get('/my-subjects/{subjectId}/sessions/{sessionId}/attendance/export', [\App\Http\Controllers\Teacher\SubjectController::class, 'exportAttendance'])->name('my-subjects.sessions.attendance.export');
     Route::delete('/my-subjects/{subjectId}/sessions/{sessionId}/files/{fileId}', [\App\Http\Controllers\Teacher\SubjectController::class, 'deleteSessionFile'])->name('my-subjects.sessions.files.destroy');
 

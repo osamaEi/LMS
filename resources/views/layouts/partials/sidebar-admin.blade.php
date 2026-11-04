@@ -430,6 +430,23 @@
     </a>
 </li>
 
+{{-- مشاكل النظام --}}
+<li>
+    <a href="{{ route('admin.system-issues.index') }}"
+       class="menu-item group relative flex items-center gap-3 rounded-lg px-4 py-3 font-medium {{ request()->routeIs('admin.system-issues.*') ? 'menu-item-active' : 'menu-item-inactive' }}">
+        <svg class="fill-current" width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>مشاكل النظام</span>
+        {{-- rescue(): don't break every admin page if the table isn't migrated yet --}}
+        @php $openIssues = rescue(fn () => \App\Models\SystemIssue::whereIn('status', ['open', 'in_progress', 'waiting'])->count(), 0, false); @endphp
+        @if($openIssues)
+        <span style="margin-right:auto;background:#fee2e2;color:#dc2626;font-size:.7rem;font-weight:800;padding:1px 8px;border-radius:999px">{{ $openIssues }}</span>
+        @endif
+    </a>
+</li>
+
 {{-- سجلات النظام (Laravel Log) --}}
 @canany(['manage-system','view-settings'])
 <li>

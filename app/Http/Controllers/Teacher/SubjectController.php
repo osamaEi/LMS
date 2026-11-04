@@ -722,20 +722,47 @@ class SubjectController extends Controller
             'student_ids.*' => 'exists:users,id',
         ]);
 
-        // Manual entries have no join time: the moment the teacher saves is not
-        // when the student joined, so it must not count as a late join (تأخير).
+        // Manual entries have no join time, so lateness is the teacher's explicit choice.
+        $asLate = $request->boolean('as_late');
         foreach ($validated['student_ids'] as $studentId) {
             Attendance::updateOrCreate(
                 ['student_id' => $studentId, 'session_id' => $session->id],
                 [
                     'attended'    => true,
-                    'is_late'     => false,
+                    'is_late'     => $asLate,
                     'joined_at'   => null,
                 ]
             );
         }
 
-        return back()->with('success', 'تم تسجيل الحضور بنجاح');
+        return back()->with('success', $asLate ? 'تم تسجيل المحددين كمتأخرين' : 'تم تسجيل الحضور بنجاح');
+    }
+
+    /**
+     * Switch a present student between on-time and late.
+     *
+     * The join time is cleared: lateness is otherwise recomputed from it, which
+     * would undo the teacher's choice. Without a join time the stored flag wins.
+     */
+    public function setLate(Request $request, $subjectId, $sessionId)
+    {
+        $teacher = auth()->user();
+
+        $session = $this->resolveTeacherSession($teacher, $subjectId, $sessionId);
+
+        $validated = $request->validate([
+            'student_id' => 'required|exists:users,id',
+            'late'       => 'required|boolean',
+        ]);
+
+        $late = (bool) $validated['late'];
+
+        Attendance::updateOrCreate(
+            ['student_id' => $validated['student_id'], 'session_id' => $session->id],
+            ['attended' => true, 'is_late' => $late, 'joined_at' => null]
+        );
+
+        return back()->with('success', $late ? 'تم تحويل الطالب إلى متأخر' : 'تم تحويل الطالب إلى حاضر');
     }
 
     /**
