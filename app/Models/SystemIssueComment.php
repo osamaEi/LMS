@@ -46,6 +46,11 @@ class SystemIssueComment extends Model
         return $this->hasMany(self::class, 'parent_id')->orderBy('created_at');
     }
 
+    public function attachments(): HasMany
+    {
+        return $this->hasMany(SystemIssueAttachment::class, 'comment_id')->orderBy('id');
+    }
+
     public function isStatusChange(): bool
     {
         return $this->type === 'status';

@@ -107,6 +107,22 @@
                 </div>
             </div>
 
+            {{-- Attachments --}}
+            <div class="si-card">
+                <div class="si-card-h"><h2>📎 المرفقات ({{ $issue->attachments->count() }})</h2></div>
+                <div class="si-card-b">
+                    @include('admin.system-issues.partials.attachments', ['attachments' => $issue->attachments])
+                    <form action="{{ route('admin.system-issues.attachments.store', $issue) }}" method="POST" enctype="multipart/form-data"
+                          style="margin-top:{{ $issue->attachments->count() ? '14px' : '0' }}">
+                        @csrf
+                        @include('admin.system-issues.partials.attachments-input')
+                        <div style="display:flex;justify-content:flex-end;margin-top:8px">
+                            <button type="submit" class="si-btn si-btn-sm si-btn-primary">رفع الملفات</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
             {{-- Tags --}}
             <div class="si-card">
                 <div class="si-card-h"><h2>🏷 التاجات ({{ $issue->tags->count() }})</h2></div>
@@ -141,6 +157,7 @@
                       style="padding:14px 18px;border-top:1px solid #f1f5f9;background:#fafafa;border-radius:0 0 16px 16px">
                     @csrf
                     <textarea name="body" class="si-textarea" style="min-height:80px;background:#fff" placeholder="اكتب تعليقاً...">{{ old('parent_id') ? '' : old('body') }}</textarea>
+                    <div style="margin-top:8px">@include('admin.system-issues.partials.attachments-input')</div>
                     <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px;flex-wrap:wrap">
                         @include('admin.system-issues.partials.voice-input')
                         <button type="submit" class="si-btn si-btn-primary">إضافة تعليق</button>

@@ -67,6 +67,36 @@
     @keyframes si-pulse { 50% { box-shadow: 0 0 0 6px rgba(220,38,38,.18); } }
     .si-rec-time { font-variant-numeric: tabular-nums; font-size: .8rem; font-weight: 700; color: #dc2626; min-width: 42px; }
     .si-voice audio, .si-audio { height: 36px; max-width: 100%; }
+
+    /* Attachments */
+    .si-drop {
+        display: flex; align-items: center; gap: 10px; padding: 12px 14px; cursor: pointer;
+        border: 1.5px dashed #c7d2fe; border-radius: 12px; background: #f8faff; color: #4f46e5; font-size: .8rem;
+        transition: background .15s, border-color .15s;
+    }
+    .si-drop:hover, .si-drop.over { background: #eef2ff; border-color: #6366f1; }
+    .dark .si-drop { background: rgba(99,102,241,.08); border-color: rgba(99,102,241,.4); }
+    .si-drop span { color: #475569; } .si-drop b { color: #4f46e5; }
+    .dark .si-drop span { color: #cbd5e1; }
+    .si-file-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .si-file-list:empty { display: none; }
+    .si-pick {
+        display: inline-flex; align-items: center; gap: 6px; padding: 4px 6px 4px 10px; max-width: 260px;
+        background: #f1f5f9; border-radius: 10px; font-size: .75rem; color: #334155;
+    }
+    .si-pick img { width: 28px; height: 28px; object-fit: cover; border-radius: 6px; }
+    .si-pick .n { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+    .si-media { width: 180px; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; background: #0f172a; }
+    .si-media img, .si-media video { display: block; width: 100%; height: 130px; object-fit: cover; background: #0f172a; }
+    .si-media video { object-fit: contain; }
+    .si-media-bar { display: flex; align-items: center; gap: 4px; padding: 4px 8px; background: #fff; }
+    .dark .si-media-bar { background: #1e293b; }
+    .si-media-name { flex: 1; min-width: 0; font-size: .7rem; color: #475569; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .si-media-act { border: none; background: none; cursor: pointer; font-size: .8rem; color: #4f46e5; text-decoration: none; padding: 0 3px; }
+    .si-file-row { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border: 1px solid #e5e7eb; border-radius: 10px; background: #fff; max-width: 520px; }
+    .dark .si-file-row { background: rgba(255,255,255,.03); border-color: rgba(255,255,255,.1); }
+    .si-file-name { flex: 1; min-width: 0; font-size: .8rem; font-weight: 700; color: #4f46e5; text-decoration: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .si-file-name:hover { text-decoration: underline; }
 </style>
 @endpush
 
@@ -147,6 +177,66 @@
                 e.preventDefault();
                 alert('أوقف التسجيل أولاً.');
             }
+        });
+    });
+
+    // ── Attachments picker ────────────────────────────────────────────
+    // Keeps its own file list so several picks/drops add up; the real input
+    // is rebuilt from that list (DataTransfer) before the form submits.
+    document.querySelectorAll('.si-files').forEach(function (box) {
+        const input = box.querySelector('input[type=file]');
+        const drop  = box.querySelector('[data-drop]');
+        const list  = box.querySelector('[data-list]');
+        const max   = +box.dataset.max, maxBytes = +box.dataset.maxMb * 1024 * 1024;
+        let files = [];
+
+        function sync() {
+            const dt = new DataTransfer();
+            files.forEach(f => dt.items.add(f));
+            input.files = dt.files;
+            list.innerHTML = '';
+            files.forEach(function (f, i) {
+                const chip = document.createElement('span');
+                chip.className = 'si-pick';
+                if (f.type.startsWith('image/')) {
+                    const img = document.createElement('img'); img.src = URL.createObjectURL(f); chip.appendChild(img);
+                } else {
+                    const ic = document.createElement('span'); ic.textContent = f.type.startsWith('video/') ? '🎬' : '📎'; chip.appendChild(ic);
+                }
+                const n = document.createElement('span'); n.className = 'n'; n.textContent = f.name; n.title = f.name;
+                const s = document.createElement('span'); s.style.color = '#94a3b8'; s.textContent = (f.size / 1048576).toFixed(1) + 'MB';
+                const x = document.createElement('button'); x.type = 'button'; x.className = 'si-tag-x'; x.textContent = '×'; x.title = 'إزالة';
+                x.addEventListener('click', () => { files.splice(i, 1); sync(); });
+                chip.append(n, s, x);
+                list.appendChild(chip);
+            });
+        }
+        function add(newFiles) {
+            const rejected = [];
+            Array.from(newFiles).forEach(function (f) {
+                if (f.size > maxBytes) { rejected.push(f.name + ' (أكبر من ' + box.dataset.maxMb + 'MB)'); return; }
+                if (files.length >= max) { rejected.push(f.name + ' (الحد ' + max + ' ملفات)'); return; }
+                if (!files.some(e => e.name === f.name && e.size === f.size)) files.push(f);
+            });
+            if (rejected.length) alert('لم تتم إضافة:\n' + rejected.join('\n'));
+            sync();
+        }
+
+        drop.addEventListener('click', () => input.click());
+        // The input's own selection replaces its FileList, so merge it into ours.
+        input.addEventListener('change', () => add(Array.from(input.files)));
+        ['dragenter', 'dragover'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('over'); }));
+        ['dragleave', 'drop'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('over'); }));
+        drop.addEventListener('drop', e => add(e.dataTransfer.files));
+    });
+
+    // Show progress text on submit for forms with uploads (big videos take a while).
+    document.querySelectorAll('form[enctype="multipart/form-data"]').forEach(function (f) {
+        f.addEventListener('submit', function (e) {
+            if (e.defaultPrevented) return;
+            const btn = f.querySelector('button[type=submit]:not([name])');
+            const hasFiles = Array.from(f.querySelectorAll('input[type=file]')).some(i => i.files.length);
+            if (btn && hasFiles) { setTimeout(() => { btn.disabled = true; btn.textContent = 'جارٍ الرفع...'; }, 0); }
         });
     });
 

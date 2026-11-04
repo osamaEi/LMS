@@ -65,6 +65,18 @@ class SystemIssue extends Model
         return $this->hasMany(SystemIssueComment::class)->orderBy('created_at');
     }
 
+    /** Files attached to the issue itself (not to a comment). */
+    public function attachments(): HasMany
+    {
+        return $this->hasMany(SystemIssueAttachment::class)->whereNull('comment_id')->orderBy('id');
+    }
+
+    /** Every file of the issue, including those on comments. */
+    public function allAttachments(): HasMany
+    {
+        return $this->hasMany(SystemIssueAttachment::class);
+    }
+
     public function statusLabel(): string
     {
         return self::STATUSES[$this->status]['label'] ?? $this->status;

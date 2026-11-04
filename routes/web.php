@@ -589,6 +589,9 @@ Route::middleware(['auth', 'role:admin,super_admin'])->prefix('admin')->name('ad
         Route::post('/{systemIssue}/comments', 'storeComment')->name('comments.store');
         Route::put('/{systemIssue}/comments/{comment}', 'updateComment')->name('comments.update');
         Route::delete('/{systemIssue}/comments/{comment}', 'destroyComment')->name('comments.destroy');
+        Route::post('/{systemIssue}/attachments', 'storeAttachments')->name('attachments.store');
+        Route::get('/{systemIssue}/attachments/{attachment}', 'showAttachment')->name('attachments.show');
+        Route::delete('/{systemIssue}/attachments/{attachment}', 'destroyAttachment')->name('attachments.destroy');
     });
 
     // Quizzes & Exams — view all quizzes and students' solutions

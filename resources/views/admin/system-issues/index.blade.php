@@ -100,6 +100,7 @@
                     بواسطة {{ $issue->creator->name ?? '—' }} · {{ $issue->created_at->diffForHumans() }}
                     @if($issue->assignee) · مسندة إلى <b style="color:#475569">{{ $issue->assignee->name }}</b>@endif
                     · 💬 {{ $issue->comments_count }}
+                    @if($issue->all_attachments_count) · 📎 {{ $issue->all_attachments_count }}@endif
                 </div>
             </div>
             <div style="display:flex;gap:6px;flex-shrink:0">

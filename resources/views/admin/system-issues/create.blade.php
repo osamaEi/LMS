@@ -39,6 +39,12 @@
                 @include('admin.system-issues.partials.voice-input')
             </div>
 
+            <div>
+                <label class="si-label">مرفقات — ملفات، صور، فيديو (اختياري)</label>
+                @include('admin.system-issues.partials.attachments-input')
+                <p class="si-muted" style="margin:6px 0 0">حتى 10 ملفات، وكل ملف حتى 100 ميجابايت.</p>
+            </div>
+
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
                 <div>
                     <label class="si-label">الأولوية</label>

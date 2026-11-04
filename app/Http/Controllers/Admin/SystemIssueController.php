@@ -8,6 +8,7 @@ use App\Models\ProgramClass;
 use App\Models\Session;
 use App\Models\Subject;
 use App\Models\SystemIssue;
+use App\Models\SystemIssueAttachment;
 use App\Models\SystemIssueComment;
 use App\Models\SystemIssueTag;
 use App\Models\Ticket;
@@ -16,12 +17,42 @@ use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 class SystemIssueController extends Controller
 {
     /** Browsers record webm/ogg (Chrome, Firefox) or mp4 (Safari); uploads may be mp3/wav/m4a. */
     private const VOICE_RULE = 'nullable|file|max:20480|mimetypes:audio/webm,video/webm,audio/ogg,video/ogg,audio/mpeg,audio/mp3,audio/wav,audio/x-wav,audio/wave,audio/mp4,video/mp4,audio/x-m4a,audio/m4a,audio/aac,audio/3gpp';
+
+    /** Allowed attachment types (by extension). Anything executable or scriptable (php, exe, html, svg, js...) is refused. */
+    private const ATTACHMENT_EXTENSIONS = [
+        'jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'heic', 'heif',
+        'mp4', 'webm', 'mov', 'm4v', 'ogv', 'mkv', 'avi', '3gp',
+        'mp3', 'wav', 'm4a', 'ogg', 'aac',
+        'pdf', 'doc', 'docx', 'xls', 'xlsx', 'csv', 'ppt', 'pptx', 'txt', 'rtf', 'odt', 'ods', 'odp',
+        'zip', 'rar', '7z',
+    ];
+    private const MAX_ATTACHMENTS = 10;
+    private const MAX_ATTACHMENT_KB = 102400; // 100 MB per file
+
+    private function attachmentRules(): array
+    {
+        return [
+            'attachments'   => 'nullable|array|max:' . self::MAX_ATTACHMENTS,
+            'attachments.*' => 'file|max:' . self::MAX_ATTACHMENT_KB . '|extensions:' . implode(',', self::ATTACHMENT_EXTENSIONS),
+        ];
+    }
+
+    private function attachmentMessages(): array
+    {
+        return [
+            'attachments.max'        => 'الحد الأقصى ' . self::MAX_ATTACHMENTS . ' ملفات في المرة الواحدة.',
+            'attachments.*.max'      => 'حجم الملف :attribute أكبر من 100 ميجابايت.',
+            'attachments.*.extensions' => 'نوع الملف غير مسموح. المسموح: صور، فيديو، صوت، PDF، Word، Excel، PowerPoint، ملفات مضغوطة.',
+            'attachments.*.uploaded' => 'فشل رفع أحد الملفات — غالباً حجمه أكبر من المسموح على السيرفر.',
+        ];
+    }
 
     public function index(Request $request)
     {
@@ -32,7 +63,7 @@ class SystemIssueController extends Controller
         $mine     = $request->boolean('mine');
 
         $issues = SystemIssue::with(['creator:id,name', 'assignee:id,name', 'tags'])
-            ->withCount(['comments' => fn ($q) => $q->where('type', 'comment')])
+            ->withCount(['comments' => fn ($q) => $q->where('type', 'comment'), 'allAttachments'])
             ->when($search !== '', function ($q) use ($search) {
                 $like = '%' . $search . '%';
                 $q->where(function ($w) use ($like, $search) {
@@ -75,7 +106,7 @@ class SystemIssueController extends Controller
             'tags.*.id'    => 'nullable|integer',
             'tags.*.label' => 'nullable|string|max:255',
             'tags.*.url'   => 'nullable|string|max:2048',
-        ]);
+        ] + $this->attachmentRules(), $this->attachmentMessages());
 
         $issue = DB::transaction(function () use ($request, $data) {
             $issue = SystemIssue::create([
@@ -92,6 +123,8 @@ class SystemIssueController extends Controller
                 $this->attachTag($issue, $tag);
             }
 
+            $this->storeAttachmentFiles($issue, $request->file('attachments', []));
+
             return $issue;
         });
 
@@ -101,8 +134,8 @@ class SystemIssueController extends Controller
     public function show(SystemIssue $systemIssue)
     {
         $systemIssue->load([
-            'creator:id,name', 'assignee:id,name', 'tags',
-            'comments' => fn ($q) => $q->whereNull('parent_id')->with(['user:id,name', 'replies.user:id,name']),
+            'creator:id,name', 'assignee:id,name', 'tags', 'attachments',
+            'comments' => fn ($q) => $q->whereNull('parent_id')->with(['user:id,name', 'attachments', 'replies.user:id,name', 'replies.attachments']),
         ]);
 
         return view('admin.system-issues.show', [
@@ -214,10 +247,10 @@ class SystemIssueController extends Controller
             'body'      => 'nullable|string|max:10000',
             'voice'     => self::VOICE_RULE,
             'parent_id' => 'nullable|integer',
-        ]);
+        ] + $this->attachmentRules(), $this->attachmentMessages());
 
-        if (blank($data['body'] ?? null) && !$request->hasFile('voice')) {
-            return back()->withErrors(['body' => 'اكتب تعليقاً أو سجّل رسالة صوتية.']);
+        if (blank($data['body'] ?? null) && !$request->hasFile('voice') && !$request->hasFile('attachments')) {
+            return back()->withErrors(['body' => 'اكتب تعليقاً أو سجّل رسالة صوتية أو أرفق ملفاً.']);
         }
 
         $parentId = null;
@@ -237,6 +270,8 @@ class SystemIssueController extends Controller
             'voice_path' => $this->storeVoice($request->file('voice')),
         ]);
 
+        $this->storeAttachmentFiles($systemIssue, $request->file('attachments', []), $comment);
+
         $systemIssue->touch();
 
         return redirect()->to(route('admin.system-issues.show', $systemIssue) . '#comment-' . $comment->id)
@@ -249,7 +284,7 @@ class SystemIssueController extends Controller
 
         $data = $request->validate(['body' => 'nullable|string|max:10000']);
 
-        if (blank($data['body'] ?? null) && !$comment->voice_path) {
+        if (blank($data['body'] ?? null) && !$comment->voice_path && !$comment->attachments()->exists()) {
             return back()->withErrors(['body' => 'لا يمكن ترك التعليق فارغاً.']);
         }
 
@@ -263,13 +298,65 @@ class SystemIssueController extends Controller
     {
         $this->authorizeComment($systemIssue, $comment);
 
-        $this->deleteVoice($comment->voice_path);
-        foreach ($comment->replies as $reply) {
-            $this->deleteVoice($reply->voice_path);
+        // Rows cascade in the DB; the files on disk have to be removed here.
+        foreach ($comment->replies->push($comment) as $c) {
+            $this->deleteVoice($c->voice_path);
+            foreach ($c->attachments as $a) {
+                Storage::disk(SystemIssueAttachment::DISK)->delete($a->path);
+            }
         }
-        $comment->delete(); // replies cascade
+        $comment->delete(); // replies + attachment rows cascade
 
         return back()->with('success', 'تم حذف التعليق');
+    }
+
+    // ── Attachments ────────────────────────────────────────────────────────
+
+    public function storeAttachments(Request $request, SystemIssue $systemIssue)
+    {
+        $request->validate(['attachments' => 'required|array'] + $this->attachmentRules(), $this->attachmentMessages());
+
+        $n = $this->storeAttachmentFiles($systemIssue, $request->file('attachments', []));
+        $systemIssue->touch();
+
+        return back()->with('success', 'تم رفع ' . $n . ' ملف');
+    }
+
+    /**
+     * Serve an attachment to a logged-in admin. Images/videos open inline
+     * (videos support seeking); everything else is downloaded.
+     */
+    public function showAttachment(Request $request, SystemIssue $systemIssue, SystemIssueAttachment $attachment)
+    {
+        abort_unless((int) $attachment->system_issue_id === (int) $systemIssue->id, 404);
+
+        $disk = Storage::disk(SystemIssueAttachment::DISK);
+        abort_unless($disk->exists($attachment->path), 404);
+
+        if ($attachment->isInline() && !$request->boolean('download')) {
+            return response()->file($disk->path($attachment->path), [
+                'Content-Type'           => $attachment->mime,
+                'Content-Disposition'    => 'inline; filename="' . addcslashes($attachment->original_name, '"\\') . '"',
+                'X-Content-Type-Options' => 'nosniff',
+            ]);
+        }
+
+        return response()->download($disk->path($attachment->path), $attachment->original_name, [
+            'X-Content-Type-Options' => 'nosniff',
+        ]);
+    }
+
+    public function destroyAttachment(SystemIssue $systemIssue, SystemIssueAttachment $attachment)
+    {
+        abort_unless((int) $attachment->system_issue_id === (int) $systemIssue->id, 404);
+
+        $user = auth()->user();
+        abort_unless((int) $attachment->user_id === (int) $user->id || $user->role === 'super_admin', 403);
+
+        Storage::disk(SystemIssueAttachment::DISK)->delete($attachment->path);
+        $attachment->delete();
+
+        return back()->with('success', 'تم حذف الملف');
     }
 
     // ── Helpers ────────────────────────────────────────────────────────────
@@ -339,6 +426,41 @@ class SystemIssueController extends Controller
                 : null,
             default   => null,
         };
+    }
+
+    /**
+     * Save uploaded files on the private disk under a random name. The
+     * extension comes from the validated allow-list, the original name is
+     * kept only for display/download.
+     *
+     * @param UploadedFile[] $files
+     */
+    private function storeAttachmentFiles(SystemIssue $issue, array $files, ?SystemIssueComment $comment = null): int
+    {
+        $n = 0;
+        foreach ($files as $file) {
+            if (!$file instanceof UploadedFile || !$file->isValid()) {
+                continue;
+            }
+            $ext = strtolower($file->getClientOriginalExtension());
+            if (!in_array($ext, self::ATTACHMENT_EXTENSIONS, true)) {
+                continue;
+            }
+
+            $path = $file->storeAs('system-issues/' . $issue->id, Str::random(40) . '.' . $ext, SystemIssueAttachment::DISK);
+
+            $issue->allAttachments()->create([
+                'comment_id'    => $comment?->id,
+                'user_id'       => auth()->id(),
+                'path'          => $path,
+                'original_name' => mb_substr($file->getClientOriginalName(), 0, 255),
+                'mime'          => $file->getMimeType(),
+                'size'          => $file->getSize() ?: 0,
+            ]);
+            $n++;
+        }
+
+        return $n;
     }
 
     private function storeVoice(?UploadedFile $file): ?string

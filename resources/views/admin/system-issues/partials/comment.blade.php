@@ -31,6 +31,7 @@
                 <audio controls preload="none" src="{{ $comment->voiceUrl() }}" class="si-audio" style="margin-top:6px"></audio>
                 @endif
             </div>
+            @include('admin.system-issues.partials.attachments', ['attachments' => $comment->attachments])
 
             @if($canEdit)
             <form action="{{ route('admin.system-issues.comments.update', [$issue, $comment]) }}" method="POST" data-edit hidden style="margin:0">
@@ -71,6 +72,7 @@
                 @csrf
                 <input type="hidden" name="parent_id" value="{{ $comment->id }}">
                 <textarea name="body" class="si-textarea" style="min-height:60px" placeholder="اكتب ردّك..."></textarea>
+                <div style="margin-top:6px">@include('admin.system-issues.partials.attachments-input')</div>
                 <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:6px;flex-wrap:wrap">
                     @include('admin.system-issues.partials.voice-input')
                     <div style="display:flex;gap:6px">
