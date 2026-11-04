@@ -105,6 +105,36 @@
         white-space: nowrap;
     }
     .action-btn:hover { filter: brightness(0.95); }
+    .actions-toggle {
+        display: inline-flex; align-items: center; gap: 6px;
+        padding: 7px 12px; border-radius: 9px;
+        border: 1.5px solid #e5e7eb; background: #fff; color: #374151;
+        font-size: 0.78rem; font-weight: 700; cursor: pointer; white-space: nowrap;
+    }
+    .actions-toggle:hover, .actions-toggle[aria-expanded="true"] { border-color: #6366f1; color: #4f46e5; }
+    .dark .actions-toggle { background: #1e293b; border-color: rgba(255,255,255,0.12); color: #e5e7eb; }
+    .actions-menu {
+        display: none; position: fixed; z-index: 60; min-width: 180px;
+        background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
+        box-shadow: 0 12px 32px rgba(15,23,42,0.15); padding: 6px; direction: rtl;
+    }
+    .actions-menu.open { display: block; }
+    .dark .actions-menu { background: #1e293b; border-color: rgba(255,255,255,0.1); }
+    .actions-menu form { margin: 0; }
+    .actions-menu .menu-item {
+        display: flex; align-items: center; gap: 8px; width: 100%;
+        padding: 8px 12px; border-radius: 8px; border: none; background: none;
+        font-size: 0.8rem; font-weight: 600; color: #374151; text-align: right;
+        text-decoration: none; cursor: pointer; white-space: nowrap;
+    }
+    .actions-menu .menu-item:hover { background: #f1f5f9; }
+    .dark .actions-menu .menu-item { color: #e5e7eb; }
+    .dark .actions-menu .menu-item:hover { background: rgba(255,255,255,0.06); }
+    .actions-menu .menu-item .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .actions-menu .menu-sep { height: 1px; background: #f1f5f9; margin: 4px 0; }
+    .dark .actions-menu .menu-sep { background: rgba(255,255,255,0.08); }
+    .actions-menu .menu-item.danger { color: #dc2626; }
+    .actions-menu .menu-item.danger:hover { background: #fef2f2; }
     .search-input {
         width: 100%;
         padding: 10px 16px 10px 42px;
@@ -349,36 +379,51 @@
                         {{-- Actions. Assigning subjects/courses/classes lives on the
                              teacher page now, so this column only links there. --}}
                         <td>
-                            <div class="row-actions">
-                                <a href="{{ route('admin.teachers.show', $teacher) }}" class="action-btn"
-                                   style="background:#ede9fe;color:#6d28d9">عرض وتعيين</a>
-                                <a href="{{ route('admin.teachers.edit', $teacher) }}" class="action-btn"
-                                   style="background:#fef3c7;color:#b45309">تعديل</a>
+                            <button type="button" class="actions-toggle" aria-haspopup="true" aria-expanded="false"
+                                    data-actions-menu="actions-menu-{{ $teacher->id }}">
+                                الإجراءات
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+                                </svg>
+                            </button>
+                            <div class="actions-menu" id="actions-menu-{{ $teacher->id }}" role="menu">
+                                <a href="{{ route('admin.teachers.show', $teacher) }}" class="menu-item" role="menuitem">
+                                    <span class="dot" style="background:#6d28d9"></span> عرض وتعيين
+                                </a>
+                                <a href="{{ route('admin.teachers.edit', $teacher) }}" class="menu-item" role="menuitem">
+                                    <span class="dot" style="background:#d97706"></span> تعديل
+                                </a>
 
                                 @if($isActive)
-                                <form action="{{ route('admin.teachers.dashboard-access', $teacher) }}" method="POST" style="margin:0">
+                                <form action="{{ route('admin.teachers.dashboard-access', $teacher) }}" method="POST">
                                     @csrf
-                                    <button type="submit" class="action-btn" style="background:#d1fae5;color:#065f46"
-                                            title="دخول لوحة المدرّس {{ $teacher->name }}">لوحة المدرّس</button>
+                                    <button type="submit" class="menu-item" role="menuitem"
+                                            title="دخول لوحة المدرّس {{ $teacher->name }}">
+                                        <span class="dot" style="background:#059669"></span> لوحة المدرّس
+                                    </button>
                                 </form>
                                 @endif
 
-                                <form action="{{ route('admin.teachers.toggle-status', $teacher) }}" method="POST" style="margin:0">
+                                <form action="{{ route('admin.teachers.toggle-status', $teacher) }}" method="POST">
                                     @csrf
                                     @method('PATCH')
-                                    <button type="submit" class="action-btn"
-                                            style="background:{{ $isActive ? '#fef9c3' : '#dcfce7' }};color:{{ $isActive ? '#92400e' : '#15803d' }}"
+                                    <button type="submit" class="menu-item" role="menuitem"
                                             title="{{ $isActive ? 'تعطيل حساب ' . $teacher->name : 'تفعيل حساب ' . $teacher->name }}">
+                                        <span class="dot" style="background:{{ $isActive ? '#ca8a04' : '#16a34a' }}"></span>
                                         {{ $isActive ? 'تعطيل' : 'تفعيل' }}
                                     </button>
                                 </form>
 
-                                <form action="{{ route('admin.teachers.destroy', $teacher) }}" method="POST" style="margin:0"
+                                <div class="menu-sep"></div>
+
+                                <form action="{{ route('admin.teachers.destroy', $teacher) }}" method="POST"
                                       onsubmit="return confirm('هل أنت متأكد من حذف المدرب ' + {{ Js::from($teacher->name) }} + '؟ لا يمكن التراجع عن هذا الإجراء.')">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="action-btn" style="background:#fee2e2;color:#dc2626"
-                                            title="حذف {{ $teacher->name }}">حذف</button>
+                                    <button type="submit" class="menu-item danger" role="menuitem"
+                                            title="حذف {{ $teacher->name }}">
+                                        <span class="dot" style="background:#dc2626"></span> حذف
+                                    </button>
                                 </form>
                             </div>
                         </td>
@@ -430,3 +475,49 @@
 
 </div>
 @endsection
+
+@push('scripts')
+<script>
+(function () {
+    // Menus are position:fixed so the table's overflow container can't clip them.
+    let openBtn = null;
+
+    function close() {
+        if (!openBtn) return;
+        document.getElementById(openBtn.dataset.actionsMenu)?.classList.remove('open');
+        openBtn.setAttribute('aria-expanded', 'false');
+        openBtn = null;
+    }
+
+    function open(btn) {
+        const menu = document.getElementById(btn.dataset.actionsMenu);
+        if (!menu) return;
+        menu.classList.add('open');
+        const r = btn.getBoundingClientRect();
+        const w = menu.offsetWidth, h = menu.offsetHeight;
+        // RTL: align the menu's right edge with the button's right edge.
+        let left = Math.max(8, Math.min(r.right - w, window.innerWidth - w - 8));
+        let top  = r.bottom + 6;
+        if (top + h > window.innerHeight - 8) top = Math.max(8, r.top - h - 6); // flip up near the bottom
+        menu.style.left = left + 'px';
+        menu.style.top  = top + 'px';
+        btn.setAttribute('aria-expanded', 'true');
+        openBtn = btn;
+    }
+
+    document.addEventListener('click', function (e) {
+        const btn = e.target.closest('[data-actions-menu]');
+        if (btn) {
+            const same = btn === openBtn;
+            close();
+            if (!same) open(btn);
+            return;
+        }
+        if (!e.target.closest('.actions-menu')) close();
+    });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
+    window.addEventListener('resize', close);
+    window.addEventListener('scroll', close, true);
+})();
+</script>
+@endpush
