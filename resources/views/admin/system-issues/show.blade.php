@@ -47,7 +47,7 @@
                             سجّلها {{ $issue->creator->name ?? '—' }} · {{ $issue->created_at->format('Y/m/d H:i') }} ({{ $issue->created_at->diffForHumans() }})
                         </div>
                         @if($issue->description)
-                        <div style="margin-top:14px;font-size:.9rem;color:#1f2937;white-space:pre-wrap;line-height:1.8;word-break:break-word">{{ $issue->description }}</div>
+                        <div class="si-rich" style="margin-top:14px">{!! $issue->descriptionHtml() !!}</div>
                         @endif
                         @if($issue->voiceUrl())
                         <div style="margin-top:12px;display:flex;align-items:center;gap:8px">
@@ -68,7 +68,10 @@
                             </div>
                             <div>
                                 <label class="si-label">الوصف</label>
-                                <textarea name="description" class="si-textarea">{{ $issue->description }}</textarea>
+                                @include('admin.system-issues.partials.description-editor', [
+                                    'name' => 'description',
+                                    'value' => $issue->description,
+                                ])
                             </div>
                             <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
                                 <div>

@@ -31,7 +31,11 @@
 
             <div>
                 <label class="si-label">الوصف</label>
-                <textarea name="description" class="si-textarea" placeholder="اشرح المشكلة: ماذا حدث، متى، وكيف يمكن تكرارها...">{{ old('description') }}</textarea>
+                @include('admin.system-issues.partials.description-editor', [
+                    'name' => 'description',
+                    'value' => old('description'),
+                    'placeholder' => 'اشرح المشكلة: ماذا حدث، متى، وكيف يمكن تكرارها...',
+                ])
             </div>
 
             <div>

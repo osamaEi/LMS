@@ -111,7 +111,7 @@ class SystemIssueController extends Controller
         $issue = DB::transaction(function () use ($request, $data) {
             $issue = SystemIssue::create([
                 'title'       => $data['title'],
-                'description' => $data['description'] ?? null,
+                'description' => SystemIssue::sanitizeDescription($data['description'] ?? null),
                 'priority'    => $data['priority'],
                 'assigned_to' => $data['assigned_to'] ?? null,
                 'status'      => 'open',
@@ -161,6 +161,7 @@ class SystemIssueController extends Controller
         }
 
         unset($data['voice'], $data['remove_voice']);
+        $data['description'] = SystemIssue::sanitizeDescription($data['description'] ?? null);
         $systemIssue->update($data);
 
         return back()->with('success', 'تم حفظ التعديلات');
