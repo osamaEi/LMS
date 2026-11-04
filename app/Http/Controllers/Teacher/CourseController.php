@@ -411,15 +411,20 @@ class CourseController extends Controller
             ->pluck('student_id')->flip();
 
         // Build unified list (one row per class student)
-        $attendances = $classStudents->map(function ($student) use ($attendanceMap, $sessionId, $excusedStudentIds) {
+        $attendances = $classStudents->map(function ($student) use ($attendanceMap, $sessionId, $excusedStudentIds, $session) {
             $att = $attendanceMap->get($student->id);
             $attended = $att?->attended ?? false;
+            // Join time decides lateness; manual entries (no join time) keep the teacher's choice.
+            $isLate = $att?->joined_at
+                ? Attendance::isLateJoin($session, $att->joined_at)
+                : ($att?->is_late ?? false);
             return (object)[
                 'id'         => $att?->id,
                 'session_id' => $sessionId,
                 'student_id' => $student->id,
                 'student'    => $student,
                 'attended'   => $attended,
+                'is_late'    => $attended && $isLate,
                 'excused'    => !$attended && $excusedStudentIds->has($student->id),
                 'joined_at'  => $att?->joined_at,
                 'notes'      => $att?->notes,
@@ -434,6 +439,7 @@ class CourseController extends Controller
         $stats = [
             'total_enrolled'  => $totalStudents,
             'attended'        => $attendedCount,
+            'late'            => $attendances->where('is_late', true)->count(),
             'excused'         => $excusedCount,
             'absent'          => $absentStudents->count(),
             'attendance_rate' => $totalStudents > 0
@@ -484,7 +490,9 @@ class CourseController extends Controller
                     $i + 1,
                     $student->name,
                     $student->student_code ?? '',
-                    $att && $att->attended ? 'حاضر' : 'غائب',
+                    $att && $att->attended
+                        ? (($att->joined_at ? Attendance::isLateJoin($session, $att->joined_at) : $att->is_late) ? 'متأخر' : 'حاضر')
+                        : 'غائب',
                     $att && $att->joined_at ? \Carbon\Carbon::parse($att->joined_at)->format('H:i') : '',
                 ]);
             }
@@ -505,14 +513,15 @@ class CourseController extends Controller
             'student_ids.*' => 'exists:users,id',
         ]);
 
-        // Manual entries have no join time (see Teacher\SubjectController::saveAttendance).
+        // Manual entries have no join time, so lateness is the teacher's explicit choice.
+        $asLate = $request->boolean('as_late');
         foreach ($request->student_ids as $studentId) {
             Attendance::updateOrCreate(
                 ['student_id' => $studentId, 'session_id' => $session->id],
-                ['attended' => true, 'is_late' => false, 'joined_at' => null]
+                ['attended' => true, 'is_late' => $asLate, 'joined_at' => null]
             );
         }
 
-        return back()->with('success', 'تم تسجيل الحضور بنجاح');
+        return back()->with('success', $asLate ? 'تم تسجيل المحددين كمتأخرين' : 'تم تسجيل الحضور بنجاح');
     }
 }

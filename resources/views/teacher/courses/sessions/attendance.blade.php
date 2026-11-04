@@ -8,6 +8,7 @@
     $attended  = $stats['attended'];
     $absent    = $stats['absent'];
     $excused   = $stats['excused'] ?? 0;
+    $late      = $stats['late'] ?? 0;
     $total     = $stats['total_enrolled'];
     $rateColor = $rate >= 75 ? '#16a34a' : ($rate >= 50 ? '#d97706' : '#dc2626');
 @endphp
@@ -57,10 +58,11 @@
 </div>
 
 {{-- Stats --}}
-<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px">
+<div style="display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:20px">
     @foreach([
         [$total,      'إجمالي المسجلين', '#2563eb', '#dbeafe'],
         [$attended,   'حاضر',            '#16a34a', '#dcfce7'],
+        [$late,       'متأخر',           '#ea580c', '#ffedd5'],
         [$excused,    'معذور',           '#d97706', '#fef3c7'],
         [$absent,     'غائب',            '#dc2626', '#fee2e2'],
         [$rate.'%',   'نسبة الحضور',    $rateColor, '#f9fafb'],
@@ -92,7 +94,12 @@
             <tr style="border-top:1px solid #f9fafb">
                 <td style="padding:12px 18px;color:#9ca3af;font-weight:700">{{ $i + 1 }}</td>
                 <td style="padding:12px 18px">
-                    <p style="font-weight:700;color:#111827;margin:0">{{ $att->student->name ?? 'غير معروف' }}</p>
+                    <p style="font-weight:700;color:#111827;margin:0">
+                        {{ $att->student->name ?? 'غير معروف' }}
+                        @if($att->is_late)
+                            <span style="background:#ffedd5;color:#c2410c;font-size:.7rem;font-weight:700;padding:2px 10px;border-radius:20px;margin-right:6px">متأخر</span>
+                        @endif
+                    </p>
                     <p style="font-size:.75rem;color:#9ca3af;margin:2px 0 0">{{ $att->student->email ?? '' }}</p>
                 </td>
                 <td style="padding:12px 18px;color:#374151">
@@ -146,7 +153,7 @@
         <div style="display:flex;align-items:center;gap:10px">
             <div style="width:8px;height:8px;border-radius:50%;background:#dc2626"></div>
             <h2 style="font-size:.9rem;font-weight:700;color:#111827;margin:0">
-                الغائبون ({{ $absentStudents->count() }}) — حدّد فقط من حضر فعلاً لتسجيله حاضراً
+                الغائبون ({{ $absentStudents->count() }}) — حدّد فقط من حضر فعلاً لتسجيله حاضراً أو متأخراً
             </h2>
         </div>
         <label style="font-size:.78rem;font-weight:600;color:#374151;cursor:pointer;display:flex;align-items:center;gap:6px">
@@ -155,7 +162,7 @@
         </label>
     </div>
     <form action="{{ route('teacher.my-courses.sessions.attendance.save', [$program->id, $session->id]) }}" method="POST"
-          onsubmit="var n = this.querySelectorAll('.att-cb:checked').length; return n > 0 && confirm('سيتم تسجيل ' + n + ' متدرب كحاضرين في هذه المحاضرة. هل أنت متأكد؟')">
+          onsubmit="var n = this.querySelectorAll('.att-cb:checked').length; var late = event.submitter && event.submitter.value === '1'; return n > 0 && confirm('سيتم تسجيل ' + n + ' متدرب ' + (late ? 'كمتأخرين' : 'كحاضرين') + ' في هذه المحاضرة. هل أنت متأكد؟')">
         @csrf
         <table style="width:100%;border-collapse:collapse;font-size:.85rem">
             @foreach($absentStudents as $student)
@@ -170,8 +177,12 @@
             </tr>
             @endforeach
         </table>
-        <div style="padding:14px 16px;border-top:1px solid #f1f5f9;text-align:left">
-            <button type="submit"
+        <div style="padding:14px 16px;border-top:1px solid #f1f5f9;text-align:left;display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap">
+            <button type="submit" name="as_late" value="1"
+                    style="padding:10px 24px;border-radius:8px;border:none;font-size:.875rem;font-weight:700;color:#fff;background:linear-gradient(135deg,#f97316,#ea580c);cursor:pointer">
+                تسجيل المحددين كمتأخرين
+            </button>
+            <button type="submit" name="as_late" value="0"
                     style="padding:10px 24px;border-radius:8px;border:none;font-size:.875rem;font-weight:700;color:#fff;background:linear-gradient(135deg,#16a34a,#15803d);cursor:pointer">
                 تسجيل المحددين كحاضرين
             </button>
