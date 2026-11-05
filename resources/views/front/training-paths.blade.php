@@ -228,7 +228,7 @@
                         @if($program->duration_label)
                             <span><i class="bi bi-clock"></i> {{ $program->duration_label }}</span>
                         @endif
-                        @if($program->price)
+                        @if((float) $program->price > 0)
                             <span class="course-price">{{ number_format($program->price, 0) }} <x-riyal /></span>
                         @endif
                     </div>

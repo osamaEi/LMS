@@ -141,23 +141,39 @@
     @endphp
     <div class="courses-container">
         @foreach($programs as $program)
+        @php $showUrl = isset($showRoute) ? route($showRoute, $program) : null; @endphp
         <div class="course-card-wrapper">
             <div class="course-card">
+                @if($showUrl)<a href="{{ $showUrl }}" tabindex="-1" aria-hidden="true">@endif
                 <img src="{{ $program->image ? asset('storage/'.$program->image) : $courseImages[$loop->index % count($courseImages)] }}"
                      alt="{{ $program->name_ar }}" />
+                @if($showUrl)</a>@endif
                 <span class="course-badge" style="background:{{ $badgeColor }};">{{ $badgeLabel }}</span>
                 <div class="card-body">
-                    <h5 class="card-title">{{ $program->name_ar }}</h5>
+                    <h5 class="card-title">
+                        @if($showUrl)
+                            <a href="{{ $showUrl }}" style="color:inherit;text-decoration:none;">{{ $program->name_ar }}</a>
+                        @else
+                            {{ $program->name_ar }}
+                        @endif
+                    </h5>
                     <p class="card-text">{{ Str::limit($program->description_plain, 100) }}</p>
                     <div class="course-meta">
                         @if($program->duration_hours)
                             <span><i class="bi bi-clock"></i> {{ $program->duration_hours }} ساعة</span>
                         @endif
-                        @if($program->price)
+                        @if((float) $program->price > 0)
                             <span class="course-price">{{ number_format($program->price,0) }} <x-riyal /></span>
                         @endif
                     </div>
-                    <a href="{{ route('register') }}" class="full-btn mt-3 w-100 d-block text-center">سجّل الآن</a>
+                    @if($showUrl)
+                        <div class="d-flex gap-2 mt-3">
+                            <a href="{{ $showUrl }}" class="full-btn w-50 d-block text-center" style="background:#fff;color:var(--main-color);border:1px solid var(--main-color);">التفاصيل</a>
+                            <a href="{{ route('register') }}" class="full-btn w-50 d-block text-center">سجّل الآن</a>
+                        </div>
+                    @else
+                        <a href="{{ route('register') }}" class="full-btn mt-3 w-100 d-block text-center">سجّل الآن</a>
+                    @endif
                 </div>
             </div>
         </div>

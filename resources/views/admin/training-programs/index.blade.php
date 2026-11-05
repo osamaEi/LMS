@@ -235,7 +235,7 @@
                         </td>
                         <td class="px-6 py-5">
                             <span class="text-sm text-gray-700 font-medium">
-                                @if($program->price)
+                                @if((float) $program->price > 0)
                                     {{ number_format($program->price) }} <span class="text-gray-400 font-normal"><x-riyal /></span>
                                 @else
                                     <span class="text-gray-400">—</span>

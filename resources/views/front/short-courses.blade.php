@@ -376,7 +376,7 @@
                             @if($program->duration_months)
                                 <span><i class="bi bi-clock"></i> {{ $program->duration_months }} {{ __('Months') }}</span>
                             @endif
-                            @if($program->price)
+                            @if((float) $program->price > 0)
                                 <span class="course-price">{{ number_format($program->price, 0) }} {{ __('SAR') }}</span>
                             @endif
                         </div>

@@ -162,8 +162,21 @@ Route::get('/courses/qualifying', function () {
         'programs'  => $programs,
         'pageTitle' => 'الدورات التأهيلية',
         'pageType'  => 'qualifying',
+        'showRoute' => 'courses.qualifying.show',
     ]);
 })->name('courses.qualifying');
+
+Route::get('/courses/qualifying/{program}', function (\App\Models\Program $program) {
+    abort_unless($program->status === 'active' && $program->type === 'course'
+        && $program->course_type === 'qualifying', 404);
+    $program->load(['terms' => fn($q) => $q->orderBy('term_number')]);
+    return view('front.program-show', [
+        'program'   => $program,
+        'backLabel' => 'الدورات التأهيلية',
+        'backUrl'   => route('courses.qualifying'),
+        'backRoute' => true,
+    ]);
+})->name('courses.qualifying.show');
 
 Route::get('/english-courses', function () {
     $programs = \App\Models\Program::where('status', 'active')
