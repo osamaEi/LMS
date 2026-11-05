@@ -371,7 +371,7 @@
                     @endif
                     <div class="card-body">
                         <h5 class="card-title">{{ app()->getLocale() === 'en' ? ($program->name_en ?: $program->name_ar) : $program->name_ar }}</h5>
-                        <p class="card-text">{{ Str::limit(app()->getLocale() === 'en' ? ($program->description_en ?: $program->description_ar) : $program->description_ar, 100) }}</p>
+                        <p class="card-text">{{ Str::limit($program->description_plain, 100) }}</p>
                         <div class="course-meta">
                             @if($program->duration_months)
                                 <span><i class="bi bi-clock"></i> {{ $program->duration_months }} {{ __('Months') }}</span>

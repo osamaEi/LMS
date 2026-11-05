@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Support\RichText;
 
 class Program extends Model
 {
@@ -60,6 +61,29 @@ class Program extends Model
     {
         $locale = app()->getLocale();
         return $locale === 'en' ? ($this->description_en ?: $this->description_ar) : $this->description_ar;
+    }
+
+    /** Descriptions come from the rich-text editor: keep only safe HTML. */
+    public function setDescriptionArAttribute(?string $value): void
+    {
+        $this->attributes['description_ar'] = RichText::sanitize($value);
+    }
+
+    public function setDescriptionEnAttribute(?string $value): void
+    {
+        $this->attributes['description_en'] = RichText::sanitize($value);
+    }
+
+    /** Safe, formatted HTML of the localized description (for the public pages). */
+    public function getDescriptionHtmlAttribute(): string
+    {
+        return RichText::render($this->description);
+    }
+
+    /** Localized description as plain text (for cards and excerpts). */
+    public function getDescriptionPlainAttribute(): string
+    {
+        return RichText::plain($this->description);
     }
 
     /**

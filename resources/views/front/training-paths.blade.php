@@ -223,7 +223,7 @@
                 <img src="{{ $program->image ? asset('storage/' . $program->image) : $tpDefImgs[$loop->index % 3] }}" alt="{{ $program->name_ar }}" />
                 <div class="card-body">
                     <h5 class="card-title">{{ $program->name_ar }}</h5>
-                    <p class="card-text">{{ Str::limit($program->description_ar, 100) }}</p>
+                    <p class="card-text">{{ Str::limit($program->description_plain, 100) }}</p>
                     <div class="course-meta">
                         @if($program->duration_label)
                             <span><i class="bi bi-clock"></i> {{ $program->duration_label }}</span>

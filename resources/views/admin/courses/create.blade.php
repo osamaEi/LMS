@@ -98,15 +98,11 @@
                 </div>
                 <div class="md:col-span-2">
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">الوصف (عربي)</label>
-                    <textarea name="description_ar" rows="3"
-                              class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 focus:border-amber-500 focus:ring-2 focus:ring-amber-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-                              placeholder="وصف تفصيلي عن الدورة وأهدافها...">{{ old('description_ar') }}</textarea>
+                    @include('partials.rich-editor', ['name' => 'description_ar', 'value' => old('description_ar'), 'dir' => 'rtl', 'placeholder' => 'وصف تفصيلي عن الدورة وأهدافها...'])
                 </div>
                 <div class="md:col-span-2">
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">الوصف (إنجليزي)</label>
-                    <textarea name="description_en" rows="3" dir="ltr"
-                              class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 focus:border-amber-500 focus:ring-2 focus:ring-amber-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-                              placeholder="Detailed description of the course...">{{ old('description_en') }}</textarea>
+                    @include('partials.rich-editor', ['name' => 'description_en', 'value' => old('description_en'), 'dir' => 'ltr', 'placeholder' => 'Detailed description of the course...'])
                 </div>
 
                 {{-- صورة الدورة --}}

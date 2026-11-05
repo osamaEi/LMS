@@ -148,10 +148,7 @@
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     الوصف (عربي)
                 </label>
-                <textarea name="description_ar"
-                          rows="3"
-                          class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-                          placeholder="وصف تفصيلي عن الدبلوم التعليمي وأهدافه ومحتوياته...">{{ old('description_ar', $program->description_ar) }}</textarea>
+                @include('partials.rich-editor', ['name' => 'description_ar', 'value' => old('description_ar', $program->description_ar), 'dir' => 'rtl', 'placeholder' => 'وصف تفصيلي عن الدبلوم التعليمي وأهدافه ومحتوياته...'])
             </div>
 
             <!-- الوصف بالإنجليزي -->
@@ -159,11 +156,7 @@
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     الوصف (إنجليزي)
                 </label>
-                <textarea name="description_en"
-                          rows="3"
-                          dir="ltr"
-                          class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-                          placeholder="Detailed description of the educational program, its objectives and content...">{{ old('description_en', $program->description_en) }}</textarea>
+                @include('partials.rich-editor', ['name' => 'description_en', 'value' => old('description_en', $program->description_en), 'dir' => 'ltr', 'placeholder' => 'Detailed description of the educational program, its objectives and content...'])
             </div>
 
             <!-- صورة الدبلوم -->

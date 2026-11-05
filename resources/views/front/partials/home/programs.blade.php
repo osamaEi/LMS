@@ -11,7 +11,7 @@
                 <img src="{{ $program->image ? asset('storage/' . $program->image) : $programImages[$i % count($programImages)] }}" alt="{{ $program->name }}" />
                 <div class="course-card-body d-flex flex-column">
                     <h4>{{ $program->name }}</h4>
-                    <p>{{ Str::limit($program->description ?? __('A comprehensive training program designed to develop professional skills.'), 100) }}</p>
+                    <p>{{ Str::limit($program->description_plain ?: __('A comprehensive training program designed to develop professional skills.'), 100) }}</p>
                     <div class="marks">
                         @if($program->duration_months)<span class="st"><i class="bi bi-clock"></i> {{ $program->duration_months }} {{ __('months') }}</span>@endif
                         @if($program->price && $program->price > 0)

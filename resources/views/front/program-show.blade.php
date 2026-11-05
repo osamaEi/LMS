@@ -116,6 +116,24 @@
 .ps-desc {
     font-size: .9rem; line-height: 2; color: #4b5563;
 }
+/* Rich-text description (from the admin editor) */
+.ps-rich { word-break: break-word; }
+.ps-rich p { margin: 0 0 .5em; }
+.ps-rich p:last-child { margin-bottom: 0; }
+.ps-rich h2 { font-size: 1.15rem; font-weight: 800; color: #1f2937; margin: .8em 0 .35em; }
+.ps-rich h3 { font-size: 1rem; font-weight: 800; color: #1f2937; margin: .8em 0 .35em; }
+.ps-rich strong, .ps-rich b { color: #1f2937; }
+.ps-rich ul { list-style: disc; padding-right: 1.5em; padding-left: 0; margin: 0 0 .6em; }
+.ps-rich ol { list-style: decimal; padding-right: 1.5em; padding-left: 0; margin: 0 0 .6em; }
+.ps-rich li { margin-bottom: .15em; }
+.ps-rich a { color: #4f46e5; text-decoration: underline; }
+.ps-rich blockquote { border-right: 4px solid #c7d2fe; padding: 2px 12px; margin: 0 0 .6em; color: #475569; }
+.ps-rich .ql-align-center { text-align: center; }
+.ps-rich .ql-align-left { text-align: left; }
+.ps-rich .ql-align-right { text-align: right; }
+.ps-rich .ql-align-justify { text-align: justify; }
+.ps-rich .ql-direction-rtl { direction: rtl; }
+.ps-rich .ql-indent-1 { padding-right: 3em; } .ps-rich .ql-indent-2 { padding-right: 6em; } .ps-rich .ql-indent-3 { padding-right: 9em; }
 
 /* ── Stats row ── */
 .ps-stats {
@@ -468,14 +486,14 @@ $lms3s = fn(string $n) => asset('lms3/' . rawurlencode('حين يلتقي الت
         @endif
 
         {{-- Description --}}
-        @if($program->description_ar)
+        @if($program->description_plain !== '')
         <div class="ps-card">
             <div class="ps-card-header">
                 <div class="ps-card-header-icon"><i class="bi bi-info-circle-fill"></i></div>
                 <h3>نبذة عن البرنامج</h3>
             </div>
             <div class="ps-card-body">
-                <p class="ps-desc">{{ $program->description_ar }}</p>
+                <div class="ps-desc ps-rich">{!! $program->description_html !!}</div>
             </div>
         </div>
         @endif

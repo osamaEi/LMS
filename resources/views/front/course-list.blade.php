@@ -148,7 +148,7 @@
                 <span class="course-badge" style="background:{{ $badgeColor }};">{{ $badgeLabel }}</span>
                 <div class="card-body">
                     <h5 class="card-title">{{ $program->name_ar }}</h5>
-                    <p class="card-text">{{ Str::limit($program->description_ar, 100) }}</p>
+                    <p class="card-text">{{ Str::limit($program->description_plain, 100) }}</p>
                     <div class="course-meta">
                         @if($program->duration_hours)
                             <span><i class="bi bi-clock"></i> {{ $program->duration_hours }} ساعة</span>
