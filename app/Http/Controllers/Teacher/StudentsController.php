@@ -46,17 +46,22 @@ class StudentsController extends Controller
         // Resolve each student's class: prefer the student_programs pivot, fall
         // back to the legacy users.class_id.
         $classNames = ProgramClass::pluck('name', 'id');
+        $pastClassIds = ProgramClass::pastIds($classIds);
 
         $grouped = $students->groupBy(function (User $student) use ($classIds) {
             $groups = $student->allClassIds()->intersect($classIds);
             return $groups->isNotEmpty() ? $groups->all() : [0];
-        })->map(function ($group, $classId) use ($classNames) {
+        })->map(function ($group, $classId) use ($classNames, $pastClassIds) {
             return [
                 'class_id' => $classId ?: null,
                 'name'     => $classId ? ($classNames[$classId] ?? ('مجموعة #' . $classId)) : 'بدون مجموعة',
+                'is_past'  => $classId && $pastClassIds->contains($classId),
                 'students' => $group->values(),
             ];
-        })->sortBy('name')->values();
+        })
+            // Current classes first, then previous ones; alphabetical within each.
+            ->sortBy(fn ($g) => ($g['is_past'] ? '1' : '0') . $g['name'])
+            ->values();
 
         $totalStudents = $students->count();
 

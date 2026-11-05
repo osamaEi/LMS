@@ -37,36 +37,96 @@
 </div>
 @else
 
+@php
+    $currentCount = $grouped->filter(fn ($g) => $g['class_id'] && ! $g['is_past'])->count();
+    $pastCount    = $grouped->filter(fn ($g) => $g['is_past'])->count();
+@endphp
+
 <style>
-    .student-group-tab { border:1px solid #dbe4ee;border-radius:12px;padding:10px 16px;background:#fff;color:#475569;font:inherit;cursor:pointer;white-space:nowrap; }
-    .student-group-tab[aria-selected="true"] { background:#0071AA;border-color:#0071AA;color:#fff; }
+    .sf-card { background:#fff;border:1px solid #e5e7eb;border-radius:18px;padding:18px;margin-bottom:18px;box-shadow:0 2px 12px rgba(0,0,0,.05); }
+    .sf-top { display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px; }
+    .sf-search { position:relative;flex:1 1 320px;max-width:460px; }
+    #student-search { width:100%;padding:12px 44px 12px 14px;border:1px solid #dbe4ee;border-radius:12px;font:inherit;font-size:13px;color:#1e293b;background:#f8fafc;transition:border-color .15s,box-shadow .15s,background .15s; }
+    #student-search:focus { outline:none;border-color:#0071AA;background:#fff;box-shadow:0 0 0 3px rgba(0,113,170,.12); }
+
+    .sf-status { display:inline-flex;gap:4px;padding:4px;background:#f1f5f9;border-radius:12px; }
+    .sf-status-btn { border:0;background:transparent;color:#475569;font:inherit;font-size:12px;font-weight:700;padding:8px 14px;border-radius:9px;cursor:pointer;display:inline-flex;align-items:center;gap:6px; }
+    .sf-status-btn[aria-pressed="true"] { background:#fff;color:#0f172a;box-shadow:0 1px 4px rgba(15,23,42,.1); }
+    .sf-status-btn:focus-visible { outline:3px solid #38bdf8;outline-offset:2px; }
+    .sf-dot { width:8px;height:8px;border-radius:50%;display:inline-block;flex-shrink:0; }
+    .sf-dot-current { background:#16a34a; }
+    .sf-dot-past { background:#dc2626; }
+    .sf-dot-none { background:#94a3b8; }
+
+    .sf-divider { height:1px;background:#eef2f7;margin:16px 0 12px; }
+    .sf-label { font-size:11px;font-weight:700;color:#94a3b8;margin:0 2px 8px; }
+
+    .student-group-tabs { display:flex;gap:8px;flex-wrap:wrap; }
+    .student-group-tab { border:1px solid #dbe4ee;border-radius:999px;padding:8px 14px;background:#fff;color:#475569;font:inherit;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:8px;transition:background .15s,border-color .15s,color .15s; }
+    .student-group-tab[hidden] { display:none; }
     .student-group-tab:focus-visible { outline:3px solid #38bdf8;outline-offset:3px; }
-    #student-search:focus { outline:none;border-color:#0071AA;box-shadow:0 0 0 3px rgba(0,113,170,.12); }
+    .student-group-count { font-size:11px;font-weight:700;padding:1px 8px;border-radius:999px;background:rgba(15,23,42,.06); }
+
+    .student-group-tab.is-current { border-color:#bbf7d0;background:#f0fdf4;color:#166534; }
+    .student-group-tab.is-current:hover { background:#dcfce7; }
+    .student-group-tab.is-current[aria-selected="true"] { background:#16a34a;border-color:#16a34a;color:#fff; }
+
+    .student-group-tab.is-past { border-color:#fecaca;background:#fef2f2;color:#991b1b; }
+    .student-group-tab.is-past:hover { background:#fee2e2; }
+    .student-group-tab.is-past[aria-selected="true"] { background:#dc2626;border-color:#dc2626;color:#fff; }
+
+    .student-group-tab.is-none[aria-selected="true"] { background:#475569;border-color:#475569;color:#fff; }
+    .student-group-tab[aria-selected="true"] .sf-dot { background:#fff; }
+    .student-group-tab[aria-selected="true"] .student-group-count { background:rgba(255,255,255,.22); }
+
+    .sf-badge { border-radius:999px;padding:3px 10px;font-size:11px;font-weight:700;display:inline-flex;align-items:center;gap:6px; }
+    .sf-badge-current { background:#dcfce7;color:#166534; }
+    .sf-badge-past { background:#fee2e2;color:#991b1b; }
 </style>
 
-{{-- Search --}}
-<div style="margin-bottom:16px;">
-    <label for="student-search" class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);">ابحث عن طالب</label>
-    <div style="position:relative;max-width:420px;">
-        <svg aria-hidden="true" width="17" height="17" fill="none" viewBox="0 0 24 24" stroke="#94a3b8" stroke-width="2"
-             style="position:absolute;top:50%;inset-inline-start:14px;transform:translateY(-50%);pointer-events:none;">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/>
-        </svg>
-        <input type="search" id="student-search" autocomplete="off"
-               placeholder="ابحث بالاسم أو البريد أو الهوية أو الجوال…"
-               style="width:100%;padding:11px 42px 11px 14px;border:1px solid #dbe4ee;border-radius:12px;font:inherit;font-size:13px;color:#1e293b;background:#fff;">
+{{-- Filter --}}
+<div class="sf-card">
+    <div class="sf-top">
+        <div class="sf-search">
+            <label for="student-search" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);">ابحث عن طالب</label>
+            <svg aria-hidden="true" width="17" height="17" fill="none" viewBox="0 0 24 24" stroke="#94a3b8" stroke-width="2"
+                 style="position:absolute;top:50%;inset-inline-start:14px;transform:translateY(-50%);pointer-events:none;">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/>
+            </svg>
+            <input type="search" id="student-search" autocomplete="off"
+                   placeholder="ابحث بالاسم أو البريد أو الهوية أو الجوال…">
+        </div>
+
+        <div class="sf-status" role="group" aria-label="حالة المجموعة">
+            <button type="button" class="sf-status-btn" data-status="all" aria-pressed="true">الكل</button>
+            <button type="button" class="sf-status-btn" data-status="current" aria-pressed="false">
+                <span class="sf-dot sf-dot-current" aria-hidden="true"></span> الحالية ({{ $currentCount }})
+            </button>
+            <button type="button" class="sf-status-btn" data-status="past" aria-pressed="false">
+                <span class="sf-dot sf-dot-past" aria-hidden="true"></span> السابقة ({{ $pastCount }})
+            </button>
+        </div>
     </div>
+
     <p id="student-search-status" role="status" aria-live="polite"
        style="margin:8px 2px 0;font-size:12px;color:#64748b;min-height:16px;"></p>
-</div>
-<div role="tablist" aria-label="مجموعات الطلاب" style="display:flex;gap:8px;overflow-x:auto;padding:4px;margin-bottom:16px;">
-    @foreach($grouped as $group)
-        <button type="button" class="student-group-tab" role="tab"
-                id="student-group-tab-{{ $loop->index }}" aria-controls="student-group-panel-{{ $loop->index }}"
-                aria-selected="{{ $loop->first ? 'true' : 'false' }}" tabindex="{{ $loop->first ? '0' : '-1' }}">
-            {{ $group['name'] }} <span class="student-group-count" style="font-size:12px;margin-inline-start:6px;">({{ count($group['students']) }})</span>
-        </button>
-    @endforeach
+
+    <div class="sf-divider"></div>
+    <p class="sf-label">المجموعات</p>
+    <div role="tablist" aria-label="مجموعات الطلاب" class="student-group-tabs">
+        @foreach($grouped as $group)
+            @php $state = ! $group['class_id'] ? 'none' : ($group['is_past'] ? 'past' : 'current'); @endphp
+            <button type="button" class="student-group-tab is-{{ $state }}" role="tab" data-status="{{ $state }}"
+                    id="student-group-tab-{{ $loop->index }}" aria-controls="student-group-panel-{{ $loop->index }}"
+                    aria-selected="{{ $loop->first ? 'true' : 'false' }}" tabindex="{{ $loop->first ? '0' : '-1' }}"
+                    title="{{ $state === 'past' ? 'مجموعة سابقة' : ($state === 'current' ? 'مجموعة حالية' : '') }}">
+                <span class="sf-dot sf-dot-{{ $state }}" aria-hidden="true"></span>
+                {{ $group['name'] }}
+                <span class="student-group-count">{{ count($group['students']) }}</span>
+            </button>
+        @endforeach
+    </div>
+    <p id="student-group-empty" hidden style="margin:10px 2px 0;font-size:12px;color:#94a3b8;">لا توجد مجموعات بهذه الحالة</p>
 </div>
 
 @foreach($grouped as $group)
@@ -78,6 +138,13 @@
         <div style="display:flex;align-items:center;gap:10px;">
             <span style="width:30px;height:30px;border-radius:9px;background:#e0f2fe;color:#0071AA;display:flex;align-items:center;justify-content:center;font-size:14px;">🏫</span>
             <span style="font-weight:700;color:#1e293b;font-size:14px;">{{ $group['name'] }}</span>
+            @if($group['class_id'])
+                @if($group['is_past'])
+                    <span class="sf-badge sf-badge-past"><span class="sf-dot sf-dot-past" aria-hidden="true"></span> سابقة</span>
+                @else
+                    <span class="sf-badge sf-badge-current"><span class="sf-dot sf-dot-current" aria-hidden="true"></span> حالية</span>
+                @endif
+            @endif
         </div>
         <div style="display:flex;align-items:center;flex-wrap:wrap;gap:12px;">
             <span style="background:#eff6ff;color:#1d4ed8;border-radius:999px;padding:3px 12px;font-size:11px;font-weight:700;">{{ count($group['students']) }} طالب</span>
@@ -192,7 +259,7 @@
             if (emptyRow) emptyRow.hidden = !(terms.length && shown === 0);
 
             const count = tabs[panelIndex].querySelector('.student-group-count');
-            if (count) count.textContent = '(' + shown + ')';
+            if (count) count.textContent = shown;
         });
 
         status.textContent = terms.length
@@ -205,18 +272,41 @@
         if (event.key === 'Escape') { search.value = ''; runSearch(); }
     });
 
-    tabs.forEach((tab, index) => {
+    // Status filter: all / current (green) / previous (red).
+    const statusButtons = Array.from(document.querySelectorAll('.sf-status-btn'));
+    const groupEmpty = document.getElementById('student-group-empty');
+    function applyStatus(status) {
+        statusButtons.forEach(b => b.setAttribute('aria-pressed', String(b.dataset.status === status)));
+        tabs.forEach(tab => {
+            tab.hidden = !(status === 'all' || tab.dataset.status === status);
+        });
+        const visible = tabs.filter(tab => !tab.hidden);
+        groupEmpty.hidden = visible.length > 0;
+        const selected = tabs.find(tab => tab.getAttribute('aria-selected') === 'true');
+        if (visible.length && (!selected || selected.hidden)) {
+            selectTab(visible[0]);
+        } else if (!visible.length) {
+            panels.forEach(panel => { panel.hidden = true; });
+        } else if (selected) {
+            selectTab(selected);
+        }
+    }
+    statusButtons.forEach(b => b.addEventListener('click', () => applyStatus(b.dataset.status)));
+
+    tabs.forEach(tab => {
         tab.addEventListener('click', () => selectTab(tab));
         tab.addEventListener('keydown', event => {
+            const visible = tabs.filter(t => !t.hidden);
+            const index = visible.indexOf(tab);
             let next;
-            if (event.key === 'ArrowLeft') next = (index + 1) % tabs.length;
-            else if (event.key === 'ArrowRight') next = (index - 1 + tabs.length) % tabs.length;
+            if (event.key === 'ArrowLeft') next = (index + 1) % visible.length;
+            else if (event.key === 'ArrowRight') next = (index - 1 + visible.length) % visible.length;
             else if (event.key === 'Home') next = 0;
-            else if (event.key === 'End') next = tabs.length - 1;
+            else if (event.key === 'End') next = visible.length - 1;
             else return;
             event.preventDefault();
-            selectTab(tabs[next]);
-            tabs[next].focus();
+            selectTab(visible[next]);
+            visible[next].focus();
         });
     });
 })();

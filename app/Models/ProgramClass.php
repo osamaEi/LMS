@@ -62,6 +62,30 @@ class ProgramClass extends Model
         return $this->hasMany(Session::class, 'class_id');
     }
 
+    /**
+     * IDs (from $classIds) of classes that are over: marked completed, or whose
+     * effective end — the class end date, else its latest term end, else its
+     * last scheduled session — is before today.
+     */
+    public static function pastIds($classIds)
+    {
+        $today = now()->startOfDay();
+
+        return static::whereIn('id', $classIds)
+            ->withMax('terms', 'end_date')
+            ->withMax('sessions', 'scheduled_at')
+            ->get()
+            ->filter(function (self $class) use ($today) {
+                if ($class->status === 'completed') {
+                    return true;
+                }
+                $end = $class->end_date ?? $class->terms_max_end_date ?? $class->sessions_max_scheduled_at;
+
+                return $end && \Carbon\Carbon::parse($end)->lt($today);
+            })
+            ->pluck('id');
+    }
+
     public function getStudentsCountAttribute(): int
     {
         return DB::table('student_programs')

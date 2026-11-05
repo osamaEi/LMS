@@ -22,13 +22,46 @@
     ];
     $programTypeShort = ['training' => 'تدريبي', 'english' => 'إنجليزي', 'course' => 'تأهيلي', 'diploma' => 'دبلوم'];
 
-    $kpis = [
-        ['label' => 'المقررات',        'value' => $subjects->count(),          'tab' => 'subjects', 'tone' => 'text-sky-600 bg-sky-50 dark:bg-sky-900/30 dark:text-sky-300'],
-        ['label' => 'الدورات',         'value' => $courses->count(),           'tab' => 'programs', 'tone' => 'text-emerald-600 bg-emerald-50 dark:bg-emerald-900/30 dark:text-emerald-300'],
-        ['label' => 'المجموعات',       'value' => $classes->count(),           'tab' => 'classes',  'tone' => 'text-amber-600 bg-amber-50 dark:bg-amber-900/30 dark:text-amber-300'],
-        ['label' => 'الجلسات القادمة', 'value' => $sessionStats['upcoming'],   'tab' => null,       'tone' => 'text-violet-600 bg-violet-50 dark:bg-violet-900/30 dark:text-violet-300',
-         'hint' => 'من أصل ' . $sessionStats['total'] . ' جلسة'],
+    // Pill colours per program type, used in every list on the page.
+    $programTypeTone = [
+        'diploma'  => 'bg-indigo-50 text-indigo-700 ring-indigo-600/20 dark:bg-indigo-900/30 dark:text-indigo-300',
+        'course'   => 'bg-teal-50 text-teal-700 ring-teal-600/20 dark:bg-teal-900/30 dark:text-teal-300',
+        'english'  => 'bg-rose-50 text-rose-700 ring-rose-600/20 dark:bg-rose-900/30 dark:text-rose-300',
+        'training' => 'bg-orange-50 text-orange-700 ring-orange-600/20 dark:bg-orange-900/30 dark:text-orange-300',
     ];
+    $typeTone = fn ($type) => $programTypeTone[$type] ?? 'bg-gray-100 text-gray-600 ring-gray-500/20 dark:bg-gray-700 dark:text-gray-300';
+
+    $currentClasses = $classes->where('is_past', false)->count();
+    $pastClasses    = $classes->where('is_past', true)->count();
+
+    // Heroicons outline paths.
+    $icons = [
+        'book'     => 'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253',
+        'academic' => 'M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z',
+        'users'    => 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z',
+        'calendar' => 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z',
+        'id'       => 'M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2',
+        'link'     => 'M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1',
+        'text'     => 'M4 6h16M4 12h16M4 18h7',
+    ];
+
+    $kpis = [
+        ['label' => 'المقررات',        'value' => $subjects->count(),        'tab' => 'subjects', 'icon' => 'book',
+         'card' => 'border-sky-200 bg-gradient-to-br from-sky-50 to-white dark:border-sky-900 dark:from-sky-900/30 dark:to-gray-800',
+         'chip' => 'bg-sky-500 text-white', 'num' => 'text-sky-700 dark:text-sky-300'],
+        ['label' => 'الدورات',         'value' => $courses->count(),         'tab' => 'programs', 'icon' => 'academic',
+         'card' => 'border-emerald-200 bg-gradient-to-br from-emerald-50 to-white dark:border-emerald-900 dark:from-emerald-900/30 dark:to-gray-800',
+         'chip' => 'bg-emerald-500 text-white', 'num' => 'text-emerald-700 dark:text-emerald-300'],
+        ['label' => 'المجموعات',       'value' => $classes->count(),         'tab' => 'classes',  'icon' => 'users',
+         'card' => 'border-amber-200 bg-gradient-to-br from-amber-50 to-white dark:border-amber-900 dark:from-amber-900/30 dark:to-gray-800',
+         'chip' => 'bg-amber-500 text-white', 'num' => 'text-amber-700 dark:text-amber-300',
+         'hint' => $currentClasses . ' حالية · ' . $pastClasses . ' سابقة'],
+        ['label' => 'الجلسات القادمة', 'value' => $sessionStats['upcoming'], 'tab' => null,       'icon' => 'calendar',
+         'card' => 'border-violet-200 bg-gradient-to-br from-violet-50 to-white dark:border-violet-900 dark:from-violet-900/30 dark:to-gray-800',
+         'chip' => 'bg-violet-500 text-white', 'num' => 'text-violet-700 dark:text-violet-300',
+         'hint' => 'من أصل ' . $sessionStats['total'] . ' · ' . $sessionStats['past'] . ' منتهية'],
+    ];
+    $sessionProgress = $sessionStats['total'] ? round($sessionStats['past'] / $sessionStats['total'] * 100) : 0;
 @endphp
 
 @section('content')
@@ -58,38 +91,42 @@
     @endif
 
     {{-- ─── Header ─────────────────────────────────────────────── --}}
-    <section class="mb-6 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-        <div class="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+    <section class="relative mb-6 overflow-hidden rounded-2xl p-6 shadow-lg"
+             style="background:linear-gradient(135deg,#0f172a 0%,#1e3a5f 55%,#0071AA 100%);">
+        <div class="pointer-events-none absolute -top-16 -left-16 h-56 w-56 rounded-full bg-white/5" aria-hidden="true"></div>
+        <div class="pointer-events-none absolute -bottom-24 left-1/3 h-64 w-64 rounded-full bg-sky-400/10" aria-hidden="true"></div>
+
+        <div class="relative flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
             <div class="flex items-center gap-5">
                 @if($teacher->profile_photo)
                     <img src="{{ asset('storage/' . $teacher->profile_photo) }}" alt=""
-                         class="h-20 w-20 shrink-0 rounded-2xl object-cover ring-4 ring-gray-50 dark:ring-gray-700">
+                         class="h-20 w-20 shrink-0 rounded-2xl object-cover ring-4 ring-white/20">
                 @else
-                    <div class="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-500 to-brand-700 text-2xl font-bold text-white ring-4 ring-gray-50 dark:ring-gray-700" aria-hidden="true">
+                    <div class="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-400 to-indigo-500 text-2xl font-bold text-white shadow-lg ring-4 ring-white/20" aria-hidden="true">
                         {{ $initials }}
                     </div>
                 @endif
 
                 <div class="min-w-0">
                     <div class="flex flex-wrap items-center gap-2">
-                        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ $teacher->name }}</h1>
+                        <h1 class="text-2xl font-bold text-white">{{ $teacher->name }}</h1>
                         <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold ring-1 ring-inset {{ $statusClass }}">
                             <span class="h-1.5 w-1.5 rounded-full bg-current"></span>
                             {{ $teacher->getStatusDisplayName() }}
                         </span>
                     </div>
-                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                        {{ $teacher->getRoleDisplayName() }}@if($teacher->specialization) · {{ $teacher->specialization }}@endif
+                    <p class="mt-1 text-sm text-white/60">
+                        {{ $teacher->getRoleDisplayName() }}@if($teacher->specialization) · <span class="text-amber-200">{{ $teacher->specialization }}</span>@endif
                         · انضم {{ $teacher->created_at->diffForHumans() }}
                     </p>
-                    <div class="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-sm text-gray-600 dark:text-gray-300">
-                        <a href="mailto:{{ $teacher->email }}" class="inline-flex items-center gap-1.5 hover:text-brand-600" dir="ltr">
-                            <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                    <div class="mt-3 flex flex-wrap gap-2 text-sm">
+                        <a href="mailto:{{ $teacher->email }}" class="inline-flex items-center gap-1.5 rounded-lg bg-white/10 px-3 py-1.5 text-white/90 ring-1 ring-white/15 hover:bg-white/20" dir="ltr">
+                            <svg class="h-4 w-4 text-sky-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
                             {{ $teacher->email }}
                         </a>
                         @if($teacher->phone)
-                        <a href="tel:{{ $teacher->phone }}" class="inline-flex items-center gap-1.5 hover:text-brand-600" dir="ltr">
-                            <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+                        <a href="tel:{{ $teacher->phone }}" class="inline-flex items-center gap-1.5 rounded-lg bg-white/10 px-3 py-1.5 text-white/90 ring-1 ring-white/15 hover:bg-white/20" dir="ltr">
+                            <svg class="h-4 w-4 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
                             {{ $teacher->phone }}
                         </a>
                         @endif
@@ -100,15 +137,16 @@
             {{-- Actions --}}
             <div class="flex flex-wrap items-center gap-2">
                 <a href="{{ route('admin.teachers.edit', $teacher) }}"
-                   class="inline-flex items-center gap-2 rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-brand-600">
-                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                   class="inline-flex items-center gap-2 rounded-lg bg-white px-4 py-2.5 text-sm font-semibold text-slate-900 shadow-sm hover:bg-sky-50">
+                    <svg class="h-4 w-4 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                     تعديل البيانات
                 </a>
 
                 @if($isActive)
                 <form action="{{ route('admin.teachers.dashboard-access', $teacher) }}" method="POST">
                     @csrf
-                    <button type="submit" class="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700">
+                    <button type="submit" class="inline-flex items-center gap-2 rounded-lg bg-white/10 px-4 py-2.5 text-sm font-semibold text-white ring-1 ring-white/25 hover:bg-white/20">
+                        <svg class="h-4 w-4 text-sky-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/></svg>
                         دخول لوحة المدرّس
                     </button>
                 </form>
@@ -119,7 +157,7 @@
                     @csrf
                     @method('PATCH')
                     <button type="submit"
-                            class="inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold {{ $isActive ? 'border border-amber-300 bg-amber-50 text-amber-800 hover:bg-amber-100 dark:border-amber-700 dark:bg-amber-900/30 dark:text-amber-200' : 'border border-emerald-300 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 dark:border-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-200' }}">
+                            class="inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-white shadow-sm {{ $isActive ? 'bg-red-500/90 hover:bg-red-600' : 'bg-emerald-500 hover:bg-emerald-600' }}">
                         {{ $isActive ? 'تعطيل الحساب' : 'تفعيل الحساب' }}
                     </button>
                 </form>
@@ -131,16 +169,29 @@
     <section class="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4" aria-label="ملخص">
         @foreach($kpis as $kpi)
             @php
-                $kpiBody = '<p class="text-sm text-gray-500 dark:text-gray-400">' . e($kpi['label']) . '</p>'
-                    . '<p class="mt-2 flex items-baseline gap-2"><span class="text-3xl font-bold text-gray-900 dark:text-white">' . e($kpi['value']) . '</span>'
-                    . (isset($kpi['hint']) ? '<span class="text-xs text-gray-400">' . e($kpi['hint']) . '</span>' : '') . '</p>'
-                    . '<span class="mt-3 inline-block h-1 w-10 rounded-full ' . $kpi['tone'] . '"></span>';
-                $kpiClass = 'rounded-2xl border border-gray-200 bg-white p-5 text-right shadow-sm dark:border-gray-700 dark:bg-gray-800';
+                $kpiBody = '<div class="flex items-start justify-between gap-3">'
+                    . '<div><p class="text-sm font-medium text-gray-600 dark:text-gray-300">' . e($kpi['label']) . '</p>'
+                    . '<p class="mt-2 text-3xl font-bold ' . $kpi['num'] . '">' . e($kpi['value']) . '</p></div>'
+                    . '<span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl shadow-sm ' . $kpi['chip'] . '">'
+                    . '<svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="' . $icons[$kpi['icon']] . '"/></svg></span>'
+                    . '</div>'
+                    . (isset($kpi['hint']) ? '<p class="mt-2 text-xs text-gray-500 dark:text-gray-400">' . e($kpi['hint']) . '</p>' : '');
+                $kpiClass = 'rounded-2xl border p-5 text-right shadow-sm ' . $kpi['card'];
             @endphp
             @if($kpi['tab'])
-            <button type="button" @click="openTab('{{ $kpi['tab'] }}')" class="{{ $kpiClass }} transition hover:border-brand-300 hover:shadow">{!! $kpiBody !!}</button>
+            <button type="button" @click="openTab('{{ $kpi['tab'] }}')" class="{{ $kpiClass }} transition hover:-translate-y-0.5 hover:shadow-md">{!! $kpiBody !!}</button>
             @else
-            <div class="{{ $kpiClass }}">{!! $kpiBody !!}</div>
+            <div class="{{ $kpiClass }}">
+                {!! $kpiBody !!}
+                <div class="mt-2 h-1.5 overflow-hidden rounded-full bg-violet-100 dark:bg-violet-900/40" title="نسبة الجلسات المنتهية {{ $sessionProgress }}%">
+                    <div class="h-full rounded-full bg-violet-500" style="width: {{ $sessionProgress }}%"></div>
+                </div>
+                @if($sessionStats['next'])
+                <p class="mt-2 text-xs font-medium text-violet-700 dark:text-violet-300">
+                    التالية: <span dir="ltr">{{ \Carbon\Carbon::parse($sessionStats['next'])->format('Y-m-d H:i') }}</span>
+                </p>
+                @endif
+            </div>
             @endif
         @endforeach
     </section>
@@ -150,15 +201,24 @@
         {{-- ─── Assignments (main) ─────────────────────────────── --}}
         <section class="lg:col-span-2 rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800" id="assignments">
             <header class="flex flex-wrap items-center justify-between gap-3 border-b border-gray-200 px-6 pt-5 dark:border-gray-700">
-                <h2 class="pb-4 text-lg font-bold text-gray-900 dark:text-white">التعيينات</h2>
+                <h2 class="flex items-center gap-2 pb-4 text-lg font-bold text-gray-900 dark:text-white">
+                    <span class="h-6 w-1.5 rounded-full bg-gradient-to-b from-sky-500 to-brand-600" aria-hidden="true"></span>
+                    التعيينات
+                </h2>
                 <div class="flex gap-1" role="tablist" aria-label="أنواع التعيين">
-                    @foreach([['subjects', 'المقررات', $subjects->count()], ['programs', 'الدورات', $courses->count()], ['classes', 'المجموعات', $classes->count()]] as [$key, $label, $count])
+                    @foreach([
+                        ['subjects', 'المقررات',  $subjects->count(), 'book',     'border-sky-500 text-sky-700 dark:text-sky-300',         'bg-sky-500 text-white'],
+                        ['programs', 'الدورات',   $courses->count(),  'academic', 'border-emerald-500 text-emerald-700 dark:text-emerald-300', 'bg-emerald-500 text-white'],
+                        ['classes',  'المجموعات', $classes->count(),  'users',    'border-amber-500 text-amber-700 dark:text-amber-300',     'bg-amber-500 text-white'],
+                    ] as [$key, $label, $count, $icon, $activeTab, $activeCount])
                     <button type="button" role="tab" @click="openTab('{{ $key }}')"
                             :aria-selected="tab === '{{ $key }}'"
-                            :class="tab === '{{ $key }}' ? 'border-brand-500 text-brand-600 dark:text-brand-400' : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'"
+                            :class="tab === '{{ $key }}' ? '{{ $activeTab }}' : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'"
                             class="-mb-px flex items-center gap-2 border-b-2 px-4 pb-4 text-sm font-semibold transition-colors">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $icons[$icon] }}"/></svg>
                         {{ $label }}
-                        <span class="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-semibold text-gray-600 dark:bg-gray-700 dark:text-gray-300">{{ $count }}</span>
+                        <span :class="tab === '{{ $key }}' ? '{{ $activeCount }}' : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300'"
+                              class="rounded-full px-2 py-0.5 text-xs font-semibold">{{ $count }}</span>
                     </button>
                     @endforeach
                 </div>
@@ -173,15 +233,20 @@
                     </div>
                     @forelse($subjects as $subject)
                         @php $prog = $subject->program ?? $subject->term?->program; @endphp
-                        <div class="flex items-center justify-between gap-3 border-b border-gray-100 py-3 last:border-0 dark:border-gray-700">
-                            <div class="min-w-0">
-                                <p class="truncate font-medium text-gray-900 dark:text-white">{{ $subject->name_ar ?? $subject->name ?? '—' }}</p>
-                                <p class="mt-0.5 truncate text-xs text-gray-500 dark:text-gray-400">
-                                    {{ $prog->name_ar ?? 'غير مرتبط ببرنامج' }}@if($subject->code) · <span dir="ltr">{{ $subject->code }}</span>@endif
-                                </p>
+                        <div class="mb-2 flex items-center justify-between gap-3 rounded-xl border border-gray-100 border-r-4 border-r-sky-400 bg-white px-4 py-3 transition hover:bg-sky-50/60 dark:border-gray-700 dark:border-r-sky-500 dark:bg-gray-800 dark:hover:bg-sky-900/20">
+                            <div class="flex min-w-0 items-center gap-3">
+                                <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-sky-100 text-sky-600 dark:bg-sky-900/40 dark:text-sky-300" aria-hidden="true">
+                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $icons['book'] }}"/></svg>
+                                </span>
+                                <div class="min-w-0">
+                                    <p class="truncate font-medium text-gray-900 dark:text-white">{{ $subject->name_ar ?? $subject->name ?? '—' }}</p>
+                                    <p class="mt-0.5 truncate text-xs text-gray-500 dark:text-gray-400">
+                                        {{ $prog->name_ar ?? 'غير مرتبط ببرنامج' }}@if($subject->code) · <span dir="ltr" class="font-mono text-sky-700 dark:text-sky-300">{{ $subject->code }}</span>@endif
+                                    </p>
+                                </div>
                             </div>
                             @if($prog)
-                            <span class="shrink-0 rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600 dark:bg-gray-700 dark:text-gray-300">{{ $programTypeShort[$prog->type] ?? $prog->type }}</span>
+                            <span class="shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold ring-1 ring-inset {{ $typeTone($prog->type) }}">{{ $programTypeShort[$prog->type] ?? $prog->type }}</span>
                             @endif
                         </div>
                     @empty
@@ -238,9 +303,14 @@
                         <button type="button" @click="editing = 'programs'" class="rounded-lg bg-emerald-50 px-3 py-1.5 text-sm font-semibold text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-900/30 dark:text-emerald-300">تعديل الدورات</button>
                     </div>
                     @forelse($courses as $program)
-                        <div class="flex items-center justify-between gap-3 border-b border-gray-100 py-3 last:border-0 dark:border-gray-700">
-                            <p class="truncate font-medium text-gray-900 dark:text-white">{{ $program->name_ar }}</p>
-                            <span class="shrink-0 rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600 dark:bg-gray-700 dark:text-gray-300">{{ $programTypeShort[$program->type] ?? $program->type }}</span>
+                        <div class="mb-2 flex items-center justify-between gap-3 rounded-xl border border-gray-100 border-r-4 border-r-emerald-400 bg-white px-4 py-3 transition hover:bg-emerald-50/60 dark:border-gray-700 dark:border-r-emerald-500 dark:bg-gray-800 dark:hover:bg-emerald-900/20">
+                            <div class="flex min-w-0 items-center gap-3">
+                                <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-300" aria-hidden="true">
+                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $icons['academic'] }}"/></svg>
+                                </span>
+                                <p class="truncate font-medium text-gray-900 dark:text-white">{{ $program->name_ar }}</p>
+                            </div>
+                            <span class="shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold ring-1 ring-inset {{ $typeTone($program->type) }}">{{ $programTypeShort[$program->type] ?? $program->type }}</span>
                         </div>
                     @empty
                         @include('admin.teachers.partials.empty-assignment', ['text' => 'لا توجد دورات مسندة لهذا المدرب', 'action' => 'programs', 'cta' => 'تعيين دورات'])
@@ -277,14 +347,43 @@
                         <p class="text-sm text-gray-500 dark:text-gray-400">المجموعات التي يتولاها المدرب</p>
                         <button type="button" @click="editing = 'classes'" class="rounded-lg bg-amber-50 px-3 py-1.5 text-sm font-semibold text-amber-700 hover:bg-amber-100 dark:bg-amber-900/30 dark:text-amber-300">تعديل المجموعات</button>
                     </div>
+                    @if($classes->count())
+                    <div class="mb-3 flex flex-wrap gap-2 text-xs font-semibold">
+                        <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-emerald-700 ring-1 ring-inset ring-emerald-600/20 dark:bg-emerald-900/30 dark:text-emerald-300">
+                            <span class="h-2 w-2 rounded-full bg-emerald-500"></span> حالية ({{ $currentClasses }})
+                        </span>
+                        <span class="inline-flex items-center gap-1.5 rounded-full bg-red-50 px-2.5 py-1 text-red-700 ring-1 ring-inset ring-red-600/20 dark:bg-red-900/30 dark:text-red-300">
+                            <span class="h-2 w-2 rounded-full bg-red-500"></span> سابقة ({{ $pastClasses }})
+                        </span>
+                    </div>
+                    @endif
                     @forelse($classes as $class)
+                        @php
+                            $past = $class->is_past;
+                            $period = collect([$class->start_date?->format('Y-m-d'), $class->end_date?->format('Y-m-d')])->filter()->implode(' → ');
+                        @endphp
                         <a href="{{ route('admin.classes.show', $class) }}"
-                           class="group flex items-center justify-between gap-3 border-b border-gray-100 py-3 last:border-0 dark:border-gray-700">
-                            <div class="min-w-0">
-                                <p class="truncate font-medium text-gray-900 group-hover:text-brand-600 dark:text-white">{{ $class->name }}</p>
-                                <p class="mt-0.5 truncate text-xs text-gray-500 dark:text-gray-400">{{ $class->program->name_ar ?? 'بدون برنامج' }}</p>
+                           class="group mb-2 flex items-center justify-between gap-3 rounded-xl border border-r-4 px-4 py-3 transition
+                                  {{ $past
+                                      ? 'border-red-100 border-r-red-500 bg-red-50/50 hover:bg-red-50 dark:border-red-900/50 dark:bg-red-900/10'
+                                      : 'border-emerald-100 border-r-emerald-500 bg-emerald-50/50 hover:bg-emerald-50 dark:border-emerald-900/50 dark:bg-emerald-900/10' }}">
+                            <div class="flex min-w-0 items-center gap-3">
+                                <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg {{ $past ? 'bg-red-100 text-red-600 dark:bg-red-900/40 dark:text-red-300' : 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-300' }}" aria-hidden="true">
+                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $icons['users'] }}"/></svg>
+                                </span>
+                                <div class="min-w-0">
+                                    <p class="truncate font-medium {{ $past ? 'text-red-900 dark:text-red-200' : 'text-gray-900 dark:text-white' }}">{{ $class->name }}</p>
+                                    <p class="mt-0.5 truncate text-xs text-gray-500 dark:text-gray-400">
+                                        {{ $class->program->name_ar ?? 'بدون برنامج' }}@if($period) · <span dir="ltr">{{ $period }}</span>@endif
+                                    </p>
+                                </div>
                             </div>
-                            <svg class="h-4 w-4 shrink-0 rotate-180 text-gray-300 group-hover:text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                            <div class="flex shrink-0 items-center gap-2">
+                                <span class="rounded-full px-2.5 py-0.5 text-xs font-semibold {{ $past ? 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300' : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' }}">
+                                    {{ $past ? 'سابقة' : 'حالية' }}
+                                </span>
+                                <svg class="h-4 w-4 rotate-180 {{ $past ? 'text-red-300 group-hover:text-red-500' : 'text-emerald-300 group-hover:text-emerald-600' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                            </div>
                         </a>
                     @empty
                         @include('admin.teachers.partials.empty-assignment', ['text' => 'لا توجد مجموعات معيّنة لهذا المدرب', 'action' => 'classes', 'cta' => 'تعيين مجموعات'])
@@ -324,7 +423,12 @@
         {{-- ─── Sidebar ────────────────────────────────────────── --}}
         <aside class="space-y-6">
             <section class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                <h2 class="mb-4 text-base font-bold text-gray-900 dark:text-white">البيانات الشخصية</h2>
+                <h2 class="mb-4 flex items-center gap-2 text-base font-bold text-gray-900 dark:text-white">
+                    <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-100 text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-300" aria-hidden="true">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $icons['id'] }}"/></svg>
+                    </span>
+                    البيانات الشخصية
+                </h2>
                 <dl class="divide-y divide-gray-100 text-sm dark:divide-gray-700">
                     @foreach(array_filter([
                         'رقم الهوية'     => $teacher->national_id,
@@ -343,7 +447,12 @@
             </section>
 
             <section class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                <h2 class="mb-4 text-base font-bold text-gray-900 dark:text-white">الحساب والروابط</h2>
+                <h2 class="mb-4 flex items-center gap-2 text-base font-bold text-gray-900 dark:text-white">
+                    <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-sky-100 text-sky-600 dark:bg-sky-900/40 dark:text-sky-300" aria-hidden="true">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $icons['link'] }}"/></svg>
+                    </span>
+                    الحساب والروابط
+                </h2>
                 <dl class="divide-y divide-gray-100 text-sm dark:divide-gray-700">
                     @foreach(['البريد الإلكتروني' => $teacher->email_verified_at, 'رقم الجوال' => $teacher->phone_verified_at] as $label => $verifiedAt)
                     <div class="flex items-center justify-between gap-4 py-2.5">
@@ -369,7 +478,7 @@
                                         class="shrink-0 rounded-md bg-gray-100 px-2 py-1 text-xs font-semibold text-gray-600 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300">نسخ</button>
                             </div>
                             @else
-                            <span class="text-amber-600 dark:text-amber-400">لم يُضبط — لن تظهر روابط زووم لجلسات هذا المدرب</span>
+                            <span class="block rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800 ring-1 ring-inset ring-amber-600/20 dark:bg-amber-900/30 dark:text-amber-200">لم يُضبط — لن تظهر روابط زووم لجلسات هذا المدرب</span>
                             @endif
                         </dd>
                     </div>
@@ -389,7 +498,12 @@
 
             @if($teacher->bio)
             <section class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                <h2 class="mb-3 text-base font-bold text-gray-900 dark:text-white">نبذة</h2>
+                <h2 class="mb-3 flex items-center gap-2 text-base font-bold text-gray-900 dark:text-white">
+                    <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-100 text-amber-600 dark:bg-amber-900/40 dark:text-amber-300" aria-hidden="true">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $icons['text'] }}"/></svg>
+                    </span>
+                    نبذة
+                </h2>
                 <p class="whitespace-pre-line text-sm leading-relaxed text-gray-600 dark:text-gray-300">{{ $teacher->bio }}</p>
             </section>
             @endif

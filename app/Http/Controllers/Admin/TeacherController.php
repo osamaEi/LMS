@@ -126,7 +126,12 @@ class TeacherController extends Controller
         // program-less subject can be assigned, so it has to be visible here.
         $subjects = $allSubjects->sortBy(fn ($s) => $s->name_ar ?? $s->name)->values();
         $courses  = $teacher->teachingPrograms->sortBy('name_ar')->values();
-        $classes  = $teacher->teachingClasses->sortBy('name')->values();
+        $pastClassIds = ProgramClass::pastIds($teacher->teachingClasses->pluck('id'));
+        // Current classes first (green), then previous ones (red).
+        $classes  = $teacher->teachingClasses
+            ->each(fn ($c) => $c->is_past = $pastClassIds->contains($c->id))
+            ->sortBy(fn ($c) => ($c->is_past ? '1' : '0') . $c->name)
+            ->values();
 
         // Everything the assign panels on this page need.
         $assignedSubjectIds = $allSubjects->pluck('id')->values();
@@ -137,6 +142,9 @@ class TeacherController extends Controller
             'total'    => Session::where('teacher_id', $teacher->id)->count(),
             'upcoming' => Session::where('teacher_id', $teacher->id)->where('scheduled_at', '>', now())->count(),
         ];
+        $sessionStats['past'] = $sessionStats['total'] - $sessionStats['upcoming'];
+        $sessionStats['next'] = Session::where('teacher_id', $teacher->id)
+            ->where('scheduled_at', '>', now())->orderBy('scheduled_at')->value('scheduled_at');
 
         $programsByType = Program::with([
             'terms.subjects' => function ($q) {
