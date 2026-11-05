@@ -80,6 +80,9 @@ abstract class HomeworkTestCase extends TestCase
         Schema::create('terms', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('program_id')->nullable();
+            $table->unsignedBigInteger('class_id')->nullable();
+            $table->date('start_date')->nullable();
+            $table->date('end_date')->nullable();
             $table->integer('term_number')->nullable();
             $table->string('name_ar')->nullable();
             $table->string('name_en')->nullable();
@@ -92,6 +95,8 @@ abstract class HomeworkTestCase extends TestCase
             $table->unsignedBigInteger('program_id')->nullable();
             $table->string('name');
             $table->unsignedBigInteger('teacher_id')->nullable();
+            $table->date('start_date')->nullable();
+            $table->date('end_date')->nullable();
             $table->string('status')->default('active');
             $table->softDeletes();
             $table->timestamps();

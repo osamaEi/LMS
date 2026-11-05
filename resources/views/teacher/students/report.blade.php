@@ -377,11 +377,12 @@
         title.textContent = label;
         subjectEl.textContent = subjectName || '';
 
-        const sid = subjectId != null ? Number(subjectId) : null;
+        // Row key: a subject id, or "c{program id}" for a course.
+        const sid = subjectId != null && subjectId !== '' ? String(subjectId) : null;
         const mine = (list) => (list || []).filter(
-            r => sid === null || r.subject_id == null || Number(r.subject_id) === sid);
+            r => sid === null || r.subject_id == null || String(r.subject_id) === sid);
 
-        const subjects = (conf.subjects || []).filter(s => sid === null || Number(s.id) === sid);
+        const subjects = (conf.subjects || []).filter(s => sid === null || String(s.id) === sid);
 
         if (field === 'participation' && COLS[sid]) {
             const col = COLS[sid];

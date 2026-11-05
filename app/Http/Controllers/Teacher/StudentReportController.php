@@ -39,7 +39,7 @@ class StudentReportController extends Controller
                     continue;
                 }
                 $scope = $this->scope($teacher, $student);
-                if ($scope['subject_ids']->isEmpty()) {
+                if ($scope['row_keys']->isEmpty()) {
                     $skipped++;
                     continue;
                 }
@@ -61,12 +61,12 @@ class StudentReportController extends Controller
         return redirect()->route('teacher.students.index')->with('success', $message);
     }
 
-    private function notificationGrades(User $student, array $scope, ?int $subjectId = null): array
+    private function notificationGrades(User $student, array $scope, int|string|null $rowKey = null): array
     {
         $report = $this->buildReport($student, $scope);
 
         return $report['marks']['rows']
-            ->when($subjectId, fn ($rows) => $rows->where('subject_id', $subjectId))
+            ->when($rowKey !== null, fn ($rows) => $rows->where('subject_id', $rowKey))
             ->map(fn ($row) => \Illuminate\Support\Arr::only($row, [
                 'subject_id', 'name', 'attendance', 'participation', 'midterm', 'final', 'total',
             ]))->values()->all();
@@ -77,11 +77,13 @@ class StudentReportController extends Controller
         $teacher = auth()->user();
         $scope = $this->scope($teacher, $student);
         $this->authorizeStudent($student, $scope);
-        $data = $request->validate(['subject_id' => ['nullable', 'integer']]);
-        if (!empty($data['subject_id'])) {
-            abort_unless($scope['subject_ids']->contains($data['subject_id']), 403);
+        // subject_id carries a row key: a subject id or a course key.
+        $data = $request->validate(['subject_id' => ['nullable', self::ROW_KEY_RULE]]);
+        $rowKey = empty($data['subject_id']) ? null : self::parseKey($data['subject_id']);
+        if ($rowKey !== null) {
+            abort_unless($scope['row_keys']->contains($rowKey), 403);
         }
-        $grades = $this->notificationGrades($student, $scope, $data['subject_id'] ?? null);
+        $grades = $this->notificationGrades($student, $scope, $rowKey);
         abort_if(empty($grades), 422, 'لا توجد درجات لإرسالها.');
         $student->notify(new \App\Notifications\TeacherGradesNotification($teacher->id, $teacher->name, $grades));
 
@@ -144,7 +146,7 @@ class StudentReportController extends Controller
             'new_participation.*.title'     => ['nullable', 'string', 'max:255'],
             'new_participation.*.grade'     => ['nullable', 'numeric', 'min:0'],
             'new_participation.*.max_grade' => ['nullable', 'integer', 'min:1', 'max:1000'],
-            'new_participation.*.subject_id'=> ['nullable', 'integer'],
+            'new_participation.*.subject_id'=> ['nullable', self::ROW_KEY_RULE],
             'new_participation.*.kind'      => ['nullable', 'in:participation,final,midterm,quiz,homework'],
 
             // The built-in مشاركة mark, keyed by subject id.
@@ -184,7 +186,7 @@ class StudentReportController extends Controller
         $allowedEnrolls  = $this->scopedEnrollments($student, $scope)->pluck('id')->flip();
         $allowedAtts     = $this->scopedAttendances($student, $scope)->pluck('id')->flip();
         $allowedParts    = $this->scopedParticipation($student, $scope)->pluck('id')->flip();
-        $allowedSubjects = $scope['subject_ids']->flip();
+        $allowedSubjects = $scope['row_keys']->flip();   // row keys: subjects and courses
         $teacherId       = $teacher->id;
         $studentId       = $student->id;
 
@@ -266,9 +268,8 @@ class StudentReportController extends Controller
                 $subjectId = $row['subject_id'] ?? null;
                 if ($title === '' || !$subjectId || !isset($allowedSubjects[$subjectId])) continue;
 
-                ParticipationMark::create([
+                ParticipationMark::create(self::owner(self::parseKey($subjectId)) + [
                     'student_id' => $studentId,
-                    'subject_id' => $subjectId,
                     'kind'       => $row['kind'] ?? 'participation',
                     'teacher_id' => $teacherId,
                     'title'      => $title,
@@ -291,21 +292,20 @@ class StudentReportController extends Controller
                     if (!isset($allowedSubjects[$subjectId])) continue;
 
                     $grade = $row['grade'] ?? null;
+                    $owner = self::owner(self::parseKey($subjectId));
 
                     // The exam's grade box is the column's single input — drop any
                     // older column override so it can't shadow what was typed.
                     if (in_array($kind, ['final', 'midterm'], true)) {
-                        ParticipationMark::where([
+                        ParticipationMark::where($owner + [
                             'student_id' => $studentId,
-                            'subject_id' => $subjectId,
                             'kind'       => self::OVERRIDE_KIND,
                             'title'      => $kind,
                         ])->delete();
                     }
 
-                    $key   = [
+                    $key   = $owner + [
                         'student_id' => $studentId,
-                        'subject_id' => $subjectId,
                         'kind'       => $kind,
                         'title'      => $title,
                     ];
@@ -332,9 +332,8 @@ class StudentReportController extends Controller
                     $max = self::COLUMN_MAX[$column] ?? null;
                     if ($max === null) continue;
 
-                    $key = [
+                    $key = self::owner(self::parseKey($subjectId)) + [
                         'student_id' => $studentId,
-                        'subject_id' => $subjectId,
                         'kind'       => self::OVERRIDE_KIND,
                         'title'      => $column,
                     ];
@@ -352,10 +351,26 @@ class StudentReportController extends Controller
                 }
             }
 
-            // Manual total override, keyed by subject id. Needs an enrollment row
-            // to live on; class-only students get one created on demand.
+            // Manual total override, keyed by row. A subject keeps it on its
+            // enrollment (created on demand for class-only students); a course
+            // has no enrollment, so it is kept as an override mark.
             foreach ($data['totals'] ?? [] as $subjectId => $row) {
                 if (!isset($allowedSubjects[$subjectId])) continue;
+
+                $owner = self::owner(self::parseKey($subjectId));
+                if ($owner['program_id']) {
+                    $key = $owner + ['student_id' => $studentId, 'kind' => self::OVERRIDE_KIND, 'title' => self::TOTAL_OVERRIDE];
+                    if (!empty($row['clear'])) {
+                        ParticipationMark::where($key)->delete();
+                    } elseif (isset($row['final_grade'])) {
+                        $mark = ParticipationMark::firstOrNew($key);
+                        $mark->teacher_id = $mark->teacher_id ?? $teacherId;
+                        $mark->grade      = (float) $row['final_grade'];
+                        $mark->max_grade  = 100;
+                        $mark->save();
+                    }
+                    continue;
+                }
 
                 $enr = Enrollment::firstOrCreate(
                     ['student_id' => $studentId, 'subject_id' => $subjectId],
@@ -410,16 +425,85 @@ class StudentReportController extends Controller
 
         $subjectIds = $linkedToClass->merge($taughtInClass)->unique()->values();
 
-        $sessionIds = Session::where('teacher_id', $teacher->id)
+        $subjectSessions = Session::where('teacher_id', $teacher->id)
             ->whereIn('subject_id', $subjectIds)
-            ->pluck('id');
+            ->get(['id', 'subject_id']);
+
+        // Courses / English programs: their sessions carry a program and no
+        // subject. Each course the teacher runs in one of the student's classes
+        // is graded as a row of its own.
+        $courseSessions = Session::where('teacher_id', $teacher->id)
+            ->whereIn('class_id', $classIds)
+            ->whereNull('subject_id')
+            ->get(['id', 'program_id', 'class_id']);
+        $classProgram = \App\Models\ProgramClass::whereIn('id', $courseSessions->pluck('class_id'))
+            ->pluck('program_id', 'id');
+        $courseSessions = $courseSessions
+            ->each(fn ($s) => $s->program_id = $s->program_id ?: ($classProgram[$s->class_id] ?? null))
+            ->filter(fn ($s) => $s->program_id);
+        $programIds = $courseSessions->pluck('program_id')->unique()->values();
+
+        // Session id → report row, so attendance lands in the right row.
+        $sessionKeys = $subjectSessions->mapWithKeys(fn ($s) => [$s->id => (int) $s->subject_id])
+            ->union($courseSessions->mapWithKeys(fn ($s) => [$s->id => self::courseKey($s->program_id)]));
+
+        $rowKeys = $subjectIds->merge($programIds->map(fn ($id) => self::courseKey($id)))->values();
 
         return [
-            'teacher_id'  => $teacher->id,
-            'session_ids' => $sessionIds,
-            'subject_ids' => $subjectIds,
-            'is_mine'     => $subjectIds->isNotEmpty(),
+            'teacher_id'   => $teacher->id,
+            'class_ids'    => $classIds,
+            'session_ids'  => $sessionKeys->keys()->values(),
+            'session_keys' => $sessionKeys,
+            'subject_ids'  => $subjectIds,
+            'program_ids'  => $programIds,
+            'row_keys'     => $rowKeys,
+            'is_mine'      => $rowKeys->isNotEmpty(),
         ];
+    }
+
+    // ── Report rows ─────────────────────────────────────────────────────────
+    // Each row of the report is a subject (key: its int id) or a course
+    // (key: "c{program id}"). The key is what the form and the JS carry.
+
+    private const ROW_KEY_RULE = 'regex:/^c?\d+$/';
+
+    private static function courseKey(int $programId): string
+    {
+        return 'c' . $programId;
+    }
+
+    /** Row key of a quiz / homework: its subject, else its course. */
+    private static function rowKey($subjectId, $programId)
+    {
+        if ($subjectId) return (int) $subjectId;
+
+        return $programId ? self::courseKey((int) $programId) : null;
+    }
+
+    /** Request keys arrive as strings; give subject keys back their int form. */
+    private static function parseKey($key)
+    {
+        return is_numeric($key) ? (int) $key : (string) $key;
+    }
+
+    /** The subject_id / program_id pair a manual mark is stored under. */
+    private static function owner($rowKey): array
+    {
+        return is_string($rowKey) && str_starts_with($rowKey, 'c')
+            ? ['subject_id' => null, 'program_id' => (int) substr($rowKey, 1)]
+            : ['subject_id' => (int) $rowKey, 'program_id' => null];
+    }
+
+    /**
+     * Quizzes / homework inside the scope: on one of the subjects, or on one of
+     * the courses with no subject and set for the student's class (or none).
+     */
+    private static function whereInRows($q, array $scope): void
+    {
+        $q->where(fn ($q) => $q->whereIn('subject_id', $scope['subject_ids'])
+            ->orWhere(fn ($q) => $q->whereNull('subject_id')
+                ->whereIn('program_id', $scope['program_ids'])
+                ->where(fn ($q) => $q->whereNull('class_id')->orWhereIn('class_id', $scope['class_ids']))));
     }
 
     /** A teacher may only open the report of a student they actually teach. */
@@ -460,7 +544,7 @@ class StudentReportController extends Controller
         $subjects = \App\Models\Subject::whereIn('id', $scope['subject_ids'])
             ->get(['id', 'name_ar', 'name_en', 'code', 'class_id', 'term_id']);
 
-        return $subjects->map(function ($subject) use ($enrollments) {
+        $subjectRows = $subjects->map(function ($subject) use ($enrollments) {
                 $e = $enrollments->get($subject->id);
 
                 return [
@@ -472,8 +556,32 @@ class StudentReportController extends Controller
                     'final_grade'   => $e->final_grade ?? null,
                     'grade_letter'  => $e->grade_letter ?? null,
                 ];
-            })
-            ->values();
+            });
+
+        if ($scope['program_ids']->isEmpty()) {
+            return $subjectRows->values();
+        }
+
+        // A course has no enrollment row, so its total override is kept as a
+        // manual mark instead.
+        $courseTotals = ParticipationMark::where('student_id', $student->id)
+            ->whereIn('program_id', $scope['program_ids'])
+            ->where('kind', self::OVERRIDE_KIND)->where('title', self::TOTAL_OVERRIDE)
+            ->pluck('grade', 'program_id');
+
+        $courseRows = \App\Models\Program::whereIn('id', $scope['program_ids'])
+            ->get(['id', 'name_ar', 'name_en'])
+            ->map(fn ($program) => [
+                'enrollment_id' => null,
+                'subject_id'    => self::courseKey($program->id),
+                'name'          => $program->name_ar ?? $program->name_en ?? '—',
+                'code'          => null,
+                'status'        => 'active',
+                'final_grade'   => $courseTotals[$program->id] ?? null,
+                'grade_letter'  => null,
+            ]);
+
+        return $subjectRows->concat($courseRows)->values();
     }
 
     private function scopedAttempts(User $student, array $scope)
@@ -483,7 +591,7 @@ class StudentReportController extends Controller
         return QuizAttempt::where('student_id', $student->id)
             ->whereNotNull('submitted_at')
             ->whereHas('quiz', fn($q) => $q
-                ->whereIn('subject_id', $scope['subject_ids'])
+                ->where(fn ($q) => self::whereInRows($q, $scope))
                 ->where('created_by', $scope['teacher_id']))
             ->with(['quiz:id,title_ar,subject_id,program_id,type,total_marks,created_by'])
             ->latest('submitted_at')
@@ -493,7 +601,7 @@ class StudentReportController extends Controller
     private function scopedSubmissions(User $student, array $scope)
     {
         return HomeworkSubmission::where('student_id', $student->id)
-            ->whereHas('homework', fn($q) => $q->whereIn('subject_id', $scope['subject_ids']))
+            ->whereHas('homework', fn($q) => self::whereInRows($q, $scope))
             ->with(['homework:id,title_ar,title_en,subject_id,program_id'])
             ->latest('submitted_at')
             ->get();
@@ -503,7 +611,8 @@ class StudentReportController extends Controller
     private function scopedParticipation(User $student, array $scope, ?string $kind = null)
     {
         return ParticipationMark::where('student_id', $student->id)
-            ->whereIn('subject_id', $scope['subject_ids'])
+            ->where(fn ($q) => $q->whereIn('subject_id', $scope['subject_ids'])
+                ->orWhereIn('program_id', $scope['program_ids']))
             ->when($kind, fn($q) => $q->where('kind', $kind))
             ->orderBy('id')
             ->get();
@@ -549,6 +658,9 @@ class StudentReportController extends Controller
      */
     private const OVERRIDE_KIND = 'override';
 
+    /** Title of a course's total override (subjects keep it on the enrollment). */
+    private const TOTAL_OVERRIDE = 'total';
+
     /** Cap of each overridable column (participation = quizzes + homework). */
     private const COLUMN_MAX = [
         'attendance'    => 10,
@@ -564,16 +676,17 @@ class StudentReportController extends Controller
      * Every component is a percentage of what the student earned in that bucket
      * scaled onto its weight; a bucket with nothing recorded scores 0.
      */
-    private function buildMarks($subjects, $quizzes, $homework, $attendances, $participation, $excusedSessionIds = null)
+    private function buildMarks($subjects, $quizzes, $homework, $attendances, $participation, $excusedSessionIds = null, $sessionKeys = null)
     {
         $excused = $excusedSessionIds ?? collect();
+        $sessionKeys = $sessionKeys ?? collect();
 
-        $rows = $subjects->map(function ($sub) use ($quizzes, $homework, $attendances, $participation, $excused) {
+        $rows = $subjects->map(function ($sub) use ($quizzes, $homework, $attendances, $participation, $excused, $sessionKeys) {
             $sid = $sub['subject_id'];
 
             // Attendance: attended / total sessions of this subject. An excused
             // absence is left out entirely so it never costs the student marks.
-            $subAtt   = $attendances->filter(fn($a) => ($a->session->subject_id ?? null) === $sid
+            $subAtt   = $attendances->filter(fn($a) => ($sessionKeys[$a->session_id] ?? null) === $sid
                 && ($a->attended || !$excused->contains($a->session_id)));
             $attTotal = $subAtt->count();
             $attPct   = $attTotal > 0 ? $subAtt->where('attended', true)->count() / $attTotal : 0;
@@ -853,7 +966,7 @@ class StudentReportController extends Controller
         $quizzes = $this->scopedAttempts($student, $scope)->map(fn($a) => [
             'attempt_id'   => $a->id,
             'quiz_id'      => $a->quiz_id,
-            'subject_id'   => $a->quiz->subject_id ?? null,
+            'subject_id'   => self::rowKey($a->quiz->subject_id ?? null, $a->quiz->program_id ?? null),
             'type'         => $a->quiz->type ?? 'quiz',
             'total_marks'  => $a->quiz->total_marks ?? null,
             'title'        => $a->quiz->title_ar ?? '—',
@@ -867,7 +980,7 @@ class StudentReportController extends Controller
         $homework = $this->scopedSubmissions($student, $scope)->map(fn($s) => [
             'submission_id' => $s->id,
             'homework_id'   => $s->homework_id,
-            'subject_id'    => $s->homework->subject_id ?? null,
+            'subject_id'    => self::rowKey($s->homework->subject_id ?? null, $s->homework->program_id ?? null),
             'title'         => $s->homework->title_ar ?? $s->homework->title_en ?? '—',
             'grade'         => $s->grade,
             'max_grade'     => $s->max_grade,
@@ -875,7 +988,16 @@ class StudentReportController extends Controller
             'submitted_at'  => $s->submitted_at?->format('Y/m/d'),
         ])->values();
 
-        $participation    = $this->scopedParticipation($student, $scope);
+        // Read-only copies whose subject_id is the row key, so a course's marks
+        // group under their course row like a subject's do.
+        $participation    = $this->scopedParticipation($student, $scope)->map(fn ($p) => (object) [
+            'id'         => $p->id,
+            'subject_id' => self::rowKey($p->subject_id, $p->program_id),
+            'kind'       => $p->kind,
+            'title'      => $p->title,
+            'grade'      => $p->grade,
+            'max_grade'  => $p->max_grade,
+        ]);
         $attendances      = $this->scopedAttendances($student, $scope);
         $totalSessions    = $attendances->count();
         $attendedSessions = $attendances->where('attended', true)->count();
@@ -924,7 +1046,7 @@ class StudentReportController extends Controller
 
         return [
             'summary'    => $summary,
-            'marks'      => $this->buildMarks($subjects, $quizzes, $homework, $attendances, $participation, $excusedSessionIds),
+            'marks'      => $this->buildMarks($subjects, $quizzes, $homework, $attendances, $participation, $excusedSessionIds, $scope['session_keys']),
             'subjects'   => $subjects,
             'quizzes'    => $quizzes,
             'homework'   => $homework,

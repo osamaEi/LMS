@@ -158,6 +158,45 @@ class StudentReportClassScopeTest extends HomeworkTestCase
         \Illuminate\Support\Facades\Notification::assertCount(3);
     }
 
+    public function test_course_student_gets_a_course_row_graded_without_subjects(): void
+    {
+        $this->buildGradesSchema();
+        \Illuminate\Support\Facades\Notification::fake();
+        $teacher = User::factory()->create(['role' => 'teacher', 'status' => 'active']);
+        $student = User::factory()->create(['role' => 'student']);
+        $course = Program::factory()->create(['name_ar' => 'English level 8']);
+        $class = \App\Models\ProgramClass::create(['program_id' => $course->id, 'name' => 'Group 10-12']);
+        $student->programs()->attach($course, ['class_id' => $class->id]);
+        // Course sessions carry the program and no subject; one relies on the class's program.
+        $session = Session::create(['teacher_id' => $teacher->id, 'program_id' => $course->id, 'class_id' => $class->id]);
+        Session::create(['teacher_id' => $teacher->id, 'class_id' => $class->id]);
+        Session::create(['teacher_id' => 999, 'program_id' => $course->id, 'class_id' => $class->id]);
+        $key = 'c' . $course->id;
+
+        $scope = $this->reportScope($teacher, $student);
+        $this->assertSame([$key], $scope['row_keys']->all());
+        $this->assertContains($session->id, $scope['session_ids']->all());
+        $this->assertCount(2, $scope['session_ids']);
+
+        $this->actingAs($teacher)->patch(route('teacher.students.report.update', $student), [
+            'totals'      => [$key => ['final_grade' => 90]],
+            'final_score' => [$key => ['grade' => 30, 'max_grade' => 40]],
+        ])->assertRedirect(route('teacher.students.report.show', $student));
+        $this->assertDatabaseHas('participation_marks', [
+            'student_id' => $student->id, 'program_id' => $course->id, 'subject_id' => null, 'title' => 'total',
+        ]);
+
+        $this->post(route('teacher.students.report.send', $student), ['subject_id' => $key])
+            ->assertRedirect(route('teacher.students.report.show', $student));
+        \Illuminate\Support\Facades\Notification::assertSentTo($student, \App\Notifications\TeacherGradesNotification::class,
+            function ($notification) use ($key) {
+                $this->assertSame([$key], array_column($notification->grades, 'subject_id'));
+                $this->assertEquals(90, $notification->grades[0]['total']);
+                $this->assertEquals(30, $notification->grades[0]['final']);
+                return true;
+            });
+    }
+
     public function test_group_send_rejects_another_teachers_class(): void
     {
         \Illuminate\Support\Facades\Notification::fake();

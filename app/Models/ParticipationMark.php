@@ -16,6 +16,7 @@ class ParticipationMark extends Model
     protected $fillable = [
         'student_id',
         'subject_id',
+        'program_id',
         'kind',
         'teacher_id',
         'title',
@@ -36,6 +37,11 @@ class ParticipationMark extends Model
     public function subject()
     {
         return $this->belongsTo(Subject::class);
+    }
+
+    public function program()
+    {
+        return $this->belongsTo(Program::class);
     }
 
     public function teacher()
