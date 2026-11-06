@@ -25,7 +25,68 @@
         <div style="background:#fee2e2;border:1px solid #fca5a5;color:#b91c1c;padding:12px 16px;border-radius:12px;margin-bottom:16px;font-weight:600;">{{ session('error') }}</div>
     @endif
 
-    {{-- Status filter tabs --}}
+    {{-- Search & filters --}}
+    @php
+        $hasFilters = collect($filters)->filter(fn ($v) => $v !== null && $v !== '')->isNotEmpty();
+        $fieldStyle = 'border:1px solid #e2e8f0;border-radius:10px;padding:8px 10px;font-size:13px;background:#fff;min-width:0;width:100%;';
+        $labelStyle = 'display:block;font-size:11px;font-weight:700;color:#64748b;margin-bottom:4px;';
+    @endphp
+    <form method="GET" action="{{ route('admin.apologies.index') }}"
+          style="background:white;border:1px solid #e5e7eb;border-radius:16px;padding:16px;margin-bottom:16px;">
+        <input type="hidden" name="status" value="{{ $status }}">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;align-items:end;">
+            <div style="grid-column:span 2;min-width:0;">
+                <label for="ap-q" style="{{ $labelStyle }}">بحث</label>
+                <input id="ap-q" type="search" name="q" value="{{ $filters['q'] ?? '' }}"
+                       placeholder="اسم الطالب، البريد، الكود، الجوال، المحاضرة أو السبب"
+                       style="{{ $fieldStyle }}">
+            </div>
+            <div>
+                <label for="ap-class" style="{{ $labelStyle }}">المجموعة</label>
+                <select id="ap-class" name="class_id" style="{{ $fieldStyle }}">
+                    <option value="">كل المجموعات</option>
+                    @foreach($classes as $c)
+                        <option value="{{ $c->id }}" @selected(($filters['class_id'] ?? null) == $c->id)>{{ $c->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div>
+                <label for="ap-program" style="{{ $labelStyle }}">البرنامج</label>
+                <select id="ap-program" name="program_id" style="{{ $fieldStyle }}">
+                    <option value="">كل البرامج</option>
+                    @foreach($programs as $p)
+                        <option value="{{ $p->id }}" @selected(($filters['program_id'] ?? null) == $p->id)>{{ $p->name_ar ?: $p->name_en }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div>
+                <label for="ap-teacher" style="{{ $labelStyle }}">المدرب</label>
+                <select id="ap-teacher" name="teacher_id" style="{{ $fieldStyle }}">
+                    <option value="">كل المدربين</option>
+                    @foreach($teachers as $t)
+                        <option value="{{ $t->id }}" @selected(($filters['teacher_id'] ?? null) == $t->id)>{{ $t->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div>
+                <label for="ap-from" style="{{ $labelStyle }}">المحاضرة من تاريخ</label>
+                <input id="ap-from" type="date" name="date_from" value="{{ $filters['date_from'] ?? '' }}" style="{{ $fieldStyle }}">
+            </div>
+            <div>
+                <label for="ap-to" style="{{ $labelStyle }}">إلى تاريخ</label>
+                <input id="ap-to" type="date" name="date_to" value="{{ $filters['date_to'] ?? '' }}" style="{{ $fieldStyle }}">
+            </div>
+            <div style="display:flex;gap:8px;">
+                <button type="submit" style="flex:1;background:#0071AA;color:#fff;border:none;border-radius:10px;padding:9px 14px;font-size:13px;font-weight:700;cursor:pointer;">بحث</button>
+                @if($hasFilters)
+                    <a href="{{ route('admin.apologies.index', ['status' => $status]) }}"
+                       style="display:inline-flex;align-items:center;justify-content:center;border:1px solid #e2e8f0;border-radius:10px;padding:9px 12px;font-size:13px;color:#475569;text-decoration:none;">مسح</a>
+                @endif
+            </div>
+        </div>
+    </form>
+
+    {{-- Status filter tabs (keep the current search & filters) --}}
     <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;">
         @php
             $tabs = [
@@ -35,7 +96,7 @@
             ];
         @endphp
         @foreach($tabs as $key => [$label, $color, $count])
-            <a href="{{ route('admin.apologies.index', ['status' => $key]) }}"
+            <a href="{{ route('admin.apologies.index', array_filter($filters, fn ($v) => $v !== null && $v !== '') + ['status' => $key]) }}"
                style="display:inline-flex;align-items:center;gap:8px;padding:9px 16px;border-radius:12px;text-decoration:none;font-size:13px;font-weight:700;
                       {{ $status === $key ? "background:$color;color:#fff;" : 'background:#f1f5f9;color:#475569;' }}">
                 {{ $label }}
@@ -64,6 +125,13 @@
                                 — {{ \Carbon\Carbon::parse($apology->session->scheduled_at)->format('Y/m/d H:i') }}
                             @endif
                         </div>
+                        @if($apology->session?->programClass || $apology->session?->teacher || $apology->student?->student_code)
+                        <div style="font-size:12px;color:#64748b;display:flex;gap:14px;flex-wrap:wrap;">
+                            @if($apology->student?->student_code)<span>الكود: {{ $apology->student->student_code }}</span>@endif
+                            @if($apology->session?->programClass)<span>المجموعة: {{ $apology->session->programClass->name }}</span>@endif
+                            @if($apology->session?->teacher)<span>المدرب: {{ $apology->session->teacher->name }}</span>@endif
+                        </div>
+                        @endif
                         <div style="font-size:13px;color:#1e293b;background:#f8fafc;border-radius:10px;padding:10px 12px;margin-top:8px;">
                             @include('student.apologies.upload-time')
                             <span style="color:#64748b;">السبب:</span> {{ $apology->reason }}

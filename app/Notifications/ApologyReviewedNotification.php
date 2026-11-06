@@ -4,21 +4,38 @@ namespace App\Notifications;
 
 use App\Models\AttendanceApology;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class ApologyReviewedNotification extends Notification
+/**
+ * The email goes through the queue so an SMTP failure never breaks the
+ * approve / reject request; the in-app (database) notification stays instant.
+ */
+class ApologyReviewedNotification extends Notification implements ShouldQueue
 {
     use Queueable;
+
+    /** Retry a failed email a few times, spaced out. */
+    public int $tries = 3;
+
+    public array $backoff = [60, 300];
 
     public function __construct(protected AttendanceApology $apology)
     {
         $this->apology->loadMissing('session');
+        $this->afterCommit();
     }
 
     public function via($notifiable): array
     {
         return ['database', 'mail'];
+    }
+
+    /** database → sent right away; mail → default queue connection. */
+    public function viaConnections(): array
+    {
+        return ['database' => 'sync'];
     }
 
     public function toMail($notifiable): MailMessage
