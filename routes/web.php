@@ -843,6 +843,12 @@ Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')
     // Absence apology (عذر غياب)
     Route::get('/apologies', [\App\Http\Controllers\Student\ApologyController::class, 'index'])->name('apologies.index');
     Route::post('/sessions/{session}/apology', [\App\Http\Controllers\Student\ApologyController::class, 'store'])->name('sessions.apology.store');
+    // Opening the form URL directly (refresh after an expired-page error, the
+    // back button, browser history) is a GET — send the student to their
+    // sessions instead of a 405 "Method Not Allowed".
+    Route::get('/sessions/{session}/apology', fn () => redirect()->route('student.my-sessions')
+        ->with('error', 'لم يتم إرسال العذر. افتح المحاضرة واضغط «تقديم عذر غياب» مرة أخرى.'))
+        ->whereNumber('session')->name('sessions.apology.form');
 
     // Offers & Discounts
     Route::get('/offers', [\App\Http\Controllers\Student\OfferController::class, 'index'])->name('offers.index');
