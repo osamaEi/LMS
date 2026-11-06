@@ -25,6 +25,23 @@
     .grades-filter a.is-active { background: #0071aa; border-color: #0071aa; color: #fff; font-weight: 700; }
     .course-grade-term { display: inline-block; margin-top: 6px; padding: 3px 9px; border-radius: 7px; background: #eaf5fb; color: #0071aa; font-size: 11px; font-weight: 700; }
     .dark .course-grade-term { background: #173449; color: #7dd3fc; }
+    /* Term timeline colors: current = green, previous = red */
+    .grades-filter a.term-current { border-color: #86efac; background: #f0fdf4; color: #15803d; }
+    .grades-filter a.term-past { border-color: #fca5a5; background: #fef2f2; color: #b91c1c; }
+    .grades-filter a.term-current:hover { border-color: #16a34a; }
+    .grades-filter a.term-past:hover { border-color: #dc2626; }
+    .grades-filter a.term-current.is-active { background: #16a34a; border-color: #16a34a; color: #fff; }
+    .grades-filter a.term-past.is-active { background: #dc2626; border-color: #dc2626; color: #fff; }
+    .course-grade-term.term-current { background: #dcfce7; color: #15803d; }
+    .course-grade-term.term-past { background: #fee2e2; color: #b91c1c; }
+    .dark .grades-filter a.term-current:not(.is-active) { background: #052e16; border-color: #166534; color: #86efac; }
+    .dark .grades-filter a.term-past:not(.is-active) { background: #450a0a; border-color: #991b1b; color: #fca5a5; }
+    .dark .course-grade-term.term-current { background: #052e16; color: #86efac; }
+    .dark .course-grade-term.term-past { background: #450a0a; color: #fca5a5; }
+    .grades-legend { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 10px; font-size: 12px; color: var(--grade-muted); }
+    .grades-legend span::before { content: ''; display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-inline-end: 6px; vertical-align: middle; }
+    .grades-legend .lg-current::before { background: #16a34a; }
+    .grades-legend .lg-past::before { background: #dc2626; }
     .grades-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
     .course-grade { background: var(--grade-surface); border: 1px solid var(--grade-border); border-radius: 16px; padding: 24px; box-shadow: 0 6px 22px #12324a06; min-width: 0; }
     .course-grade-head { display: flex; align-items: flex-start; gap: 12px; }
@@ -83,11 +100,17 @@
     <nav class="grades-filter" aria-label="تصفية حسب الترم">
         <a href="{{ route('student.grades.index') }}" class="{{ $selectedTerm ? '' : 'is-active' }}">كل الترمات</a>
         @foreach($terms as $term)
-        <a href="{{ route('student.grades.index', ['term' => $term->id]) }}" class="{{ $selectedTerm === $term->id ? 'is-active' : '' }}">
+        @php $tl = $term->grades_timeline ?? $term->timeline(); @endphp
+        <a href="{{ route('student.grades.index', ['term' => $term->id]) }}"
+           class="term-{{ $tl }} {{ $selectedTerm === $term->id ? 'is-active' : '' }}">
             {{ $term->name ?: 'الترم ' . $term->term_number }}
         </a>
         @endforeach
     </nav>
+    <div class="grades-legend">
+        <span class="lg-current">الترم الحالي</span>
+        <span class="lg-past">ترم سابق</span>
+    </div>
     @endif
 
     <div class="grades-section-head">
@@ -123,8 +146,8 @@
                     @if($data['subject']->teacher)
                     <p class="course-grade-teacher">المدرب: {{ $data['subject']->teacher->name }}</p>
                     @endif
-                    @foreach($data['terms'] as $term)
-                    <span class="course-grade-term">{{ $term->name ?: 'الترم ' . $term->term_number }}</span>
+                    @foreach(collect($data['terms'])->unique(fn ($t) => preg_replace('/\s+/u', ' ', trim($t->name ?: 'الترم ' . $t->term_number))) as $term)
+                    <span class="course-grade-term term-{{ $term->grades_timeline ?? $term->timeline() }}">{{ $term->name ?: 'الترم ' . $term->term_number }}</span>
                     @endforeach
                 </div>
             </div>

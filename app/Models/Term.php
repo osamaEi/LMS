@@ -94,6 +94,24 @@ class Term extends Model
             && $this->status === 'active';
     }
 
+    /**
+     * Where the term sits in time: 'current', 'past' or 'upcoming'.
+     * The admin-set status wins; dates are the fallback when status is empty.
+     */
+    public function timeline(): string
+    {
+        return match ($this->status) {
+            'active'    => 'current',
+            'completed' => 'past',
+            'upcoming'  => 'upcoming',
+            default     => match (true) {
+                $this->end_date && $this->end_date->copy()->endOfDay()->isPast() => 'past',
+                $this->start_date && $this->start_date->isFuture()              => 'upcoming',
+                default                                                         => 'current',
+            },
+        };
+    }
+
     public function hasStarted(): bool
     {
         return $this->start_date <= now();

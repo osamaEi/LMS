@@ -69,11 +69,32 @@ class StudentGradesService
         $subjectTerms = fn (Subject $s) => collect([$s->term])->merge($s->terms)->filter()->unique('id');
 
         // Every term that has at least one sent subject, for the filter.
-        $terms = $allSubjects->flatMap($subjectTerms)->unique('id')
-            ->sortBy(fn ($t) => [$t->term_number, $t->id])->values();
+        // Each class has its own copy of a term (same name, different id), so
+        // group by name: one filter button per name, matching all its copies.
+        $termLabel = fn ($t) => preg_replace('/\s+/u', ' ', trim($t->name ?: 'الترم ' . $t->term_number));
+        $termGroups = $allSubjects->flatMap($subjectTerms)->unique('id')
+            ->sortBy(fn ($t) => [$t->term_number, $t->id])
+            ->groupBy($termLabel);
+
+        // One representative per name; its timeline is 'current' if any copy
+        // is running, else 'upcoming' if any copy hasn't started, else 'past'.
+        $terms = $termGroups->map(function ($group) {
+            $states = $group->map->timeline();
+            $rep = $group->first();
+            $rep->grades_timeline = $states->contains('current') ? 'current'
+                : ($states->contains('upcoming') ? 'upcoming' : 'past');
+
+            return $rep;
+        })->values();
+
+        $selectedIds = collect();
+        if ($termId) {
+            $selected = $termGroups->first(fn ($g) => $g->contains('id', $termId));
+            $selectedIds = $selected ? $selected->pluck('id') : collect([$termId]);
+        }
 
         $subjects = $termId
-            ? $allSubjects->filter(fn ($s) => $subjectTerms($s)->contains('id', $termId))
+            ? $allSubjects->filter(fn ($s) => $subjectTerms($s)->pluck('id')->intersect($selectedIds)->isNotEmpty())
             : $allSubjects;
 
         // Per-subject grade summary
