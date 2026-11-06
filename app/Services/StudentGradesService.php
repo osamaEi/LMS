@@ -43,6 +43,12 @@ class StudentGradesService
         $releasedRows = $sentReports->flatMap(fn ($report) => $report->rows)
             ->filter(fn ($row) => isset($row['subject_id']))
             ->unique('subject_id')->keyBy('subject_id');
+
+        // Hide a subject until its final grade exists.
+        $manualTotals = $this->savedFinalGrades($student)->pluck('subject_id')->flip();
+        $releasedRows = $releasedRows->filter(
+            fn ($row) => self::hasFinalGrade($row) || isset($manualTotals[$row['subject_id']])
+        );
         // Evaluations grouped by subject
         $evaluations = Evaluation::where('student_id', $student->id)
             ->where('status', 'graded')
@@ -192,6 +198,20 @@ class StudentGradesService
         ) ?? $terms->firstWhere('term_number', $student->current_term_number ?? 1) ?? $terms->first();
 
         return [$terms, $currentTerm];
+    }
+
+    /**
+     * Whether a sent report row carries a final-exam grade. The report sends
+     * 0 when nothing was entered, so 0 counts as "not done yet". Older
+     * payloads without a 'final' key fall back to a non-zero total.
+     */
+    public static function hasFinalGrade(array $row): bool
+    {
+        if (array_key_exists('final', $row)) {
+            return (float) $row['final'] > 0;
+        }
+
+        return (float) ($row['total'] ?? 0) > 0;
     }
 
     public function gradeLabel(float $pct): string

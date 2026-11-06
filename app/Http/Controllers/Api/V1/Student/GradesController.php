@@ -38,7 +38,10 @@ class GradesController extends Controller
         $rows = $grades->sentGradeReports($request->user())
             ->flatMap(fn ($report) => $report->rows)
             ->unique($subjectKey)
-            ->keyBy($subjectKey);
+            ->keyBy($subjectKey)
+            // Hide a subject until its final grade exists; a teacher-saved
+            // total (merged below) still brings it back.
+            ->filter(fn ($row) => StudentGradesService::hasFinalGrade($row));
 
         foreach ($grades->savedFinalGrades($request->user()) as $saved) {
             $key = $subjectKey($saved);

@@ -16,7 +16,7 @@ class GradesResponseTest extends TestCase
         $request = Request::create('/api/v1/student/grades');
         $request->setUserResolver(fn () => $student);
         $row = ['subject_id' => 7, 'name' => 'Subject', 'attendance' => 0,
-            'participation' => 0, 'midterm' => 0, 'final' => 0, 'total' => 0];
+            'participation' => 0, 'midterm' => 0, 'final' => 30, 'total' => 0];
         $service = $this->mock(StudentGradesService::class);
         $service->shouldReceive('savedFinalGrades')->with($student)->andReturn(collect());
         $service->shouldReceive('sentGradeReports')->once()->with($student)->andReturn(collect([
@@ -31,7 +31,7 @@ class GradesResponseTest extends TestCase
             'attendance' => ['score' => 0, 'max' => 10],
             'participation' => ['score' => 0, 'max' => 30],
             'midterm' => ['score' => 0, 'max' => 20],
-            'final' => ['score' => 0, 'max' => 40],
+            'final' => ['score' => 30, 'max' => 40],
             'total' => ['score' => 0, 'max' => 100],
             'grade_letter' => 'F', 'grade_label' => 'راسب',
         ]]], $response->getData(true));
