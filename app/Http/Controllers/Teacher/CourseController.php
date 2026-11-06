@@ -371,14 +371,36 @@ class CourseController extends Controller
         return back()->with('success', 'تم حذف الملف بنجاح');
     }
 
+    /**
+     * The program + session for the attendance pages, with the same access
+     * rule as show(): a teacher linked to the program directly, or through a
+     * class they supervise / teach sessions in. A class-linked teacher only
+     * gets sessions they teach or that belong to a class they supervise.
+     *
+     * @return array{0: Program, 1: Session}
+     */
+    private function attendanceTarget($teacher, $programId, $sessionId): array
+    {
+        $types = ['training', 'english', 'course'];
+        $program = Program::whereIn('type', $types)->findOrFail($programId);
+        $session = Session::where('program_id', $programId)->findOrFail($sessionId);
+
+        $direct = $teacher->teachingPrograms()->whereIn('type', $types)
+            ->where('programs.id', $program->id)->exists();
+
+        $viaClass = (int) $session->teacher_id === (int) $teacher->id
+            || ($session->class_id && ProgramClass::whereKey($session->class_id)
+                ->where('teacher_id', $teacher->id)->exists());
+
+        abort_unless($direct || $viaClass, 404);
+
+        return [$program, $session];
+    }
+
     public function sessionAttendance($programId, $sessionId)
     {
         $teacher = auth()->user();
-        $program = $teacher->teachingPrograms()
-            ->whereIn('type', ['training', 'english', 'course'])
-            ->findOrFail($programId);
-
-        $session = Session::where('program_id', $programId)->findOrFail($sessionId);
+        [$program, $session] = $this->attendanceTarget($teacher, $programId, $sessionId);
 
         // Resolve class: from session.class_id or teacher's assigned class for this program
         $classId = $session->class_id
@@ -453,8 +475,7 @@ class CourseController extends Controller
     public function exportAttendance($programId, $sessionId)
     {
         $teacher = auth()->user();
-        $program = $teacher->teachingPrograms()->whereIn('type', ['training', 'english', 'course'])->findOrFail($programId);
-        $session = Session::where('program_id', $programId)->findOrFail($sessionId);
+        [$program, $session] = $this->attendanceTarget($teacher, $programId, $sessionId);
 
         $classId = $session->class_id
             ?? \App\Models\ProgramClass::where('program_id', $programId)->where('teacher_id', $teacher->id)->value('id');
@@ -505,8 +526,7 @@ class CourseController extends Controller
     public function saveAttendance(Request $request, $programId, $sessionId)
     {
         $teacher = auth()->user();
-        $teacher->teachingPrograms()->whereIn('type', ['training', 'english', 'course'])->findOrFail($programId);
-        $session = Session::where('program_id', $programId)->findOrFail($sessionId);
+        [, $session] = $this->attendanceTarget($teacher, $programId, $sessionId);
 
         $request->validate([
             'student_ids'   => 'required|array',
