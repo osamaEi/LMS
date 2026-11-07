@@ -122,19 +122,6 @@ class DashboardController extends Controller
         // Pending ratings
         $pendingRatingsCount = TeacherRating::where('is_approved', false)->count();
 
-        // Upcoming sessions (all programs + subjects)
-        $upcomingSessions = Session::where('scheduled_at', '>', now())
-            ->with(['subject.program', 'program', 'teacher:id,name'])
-            ->orderBy('scheduled_at', 'asc')
-            ->take(8)
-            ->get();
-
-        $liveSessions = Session::whereNotNull('started_at')
-            ->whereNull('ended_at')
-            ->with(['subject.program', 'program', 'teacher:id,name'])
-            ->orderBy('started_at', 'desc')
-            ->get();
-
         // Recent activity logs
         $recentLogs = ActivityLog::with('user:id,name,role')
             ->latest()
@@ -160,8 +147,6 @@ class DashboardController extends Controller
             'topTeachers',
             'activeSurveys',
             'pendingRatingsCount',
-            'upcomingSessions',
-            'liveSessions',
             'recentLogs',
             'todayLogsCount',
             'totalLogsCount',
