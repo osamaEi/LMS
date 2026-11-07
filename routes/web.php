@@ -497,7 +497,8 @@ Route::middleware(['auth', 'role:admin,super_admin'])->prefix('admin')->name('ad
 
     // Teacher Ratings Management (NELC 2.4.9)
     Route::get('/teacher-ratings', [\App\Http\Controllers\Admin\TeacherRatingController::class, 'index'])->name('teacher-ratings.index');
-    Route::get('/teacher-ratings/report', [\App\Http\Controllers\Admin\TeacherRatingController::class, 'report'])->name('teacher-ratings.report');
+    Route::post('/teacher-ratings/bulk', [\App\Http\Controllers\Admin\TeacherRatingController::class, 'bulk'])->name('teacher-ratings.bulk');
+    Route::get('/teacher-ratings/report',[\App\Http\Controllers\Admin\TeacherRatingController::class, 'report'])->name('teacher-ratings.report');
     Route::get('/teacher-ratings/{teacher}', [\App\Http\Controllers\Admin\TeacherRatingController::class, 'show'])->name('teacher-ratings.show');
     Route::post('/teacher-ratings/{rating}/approve', [\App\Http\Controllers\Admin\TeacherRatingController::class, 'approve'])->name('teacher-ratings.approve');
     Route::delete('/teacher-ratings/{rating}/reject', [\App\Http\Controllers\Admin\TeacherRatingController::class, 'reject'])->name('teacher-ratings.reject');

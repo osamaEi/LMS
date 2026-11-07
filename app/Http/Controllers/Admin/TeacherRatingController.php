@@ -13,25 +13,72 @@ class TeacherRatingController extends Controller
 {
     public function index(Request $request)
     {
-        // Get all teachers with their ratings
-        $teachers = User::where('role', 'teacher')
-            ->withCount(['ratingsReceived' => function($q) {
-                $q->where('is_approved', true);
-            }])
-            ->get()
-            ->map(function($teacher) {
-                $teacher->avg_rating = $teacher->getAverageRating();
-                return $teacher;
-            })
-            ->sortByDesc('avg_rating');
+        $search = trim((string) $request->input('search', ''));
+        $sort = $request->input('sort', 'rating');
 
-        // Get pending ratings for approval
+        // Overall statistics
+        $approved = TeacherRating::where('is_approved', true);
+        $stats = [
+            'total'       => (clone $approved)->count(),
+            'pending'     => TeacherRating::where('is_approved', false)->count(),
+            'avg'         => round((clone $approved)->avg('overall_rating') ?? 0, 2),
+            'rated_teachers' => (clone $approved)->distinct('teacher_id')->count('teacher_id'),
+            'teachers'    => User::where('role', 'teacher')->count(),
+        ];
+
+        // Teachers with aggregated ratings (single query, no N+1)
+        $approvedFilter = fn ($q) => $q->where('is_approved', true);
+
+        $teachersQuery = User::where('role', 'teacher')
+            ->withCount(['ratingsReceived as ratings_count' => $approvedFilter])
+            ->withAvg(['ratingsReceived as avg_rating' => $approvedFilter], 'overall_rating')
+            ->withAvg(['ratingsReceived as avg_teaching' => $approvedFilter], 'teaching_quality')
+            ->withAvg(['ratingsReceived as avg_communication' => $approvedFilter], 'communication')
+            ->withAvg(['ratingsReceived as avg_punctuality' => $approvedFilter], 'punctuality')
+            ->withAvg(['ratingsReceived as avg_delivery' => $approvedFilter], 'content_delivery')
+            ->withCount(['ratingsReceived as pending_count' => fn ($q) => $q->where('is_approved', false)]);
+
+        if ($search !== '') {
+            $teachersQuery->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        match ($sort) {
+            'count' => $teachersQuery->orderByDesc('ratings_count'),
+            'name'  => $teachersQuery->orderBy('name'),
+            default => $teachersQuery->orderByDesc('avg_rating')->orderByDesc('ratings_count'),
+        };
+
+        $teachers = $teachersQuery->paginate(15, ['*'], 'teachers_page')->withQueryString();
+
+        // Pending ratings awaiting approval
         $pendingRatings = TeacherRating::where('is_approved', false)
-            ->with(['teacher', 'student', 'subject'])
+            ->with(['teacher:id,name', 'student:id,name', 'subject:id,name'])
             ->latest()
-            ->paginate(10);
+            ->paginate(10, ['*'], 'pending_page')
+            ->withQueryString();
 
-        return view('admin.teacher-ratings.index', compact('teachers', 'pendingRatings'));
+        return view('admin.teacher-ratings.index', compact('teachers', 'pendingRatings', 'stats', 'search', 'sort'));
+    }
+
+    public function bulk(Request $request)
+    {
+        $data = $request->validate([
+            'action' => 'required|in:approve,reject',
+            'ids'    => 'required|array|min:1',
+            'ids.*'  => 'integer|exists:teacher_ratings,id',
+        ]);
+
+        $query = TeacherRating::whereIn('id', $data['ids'])->where('is_approved', false);
+        $count = $data['action'] === 'approve'
+            ? $query->update(['is_approved' => true])
+            : $query->delete();
+
+        $msg = $data['action'] === 'approve' ? "تم اعتماد {$count} تقييم" : "تم رفض {$count} تقييم";
+
+        return back()->with('success', $msg);
     }
 
     public function show(User $teacher)
