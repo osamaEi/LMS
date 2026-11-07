@@ -55,7 +55,7 @@ class TeacherRatingController extends Controller
 
         // Pending ratings awaiting approval
         $pendingRatings = TeacherRating::where('is_approved', false)
-            ->with(['teacher:id,name', 'student:id,name', 'subject:id,name'])
+            ->with(['teacher:id,name', 'student:id,name', 'subject:id,name_ar,name_en'])
             ->latest()
             ->paginate(10, ['*'], 'pending_page')
             ->withQueryString();
