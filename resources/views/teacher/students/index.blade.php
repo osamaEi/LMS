@@ -29,7 +29,7 @@
     </div>
 </div>
 
-@if($totalStudents === 0)
+@if($grouped->isEmpty())
 <div style="background:white;border-radius:18px;border:1px solid #e5e7eb;padding:60px;text-align:center;box-shadow:0 2px 12px rgba(0,0,0,.06);">
     <svg style="width:56px;height:56px;color:#d1d5db;margin:0 auto 16px;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
     <p style="font-size:15px;font-weight:600;color:#475569;margin-bottom:4px;">لا يوجد طلاب بعد</p>
@@ -148,7 +148,7 @@
         </div>
         <div style="display:flex;align-items:center;flex-wrap:wrap;gap:12px;">
             <span style="background:#eff6ff;color:#1d4ed8;border-radius:999px;padding:3px 12px;font-size:11px;font-weight:700;">{{ count($group['students']) }} طالب</span>
-            @if($group['class_id'])
+            @if($group['class_id'] && count($group['students']))
                 <form method="POST" action="{{ route('teacher.students.groups.report.send', $group['class_id']) }}" onsubmit="const button = this.querySelector('button'); button.disabled = true; button.textContent = 'جارٍ إرسال الدرجات...';" style="margin:0;">
                     @csrf
                     <button type="submit" style="background:#0071AA;color:#fff;border:0;padding:10px 14px;border-radius:9px;font:inherit;font-size:12px;font-weight:700;cursor:pointer;">إرسال الدرجات لكل طلاب المجموعة</button>
@@ -194,6 +194,13 @@
                     </td>
                 </tr>
                 @endforeach
+                @if(count($group['students']) === 0)
+                <tr>
+                    <td colspan="7" style="padding:28px 16px;text-align:center;color:#94a3b8;font-size:13px;">
+                        لا يوجد طلاب في هذه المجموعة بعد
+                    </td>
+                </tr>
+                @endif
                 <tr class="student-empty-row" hidden>
                     <td colspan="7" style="padding:28px 16px;text-align:center;color:#94a3b8;font-size:13px;">
                         لا يوجد طالب مطابق في هذه المجموعة

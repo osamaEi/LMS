@@ -149,12 +149,7 @@ class TeacherController extends Controller
         // Related classes: ones the teacher is not the owner of, but teaches
         // sessions or subjects in (session teachers can be reassigned per class).
         $directClassIds  = $teacher->teachingClasses->pluck('id');
-        $relatedClassIds = Session::where('teacher_id', $teacher->id)
-            ->whereNotNull('class_id')->distinct()->pluck('class_id')
-            ->merge($allSubjects->pluck('class_id')->filter())
-            ->unique()
-            ->diff($directClassIds)
-            ->values();
+        $relatedClassIds = $teacher->teachingClassIds()->diff($directClassIds)->values();
         $relatedClasses = ProgramClass::with(['program:id,name_ar,type', 'teacher:id,name'])
             ->whereIn('id', $relatedClassIds)->get();
         $pastClassIds = $pastClassIds->merge(ProgramClass::pastIds($relatedClassIds));

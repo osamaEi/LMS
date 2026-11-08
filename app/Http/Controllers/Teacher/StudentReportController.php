@@ -26,7 +26,8 @@ class StudentReportController extends Controller
     public function sendGroup(\App\Models\ProgramClass $class)
     {
         $teacher = auth()->user();
-        abort_unless(Session::where('teacher_id', $teacher->id)->where('class_id', $class->id)->exists(), 403);
+        // Same class list the students page shows (owned + sessions + subjects).
+        abort_unless($teacher->teachingClassIds()->contains($class->id), 403);
 
         $studentIds = app(\App\Services\ProgramClassService::class)->studentIds($class);
         $sent = 0;

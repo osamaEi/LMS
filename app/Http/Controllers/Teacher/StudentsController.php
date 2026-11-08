@@ -23,9 +23,13 @@ class StudentsController extends Controller
         // Sessions this teacher owns, plus the subjects they are assigned to.
         $sessions   = Session::where('teacher_id', $teacher->id)->get(['id', 'subject_id', 'class_id']);
         $sessionIds = $sessions->pluck('id');
-        $classIds = $sessions->pluck('class_id')->filter()->unique();
-        $classStudentIds = ProgramClass::whereIn('id', $classIds)->get()
-            ->flatMap(fn ($class) => app(\App\Services\ProgramClassService::class)->studentIds($class));
+
+        // Same class list as the admin teacher profile (owned + sessions + subjects).
+        $classes = ProgramClass::whereIn('id', $teacher->teachingClassIds())->get(['id', 'name']);
+        $classIds = $classes->pluck('id');
+        $service = app(\App\Services\ProgramClassService::class);
+        $classStudents = $classes->mapWithKeys(fn ($class) => [$class->id => $service->studentIds($class)]);
+        $classStudentIds = $classStudents->flatten();
         $subjectIds = $teacher->assignedSubjects()->pluck('subjects.id')
             ->merge($sessions->pluck('subject_id')->filter())
             ->unique()->values();
@@ -43,25 +47,30 @@ class StudentsController extends Controller
             ->orderBy('name')
             ->get();
 
-        // Resolve each student's class: prefer the student_programs pivot, fall
-        // back to the legacy users.class_id.
-        $classNames = ProgramClass::pluck('name', 'id');
+        // One group per class — including empty ones, so the list matches the
+        // admin profile — with membership resolved the same way the admin counts it.
         $pastClassIds = ProgramClass::pastIds($classIds);
+        $studentsById = $students->keyBy('id');
 
-        $grouped = $students->groupBy(function (User $student) use ($classIds) {
-            $groups = $student->allClassIds()->intersect($classIds);
-            return $groups->isNotEmpty() ? $groups->all() : [0];
-        })->map(function ($group, $classId) use ($classNames, $pastClassIds) {
-            return [
-                'class_id' => $classId ?: null,
-                'name'     => $classId ? ($classNames[$classId] ?? ('مجموعة #' . $classId)) : 'بدون مجموعة',
-                'is_past'  => $classId && $pastClassIds->contains($classId),
-                'students' => $group->values(),
-            ];
-        })
+        $grouped = $classes->map(fn (ProgramClass $class) => [
+                'class_id' => $class->id,
+                'name'     => $class->name,
+                'is_past'  => $pastClassIds->contains($class->id),
+                'students' => $classStudents[$class->id]
+                    ->map(fn ($id) => $studentsById->get($id))
+                    ->filter()
+                    ->sortBy('name')
+                    ->values(),
+            ])
             // Current classes first, then previous ones; alphabetical within each.
             ->sortBy(fn ($g) => ($g['is_past'] ? '1' : '0') . $g['name'])
             ->values();
+
+        // Students reached through attendance/enrollment but in none of these classes.
+        $ungrouped = $students->whereNotIn('id', $classStudentIds->unique()->all())->values();
+        if ($ungrouped->isNotEmpty()) {
+            $grouped->push(['class_id' => null, 'name' => 'بدون مجموعة', 'is_past' => false, 'students' => $ungrouped]);
+        }
 
         $totalStudents = $students->count();
 

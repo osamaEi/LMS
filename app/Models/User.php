@@ -379,6 +379,26 @@ class User extends Authenticatable
         return $this->hasMany(\App\Models\User::class, 'program_id');
     }
 
+    // Every class (المجموعة) this teacher is linked to: classes they own
+    // (program_classes.teacher_id), classes they have sessions in, and classes
+    // their subjects belong to. Single source of truth for the admin teacher
+    // profile and the teacher's own students page.
+    public function teachingClassIds(): \Illuminate\Support\Collection
+    {
+        $subjectIds = $this->assignedSubjects()->pluck('subjects.id');
+
+        $ids = \App\Models\ProgramClass::where('teacher_id', $this->id)->pluck('id')
+            ->merge(\App\Models\Session::where('teacher_id', $this->id)
+                ->whereNotNull('class_id')->distinct()->pluck('class_id'))
+            ->merge(\App\Models\Subject::whereNotNull('class_id')
+                ->where(fn ($q) => $q->where('teacher_id', $this->id)->orWhereIn('id', $subjectIds))
+                ->pluck('class_id'))
+            ->unique();
+
+        // Re-query so soft-deleted classes drop out.
+        return \App\Models\ProgramClass::whereIn('id', $ids)->pluck('id')->values();
+    }
+
     // Programs the teacher is directly assigned to teach
     public function teachingPrograms()
     {
