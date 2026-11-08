@@ -196,7 +196,7 @@ class TeacherController extends Controller
             ->where('teacher_id', $teacher->id)
             ->where('scheduled_at', '>', now())
             ->orderBy('scheduled_at')
-            ->limit(5)
+            ->limit(10)
             ->get(['id', 'title_ar', 'title_en', 'subject_id', 'class_id', 'scheduled_at', 'duration_minutes', 'type']);
 
         $programsByType = Program::with([
