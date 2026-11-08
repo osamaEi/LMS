@@ -26,12 +26,18 @@ class FooterSettingsController extends Controller
             'working_hours_ar','working_hours_en',
             'copyright_ar','copyright_en',
             'social_twitter','social_instagram','social_linkedin',
-            'social_youtube','social_facebook','social_snapchat','social_whatsapp',
+            'social_youtube','social_facebook','social_snapchat','social_whatsapp','social_tiktok',
         ];
 
         foreach ($keys as $key) {
             SiteSetting::set($key, $request->input($key));
         }
+
+        // Keep admin/settings social tab in sync
+        foreach (array_keys(SiteSetting::SOCIALS) as $key) {
+            \App\Models\Setting::where('key', $key)->update(['value' => (string) $request->input($key, '')]);
+        }
+        \App\Models\Setting::clearCache();
 
         return back()->with('success', 'تم حفظ الإعدادات بنجاح');
     }

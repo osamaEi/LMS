@@ -769,7 +769,7 @@
         .foot { background: #1d3a52; color: #fff; padding: clamp(3rem,5vw,6rem) clamp(1rem,4vw,5rem); }
         .footer-logo img { height: 64px; width: auto; margin-bottom: 1rem; }
         .footer-desc { opacity: .8; line-height: 1.8; font-size: .9rem; margin-bottom: 1.5rem; }
-        .footer-social-wrap { display: flex; gap: .75rem; }
+        .footer-social-wrap { display: flex; flex-wrap: wrap; gap: .75rem; }
         .footer-social-wrap a { width: 38px; height: 38px; border-radius: 50%; background: rgba(255,255,255,.1); color: #fff; display: flex; align-items: center; justify-content: center; transition: all .3s; text-decoration: none; font-size: 1rem; }
         .footer-social-wrap a:hover { background: var(--main-color); color: #fff; }
         .footer-heading { font-weight: 700; margin-bottom: 1.25rem; font-size: 1rem; border-bottom: 2px solid rgba(255,255,255,.15); padding-bottom: .75rem; }

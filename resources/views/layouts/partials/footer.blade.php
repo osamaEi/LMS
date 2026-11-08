@@ -9,15 +9,7 @@ $fHours  = $locale === 'en' ? ($fs['working_hours_en'] ?? $fs['working_hours_ar'
 $fCopy   = $locale === 'en' ? ($fs['copyright_en'] ?? $fs['copyright_ar'] ?? '') : ($fs['copyright_ar'] ?? '');
 $fQuick  = FooterLink::where('section','quick')->where('is_active',true)->orderBy('sort_order')->get();
 $fServ   = FooterLink::where('section','services')->where('is_active',true)->orderBy('sort_order')->get();
-$socials = [
-    'twitter'   => ['icon'=>'bi-twitter-x',  'url' => $fs['social_twitter']   ?? ''],
-    'instagram' => ['icon'=>'bi-instagram',   'url' => $fs['social_instagram'] ?? ''],
-    'linkedin'  => ['icon'=>'bi-linkedin',    'url' => $fs['social_linkedin']  ?? ''],
-    'youtube'   => ['icon'=>'bi-youtube',     'url' => $fs['social_youtube']   ?? ''],
-    'facebook'  => ['icon'=>'bi-facebook',    'url' => $fs['social_facebook']  ?? ''],
-    'snapchat'  => ['icon'=>'bi-snapchat',    'url' => $fs['social_snapchat']  ?? ''],
-    'whatsapp'  => ['icon'=>'bi-whatsapp',    'url' => $fs['social_whatsapp']  ?? ''],
-];
+$socials = array_filter(SiteSetting::socialLinks($fs), fn ($s) => $s['url'] !== '');
 @endphp
 <footer class="foot">
     <div class="container-fluid">
@@ -28,15 +20,15 @@ $socials = [
                     <img src="{{ asset('images/logo.svg') }}" alt="Logo" onerror="this.style.display='none'" style="filter:brightness(0) invert(1);" />
                 </div>
                 <p class="footer-desc">{{ $fDesc }}</p>
+                @if(count($socials))
                 <div class="footer-social-wrap">
                     @foreach($socials as $social)
-                        @if(!empty($social['url']))
-                        <a href="{{ $social['url'] }}" target="_blank" rel="noopener">
+                        <a href="{{ $social['url'] }}" target="_blank" rel="noopener" title="{{ $social['label'] }}" aria-label="{{ $social['label'] }}">
                             <i class="bi {{ $social['icon'] }}"></i>
                         </a>
-                        @endif
                     @endforeach
                 </div>
+                @endif
             </div>
 
             {{-- Quick Links --}}

@@ -176,6 +176,33 @@ class SettingsSeeder extends Seeder
                 'description' => 'رابط قناة يوتيوب',
                 'is_public' => true,
             ],
+            [
+                'key' => 'social_tiktok',
+                'value' => '',
+                'group' => 'social',
+                'type' => 'text',
+                'label' => 'تيك توك',
+                'description' => 'رابط حساب تيك توك',
+                'is_public' => true,
+            ],
+            [
+                'key' => 'social_snapchat',
+                'value' => '',
+                'group' => 'social',
+                'type' => 'text',
+                'label' => 'سناب شات',
+                'description' => 'رابط حساب سناب شات',
+                'is_public' => true,
+            ],
+            [
+                'key' => 'social_whatsapp',
+                'value' => '',
+                'group' => 'social',
+                'type' => 'text',
+                'label' => 'واتساب',
+                'description' => 'رابط واتساب (مثال: https://wa.me/9665xxxxxxxx)',
+                'is_public' => true,
+            ],
 
             // Email Settings
             [

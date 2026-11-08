@@ -515,33 +515,21 @@
                     @endif
 
                     @php
-                        $socials = [
-                            ['icon' => 'bi-twitter-x',  'href' => $settings['social_twitter']   ?? '', 'color' => '#000'],
-                            ['icon' => 'bi-instagram',  'href' => $settings['social_instagram'] ?? '', 'color' => '#e1306c'],
-                            ['icon' => 'bi-linkedin',   'href' => $settings['social_linkedin']  ?? '', 'color' => '#0a66c2'],
-                            ['icon' => 'bi-youtube',    'href' => $settings['social_youtube']   ?? '', 'color' => '#ff0000'],
-                            ['icon' => 'bi-facebook',   'href' => $settings['social_facebook']  ?? '', 'color' => '#1877f2'],
-                            ['icon' => 'bi-snapchat',   'href' => $settings['social_snapchat']  ?? '', 'color' => '#fffc00'],
-                            ['icon' => 'bi-whatsapp',   'href' => $settings['social_whatsapp']  ?? '', 'color' => '#25d366'],
-                        ];
+                        $socials = array_filter(\App\Models\SiteSetting::socialLinks(), fn ($s) => $s['url'] !== '');
                     @endphp
+                    @if(count($socials))
                     <div class="social-section">
                         <h5>{{ __('Follow Us') }}</h5>
                         <div class="social-icons">
                             @foreach($socials as $social)
-                            @if(!empty($social['href']))
-                            <a href="{{ $social['href'] }}" class="social-link" target="_blank" rel="noopener"
-                               title="{{ $social['icon'] }}">
+                            <a href="{{ $social['url'] }}" class="social-link" target="_blank" rel="noopener"
+                               title="{{ $social['label'] }}" aria-label="{{ $social['label'] }}">
                                 <i class="bi {{ $social['icon'] }}"></i>
                             </a>
-                            @else
-                            <span class="social-link" style="opacity:.35;cursor:default;">
-                                <i class="bi {{ $social['icon'] }}"></i>
-                            </span>
-                            @endif
                             @endforeach
                         </div>
                     </div>
+                    @endif
                 </div>
             </div>
         </div>

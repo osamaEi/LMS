@@ -47,6 +47,11 @@ class SettingController extends Controller
                 }
 
                 $setting->update(['value' => $value]);
+
+                // Keep footer settings social links in sync
+                if ($setting->group === 'social') {
+                    \App\Models\SiteSetting::set($key, (string) $value);
+                }
             }
         }
 
@@ -82,6 +87,11 @@ class SettingController extends Controller
                 }
 
                 $setting->update(['value' => $value]);
+
+                // Keep footer settings social links in sync
+                if ($setting->group === 'social') {
+                    \App\Models\SiteSetting::set($key, (string) $value);
+                }
             }
         }
 

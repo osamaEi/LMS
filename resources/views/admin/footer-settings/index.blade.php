@@ -121,6 +121,7 @@
             ['key'=>'social_linkedin',  'label'=>'لينكد إن',      'icon'=>'bi-linkedin',     'placeholder'=>'https://linkedin.com/...'],
             ['key'=>'social_youtube',   'label'=>'يوتيوب',        'icon'=>'bi-youtube',      'placeholder'=>'https://youtube.com/...'],
             ['key'=>'social_facebook',  'label'=>'فيسبوك',        'icon'=>'bi-facebook',     'placeholder'=>'https://facebook.com/...'],
+            ['key'=>'social_tiktok',    'label'=>'تيك توك',       'icon'=>'bi-tiktok',       'placeholder'=>'https://tiktok.com/@...'],
             ['key'=>'social_snapchat',  'label'=>'سناب شات',      'icon'=>'bi-snapchat',     'placeholder'=>'https://snapchat.com/...'],
             ['key'=>'social_whatsapp',  'label'=>'واتساب',        'icon'=>'bi-whatsapp',     'placeholder'=>'https://wa.me/...'],
         ] as $social)
