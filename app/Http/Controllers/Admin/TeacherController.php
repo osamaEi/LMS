@@ -146,6 +146,59 @@ class TeacherController extends Controller
         $sessionStats['next'] = Session::where('teacher_id', $teacher->id)
             ->where('scheduled_at', '>', now())->orderBy('scheduled_at')->value('scheduled_at');
 
+        // Related classes: ones the teacher is not the owner of, but teaches
+        // sessions or subjects in (session teachers can be reassigned per class).
+        $directClassIds  = $teacher->teachingClasses->pluck('id');
+        $relatedClassIds = Session::where('teacher_id', $teacher->id)
+            ->whereNotNull('class_id')->distinct()->pluck('class_id')
+            ->merge($allSubjects->pluck('class_id')->filter())
+            ->unique()
+            ->diff($directClassIds)
+            ->values();
+        $relatedClasses = ProgramClass::with(['program:id,name_ar,type', 'teacher:id,name'])
+            ->whereIn('id', $relatedClassIds)->get();
+        $pastClassIds = $pastClassIds->merge(ProgramClass::pastIds($relatedClassIds));
+
+        // Per-class figures for every class shown on the page, in two queries.
+        $allClassIds = $directClassIds->merge($relatedClassIds);
+        $now = now();
+        $teacherSessionsByClass = Session::where('teacher_id', $teacher->id)
+            ->whereIn('class_id', $allClassIds)
+            ->selectRaw('class_id, COUNT(*) AS total,
+                SUM(CASE WHEN scheduled_at <= ? THEN 1 ELSE 0 END) AS done,
+                MIN(CASE WHEN scheduled_at > ? THEN scheduled_at END) AS next_at', [$now, $now])
+            ->groupBy('class_id')->get()->keyBy('class_id');
+        $allSessionsByClass = Session::whereIn('class_id', $allClassIds)
+            ->selectRaw('class_id, COUNT(*) AS total')
+            ->groupBy('class_id')->pluck('total', 'class_id');
+
+        $decorate = function ($class, bool $direct) use ($pastClassIds, $teacherSessionsByClass, $allSessionsByClass, $allSubjects) {
+            $mine = $teacherSessionsByClass->get($class->id);
+            $class->is_past          = $pastClassIds->contains($class->id);
+            $class->is_direct        = $direct;
+            $class->my_sessions      = (int) ($mine->total ?? 0);
+            $class->my_done          = (int) ($mine->done ?? 0);
+            $class->my_next_at       = $mine?->next_at ? \Carbon\Carbon::parse($mine->next_at) : null;
+            $class->all_sessions     = (int) ($allSessionsByClass[$class->id] ?? 0);
+            $class->my_subjects      = $allSubjects->where('class_id', $class->id)->values();
+            $class->students_total   = $class->students_count;
+            $class->progress         = $class->my_sessions ? (int) round($class->my_done / $class->my_sessions * 100) : 0;
+            return $class;
+        };
+
+        $relatedClasses = $relatedClasses
+            ->map(fn ($c) => $decorate($c, false))
+            ->sortBy(fn ($c) => ($c->is_past ? '1' : '0') . $c->name)
+            ->values();
+        $classes->each(fn ($c) => $decorate($c, true));
+
+        $upcomingSessions = Session::with(['subject:id,name_ar', 'programClass:id,name'])
+            ->where('teacher_id', $teacher->id)
+            ->where('scheduled_at', '>', now())
+            ->orderBy('scheduled_at')
+            ->limit(5)
+            ->get(['id', 'title_ar', 'title_en', 'subject_id', 'class_id', 'scheduled_at', 'duration_minutes', 'type']);
+
         $programsByType = Program::with([
             'terms.subjects' => function ($q) {
                 $q->select('subjects.id', 'subjects.name_ar', 'subjects.name_en', 'subjects.code')
@@ -177,7 +230,7 @@ class TeacherController extends Controller
             ->groupBy(fn ($class) => $class->program->name_ar ?? 'بدون برنامج');
 
         return view('admin.teachers.show', compact(
-            'teacher', 'subjects', 'courses', 'classes', 'sessionStats',
+            'teacher', 'subjects', 'courses', 'classes', 'relatedClasses', 'upcomingSessions', 'sessionStats',
             'assignedSubjectIds', 'assignedProgramIds', 'assignedClassIds',
             'programsByType', 'orphanSubjects', 'allPrograms', 'allClasses'
         ));

@@ -34,6 +34,17 @@
     $currentClasses = $classes->where('is_past', false)->count();
     $pastClasses    = $classes->where('is_past', true)->count();
 
+    // Classes showcase: owned classes first, then ones he only teaches in.
+    $showcaseClasses = $classes->concat($relatedClasses);
+    $classFilters = [
+        'all'     => ['الكل',          $showcaseClasses->count()],
+        'direct'  => ['مدرب المجموعة', $classes->count()],
+        'related' => ['يدرّس فيها',    $relatedClasses->count()],
+        'current' => ['حالية',         $showcaseClasses->where('is_past', false)->count()],
+        'past'    => ['سابقة',         $showcaseClasses->where('is_past', true)->count()],
+    ];
+    $reachStudents = $showcaseClasses->where('is_past', false)->sum('students_total');
+
     // Heroicons outline paths.
     $icons = [
         'book'     => 'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253',
@@ -55,7 +66,7 @@
         ['label' => 'المجموعات',       'value' => $classes->count(),         'tab' => 'classes',  'icon' => 'users',
          'card' => 'border-amber-200 bg-gradient-to-br from-amber-50 to-white dark:border-amber-900 dark:from-amber-900/30 dark:to-gray-800',
          'chip' => 'bg-amber-500 text-white', 'num' => 'text-amber-700 dark:text-amber-300',
-         'hint' => $currentClasses . ' حالية · ' . $pastClasses . ' سابقة'],
+         'hint' => $currentClasses . ' حالية · ' . $pastClasses . ' سابقة' . ($relatedClasses->count() ? ' · +' . $relatedClasses->count() . ' مرتبطة' : '')],
         ['label' => 'الجلسات القادمة', 'value' => $sessionStats['upcoming'], 'tab' => null,       'icon' => 'calendar',
          'card' => 'border-violet-200 bg-gradient-to-br from-violet-50 to-white dark:border-violet-900 dark:from-violet-900/30 dark:to-gray-800',
          'chip' => 'bg-violet-500 text-white', 'num' => 'text-violet-700 dark:text-violet-300',
@@ -65,7 +76,7 @@
 @endphp
 
 @section('content')
-<div x-data="teacherProfile()" x-init="init()" class="mx-auto max-w-7xl">
+<div x-data="teacherProfile({{ Js::from($showcaseClasses->map(fn ($c) => ['direct' => (bool) $c->is_direct, 'past' => (bool) $c->is_past])->values()) }})" x-init="init()" class="mx-auto max-w-7xl">
 
     {{-- Breadcrumb --}}
     <nav class="mb-4 flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400" aria-label="مسار التنقل">
@@ -179,7 +190,7 @@
                 $kpiClass = 'rounded-2xl border p-5 text-right shadow-sm ' . $kpi['card'];
             @endphp
             @if($kpi['tab'])
-            <button type="button" @click="openTab('{{ $kpi['tab'] }}')" class="{{ $kpiClass }} transition hover:-translate-y-0.5 hover:shadow-md">{!! $kpiBody !!}</button>
+            <button type="button" @click="{{ $kpi['tab'] === 'classes' ? "scrollToId('teacher-classes')" : "openTab('" . $kpi['tab'] . "')" }}" class="{{ $kpiClass }} transition hover:-translate-y-0.5 hover:shadow-md">{!! $kpiBody !!}</button>
             @else
             <div class="{{ $kpiClass }}">
                 {!! $kpiBody !!}
@@ -194,6 +205,56 @@
             </div>
             @endif
         @endforeach
+    </section>
+
+    {{-- ─── Classes showcase ───────────────────────────────────── --}}
+    <section id="teacher-classes" class="mb-6 scroll-mt-6 rounded-2xl border border-gray-200 bg-gradient-to-b from-amber-50/60 to-white p-6 shadow-sm dark:border-gray-700 dark:from-amber-900/10 dark:to-gray-800">
+        <header class="mb-5 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+                <h2 class="flex items-center gap-2 text-lg font-bold text-gray-900 dark:text-white">
+                    <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 text-white shadow-sm" aria-hidden="true">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $icons['users'] }}"/></svg>
+                    </span>
+                    مجموعات المدرب
+                </h2>
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                    المجموعات التي يتولاها والمجموعات التي يدرّس فيها جلسات أو مقررات
+                    @if($reachStudents) · <span class="font-semibold text-amber-700 dark:text-amber-300">{{ $reachStudents }} طالب في المجموعات الحالية</span>@endif
+                </p>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+                @if($showcaseClasses->count())
+                <div class="flex flex-wrap gap-1 rounded-xl bg-white p-1 shadow-sm ring-1 ring-gray-200 dark:bg-gray-900 dark:ring-gray-700" role="group" aria-label="تصفية المجموعات">
+                    @foreach($classFilters as $key => [$label, $count])
+                    <button type="button" @click="classFilter = '{{ $key }}'" :aria-pressed="classFilter === '{{ $key }}'"
+                            :class="classFilter === '{{ $key }}' ? 'bg-amber-500 text-white shadow' : 'text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800'"
+                            class="rounded-lg px-3 py-1.5 text-xs font-semibold transition">
+                        {{ $label }} <span class="opacity-75">{{ $count }}</span>
+                    </button>
+                    @endforeach
+                </div>
+                @endif
+                <button type="button" @click="openTab('classes'); editing = 'classes'"
+                        class="rounded-lg bg-amber-500 px-3 py-2 text-xs font-semibold text-white shadow-sm hover:bg-amber-600">تعيين مجموعات</button>
+            </div>
+        </header>
+
+        @if($showcaseClasses->count())
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            @foreach($showcaseClasses as $class)
+                @include('admin.teachers.partials.class-card', ['class' => $class])
+            @endforeach
+        </div>
+        <p x-show="!hasVisibleClasses()" x-cloak class="py-10 text-center text-sm text-gray-400">لا توجد مجموعات ضمن هذا التصنيف</p>
+        @else
+        <div class="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-amber-200 py-12 text-center dark:border-amber-900/50">
+            <span class="mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-100 text-amber-600 dark:bg-amber-900/40 dark:text-amber-300" aria-hidden="true">
+                <svg class="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $icons['users'] }}"/></svg>
+            </span>
+            <p class="font-semibold text-gray-700 dark:text-gray-200">لا توجد مجموعات مرتبطة بهذا المدرب</p>
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">عيّن مجموعة له أو أسند له جلسات داخل مجموعة لتظهر هنا</p>
+        </div>
+        @endif
     </section>
 
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -358,36 +419,21 @@
                     </div>
                     @endif
                     @forelse($classes as $class)
-                        @php
-                            $past = $class->is_past;
-                            $period = collect([$class->start_date?->format('Y-m-d'), $class->end_date?->format('Y-m-d')])->filter()->implode(' → ');
-                        @endphp
                         <a href="{{ route('admin.classes.show', $class) }}"
-                           class="group mb-2 flex items-center justify-between gap-3 rounded-xl border border-r-4 px-4 py-3 transition
-                                  {{ $past
-                                      ? 'border-red-100 border-r-red-500 bg-red-50/50 hover:bg-red-50 dark:border-red-900/50 dark:bg-red-900/10'
-                                      : 'border-emerald-100 border-r-emerald-500 bg-emerald-50/50 hover:bg-emerald-50 dark:border-emerald-900/50 dark:bg-emerald-900/10' }}">
-                            <div class="flex min-w-0 items-center gap-3">
-                                <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg {{ $past ? 'bg-red-100 text-red-600 dark:bg-red-900/40 dark:text-red-300' : 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-300' }}" aria-hidden="true">
-                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $icons['users'] }}"/></svg>
-                                </span>
-                                <div class="min-w-0">
-                                    <p class="truncate font-medium {{ $past ? 'text-red-900 dark:text-red-200' : 'text-gray-900 dark:text-white' }}">{{ $class->name }}</p>
-                                    <p class="mt-0.5 truncate text-xs text-gray-500 dark:text-gray-400">
-                                        {{ $class->program->name_ar ?? 'بدون برنامج' }}@if($period) · <span dir="ltr">{{ $period }}</span>@endif
-                                    </p>
-                                </div>
-                            </div>
-                            <div class="flex shrink-0 items-center gap-2">
-                                <span class="rounded-full px-2.5 py-0.5 text-xs font-semibold {{ $past ? 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300' : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' }}">
-                                    {{ $past ? 'سابقة' : 'حالية' }}
-                                </span>
-                                <svg class="h-4 w-4 rotate-180 {{ $past ? 'text-red-300 group-hover:text-red-500' : 'text-emerald-300 group-hover:text-emerald-600' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                            </div>
+                           class="mb-2 flex items-center justify-between gap-3 rounded-xl border border-gray-100 px-4 py-2.5 text-sm transition hover:bg-amber-50/60 dark:border-gray-700 dark:hover:bg-amber-900/10">
+                            <span class="flex min-w-0 items-center gap-2">
+                                <span class="h-2 w-2 shrink-0 rounded-full {{ $class->is_past ? 'bg-red-500' : 'bg-emerald-500' }}" aria-hidden="true"></span>
+                                <span class="truncate font-medium text-gray-900 dark:text-white">{{ $class->name }}</span>
+                                <span class="truncate text-xs text-gray-500 dark:text-gray-400">· {{ $class->program->name_ar ?? 'بدون برنامج' }}</span>
+                            </span>
+                            <span class="shrink-0 text-xs text-gray-500 dark:text-gray-400">{{ $class->students_total }} طالب</span>
                         </a>
                     @empty
                         @include('admin.teachers.partials.empty-assignment', ['text' => 'لا توجد مجموعات معيّنة لهذا المدرب', 'action' => 'classes', 'cta' => 'تعيين مجموعات'])
                     @endforelse
+                    @if($classes->count())
+                    <button type="button" @click="scrollToId('teacher-classes')" class="mt-2 text-xs font-semibold text-amber-700 hover:underline dark:text-amber-300">عرض بطاقات المجموعات بالتفصيل ↑</button>
+                    @endif
                 </div>
 
                 <form x-show="editing === 'classes'" x-cloak method="POST" action="{{ route('admin.teachers.assign-classes', $teacher) }}"
@@ -422,6 +468,37 @@
 
         {{-- ─── Sidebar ────────────────────────────────────────── --}}
         <aside class="space-y-6">
+            {{-- Upcoming sessions --}}
+            <section class="rounded-2xl border border-violet-200 bg-gradient-to-b from-violet-50 to-white p-6 shadow-sm dark:border-violet-900 dark:from-violet-900/20 dark:to-gray-800">
+                <h2 class="mb-4 flex items-center gap-2 text-base font-bold text-gray-900 dark:text-white">
+                    <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-500 text-white" aria-hidden="true">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $icons['calendar'] }}"/></svg>
+                    </span>
+                    الجلسات القادمة
+                </h2>
+                @forelse($upcomingSessions as $s)
+                    @php $at = \Carbon\Carbon::parse($s->scheduled_at); @endphp
+                    <div class="relative flex gap-3 pb-4 last:pb-0">
+                        @unless($loop->last)<span class="absolute right-[1.35rem] top-12 h-[calc(100%-2.5rem)] w-px bg-violet-200 dark:bg-violet-800" aria-hidden="true"></span>@endunless
+                        <div class="flex h-11 w-11 shrink-0 flex-col items-center justify-center rounded-xl bg-white text-violet-700 shadow-sm ring-1 ring-violet-200 dark:bg-gray-900 dark:text-violet-300 dark:ring-violet-800">
+                            <span class="text-sm font-bold leading-none">{{ $at->format('d') }}</span>
+                            <span class="mt-0.5 text-[10px] leading-none">{{ $at->translatedFormat('M') }}</span>
+                        </div>
+                        <div class="min-w-0 pt-0.5">
+                            <p class="truncate text-sm font-semibold text-gray-900 dark:text-white">{{ $s->title_ar ?: ($s->subject->name_ar ?? 'جلسة') }}</p>
+                            <p class="mt-0.5 truncate text-xs text-gray-500 dark:text-gray-400">
+                                <span dir="ltr">{{ $at->format('H:i') }}</span>
+                                @if($s->duration_minutes) · {{ $s->duration_minutes }} د@endif
+                                @if($s->programClass) · {{ $s->programClass->name }}@endif
+                            </p>
+                            <p class="mt-0.5 text-[11px] font-medium text-violet-600 dark:text-violet-400">{{ $at->diffForHumans() }}</p>
+                        </div>
+                    </div>
+                @empty
+                    <p class="rounded-xl bg-white/70 py-6 text-center text-sm text-gray-400 dark:bg-gray-900/40">لا توجد جلسات مجدولة</p>
+                @endforelse
+            </section>
+
             <section class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
                 <h2 class="mb-4 flex items-center gap-2 text-base font-bold text-gray-900 dark:text-white">
                     <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-100 text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-300" aria-hidden="true">
@@ -516,10 +593,28 @@
 <script>
 // Page state: active tab + which tab is in edit mode. The tab survives the
 // redirect after saving so the admin lands back where they were.
-function teacherProfile() {
+function teacherProfile(classMeta) {
     return {
         tab: 'subjects',
         editing: null,
+        classFilter: 'all',
+        classMeta: classMeta || [],
+
+        classVisible(c) {
+            switch (this.classFilter) {
+                case 'direct':  return c.direct;
+                case 'related': return !c.direct;
+                case 'current': return !c.past;
+                case 'past':    return c.past;
+                default:        return true;
+            }
+        },
+
+        hasVisibleClasses() { return this.classMeta.some(c => this.classVisible(c)); },
+
+        scrollToId(id) {
+            document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        },
 
         init() {
             try {
