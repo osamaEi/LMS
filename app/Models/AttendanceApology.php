@@ -41,12 +41,11 @@ class AttendanceApology extends Model
     }
 
     /**
-     * Excuses still in an open period. Once the session's quarter (or course)
-     * ends or is deactivated, its excuses drop out of every list.
+     * Excuses are open at any time, so no excuse is hidden from the lists
+     * once its quarter (or course) ends. Kept as a no-op for existing callers.
      */
     public function scopeInOpenPeriod($query): void
     {
-        $query->whereDoesntHave('session', fn ($s) => $s->withEndedPeriod());
     }
 
     /**

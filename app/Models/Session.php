@@ -152,9 +152,12 @@ class Session extends Model
                     ->orWhereDate('end_date', '<', today()->toDateString())))));
     }
 
+    /**
+     * Excuses are open at any time, even after the quarter/course ends.
+     */
     public function apologiesClosed(): bool
     {
-        return static::whereKey($this->id)->withEndedPeriod()->exists();
+        return false;
     }
 
     public function isLiveZoom(): bool
