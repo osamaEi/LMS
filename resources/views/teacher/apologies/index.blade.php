@@ -56,7 +56,10 @@
             @foreach($classes as $class)
                 <a href="{{ route('teacher.apologies.index', ['status' => $status, 'class_id' => $class->id]) }}"
                    style="padding:7px 14px;border-radius:10px;text-decoration:none;font-size:12px;font-weight:700;
-                          {{ $selectedClassId === $class->id ? 'background:#0071AA;color:#fff;' : 'background:#f1f5f9;color:#475569;' }}">
+                          {{ $selectedClassId === $class->id
+                                ? ($class->is_past ? 'background:#dc2626;color:#fff;' : 'background:#0071AA;color:#fff;')
+                                : ($class->is_past ? 'background:#fef2f2;color:#dc2626;border:1px solid #fecaca;' : 'background:#f1f5f9;color:#475569;') }}"
+                   @if($class->is_past) title="فصل سابق" @endif>
                     {{ $class->name }}
                 </a>
             @endforeach

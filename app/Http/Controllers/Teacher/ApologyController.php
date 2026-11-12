@@ -25,8 +25,13 @@ class ApologyController extends Controller
         $teacherSessions = Session::where('teacher_id', auth()->id())->get(['id', 'class_id']);
 
         // Classes the teacher actually has sessions for — the filter options.
-        $classes = ProgramClass::whereIn('id', $teacherSessions->pluck('class_id')->filter()->unique())
-            ->get()->sortBy('name')->keyBy('id');
+        // Current classes first, then past ones (shown in red).
+        $classIds = $teacherSessions->pluck('class_id')->filter()->unique();
+        $pastClassIds = ProgramClass::pastIds($classIds);
+        $classes = ProgramClass::whereIn('id', $classIds)->get()
+            ->each(fn ($c) => $c->is_past = $pastClassIds->contains($c->id))
+            ->sortBy(fn ($c) => ($c->is_past ? '1' : '0') . $c->name)
+            ->keyBy('id');
 
         // Only honour a class the teacher really teaches.
         $selectedClassId = $validated['class_id'] ?? null;
