@@ -1,2 +1,11 @@
 User-agent: *
-Disallow:
+Disallow: /admin
+Disallow: /teacher
+Disallow: /student
+Disallow: /profile
+Disallow: /dev
+Disallow: /diag
+Disallow: /oauth
+Disallow: /lang
+
+Sitemap: https://alertiqa.edu.sa/sitemap.xml

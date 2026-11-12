@@ -104,4 +104,8 @@ return [
         'webhook_secret' => env('FUTUREX_WEBHOOK_SECRET'),
     ],
 
+    'google' => [
+        'site_verification' => env('GOOGLE_SITE_VERIFICATION'),
+    ],
+
 ];

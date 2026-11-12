@@ -242,6 +242,8 @@ Route::post('/contact', [\App\Http\Controllers\Front\ContactController::class, '
 
 Route::get('/page/{slug}', [\App\Http\Controllers\Front\PageController::class, 'show'])->name('page.show');
 
+Route::get('/sitemap.xml', [\App\Http\Controllers\Front\SitemapController::class, 'index'])->name('sitemap');
+
 // NELC Public Pages (Policies, Guides, Open Content)
 Route::prefix('nelc')->name('nelc.')->group(function () {
     // Policy Pages (Public - no auth required per NELC standards)

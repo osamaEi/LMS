@@ -4,6 +4,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('title', __('Al-Ertiqaa High Institute for Training'))</title>
+    @if(config('services.google.site_verification'))
+    <meta name="google-site-verification" content="{{ config('services.google.site_verification') }}" />
+    @endif
+    <link rel="canonical" href="{{ url()->current() }}" />
 
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="{{ asset('images/logo.svg') }}" />
